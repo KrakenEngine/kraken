@@ -99,12 +99,10 @@ void KRModel::loadPack(std::string path, KRMaterialManager *pMaterialManager) {
                 m_pBuffers = new GLuint[m_cBuffers];
                 glGenBuffers(m_cBuffers, m_pBuffers);
                 for(GLsizei iBuffer=0; iBuffer < m_cBuffers; iBuffer++) {
-//                    if(iBuffer < 30) {
-                        GLsizei cVertexes = iBuffer < m_cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-                        glBindBuffer(GL_ARRAY_BUFFER, m_pBuffers[iBuffer]);
-                        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * cVertexes, m_pVertexData + iBuffer * MAX_VBO_SIZE, GL_STATIC_DRAW);
-                        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                    }
+                    GLsizei cVertexes = iBuffer < m_cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
+                    glBindBuffer(GL_ARRAY_BUFFER, m_pBuffers[iBuffer]);
+                    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * cVertexes, m_pVertexData + iBuffer * MAX_VBO_SIZE, GL_STATIC_DRAW);
+                    glBindBuffer(GL_ARRAY_BUFFER, 0);
                     
                 }
             }
@@ -438,8 +436,6 @@ void KRModel::loadWavefront(std::string path, KRMaterialManager *pMaterialManage
     
     
     // Calculate surface normals and tangents
-    // http://www.terathon.com/code/tangent.html
-    // http://www.fabiensanglard.net/bumpMapping/index.php
     
     for(std::vector<Material *>::iterator itr = m_materials.begin(); itr != m_materials.end(); itr++) {
         VertexData *pStart = m_pVertexData + (*itr)->start_vertex;

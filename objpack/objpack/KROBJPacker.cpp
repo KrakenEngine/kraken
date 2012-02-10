@@ -371,8 +371,6 @@ void KROBJPacker::pack(const char *szPath) {
                 
                 // Calculate surface normals and tangents
                 cout << "  Pass 3 - Calculate surface normals and tangents\n";
-                // http://www.terathon.com/code/tangent.html
-                // http://www.fabiensanglard.net/bumpMapping/index.php
                 
                 for(std::vector<pack_material *>::iterator itr = m_materials.begin(); itr != m_materials.end(); itr++) {
                     VertexData *pStart = m_pVertexData + (*itr)->start_vertex;
@@ -415,7 +413,7 @@ void KROBJPacker::pack(const char *szPath) {
                             pVertex[2].normal.z = normal.z;
                         }
                         
-                        // -- Calculate tangent --
+                        // -- Calculate tangent vector for normal mapping --
                         TexCoord st1; // = pVertex[2].texcoord;
                         TexCoord st2; // = pVertex[1].texcoord;
                         st1.u = pVertex[1].texcoord.u - pVertex[0].texcoord.u;

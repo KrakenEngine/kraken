@@ -213,22 +213,37 @@ double const PI = 3.141592653589793f;
     lightDirection.normalize();
     
     [self allocateShadowBuffers];
-    for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
-        if(!shadowValid[iShadow] || true) {
+    int iOffset=m_iFrame % m_cShadowBuffers;
+    for(int iShadow2=iOffset; iShadow2 < m_cShadowBuffers + iOffset; iShadow2++) {
+        int iShadow = iShadow2 % m_cShadowBuffers;
+        
+        
+        GLfloat shadowMinDepths[3][3] = {{0.0, 0.0, 0.0},{0.0, 0.0, 0.0},{0.0, 0.05, 0.3}};
+        GLfloat shadowMaxDepths[3][3] = {{0.0, 0.0, 1.0},{0.1, 0.0, 0.0},{0.1, 0.3, 1.0}};
+        
+        
+        KRMat4 newShadowMVP;
+        if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
+            KRBoundingVolume ext = KRBoundingVolume(pScene->getExtents());
+            
+            newShadowMVP = ext.calcShadowProj(pScene, sun_yaw, sun_pitch);
+        } else {
+            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
+            newShadowMVP = frustrumSliceVolume.calcShadowProj(pScene, sun_yaw, sun_pitch);
+        }
+        
+        if(!(shadowmvpmatrix[iShadow] == newShadowMVP)) {
+            shadowValid[iShadow] = false;
+        }
+        
+        if(!shadowValid[iShadow]) {
             shadowValid[iShadow] = true;
             
-            GLfloat shadowMinDepths[3][3] = {{0.0, 0.0, 0.0},{0.0, 0.0, 0.0},{0.0, 0.05, 0.3}};
-            GLfloat shadowMaxDepths[3][3] = {{0.0, 0.0, 1.0},{0.1, 0.0, 0.0},{0.1, 0.3, 1.0}};
-            
-            
-            if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
-                shadowmvpmatrix[iShadow] = pScene->getExtents().calcShadowProj(pScene, sun_yaw, sun_pitch);
-            } else {
-                KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-                shadowmvpmatrix[iShadow] = frustrumSliceVolume.calcShadowProj(pScene, sun_yaw, sun_pitch);
-            }
+            shadowmvpmatrix[iShadow] = newShadowMVP;
             
             [self renderShadowBufferNumber: iShadow ForScene: pScene];
+            
+            break;
         }
     }
     

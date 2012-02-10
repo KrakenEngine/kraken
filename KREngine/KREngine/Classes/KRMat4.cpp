@@ -61,7 +61,6 @@ GLfloat *KRMat4::getPointer() {
 
 // Copy constructor
 KRMat4::KRMat4(const KRMat4 &m) {
-    
     memcpy(m_mat, m.m_mat, sizeof(GLfloat) * 16);
 }
 
@@ -70,6 +69,11 @@ KRMat4& KRMat4::operator=(const KRMat4 &m) {
         memcpy(m_mat, m.m_mat, sizeof(GLfloat) * 16);
     }
     return *this;
+}
+
+// Overload comparison operator
+bool KRMat4::operator==(const KRMat4 &m) {
+    return memcmp(m_mat, m.m_mat, sizeof(GLfloat) * 16) == 0;
 }
 
 // Overload compound multiply operator
@@ -93,15 +97,7 @@ KRMat4& KRMat4::operator*=(const KRMat4 &m) {
     return *this;
 }
 
-/*
 // Overload multiply operator
-KRMat4& KRMat4::operator*(const KRMat4 &m, const KRMat4 &m) {
-    KRMat4 result = *this;
-    result *= m;
-    return result;
-}
- */
-
 KRMat4 KRMat4::operator*(const KRMat4 &m) {
     KRMat4 ret = *this;
     ret *= m;
@@ -137,7 +133,6 @@ void KRMat4::translate(GLfloat x, GLfloat y, GLfloat z) {
 
 /* Rotate a matrix by an angle on a X, Y, or Z axis */
 void KRMat4::rotate(GLfloat angle, AXIS axis) {
-    // const GLfloat d2r = 0.0174532925199; /* PI / 180 */
     const int cos1[3] = { 5, 0, 0 };
     const int cos2[3] = { 10, 10, 5 };
     const int sin1[3] = { 6, 2, 1 };
@@ -153,6 +148,7 @@ void KRMat4::rotate(GLfloat angle, AXIS axis) {
     *this *= newMatrix;
 }
 
+/* Scale matrix by separate x, y, and z amounts */
 void KRMat4::scale(GLfloat x, GLfloat y, GLfloat z) {
     KRMat4 newMatrix; // Create new identity matrix
     
@@ -163,12 +159,13 @@ void KRMat4::scale(GLfloat x, GLfloat y, GLfloat z) {
     *this *= newMatrix;
 }
 
+/* Scale all dimensions equally */
 void KRMat4::scale(GLfloat s) {
     scale(s,s,s);
 }
 
+ // Initialize with a bias matrix
 void KRMat4::bias() {
-    // Initialize with a bias matrix
     static const GLfloat BIAS_MATRIX[] = {
         0.5, 0.0, 0.0, 0.0, 
         0.0, 0.5, 0.0, 0.0,
@@ -182,15 +179,6 @@ void KRMat4::bias() {
 /* Generate an orthographic view matrix */
 void KRMat4::ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLfloat nearz, GLfloat farz) {
     memset(m_mat, 0, sizeof(GLfloat) * 16);
-    /*
-     m_mat[0] = 2.0f / (right - left);
-     m_mat[3] = -(right + left) / (right - left);
-     m_mat[5] = 2.0f / (top - bottom);
-     m_mat[7] = -(top + bottom) / (top - bottom);
-     m_mat[10] = -2.0f / (farz - nearz);
-     m_mat[11] = -(farz + nearz) / (farz - nearz);
-     m_mat[15] = 1.0f;
-     */
     m_mat[0] = 2.0f / (right - left);
     m_mat[5] = 2.0f / (bottom - top);
     m_mat[10] = -1.0f / (farz - nearz);
@@ -198,30 +186,8 @@ void KRMat4::ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLf
     m_mat[15] = 1.0f;
 }
 
+/* Replace matrix with its inverse */
 bool KRMat4::invert() {
-    /*
-    GLfloat inverseTranslation[16];
-    GLfloat inverseRotation[16];
-
-	
-	
-	inverseTranslation[0] = 1 ;	inverseTranslation[4] = 0 ;	inverseTranslation[8] = 0 ;		inverseTranslation[12] = -m_mat[12] ;
-	inverseTranslation[1] = 0 ;	inverseTranslation[5] = 1 ;	inverseTranslation[9] = 0 ;		inverseTranslation[13] = -m_mat[13] ;
-	inverseTranslation[2] = 0 ;	inverseTranslation[6] = 0 ;	inverseTranslation[10] = 1 ;	inverseTranslation[14] = -m_mat[14] ;
-	inverseTranslation[3] = 0 ;	inverseTranslation[7] = 0 ;	inverseTranslation[11] = 0 ;	inverseTranslation[15] = 1 ;
-	
-	inverseRotation[0] = m_mat[0] ;		inverseRotation[4] = m_mat[1] ;		inverseRotation[8] = m_mat[2] ;		inverseRotation[12] = 0 ;
-	inverseRotation[1] = m_mat[4] ;		inverseRotation[5] = m_mat[5] ;		inverseRotation[9] = m_mat[6] ;		inverseRotation[13] = 0 ;
-	inverseRotation[2] = m_mat[8] ;		inverseRotation[6] = m_mat[9] ;		inverseRotation[10] = m_mat[10] ;		inverseRotation[14] = 0 ;
-	inverseRotation[3] = 0 ;				inverseRotation[7] = 0 ;				inverseRotation[11] = 0 ;				inverseRotation[15] = 1 ;
-	
-    KRMat4 inverseRotMat(inverseRotation);
-    KRMat4 inverseTransMat(inverseTranslation);
-    
-    KRMat4 m = inverseRotMat * inverseTransMat;
-    memcpy(m_mat, m.m_mat, sizeof(GLfloat) * 16);
-     */
-    
     // Based on gluInvertMatrix implementation
     
     double inv[16], det;
@@ -272,12 +238,10 @@ bool KRMat4::invert() {
         m_mat[i] = inv[i] * det;
     }
     
-    
-    
     return true;
 }
 
-
+/* Dot Product */
 Vector3 KRMat4::dot(const Vector3 &v) const {
     return Vector3(
         v.x * (float)m_mat[0*4 + 0] + v.y * (float)m_mat[1*4 + 0] + v.z * (float)m_mat[2*4 + 0] + (float)m_mat[3*4 + 0],

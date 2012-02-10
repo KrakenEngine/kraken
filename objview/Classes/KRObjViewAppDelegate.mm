@@ -44,6 +44,8 @@
 	[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     [self.window addSubview:viewController.view];
     [self.window makeKeyAndVisible];
+    
+    [TestFlight takeOff:@"bee30f66de8a537484b210b6ac8fa118_NDA5MTIyMDExLTExLTE0IDE1OjUxOjQwLjA0MzM4MA"];
 
     return YES;
 }

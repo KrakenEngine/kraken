@@ -166,17 +166,7 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPositio
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4);
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5);
     
-    /*
 #if defined(DEBUG)
-    if (![self validateProgram:m_iProgram])
-    {
-        NSLog(@"Failed to validate program: %d", m_shadowShaderProgram);
-        return;
-    }
-#endif
-     */
-    
-    
     GLint logLength, status;
     
     glValidateProgram(m_iProgram);
@@ -188,15 +178,8 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPositio
         fprintf(stderr, "Program validate log:\n%s", log);
         free(log);
     }
-    
-    /*
-    glGetProgramiv(m_iProgram, GL_VALIDATE_STATUS, &status);
-    if (status == 0) {
-        return false;
-    } else {
-        return true;
-    }
-     */
+#endif
+
 }
 
 GLuint KRShader::getProgram() {
