@@ -263,7 +263,7 @@ double const PI = 3.141592653589793f;
 
 - (void)renderShadowBufferNumber: (int)iShadow ForScene: (KRScene *)pScene;
 {
-    glViewport(0, 0, KRENGINE_SHADOW_MAP_WIDTH-1, KRENGINE_SHADOW_MAP_HEIGHT-1);
+    
     
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]);
     glClearDepthf(1.0f);

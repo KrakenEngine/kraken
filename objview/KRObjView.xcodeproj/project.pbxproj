@@ -19,6 +19,9 @@
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* KRObjViewViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* KRObjViewViewController.mm */; };
+		E40611D614E4E98B0065996A /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E40611D214E4E98B0065996A /* libTestFlight.a */; };
+		E40611D714E4E98B0065996A /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = E40611D314E4E98B0065996A /* README.txt */; };
+		E40611D814E4E98B0065996A /* release_notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = E40611D414E4E98B0065996A /* release_notes.txt */; };
 		E43A7A6E13CA2BA2000A565E /* libKREngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E43A7A6D13CA2BA2000A565E /* libKREngine.a */; };
 		E46FED2D13C9A49F009F5814 /* ShadowShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2113C9A488009F5814 /* ShadowShader.vsh */; };
 		E46FED2E13C9A49F009F5814 /* ShadowShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2213C9A488009F5814 /* ShadowShader.fsh */; };
@@ -27,9 +30,6 @@
 		E46FED3113C9A49F009F5814 /* ObjectShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2513C9A488009F5814 /* ObjectShader.vsh */; };
 		E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2613C9A488009F5814 /* PostShader.vsh */; };
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
-		E4C5FCEC1471B51A00821FB1 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4C5FCE81471B51A00821FB1 /* libTestFlight.a */; };
-		E4C5FCED1471B51A00821FB1 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = E4C5FCE91471B51A00821FB1 /* README.txt */; };
-		E4C5FCEE1471B51A00821FB1 /* release_notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = E4C5FCEA1471B51A00821FB1 /* release_notes.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +51,10 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* KRObjView_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRObjView_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* KRObjView-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "KRObjView-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		E40611D214E4E98B0065996A /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
+		E40611D314E4E98B0065996A /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		E40611D414E4E98B0065996A /* release_notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.txt; sourceTree = "<group>"; };
+		E40611D514E4E98B0065996A /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		E43A7A6D13CA2BA2000A565E /* libKREngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKREngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E46FED2113C9A488009F5814 /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.vsh; path = ../KREngine/KREngine/Shaders/ShadowShader.vsh; sourceTree = "<group>"; };
 		E46FED2213C9A488009F5814 /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = ../KREngine/KREngine/Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
@@ -59,10 +63,6 @@
 		E46FED2513C9A488009F5814 /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ObjectShader.vsh; path = ../KREngine/KREngine/Shaders/ObjectShader.vsh; sourceTree = "<group>"; };
 		E46FED2613C9A488009F5814 /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = ../KREngine/KREngine/Shaders/PostShader.vsh; sourceTree = "<group>"; };
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
-		E4C5FCE81471B51A00821FB1 /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
-		E4C5FCE91471B51A00821FB1 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		E4C5FCEA1471B51A00821FB1 /* release_notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.txt; sourceTree = "<group>"; };
-		E4C5FCEB1471B51A00821FB1 /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +78,7 @@
 				1063FBAE136BA13F00EE555B /* CoreVideo.framework in Frameworks */,
 				1063FBB0136BA13F00EE555B /* OpenGLES.framework in Frameworks */,
 				1063FBB2136BA13F00EE555B /* QuartzCore.framework in Frameworks */,
-				E4C5FCEC1471B51A00821FB1 /* libTestFlight.a in Frameworks */,
+				E40611D614E4E98B0065996A /* libTestFlight.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,7 +109,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				E4C5FCE71471B51A00821FB1 /* TestFlightSDK0.8 */,
+				E40611D114E4E98B0065996A /* testflight */,
 				E43A7A6D13CA2BA2000A565E /* libKREngine.a */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -162,6 +162,17 @@
 			name = Assets;
 			sourceTree = "<group>";
 		};
+		E40611D114E4E98B0065996A /* testflight */ = {
+			isa = PBXGroup;
+			children = (
+				E40611D214E4E98B0065996A /* libTestFlight.a */,
+				E40611D314E4E98B0065996A /* README.txt */,
+				E40611D414E4E98B0065996A /* release_notes.txt */,
+				E40611D514E4E98B0065996A /* TestFlight.h */,
+			);
+			path = testflight;
+			sourceTree = "<group>";
+		};
 		E46FED2013C9A472009F5814 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,17 +192,6 @@
 				E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */,
 			);
 			name = iPad;
-			sourceTree = "<group>";
-		};
-		E4C5FCE71471B51A00821FB1 /* TestFlightSDK0.8 */ = {
-			isa = PBXGroup;
-			children = (
-				E4C5FCE81471B51A00821FB1 /* libTestFlight.a */,
-				E4C5FCE91471B51A00821FB1 /* README.txt */,
-				E4C5FCEA1471B51A00821FB1 /* release_notes.txt */,
-				E4C5FCEB1471B51A00821FB1 /* TestFlight.h */,
-			);
-			path = TestFlightSDK0.8;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -252,8 +252,8 @@
 				E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */,
-				E4C5FCED1471B51A00821FB1 /* README.txt in Resources */,
-				E4C5FCEE1471B51A00821FB1 /* release_notes.txt in Resources */,
+				E40611D714E4E98B0065996A /* README.txt in Resources */,
+				E40611D814E4E98B0065996A /* release_notes.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,6 +290,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/TestFlightSDK0.8\"",
+					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -311,6 +312,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/TestFlightSDK0.8\"",
+					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -374,6 +376,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/TestFlightSDK0.8\"",
+					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -10,6 +10,8 @@
 		E404C89D136B8E2F00B6C99B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404C89C136B8E2F00B6C99B /* main.cpp */; };
 		E404C8A6136B901400B6C99B /* KROBJPacker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404C8A4136B901400B6C99B /* KROBJPacker.cpp */; };
 		E404C8A9136B919F00B6C99B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404C8A7136B919F00B6C99B /* KRVector3.cpp */; };
+		E4082874150175FA0095DDCD /* libfbxsdk-2012.2-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4082873150175FA0095DDCD /* libfbxsdk-2012.2-static.a */; };
+		E4082877150176300095DDCD /* libPVRTexLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4082876150176300095DDCD /* libPVRTexLib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +34,8 @@
 		E404C8A5136B901400B6C99B /* KROBJPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KROBJPacker.h; sourceTree = "<group>"; };
 		E404C8A7136B919F00B6C99B /* KRVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRVector3.cpp; sourceTree = "<group>"; };
 		E404C8A8136B919F00B6C99B /* KRVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRVector3.h; sourceTree = "<group>"; };
+		E4082873150175FA0095DDCD /* libfbxsdk-2012.2-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2012.2-static.a"; path = "../../../../../../../../Applications/Autodesk/FBXSDK20122/lib/gcc4/ub/libfbxsdk-2012.2-static.a"; sourceTree = "<group>"; };
+		E4082876150176300095DDCD /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = "../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/MacOS/libPVRTexLib.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +43,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4082877150176300095DDCD /* libPVRTexLib.a in Frameworks */,
+				E4082874150175FA0095DDCD /* libfbxsdk-2012.2-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,6 +54,8 @@
 		E404C88D136B8E2F00B6C99B = {
 			isa = PBXGroup;
 			children = (
+				E4082876150176300095DDCD /* libPVRTexLib.a */,
+				E4082873150175FA0095DDCD /* libfbxsdk-2012.2-static.a */,
 				E404C89B136B8E2F00B6C99B /* objpack */,
 				E404C899136B8E2F00B6C99B /* Products */,
 			);
@@ -173,6 +181,11 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBXSDK20122/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/PVR SDK Package/Utilities/PVRTexLib/MacOS\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -184,6 +197,11 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBXSDK20122/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/PVR SDK Package/Utilities/PVRTexLib/MacOS\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

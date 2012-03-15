@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:KRWorldBuilder/KRWorldBuilder.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:objpack/objpack.xcodeproj">
    </FileRef>
    <FileRef

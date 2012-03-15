@@ -40,8 +40,8 @@
 #include <vector.h>
 
 #include "KROBJPacker.h"
+#import <KRVector3.h>
 
-#include "KRVector3.h"
 
 KROBJPacker::KROBJPacker() {
     
