@@ -2,7 +2,7 @@
 //  KRShader.cpp
 //  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -31,7 +31,8 @@
 
 #include "KRShader.h"
 
-KRShader::KRShader(std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource) {
+KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource) {
+    strcpy(m_szKey, szKey);
     m_iProgram = 0;
     GLuint vertexShader = 0, fragShader = 0;
     try {
@@ -184,4 +185,8 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPositio
 
 GLuint KRShader::getProgram() {
     return m_iProgram;
+}
+
+char *KRShader::getKey() {
+    return m_szKey;
 }

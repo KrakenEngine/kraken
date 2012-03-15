@@ -1,8 +1,8 @@
 //
 //  KRMaterial.h
-//  gldemo
+//  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ public:
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
     
-    void bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
+    void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
     bool isTransparent();
     char *getName();
     

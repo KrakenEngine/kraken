@@ -1,8 +1,8 @@
 //
 //  KRModel.cpp
-//  gldemo
+//  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -55,7 +55,9 @@ void KRModel::loadPack(std::string path, KRMaterialManager *pMaterialManager) {
     vector<KRMesh::Submesh *> submeshes = m_mesh.getSubmeshes();
     
     for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
-        m_materials.push_back(pMaterialManager->getMaterial((*itr)->szMaterialName));
+        KRMaterial *pMaterial = pMaterialManager->getMaterial((*itr)->szMaterialName);
+        m_materials.push_back(pMaterial);
+        m_uniqueMaterials.insert(pMaterial);
     }
 }
 
@@ -64,21 +66,35 @@ KRModel::~KRModel() {
 }
 
 void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+    KRMaterial *pPrevBoundMaterial = NULL;
+    char szPrevShaderKey[128];
+    szPrevShaderKey[0] = '\0';
     int cSubmeshes = m_mesh.getSubmeshes().size();
-    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
-        KRMaterial *pMaterial = m_materials[iSubmesh];
-        
-        if(pMaterial != NULL) {
-            if(!bRenderShadowMap) {
-                pMaterial->bind(pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
-            }
+    if(bRenderShadowMap) {
+        for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+            KRMaterial *pMaterial = m_materials[iSubmesh];
+            
+            if(pMaterial != NULL) {
 
-            if(!bRenderShadowMap || !pMaterial->isTransparent()) {
-                // Exclude transparent and semi-transparent meshes from shadow maps
-                m_mesh.renderSubmesh(iSubmesh);
+                if(pMaterial->isTransparent()) {
+                    // Exclude transparent and semi-transparent meshes from shadow maps
+                    m_mesh.renderSubmesh(iSubmesh);
+                }
+            }
+            
+        }
+    } else {
+        // Apply submeshes in per-material batches to reduce number of state changes
+        for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+            for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+                KRMaterial *pMaterial = m_materials[iSubmesh];
+                
+                if(pMaterial != NULL && pMaterial == (*mat_itr)) {
+                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
+                    m_mesh.renderSubmesh(iSubmesh);
+                }
             }
         }
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 

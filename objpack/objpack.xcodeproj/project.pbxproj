@@ -28,12 +28,12 @@
 
 /* Begin PBXFileReference section */
 		E404C898136B8E2F00B6C99B /* objpack */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objpack; sourceTree = BUILT_PRODUCTS_DIR; };
-		E404C89C136B8E2F00B6C99B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		E404C89C136B8E2F00B6C99B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E404C89E136B8E2F00B6C99B /* objpack.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = objpack.1; sourceTree = "<group>"; };
-		E404C8A4136B901400B6C99B /* KROBJPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KROBJPacker.cpp; sourceTree = "<group>"; };
-		E404C8A5136B901400B6C99B /* KROBJPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KROBJPacker.h; sourceTree = "<group>"; };
-		E404C8A7136B919F00B6C99B /* KRVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRVector3.cpp; sourceTree = "<group>"; };
-		E404C8A8136B919F00B6C99B /* KRVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRVector3.h; sourceTree = "<group>"; };
+		E404C8A4136B901400B6C99B /* KROBJPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KROBJPacker.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E404C8A5136B901400B6C99B /* KROBJPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KROBJPacker.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E404C8A7136B919F00B6C99B /* KRVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRVector3.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E404C8A8136B919F00B6C99B /* KRVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRVector3.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4082873150175FA0095DDCD /* libfbxsdk-2012.2-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2012.2-static.a"; path = "../../../../../../../../Applications/Autodesk/FBXSDK20122/lib/gcc4/ub/libfbxsdk-2012.2-static.a"; sourceTree = "<group>"; };
 		E4082876150176300095DDCD /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = "../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/MacOS/libPVRTexLib.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */

@@ -1,8 +1,8 @@
 //
 //  KRModel.h
-//  gldemo
+//  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -33,10 +33,12 @@
 #import <OpenGLES/ES2/glext.h>
 #import <stdint.h>
 #import <vector>
+#import <set>
 #import <string>
 #import "KRMesh.h"
 
 using std::vector;
+using std::set;
 
 #ifndef KRMODEL_I
 #define KRMODEL_I
@@ -58,6 +60,7 @@ private:
     void loadPack(std::string path, KRMaterialManager *pMaterialManager);
     
     vector<KRMaterial *> m_materials;
+    set<KRMaterial *> m_uniqueMaterials;
     KRMesh m_mesh;
 
 };

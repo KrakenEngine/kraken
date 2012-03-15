@@ -1,8 +1,8 @@
 //
 //  KRMaterial.cpp
-//  gldemo
+//  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -102,69 +102,90 @@ bool KRMaterial::isTransparent() {
     return m_tr != 0.0;
 }
 
-void KRMaterial::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+    bool bSameMaterial = *prevBoundMaterial == this;
     
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;
     bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
     bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
     
-    KRShader *pShader = m_pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers);
-    pShader->bind(pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
-    
-    glUniform3f(
-        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
-        m_ka_r + pCamera->dAmbientR,
-        m_ka_g + pCamera->dAmbientG,
-        m_ka_b + pCamera->dAmbientB
-    );
-    
-    glUniform3f(
-        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-        m_kd_r * pCamera->dSunR,
-        m_kd_g * pCamera->dSunG,
-        m_kd_b * pCamera->dSunB
-    );
-    
-    glUniform3f(
-        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-        m_ks_r * pCamera->dSunR,
-        m_ks_g * pCamera->dSunG,
-        m_ks_b * pCamera->dSunB
-    );
-    
-    glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr);
-    glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns);
+    if(!bSameMaterial) { 
+        KRShader *pShader = m_pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers);
 
-    int iTextureName = 0;
-    if(bDiffuseMap) {
-        iTextureName = m_pDiffuseMap->getName();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, iTextureName);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-    
-    iTextureName = 0;
-    if(bSpecMap) {
-        iTextureName = m_pSpecularMap->getName();
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, iTextureName);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
+        bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
+        if(!bSameShader) {
+            pShader->bind(pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
+            glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns);
+            strcpy(szPrevShaderKey, pShader->getKey());
+        }
+        
+        glUniform3f(
+            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
+            m_ka_r + pCamera->dAmbientR,
+            m_ka_g + pCamera->dAmbientG,
+            m_ka_b + pCamera->dAmbientB
+        );
+        
+        glUniform3f(
+            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
+            m_kd_r * pCamera->dSunR,
+            m_kd_g * pCamera->dSunG,
+            m_kd_b * pCamera->dSunB
+        );
+        
+        glUniform3f(
+            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
+            m_ks_r * pCamera->dSunR,
+            m_ks_g * pCamera->dSunG,
+            m_ks_b * pCamera->dSunB
+        );
+        
+        glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr);
 
-    
-    iTextureName = 0;
-    if(bNormalMap) {
-        iTextureName = m_pNormalMap->getName();
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, iTextureName);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
+
+        bool bSameDiffuseMap = false;
+        bool bSameSpecMap = false;
+        bool bSameNormalMap = false;
+        if(*prevBoundMaterial) {
+            if((*prevBoundMaterial)->m_pDiffuseMap == m_pDiffuseMap) {
+                bSameDiffuseMap = true;
+            }
+            if((*prevBoundMaterial)->m_pSpecularMap == m_pSpecularMap) {
+                bSameSpecMap = true;
+            }
+            if((*prevBoundMaterial)->m_pNormalMap == m_pNormalMap) {
+                bSameNormalMap = true;
+            }
+        }
+        if(bDiffuseMap && !bSameDiffuseMap) {
+            int iTextureName = m_pDiffuseMap->getName();
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, iTextureName);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+        
+        if(bSpecMap && !bSameSpecMap) {
+            int iTextureName = m_pSpecularMap->getName();
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, iTextureName);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+
+        if(bNormalMap && !bSameNormalMap) {
+            int iTextureName = m_pNormalMap->getName();
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, iTextureName);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+        
+        *prevBoundMaterial = this;
+    } // if(!bSameMaterial)
 }
 
 char *KRMaterial::getName() {

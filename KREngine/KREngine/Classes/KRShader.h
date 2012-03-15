@@ -2,7 +2,7 @@
 //  KRShader.h
 //  KREngine
 //
-//  Copyright 2011 Kearwood Gilbert. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -46,9 +46,10 @@ using std::vector;
 
 class KRShader {
 public:
-    KRShader(std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
+    KRShader(char *szKey, std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
     ~KRShader();
     GLuint getProgram();
+    char *getKey();
     
     void bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
     
@@ -82,6 +83,7 @@ public:
         KRENGINE_NUM_UNIFORMS
     };
     GLint m_uniforms[KRENGINE_NUM_UNIFORMS];
+    char m_szKey[128];
     
 private:
     GLuint m_iProgram;
