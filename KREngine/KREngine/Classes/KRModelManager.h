@@ -32,6 +32,8 @@
 #ifndef KRMODELMANAGER_H
 #define KRMODELMANAGER_H
 
+#import "KREngine-common.h"
+
 #include "KRModel.h"
 
 #include <map>

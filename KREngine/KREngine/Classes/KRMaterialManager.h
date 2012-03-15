@@ -32,6 +32,9 @@
 #ifndef KRMATERIALMANAGER_H
 #define KRMATERIALMANAGER_H
 
+
+#import "KREngine-common.h"
+
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
 

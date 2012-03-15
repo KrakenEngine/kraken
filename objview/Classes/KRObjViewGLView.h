@@ -31,10 +31,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-
 #import <KREngine.h>
 #import <KRVector3.h>
 #import <KRScene.h>

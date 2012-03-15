@@ -31,7 +31,7 @@
 
 #import "KRObjViewGLView.h"
 
-#import <OpenGLES/EAGLDrawable.h>
+
 #import <QuartzCore/QuartzCore.h>
 
 @implementation KRObjViewGLView

@@ -29,10 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 
 #import "KRVector3.h"
+
+#import "KREngine-common.h"
 
 #ifndef KRMAT4_I
 #define KRMAT4_I

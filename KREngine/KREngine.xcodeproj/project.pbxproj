@@ -13,13 +13,17 @@
 		E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
 		E414BAEB14355E5500A668C4 /* KRBoundingVolume.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */; };
 		E414BAED14355EFF00A668C4 /* KRBoundingVolume.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */; };
+		E46DBE7B1512ACE600D59F86 /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
+		E46DBE7F1512AF0200D59F86 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E46DBE7D1512AD4900D59F86 /* OpenGL.framework */; };
+		E46DBE801512AF4600D59F86 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491016413C99B9E0098455B /* Foundation.framework */; };
+		E46DBE811512AFE600D59F86 /* KRMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = E49E79FC15126146009CF99C /* KRMesh.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */ = {isa = PBXBuildFile; fileRef = E46DBE841512B9E200D59F86 /* KREngine-common.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E47C25A213F4F65A00FF4370 /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; };
 		E47C25A513F4F66F00FF4370 /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; };
 		E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; };
 		E47C25A913F4F6DD00FF4370 /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; };
 		E48B3CBD14393DF5000C50E2 /* KRCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B3CBC14393DF5000C50E2 /* KRCamera.h */; };
 		E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
-		E491016513C99B9E0098455B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491016413C99B9E0098455B /* Foundation.framework */; };
 		E491018713C99BDC0098455B /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
 		E491018A13C99BDC0098455B /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E491018E13C99BDC0098455B /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -42,10 +46,6 @@
 		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
 		E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* krengine_osx.m */; };
-		E4BBBB951512A45500F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
-		E4BBBB971512A46700F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
-		E4BBBB991512A47500F43B5B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB981512A47500F43B5B /* CoreData.framework */; };
-		E4BBBB9B1512A48200F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
 		E4BBBB9D1512A4AC00F43B5B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB981512A47500F43B5B /* CoreData.framework */; };
 		E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
@@ -79,6 +79,8 @@
 		E45772F413C9A13C0037BEEA /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ObjectShader.fsh; path = Shaders/ObjectShader.fsh; sourceTree = "<group>"; };
 		E45772F513C9A13C0037BEEA /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F613C9A13C0037BEEA /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = Shaders/PostShader.vsh; sourceTree = "<group>"; };
+		E46DBE7D1512AD4900D59F86 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = DEVELOPER_DIR; };
+		E46DBE841512B9E200D59F86 /* KREngine-common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "KREngine-common.h"; path = "Classes/KREngine-common.h"; sourceTree = "<group>"; };
 		E47C25A113F4F65A00FF4370 /* KRShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRShaderManager.h; path = Classes/KRShaderManager.h; sourceTree = "<group>"; };
 		E47C25A413F4F66F00FF4370 /* KRShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRShader.h; path = Classes/KRShader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRShaderManager.cpp; path = Classes/KRShaderManager.cpp; sourceTree = "<group>"; };
@@ -127,11 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */,
-				E491016513C99B9E0098455B /* Foundation.framework in Frameworks */,
-				E4BBBB951512A45500F43B5B /* Cocoa.framework in Frameworks */,
-				E4BBBB971512A46700F43B5B /* AppKit.framework in Frameworks */,
-				E4BBBB991512A47500F43B5B /* CoreData.framework in Frameworks */,
-				E4BBBB9B1512A48200F43B5B /* Foundation.framework in Frameworks */,
+				E46DBE801512AF4600D59F86 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +139,7 @@
 			files = (
 				E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */,
 				E4BBBB9D1512A4AC00F43B5B /* CoreData.framework in Frameworks */,
+				E46DBE7F1512AF0200D59F86 /* OpenGL.framework in Frameworks */,
 				E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */,
 				E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */,
 			);
@@ -244,6 +243,7 @@
 				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
 				E49E79FC15126146009CF99C /* KRMesh.h */,
 				E49E79FE1512615F009CF99C /* KRMesh.cpp */,
+				E46DBE841512B9E200D59F86 /* KREngine-common.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -271,6 +271,7 @@
 		E4BBBB931512A41500F43B5B /* OSX Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E46DBE7D1512AD4900D59F86 /* OpenGL.framework */,
 				E4BBBB9A1512A48200F43B5B /* Foundation.framework */,
 				E4BBBB981512A47500F43B5B /* CoreData.framework */,
 				E4BBBB961512A46700F43B5B /* AppKit.framework */,
@@ -309,6 +310,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
+				E46DBE811512AFE600D59F86 /* KRMesh.h in Headers */,
+				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E46DBE7B1512ACE600D59F86 /* KRMesh.cpp in Sources */,
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
 				E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */,
 			);
@@ -470,15 +474,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DSTROOT = /tmp/KREngine.dst;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KREngine/KREngine-Prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 			};
 			name = Debug;
 		};
@@ -487,15 +489,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DSTROOT = /tmp/KREngine.dst;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KREngine/KREngine-Prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 			};
 			name = Release;
 		};
@@ -529,6 +529,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -558,6 +559,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;

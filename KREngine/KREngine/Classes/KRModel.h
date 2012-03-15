@@ -28,14 +28,13 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 #import <stdint.h>
 #import <vector>
 #import <set>
 #import <string>
 #import "KRMesh.h"
+
+#import "KREngine-common.h"
 
 using std::vector;
 using std::set;

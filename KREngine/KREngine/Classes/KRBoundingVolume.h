@@ -33,6 +33,7 @@
 #ifndef KRBOUNDINGVOLUME_H
 #define KRBOUNDINGVOLUME_H
 
+#import "KREngine-common.h"
 
 #import "KRVector3.h"
 #import "KRMat4.h"

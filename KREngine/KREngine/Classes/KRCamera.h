@@ -32,6 +32,8 @@
 #ifndef KRCAMERA_H
 #define KRCAMERA_H
 
+#import "KREngine-common.h"
+
 #import "KRMat4.h"
 
 class KRCamera {

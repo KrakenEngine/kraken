@@ -32,6 +32,8 @@
 #ifndef KRSCENE_H
 #define KRSCENE_H
 
+#import "KREngine-common.h"
+
 #import <vector>
 #import "KRInstance.h"
 #import "KRBoundingVolume.h"

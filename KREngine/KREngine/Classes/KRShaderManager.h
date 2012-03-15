@@ -29,8 +29,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 #import <stdint.h>
 #import <vector>
 #import <map>

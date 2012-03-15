@@ -29,11 +29,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 #import <stdint.h>
 #import <list>
 #import <string>
+
+#import "KREngine-common.h"
 
 using std::list;
 

@@ -29,11 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <stdint.h>
-#import <vector>
-#import <string>
+#import "KREngine-common.h"
+
 
 #define MAX_VBO_SIZE 65535
 // MAX_VBO_SIZE must be divisible by 3 so triangles aren't split across VBO objects...
@@ -42,8 +39,6 @@
 
 #ifndef KREngine_KRMesh_h
 #define KREngine_KRMesh_h
-
-
 
 using std::vector;
 

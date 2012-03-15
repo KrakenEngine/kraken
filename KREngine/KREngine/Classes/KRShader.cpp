@@ -168,7 +168,7 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosit
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5);
     
 #if defined(DEBUG)
-    GLint logLength, status;
+    GLint logLength;
     
     glValidateProgram(m_iProgram);
     glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength);

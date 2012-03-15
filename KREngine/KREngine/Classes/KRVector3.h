@@ -33,6 +33,8 @@
 #define KRVECTOR3
 #include <math.h>
 
+#import "KREngine-common.h"
+
 class KRVector3
 {
 
@@ -41,7 +43,7 @@ public:
     
 	//default constructor
     
-	KRVector3(float X = 0, float Y = 0, float Z = 0);
+	KRVector3(float X, float Y, float Z);
     KRVector3();
 	~KRVector3();
     
