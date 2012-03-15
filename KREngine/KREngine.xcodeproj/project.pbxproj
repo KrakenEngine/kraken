@@ -40,6 +40,18 @@
 		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
 		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
+		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
+		E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* krengine_osx.m */; };
+		E4BBBB951512A45500F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
+		E4BBBB971512A46700F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
+		E4BBBB991512A47500F43B5B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB981512A47500F43B5B /* CoreData.framework */; };
+		E4BBBB9B1512A48200F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
+		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
+		E4BBBB9D1512A4AC00F43B5B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB981512A47500F43B5B /* CoreData.framework */; };
+		E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
+		E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
+		E4BBBBA61512A6DC00F43B5B /* KRVector3.h in Sources */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; };
+		E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -97,6 +109,16 @@
 		E491019F13C99BF50098455B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		E49E79FC15126146009CF99C /* KRMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRMesh.h; path = Classes/KRMesh.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E49E79FE1512615F009CF99C /* KRMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRMesh.cpp; path = Classes/KRMesh.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4BBBB871512A40300F43B5B /* krengine_osx-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "krengine_osx-Info.plist"; sourceTree = "<group>"; };
+		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E4BBBB8B1512A40300F43B5B /* krengine_osx-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "krengine_osx-Prefix.pch"; sourceTree = "<group>"; };
+		E4BBBB8C1512A40300F43B5B /* krengine_osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = krengine_osx.h; sourceTree = "<group>"; };
+		E4BBBB8D1512A40300F43B5B /* krengine_osx.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = krengine_osx.m; sourceTree = "<group>"; };
+		E4BBBB941512A45500F43B5B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		E4BBBB961512A46700F43B5B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = DEVELOPER_DIR; };
+		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		E4BBBB9A1512A48200F43B5B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +128,21 @@
 			files = (
 				E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */,
 				E491016513C99B9E0098455B /* Foundation.framework in Frameworks */,
+				E4BBBB951512A45500F43B5B /* Cocoa.framework in Frameworks */,
+				E4BBBB971512A46700F43B5B /* AppKit.framework in Frameworks */,
+				E4BBBB991512A47500F43B5B /* CoreData.framework in Frameworks */,
+				E4BBBB9B1512A48200F43B5B /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E4BBBB7A1512A40300F43B5B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */,
+				E4BBBB9D1512A4AC00F43B5B /* CoreData.framework in Frameworks */,
+				E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */,
+				E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,7 +166,9 @@
 			isa = PBXGroup;
 			children = (
 				E491016613C99B9E0098455B /* KREngine */,
-				E491016313C99B9E0098455B /* Frameworks */,
+				E4BBBB851512A40300F43B5B /* krengine_osx */,
+				E4BBBB931512A41500F43B5B /* OSX Frameworks */,
+				E491016313C99B9E0098455B /* iOS Frameworks */,
 				E491016213C99B9E0098455B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -138,17 +177,18 @@
 			isa = PBXGroup;
 			children = (
 				E491016113C99B9E0098455B /* libKREngine.a */,
+				E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E491016313C99B9E0098455B /* Frameworks */ = {
+		E491016313C99B9E0098455B /* iOS Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				E491019F13C99BF50098455B /* OpenGLES.framework */,
 				E491016413C99B9E0098455B /* Foundation.framework */,
 			);
-			name = Frameworks;
+			name = "iOS Frameworks";
 			sourceTree = "<group>";
 		};
 		E491016613C99B9E0098455B /* KREngine */ = {
@@ -208,6 +248,37 @@
 			name = Classes;
 			sourceTree = "<group>";
 		};
+		E4BBBB851512A40300F43B5B /* krengine_osx */ = {
+			isa = PBXGroup;
+			children = (
+				E4BBBB8C1512A40300F43B5B /* krengine_osx.h */,
+				E4BBBB8D1512A40300F43B5B /* krengine_osx.m */,
+				E4BBBB861512A40300F43B5B /* Supporting Files */,
+			);
+			path = krengine_osx;
+			sourceTree = "<group>";
+		};
+		E4BBBB861512A40300F43B5B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E4BBBB871512A40300F43B5B /* krengine_osx-Info.plist */,
+				E4BBBB881512A40300F43B5B /* InfoPlist.strings */,
+				E4BBBB8B1512A40300F43B5B /* krengine_osx-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E4BBBB931512A41500F43B5B /* OSX Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E4BBBB9A1512A48200F43B5B /* Foundation.framework */,
+				E4BBBB981512A47500F43B5B /* CoreData.framework */,
+				E4BBBB961512A46700F43B5B /* AppKit.framework */,
+				E4BBBB941512A45500F43B5B /* Cocoa.framework */,
+			);
+			name = "OSX Frameworks";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -233,6 +304,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E4BBBB7B1512A40300F43B5B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -253,6 +331,24 @@
 			productName = KREngine;
 			productReference = E491016113C99B9E0098455B /* libKREngine.a */;
 			productType = "com.apple.product-type.library.static";
+		};
+		E4BBBB7D1512A40300F43B5B /* krengine_osx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E4BBBB911512A40300F43B5B /* Build configuration list for PBXNativeTarget "krengine_osx" */;
+			buildPhases = (
+				E4BBBB791512A40300F43B5B /* Sources */,
+				E4BBBB7A1512A40300F43B5B /* Frameworks */,
+				E4BBBB7B1512A40300F43B5B /* Headers */,
+				E4BBBB7C1512A40300F43B5B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = krengine_osx;
+			productName = krengine_osx;
+			productReference = E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -275,9 +371,21 @@
 			projectRoot = "";
 			targets = (
 				E491016013C99B9E0098455B /* KREngine */,
+				E4BBBB7D1512A40300F43B5B /* krengine_osx */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E4BBBB7C1512A40300F43B5B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E491015D13C99B9E0098455B /* Sources */ = {
@@ -303,7 +411,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E4BBBB791512A40300F43B5B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E4BBBBA61512A6DC00F43B5B /* KRVector3.h in Sources */,
+				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
+				E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E4BBBB881512A40300F43B5B /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E4BBBB891512A40300F43B5B /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		E491016913C99B9E0098455B /* Debug */ = {
@@ -340,6 +469,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DSTROOT = /tmp/KREngine.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KREngine/KREngine-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
@@ -352,10 +485,77 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DSTROOT = /tmp/KREngine.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KREngine/KREngine-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		E4BBBB8F1512A40300F43B5B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Library/Frameworks\"",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "krengine_osx/krengine_osx-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "krengine_osx/krengine_osx-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		E4BBBB901512A40300F43B5B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Library/Frameworks\"",
+					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks\"",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "krengine_osx/krengine_osx-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				INFOPLIST_FILE = "krengine_osx/krengine_osx-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
 		};
@@ -379,6 +579,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		E4BBBB911512A40300F43B5B /* Build configuration list for PBXNativeTarget "krengine_osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E4BBBB8F1512A40300F43B5B /* Debug */,
+				E4BBBB901512A40300F43B5B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

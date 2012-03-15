@@ -109,8 +109,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				E4BBBBA31512A57800F43B5B /* libraries */,
 				E40611D114E4E98B0065996A /* testflight */,
-				E43A7A6D13CA2BA2000A565E /* libKREngine.a */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -192,6 +192,14 @@
 				E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */,
 			);
 			name = iPad;
+			sourceTree = "<group>";
+		};
+		E4BBBBA31512A57800F43B5B /* libraries */ = {
+			isa = PBXGroup;
+			children = (
+				E43A7A6D13CA2BA2000A565E /* libKREngine.a */,
+			);
+			name = libraries;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
