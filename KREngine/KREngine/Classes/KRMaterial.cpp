@@ -31,7 +31,8 @@
 
 #include "KRMaterial.h"
 
-KRMaterial::KRMaterial(KRShaderManager *pShaderManager) {
+KRMaterial::KRMaterial(char *szName, KRShaderManager *pShaderManager) {
+    strcpy(m_szName, szName);
     m_pAmbientMap = NULL;
     m_pDiffuseMap = NULL;
     m_pSpecularMap = NULL;
@@ -164,4 +165,8 @@ void KRMaterial::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosit
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
+}
+
+char *KRMaterial::getName() {
+    return m_szName;
 }

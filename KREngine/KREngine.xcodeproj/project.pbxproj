@@ -39,6 +39,7 @@
 		E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
+		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -94,6 +95,8 @@
 		E491018513C99BDC0098455B /* KRTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureManager.h; path = Classes/KRTextureManager.h; sourceTree = "<group>"; };
 		E491018613C99BDC0098455B /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; };
 		E491019F13C99BF50098455B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		E49E79FC15126146009CF99C /* KRMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KRMesh.h; path = Classes/KRMesh.h; sourceTree = "<group>"; };
+		E49E79FE1512615F009CF99C /* KRMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRMesh.cpp; path = Classes/KRMesh.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +202,8 @@
 				E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */,
 				E48B3CBC14393DF5000C50E2 /* KRCamera.h */,
 				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
+				E49E79FC15126146009CF99C /* KRMesh.h */,
+				E49E79FE1512615F009CF99C /* KRMesh.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -294,6 +299,7 @@
 				E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */,
 				E414BAED14355EFF00A668C4 /* KRBoundingVolume.cpp in Sources */,
 				E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */,
+				E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

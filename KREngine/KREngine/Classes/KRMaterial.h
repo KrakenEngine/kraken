@@ -47,7 +47,7 @@ using std::list;
 
 class KRMaterial {
 public:
-    KRMaterial(KRShaderManager *pShaderManager);
+    KRMaterial(char *szName, KRShaderManager *pShaderManager);
     ~KRMaterial();
     
     void setAmbientMap(KRTexture *pTexture);
@@ -62,8 +62,11 @@ public:
     
     void bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
     bool isTransparent();
+    char *getName();
     
 private:
+    char m_szName[64];
+    
     KRTexture *m_pAmbientMap; // mtl map_Ka value
     KRTexture *m_pDiffuseMap; // mtl map_Kd value
     KRTexture *m_pSpecularMap; // mtl map_Ks value

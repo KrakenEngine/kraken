@@ -67,5 +67,6 @@ void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, 
 }
 
 KRBoundingVolume KRInstance::getExtents() {
-    return KRBoundingVolume(Vector3(m_pModel->getMinX(), m_pModel->getMinY(), m_pModel->getMinZ()), Vector3(m_pModel->getMaxX(), m_pModel->getMaxY(), m_pModel->getMaxZ()), m_modelMatrix);
+    KRMesh *pMesh = m_pModel->getMesh();
+    return KRBoundingVolume(Vector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), Vector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
 }

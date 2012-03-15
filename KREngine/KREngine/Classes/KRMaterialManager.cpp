@@ -110,7 +110,7 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                         
                         if(strcmp(szSymbol[0], "newmtl") == 0 && cSymbols >= 2) {
                             
-                            pMaterial = new KRMaterial(m_pShaderManager);
+                            pMaterial = new KRMaterial(szSymbol[1], m_pShaderManager);
                             m_materials[szSymbol[1]] = pMaterial;
                         } if(pMaterial != NULL) {
                             if(strcmp(szSymbol[0], "Ka") == 0) {

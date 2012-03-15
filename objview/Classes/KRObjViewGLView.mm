@@ -124,7 +124,8 @@
     }
     
     KRModelManager *pModelManager = [renderEngine getModelManager];
-    m_scene.addInstance(pModelManager->getModel("fachwerkhaus12"), KRMat4());
+    //m_scene.addInstance(pModelManager->getModel("fachwerkhaus12"), KRMat4());
+    m_scene.addInstance(pModelManager->getModel("ballroom"), KRMat4());
     
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];
