@@ -160,7 +160,7 @@
     bLoadedTestInstances = false;
     cParamDisplayFrames = 0;
     
-    camera_position = Vector3(-850, -10, -700);
+    camera_position = KRVector3(-850, -10, -700);
     
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
     [displayLink setFrameInterval:1]; // Maximum 60fps

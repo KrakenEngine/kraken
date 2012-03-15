@@ -43,7 +43,7 @@
     
     float heading;
     
-    Vector3 camera_position;
+    KRVector3 camera_position;
     double camera_pitch;
     double camera_yaw;
     

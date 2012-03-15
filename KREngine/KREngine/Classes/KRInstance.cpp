@@ -48,7 +48,7 @@ KRModel *KRInstance::getModel() {
     return m_pModel;
 }
 
-void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     
     KRMat4 projectionMatrix;
     if(!bRenderShadowMap) {
@@ -59,8 +59,8 @@ void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, 
     // Transform location of camera to object space for calculation of specular halfVec
     KRMat4 inverseModelMatrix = m_modelMatrix;
     inverseModelMatrix.invert();
-    Vector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
-    Vector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
+    KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
+    KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
     
     m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
     
@@ -68,5 +68,5 @@ void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, 
 
 KRBoundingVolume KRInstance::getExtents() {
     KRMesh *pMesh = m_pModel->getMesh();
-    return KRBoundingVolume(Vector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), Vector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
+    return KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
 }

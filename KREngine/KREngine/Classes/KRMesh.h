@@ -95,7 +95,7 @@ protected:
         GLfloat x;
         GLfloat y;
         GLfloat z;
-    } Vertex3D, Vector3D;
+    } Vertex3D, KRVector3D;
     
     typedef struct {
         GLfloat u;
@@ -104,8 +104,8 @@ protected:
     
     typedef struct {
         Vertex3D vertex;
-        Vector3D normal;
-        Vector3D tangent;
+        KRVector3D normal;
+        KRVector3D tangent;
         TexCoord texcoord;
     } VertexData;
     

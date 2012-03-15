@@ -183,7 +183,7 @@ double const PI = 3.141592653589793f;
     }
 }
 
-- (void)renderScene: (KRScene *)pScene WithPosition: (Vector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll
+- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll
 {
     KRMat4 viewMatrix;
     viewMatrix.translate(-position.x, -position.y, -position.z);
@@ -198,9 +198,9 @@ double const PI = 3.141592653589793f;
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
     
-    Vector3 cameraPosition = invViewMatrix.dot(Vector3(0.0,0.0,0.0));
+    KRVector3 cameraPosition = invViewMatrix.dot(KRVector3(0.0,0.0,0.0));
 
-    Vector3 lightDirection(0.0, 0.0, 1.0);
+    KRVector3 lightDirection(0.0, 0.0, 1.0);
     
     // ----- Render Model -----
     KRMat4 shadowvp;
@@ -312,29 +312,29 @@ double const PI = 3.141592653589793f;
     KRMat4 matInvShadow = shadowmvpmatrix[iShadow];
     matInvShadow.invert();
 
-    Vector3 vertices[8];
-    vertices[0] = Vector3(-1.0, -1.0, 0.0);
-    vertices[1] = Vector3(1.0,  -1.0, 0.0);
-    vertices[2] = Vector3(1.0,   1.0, 0.0);
-    vertices[3] = Vector3(-1.0,  1.0, 0.0);
-    vertices[4] = Vector3(-1.0, -1.0, 1.0);
-    vertices[5] = Vector3(1.0,  -1.0, 1.0);
-    vertices[6] = Vector3(1.0,   1.0, 1.0);
-    vertices[7] = Vector3(-1.0,  1.0, 1.0);
+    KRVector3 vertices[8];
+    vertices[0] = KRVector3(-1.0, -1.0, 0.0);
+    vertices[1] = KRVector3(1.0,  -1.0, 0.0);
+    vertices[2] = KRVector3(1.0,   1.0, 0.0);
+    vertices[3] = KRVector3(-1.0,  1.0, 0.0);
+    vertices[4] = KRVector3(-1.0, -1.0, 1.0);
+    vertices[5] = KRVector3(1.0,  -1.0, 1.0);
+    vertices[6] = KRVector3(1.0,   1.0, 1.0);
+    vertices[7] = KRVector3(-1.0,  1.0, 1.0);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
         vertices[iVertex] = matInvShadow.dot(vertices[iVertex]);
     }
     
-    Vector3 cameraPosition;
-    Vector3 lightDirection;
+    KRVector3 cameraPosition;
+    KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
     pScene->render(&m_camera, shadowVolume, m_pMaterialManager, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, 0);
     
     glViewport(0, 0, 768, 1024);
 }
 
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (Vector3)lightDirection CameraPosition: (Vector3)cameraPosition
+- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition
 {
     
     glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);

@@ -122,14 +122,14 @@ KRShader::~KRShader() {
     }
 }
 
-void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     glUseProgram(m_iProgram);
     
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer());
 
-    Vector3 nLightDir = lightDirection;
+    KRVector3 nLightDir = lightDirection;
     nLightDir.normalize();
 
     // Bind the light direction vector

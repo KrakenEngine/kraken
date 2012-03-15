@@ -100,7 +100,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 - (BOOL)loadResource:(NSString *)path;
 
 - (void)renderShadowBufferNumber: (int)iShadow ForScene: (KRScene *)pScene;
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (Vector3)lightDirection CameraPosition: (Vector3)cameraPosition;
+- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition;
 - (KRModelManager *)getModelManager;
 - (void)invalidateShadowBuffers;
 - (void)allocateShadowBuffers;
@@ -120,7 +120,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 -(void)setParameterValueWithName: (NSString *)name Value: (double)v;
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix;
-- (void)renderScene: (KRScene *)pScene WithPosition: (Vector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll;
+- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll;
 - (void)setNearZ: (double)dNearZ;
 - (void)setFarZ: (double)dFarZ;
 - (void)setAspect: (double)dAspect;

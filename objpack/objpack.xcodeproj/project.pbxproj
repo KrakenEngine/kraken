@@ -30,7 +30,7 @@
 		E404C89E136B8E2F00B6C99B /* objpack.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = objpack.1; sourceTree = "<group>"; };
 		E404C8A4136B901400B6C99B /* KROBJPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KROBJPacker.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E404C8A5136B901400B6C99B /* KROBJPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KROBJPacker.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E4BBBBA01512A51200F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = krengine_osx.framework; path = ../KREngine/build/Release/krengine_osx.framework; sourceTree = "<group>"; };
+		E4BBBBA01512A51200F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = krengine_osx.framework; path = ../KREngine/build/Release/krengine_osx.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,7 +107,7 @@
 		E404C88F136B8E2F00B6C99B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "Kearwood Software";
 			};
 			buildConfigurationList = E404C892136B8E2F00B6C99B /* Build configuration list for PBXProject "objpack" */;
@@ -152,7 +152,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /Users/kearwood/Documents/dev/svn/sarofax/tools/krengine/trunk/KREngine/KREngine/Classes;
+				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -168,7 +168,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /Users/kearwood/Documents/dev/svn/sarofax/tools/krengine/trunk/KREngine/KREngine/Classes;
+				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};

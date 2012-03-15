@@ -102,7 +102,7 @@ bool KRMaterial::isTransparent() {
     return m_tr != 0.0;
 }
 
-void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, Vector3 &cameraPosition, Vector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     bool bSameMaterial = *prevBoundMaterial == this;
     
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;

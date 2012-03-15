@@ -95,7 +95,7 @@ public:
     void rotate(GLfloat angle, AXIS axis);
     void bias();
     bool invert();
-    Vector3 dot(const Vector3 &v) const;
+    KRVector3 dot(const KRVector3 &v) const;
 };
 
 #endif // KRMAT4_I

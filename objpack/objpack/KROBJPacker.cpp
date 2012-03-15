@@ -40,7 +40,7 @@
 #include <vector.h>
 
 #include "KROBJPacker.h"
-#import <KRVector3.h>
+#import <KREngine_osx/KRVector3.h>
 
 
 KROBJPacker::KROBJPacker() {
@@ -60,7 +60,7 @@ void KROBJPacker::pack(const char *szPath) {
     std::vector<std::string> materials;
     
     Vertex3D *pVertices = NULL;
-    Vector3D *pNormals = NULL;
+    KRVector3D *pNormals = NULL;
     TexCoord *pTexCoords = NULL;
     int *pFaces = NULL;
     
@@ -155,13 +155,13 @@ void KROBJPacker::pack(const char *szPath) {
                 cout << "  Pass 2 - Populate vertexes and faces\n";
 
                 Vertex3D *pVertices = (Vertex3D *)malloc(sizeof(Vertex3D) * cVertices);
-                Vector3D *pNormals = (Vector3D *)malloc(sizeof(Vector3D) *cNormals);
+                KRVector3D *pNormals = (KRVector3D *)malloc(sizeof(KRVector3D) *cNormals);
                 TexCoord *pTexCoords = (TexCoord *)malloc(sizeof(TexCoord) * cTexCoords);
                 int *pFaces = (int *)malloc(sizeof(int *) * (cFaces + 1));
                 
                 
                 Vertex3D *pVertice = pVertices;
-                Vector3D *pNormal = pNormals;
+                KRVector3D *pNormal = pNormals;
                 TexCoord *pTexCoord = pTexCoords;
                 int *pFace = pFaces;
                 int *pMaterialFaces = pFace++;
@@ -332,7 +332,7 @@ void KROBJPacker::pack(const char *szPath) {
                             }
                             
                             if(pFace[iFaceVertex*3+3] >= 0){
-                                Vector3D *pNormal =  pNormals + pFace[iFaceVertex*3+3];
+                                KRVector3D *pNormal =  pNormals + pFace[iFaceVertex*3+3];
                                 pData->normal.x = pNormal -> x;
                                 pData->normal.y = pNormal -> y;
                                 pData->normal.z = pNormal -> z;
@@ -386,17 +386,17 @@ void KROBJPacker::pack(const char *szPath) {
                     
                     
                     for(VertexData *pVertex = pStart; pVertex < pEnd; pVertex+=3) {
-                        Vector3 p1(pVertex[0].vertex.x, pVertex[0].vertex.y, pVertex[0].vertex.z);
-                        Vector3 p2(pVertex[1].vertex.x, pVertex[1].vertex.y, pVertex[1].vertex.z);
-                        Vector3 p3(pVertex[2].vertex.x, pVertex[2].vertex.y, pVertex[2].vertex.z);
-                        Vector3 v1 = p2 - p1;
-                        Vector3 v2 = p3 - p1;
+                        KRVector3 p1(pVertex[0].vertex.x, pVertex[0].vertex.y, pVertex[0].vertex.z);
+                        KRVector3 p2(pVertex[1].vertex.x, pVertex[1].vertex.y, pVertex[1].vertex.z);
+                        KRVector3 p3(pVertex[2].vertex.x, pVertex[2].vertex.y, pVertex[2].vertex.z);
+                        KRVector3 v1 = p2 - p1;
+                        KRVector3 v2 = p3 - p1;
                         
                         // -- Calculate normal --
                         if(pVertex->normal.x == 0 && pVertex->normal.y == 0 && pVertex->normal.z == 0) {
                             
                             
-                            Vector3 normal = v1.cross( v2 );
+                            KRVector3 normal = v1.cross( v2 );
                             
                             normal.normalize();
                             
@@ -426,7 +426,7 @@ void KROBJPacker::pack(const char *szPath) {
                         pVertex[0].tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
                         pVertex[0].tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
                         
-                        Vector3 tangent(
+                        KRVector3 tangent(
                                         coef * ((v1.x * st2.v)  + (v2.x * -st1.v)),
                                         coef * ((v1.y * st2.v)  + (v2.y * -st1.v)),
                                         coef * ((v1.z * st2.v)  + (v2.z * -st1.v))

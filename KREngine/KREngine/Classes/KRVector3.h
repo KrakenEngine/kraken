@@ -33,7 +33,7 @@
 #define KRVECTOR3
 #include <math.h>
 
-class Vector3
+class KRVector3
 {
 
 public:
@@ -41,37 +41,37 @@ public:
     
 	//default constructor
     
-	Vector3(float X, float Y, float Z);
-    Vector3();
-	~Vector3();
+	KRVector3(float X = 0, float Y = 0, float Z = 0);
+    KRVector3();
+	~KRVector3();
     
-    Vector3(const Vector3& p);
-    Vector3& operator = ( const Vector3& p );
+    KRVector3(const KRVector3& p);
+    KRVector3& operator = ( const KRVector3& p );
 
     
 	//calculate and return the magnitude of this vector
 	float GetMagnitude();
     
 	//multiply this vector by a scalar
-	Vector3 operator*(float num) const;
+	KRVector3 operator*(float num) const;
     
 	//pass in a vector, pass in a scalar, return the product
-	//friend Vector3 operator*(float num, Vector3 const &vec);
+	//friend KRVector3 operator*(float num, KRVector3 const &vec);
     
 	//add two vectors
-	Vector3 operator+(const Vector3 &vec) const;
+	KRVector3 operator+(const KRVector3 &vec) const;
     
 	//subtract two vectors
-	Vector3 operator-(const Vector3 &vec) const;
+	KRVector3 operator-(const KRVector3 &vec) const;
     
 	//normalize this vector
 	void normalize();
 	
 	//calculate and return dot product
-	float dot(const Vector3 &vec) const;
+	float dot(const KRVector3 &vec) const;
     
 	//calculate and return cross product
-	Vector3 cross(const Vector3 &vec) const;
+	KRVector3 cross(const KRVector3 &vec) const;
 };
 
 #endif

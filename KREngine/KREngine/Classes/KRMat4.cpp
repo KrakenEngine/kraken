@@ -242,8 +242,8 @@ bool KRMat4::invert() {
 }
 
 /* Dot Product */
-Vector3 KRMat4::dot(const Vector3 &v) const {
-    return Vector3(
+KRVector3 KRMat4::dot(const KRVector3 &v) const {
+    return KRVector3(
         v.x * (float)m_mat[0*4 + 0] + v.y * (float)m_mat[1*4 + 0] + v.z * (float)m_mat[2*4 + 0] + (float)m_mat[3*4 + 0],
         v.x * (float)m_mat[0*4 + 1] + v.y * (float)m_mat[1*4 + 1] + v.z * (float)m_mat[2*4 + 1] + (float)m_mat[3*4 + 1],
         v.x * (float)m_mat[0*4 + 2] + v.y * (float)m_mat[1*4 + 2] + v.z * (float)m_mat[2*4 + 2] + (float)m_mat[3*4 + 2]

@@ -42,8 +42,8 @@ class KRScene;
 
 class KRBoundingVolume {
 public:
-    KRBoundingVolume(const Vector3 *pVertices);
-    KRBoundingVolume(const Vector3 &corner1, const Vector3 &corner2, const KRMat4 modelMatrix);
+    KRBoundingVolume(const KRVector3 *pVertices);
+    KRBoundingVolume(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 modelMatrix);
     KRBoundingVolume(const KRMat4 &matView, GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat farz);
     ~KRBoundingVolume();
     
@@ -55,7 +55,7 @@ public:
     
     KRMat4 calcShadowProj(KRScene *pScene, GLfloat sun_yaw, GLfloat sun_pitch) const;
 private:
-    Vector3 m_vertices[8];
+    KRVector3 m_vertices[8];
 };
 
 #endif

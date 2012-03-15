@@ -34,21 +34,21 @@
 #import "KRBoundingVolume.h"
 
 
-KRBoundingVolume::KRBoundingVolume(const Vector3 *pVertices) {
+KRBoundingVolume::KRBoundingVolume(const KRVector3 *pVertices) {
     for(int iVertex=0; iVertex < 8; iVertex++) {
         m_vertices[iVertex] = pVertices[iVertex];
     }
 }
 
-KRBoundingVolume::KRBoundingVolume(const Vector3 &corner1, const Vector3 &corner2, const KRMat4 modelMatrix) {
-    m_vertices[0] = Vector3(corner1.x, corner1.y, corner1.z);
-    m_vertices[1] = Vector3(corner2.x, corner1.y, corner1.z);
-    m_vertices[2] = Vector3(corner2.x, corner2.y, corner1.z);
-    m_vertices[3] = Vector3(corner1.x, corner2.y, corner1.z);
-    m_vertices[4] = Vector3(corner1.x, corner1.y, corner2.z);
-    m_vertices[5] = Vector3(corner2.x, corner1.y, corner2.z);
-    m_vertices[6] = Vector3(corner2.x, corner2.y, corner2.z);
-    m_vertices[7] = Vector3(corner1.x, corner2.y, corner2.z);
+KRBoundingVolume::KRBoundingVolume(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 modelMatrix) {
+    m_vertices[0] = KRVector3(corner1.x, corner1.y, corner1.z);
+    m_vertices[1] = KRVector3(corner2.x, corner1.y, corner1.z);
+    m_vertices[2] = KRVector3(corner2.x, corner2.y, corner1.z);
+    m_vertices[3] = KRVector3(corner1.x, corner2.y, corner1.z);
+    m_vertices[4] = KRVector3(corner1.x, corner1.y, corner2.z);
+    m_vertices[5] = KRVector3(corner2.x, corner1.y, corner2.z);
+    m_vertices[6] = KRVector3(corner2.x, corner2.y, corner2.z);
+    m_vertices[7] = KRVector3(corner1.x, corner2.y, corner2.z);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
         m_vertices[iVertex] = modelMatrix.dot(m_vertices[iVertex]);
@@ -63,14 +63,14 @@ KRBoundingVolume::KRBoundingVolume(const KRMat4 &matView, GLfloat fov, GLfloat a
     
     GLfloat r = tan(fov / 2.0);
     
-    m_vertices[0] = Vector3(-1.0 * r * nearz * aspect, -1.0 * r * nearz, -nearz);
-    m_vertices[1] = Vector3(1.0 * r * nearz * aspect,  -1.0 * r * nearz, -nearz);
-    m_vertices[2] = Vector3(1.0 * r * nearz * aspect,   1.0 * r * nearz, -nearz);
-    m_vertices[3] = Vector3(-1.0 * r * nearz * aspect,  1.0 * r * nearz, -nearz);
-    m_vertices[4] = Vector3(-1.0 * r * farz * aspect, -1.0 * r * farz, -farz);
-    m_vertices[5] = Vector3(1.0 * r * farz * aspect,  -1.0 * r * farz, -farz);
-    m_vertices[6] = Vector3(1.0 * r * farz * aspect,   1.0 * r * farz, -farz);
-    m_vertices[7] = Vector3(-1.0 * r * farz * aspect,  1.0 * r * farz, -farz);
+    m_vertices[0] = KRVector3(-1.0 * r * nearz * aspect, -1.0 * r * nearz, -nearz);
+    m_vertices[1] = KRVector3(1.0 * r * nearz * aspect,  -1.0 * r * nearz, -nearz);
+    m_vertices[2] = KRVector3(1.0 * r * nearz * aspect,   1.0 * r * nearz, -nearz);
+    m_vertices[3] = KRVector3(-1.0 * r * nearz * aspect,  1.0 * r * nearz, -nearz);
+    m_vertices[4] = KRVector3(-1.0 * r * farz * aspect, -1.0 * r * farz, -farz);
+    m_vertices[5] = KRVector3(1.0 * r * farz * aspect,  -1.0 * r * farz, -farz);
+    m_vertices[6] = KRVector3(1.0 * r * farz * aspect,   1.0 * r * farz, -farz);
+    m_vertices[7] = KRVector3(-1.0 * r * farz * aspect,  1.0 * r * farz, -farz);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
         m_vertices[iVertex] = invView.dot(m_vertices[iVertex]);
@@ -97,7 +97,7 @@ KRBoundingVolume& KRBoundingVolume::operator = ( const KRBoundingVolume& p ) {
 KRBoundingVolume KRBoundingVolume::get_union(const KRBoundingVolume &p) const {
     // Simple, non-aligned bounding box calculated that contains both volumes.
     
-    Vector3 minPoint = m_vertices[0], maxPoint = m_vertices[0];
+    KRVector3 minPoint = m_vertices[0], maxPoint = m_vertices[0];
     for(int iVertex=1; iVertex < 8; iVertex++) {
         if(m_vertices[iVertex].x < minPoint.x) {
             minPoint.x = m_vertices[iVertex].x;
@@ -144,7 +144,7 @@ KRBoundingVolume KRBoundingVolume::get_union(const KRBoundingVolume &p) const {
 bool KRBoundingVolume::test_intersect(const KRBoundingVolume &p) const {
     // Simple, non-aligned bounding box intersection test
     
-    Vector3 minPoint = m_vertices[0], maxPoint = m_vertices[0], minPoint2 = p.m_vertices[0], maxPoint2 = p.m_vertices[0];
+    KRVector3 minPoint = m_vertices[0], maxPoint = m_vertices[0], minPoint2 = p.m_vertices[0], maxPoint2 = p.m_vertices[0];
     for(int iVertex=1; iVertex < 8; iVertex++) {
         if(m_vertices[iVertex].x < minPoint.x) {
             minPoint.x = m_vertices[iVertex].x;
@@ -202,9 +202,9 @@ KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, GLfloat sun_yaw, GLfloa
     shadowvp.invert();
     shadowvp.scale(1.0, 1.0, -1.0);
     
-    Vector3 minPointFrustrum = shadowvp.dot(m_vertices[0]), maxPointFrustrum = minPointFrustrum;
+    KRVector3 minPointFrustrum = shadowvp.dot(m_vertices[0]), maxPointFrustrum = minPointFrustrum;
     for(int iVertex=1; iVertex < 8; iVertex++) {
-        Vector3 v = shadowvp.dot(m_vertices[iVertex]);
+        KRVector3 v = shadowvp.dot(m_vertices[iVertex]);
         if(v.x < minPointFrustrum.x) {
             minPointFrustrum.x = v.x;
         }
@@ -226,9 +226,9 @@ KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, GLfloat sun_yaw, GLfloa
     }
     
     
-    Vector3 minPointScene = shadowvp.dot(sceneVolume.m_vertices[0]), maxPointScene = minPointScene;
+    KRVector3 minPointScene = shadowvp.dot(sceneVolume.m_vertices[0]), maxPointScene = minPointScene;
     for(int iVertex=1; iVertex < 8; iVertex++) {
-        Vector3 v = shadowvp.dot(sceneVolume.m_vertices[iVertex]);
+        KRVector3 v = shadowvp.dot(sceneVolume.m_vertices[iVertex]);
         if(v.x < minPointScene.x) {
             minPointScene.x = v.x;
         }
@@ -261,7 +261,7 @@ KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, GLfloat sun_yaw, GLfloa
     GLfloat maxFrustrumDepth = maxPointFrustrum.z;
     
     for(int i=0; i<8; i++) {
-        Vector3 v = shadowvp.dot(sceneVolume.m_vertices[i]);
+        KRVector3 v = shadowvp.dot(sceneVolume.m_vertices[i]);
         if(i == 0) {
             minPointFrustrum.z = v.z;
             maxPointFrustrum.z = v.z;
