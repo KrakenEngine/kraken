@@ -119,29 +119,44 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             strcpy(szPrevShaderKey, pShader->getKey());
         }
         
-        glUniform3f(
-            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
-            m_ka_r + pCamera->dAmbientR,
-            m_ka_g + pCamera->dAmbientG,
-            m_ka_b + pCamera->dAmbientB
-        );
+        bool bSameAmbient = false;
+        bool bSameDiffuse = false;
+        bool bSameSpecular = false;
         
-        glUniform3f(
-            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-            m_kd_r * pCamera->dSunR,
-            m_kd_g * pCamera->dSunG,
-            m_kd_b * pCamera->dSunB
-        );
+        if(*prevBoundMaterial && bSameShader) {
+            bSameAmbient = (*prevBoundMaterial)->m_ka_r == m_ka_r && (*prevBoundMaterial)->m_ka_g == m_ka_g && (*prevBoundMaterial)->m_ka_b == m_ka_b;
+            bSameDiffuse = (*prevBoundMaterial)->m_kd_r == m_kd_r && (*prevBoundMaterial)->m_kd_g == m_kd_g && (*prevBoundMaterial)->m_kd_b == m_kd_b;
+            bSameSpecular = (*prevBoundMaterial)->m_ks_r == m_ks_r && (*prevBoundMaterial)->m_ks_g == m_ks_g && (*prevBoundMaterial)->m_ks_b == m_ks_b;
+        }
         
-        glUniform3f(
-            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-            m_ks_r * pCamera->dSunR,
-            m_ks_g * pCamera->dSunG,
-            m_ks_b * pCamera->dSunB
-        );
+        if(!bSameAmbient) {
+            glUniform3f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
+                m_ka_r + pCamera->dAmbientR,
+                m_ka_g + pCamera->dAmbientG,
+                m_ka_b + pCamera->dAmbientB
+            );
+        }
+        
+        if(!bSameDiffuse) {
+            glUniform3f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
+                m_kd_r * pCamera->dSunR,
+                m_kd_g * pCamera->dSunG,
+                m_kd_b * pCamera->dSunB
+            );
+        }
+        
+        if(!bSameSpecular) {
+            glUniform3f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
+                m_ks_r * pCamera->dSunR,
+                m_ks_g * pCamera->dSunG,
+                m_ks_b * pCamera->dSunB
+            );
+        }
         
         glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr);
-
 
         bool bSameDiffuseMap = false;
         bool bSameSpecMap = false;
@@ -157,6 +172,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 bSameNormalMap = true;
             }
         }
+        
         if(bDiffuseMap && !bSameDiffuseMap) {
             int iTextureName = m_pDiffuseMap->getName();
             glActiveTexture(GL_TEXTURE0);

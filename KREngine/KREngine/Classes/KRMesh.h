@@ -53,7 +53,7 @@ public:
     ~KRMesh();
     
     void loadPack(std::string path);
-    void renderSubmesh(int iSubmesh);
+    void renderSubmesh(int iSubmesh, int *iPrevBuffer);
     
     GLfloat getMaxDimension();
     GLfloat getMinX();

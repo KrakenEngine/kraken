@@ -150,7 +150,7 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
     return m_submeshes;
 }
 
-void KRMesh::renderSubmesh(int iSubmesh) {
+void KRMesh::renderSubmesh(int iSubmesh, int *iPrevBuffer) {
     Submesh *pSubmesh = m_submeshes[iSubmesh];
     
     
@@ -159,19 +159,27 @@ void KRMesh::renderSubmesh(int iSubmesh) {
     iVertex = iVertex % MAX_VBO_SIZE;
     int cVertexes = pSubmesh->vertex_count;
     while(cVertexes > 0) {
-        glBindBuffer(GL_ARRAY_BUFFER, m_pBuffers[iBuffer]);
+        if(*iPrevBuffer != iBuffer) {
+            glBindBuffer(GL_ARRAY_BUFFER, m_pBuffers[iBuffer]);
         
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(0));
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-        
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D)));
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL);
-        
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(Vector3D)));
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT);
-        
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUV, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(Vector3D) * 2));
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUV);
+            if(*iPrevBuffer == -1) {
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUV);
+            }
+            
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(0));
+            
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D)));
+            
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(Vector3D)));
+            
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUV, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(Vector3D) * 2));
+
+
+            *iPrevBuffer = iBuffer;
+        }
         
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {
             glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex));
@@ -183,5 +191,4 @@ void KRMesh::renderSubmesh(int iSubmesh) {
             cVertexes = 0;
         }
     }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
