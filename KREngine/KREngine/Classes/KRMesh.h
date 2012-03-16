@@ -48,6 +48,7 @@ public:
     ~KRMesh();
     
     void loadPack(std::string path);
+    bool writePack(std::string path);
     void renderSubmesh(int iSubmesh, int *iPrevBuffer);
     
     GLfloat getMaxDimension();
@@ -63,6 +64,26 @@ public:
         GLsizei vertex_count;
         char szMaterialName[64];
     } Submesh;
+    
+    typedef struct {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+    } Vertex3D, KRVector3D;
+    
+    typedef struct {
+        GLfloat u;
+        GLfloat v;
+    } TexCoord;
+    
+    typedef struct {
+        Vertex3D vertex;
+        KRVector3D normal;
+        KRVector3D tangent;
+        TexCoord texcoord;
+    } VertexData;
+    
+    VertexData *getVertexData();
     
     vector<Submesh *> getSubmeshes();
     
@@ -85,33 +106,15 @@ protected:
         int32_t vertex_count;
         char szName[64];
     } pack_material;
-    
-    typedef struct {
-        GLfloat x;
-        GLfloat y;
-        GLfloat z;
-    } Vertex3D, KRVector3D;
-    
-    typedef struct {
-        GLfloat u;
-        GLfloat v;
-    } TexCoord;
-    
-    typedef struct {
-        Vertex3D vertex;
-        KRVector3D normal;
-        KRVector3D tangent;
-        TexCoord texcoord;
-    } VertexData;
-    
-    VertexData *m_pVertexData;
-    
 
     
     GLsizei m_cBuffers;
     GLuint *m_pBuffers;
     
     vector<Submesh *> m_submeshes;
+    
+    void unmap();
+    void clearBuffers();
 };
 
 
