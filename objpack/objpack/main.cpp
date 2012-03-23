@@ -41,7 +41,6 @@ int main (int argc, const char * argv[])
     } else {
         KROBJPacker p;
         for(int i=1; i < argc; i++) {
-            std::cout << "Packing " << argv[i] << " ...\n";
             p.pack(argv[i]);
         }
         std::cout << "Done.\n";

@@ -29,7 +29,21 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#import <stdint.h>
+#import <vector>
+#import <set>
+#import <list>
+#import <string>
+#import "KRMesh.h"
+#import "KRVector2.h"
+#import "KRVector3.h"
+#import "KRResource.h"
+
 #import "KREngine-common.h"
+
+using std::vector;
+using std::set;
+using std::list;
 
 
 #define MAX_VBO_SIZE 65535
@@ -42,13 +56,17 @@
 
 using std::vector;
 
-class KRMesh {
+class KRMesh : public KRResource {
 public:
-    KRMesh();
+    static vector<KRMesh> loadObj(const char *szPath);
+    
+    KRMesh(std::string name);
     ~KRMesh();
     
+    void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names);
     void loadPack(std::string path);
-    bool writePack(std::string path);
+    virtual bool save(const std::string& path);
+    
     void renderSubmesh(int iSubmesh, int *iPrevBuffer);
     
     GLfloat getMaxDimension();
@@ -87,6 +105,12 @@ public:
     
     vector<Submesh *> getSubmeshes();
     
+    typedef struct {
+        int32_t start_vertex;
+        int32_t vertex_count;
+        char szName[64];
+    } pack_material;
+    
 protected:
     GLfloat m_minx, m_miny, m_minz, m_maxx, m_maxy, m_maxz;
 
@@ -101,11 +125,7 @@ protected:
         int32_t submesh_count;
     } pack_header;
     
-    typedef struct {
-        int32_t start_vertex;
-        int32_t vertex_count;
-        char szName[64];
-    } pack_material;
+
 
     
     GLsizei m_cBuffers;
@@ -114,6 +134,7 @@ protected:
     vector<Submesh *> m_submeshes;
     
     void unmap();
+    void clearData();
     void clearBuffers();
 };
 

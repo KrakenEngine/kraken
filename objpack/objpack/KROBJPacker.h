@@ -42,37 +42,6 @@ public:
     ~KROBJPacker();
     void pack(const char *szPath);
     
-private:
-    typedef struct {
-        char szTag[16];
-        float minx, miny, minz, maxx, maxy, maxz;
-        int32_t vertex_count;
-        int32_t material_count;
-    } pack_header;
-    
-    typedef struct {
-        int32_t start_vertex;
-        int32_t vertex_count;
-        char szName[64];
-    } pack_material;
-    
-    typedef struct {
-        float x;
-        float y;
-        float z;
-    } Vertex3D, KRVector3D;
-    
-    typedef struct {
-        float u;
-        float v;
-    } TexCoord;
-    
-    typedef struct {
-        Vertex3D vertex;
-        KRVector3D normal;
-        KRVector3D tangent;
-        TexCoord texcoord;
-    } VertexData;
 };
 
 #endif // OBJPACKER_H

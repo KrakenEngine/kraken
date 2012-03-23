@@ -40,7 +40,7 @@
 #include <string.h>
 #include <assert.h>
 
-KRMesh::KRMesh() {
+KRMesh::KRMesh(std::string name) : KRResource(name) {
     m_fdPackFile = 0;
     m_pPackData = NULL;
     m_iPackFileSize = 0;
@@ -49,12 +49,18 @@ KRMesh::KRMesh() {
 }
 
 KRMesh::~KRMesh() {
+    clearData();
+}
+
+void KRMesh::clearData() {
+    clearBuffers();
     if(m_fdPackFile) {
         if(m_pPackData != NULL) {
             munmap(m_pPackData, m_iPackFileSize);
             m_pPackData = NULL;
         }
         close(m_fdPackFile);
+        m_fdPackFile = 0;
     } else {
         // If we didn't load a packed file, then the data was calculated at run time and malloc'ed
         if(m_pPackData != NULL) {
@@ -62,8 +68,6 @@ KRMesh::~KRMesh() {
             m_pPackData = NULL;
         }
     }
-    
-    clearBuffers();
 }
 
 void KRMesh::clearBuffers() {
@@ -76,6 +80,7 @@ void KRMesh::clearBuffers() {
 }
 
 void KRMesh::loadPack(std::string path) { 
+    clearData();
     struct stat statbuf;
     m_fdPackFile = open(path.c_str(), O_RDONLY);
     if(m_fdPackFile >= 0) {
@@ -83,8 +88,6 @@ void KRMesh::loadPack(std::string path) {
             if ((m_pPackData = mmap (0, statbuf.st_size, PROT_READ, MAP_SHARED, m_fdPackFile, 0)) == (caddr_t) -1) {
             } else {
                 m_iPackFileSize = statbuf.st_size;
-                
-                clearBuffers();
                 
                 pack_header *pHeader = (pack_header *)m_pPackData;
                 
@@ -100,13 +103,18 @@ void KRMesh::loadPack(std::string path) {
     }
 }
 
-bool KRMesh::writePack(std::string path) {
+bool KRMesh::save(const std::string& path) {
     clearBuffers();
     
-    int fdNewFile = open(path.c_str(), O_RDWR);
-    if(fdNewFile == 0) {
+    int fdNewFile = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
+    if(fdNewFile == -1) {
         return false;
     } else {
+        // Seek to end of file and write a byte to enlarge it
+        lseek(fdNewFile, m_iPackFileSize-1, SEEK_SET);
+        write(fdNewFile, "", 1);
+        
+        // Now map it...
         void *pNewData = mmap(0, m_iPackFileSize, PROT_READ | PROT_WRITE, MAP_SHARED, fdNewFile, 0);
         if(pNewData == (caddr_t) -1) {
             close(fdNewFile);
@@ -251,3 +259,151 @@ KRMesh::VertexData *KRMesh::getVertexData() {
     pack_material *pPackMaterials = (pack_material *)(pHeader+1);
     return (VertexData *)(pPackMaterials + pHeader->submesh_count);
 }
+
+void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names) {
+    
+    clearData();
+    
+    int submesh_count = submesh_lengths.size();
+    int vertex_count = vertices.size();
+    m_iPackFileSize = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(VertexData) * vertex_count;
+    m_pPackData = malloc(m_iPackFileSize);
+    
+    pack_header *pHeader = (pack_header *)m_pPackData;
+    memset(pHeader, 0, sizeof(pack_header));
+    
+    pHeader->submesh_count = submesh_lengths.size();
+    pHeader->vertex_count = vertices.size();
+    strcpy(pHeader->szTag, "KROBJPACK1.0   ");
+    
+    pack_material *pPackMaterials = (pack_material *)(pHeader+1);
+    
+    for(int iMaterial=0; iMaterial < pHeader->submesh_count; iMaterial++) {
+        pack_material *pPackMaterial = pPackMaterials + iMaterial;
+        pPackMaterial->start_vertex = submesh_starts[iMaterial];
+        pPackMaterial->vertex_count = submesh_lengths[iMaterial];
+        strcpy(pPackMaterial->szName, material_names[iMaterial].c_str());
+    }
+    
+    bool bFirstVertex = true;
+    
+    VertexData *pVertexData = (VertexData *)(pPackMaterials + pHeader->submesh_count);
+    VertexData *pVertex = pVertexData;
+    for(int iVertex=0; iVertex < vertices.size(); iVertex++) {
+        memset(pVertex, 0, sizeof(VertexData));
+        KRVector3 source_vertex = vertices[iVertex];
+        pVertex->vertex.x = source_vertex.x;
+        pVertex->vertex.y = source_vertex.y;
+        pVertex->vertex.z = source_vertex.z;
+        if(bFirstVertex) {
+            bFirstVertex = false;
+            m_minx = source_vertex.x;
+            m_miny = source_vertex.y;
+            m_minz = source_vertex.z;
+            m_maxx = source_vertex.x;
+            m_maxy = source_vertex.y;
+            m_maxz = source_vertex.z;
+        } else {
+            if(source_vertex.x < m_minx) m_minx = source_vertex.x;
+            if(source_vertex.y < m_miny) m_miny = source_vertex.y;
+            if(source_vertex.z < m_minz) m_minz = source_vertex.z;
+            if(source_vertex.x > m_maxx) m_maxx = source_vertex.x;
+            if(source_vertex.y > m_maxy) m_maxy = source_vertex.y;
+            if(source_vertex.z > m_maxz) m_maxz = source_vertex.z;
+        }
+        if(uva.size() > iVertex) {
+            KRVector2 source_uva = uva[iVertex];
+            pVertex->texcoord.u = source_uva.x;
+            pVertex->texcoord.v = source_uva.y;
+        }
+        if(normals.size() > iVertex) {
+            KRVector3 source_normal = normals[iVertex];
+            pVertex->normal.x = source_normal.x;
+            pVertex->normal.y = source_normal.y;
+            pVertex->normal.z = source_normal.z;
+        }
+        if(tangents.size() > iVertex) {
+            KRVector3 source_tangent = tangents[iVertex];
+            pVertex->tangent.x = source_tangent.x;
+            pVertex->tangent.y = source_tangent.y;
+            pVertex->tangent.z = source_tangent.z;
+        }        
+        
+        pVertex++;
+    }
+    
+    pHeader->minx = m_minx;
+    pHeader->miny = m_miny;
+    pHeader->minz = m_minz;
+    pHeader->maxx = m_maxx;
+    pHeader->maxy = m_maxy;
+    pHeader->maxz = m_maxz;
+    
+    
+    // Calculate missing surface normals and tangents
+    //cout << "  Calculate surface normals and tangents\n";
+    VertexData *pStart = pVertexData;
+    VertexData *pEnd = pStart + vertex_count;
+    
+    for(VertexData *pVertex = pStart; pVertex < pEnd; pVertex+=3) {
+        KRVector3 p1(pVertex[0].vertex.x, pVertex[0].vertex.y, pVertex[0].vertex.z);
+        KRVector3 p2(pVertex[1].vertex.x, pVertex[1].vertex.y, pVertex[1].vertex.z);
+        KRVector3 p3(pVertex[2].vertex.x, pVertex[2].vertex.y, pVertex[2].vertex.z);
+        KRVector3 v1 = p2 - p1;
+        KRVector3 v2 = p3 - p1;
+        
+        // -- Calculate normal --
+        if(pVertex->normal.x == 0 && pVertex->normal.y == 0 && pVertex->normal.z == 0) {
+            
+            KRVector3 normal = v1.cross( v2 );
+            
+            normal.normalize();
+            
+            pVertex[0].normal.x = normal.x;
+            pVertex[0].normal.y = normal.y;
+            pVertex[0].normal.z = normal.z;
+            
+            pVertex[1].normal.x = normal.x;
+            pVertex[1].normal.y = normal.y;
+            pVertex[1].normal.z = normal.z;
+            
+            pVertex[2].normal.x = normal.x;
+            pVertex[2].normal.y = normal.y;
+            pVertex[2].normal.z = normal.z;
+        }
+        
+        // -- Calculate tangent vector for normal mapping --
+        if(pVertex->tangent.x == 0 && pVertex->tangent.y == 0 && pVertex->tangent.z == 0) {
+            TexCoord st1; // = pVertex[2].texcoord;
+            TexCoord st2; // = pVertex[1].texcoord;
+            st1.u = pVertex[1].texcoord.u - pVertex[0].texcoord.u;
+            st1.v = pVertex[1].texcoord.v - pVertex[0].texcoord.v;
+            st2.u = pVertex[2].texcoord.u - pVertex[0].texcoord.u;
+            st2.v = pVertex[2].texcoord.v - pVertex[0].texcoord.v;
+            double coef = 1/ (st1.u * st2.v - st2.u * st1.v);
+
+            pVertex[0].tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));
+            pVertex[0].tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
+            pVertex[0].tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
+
+            KRVector3 tangent(
+                              coef * ((v1.x * st2.v)  + (v2.x * -st1.v)),
+                              coef * ((v1.y * st2.v)  + (v2.y * -st1.v)),
+                              coef * ((v1.z * st2.v)  + (v2.z * -st1.v))
+                              );
+
+            tangent.normalize();
+
+            pVertex[0].tangent.x = tangent.x;
+            pVertex[0].tangent.y = tangent.y;
+            pVertex[0].tangent.z = tangent.z;                             
+            pVertex[1].tangent.x = tangent.x;
+            pVertex[1].tangent.y = tangent.y;
+            pVertex[1].tangent.z = tangent.z;
+            pVertex[2].tangent.x = tangent.x;
+            pVertex[2].tangent.y = tangent.y;
+            pVertex[2].tangent.z = tangent.z;
+        }
+    }
+}
+

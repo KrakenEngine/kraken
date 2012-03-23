@@ -50,9 +50,10 @@ KRModel::KRModel(std::string path, KRMaterialManager *pMaterialManager) {
 }
 
 void KRModel::loadPack(std::string path, KRMaterialManager *pMaterialManager) {
-    m_mesh.loadPack(path);
+    m_pMesh = new KRMesh(KRResource::GetFileBase(path));
+    m_pMesh->loadPack(path);
     
-    vector<KRMesh::Submesh *> submeshes = m_mesh.getSubmeshes();
+    vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
     
     for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
         KRMaterial *pMaterial = pMaterialManager->getMaterial((*itr)->szMaterialName);
@@ -70,7 +71,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
     int iPrevBuffer = -1;
     char szPrevShaderKey[128];
     szPrevShaderKey[0] = '\0';
-    int cSubmeshes = m_mesh.getSubmeshes().size();
+    int cSubmeshes = m_pMesh->getSubmeshes().size();
     if(bRenderShadowMap) {
         for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
             KRMaterial *pMaterial = m_materials[iSubmesh];
@@ -79,7 +80,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
 
                 if(pMaterial->isTransparent()) {
                     // Exclude transparent and semi-transparent meshes from shadow maps
-                    m_mesh.renderSubmesh(iSubmesh, &iPrevBuffer);
+                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }
             
@@ -92,7 +93,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
                 
                 if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                     pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
-                    m_mesh.renderSubmesh(iSubmesh, &iPrevBuffer);
+                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }
         }
@@ -101,5 +102,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
 }
 
 KRMesh *KRModel::getMesh() {
-    return &m_mesh;
+    return m_pMesh;
 }
+
+

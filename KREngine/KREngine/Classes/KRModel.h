@@ -33,6 +33,7 @@
 #import <set>
 #import <string>
 #import "KRMesh.h"
+#import "KRVector2.h"
 
 #import "KREngine-common.h"
 
@@ -60,7 +61,7 @@ private:
     
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
-    KRMesh m_mesh;
+    KRMesh *m_pMesh;
 
 };
 
