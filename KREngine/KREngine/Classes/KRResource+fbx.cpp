@@ -385,33 +385,14 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                             }
                         }
                         
+                        
                         // ----====---- Read Normals ----====----
-                        for(int l = 0; l < normal_count; ++l)
-                        {
-                            KFbxVector4 new_normal;
-                            KFbxGeometryElementNormal* leNormal = pMesh->GetElementNormal(l);
-                            
-                            if(leNormal->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
-                                switch (leNormal->GetReferenceMode())
-                                {
-                                    case KFbxGeometryElement::eDIRECT:
-                                        new_normal = leNormal->GetDirectArray().GetAt(source_vertex_id);
-                                        break;
-                                    case KFbxGeometryElement::eINDEX_TO_DIRECT:
-                                    {
-                                        int id = leNormal->GetIndexArray().GetAt(source_vertex_id);
-                                        new_normal = leNormal->GetDirectArray().GetAt(id);
-                                    }
-                                        break;
-                                    default:
-                                        break; // other reference modes not shown here!
-                                }
-                            }
-                            if(l == 0) {
-                                normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
-                            }
-                            
+                        
+                        KFbxVector4 new_normal;
+                        if(pMesh->GetPolygonVertexNormal(iPolygon, iVertex, new_normal)) {
+                            normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
+                        
                         
                         // ----====---- Read Tangents ----====----
                         for(int l = 0; l < tangent_count; ++l)
@@ -422,11 +403,11 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                             if(leTangent->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
                                 switch (leTangent->GetReferenceMode()) {
                                     case KFbxGeometryElement::eDIRECT:
-                                        new_tangent = leTangent->GetDirectArray().GetAt(source_vertex_id);
+                                        new_tangent = leTangent->GetDirectArray().GetAt(lControlPointIndex);
                                         break;
                                     case KFbxGeometryElement::eINDEX_TO_DIRECT:
                                     {
-                                        int id = leTangent->GetIndexArray().GetAt(source_vertex_id);
+                                        int id = leTangent->GetIndexArray().GetAt(lControlPointIndex);
                                         new_tangent = leTangent->GetDirectArray().GetAt(id);
                                     }
                                         break;
@@ -439,6 +420,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                             }
                             
                         }
+
                         
 
                         
