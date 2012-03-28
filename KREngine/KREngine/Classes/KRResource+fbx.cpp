@@ -279,7 +279,8 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     int uv_count = pMesh->GetElementUVCount();
     int normal_count = pMesh->GetElementNormalCount();
     int tangent_count = pMesh->GetElementTangentCount();
-    int material_count = pMesh->GetElementMaterialCount();
+    int elementmaterial_count = pMesh->GetElementMaterialCount();
+    int material_count = pNode->GetMaterialCount();
     
         
     printf("  Polygon Count: %i (before triangulation: %i)\n", polygon_count, pSourceMesh->GetPolygonCount());
@@ -293,185 +294,170 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     std::vector<int> submesh_starts;
     std::vector<std::string> material_names;
     
-    
-    int source_vertex_id = 0;
     int dest_vertex_id = 0;
-    KFbxGeometryElementMaterial* pMaterial = NULL;
-    int iMaterial = -1;
-    int mat_vertex_count = 0;
-    int mat_vertex_start = 0;
 
-    for(int iPolygon = 0; iPolygon < polygon_count; iPolygon++) {
-        int lPolygonSize = pMesh->GetPolygonSize(iPolygon);
-        if(lPolygonSize != 3) {
-            source_vertex_id += lPolygonSize;
-            printf("    Warning - Poly with %i vertices found. Expecting only triangles.", lPolygonSize);
-        } else {
-            // ----====---- Read SubMesh / Material Mapping ----====----
-            int iPrevMat = iMaterial;
-            KFbxGeometryElementMaterial *pPrevMat = pMaterial;
-            iMaterial = -1;
-            pMaterial = NULL;
-            for (int l = 0; l < material_count; l++)
-            {
-                KFbxGeometryElementMaterial* leMat = pMesh->GetElementMaterial(l);
-                if(leMat) {
-                    if (leMat->GetReferenceMode() == KFbxGeometryElement::eINDEX || leMat->GetReferenceMode() == KFbxGeometryElement::eINDEX_TO_DIRECT) {
-                        int new_id = leMat->GetIndexArray().GetAt(iPolygon);
-                        if(new_id >= 0) {
-                            iMaterial = new_id;
-                            pMaterial = leMat;
+    for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
+        int source_vertex_id = 0;
+        int mat_vertex_count = 0;
+        int mat_vertex_start = dest_vertex_id;
+        for(int iPolygon = 0; iPolygon < polygon_count; iPolygon++) {
+            int lPolygonSize = pMesh->GetPolygonSize(iPolygon);
+            if(lPolygonSize != 3) {
+                source_vertex_id += lPolygonSize;
+                printf("    Warning - Poly with %i vertices found. Expecting only triangles.", lPolygonSize);
+            } else {
+                // ----====---- Read SubMesh / Material Mapping ----====----
+                int iNewMaterial = -1;
+                for (int l = 0; l < elementmaterial_count; l++)
+                {
+                    KFbxGeometryElementMaterial* leMat = pMesh->GetElementMaterial(l);
+                    if(leMat) {
+                        if (leMat->GetReferenceMode() == KFbxGeometryElement::eINDEX || leMat->GetReferenceMode() == KFbxGeometryElement::eINDEX_TO_DIRECT) {
+                            int new_id = leMat->GetIndexArray().GetAt(iPolygon);
+                            if(new_id >= 0) {
+                                iNewMaterial = new_id;
+                            }
                         }
                     }
                 }
-            }
-            
-            if(iMaterial != iPrevMat) {
-                if(pPrevMat && mat_vertex_count) {
-                    submesh_starts.push_back(mat_vertex_start);
-                    submesh_lengths.push_back(mat_vertex_count);
-                    material_names.push_back(pNode->GetMaterial(iMaterial)->GetName());
-                    printf("  Material \"%s\" from %i to %i\n", pNode->GetMaterial(iMaterial)->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
-                }
                 
-                mat_vertex_count = 0;
-                mat_vertex_start = dest_vertex_id;
-            }
-
-            
-            
-            // ----====---- Read Vertex-level Attributes ----====----
-            for(int iVertex=0; iVertex<3; iVertex++) {
-                // ----====---- Read Vertex Position ----====----
-                int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
-                KFbxVector4 v = control_points[lControlPointIndex];
-                vertices.push_back(KRVector3(v[0], v[1], v[2]));
-                
-                
-                // ----====---- Read UVs ----====----
-                for (int l = 0; l < uv_count; ++l)
-                {
-                    KFbxVector2 uv;
-                    KFbxGeometryElementUV* leUV = pMesh->GetElementUV(l);
-                    
-                    switch (leUV->GetMappingMode()) {
-                        case KFbxGeometryElement::eBY_CONTROL_POINT:
-                            switch (leUV->GetReferenceMode()) {
-                            case KFbxGeometryElement::eDIRECT:
-                                uv = leUV->GetDirectArray().GetAt(lControlPointIndex);
-                                break;
-                            case KFbxGeometryElement::eINDEX_TO_DIRECT:
-                            {
-                                int id = leUV->GetIndexArray().GetAt(lControlPointIndex);
-                                uv = leUV->GetDirectArray().GetAt(id);
-                            }
-                                break;
-                            default:
-                                break; // other reference modes not shown here!
-                        }
-                            break;
-                            
-                        case KFbxGeometryElement::eBY_POLYGON_VERTEX:
+                if(iMaterial == iNewMaterial) {
+                    // ----====---- Read Vertex-level Attributes ----====----
+                    for(int iVertex=0; iVertex<3; iVertex++) {
+                        // ----====---- Read Vertex Position ----====----
+                        int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
+                        KFbxVector4 v = control_points[lControlPointIndex];
+                        vertices.push_back(KRVector3(v[0], v[1], v[2]));
+                        
+                        
+                        // ----====---- Read UVs ----====----
+                        for (int l = 0; l < uv_count; ++l)
                         {
-                            int lTextureUVIndex = pMesh->GetTextureUVIndex(iPolygon, iVertex);
-                            switch (leUV->GetReferenceMode())
-                            {
-                                case KFbxGeometryElement::eDIRECT:
-                                case KFbxGeometryElement::eINDEX_TO_DIRECT:
-                                {
-                                    uv = leUV->GetDirectArray().GetAt(lTextureUVIndex);
+                            KFbxVector2 uv;
+                            KFbxGeometryElementUV* leUV = pMesh->GetElementUV(l);
+                            
+                            switch (leUV->GetMappingMode()) {
+                                case KFbxGeometryElement::eBY_CONTROL_POINT:
+                                    switch (leUV->GetReferenceMode()) {
+                                    case KFbxGeometryElement::eDIRECT:
+                                        uv = leUV->GetDirectArray().GetAt(lControlPointIndex);
+                                        break;
+                                    case KFbxGeometryElement::eINDEX_TO_DIRECT:
+                                    {
+                                        int id = leUV->GetIndexArray().GetAt(lControlPointIndex);
+                                        uv = leUV->GetDirectArray().GetAt(id);
+                                    }
+                                        break;
+                                    default:
+                                        break; // other reference modes not shown here!
                                 }
                                     break;
-                                default:
-                                    break; // other reference modes not shown here!
+                                    
+                                case KFbxGeometryElement::eBY_POLYGON_VERTEX:
+                                {
+                                    int lTextureUVIndex = pMesh->GetTextureUVIndex(iPolygon, iVertex);
+                                    switch (leUV->GetReferenceMode())
+                                    {
+                                        case KFbxGeometryElement::eDIRECT:
+                                        case KFbxGeometryElement::eINDEX_TO_DIRECT:
+                                        {
+                                            uv = leUV->GetDirectArray().GetAt(lTextureUVIndex);
+                                        }
+                                            break;
+                                        default:
+                                            break; // other reference modes not shown here!
+                                    }
+                                }
+                                    break;
+                                    
+                                case KFbxGeometryElement::eBY_POLYGON: // doesn't make much sense for UVs
+                                case KFbxGeometryElement::eALL_SAME:   // doesn't make much sense for UVs
+                                case KFbxGeometryElement::eNONE:       // doesn't make much sense for UVs
+                                    break;
                             }
-                        }
-                            break;
                             
-                        case KFbxGeometryElement::eBY_POLYGON: // doesn't make much sense for UVs
-                        case KFbxGeometryElement::eALL_SAME:   // doesn't make much sense for UVs
-                        case KFbxGeometryElement::eNONE:       // doesn't make much sense for UVs
-                            break;
-                    }
-                    
-                    if(l == 0) {
-                        uva.push_back(KRVector2(uv[0], uv[1]));
-                    } else if(l == 1) {
-                        uvb.push_back(KRVector2(uv[0], uv[1]));
-                    }
-                }
-                
-                // ----====---- Read Normals ----====----
-                for(int l = 0; l < normal_count; ++l)
-                {
-                    KFbxVector4 new_normal;
-                    KFbxGeometryElementNormal* leNormal = pMesh->GetElementNormal(l);
-                    
-                    if(leNormal->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
-                        switch (leNormal->GetReferenceMode())
+                            if(l == 0) {
+                                uva.push_back(KRVector2(uv[0], uv[1]));
+                            } else if(l == 1) {
+                                uvb.push_back(KRVector2(uv[0], uv[1]));
+                            }
+                        }
+                        
+                        // ----====---- Read Normals ----====----
+                        for(int l = 0; l < normal_count; ++l)
                         {
-                            case KFbxGeometryElement::eDIRECT:
-                                new_normal = leNormal->GetDirectArray().GetAt(source_vertex_id);
-                                break;
-                            case KFbxGeometryElement::eINDEX_TO_DIRECT:
-                            {
-                                int id = leNormal->GetIndexArray().GetAt(source_vertex_id);
-                                new_normal = leNormal->GetDirectArray().GetAt(id);
+                            KFbxVector4 new_normal;
+                            KFbxGeometryElementNormal* leNormal = pMesh->GetElementNormal(l);
+                            
+                            if(leNormal->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
+                                switch (leNormal->GetReferenceMode())
+                                {
+                                    case KFbxGeometryElement::eDIRECT:
+                                        new_normal = leNormal->GetDirectArray().GetAt(source_vertex_id);
+                                        break;
+                                    case KFbxGeometryElement::eINDEX_TO_DIRECT:
+                                    {
+                                        int id = leNormal->GetIndexArray().GetAt(source_vertex_id);
+                                        new_normal = leNormal->GetDirectArray().GetAt(id);
+                                    }
+                                        break;
+                                    default:
+                                        break; // other reference modes not shown here!
+                                }
                             }
-                                break;
-                            default:
-                                break; // other reference modes not shown here!
-                        }
-                    }
-                    if(l == 0) {
-                        normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
-                    }
-                    
-                }
-                
-                // ----====---- Read Tangents ----====----
-                for(int l = 0; l < tangent_count; ++l)
-                {
-                    KFbxVector4 new_tangent;
-                    KFbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
-                    
-                    if(leTangent->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
-                        switch (leTangent->GetReferenceMode()) {
-                            case KFbxGeometryElement::eDIRECT:
-                                new_tangent = leTangent->GetDirectArray().GetAt(source_vertex_id);
-                                break;
-                            case KFbxGeometryElement::eINDEX_TO_DIRECT:
-                            {
-                                int id = leTangent->GetIndexArray().GetAt(source_vertex_id);
-                                new_tangent = leTangent->GetDirectArray().GetAt(id);
+                            if(l == 0) {
+                                normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                             }
-                                break;
-                            default:
-                                break; // other reference modes not shown here!
+                            
                         }
-                    }
-                    if(l == 0) {
-                        tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
-                    }
-                    
-                }
-                
+                        
+                        // ----====---- Read Tangents ----====----
+                        for(int l = 0; l < tangent_count; ++l)
+                        {
+                            KFbxVector4 new_tangent;
+                            KFbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
+                            
+                            if(leTangent->GetMappingMode() == KFbxGeometryElement::eBY_POLYGON_VERTEX) {
+                                switch (leTangent->GetReferenceMode()) {
+                                    case KFbxGeometryElement::eDIRECT:
+                                        new_tangent = leTangent->GetDirectArray().GetAt(source_vertex_id);
+                                        break;
+                                    case KFbxGeometryElement::eINDEX_TO_DIRECT:
+                                    {
+                                        int id = leTangent->GetIndexArray().GetAt(source_vertex_id);
+                                        new_tangent = leTangent->GetDirectArray().GetAt(id);
+                                    }
+                                        break;
+                                    default:
+                                        break; // other reference modes not shown here!
+                                }
+                            }
+                            if(l == 0) {
+                                tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
+                            }
+                            
+                        }
+                        
 
-                
-                source_vertex_id++;
-                dest_vertex_id++;
-                mat_vertex_count++;
+                        
+                        source_vertex_id++;
+                        dest_vertex_id++;
+                        mat_vertex_count++;
+                    }
+                }
             }
+        }
+        
+        // ----====---- Output last material / submesh details ----====----
+        if(mat_vertex_count) {
+            submesh_starts.push_back(mat_vertex_start);
+            submesh_lengths.push_back(mat_vertex_count);
+            material_names.push_back(pNode->GetMaterial(iMaterial)->GetName());
+            printf("  %s: %i - %i\n", pNode->GetMaterial(iMaterial)->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
         }
     }
     
-    // ----====---- Complete last material / submesh ----====----
-    if(iMaterial >= 0 && mat_vertex_count) {
-        submesh_starts.push_back(mat_vertex_start);
-        submesh_lengths.push_back(mat_vertex_count);
-        material_names.push_back(pNode->GetMaterial(iMaterial)->GetName());
-        printf("  Material \"%s\" from %i to %i\n", pNode->GetMaterial(iMaterial)->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
-    }
+
     
     
     // ----====---- Generate Output Mesh Object ----====----
