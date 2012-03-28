@@ -56,6 +56,8 @@
 		E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95C151BF05F00D3DC67 /* CoreServices.framework */; };
 		E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */; };
 		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
+		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
 		E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* krengine_osx.m */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
@@ -347,6 +349,7 @@
 				E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */,
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
 				E497B94B151BCEE900D3DC67 /* KRResource.h in Headers */,
+				E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */,
 				E46DBE811512AFE600D59F86 /* KRMesh.h in Headers */,
 				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
 			);
@@ -462,6 +465,7 @@
 			files = (
 				E46DBE7B1512ACE600D59F86 /* KRMesh.cpp in Sources */,
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
+				E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */,
 				E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */,
 				E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */,
 				E497B94E151BCF2500D3DC67 /* KRResource.cpp in Sources */,

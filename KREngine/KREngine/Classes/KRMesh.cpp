@@ -52,6 +52,10 @@ KRMesh::~KRMesh() {
     clearData();
 }
 
+std::string KRMesh::getExtension() {
+    return "krobject";
+}
+
 void KRMesh::clearData() {
     clearBuffers();
     if(m_fdPackFile) {

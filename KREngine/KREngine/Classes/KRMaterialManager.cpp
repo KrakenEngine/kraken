@@ -110,7 +110,7 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                         
                         if(strcmp(szSymbol[0], "newmtl") == 0 && cSymbols >= 2) {
                             
-                            pMaterial = new KRMaterial(szSymbol[1], m_pShaderManager);
+                            pMaterial = new KRMaterial(szSymbol[1]);
                             m_materials[szSymbol[1]] = pMaterial;
                         } if(pMaterial != NULL) {
                             if(strcmp(szSymbol[0], "Ka") == 0) {
@@ -171,18 +171,18 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                                     *pLastPeriod = '\0';
                                 }
 
-                                KRTexture *pTexture = m_pTextureManager->getTexture(szSymbol[1]);
-                                if(pTexture) {
-                                    if(strcmp(szSymbol[0], "map_Ka") == 0) {
-                                        pMaterial->setAmbientMap(pTexture);
-                                    } else if(strcmp(szSymbol[0], "map_Kd") == 0) {
-                                        pMaterial->setDiffuseMap(pTexture);
-                                    } else if(strcmp(szSymbol[0], "map_Ks") == 0) {
-                                        pMaterial->setSpecularMap(pTexture);
-                                    } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
-                                        pMaterial->setNormalMap(pTexture);
-                                    }
+                                
+
+                                if(strcmp(szSymbol[0], "map_Ka") == 0) {
+                                    pMaterial->setAmbientMap(szSymbol[1]);
+                                } else if(strcmp(szSymbol[0], "map_Kd") == 0) {
+                                    pMaterial->setDiffuseMap(szSymbol[1]);
+                                } else if(strcmp(szSymbol[0], "map_Ks") == 0) {
+                                    pMaterial->setSpecularMap(szSymbol[1]);
+                                } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
+                                    pMaterial->setNormalMap(szSymbol[1]);
                                 }
+
                             }
                         }
 

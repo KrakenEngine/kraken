@@ -52,7 +52,7 @@ KRInstance *KRScene::addInstance(KRModel *pModel, KRMat4 modelMatrix) {
     m_instances.push_back(pInstance);
     return pInstance;
 }
-void KRScene::render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRScene::render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     
     if(cShadowBuffers > 0 && !bRenderShadowMap) {
         glActiveTexture(GL_TEXTURE3);
@@ -86,7 +86,7 @@ void KRScene::render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMate
         KRInstance *pInstance = *itr;
         
         if(pInstance->getExtents().test_intersect(frustrumVolume) || bRenderShadowMap) {
-            pInstance->render(pCamera, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
+            pInstance->render(pCamera, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
         }
     }
 }

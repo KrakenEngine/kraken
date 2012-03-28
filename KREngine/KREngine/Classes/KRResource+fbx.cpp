@@ -23,6 +23,7 @@
 
 #include "KRResource.h"
 #include "KRMesh.h"
+#include "KRMaterial.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -297,6 +298,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     int dest_vertex_id = 0;
 
     for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
+        KFbxSurfaceMaterial *pMaterial = pNode->GetMaterial(iMaterial);
         int source_vertex_id = 0;
         int mat_vertex_count = 0;
         int mat_vertex_start = dest_vertex_id;
@@ -448,12 +450,137 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
             }
         }
         
-        // ----====---- Output last material / submesh details ----====----
+        
         if(mat_vertex_count) {
+            // ----====---- Output last material / submesh details ----====----
             submesh_starts.push_back(mat_vertex_start);
             submesh_lengths.push_back(mat_vertex_count);
-            material_names.push_back(pNode->GetMaterial(iMaterial)->GetName());
-            printf("  %s: %i - %i\n", pNode->GetMaterial(iMaterial)->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
+            material_names.push_back(pMaterial->GetName());
+            printf("  %s: %i - %i\n", pMaterial->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
+            
+            // ----====---- Output Material File ----====----
+            KRMaterial *new_material = new KRMaterial(pMaterial->GetName());            
+            
+            KFbxPropertyDouble3 lKFbxDouble3;
+            KFbxPropertyDouble1 lKFbxDouble1;
+            
+            if (pMaterial->GetClassId().Is(KFbxSurfacePhong::ClassId)) {
+                // We found a Phong material.
+                
+                // Ambient Color
+                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Ambient;
+                new_material->setAmbient(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                
+                // Diffuse Color
+                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Diffuse;
+                new_material->setDiffuse(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                
+                // Specular Color (unique to Phong materials)
+                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Specular;
+                new_material->setSpecular(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                
+                // Emissive Color
+                //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
+                
+                // Transparency
+                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->TransparencyFactor;
+                new_material->setTransparency(1.0-lKFbxDouble1.Get());
+                
+                // Shininess
+                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
+                new_material->setShininess(lKFbxDouble1.Get());
+                
+                // Display the Reflectivity
+                //lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+            } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
+                // We found a Lambert material.
+                
+                // Ambient Color
+                lKFbxDouble3=((KFbxSurfaceLambert *)pMaterial)->Ambient;
+                new_material->setAmbient(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                
+                // Diffuse Color
+                lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Diffuse;
+                new_material->setDiffuse(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                
+                // Emissive
+                //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
+                
+                // Opacity
+                lKFbxDouble1 =((KFbxSurfaceLambert *)pMaterial)->TransparencyFactor;
+                new_material->setTransparency(1.0-lKFbxDouble1.Get());
+            } else {
+                printf("Error! Unable to convert material: %s", pMaterial->GetName());
+            }
+            
+            
+            
+            KFbxProperty pProperty;
+            
+            // Diffuse Map Texture
+            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
+            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+                printf("Error! Layered textures not supported.\n");
+            } else {
+                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+                if(texture_count > 1) {
+                    printf("Error! Multiple diffuse textures not supported.\n");
+                } else if(texture_count == 1) {
+                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                    if(pFileTexture) {
+                        new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                    }
+                }
+            }
+            
+            // Specular Map Texture
+            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
+            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+                printf("Error! Layered textures not supported.\n");
+            } else {
+                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+                if(texture_count > 1) {
+                    printf("Error! Multiple specular textures not supported.\n");
+                } else if(texture_count == 1) {
+                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                    if(pFileTexture) {
+                        new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                    }
+                }
+            }
+            
+            // Normal Map Texture
+            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
+            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+                printf("Error! Layered textures not supported.\n");
+            } else {
+                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+                if(texture_count > 1) {
+                    printf("Error! Multiple normal map textures not supported.\n");
+                } else if(texture_count == 1) {
+                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                    if(pFileTexture) {
+                        new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                    }
+                }
+            }
+            
+            bool bFound = false;
+            vector<KRResource *>::iterator resource_itr = resources.begin();
+            for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
+                KRResource *pResource = (*resource_itr);
+                if(pResource->getName() == new_material->getName() && pResource->getExtension() == new_material->getExtension()) {
+                    bFound = true;
+                }
+            }
+            if(bFound) {
+                delete new_material;
+            } else {
+                resources.push_back(new_material);
+            }
         }
     }
     
@@ -465,5 +592,6 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     KRMesh *new_mesh = new KRMesh(pNode->GetName());
     new_mesh->LoadData(vertices, uva, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
+
 }
 

@@ -30,8 +30,14 @@
 //
 
 #include "KRMaterial.h"
+#include "KRTextureManager.h"
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
 
-KRMaterial::KRMaterial(char *szName, KRShaderManager *pShaderManager) {
+KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
     strcpy(m_szName, szName);
     m_pAmbientMap = NULL;
     m_pDiffuseMap = NULL;
@@ -48,28 +54,62 @@ KRMaterial::KRMaterial(char *szName, KRShaderManager *pShaderManager) {
     m_ks_b = (GLfloat)1.0f;
     m_tr = (GLfloat)0.0f;
     m_ns = (GLfloat)0.0f;
-    
-    m_pShaderManager = pShaderManager;
+    m_ambientMap = "";
+    m_diffuseMap = "";
+    m_specularMap = "";
+    m_normalMap = "";
 }
 
 KRMaterial::~KRMaterial() {
     
 }
 
-void KRMaterial::setAmbientMap(KRTexture *pTexture) {
-    m_pAmbientMap = pTexture;
+std::string KRMaterial::getExtension() {
+    return "mtl";
+}
+bool KRMaterial::save(const std::string& path) {
+    FILE *f = fopen(path.c_str(), "w+");
+    if(f == NULL) {
+        return false;
+    } else {
+
+        fprintf(f, "newmtl %s\n", m_szName);
+        fprintf(f, "ka %f %f %f\n", m_ka_r, m_ka_g, m_ka_b);
+        fprintf(f, "kd %f %f %f\n", m_kd_r, m_kd_g, m_kd_b);
+        fprintf(f, "ks %f %f %f\n", m_ks_r, m_ks_g, m_ks_b);
+        fprintf(f, "Tr %f\n", m_tr);
+        fprintf(f, "Ns %f\n", m_ns);
+        if(m_ambientMap.size()) {
+            fprintf(f, "map_Ka %s.pvr\n", m_ambientMap.c_str());
+        }
+        if(m_diffuseMap.size()) {
+            fprintf(f, "map_Kd %s.pvr\n", m_diffuseMap.c_str());
+        }
+        if(m_specularMap.size()) {
+            fprintf(f, "map_Ks %s.pvr\n", m_specularMap.c_str());
+        }
+        if(m_normalMap.size()) {
+            fprintf(f, "map_Normal %s.pvr\n", m_normalMap.c_str());
+        }
+        fclose(f);
+        return true;
+    }
 }
 
-void KRMaterial::setDiffuseMap(KRTexture *pTexture) {
-    m_pDiffuseMap = pTexture;
+void KRMaterial::setAmbientMap(std::string texture_name) {
+    m_ambientMap = texture_name;
 }
 
-void KRMaterial::setSpecularMap(KRTexture *pTexture) {
-    m_pSpecularMap = pTexture;
+void KRMaterial::setDiffuseMap(std::string texture_name) {
+    m_diffuseMap = texture_name;
 }
 
-void KRMaterial::setNormalMap(KRTexture *pTexture) {
-    m_pNormalMap = pTexture;
+void KRMaterial::setSpecularMap(std::string texture_name) {
+    m_specularMap = texture_name;
+}
+
+void KRMaterial::setNormalMap(std::string texture_name) {
+    m_normalMap = texture_name;
 }
 
 void KRMaterial::setAmbient(GLfloat r, GLfloat g, GLfloat b) {
@@ -101,16 +141,29 @@ void KRMaterial::setShininess(GLfloat s) {
 bool KRMaterial::isTransparent() {
     return m_tr != 0.0;
 }
-
-void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+#if TARGET_OS_IPHONE
+void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     bool bSameMaterial = *prevBoundMaterial == this;
+    
+    if(!m_pAmbientMap && m_ambientMap.size()) {
+        m_pAmbientMap = pTextureManager->getTexture(m_ambientMap.c_str());
+    }
+    if(!m_pDiffuseMap && m_diffuseMap.size()) {
+        m_pDiffuseMap = pTextureManager->getTexture(m_diffuseMap.c_str());
+    }
+    if(!m_pNormalMap && m_normalMap.size()) {
+        m_pNormalMap = pTextureManager->getTexture(m_normalMap.c_str());
+    }
+    if(!m_pSpecularMap && m_specularMap.size()) {
+        m_pSpecularMap = pTextureManager->getTexture(m_specularMap.c_str());
+    }
     
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;
     bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
     bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
     
     if(!bSameMaterial) { 
-        KRShader *pShader = m_pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers);
+        KRShader *pShader = pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
@@ -203,6 +256,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         *prevBoundMaterial = this;
     } // if(!bSameMaterial)
 }
+#endif
 
 char *KRMaterial::getName() {
     return m_szName;

@@ -48,7 +48,7 @@ KRModel *KRInstance::getModel() {
     return m_pModel;
 }
 
-void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     
     KRMat4 projectionMatrix;
     if(!bRenderShadowMap) {
@@ -62,7 +62,7 @@ void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, 
     KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
     KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
     
-    m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
+    m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
     
 }
 

@@ -57,15 +57,16 @@ using std::list;
 using std::vector;
 
 class KRMesh : public KRResource {
-public:
-    static vector<KRMesh> loadObj(const char *szPath);
-    
+public:    
     KRMesh(std::string name);
     ~KRMesh();
     
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    
     void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names);
     void loadPack(std::string path);
-    virtual bool save(const std::string& path);
+    
     
     void renderSubmesh(int iSubmesh, int *iPrevBuffer);
     

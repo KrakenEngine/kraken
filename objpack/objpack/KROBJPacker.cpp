@@ -66,7 +66,8 @@ void KROBJPacker::pack(const char *szPath) {
             out_file_name.append("/output/");
             //out_file_name.append(pResource->GetFileBase(pResource->getName()));
             out_file_name.append(pResource->getName());
-            out_file_name.append(".krobject");
+            out_file_name.append(".");
+            out_file_name.append(pResource->getExtension());
             std::cout << "Writing " << out_file_name << " ... ";
             if(pResource->save(out_file_name)) {
                 std::cout << " SUCCESS!\n";

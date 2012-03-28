@@ -44,25 +44,37 @@ using std::list;
 #import "KRShaderManager.h"
 #import "KRShader.h"
 #import "KRCamera.h"
+#import "KRResource.h"
 
-class KRMaterial {
+class KRTextureManager;
+
+class KRMaterial : public KRResource {
 public:
-    KRMaterial(char *szName, KRShaderManager *pShaderManager);
+    KRMaterial(const char *szName);
     ~KRMaterial();
     
-    void setAmbientMap(KRTexture *pTexture);
-    void setDiffuseMap(KRTexture *pTexture);
-    void setSpecularMap(KRTexture *pTexture);
-    void setNormalMap(KRTexture *pTexture);
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    
+    
+    void setAmbientMap(std::string texture_name);
+    void setDiffuseMap(std::string texture_name);
+    void setSpecularMap(std::string texture_name);
+    void setNormalMap(std::string texture_name);
     void setAmbient(GLfloat r, GLfloat g, GLfloat b);
     void setDiffuse(GLfloat r, GLfloat g, GLfloat b);    
     void setSpecular(GLfloat r, GLfloat g, GLfloat b);
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
     
-    void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
+
     bool isTransparent();
     char *getName();
+    
+#if TARGET_OS_IPHONE
+    void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+    
+#endif
     
 private:
     char m_szName[64];
@@ -71,6 +83,10 @@ private:
     KRTexture *m_pDiffuseMap; // mtl map_Kd value
     KRTexture *m_pSpecularMap; // mtl map_Ks value
     KRTexture *m_pNormalMap; // mtl map_Normal value
+    std::string m_ambientMap;
+    std::string m_diffuseMap;
+    std::string m_specularMap;
+    std::string m_normalMap;
     
     GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
     GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb
@@ -78,8 +94,6 @@ private:
     
     GLfloat m_tr; // Transparency
     GLfloat m_ns; // Shininess
-    
-    KRShaderManager *m_pShaderManager;
 };
 
 #endif

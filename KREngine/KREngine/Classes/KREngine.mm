@@ -329,7 +329,7 @@ double const PI = 3.141592653589793f;
     KRVector3 cameraPosition;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
-    pScene->render(&m_camera, shadowVolume, m_pMaterialManager, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, 0);
+    pScene->render(&m_camera, shadowVolume, m_pMaterialManager, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, 0, m_pShaderManager, m_pTextureManager);
     
     glViewport(0, 0, 768, 1024);
 }
@@ -355,7 +355,7 @@ double const PI = 3.141592653589793f;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz, m_camera.perspective_farz);
-    pScene -> render(&m_camera, frustrumVolume, m_pMaterialManager, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers);
+    pScene -> render(&m_camera, frustrumVolume, m_pMaterialManager, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, m_pShaderManager, m_pTextureManager);
 }
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file withOptions: (NSString *)options

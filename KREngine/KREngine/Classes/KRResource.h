@@ -20,6 +20,7 @@ class KRResource
 {
 public:
     std::string getName();
+    virtual std::string getExtension() = 0;
     
     static std::string GetFileExtension(const std::string& name);
     static std::string GetFileBase(const std::string& name);
