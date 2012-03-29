@@ -46,7 +46,7 @@ class KRBoundingVolume;
 class KRInstance {
     
 public:
-    KRInstance(KRModel *pModel, const KRMat4 modelMatrix);
+    KRInstance(KRModel *pModel, const KRMat4 modelMatrix, std::string shadow_map);
     ~KRInstance();
     void render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix,  KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
     
@@ -58,6 +58,8 @@ public:
 private:
     KRModel *m_pModel;
     KRMat4 m_modelMatrix;
+    KRTexture *m_pShadowMap;
+    std::string m_shadowMap;
 };
 
 

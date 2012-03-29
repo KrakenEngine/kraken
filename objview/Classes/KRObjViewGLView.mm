@@ -127,7 +127,7 @@
     //m_scene.addInstance(pModelManager->getModel("fachwerkhaus12"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("ballroom"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("HoganCombined"), KRMat4());
-    m_scene.addInstance(pModelManager->getModel("degagetest"), KRMat4());
+    m_scene.addInstance(pModelManager->getModel("polySurface12848"), KRMat4(), "PillarLightmap1k");
     
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];

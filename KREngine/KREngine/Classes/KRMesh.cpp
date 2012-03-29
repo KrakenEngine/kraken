@@ -231,7 +231,8 @@ void KRMesh::renderSubmesh(int iSubmesh, int *iPrevBuffer) {
                 glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
                 glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL);
                 glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUV);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB);
             }
             
             glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(0));
@@ -240,8 +241,8 @@ void KRMesh::renderSubmesh(int iSubmesh, int *iPrevBuffer) {
             
             glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D)));
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUV, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D) * 2));
-
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D) * 2));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D) * 2 + sizeof(TexCoord)));
 
             *iPrevBuffer = iBuffer;
         }
@@ -264,7 +265,7 @@ KRMesh::VertexData *KRMesh::getVertexData() {
     return (VertexData *)(pPackMaterials + pHeader->submesh_count);
 }
 
-void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names) {
+void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names) {
     
     clearData();
     
@@ -317,8 +318,13 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         }
         if(uva.size() > iVertex) {
             KRVector2 source_uva = uva[iVertex];
-            pVertex->texcoord.u = source_uva.x;
-            pVertex->texcoord.v = source_uva.y;
+            pVertex->uva.u = source_uva.x;
+            pVertex->uva.v = source_uva.y;
+        }
+        if(uvb.size() > iVertex) {
+            KRVector2 source_uvb = uvb[iVertex];
+            pVertex->uvb.u = source_uvb.x;
+            pVertex->uvb.v = source_uvb.y;
         }
         if(normals.size() > iVertex) {
             KRVector3 source_normal = normals[iVertex];
@@ -380,10 +386,10 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         if(pVertex->tangent.x == 0 && pVertex->tangent.y == 0 && pVertex->tangent.z == 0) {
             TexCoord st1; // = pVertex[2].texcoord;
             TexCoord st2; // = pVertex[1].texcoord;
-            st1.u = pVertex[1].texcoord.u - pVertex[0].texcoord.u;
-            st1.v = pVertex[1].texcoord.v - pVertex[0].texcoord.v;
-            st2.u = pVertex[2].texcoord.u - pVertex[0].texcoord.u;
-            st2.v = pVertex[2].texcoord.v - pVertex[0].texcoord.v;
+            st1.u = pVertex[1].uva.u - pVertex[0].uva.u;
+            st1.v = pVertex[1].uva.v - pVertex[0].uva.v;
+            st2.u = pVertex[2].uva.u - pVertex[0].uva.u;
+            st2.v = pVertex[2].uva.v - pVertex[0].uva.v;
             double coef = 1/ (st1.u * st2.v - st2.u * st1.v);
 
             pVertex[0].tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));

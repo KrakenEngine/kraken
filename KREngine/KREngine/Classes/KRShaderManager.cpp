@@ -47,10 +47,10 @@ KRShaderManager::~KRShaderManager() {
 }
 
 
-KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality) {
+KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bShadowMap) {
 
     char szKey[128];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, /*pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB, pCamera->dSunR, pCamera->dSunG, pCamera->dSunB, */pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular);
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, /*pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB, pCamera->dSunR, pCamera->dSunG, pCamera->dSunB, */pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bShadowMap);
     
     
     /*
@@ -72,12 +72,14 @@ KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool b
         stream << "#define HAS_DIFFUSE_MAP " << (bDiffuseMap ? "1" : "0");
         stream << "\n#define HAS_NORMAL_MAP " << (bNormalMap ? "1" : "0");
         stream << "\n#define HAS_SPEC_MAP " << (bSpecMap ? "1" : "0");
+        stream << "\n#define HAS_SHADOW_MAP " << (bShadowMap ? "1" : "0");
         stream << "\n#define ENABLE_PER_PIXEL " << (pCamera->bEnablePerPixel ? "1" : "0");
         stream << "\n#define DEBUG_PSSM " << (pCamera->bDebugPSSM ? "1" : "0");
         stream << "\n#define SHADOW_QUALITY " << iShadowQuality;
         stream << "\n#define ENABLE_AMBIENT " << (pCamera->bEnableAmbient ? "1" : "0");
         stream << "\n#define ENABLE_DIFFUSE " << (pCamera->bEnableDiffuse ? "1" : "0");
         stream << "\n#define ENABLE_SPECULAR " << (pCamera->bEnableSpecular ? "1" : "0");
+        
         stream.setf(ios::fixed,ios::floatfield);
         
         stream << "\n";

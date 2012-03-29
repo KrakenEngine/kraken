@@ -67,7 +67,7 @@ KRModel::~KRModel() {
 
 }
 
-void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pShadowMap) {
     KRMaterial *pPrevBoundMaterial = NULL;
     int iPrevBuffer = -1;
     char szPrevShaderKey[128];
@@ -79,7 +79,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
             
             if(pMaterial != NULL) {
 
-                if(pMaterial->isTransparent()) {
+                if(!pMaterial->isTransparent()) {
                     // Exclude transparent and semi-transparent meshes from shadow maps
                     m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
@@ -93,7 +93,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
                 KRMaterial *pMaterial = m_materials[iSubmesh];
                 
                 if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, pShadowMap);
                     m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }

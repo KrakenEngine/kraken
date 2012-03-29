@@ -50,7 +50,7 @@ class KRScene {
 public:
     KRScene();
     ~KRScene();
-    KRInstance *addInstance(KRModel *pModel, KRMat4 modelMatrix);
+    KRInstance *addInstance(KRModel *pModel, KRMat4 modelMatrix, std::string shadow_map);
     void render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
     KRBoundingVolume getExtents();
 private:

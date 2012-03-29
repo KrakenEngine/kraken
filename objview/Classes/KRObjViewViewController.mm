@@ -231,7 +231,7 @@
                          pos.rotate((double)rand() / (double)RAND_MAX * 6.282, Y_AXIS);
                          pos.translate((double)rand() / (double)RAND_MAX * 10000 - 5000, 0.0, (double)rand() / (double)RAND_MAX * 10000 - 5000);
                          
-                         scene->addInstance(pModelManager->getModel(szName), pos);
+                         scene->addInstance(pModelManager->getModel(szName), pos, "");
                      }
                  }
                 

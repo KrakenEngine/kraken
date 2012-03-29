@@ -46,9 +46,9 @@ KRScene::~KRScene() {
     m_instances.empty();
     clearExtents();
 }
-KRInstance *KRScene::addInstance(KRModel *pModel, KRMat4 modelMatrix) {
+KRInstance *KRScene::addInstance(KRModel *pModel, KRMat4 modelMatrix, std::string shadow_map) {
     clearExtents();
-    KRInstance *pInstance = new KRInstance(pModel, modelMatrix);
+    KRInstance *pInstance = new KRInstance(pModel, modelMatrix, shadow_map);
     m_instances.push_back(pInstance);
     return pInstance;
 }

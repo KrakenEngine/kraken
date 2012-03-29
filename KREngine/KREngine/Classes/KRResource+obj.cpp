@@ -28,6 +28,7 @@ std::vector<KRResource *> KRResource::LoadObj(const std::string& path)
     resources.push_back(new_mesh);
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
+    std::vector<KRVector2> uvb;
     std::vector<KRVector3> normals;
     std::vector<KRVector3> tangents;
     std::vector<int> submesh_lengths;
@@ -341,7 +342,7 @@ std::vector<KRResource *> KRResource::LoadObj(const std::string& path)
                     delete pNewMaterial;
                 }
                 
-                new_mesh->LoadData(vertices, uva, normals, tangents, submesh_starts, submesh_lengths, material_names);
+                new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
             }
         }
     }

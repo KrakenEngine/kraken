@@ -61,11 +61,12 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         // Bind attribute locations.
         // This needs to be done prior to linking.
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "position");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUV, "inputTextureCoordinate");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "inputTextureCoordinate");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVB, "shadowuv");
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "myVertex");
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_NORMAL, "myNormal");
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TANGENT, "myTangent");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUV, "myUV");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "myUV");
         
         // Link program.
         glLinkProgram(m_iProgram);

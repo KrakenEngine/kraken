@@ -49,6 +49,11 @@ uniform sampler2D   shadowTexture1;
 varying highp vec4  shadowMapCoord1;
 #endif
 
+#if HAS_SHADOW_MAP == 1
+uniform sampler2D     shadowTexture1;
+varying mediump vec2  shadowCoord;
+#endif
+
 #if SHADOW_QUALITY >= 2
 uniform sampler2D   shadowTexture2;
 varying highp vec4	shadowMapCoord2;
@@ -174,6 +179,15 @@ void main()
     gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, texCoord)) * specularFactor, 0.0);
 #else
     gl_FragColor += vec4(material_specular * specularFactor, 0.0);
+#endif
+
+    // -------------------- Multiply shadow map -------------------- 
+    
+#if HAS_SHADOW_MAP
+    mediump vec3 shadowColor = vec3(texture2D(shadowTexture1, shadowCoord));
+    gl_FragColor = vec4(gl_FragColor.r * shadowColor.r, gl_FragColor.g * shadowColor.g, gl_FragColor.b * shadowColor.b, 1.0);
+//    gl_FragColor = vec4(shadowColor, 1.0);
+//    gl_FragColor = vec4(shadowCoord.s, shadowCoord.t, 1.0, 1.0);
 #endif
     
 #endif

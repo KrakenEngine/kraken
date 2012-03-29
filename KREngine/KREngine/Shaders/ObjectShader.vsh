@@ -32,6 +32,7 @@
 attribute highp vec3	myVertex, myNormal;
 attribute highp vec3    myTangent;
 attribute mediump vec2	myUV;
+attribute mediump vec2   shadowuv;
 uniform highp mat4      myMVPMatrix, myShadowMVPMatrix1,myShadowMVPMatrix2,myShadowMVPMatrix3; // mvpmatrix is the result of multiplying the model, view, and projection matrices 
 // uniform lowp vec3       material_ambient, material_diffuse, material_specular;
 uniform highp vec3      lightDirection; // Must be normalized before entering shader
@@ -44,6 +45,11 @@ uniform mediump float   material_shininess;
 #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
 varying mediump vec2	texCoord;
 #endif
+
+#if HAS_SHADOW_MAP == 1
+varying mediump vec2  shadowCoord;
+#endif
+
 
 #if ENABLE_PER_PIXEL == 1
 varying mediump vec3    lightVec;
@@ -79,6 +85,11 @@ void main()
 #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
     // Pass UV co-ordinates
     texCoord = myUV.st;
+#endif
+    
+#if HAS_SHADOW_MAP == 1
+    // Pass shadow UV co-ordinates
+    shadowCoord = shadowuv.st;
 #endif
     
 #if SHADOW_QUALITY >= 1

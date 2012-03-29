@@ -32,9 +32,11 @@
 #include <iostream>
 #import "KRInstance.h"
 
-KRInstance::KRInstance(KRModel *pModel, const KRMat4 modelMatrix) {
+KRInstance::KRInstance(KRModel *pModel, const KRMat4 modelMatrix, std::string shadow_map) {
     m_pModel = pModel;
     m_modelMatrix = modelMatrix;
+    m_shadowMap = shadow_map;
+    m_pShadowMap = NULL;
 }
 
 KRInstance::~KRInstance() {
@@ -50,6 +52,19 @@ KRModel *KRInstance::getModel() {
 
 void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     
+    if(m_pShadowMap == NULL && m_shadowMap.size()) {
+        m_pShadowMap = pTextureManager->getTexture(m_shadowMap.c_str());
+    }
+    
+    if(cShadowBuffers == 0 && m_pShadowMap && pCamera->bEnableShadowMap && !bRenderShadowMap) {
+        int iTextureName = m_pShadowMap->getName();
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, iTextureName);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+    
     KRMat4 projectionMatrix;
     if(!bRenderShadowMap) {
         projectionMatrix = pCamera->getProjectionMatrix();
@@ -62,7 +77,7 @@ void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, 
     KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
     KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
     
-    m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+    m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pShadowMap);
     
 }
 

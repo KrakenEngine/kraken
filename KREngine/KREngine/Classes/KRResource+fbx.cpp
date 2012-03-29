@@ -572,7 +572,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     // ----====---- Generate Output Mesh Object ----====----
 
     KRMesh *new_mesh = new KRMesh(pNode->GetName());
-    new_mesh->LoadData(vertices, uva, normals, tangents, submesh_starts, submesh_lengths, material_names);
+    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
 
 }
