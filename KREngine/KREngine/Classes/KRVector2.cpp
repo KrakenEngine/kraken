@@ -23,3 +23,11 @@ KRVector2::KRVector2(float X, float Y) {
 KRVector2::~KRVector2() {
 
 }
+
+bool operator== (KRVector2 &v1, KRVector2 &v2) {
+    return v1.x == v2.x && v1.y == v2.y;
+    
+}
+bool operator!= (KRVector2 &v1, KRVector2 &v2) {
+    return !(v1 == v2);
+}

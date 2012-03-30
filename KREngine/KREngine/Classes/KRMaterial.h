@@ -45,6 +45,7 @@ using std::list;
 #import "KRShader.h"
 #import "KRCamera.h"
 #import "KRResource.h"
+#import "KRVector2.h"
 
 class KRTextureManager;
 
@@ -57,10 +58,10 @@ public:
     virtual bool save(const std::string& path);
     
     
-    void setAmbientMap(std::string texture_name);
-    void setDiffuseMap(std::string texture_name);
-    void setSpecularMap(std::string texture_name);
-    void setNormalMap(std::string texture_name);
+    void setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setAmbient(GLfloat r, GLfloat g, GLfloat b);
     void setDiffuse(GLfloat r, GLfloat g, GLfloat b);    
     void setSpecular(GLfloat r, GLfloat g, GLfloat b);
@@ -87,6 +88,15 @@ private:
     std::string m_diffuseMap;
     std::string m_specularMap;
     std::string m_normalMap;
+    
+    KRVector2 m_ambientMapScale;
+    KRVector2 m_ambientMapOffset;
+    KRVector2 m_diffuseMapScale;
+    KRVector2 m_diffuseMapOffset;
+    KRVector2 m_specularMapScale;
+    KRVector2 m_specularMapOffset;
+    KRVector2 m_normalMapScale;
+    KRVector2 m_normalMapOffset;
     
     GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
     GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb

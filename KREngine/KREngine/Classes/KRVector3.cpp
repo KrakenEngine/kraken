@@ -118,3 +118,11 @@ KRVector3 KRVector3::cross(const KRVector3 &vec) const
                    z * vec.x - x * vec.z,
                    x * vec.y - y * vec.x);
 }
+
+bool operator== (KRVector3 &v1, KRVector3 &v2) {
+    return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
+}
+
+bool operator!= (KRVector3 &v1, KRVector3 &v2) {
+    return !(v1 == v2);
+}

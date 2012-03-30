@@ -509,9 +509,20 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                     printf("Error! Multiple diffuse textures not supported.\n");
                 } else if(texture_count == 1) {
                     KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                    assert(!pTexture->GetSwapUV());
+                    assert(pTexture->GetCroppingTop() == 0);
+                    assert(pTexture->GetCroppingLeft() == 0);
+                    assert(pTexture->GetCroppingRight() == 0);
+                    assert(pTexture->GetCroppingBottom() == 0);
+                    assert(pTexture->GetWrapModeU() == KFbxTexture::eREPEAT);
+                    assert(pTexture->GetWrapModeV() == KFbxTexture::eREPEAT);
+                    assert(pTexture->GetRotationU() == 0.0f);
+                    assert(pTexture->GetRotationV() == 0.0f);
+                    assert(pTexture->GetRotationW() == 0.0f);
+                    
                     KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
                     if(pFileTexture) {
-                        new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                        new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                     }
                 }
             }
@@ -528,7 +539,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                     KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
                     KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
                     if(pFileTexture) {
-                        new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                        new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                     }
                 }
             }
@@ -545,7 +556,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                     KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
                     KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
                     if(pFileTexture) {
-                        new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()));
+                        new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                     }
                 }
             }

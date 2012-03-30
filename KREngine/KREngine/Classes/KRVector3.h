@@ -49,7 +49,8 @@ public:
     
     KRVector3(const KRVector3& p);
     KRVector3& operator = ( const KRVector3& p );
-
+    friend bool operator== (KRVector3 &v1, KRVector3 &v2);
+    friend bool operator!= (KRVector3 &v1, KRVector3 &v2);
     
 	//calculate and return the magnitude of this vector
 	float GetMagnitude();

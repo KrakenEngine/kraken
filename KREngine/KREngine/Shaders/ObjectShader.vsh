@@ -43,7 +43,7 @@ uniform mediump float   material_shininess;
 #endif
 
 #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
-varying mediump vec2	texCoord;
+varying highp vec2	texCoord;
 #endif
 
 #if HAS_SHADOW_MAP == 1
@@ -57,6 +57,30 @@ varying mediump vec3    halfVec;
 #else
 varying mediump float   lamberFactor;
 varying mediump float   specularFactor;
+#endif
+
+#if HAS_DIFFUSE_MAP_SCALE == 1
+uniform highp vec2    diffuseTexture_Scale;
+#endif
+
+#if HAS_NORMAL_MAP_SCALE == 1
+uniform highp vec2    normalTexture_Scale;
+#endif
+
+#if HAS_SPEC_MAP_SCALE == 1
+uniform highp vec2    specularTexture_Scale;
+#endif
+
+#if HAS_NORMAL_MAP_OFFSET == 1
+uniform highp vec2    normalTexture_Offset;
+#endif
+
+#if HAS_SPEC_MAP_OFFSET == 1
+uniform highp vec2    specularTexture_Offset;
+#endif
+
+#if HAS_DIFFUSE_MAP_OFFSET == 1
+uniform highp vec2    diffuseTexture_Offset;
 #endif
 
 #if HAS_NORMAL_MAP == 0 && ENABLE_PER_PIXEL == 1
@@ -75,6 +99,18 @@ varying highp vec4	shadowMapCoord2;
 varying highp vec4	shadowMapCoord3;
 #endif
 
+#if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+varying highp vec2  normal_uv;
+#endif
+
+#if (HAS_SPEC_MAP_OFFSET == 1|| HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+varying highp vec2 spec_uv;
+#endif
+
+#if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+varying highp vec2  diffuse_uv;
+#endif
+
 void main()
 {
     // Transform position
@@ -86,6 +122,52 @@ void main()
     // Pass UV co-ordinates
     texCoord = myUV.st;
 #endif
+    
+
+// Scaled and translated normal map UV's
+#if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+    normal_uv = texCoord;
+    
+#if HAS_NORMAL_MAP_OFFSET == 1
+    normal_uv + normalTexture_Offset;
+#endif
+    
+#if HAS_NORMAL_MAP_SCALE == 1
+    normal_uv *= normalTexture_Scale;
+#endif
+    
+#endif
+
+    
+// Scaled and translated diffuse map UV's
+#if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+    diffuse_uv = texCoord;
+    
+#if HAS_DIFFUSE_MAP_OFFSET == 1
+    diffuse_uv + diffuseTexture_Offset;
+#endif
+    
+#if HAS_DIFFUSE_MAP_SCALE == 1
+    diffuse_uv *= diffuseTexture_Scale;
+#endif
+    
+#endif
+
+
+// Scaled and translated specular map UV's
+#if (HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+    spec_uv = texCoord;
+#if HAS_SPEC_MAP_OFFSET == 1
+    spec_uv + specularTexture_Offset;
+#endif
+    
+#if HAS_SPEC_MAP_SCALE == 1
+    spec_uv *= specularTexture_Scale;
+#endif
+    
+#endif    
+    
+    
     
 #if HAS_SHADOW_MAP == 1
     // Pass shadow UV co-ordinates

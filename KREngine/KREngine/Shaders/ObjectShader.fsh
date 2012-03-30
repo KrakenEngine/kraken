@@ -65,7 +65,7 @@ varying highp vec4  shadowMapCoord3;
 #endif
 
 #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
-varying mediump vec2    texCoord;
+varying highp vec2    texCoord;
 #endif
 
 #if HAS_NORMAL_MAP == 0 && ENABLE_PER_PIXEL == 1
@@ -80,11 +80,30 @@ varying mediump float   lamberFactor;
 varying mediump float   specularFactor;
 #endif
 
+
+#if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+varying highp vec2  normal_uv;
+#else
+#define normal_uv texCoord
+#endif
+
+#if (HAS_SPEC_MAP_OFFSET == 1|| HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+varying mediump vec2 spec_uv;
+#else
+#define spec_uv texCoord
+#endif
+
+#if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+varying highp vec2  diffuse_uv;
+#else
+#define diffuse_uv texCoord
+#endif
+
 void main()
 {
-#if HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1
+#if HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1    
     // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
-	mediump vec3 normal = normalize(2.0 * texture2D(normalTexture,texCoord).rgb - 1.0);
+	mediump vec3 normal = normalize(2.0 * texture2D(normalTexture,normal_uv).rgb - 1.0);
 #endif
     
 #if ENABLE_PER_PIXEL == 1
@@ -96,7 +115,7 @@ void main()
 #endif
 
 #if HAS_DIFFUSE_MAP == 1
-    mediump vec4 diffuseMaterial = vec4(vec3(texture2D(diffuseTexture, texCoord)), material_alpha);
+    mediump vec4 diffuseMaterial = vec4(vec3(texture2D(diffuseTexture, diffuse_uv)), material_alpha);
 #else
     mediump vec4 diffuseMaterial = vec4(vec3(1.0), material_alpha);
 #endif
@@ -175,8 +194,8 @@ void main()
 #if ENABLE_SPECULAR
     
     // -------------------- Add specular light --------------------
-#if HAS_SPEC_MAP == 1
-    gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, texCoord)) * specularFactor, 0.0);
+#if HAS_SPEC_MAP == 1    
+    gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor, 0.0);
 #else
     gl_FragColor += vec4(material_specular * specularFactor, 0.0);
 #endif

@@ -108,84 +108,120 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                             }
                         }
                         
-                        if(strcmp(szSymbol[0], "newmtl") == 0 && cSymbols >= 2) {
+                        if(cSymbols > 0) {
                             
-                            pMaterial = new KRMaterial(szSymbol[1]);
-                            m_materials[szSymbol[1]] = pMaterial;
-                        } if(pMaterial != NULL) {
-                            if(strcmp(szSymbol[0], "Ka") == 0) {
-                                char *pScan2 = szSymbol[1];
-                                double r = strtof(pScan2, &pScan2);
-                                if(cSymbols == 2) {
-                                    pMaterial->setAmbient(r, r, r);
-                                } else if(cSymbols == 4) {
-                                    pScan2 = szSymbol[2];
-                                    double g = strtof(pScan2, &pScan2);
-                                    pScan2 = szSymbol[3];
-                                    double b = strtof(pScan2, &pScan2);
-                                    pMaterial->setAmbient(r, g, b);
-                                }
-                            } else if(strcmp(szSymbol[0], "Kd") == 0) {
-                                char *pScan2 = szSymbol[1];
-                                double r = strtof(pScan2, &pScan2);
-                                if(cSymbols == 2) {
-                                    pMaterial->setDiffuse(r, r, r);
-                                } else if(cSymbols == 4) {
-                                    pScan2 = szSymbol[2];
-                                    double g = strtof(pScan2, &pScan2);
-                                    pScan2 = szSymbol[3];
-                                    double b = strtof(pScan2, &pScan2);
-                                    pMaterial->setDiffuse(r, g, b);
-                                }
-                            } else if(strcmp(szSymbol[0], "Ks") == 0) {
-                                char *pScan2 = szSymbol[1];
-                                double r = strtof(pScan2, &pScan2);
-                                if(cSymbols == 2) {
-                                    pMaterial->setSpecular(r, r, r);
-                                } else if(cSymbols == 4) {
-                                    pScan2 = szSymbol[2];
-                                    double g = strtof(pScan2, &pScan2);
-                                    pScan2 = szSymbol[3];
-                                    double b = strtof(pScan2, &pScan2);
-                                    pMaterial->setSpecular(r, g, b);
-                                }
-                            } else if(strcmp(szSymbol[0], "Tr") == 0) {
-                                char *pScan2 = szSymbol[1];
-                                double a = strtof(pScan2, &pScan2);
-                                pMaterial->setTransparency(a);
-                            } else if(strcmp(szSymbol[0], "Ns") == 0) {
-                                char *pScan2 = szSymbol[1];
-                                double a = strtof(pScan2, &pScan2);
-                                pMaterial->setShininess(a);
-                            } else if(strncmp(szSymbol[0], "map", 3) == 0) {
-                                // Truncate file extension
-                                char *pScan2 = szSymbol[1];
-                                char *pLastPeriod = NULL;
-                                while(*pScan2 != '\0') {
-                                    if(*pScan2 == '.') {
-                                        pLastPeriod = pScan2;
-                                    }
-                                    pScan2++;
-                                }
-                                if(pLastPeriod) {
-                                    *pLastPeriod = '\0';
-                                }
-
+                            if(strcmp(szSymbol[0], "newmtl") == 0 && cSymbols >= 2) {
                                 
+                                pMaterial = new KRMaterial(szSymbol[1]);
+                                m_materials[szSymbol[1]] = pMaterial;
+                            }
+                            if(pMaterial != NULL) {
+                                if(strcmp(szSymbol[0], "Ka") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double r = strtof(pScan2, &pScan2);
+                                    if(cSymbols == 2) {
+                                        pMaterial->setAmbient(r, r, r);
+                                    } else if(cSymbols == 4) {
+                                        pScan2 = szSymbol[2];
+                                        double g = strtof(pScan2, &pScan2);
+                                        pScan2 = szSymbol[3];
+                                        double b = strtof(pScan2, &pScan2);
+                                        pMaterial->setAmbient(r, g, b);
+                                    }
+                                } else if(strcmp(szSymbol[0], "Kd") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double r = strtof(pScan2, &pScan2);
+                                    if(cSymbols == 2) {
+                                        pMaterial->setDiffuse(r, r, r);
+                                    } else if(cSymbols == 4) {
+                                        pScan2 = szSymbol[2];
+                                        double g = strtof(pScan2, &pScan2);
+                                        pScan2 = szSymbol[3];
+                                        double b = strtof(pScan2, &pScan2);
+                                        pMaterial->setDiffuse(r, g, b);
+                                    }
+                                } else if(strcmp(szSymbol[0], "Ks") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double r = strtof(pScan2, &pScan2);
+                                    if(cSymbols == 2) {
+                                        pMaterial->setSpecular(r, r, r);
+                                    } else if(cSymbols == 4) {
+                                        pScan2 = szSymbol[2];
+                                        double g = strtof(pScan2, &pScan2);
+                                        pScan2 = szSymbol[3];
+                                        double b = strtof(pScan2, &pScan2);
+                                        pMaterial->setSpecular(r, g, b);
+                                    }
+                                } else if(strcmp(szSymbol[0], "Tr") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double a = strtof(pScan2, &pScan2);
+                                    pMaterial->setTransparency(a);
+                                } else if(strcmp(szSymbol[0], "Ns") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double a = strtof(pScan2, &pScan2);
+                                    pMaterial->setShininess(a);
+                                } else if(strncmp(szSymbol[0], "map", 3) == 0) {
+                                    // Truncate file extension
+                                    char *pScan2 = szSymbol[1];
+                                    char *pLastPeriod = NULL;
+                                    while(*pScan2 != '\0') {
+                                        if(*pScan2 == '.') {
+                                            pLastPeriod = pScan2;
+                                        }
+                                        pScan2++;
+                                    }
+                                    if(pLastPeriod) {
+                                        *pLastPeriod = '\0';
+                                    }
 
-                                if(strcmp(szSymbol[0], "map_Ka") == 0) {
-                                    pMaterial->setAmbientMap(szSymbol[1]);
-                                } else if(strcmp(szSymbol[0], "map_Kd") == 0) {
-                                    pMaterial->setDiffuseMap(szSymbol[1]);
-                                } else if(strcmp(szSymbol[0], "map_Ks") == 0) {
-                                    pMaterial->setSpecularMap(szSymbol[1]);
-                                } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
-                                    pMaterial->setNormalMap(szSymbol[1]);
+                                    KRVector2 texture_scale = KRVector2(1.0f, 1.0f);
+                                    KRVector2 texture_offset = KRVector2(0.0f, 0.0f);
+                                    
+                                    int iScanSymbol = 2;
+                                    int iScaleParam = -1;
+                                    int iOffsetParam = -1;
+                                    while(iScanSymbol < cSymbols) {
+                                        if(strcmp(szSymbol[iScanSymbol], "-s") == 0) {
+                                            // Scale
+                                            iScaleParam = 0;
+                                            iOffsetParam = -1;
+                                        } else if(strcmp(szSymbol[iScanSymbol], "-o") == 0) {
+                                            // Offset
+                                            iOffsetParam = 0;
+                                            iScaleParam = -1;
+                                        } else {
+                                            char *pScan3 = szSymbol[iScanSymbol];
+                                            double v = strtof(pScan3, &pScan3);
+                                            if(iScaleParam == 0) {
+                                                texture_scale.x = v;
+                                                iScaleParam++;
+                                            } else if(iScaleParam == 1) {
+                                                texture_scale.y = v;
+                                                iScaleParam++;
+                                            } else if(iOffsetParam == 0) {
+                                                texture_offset.x = v;
+                                                iOffsetParam++;
+                                            } else if(iOffsetParam == 1) {
+                                                texture_offset.y = v;
+                                                iOffsetParam++;
+                                            }
+                                        }
+                                        iScanSymbol++;
+                                    }
+
+                                    if(strcmp(szSymbol[0], "map_Ka") == 0) {
+                                        pMaterial->setAmbientMap(szSymbol[1], texture_scale, texture_offset);
+                                    } else if(strcmp(szSymbol[0], "map_Kd") == 0) {
+                                        pMaterial->setDiffuseMap(szSymbol[1], texture_scale, texture_offset);
+                                    } else if(strcmp(szSymbol[0], "map_Ks") == 0) {
+                                        pMaterial->setSpecularMap(szSymbol[1], texture_scale, texture_offset);
+                                    } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
+                                        pMaterial->setNormalMap(szSymbol[1], texture_scale, texture_offset);
+                                    }
+
                                 }
-
                             }
                         }
-
                     }
 
                 }

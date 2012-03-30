@@ -320,24 +320,38 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
             KRVector2 source_uva = uva[iVertex];
             pVertex->uva.u = source_uva.x;
             pVertex->uva.v = source_uva.y;
+        } else {
+            pVertex->uva.u = 0.0;
+            pVertex->uva.v = 0.0;
         }
         if(uvb.size() > iVertex) {
             KRVector2 source_uvb = uvb[iVertex];
             pVertex->uvb.u = source_uvb.x;
             pVertex->uvb.v = source_uvb.y;
+        } else {
+            pVertex->uvb.u = 0.0;
+            pVertex->uvb.v = 0.0;
         }
         if(normals.size() > iVertex) {
             KRVector3 source_normal = normals[iVertex];
             pVertex->normal.x = source_normal.x;
             pVertex->normal.y = source_normal.y;
             pVertex->normal.z = source_normal.z;
+        } else {
+            pVertex->normal.x = 0.0f;
+            pVertex->normal.y = 0.0f;
+            pVertex->normal.z = 0.0f;
         }
         if(tangents.size() > iVertex) {
             KRVector3 source_tangent = tangents[iVertex];
             pVertex->tangent.x = source_tangent.x;
             pVertex->tangent.y = source_tangent.y;
             pVertex->tangent.z = source_tangent.z;
-        }        
+        } else {
+            pVertex->tangent.x = 0.0f;
+            pVertex->tangent.y = 0.0f;
+            pVertex->tangent.z = 0.0f;
+        }
         
         pVertex++;
     }

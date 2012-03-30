@@ -16,6 +16,9 @@ public:
     KRVector2(float X, float Y);
     ~KRVector2();
     
+    friend bool operator== (KRVector2 &v1, KRVector2 &v2);
+    friend bool operator!= (KRVector2 &v1, KRVector2 &v2);
+    
 private:
     
     
