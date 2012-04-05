@@ -109,9 +109,9 @@ void main()
 #if ENABLE_PER_PIXEL == 1
     mediump float lamberFactor = max(0.0,dot(lightVec, normal));
     mediump float specularFactor = 0.0;
-    if(material_shininess > 0.0) {
-        specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
-    }
+    //if(material_shininess > 0.0) {
+        specularFactor = max(0.0,pow(max(dot(halfVec,normal), 0.0), material_shininess));
+    //}
 #endif
 
 #if HAS_DIFFUSE_MAP == 1
