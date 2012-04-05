@@ -208,10 +208,7 @@ void main()
     // ------ Calculate per-vertex lighting ------
     mediump vec3 halfVec = normalize((normalize(cameraPosition - myVertex) + lightDirection)); // Normalizing anyways, no need to divide by 2
     lamberFactor = max(0.0,dot(lightDirection, myNormal));
-    specularFactor = 0.0;
-    if(material_shininess > 0.0) {
-        specularFactor = max(0.0,pow(dot(halfVec,myNormal), material_shininess));
-    }
+    specularFactor = max(0.0,pow(dot(halfVec,myNormal), material_shininess));
 #endif
 #endif
 }

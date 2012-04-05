@@ -110,7 +110,7 @@ void main()
     mediump float lamberFactor = max(0.0,dot(lightVec, normal));
     mediump float specularFactor = 0.0;
     //if(material_shininess > 0.0) {
-        specularFactor = max(0.0,pow(max(dot(halfVec,normal), 0.0), material_shininess));
+        specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
     //}
 #endif
 
@@ -129,7 +129,7 @@ void main()
 #if DEBUG_PSSM == 1
         diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
 #endif
-        shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z; // unpack(texture2D(shadowTexture1, shadowMapPos));
+        shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
         vertexShadowDepth = ((shadowMapCoord1 / shadowMapCoord1.w + 1.0) / 2.0).z;
     }
 #endif
