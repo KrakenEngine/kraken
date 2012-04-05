@@ -45,7 +45,7 @@ KRCamera::KRCamera() {
     bEnableAmbient = true;
     bEnableDiffuse = true;
     bEnableSpecular = true;
-    bEnableShadowMap = false;
+    bEnableShadowMap = true;
     bDebugSuperShiny = false;
     
     

@@ -127,7 +127,14 @@
     //m_scene.addInstance(pModelManager->getModel("fachwerkhaus12"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("ballroom"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("HoganCombined"), KRMat4());
-    m_scene.addInstance(pModelManager->getModel("polySurface12848"), KRMat4(), "PillarLightmap2k");
+    //m_scene.addInstance(pModelManager->getModel("polySurface12848"), KRMat4(), "PillarLightmap2k");
+    std::map<std::string, KRModel *> models = pModelManager->getModels();
+    for(std::map<std::string, KRModel *>::iterator itr=models.begin(); itr != models.end(); itr++) {
+        std::string lightmap = (*itr).first;
+        lightmap.append("_lightmap");
+        m_scene.addInstance((*itr).second, KRMat4(), lightmap);
+        
+    }
     
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];

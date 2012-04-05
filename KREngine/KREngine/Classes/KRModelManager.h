@@ -49,6 +49,9 @@ public:
     KRModel *getModel(const char *szName);
     KRModel *getFirstModel();
     
+    std::vector<std::string> getModelNames();
+    std::map<std::string, KRModel *> getModels();
+    
 private:
     std::map<std::string, KRModel *> m_models;
     KRMaterialManager *m_pMaterialManager;

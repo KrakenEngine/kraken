@@ -56,3 +56,8 @@ KRModel *KRModelManager::getFirstModel() {
     static std::map<std::string, KRModel *>::iterator model_itr = m_models.begin();
     return (*model_itr).second;
 }
+
+std::map<std::string, KRModel *> KRModelManager::getModels() {
+    return m_models;
+}
+
