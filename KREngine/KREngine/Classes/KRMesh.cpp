@@ -235,14 +235,13 @@ void KRMesh::renderSubmesh(int iSubmesh, int *iPrevBuffer) {
                 glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB);
             }
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(0));
+            int data_size = sizeof(VertexData);
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D)));
-            
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D)));
-            
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D) * 2));
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, sizeof(VertexData), BUFFER_OFFSET(sizeof(Vertex3D) + sizeof(KRVector3D) * 2 + sizeof(TexCoord)));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(0));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D)));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 2));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3));
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3 + sizeof(TexCoord)));
 
             *iPrevBuffer = iBuffer;
         }

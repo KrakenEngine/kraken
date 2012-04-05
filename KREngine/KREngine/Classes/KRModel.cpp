@@ -106,4 +106,3 @@ KRMesh *KRModel::getMesh() {
     return m_pMesh;
 }
 
-

@@ -88,7 +88,7 @@ public:
         GLfloat x;
         GLfloat y;
         GLfloat z;
-    } Vertex3D, KRVector3D;
+    } KRVector3D;
     
     typedef struct {
         GLfloat u;
@@ -96,7 +96,7 @@ public:
     } TexCoord;
     
     typedef struct {
-        Vertex3D vertex;
+        KRVector3D vertex;
         KRVector3D normal;
         KRVector3D tangent;
         TexCoord uva;
