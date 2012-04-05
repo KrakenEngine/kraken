@@ -24,6 +24,10 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 #include "KRMaterial.h"
+#include "KRLight.h"
+#include "KRPointLight.h"
+#include "KRDirectionalLight.h"
+#include "KRSpotLight.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -35,6 +39,7 @@ void DestroySdkObjects(KFbxSdkManager* pSdkManager);
 bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
 void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode);
 
 
 std::vector<KRResource *> KRResource::LoadFbx(const std::string& path)
@@ -72,21 +77,6 @@ std::vector<KRResource *> KRResource::LoadFbx(const std::string& path)
     
     DestroySdkObjects(lSdkManager);
     
-    /*
-    
-    KRMesh *new_mesh = new KRMesh(KRResource::GetFileBase(path));
-    
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_lengths;
-    std::vector<int> submesh_starts;
-    std::vector<std::string> material_names;
-    
-    new_mesh->LoadData(vertices, uva, normals, tangents, submesh_starts, submesh_lengths, material_names);
-    resources.push_back(new_mesh);
-    */
     return resources;
 }
 
@@ -259,6 +249,9 @@ void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
         case KFbxNodeAttribute::eMESH:
             LoadMesh(resources, pGeometryConverter, pNode);
             break;
+        case KFbxNodeAttribute::eLIGHT:
+            LoadLight(resources, pNode);
+            break;
     }
     
     
@@ -336,156 +329,6 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                         
                         
                         // ----====---- Read UVs ----====----
-//                        for (int l = 0; l < uv_count; ++l)
-//                        {
-//                            KFbxVector2 uv;
-//                            KFbxGeometryElementUV* leUV = pMesh->GetElementUV(l);
-//                            
-//                            switch (leUV->GetMappingMode()) {
-//                                case KFbxGeometryElement::eBY_CONTROL_POINT:
-//                                    switch (leUV->GetReferenceMode()) {
-//                                    case KFbxGeometryElement::eDIRECT:
-//                                        uv = leUV->GetDirectArray().GetAt(lControlPointIndex);
-//                                        break;
-//                                    case KFbxGeometryElement::eINDEX_TO_DIRECT:
-//                                    {
-//                                        int id = leUV->GetIndexArray().GetAt(lControlPointIndex);
-//                                        uv = leUV->GetDirectArray().GetAt(id);
-//                                    }
-//                                        break;
-//                                    default:
-//                                        break; // other reference modes not shown here!
-//                                    }
-//                                    break;
-//                                    
-//                                case KFbxGeometryElement::eBY_POLYGON_VERTEX:
-//                                    switch (leUV->GetReferenceMode()) {
-//                                        case KFbxGeometryElement::eDIRECT:
-//                                            uv = leUV->GetDirectArray().GetAt(source_vertex_id);
-//                                            break;
-//                                        case KFbxGeometryElement::eINDEX_TO_DIRECT:
-//                                        {
-//                                            int id = leUV->GetIndexArray().GetAt(source_vertex_id);
-//                                            uv = leUV->GetDirectArray().GetAt(id);
-//                                        }
-//                                            break;
-//                                        default:
-//                                            break; // other reference modes not shown here!
-//                                    }
-//                                    break;
-//                                    
-//                                
-////                                 case KFbxGeometryElement::eBY_POLYGON_VERTEX:
-////                                {
-////                                    int lTextureUVIndex = pMesh->GetTextureUVIndex(iPolygon, iVertex);
-////                                    switch (leUV->GetReferenceMode())
-////                                    {
-////                                        case KFbxGeometryElement::eDIRECT:
-////                                        case KFbxGeometryElement::eINDEX_TO_DIRECT:
-////                                        {
-////                                            uv = leUV->GetDirectArray().GetAt(lTextureUVIndex);
-////                                        }
-////                                            break;
-////                                        default:
-////                                            break; // other reference modes not shown here!
-////                                    }
-////                                }
-////                                    break;
-////                                
-//                                    
-//                                case KFbxGeometryElement::eBY_POLYGON: // doesn't make much sense for UVs
-//                                case KFbxGeometryElement::eALL_SAME:   // doesn't make much sense for UVs
-//                                case KFbxGeometryElement::eNONE:       // doesn't make much sense for UVs
-//                                    break;
-//                            }
-//                            
-//                            
-//                            
-//                            
-//                            
-//                            if(l == 0) {
-//                                new_uva = KRVector2(uv[0], uv[1]);
-//                                // uva.push_back(KRVector2(uv[0], uv[1]));
-//                            } else if(l == 1) {
-//                                new_uvb = KRVector2(uv[0], uv[1]);
-//                                // uvb.push_back(KRVector2(uv[0], uv[1]));
-//                            }
-//                        }
-//                        
-//                        if(uv_count > 0) {
-//                            uva.push_back(new_uva);
-//                        }
-//                        if(uv_count > 1) {
-//                            uvb.push_back(new_uvb);
-//                        }
-                        
-                        
-//                        KFbxLayerElementArrayTemplate<KFbxVector2>* lUVArray = NULL;    
-//                        pMesh->GetTextureUV(&lUVArray, KFbxLayerElement::eDIFFUSE_TEXTURES); 
-//                        
-//                        int lCurrentUVIndex = pMesh->GetTextureUVIndex(iPolygon, iVertex, KFbxLayerElement::eDIFFUSE_TEXTURES);
-//                        
-//                        KFbxVector2 uv = lUVArray->GetAt(lCurrentUVIndex);
-//                        new_uva = KRVector2(uv[0], uv[1]);
-
-                        
-//                        if(pMesh->GetLayerCount() >= 1) {
-//                            KFbxLayerElementUV* uvs = pMesh->GetLayer(0)->GetUVs();
-//                            KFbxVector2 uv;
-//                            int index = 0;
-//                            switch (uvs->GetMappingMode())
-//                            {
-//                                case KFbxLayerElement::eBY_CONTROL_POINT:
-//                                    index = pMesh->GetPolygonVertex(iPolygon, iVertex);
-//                                    break;
-//                                case KFbxLayerElement::eBY_POLYGON_VERTEX:
-//                                    index = source_vertex_id;
-//                                    break;
-//                                case KFbxLayerElement::eBY_POLYGON:
-//                                    index = iPolygon;
-//                                    break;
-//                            }
-//                            
-//                            if (uvs->GetReferenceMode() != KFbxLayerElement::eDIRECT)
-//                            {
-//                                index = uvs->GetIndexArray().GetAt(index);
-//                            }
-//                            
-//                            
-//                            uv = uvs->GetDirectArray().GetAt(index);
-//
-//                            new_uva = KRVector2(uv[0], uv[1]);
-//                        }
-//                        
-//                        if(pMesh->GetLayerCount() >= 2) {
-//                            KFbxLayerElementUV* uvs = pMesh->GetLayer(1)->GetUVs();
-//                            KFbxVector2 uv;
-//                            int index = 0;
-//                            switch (uvs->GetMappingMode())
-//                            {
-//                                case KFbxLayerElement::eBY_CONTROL_POINT:
-//                                    index = pMesh->GetPolygonVertex(iPolygon, iVertex);
-//                                    break;
-//                                case KFbxLayerElement::eBY_POLYGON_VERTEX:
-//                                    index = source_vertex_id;
-//                                    break;
-//                                case KFbxLayerElement::eBY_POLYGON:
-//                                    index = iPolygon;
-//                                    break;
-//                            }
-//                            
-//                            if (uvs->GetReferenceMode() != KFbxLayerElement::eDIRECT)
-//                            {
-//                                index = uvs->GetIndexArray().GetAt(index);
-//                            }
-//                            
-//                            
-//                            uv = uvs->GetDirectArray().GetAt(index);
-//                            
-//                            new_uva = KRVector2(uv[0], uv[1]);
-//                        }
-                        
-                        
                         
                         KStringList uvNames;
                         pMesh->GetUVSetNames(uvNames);
@@ -495,6 +338,7 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
                                 new_uva = KRVector2(uv[0], uv[1]);
                             }
+                            uva.push_back(new_uva);
                         }
                         
                         if(uv_count >= 2) {
@@ -503,78 +347,8 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
                                 new_uvb = KRVector2(uv[0], uv[1]);
                             }
-                        }
-                        
-                        
-                        /*
-                        
-                        for (int iLayer = 0; iLayer < pMesh->GetLayerCount(); iLayer++)
-                        {
-                            KFbxLayerElementUV* uvs = pMesh->GetLayer(iLayer)->GetUVs();
-                            KFbxVector2 uv;
-                            if (uvs == NULL) continue;
-                            
-                            
-                            switch (uvs->GetMappingMode())
-                            {
-                                case KFbxLayerElement::eBY_CONTROL_POINT:
-                                    //uvs_index_vector[iLayer] = cpIndex; break;
-                                    switch (uvs->GetReferenceMode())
-                                {
-                                    case KFbxLayerElement::eDIRECT:
-                                        uv = uvs->GetDirectArray().GetAt(cpIndex));
-                                        break;
-                                    case KFbxLayerElement::eINDEX_TO_DIRECT:
-                                    {
-                                        int id = uvs->GetIndexArray().GetAt(cpIndex);
-                                        uv = uvs->GetDirectArray().GetAt(id));
-                                    }
-                                        break;
-                                    default:
-                                        break; // other reference modes not shown here!
-                                }
-                                    break;
-                                case KFbxLayerElement::eBY_POLYGON_VERTEX: //BUG: This wont work in some FBXs, so we will skip the uvs
-                                {
-                                    //int id = fbxmesh->GetTextureUVIndex(lPolygonIndex, iVertex);
-                                    int id = lCurrentPolygonIndex + iVertex;
-                                    
-                                    switch (uvs->GetReferenceMode() )
-                                    {
-                                        case KFbxLayerElement::eDIRECT:
-                                            break;
-                                        case KFbxLayerElement::eINDEX_TO_DIRECT:
-                                            //uvs_index_vector[iLayer] = id; 
-                                            id = uvs->GetIndexArray().GetAt(id);
-                                            break;
-                                        default: 
-                                            break;
-                                    }
-                                    
-                                    Display2DVector(header, uvs->GetDirectArray().GetAt(id));
-                                    int numuvs = uvs->GetDirectArray().GetCount();
-                                    assert( id < numuvs );
-                                }
-                                    break;
-                            }
-                            
-                            if(iLayer == 0) {
-                                new_uva = KRVector2(uv[0], uv[1]);
-                            // uva.push_back(KRVector2(uv[0], uv[1]));
-                            } else if(iLayer == 1) {
-                                new_uvb = KRVector2(uv[0], uv[1]);
-                            // uvb.push_back(KRVector2(uv[0], uv[1]));
-                            }
-                            
-                        }
-                         */
-                        
-                        if(uv_count > 0) {
-                            uva.push_back(new_uva);
-                        }
-                        if(uv_count > 1) {
                             uvb.push_back(new_uvb);
-                        }                        
+                        }                
                         
                         // ----====---- Read Normals ----====----
                         
@@ -776,5 +550,24 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
 
+}
+
+void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode) {
+    KFbxLight* pLight = (KFbxLight*) pNode->GetNodeAttribute();
+    const char *szName = pNode->GetName();
+    switch(pLight->LightType.Get()) {
+        case KFbxLight::ePOINT:
+            resources.push_back(new KRPointLight(szName));
+            break;
+        case KFbxLight::eDIRECTIONAL:
+            resources.push_back(new KRDirectionalLight(szName));
+            break;
+        case KFbxLight::eSPOT:
+            resources.push_back(new KRSpotLight(szName));
+            break;
+        case KFbxLight::eAREA:
+            // Not supported yet
+            break;
+    }
 }
 

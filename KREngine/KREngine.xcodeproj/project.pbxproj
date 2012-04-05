@@ -13,6 +13,27 @@
 		E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
 		E414BAEB14355E5500A668C4 /* KRBoundingVolume.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */; };
 		E414BAED14355EFF00A668C4 /* KRBoundingVolume.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */; };
+		E461A152152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; };
+		E461A153152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E461A156152E54F800F2044A /* KRLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A155152E54F700F2044A /* KRLight.cpp */; };
+		E461A159152E557E00F2044A /* KRPointLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A158152E557E00F2044A /* KRPointLight.cpp */; };
+		E461A15A152E557E00F2044A /* KRPointLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A158152E557E00F2044A /* KRPointLight.cpp */; };
+		E461A15C152E563100F2044A /* KRDirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A15B152E563000F2044A /* KRDirectionalLight.h */; };
+		E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A15B152E563000F2044A /* KRDirectionalLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E461A15F152E565700F2044A /* KRDirectionalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A15E152E565700F2044A /* KRDirectionalLight.cpp */; };
+		E461A160152E565700F2044A /* KRDirectionalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A15E152E565700F2044A /* KRDirectionalLight.cpp */; };
+		E461A165152E56C000F2044A /* KRSpotLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A164152E56C000F2044A /* KRSpotLight.cpp */; };
+		E461A166152E56C000F2044A /* KRSpotLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A164152E56C000F2044A /* KRSpotLight.cpp */; };
+		E461A168152E570700F2044A /* KRSpotLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A167152E570500F2044A /* KRSpotLight.h */; };
+		E461A169152E570700F2044A /* KRSpotLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A167152E570500F2044A /* KRSpotLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E461A16B152E575800F2044A /* KRLightManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A16A152E575700F2044A /* KRLightManager.h */; };
+		E461A16C152E575800F2044A /* KRLightManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A16A152E575700F2044A /* KRLightManager.h */; };
+		E461A16E152E576700F2044A /* KRLightManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A16D152E576700F2044A /* KRLightManager.cpp */; };
+		E461A16F152E576700F2044A /* KRLightManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A16D152E576700F2044A /* KRLightManager.cpp */; };
+		E461A175152E5C4800F2044A /* KRLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A155152E54F700F2044A /* KRLight.cpp */; };
+		E461A176152E5C5600F2044A /* KRPointLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A157152E555400F2044A /* KRPointLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E461A177152E5C6600F2044A /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
 		E46DBE7B1512ACE600D59F86 /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
 		E46DBE7F1512AF0200D59F86 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E46DBE7D1512AD4900D59F86 /* OpenGL.framework */; };
 		E46DBE801512AF4600D59F86 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491016413C99B9E0098455B /* Foundation.framework */; };
@@ -94,6 +115,16 @@
 		E45772F413C9A13C0037BEEA /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ObjectShader.fsh; path = Shaders/ObjectShader.fsh; sourceTree = "<group>"; };
 		E45772F513C9A13C0037BEEA /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F613C9A13C0037BEEA /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = Shaders/PostShader.vsh; sourceTree = "<group>"; };
+		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLight.h; path = Classes/KRLight.h; sourceTree = "<group>"; };
+		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; };
+		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KRPointLight.h; path = Classes/KRPointLight.h; sourceTree = "<group>"; };
+		E461A158152E557E00F2044A /* KRPointLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRPointLight.cpp; path = Classes/KRPointLight.cpp; sourceTree = "<group>"; };
+		E461A15B152E563000F2044A /* KRDirectionalLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRDirectionalLight.h; path = Classes/KRDirectionalLight.h; sourceTree = "<group>"; };
+		E461A15E152E565700F2044A /* KRDirectionalLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRDirectionalLight.cpp; path = Classes/KRDirectionalLight.cpp; sourceTree = "<group>"; };
+		E461A164152E56C000F2044A /* KRSpotLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSpotLight.cpp; path = Classes/KRSpotLight.cpp; sourceTree = "<group>"; };
+		E461A167152E570500F2044A /* KRSpotLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRSpotLight.h; path = Classes/KRSpotLight.h; sourceTree = "<group>"; };
+		E461A16A152E575700F2044A /* KRLightManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLightManager.h; path = Classes/KRLightManager.h; sourceTree = "<group>"; };
+		E461A16D152E576700F2044A /* KRLightManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRLightManager.cpp; path = Classes/KRLightManager.cpp; sourceTree = "<group>"; };
 		E46DBE7D1512AD4900D59F86 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = DEVELOPER_DIR; };
 		E46DBE841512B9E200D59F86 /* KREngine-common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "KREngine-common.h"; path = "Classes/KREngine-common.h"; sourceTree = "<group>"; };
 		E47C25A113F4F65A00FF4370 /* KRShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRShaderManager.h; path = Classes/KRShaderManager.h; sourceTree = "<group>"; };
@@ -188,6 +219,68 @@
 			name = Shaders;
 			sourceTree = "<group>";
 		};
+		E461A170152E598200F2044A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E461A174152E5A1300F2044A /* Models */,
+				E461A172152E59BC00F2044A /* Materials */,
+				E461A171152E599E00F2044A /* Lights */,
+				E497B949151BCEE900D3DC67 /* KRResource.h */,
+				E497B94C151BCF2500D3DC67 /* KRResource.cpp */,
+				E497B94F151BD2CE00D3DC67 /* KRResource+obj.cpp */,
+				E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		E461A171152E599E00F2044A /* Lights */ = {
+			isa = PBXGroup;
+			children = (
+				E461A151152E54B500F2044A /* KRLight.h */,
+				E461A155152E54F700F2044A /* KRLight.cpp */,
+				E461A157152E555400F2044A /* KRPointLight.h */,
+				E461A158152E557E00F2044A /* KRPointLight.cpp */,
+				E461A15B152E563000F2044A /* KRDirectionalLight.h */,
+				E461A15E152E565700F2044A /* KRDirectionalLight.cpp */,
+				E461A167152E570500F2044A /* KRSpotLight.h */,
+				E461A164152E56C000F2044A /* KRSpotLight.cpp */,
+			);
+			name = Lights;
+			sourceTree = "<group>";
+		};
+		E461A172152E59BC00F2044A /* Materials */ = {
+			isa = PBXGroup;
+			children = (
+				E491017C13C99BDC0098455B /* KRMaterial.cpp */,
+				E491017D13C99BDC0098455B /* KRMaterial.h */,
+			);
+			name = Materials;
+			sourceTree = "<group>";
+		};
+		E461A173152E59DF00F2044A /* Math */ = {
+			isa = PBXGroup;
+			children = (
+				E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */,
+				E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */,
+				E491017613C99BDC0098455B /* KRMat4.h */,
+				E491017713C99BDC0098455B /* KRMat4.cpp */,
+				E491017E13C99BDC0098455B /* KRVector3.h */,
+				E491017F13C99BDC0098455B /* KRVector3.cpp */,
+				E497B943151BA93400D3DC67 /* KRVector2.h */,
+				E497B945151BA99400D3DC67 /* KRVector2.cpp */,
+			);
+			name = Math;
+			sourceTree = "<group>";
+		};
+		E461A174152E5A1300F2044A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E49E79FC15126146009CF99C /* KRMesh.h */,
+				E49E79FE1512615F009CF99C /* KRMesh.cpp */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
 		E491015613C99B9D0098455B = {
 			isa = PBXGroup;
 			children = (
@@ -238,17 +331,13 @@
 		E491016E13C99BAE0098455B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E461A173152E59DF00F2044A /* Math */,
+				E461A170152E598200F2044A /* Resources */,
 				E491016F13C99BDC0098455B /* KREngine.mm */,
 				E491017213C99BDC0098455B /* KREngine.h */,
-				E491017613C99BDC0098455B /* KRMat4.h */,
-				E491017713C99BDC0098455B /* KRMat4.cpp */,
 				E491017913C99BDC0098455B /* KRModel.cpp */,
 				E491017A13C99BDC0098455B /* KRModel.h */,
 				E491017B13C99BDC0098455B /* KRMaterialManager.cpp */,
-				E491017C13C99BDC0098455B /* KRMaterial.cpp */,
-				E491017D13C99BDC0098455B /* KRMaterial.h */,
-				E491017E13C99BDC0098455B /* KRVector3.h */,
-				E491017F13C99BDC0098455B /* KRVector3.cpp */,
 				E491018013C99BDC0098455B /* KRTextureManager.cpp */,
 				E491018113C99BDC0098455B /* KRTexture.cpp */,
 				E491018213C99BDC0098455B /* KRModelManager.cpp */,
@@ -264,19 +353,11 @@
 				E414BAE41435558800A668C4 /* KRInstance.cpp */,
 				E414BAE6143557D200A668C4 /* KRScene.h */,
 				E414BAE81435585A00A668C4 /* KRScene.cpp */,
-				E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */,
-				E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */,
 				E48B3CBC14393DF5000C50E2 /* KRCamera.h */,
 				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
-				E49E79FC15126146009CF99C /* KRMesh.h */,
-				E49E79FE1512615F009CF99C /* KRMesh.cpp */,
 				E46DBE841512B9E200D59F86 /* KREngine-common.h */,
-				E497B943151BA93400D3DC67 /* KRVector2.h */,
-				E497B945151BA99400D3DC67 /* KRVector2.cpp */,
-				E497B949151BCEE900D3DC67 /* KRResource.h */,
-				E497B94C151BCF2500D3DC67 /* KRResource.cpp */,
-				E497B94F151BD2CE00D3DC67 /* KRResource+obj.cpp */,
-				E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */,
+				E461A16A152E575700F2044A /* KRLightManager.h */,
+				E461A16D152E576700F2044A /* KRLightManager.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -339,6 +420,10 @@
 				E414BAEB14355E5500A668C4 /* KRBoundingVolume.h in Headers */,
 				E48B3CBD14393DF5000C50E2 /* KRCamera.h in Headers */,
 				E497B94A151BCEE900D3DC67 /* KRResource.h in Headers */,
+				E461A152152E54B500F2044A /* KRLight.h in Headers */,
+				E461A15C152E563100F2044A /* KRDirectionalLight.h in Headers */,
+				E461A168152E570700F2044A /* KRSpotLight.h in Headers */,
+				E461A16B152E575800F2044A /* KRLightManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,10 +433,16 @@
 			files = (
 				E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */,
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
+				E461A177152E5C6600F2044A /* KRMat4.h in Headers */,
 				E497B94B151BCEE900D3DC67 /* KRResource.h in Headers */,
 				E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */,
 				E46DBE811512AFE600D59F86 /* KRMesh.h in Headers */,
 				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
+				E461A153152E54B500F2044A /* KRLight.h in Headers */,
+				E461A176152E5C5600F2044A /* KRPointLight.h in Headers */,
+				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
+				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
+				E461A16C152E575800F2044A /* KRLightManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -456,6 +547,11 @@
 				E497B946151BA99500D3DC67 /* KRVector2.cpp in Sources */,
 				E497B94D151BCF2500D3DC67 /* KRResource.cpp in Sources */,
 				E497B950151BD2CE00D3DC67 /* KRResource+obj.cpp in Sources */,
+				E461A156152E54F800F2044A /* KRLight.cpp in Sources */,
+				E461A159152E557E00F2044A /* KRPointLight.cpp in Sources */,
+				E461A15F152E565700F2044A /* KRDirectionalLight.cpp in Sources */,
+				E461A165152E56C000F2044A /* KRSpotLight.cpp in Sources */,
+				E461A16E152E576700F2044A /* KRLightManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,6 +559,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */,
+				E461A175152E5C4800F2044A /* KRLight.cpp in Sources */,
 				E46DBE7B1512ACE600D59F86 /* KRMesh.cpp in Sources */,
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
 				E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */,
@@ -471,6 +569,10 @@
 				E497B94E151BCF2500D3DC67 /* KRResource.cpp in Sources */,
 				E497B951151BD2CE00D3DC67 /* KRResource+obj.cpp in Sources */,
 				E497B954151BEDA600D3DC67 /* KRResource+fbx.cpp in Sources */,
+				E461A15A152E557E00F2044A /* KRPointLight.cpp in Sources */,
+				E461A160152E565700F2044A /* KRDirectionalLight.cpp in Sources */,
+				E461A166152E56C000F2044A /* KRSpotLight.cpp in Sources */,
+				E461A16F152E576700F2044A /* KRLightManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -39,6 +39,7 @@
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
 #import "KRModelManager.h"
+#import "KRLightManager.h"
 #import "KRCamera.h"
 
 #import "KREngine-common.h"
@@ -84,6 +85,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
     KRModelManager *m_pModelManager;
+    KRLightManager *m_pLightManager;
     
     int m_iFrame;
 

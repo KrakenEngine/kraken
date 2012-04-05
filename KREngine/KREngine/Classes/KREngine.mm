@@ -82,6 +82,7 @@ double const PI = 3.141592653589793f;
         m_pTextureManager = new KRTextureManager();
         m_pMaterialManager = new KRMaterialManager(m_pTextureManager, m_pShaderManager);
         m_pModelManager = new KRModelManager(m_pMaterialManager);
+        m_pLightManager = new KRLightManager();
         
         if (![self createBuffers] || ![self loadShaders] /*|| ![self loadObjects]*/ )
         {
@@ -548,6 +549,8 @@ double const PI = 3.141592653589793f;
     } else if([path hasSuffix: @".mtl"]) {
         NSLog(@"material: %@", path);
         m_pMaterialManager->loadFile([path UTF8String]);
+    } else if([path hasSuffix: @".krlight"]) {
+        m_pLightManager->loadFile([path UTF8String]);
     }
     
     return TRUE;
@@ -575,7 +578,10 @@ double const PI = 3.141592653589793f;
         m_pShaderManager = NULL;
     }
     
-
+    if(m_pLightManager) {
+        delete m_pLightManager;
+        m_pLightManager = NULL;
+    }
     
     [self invalidatePostShader];
     [self destroyBuffers];
