@@ -555,6 +555,20 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
 void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode) {
     KFbxLight* pLight = (KFbxLight*) pNode->GetNodeAttribute();
     const char *szName = pNode->GetName();
+    
+    fbxDouble3 light_color = pLight->Color.Get();
+    fbxDouble1 light_intensity = pLight->Intensity.Get();
+    fbxDouble1 light_hotspot = pLight->HotSpot.Get(); // light inner cone angle (in degrees). Also know as the HotSpot
+    fbxDouble1 light_coneangle = pLight->ConeAngle.Get(); // light outer cone angle (in degrees). Also known as the Falloff
+    KFbxLight::EDecayType light_decaytype = pLight->DecayType.Get(); // decay type
+    fbxDouble1 light_decaystart = pLight->DecayStart.Get(); // decay start distance
+    
+    
+//    KFbxLight::eNONE         - does not attenuate with distance
+//    KFbxLight::eLINEAR       - attenuation of 1/d
+//    KFbxLight::eQUADRATIC    - attenuation of 1/d^2
+//    KFbxLight::eCUBIC        - attenuation of 
+    
     switch(pLight->LightType.Get()) {
         case KFbxLight::ePOINT:
             resources.push_back(new KRPointLight(szName));

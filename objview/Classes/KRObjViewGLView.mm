@@ -128,6 +128,8 @@
     //m_scene.addInstance(pModelManager->getModel("ballroom"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("HoganCombined"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("polySurface12848"), KRMat4(), "PillarLightmap2k");
+    //m_scene.addInstance(pModelManager->getModel("Wall2"), KRMat4(), "Wall2_lightmap");
+    
     std::map<std::string, KRModel *> models = pModelManager->getModels();
     for(std::map<std::string, KRModel *>::iterator itr=models.begin(); itr != models.end(); itr++) {
         std::string lightmap = (*itr).first;
