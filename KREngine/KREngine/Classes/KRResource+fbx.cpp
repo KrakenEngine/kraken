@@ -436,6 +436,10 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
                 lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
                 new_material->setShininess(lKFbxDouble1.Get());
                 
+                // ShininessFactor
+                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
+                double specular_factor = lKFbxDouble1.Get();
+                
                 // Display the Reflectivity
                 //lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
             } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
@@ -466,62 +470,64 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
             // Diffuse Map Texture
             pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
             if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Error! Layered textures not supported.\n");
-            } else {
-                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
-                if(texture_count > 1) {
-                    printf("Error! Multiple diffuse textures not supported.\n");
-                } else if(texture_count == 1) {
-                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-                    assert(!pTexture->GetSwapUV());
-                    assert(pTexture->GetCroppingTop() == 0);
-                    assert(pTexture->GetCroppingLeft() == 0);
-                    assert(pTexture->GetCroppingRight() == 0);
-                    assert(pTexture->GetCroppingBottom() == 0);
-                    assert(pTexture->GetWrapModeU() == KFbxTexture::eREPEAT);
-                    assert(pTexture->GetWrapModeV() == KFbxTexture::eREPEAT);
-                    assert(pTexture->GetRotationU() == 0.0f);
-                    assert(pTexture->GetRotationV() == 0.0f);
-                    assert(pTexture->GetRotationW() == 0.0f);
-                    
-                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
-                    if(pFileTexture) {
-                        new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                    }
+                printf("Warning! Layered textures not supported.\n");
+            }
+            
+            int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+            if(texture_count > 1) {
+                printf("Error! Multiple diffuse textures not supported.\n");
+            } else if(texture_count == 1) {
+                KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                assert(!pTexture->GetSwapUV());
+                assert(pTexture->GetCroppingTop() == 0);
+                assert(pTexture->GetCroppingLeft() == 0);
+                assert(pTexture->GetCroppingRight() == 0);
+                assert(pTexture->GetCroppingBottom() == 0);
+                assert(pTexture->GetWrapModeU() == KFbxTexture::eREPEAT);
+                assert(pTexture->GetWrapModeV() == KFbxTexture::eREPEAT);
+                assert(pTexture->GetRotationU() == 0.0f);
+                assert(pTexture->GetRotationV() == 0.0f);
+                assert(pTexture->GetRotationW() == 0.0f);
+                assert(pTexture->GetScaleU() == 1.0f);
+                assert(pTexture->GetScaleV() == 1.0f);
+                
+                KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                if(pFileTexture) {
+                    new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                 }
             }
+
             
             // Specular Map Texture
             pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
             if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Error! Layered textures not supported.\n");
-            } else {
-                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
-                if(texture_count > 1) {
-                    printf("Error! Multiple specular textures not supported.\n");
-                } else if(texture_count == 1) {
-                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
-                    if(pFileTexture) {
-                        new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                    }
+                printf("Warning! Layered textures not supported.\n");
+            }
+            texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+            if(texture_count > 1) {
+                printf("Error! Multiple specular textures not supported.\n");
+            } else if(texture_count == 1) {
+                KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                if(pFileTexture) {
+                    new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                 }
             }
             
             // Normal Map Texture
             pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
             if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Error! Layered textures not supported.\n");
-            } else {
-                int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
-                if(texture_count > 1) {
-                    printf("Error! Multiple normal map textures not supported.\n");
-                } else if(texture_count == 1) {
-                    KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-                    KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
-                    if(pFileTexture) {
-                        new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                    }
+                printf("Warning! Layered textures not supported.\n");
+            }
+            
+            texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+            if(texture_count > 1) {
+                printf("Error! Multiple normal map textures not supported.\n");
+            } else if(texture_count == 1) {
+                KFbxTexture* pTexture = KFbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
+                if(pFileTexture) {
+                    new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
                 }
             }
             
