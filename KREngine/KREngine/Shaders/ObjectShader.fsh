@@ -199,6 +199,9 @@ void main()
 #else
     gl_FragColor += vec4(material_specular * specularFactor, 0.0);
 #endif
+    
+#endif
+
 
     // -------------------- Multiply shadow map -------------------- 
     
@@ -207,8 +210,6 @@ void main()
     gl_FragColor = vec4(gl_FragColor.r * shadowColor.r, gl_FragColor.g * shadowColor.g, gl_FragColor.b * shadowColor.b, 1.0);
 //    gl_FragColor = vec4(shadowColor, 1.0);
 //    gl_FragColor = vec4(shadowCoord.s, shadowCoord.t, 1.0, 1.0);
-#endif
-    
 #endif
     
 }
