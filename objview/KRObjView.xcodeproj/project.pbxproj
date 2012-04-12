@@ -289,6 +289,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -305,6 +306,7 @@
 					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
+				PROVISIONING_PROFILE = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/Users/kearwood/Documents/dev/svn/kearwood/krengine/KREngine/KREngine/Classes/**";
 			};
@@ -314,6 +316,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = KRObjView_Prefix.pch;
@@ -327,6 +330,7 @@
 					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
+				PROVISIONING_PROFILE = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/Users/kearwood/Documents/dev/svn/kearwood/krengine/KREngine/KREngine/Classes/**";
 				VALIDATE_PRODUCT = YES;
@@ -375,6 +379,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = KRObjView_Prefix.pch;
@@ -389,6 +395,8 @@
 					"\"$(SRCROOT)/testflight\"",
 				);
 				PRODUCT_NAME = KRObjView;
+				PROVISIONING_PROFILE = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/Users/kearwood/Documents/dev/svn/kearwood/krengine/KREngine/KREngine/Classes/**";
 				VALIDATE_PRODUCT = YES;

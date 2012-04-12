@@ -137,8 +137,6 @@
         }
     }
     
-    KRModelManager *pModelManager = [renderEngine getModelManager];
-    
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];
     /*

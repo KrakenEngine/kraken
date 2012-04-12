@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
-#include <vector.h>
 
 #include "KRResource.h"
 #include "KRMesh.h"

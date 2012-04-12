@@ -32,6 +32,8 @@
 #import "KRObjViewViewController.h"
 #import <KRMat4.h>
 #import <KRModelManager.h>
+#import <QuartzCore/QuartzCore.h>
+
 
 @implementation KRObjViewViewController
 
@@ -162,11 +164,11 @@
     
     camera_position = KRVector3(-850, -10, -700);
     
-    _lastTime= CFAbsoluteTimeGetCurrent();
-    
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
     [displayLink setFrameInterval:1]; // Maximum 60fps
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+
+    _lastTime= [displayLink timestamp];
 }
 
 - (void)dealloc 
@@ -179,7 +181,7 @@
 
 - (void)drawView:(id)sender
 {
-    CFTimeInterval time = CFAbsoluteTimeGetCurrent();
+    CFTimeInterval time = [displayLink timestamp];
 	float deltaTime = (time - _lastTime);
     _lastTime = time;
     
@@ -211,6 +213,7 @@
         }
         NSString *debug_text = [[NSString alloc] initWithUTF8String:szText];
         [engine setDebugText: debug_text];
+        [debug_text release];
     } else {
         [engine setDebugText: @""];
     }
