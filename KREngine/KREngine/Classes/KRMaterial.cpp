@@ -37,6 +37,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+#import "KRcontext.h"
+
 KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
     strcpy(m_szName, szName);
     m_pAmbientMap = NULL;
@@ -156,21 +158,21 @@ bool KRMaterial::isTransparent() {
     return m_tr != 0.0;
 }
 #if TARGET_OS_IPHONE
-void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pLightMap) {
+void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap) {
     bool bSameMaterial = *prevBoundMaterial == this;
     bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
-        m_pAmbientMap = pTextureManager->getTexture(m_ambientMap.c_str());
+        m_pAmbientMap = pContext->getTextureManager()->getTexture(m_ambientMap.c_str());
     }
     if(!m_pDiffuseMap && m_diffuseMap.size()) {
-        m_pDiffuseMap = pTextureManager->getTexture(m_diffuseMap.c_str());
+        m_pDiffuseMap = pContext->getTextureManager()->getTexture(m_diffuseMap.c_str());
     }
     if(!m_pNormalMap && m_normalMap.size()) {
-        m_pNormalMap = pTextureManager->getTexture(m_normalMap.c_str());
+        m_pNormalMap = pContext->getTextureManager()->getTexture(m_normalMap.c_str());
     }
     if(!m_pSpecularMap && m_specularMap.size()) {
-        m_pSpecularMap = pTextureManager->getTexture(m_specularMap.c_str());
+        m_pSpecularMap = pContext->getTextureManager()->getTexture(m_specularMap.c_str());
     }
     
     
@@ -185,7 +187,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
         bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
         
-        KRShader *pShader = pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap);
+        KRShader *pShader = pContext->getShaderManager()->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {

@@ -50,6 +50,7 @@ using std::list;
 
 
 class KRTextureManager;
+class KRContext;
 
 class KRMaterial : public KRResource {
 public:
@@ -75,7 +76,7 @@ public:
     char *getName();
     
 #if TARGET_OS_IPHONE
-    void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pLightMap);
+    void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap);
     
 #endif
     

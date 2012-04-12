@@ -34,7 +34,8 @@
 
 #import "KREngine-common.h"
 
-#include "KRModel.h"
+class KRContext;
+class KRModel;
 
 #include <map>
 #import <string>
@@ -42,7 +43,7 @@ using std::map;
 
 class KRModelManager {
 public:
-    KRModelManager(KRMaterialManager *pMaterialManager);
+    KRModelManager();
     ~KRModelManager();
     
     KRModel *loadModel(const char *szName, const char *szPath);
@@ -54,7 +55,6 @@ public:
     
 private:
     std::map<std::string, KRModel *> m_models;
-    KRMaterialManager *m_pMaterialManager;
 };
 
 #endif

@@ -142,11 +142,11 @@ KRNode *KRNode::LoadXML(tinyxml2::XMLElement *e) {
 
 #if TARGET_OS_IPHONE
 
-void KRNode::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+void KRNode::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
-        child->render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+        child->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
     }
 }
 
@@ -162,21 +162,21 @@ void KRNode::clearExtents() {
     }
 }
 
-KRBoundingVolume KRNode::getExtents(KRModelManager *pModelManager) {
+KRBoundingVolume KRNode::getExtents(KRContext *pContext) {
     if(!m_pExtents) {
-        calcExtents(pModelManager);
+        calcExtents(pContext);
     }
     return *m_pExtents;
 }
 
-void KRNode::calcExtents(KRModelManager *pModelManager) {
+void KRNode::calcExtents(KRContext *pContext) {
     clearExtents();
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         if(m_pExtents) {
-            *m_pExtents = m_pExtents->get_union(child->getExtents(pModelManager));
+            *m_pExtents = m_pExtents->get_union(child->getExtents(pContext));
         } else {
-            m_pExtents = new KRBoundingVolume(child->getExtents(pModelManager));
+            m_pExtents = new KRBoundingVolume(child->getExtents(pContext));
         }
     }
 }

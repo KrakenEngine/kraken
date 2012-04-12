@@ -61,11 +61,11 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+    void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
     
 #endif
     
-    KRBoundingVolume getExtents(KRModelManager *pModelManager);
+    KRBoundingVolume getExtents(KRContext *pContext);
 private:
     KRNode *m_pRootNode;
     KRBoundingVolume *m_pExtents;

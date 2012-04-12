@@ -53,6 +53,7 @@ using namespace std;
 @end
 
 @implementation KREngine
+@synthesize context = m_pContext;
 double const PI = 3.141592653589793f;
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height
@@ -79,11 +80,7 @@ double const PI = 3.141592653589793f;
         GLchar * szVertShaderSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         GLchar * szFragShaderSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         
-        m_pShaderManager = new KRShaderManager(szVertShaderSource, szFragShaderSource);
-        m_pTextureManager = new KRTextureManager();
-        m_pMaterialManager = new KRMaterialManager(m_pTextureManager, m_pShaderManager);
-        m_pModelManager = new KRModelManager(m_pMaterialManager);
-        m_pSceneManager = new KRSceneManager();
+        m_pContext = new KRContext(szVertShaderSource, szFragShaderSource);
         
         if (![self createBuffers] || ![self loadShaders] /*|| ![self loadObjects]*/ )
         {
@@ -226,12 +223,12 @@ double const PI = 3.141592653589793f;
         
         KRMat4 newShadowMVP;
         if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
-            KRBoundingVolume ext = KRBoundingVolume(pScene->getExtents(m_pModelManager));
+            KRBoundingVolume ext = KRBoundingVolume(pScene->getExtents(m_pContext));
             
-            newShadowMVP = ext.calcShadowProj(pScene, m_pModelManager, sun_yaw, sun_pitch);
+            newShadowMVP = ext.calcShadowProj(pScene, m_pContext, sun_yaw, sun_pitch);
         } else {
             KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-            newShadowMVP = frustrumSliceVolume.calcShadowProj(pScene, m_pModelManager, sun_yaw, sun_pitch);
+            newShadowMVP = frustrumSliceVolume.calcShadowProj(pScene, m_pContext, sun_yaw, sun_pitch);
         }
         
         if(!(shadowmvpmatrix[iShadow] == newShadowMVP)) {
@@ -331,8 +328,7 @@ double const PI = 3.141592653589793f;
     KRVector3 cameraPosition;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
-    pScene->render(&m_camera, m_pModelManager, shadowVolume, m_pMaterialManager, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, 0, m_pShaderManager, m_pTextureManager);
-    
+    pScene->render(&m_camera, m_pContext, shadowVolume, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers);
     glViewport(0, 0, 768, 1024);
 }
 
@@ -357,7 +353,7 @@ double const PI = 3.141592653589793f;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz, m_camera.perspective_farz);
-    pScene -> render(&m_camera, m_pModelManager, frustrumVolume, m_pMaterialManager, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, m_pShaderManager, m_pTextureManager);
+    pScene -> render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers);
 }
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file withOptions: (NSString *)options
@@ -540,49 +536,16 @@ double const PI = 3.141592653589793f;
 
 - (BOOL)loadResource:(NSString *)path
 {
-    NSString *name = [[path lastPathComponent] stringByDeletingPathExtension];
-    if([path hasSuffix: @".krobject"]) {
-        NSLog(@"object: %@", path);
-        m_pModelManager->loadModel([name UTF8String], [path UTF8String]);
-    } else if([path hasSuffix: @".krscene"]) {
-        NSLog(@"scene: %@", path);
-        m_pSceneManager->loadScene([name UTF8String], [path UTF8String]);
-    } else if([path hasSuffix: @".pvr"]) {
-        NSLog(@"texture: %@", path);
-        m_pTextureManager->loadTexture([name UTF8String], [path UTF8String]);
-    } else if([path hasSuffix: @".mtl"]) {
-        NSLog(@"material: %@", path);
-        m_pMaterialManager->loadFile([path UTF8String]);
-    }
+    m_pContext->loadResource([path UTF8String]);
     
     return TRUE;
 }
 
 - (void)dealloc
 {
-    if(m_pSceneManager) {
-        delete m_pSceneManager;
-        m_pSceneManager = NULL;
-    }
-    
-    if(m_pModelManager) {
-        delete m_pModelManager;
-        m_pModelManager = NULL;
-    }
-    
-    if(m_pTextureManager) {
-        delete m_pTextureManager;
-        m_pTextureManager = NULL;
-    }
-    
-    if(m_pMaterialManager) {
-        delete m_pMaterialManager;
-        m_pMaterialManager = NULL;
-    }
-    
-    if(m_pShaderManager) {
-        delete m_pShaderManager;
-        m_pShaderManager = NULL;
+    if(m_pContext) {
+        delete m_pContext;
+        m_pContext = NULL;
     }
     
     [self invalidatePostShader];
@@ -725,7 +688,7 @@ double const PI = 3.141592653589793f;
     
     const char *szText = [debug_text UTF8String];
     if(*szText) {
-        KRTexture *pFontTexture = m_pTextureManager->getTexture("font");
+        KRTexture *pFontTexture = m_pContext->getTextureManager()->getTexture("font");
         
         glDisable(GL_DEPTH_TEST);
         glUseProgram(m_postShaderProgram);
@@ -783,7 +746,7 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 30;
+    return 31;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -1085,13 +1048,13 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMinWithIndex: (int)i
 {
-    double minValues[30] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    double minValues[31] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     return minValues[i];
 }
 
 -(double)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[30] = {PI, 2.0f * PI, PI, 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f, 0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    double maxValues[31] = {PI, 2.0f * PI, PI, 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f, 0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
     return maxValues[i];
 }
 
@@ -1103,14 +1066,6 @@ double const PI = 3.141592653589793f;
             [self setParameterValueWithIndex:i Value:v];
         }
     }
-}
-
-- (KRModelManager *)getModelManager {
-    return m_pModelManager;
-}
-
-- (KRSceneManager *)getSceneManager {
-    return m_pSceneManager;
 }
 
 - (void)invalidateShadowBuffers {

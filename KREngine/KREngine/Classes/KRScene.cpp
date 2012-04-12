@@ -48,7 +48,7 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     
     if(cShadowBuffers > 0 && !bRenderShadowMap) {
         glActiveTexture(GL_TEXTURE3);
@@ -77,13 +77,13 @@ void KRScene::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    m_pRootNode->render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+    m_pRootNode->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
 }
 
 #endif
 
-KRBoundingVolume KRScene::getExtents(KRModelManager *pModelManager) {
-    return m_pRootNode->getExtents(pModelManager);
+KRBoundingVolume KRScene::getExtents(KRContext *pContext) {
+    return m_pRootNode->getExtents(pContext);
 }
 
 

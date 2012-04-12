@@ -44,6 +44,9 @@
 #import "KRCamera.h"
 #import "KRModelManager.h"
 #import "KRNode.h"
+#import "KRContext.h"
+#import "KRModel.h"
+#import "KRTexture.h"
 
 class KRBoundingVolume;
 
@@ -58,10 +61,10 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
 #endif
     
-    virtual void calcExtents(KRModelManager *pModelManager);
+    virtual void calcExtents(KRContext *pContext);
     
     KRMat4 &getModelMatrix();
     

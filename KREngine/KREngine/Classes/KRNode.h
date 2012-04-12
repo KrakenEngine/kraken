@@ -19,6 +19,7 @@ class KRModelManager;
 class KRMaterialManager;
 class KRMat4;
 class KRTextureManager;
+class KRContext;
 
 class KRNode
 {
@@ -43,11 +44,11 @@ public:
     const KRVector3 &getLocalRotation();
     
     void clearExtents();
-    virtual void calcExtents(KRModelManager *pModelManager);
-    KRBoundingVolume getExtents(KRModelManager *pModelManager);    
+    virtual void calcExtents(KRContext *Context);
+    KRBoundingVolume getExtents(KRContext *pContext);    
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
 
 #endif
     

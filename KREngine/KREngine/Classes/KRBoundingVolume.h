@@ -41,6 +41,7 @@
 #import "KRModelManager.h"
 
 class KRScene;
+class KRContext;
 
 class KRBoundingVolume {
 public:
@@ -55,7 +56,7 @@ public:
     KRBoundingVolume get_union(const KRBoundingVolume &p) const;
     bool test_intersect(const KRBoundingVolume &p) const;
     
-    KRMat4 calcShadowProj(KRScene *pScene, KRModelManager *pModelManager, GLfloat sun_yaw, GLfloat sun_pitch) const;
+    KRMat4 calcShadowProj(KRScene *pScene, KRContext *pContext, GLfloat sun_yaw, GLfloat sun_pitch) const;
 private:
     KRVector3 m_vertices[8];
 };

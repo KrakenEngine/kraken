@@ -31,8 +31,10 @@
 
 #include "KRModelManager.h"
 
-KRModelManager::KRModelManager(KRMaterialManager *pMaterialManager) {
-    m_pMaterialManager = pMaterialManager;
+#import "KRModel.h"
+
+KRModelManager::KRModelManager() {
+
 }
 
 KRModelManager::~KRModelManager() {
@@ -43,7 +45,7 @@ KRModelManager::~KRModelManager() {
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, const char *szPath) {
-    KRModel *pModel = new KRModel(szName, szPath, m_pMaterialManager);
+    KRModel *pModel = new KRModel(szName, szPath);
     m_models[szName] = pModel;
     return pModel;
 }

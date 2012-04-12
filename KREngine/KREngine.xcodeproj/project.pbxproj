@@ -30,7 +30,6 @@
 		E461A176152E5C5600F2044A /* KRPointLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A157152E555400F2044A /* KRPointLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A177152E5C6600F2044A /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
-		E46C214415364BC8009CABF3 /* tinyxml2_readme.txt in Resources */ = {isa = PBXBuildFile; fileRef = E46C214115364BC8009CABF3 /* tinyxml2_readme.txt */; };
 		E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
 		E46C214615364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
 		E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E46C214315364BC8009CABF3 /* tinyxml2.h */; };
@@ -48,6 +47,10 @@
 		E47C25A913F4F6DD00FF4370 /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; };
 		E48B3CBD14393DF5000C50E2 /* KRCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B3CBC14393DF5000C50E2 /* KRCamera.h */; };
 		E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
+		E48C696F15374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; };
+		E48C697015374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E48C697215374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
+		E48C697315374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
 		E491018713C99BDC0098455B /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
 		E491018A13C99BDC0098455B /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E491018E13C99BDC0098455B /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -90,6 +93,10 @@
 		E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
 		E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
 		E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4D13365153767FF0070068C /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4D133661537685A0070068C /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4D13367153768610070068C /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F711A51512BB56007EE923 /* libfbxsdk-2012.2-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F711A41512BB56007EE923 /* libfbxsdk-2012.2-static.a */; };
 		E4F975321536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; };
 		E4F975331536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -161,6 +168,8 @@
 		E47C25A813F4F6DD00FF4370 /* KRShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRShader.cpp; path = Classes/KRShader.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E48B3CBC14393DF5000C50E2 /* KRCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRCamera.h; path = Classes/KRCamera.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRCamera.cpp; path = Classes/KRCamera.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E48C696E15374F5A00232E28 /* KRContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContext.h; path = Classes/KRContext.h; sourceTree = "<group>"; };
+		E48C697115374F7E00232E28 /* KRContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRContext.cpp; path = Classes/KRContext.cpp; sourceTree = "<group>"; };
 		E491016113C99B9E0098455B /* libKREngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKREngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E491016413C99B9E0098455B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E491016813C99B9E0098455B /* KREngine-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KREngine-Prefix.pch"; sourceTree = "<group>"; };
@@ -252,8 +261,8 @@
 		E461A170152E598200F2044A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E4F9755615363AA500FD60B2 /* Scene */,
-				E461A174152E5A1300F2044A /* Models */,
+				E48C696C15374A1500232E28 /* Scene Graph */,
+				E461A174152E5A1300F2044A /* Meshes */,
 				E461A172152E59BC00F2044A /* Materials */,
 				E497B949151BCEE900D3DC67 /* KRResource.h */,
 				E497B94C151BCF2500D3DC67 /* KRResource.cpp */,
@@ -302,13 +311,13 @@
 			name = Math;
 			sourceTree = "<group>";
 		};
-		E461A174152E5A1300F2044A /* Models */ = {
+		E461A174152E5A1300F2044A /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
 				E49E79FC15126146009CF99C /* KRMesh.h */,
 				E49E79FE1512615F009CF99C /* KRMesh.cpp */,
 			);
-			name = Models;
+			name = Meshes;
 			sourceTree = "<group>";
 		};
 		E46C214015364BB8009CABF3 /* tinyxml2 */ = {
@@ -319,6 +328,20 @@
 				E46C214315364BC8009CABF3 /* tinyxml2.h */,
 			);
 			name = tinyxml2;
+			sourceTree = "<group>";
+		};
+		E48C696C15374A1500232E28 /* Scene Graph */ = {
+			isa = PBXGroup;
+			children = (
+				E414BAE11435557300A668C4 /* KRInstance.h */,
+				E414BAE41435558800A668C4 /* KRInstance.cpp */,
+				E461A171152E599E00F2044A /* Lights */,
+				E4F975311536220900FD60B2 /* KRNode.h */,
+				E4F975351536221C00FD60B2 /* KRNode.cpp */,
+				E414BAE6143557D200A668C4 /* KRScene.h */,
+				E414BAE81435585A00A668C4 /* KRScene.cpp */,
+			);
+			name = "Scene Graph";
 			sourceTree = "<group>";
 		};
 		E491015613C99B9D0098455B = {
@@ -395,6 +418,8 @@
 				E46DBE841512B9E200D59F86 /* KREngine-common.h */,
 				E46C214915364DDB009CABF3 /* KRSceneManager.h */,
 				E46C214A15364DEC009CABF3 /* KRSceneManager.cpp */,
+				E48C696E15374F5A00232E28 /* KRContext.h */,
+				E48C697115374F7E00232E28 /* KRContext.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -443,20 +468,6 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
-		E4F9755615363AA500FD60B2 /* Scene */ = {
-			isa = PBXGroup;
-			children = (
-				E414BAE11435557300A668C4 /* KRInstance.h */,
-				E414BAE41435558800A668C4 /* KRInstance.cpp */,
-				E461A171152E599E00F2044A /* Lights */,
-				E4F975311536220900FD60B2 /* KRNode.h */,
-				E4F975351536221C00FD60B2 /* KRNode.cpp */,
-				E414BAE6143557D200A668C4 /* KRScene.h */,
-				E414BAE81435585A00A668C4 /* KRScene.cpp */,
-			);
-			name = Scene;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -485,6 +496,7 @@
 				E461A168152E570700F2044A /* KRSpotLight.h in Headers */,
 				E4F975321536220900FD60B2 /* KRNode.h in Headers */,
 				E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */,
+				E48C696F15374F5B00232E28 /* KRContext.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,10 +520,13 @@
 				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
 				E4F9754C153632F000FD60B2 /* KRCamera.h in Headers */,
 				E4F975501536333500FD60B2 /* KRModel.h in Headers */,
+				E4D133661537685A0070068C /* KRShader.h in Headers */,
 				E461A153152E54B500F2044A /* KRLight.h in Headers */,
 				E4F97552153633EF00FD60B2 /* KRMaterialManager.h in Headers */,
 				E461A176152E5C5600F2044A /* KRPointLight.h in Headers */,
 				E4F975541536340400FD60B2 /* KRTexture.h in Headers */,
+				E48C697015374F5B00232E28 /* KRContext.h in Headers */,
+				E4D13365153767FF0070068C /* KRShaderManager.h in Headers */,
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E46C214815364BC8009CABF3 /* tinyxml2.h in Headers */,
@@ -590,7 +605,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */,
-				E46C214415364BC8009CABF3 /* tinyxml2_readme.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,6 +641,7 @@
 				E4F975361536221C00FD60B2 /* KRNode.cpp in Sources */,
 				E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */,
 				E46C214B15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
+				E48C697215374F7E00232E28 /* KRContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -656,8 +671,11 @@
 				E4F9754315362D0F00FD60B2 /* KRInstance.cpp in Sources */,
 				E4F975371536221C00FD60B2 /* KRNode.cpp in Sources */,
 				E4F9754E1536331D00FD60B2 /* KRTextureManager.cpp in Sources */,
+				E4D13367153768610070068C /* KRShader.cpp in Sources */,
 				E46C214615364BC8009CABF3 /* tinyxml2.cpp in Sources */,
+				E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */,
 				E46C214C15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
+				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

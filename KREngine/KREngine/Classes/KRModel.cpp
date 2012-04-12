@@ -44,24 +44,18 @@
 #include "KRVector3.h"
 #import "KRShader.h"
 #import "KRShaderManager.h"
+#import "KRContext.h"
 
-
-KRModel::KRModel(std::string name, std::string path, KRMaterialManager *pMaterialManager) {
+KRModel::KRModel(std::string name, std::string path) {
     m_name = name;
-    loadPack(path, pMaterialManager);
+    loadPack(path);
 }
 
-void KRModel::loadPack(std::string path, KRMaterialManager *pMaterialManager) {
+void KRModel::loadPack(std::string path) {
+    m_materials.clear();
+    m_uniqueMaterials.clear();
     m_pMesh = new KRMesh(KRResource::GetFileBase(path));
     m_pMesh->loadPack(path);
-    
-    vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
-    
-    for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
-        KRMaterial *pMaterial = pMaterialManager->getMaterial((*itr)->szMaterialName);
-        m_materials.push_back(pMaterial);
-        m_uniqueMaterials.insert(pMaterial);
-    }
 }
 
 std::string KRModel::getName() {
@@ -73,7 +67,18 @@ KRModel::~KRModel() {
 }
 #if TARGET_OS_IPHONE
 
-void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pLightMap) {
+void KRModel::render(KRCamera *pCamera, KRContext *pContext, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap) {
+    
+    if(m_materials.size() == 0) {
+        vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
+        
+        for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
+            KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
+            m_materials.push_back(pMaterial);
+            m_uniqueMaterials.insert(pMaterial);
+        }
+    }
+    
     KRMaterial *pPrevBoundMaterial = NULL;
     int iPrevBuffer = -1;
     char szPrevShaderKey[128];
@@ -99,7 +104,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
                 KRMaterial *pMaterial = m_materials[iSubmesh];
                 
                 if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, pLightMap);
+                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap);
                     m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }

@@ -31,6 +31,7 @@
 
 #include <iostream>
 #import "KRInstance.h"
+#import "KRContext.h"
 #include <assert.h>
 
 KRInstance::KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(instance_name) {
@@ -64,16 +65,16 @@ KRMat4 &KRInstance::getModelMatrix() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     
     if(m_pModel == NULL) {
-        m_pModel = pModelManager->getModel(m_model_name.c_str());
+        m_pModel = pContext->getModelManager()->getModel(m_model_name.c_str());
     }
     
-    if(m_pModel != NULL && (getExtents(pModelManager).test_intersect(frustrumVolume) || bRenderShadowMap)) {
+    if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || bRenderShadowMap)) {
 
         if(m_pLightMap == NULL && m_lightMap.size()) {
-            m_pLightMap = pTextureManager->getTexture(m_lightMap.c_str());
+            m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
         }
         
         if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && !bRenderShadowMap) {
@@ -97,19 +98,19 @@ void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoun
         KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
         KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
         
-        m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pLightMap);
+        m_pModel->render(pCamera, pContext, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap);
             
     }
     
-    KRNode::render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+    KRNode::render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers);
 }
 
 #endif
 
-void KRInstance::calcExtents(KRModelManager *pModelManager) {
-    KRNode::calcExtents(pModelManager);
+void KRInstance::calcExtents(KRContext *pContext) {
+    KRNode::calcExtents(pContext);
     if(m_pModel == NULL) {
-        m_pModel = pModelManager->getModel(m_model_name.c_str());
+        m_pModel = pContext->getModelManager()->getModel(m_model_name.c_str());
     }
     assert(m_pModel != NULL);
     

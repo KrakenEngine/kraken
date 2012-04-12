@@ -102,40 +102,46 @@
     NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSFileManager* fileManager = [NSFileManager defaultManager];
     
-    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-        if([fileName hasSuffix: @".scene"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-            [renderEngine loadResource: path];
-        }
-    }
     
     for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-        if([fileName hasSuffix: @".pvr"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-            [renderEngine loadResource: path];
-        }
+        NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+        [renderEngine loadResource: path];
     }
-    
-    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-        if([fileName hasSuffix: @".mtl"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-            [renderEngine loadResource: path];
-        }
-    }
-    
-    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-        if([fileName hasSuffix: @".krobject"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-            [renderEngine loadResource: path];
-        }
-    }
-    
-    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-        if([fileName hasSuffix: @".krscene"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-            [renderEngine loadResource: path];
-        }
-    }
+//    
+//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+//        if([fileName hasSuffix: @".scene"]) {
+//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+//            [renderEngine loadResource: path];
+//        }
+//    }
+//    
+//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+//        if([fileName hasSuffix: @".pvr"]) {
+//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+//            [renderEngine loadResource: path];
+//        }
+//    }
+//    
+//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+//        if([fileName hasSuffix: @".mtl"]) {
+//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+//            [renderEngine loadResource: path];
+//        }
+//    }
+//    
+//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+//        if([fileName hasSuffix: @".krobject"]) {
+//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+//            [renderEngine loadResource: path];
+//        }
+//    }
+//    
+//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+//        if([fileName hasSuffix: @".krscene"]) {
+//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+//            [renderEngine loadResource: path];
+//        }
+//    }
     
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];
@@ -236,7 +242,7 @@
 
 - (KRScene *)getScene;
 {
-    return renderEngine.getSceneManager->getFirstScene();
+    return renderEngine.context->getSceneManager()->getFirstScene();
 }
 
 #pragma mark -

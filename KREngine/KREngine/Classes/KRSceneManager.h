@@ -34,7 +34,7 @@
 
 #import "KREngine-common.h"
 
-#include "KRScene.h"
+class KRScene;
 
 #include <map>
 #import <string>

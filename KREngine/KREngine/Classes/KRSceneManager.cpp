@@ -29,7 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRSceneManager.h"
+#import "KRSceneManager.h"
+#import "KRScene.h"
 
 KRSceneManager::KRSceneManager() {
 }
