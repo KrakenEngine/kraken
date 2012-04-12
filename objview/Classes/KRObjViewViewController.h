@@ -65,6 +65,8 @@
     
     
     id displayLink;
+    
+    CFTimeInterval _lastTime;
 
 }
 

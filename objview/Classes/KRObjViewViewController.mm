@@ -162,6 +162,8 @@
     
     camera_position = KRVector3(-850, -10, -700);
     
+    _lastTime= CFAbsoluteTimeGetCurrent();
+    
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
     [displayLink setFrameInterval:1]; // Maximum 60fps
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -177,6 +179,10 @@
 
 - (void)drawView:(id)sender
 {
+    CFTimeInterval time = CFAbsoluteTimeGetCurrent();
+	float deltaTime = (time - _lastTime);
+    _lastTime = time;
+    
     const GLfloat PI = 3.14159265;
     const GLfloat d2r = PI * 2 / 360;
     
@@ -237,13 +243,13 @@
 
     
     //double dScaleFactor = [engine getModelManager]->getFirstModel()->getMaxDimension() / 100.0f;
-    double dScaleFactor = 10.0f;
+    double dScaleFactor = 1000.0f * deltaTime;
     
     camera_position.z += (-cos(camera_pitch) * cos(camera_yaw) * leftStickDeltaX  + -cos(camera_pitch) * cos(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
     camera_position.x += (cos(camera_pitch) * sin(camera_yaw) * leftStickDeltaX + cos(camera_pitch) * sin(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
     camera_position.y += sin(camera_pitch)  * leftStickDeltaX * dScaleFactor;
-    camera_yaw += rightStickDeltaY * 4.0 * d2r;
-    camera_pitch += rightStickDeltaX * 4.0 * d2r;
+    camera_yaw += rightStickDeltaY * 180.0 * d2r * deltaTime;
+    camera_pitch += rightStickDeltaX * 180.0 * d2r * deltaTime;
 
     [engine renderScene: [glView getScene] WithPosition:camera_position Yaw: camera_yaw Pitch: camera_pitch Roll:0.0f];
     
