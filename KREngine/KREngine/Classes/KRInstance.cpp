@@ -52,6 +52,7 @@ std::string KRInstance::getElementName() {
 tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+    e->SetAttribute("mesh_name", m_model_name.c_str());
     e->SetAttribute("lightmap", m_shadowMap.c_str());
     return e;
 }

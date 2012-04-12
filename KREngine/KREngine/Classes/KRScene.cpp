@@ -152,5 +152,10 @@ KRScene *KRScene::LoadXML(const std::string& path)
     doc.LoadFile(path.c_str());
     KRScene *new_scene = new KRScene(KRResource::GetFileBase(path));
     
+    KRNode *n = KRNode::LoadXML(doc.RootElement()->FirstChildElement());
+    if(n) {
+        new_scene->getRootNode()->addChild(n);
+    }
+    
     return new_scene;
 }

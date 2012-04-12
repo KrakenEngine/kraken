@@ -18,6 +18,8 @@ public:
     
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    virtual void loadXML(tinyxml2::XMLElement *e);
+    
     
     float getInnerAngle();
     float getOuterAngle();

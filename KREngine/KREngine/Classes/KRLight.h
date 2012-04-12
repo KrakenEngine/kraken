@@ -17,6 +17,7 @@ public:
     virtual ~KRLight();
     virtual std::string getElementName() = 0;
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    virtual void loadXML(tinyxml2::XMLElement *e);
     
     void setIntensity(float intensity);
     float getIntensity();

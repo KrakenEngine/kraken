@@ -31,6 +31,18 @@ tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
     return e;
 }
 
+void KRLight::loadXML(tinyxml2::XMLElement *e) {
+    KRNode::loadXML(e);
+    float x,y,z;
+    e->QueryFloatAttribute("color_r", &x);
+    e->QueryFloatAttribute("color_g", &y);
+    e->QueryFloatAttribute("color_b", &z);
+    m_color = KRVector3(x,y,z);
+    
+    e->QueryFloatAttribute("intensity", &m_intensity);
+    e->QueryFloatAttribute("decay_start", &m_decayStart);
+}
+
 void KRLight::setIntensity(float intensity) {
     m_intensity = intensity;
 }

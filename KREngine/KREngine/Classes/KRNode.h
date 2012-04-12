@@ -20,6 +20,9 @@ public:
     virtual ~KRNode();
     
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    static KRNode *LoadXML(tinyxml2::XMLElement *e);
+    virtual void loadXML(tinyxml2::XMLElement *e);
+    
     virtual std::string getElementName();
     
     void addChild(KRNode *child);

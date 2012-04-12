@@ -42,7 +42,7 @@ KRSceneManager::~KRSceneManager() {
 }
 
 KRScene *KRSceneManager::loadScene(const char *szName, const char *szPath) {
-    KRScene *pScene = KRScene::LoadXML(szName);
+    KRScene *pScene = KRScene::LoadXML(szPath);
     m_scenes[szName] = pScene;
     return pScene;
 }

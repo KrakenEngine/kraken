@@ -31,6 +31,12 @@ tinyxml2::XMLElement *KRSpotLight::saveXML( tinyxml2::XMLNode *parent)
     return e;
 }
 
+void KRSpotLight::loadXML(tinyxml2::XMLElement *e) {
+    KRLight::loadXML(e);
+
+    e->QueryFloatAttribute("inner_angle", &m_innerAngle);
+    e->QueryFloatAttribute("outer_angle", &m_outerAngle);
+}
 
 float KRSpotLight::getInnerAngle() {
     return m_innerAngle;

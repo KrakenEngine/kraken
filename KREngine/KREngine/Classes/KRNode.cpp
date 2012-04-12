@@ -9,6 +9,9 @@
 #include <iostream>
 
 #import "KRNode.h"
+#import "KRPointLight.h"
+#import "KRSpotLight.h"
+#import "KRDirectionalLight.h"
 
 
 KRNode::KRNode(std::string name)
@@ -51,6 +54,32 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     return e;
 }
 
+void KRNode::loadXML(tinyxml2::XMLElement *e) {
+    m_name = e->Attribute("name");
+    float x,y,z;
+    e->QueryFloatAttribute("translate_x", &x);
+    e->QueryFloatAttribute("translate_y", &y);
+    e->QueryFloatAttribute("translate_z", &z);
+    m_localTranslation = KRVector3(x,y,z);
+    
+    e->QueryFloatAttribute("scale_x", &x);
+    e->QueryFloatAttribute("scale_y", &y);
+    e->QueryFloatAttribute("scale_z", &z);
+    m_localScale = KRVector3(x,y,z);
+    
+    e->QueryFloatAttribute("rotate_x", &x);
+    e->QueryFloatAttribute("rotate_y", &y);
+    e->QueryFloatAttribute("rotate_z", &z);
+    m_localRotation = KRVector3(x,y,z);
+    
+    for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
+        KRNode *child_node = KRNode::LoadXML(child_element);
+        if(child_node) {
+            addChild(child_node);
+        }
+    }
+}
+
 void KRNode::setLocalTranslation(const KRVector3 &v) {
     m_localTranslation = v;
 }
@@ -73,5 +102,28 @@ const KRVector3 &KRNode::getLocalRotation() {
 
 std::string KRNode::getElementName() {
     return "node";
+}
+
+KRNode *KRNode::LoadXML(tinyxml2::XMLElement *e) {
+    KRNode *new_node = NULL;
+    const char *szElementName = e->Name();
+    const char *szName = e->Attribute("name");
+    if(strcmp(szElementName, "node") == 0) {
+        new_node = new KRNode(szName);
+    } else if(strcmp(szElementName, "point_light") == 0) {
+        new_node = new KRPointLight(szName);
+    } else if(strcmp(szElementName, "directional_light") == 0) {
+        new_node = new KRDirectionalLight(szName);
+    } else if(strcmp(szElementName, "spot_light") == 0) {
+        new_node = new KRSpotLight(szName);
+    } else if(strcmp(szElementName, "mesh") == 0) {
+        
+    }
+    
+    if(new_node) {
+        new_node->loadXML(e);
+    }
+    
+    return new_node;
 }
 

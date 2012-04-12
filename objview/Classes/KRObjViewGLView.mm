@@ -136,6 +136,13 @@
         }
     }
     
+    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+        if([fileName hasSuffix: @".krscene"]) {
+            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+            [renderEngine loadResource: path];
+        }
+    }
+    
     KRModelManager *pModelManager = [renderEngine getModelManager];
     //m_scene.addInstance(pModelManager->getModel("fachwerkhaus12"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("ballroom"), KRMat4());
