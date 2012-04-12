@@ -50,7 +50,7 @@ class KRBoundingVolume;
 class KRInstance : public KRNode {
     
 public:
-    KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string shadow_map);
+    KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map);
     virtual ~KRInstance();
     
     virtual std::string getElementName();
@@ -68,8 +68,8 @@ public:
 private:
     KRModel *m_pModel;
     KRMat4 m_modelMatrix;
-    KRTexture *m_pShadowMap;
-    std::string m_shadowMap;
+    KRTexture *m_pLightMap;
+    std::string m_lightMap;
     std::string m_model_name;
 };
 

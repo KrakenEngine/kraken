@@ -156,9 +156,9 @@ bool KRMaterial::isTransparent() {
     return m_tr != 0.0;
 }
 #if TARGET_OS_IPHONE
-void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pShadowMap) {
+void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pLightMap) {
     bool bSameMaterial = *prevBoundMaterial == this;
-    bool bShadowMap = pShadowMap && pCamera->bEnableShadowMap;
+    bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
         m_pAmbientMap = pTextureManager->getTexture(m_ambientMap.c_str());
@@ -185,7 +185,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
         bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
         
-        KRShader *pShader = pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bShadowMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap);
+        KRShader *pShader = pShaderManager->getShader(pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {

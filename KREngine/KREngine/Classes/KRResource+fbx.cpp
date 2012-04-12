@@ -268,10 +268,10 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
 }
 
 void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
-    std::string shadow_map = pNode->GetName();
-    shadow_map.append("_lightmap");
+    std::string light_map = pNode->GetName();
+    light_map.append("_lightmap");
     
-    KRInstance *new_instance = new KRInstance(pNode->GetName(), pNode->GetName(), KRMat4(), shadow_map);
+    KRInstance *new_instance = new KRInstance(pNode->GetName(), pNode->GetName(), KRMat4(), light_map);
     fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
     fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
     fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);

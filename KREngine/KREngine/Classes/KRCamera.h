@@ -47,7 +47,7 @@ public:
     bool bEnableDiffuseMap;
     bool bEnableNormalMap;
     bool bEnableSpecMap;
-    bool bEnableShadowMap;
+    bool bEnableLightMap;
     bool bDebugPSSM;
     bool bDebugSuperShiny;
     bool bShowShadowBuffer;

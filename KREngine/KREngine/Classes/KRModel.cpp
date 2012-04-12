@@ -73,7 +73,7 @@ KRModel::~KRModel() {
 }
 #if TARGET_OS_IPHONE
 
-void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pShadowMap) {
+void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pLightMap) {
     KRMaterial *pPrevBoundMaterial = NULL;
     int iPrevBuffer = -1;
     char szPrevShaderKey[128];
@@ -99,7 +99,7 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
                 KRMaterial *pMaterial = m_materials[iSubmesh];
                 
                 if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, pShadowMap);
+                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, pLightMap);
                     m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }

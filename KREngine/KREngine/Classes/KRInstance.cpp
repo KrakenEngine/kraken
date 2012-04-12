@@ -33,10 +33,10 @@
 #import "KRInstance.h"
 #include <assert.h>
 
-KRInstance::KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string shadow_map) : KRNode(instance_name) {
+KRInstance::KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(instance_name) {
     m_modelMatrix = modelMatrix;
-    m_shadowMap = shadow_map;
-    m_pShadowMap = NULL;
+    m_lightMap = light_map;
+    m_pLightMap = NULL;
     m_pModel = NULL;
     m_model_name = model_name;
 }
@@ -53,7 +53,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
     e->SetAttribute("mesh_name", m_model_name.c_str());
-    e->SetAttribute("light_map", m_shadowMap.c_str());
+    e->SetAttribute("light_map", m_lightMap.c_str());
     return e;
 }
 
@@ -72,12 +72,12 @@ void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoun
     
     if(m_pModel != NULL && (getExtents(pModelManager).test_intersect(frustrumVolume) || bRenderShadowMap)) {
 
-        if(m_pShadowMap == NULL && m_shadowMap.size()) {
-            m_pShadowMap = pTextureManager->getTexture(m_shadowMap.c_str());
+        if(m_pLightMap == NULL && m_lightMap.size()) {
+            m_pLightMap = pTextureManager->getTexture(m_lightMap.c_str());
         }
         
-        if(cShadowBuffers == 0 && m_pShadowMap && pCamera->bEnableShadowMap && !bRenderShadowMap) {
-            int iTextureName = m_pShadowMap->getName();
+        if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && !bRenderShadowMap) {
+            int iTextureName = m_pLightMap->getName();
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, iTextureName);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
@@ -97,7 +97,7 @@ void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoun
         KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
         KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
         
-        m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pShadowMap);
+        m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pLightMap);
             
     }
     

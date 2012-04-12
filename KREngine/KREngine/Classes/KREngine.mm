@@ -310,7 +310,7 @@ double const PI = 3.141592653589793f;
     glUniformMatrix4fv(m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer());
     
     
-    // Calculate the bounding volume of the shadow map
+    // Calculate the bounding volume of the light map
     KRMat4 matInvShadow = shadowmvpmatrix[iShadow];
     matInvShadow.invert();
 
@@ -804,7 +804,7 @@ double const PI = 3.141592653589793f;
         @"enable_diffuse_map",
         @"enable_normal_map",
         @"enable_spec_map",
-        @"enable_shadow_map",
+        @"enable_light_map",
         @"ambient_r",
         @"ambient_g",
         @"ambient_b",
@@ -841,7 +841,7 @@ double const PI = 3.141592653589793f;
         @"Enable diffuse map",
         @"Enable normal map",
         @"Enable specular map",
-        @"Enable shadow map",
+        @"Enable light map",
         @"Ambient light red intensity",
         @"Ambient light green intensity",
         @"Ambient light blue intensity",
@@ -915,7 +915,7 @@ double const PI = 3.141592653589793f;
         m_camera.bEnableDiffuseMap ? 1.0f : 0.0f,
         m_camera.bEnableNormalMap ? 1.0f : 0.0f,
         m_camera.bEnableSpecMap ? 1.0f : 0.0f,
-        m_camera.bEnableShadowMap ? 1.0f : 0.0f,
+        m_camera.bEnableLightMap ? 1.0f : 0.0f,
         m_camera.dAmbientR,
         m_camera.dAmbientG,
         m_camera.dAmbientB,
@@ -977,7 +977,7 @@ double const PI = 3.141592653589793f;
             m_camera.bEnableSpecMap = bNewBoolVal;
             break;
         case 8:
-            m_camera.bEnableShadowMap = bNewBoolVal;
+            m_camera.bEnableLightMap = bNewBoolVal;
             break;
         case 9:
             m_camera.dAmbientR = v;

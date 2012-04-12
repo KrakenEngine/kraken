@@ -46,7 +46,7 @@ uniform mediump float   material_shininess;
 varying highp vec2	texCoord;
 #endif
 
-#if HAS_SHADOW_MAP == 1
+#if HAS_LIGHT_MAP == 1
 varying mediump vec2  shadowCoord;
 #endif
 
@@ -169,7 +169,7 @@ void main()
     
     
     
-#if HAS_SHADOW_MAP == 1
+#if HAS_LIGHT_MAP == 1
     // Pass shadow UV co-ordinates
     shadowCoord = shadowuv.st;
 #endif

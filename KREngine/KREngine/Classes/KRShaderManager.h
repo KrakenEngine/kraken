@@ -50,7 +50,7 @@ public:
     KRShaderManager(const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
     ~KRShaderManager();
     
-    KRShader *getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bShadowMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset);
+    KRShader *getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset);
     
 private:
     std::map<std::string, KRShader *> m_shaders;

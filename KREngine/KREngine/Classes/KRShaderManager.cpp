@@ -47,10 +47,10 @@ KRShaderManager::~KRShaderManager() {
 }
 
 
-KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bShadowMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset) {
+KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset) {
 
     char szKey[128];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, /*pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB, pCamera->dSunR, pCamera->dSunG, pCamera->dSunB, */pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bShadowMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset);
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, /*pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB, pCamera->dSunR, pCamera->dSunG, pCamera->dSunB, */pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset);
     
     
     /*
@@ -72,7 +72,7 @@ KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool b
         stream << "#define HAS_DIFFUSE_MAP " << (bDiffuseMap ? "1" : "0");
         stream << "\n#define HAS_NORMAL_MAP " << (bNormalMap ? "1" : "0");
         stream << "\n#define HAS_SPEC_MAP " << (bSpecMap ? "1" : "0");
-        stream << "\n#define HAS_SHADOW_MAP " << (bShadowMap ? "1" : "0");
+        stream << "\n#define HAS_LIGHT_MAP " << (bLightMap ? "1" : "0");
         stream << "\n#define HAS_NORMAL_MAP_SCALE " << (bNormalMapScale ? "1" : "0");
         stream << "\n#define HAS_SPEC_MAP_SCALE " << (bSpecMapScale ? "1" : "0");
         stream << "\n#define HAS_DIFFUSE_MAP_SCALE " << (bDiffuseMapScale ? "1" : "0");
