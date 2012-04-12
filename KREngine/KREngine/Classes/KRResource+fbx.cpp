@@ -596,12 +596,15 @@ void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNo
 //    KFbxLight::eQUADRATIC    - attenuation of 1/d^2
 //    KFbxLight::eCUBIC        - attenuation of 
     
-    KFbxVector4 light_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
-    KFbxVector4 light_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
-    KFbxVector4 light_scaling = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+    KFbxVector4 v4; // Default translation values
+    v4 = pNode->LclTranslation.Get();
+    
+    //KFbxVector4 light_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+    //KFbxVector4 light_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+    //KFbxVector4 light_scaling = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
     
     
-    KRVector3 translation = KRVector3(light_translation[0], light_translation[1], light_translation[2]);
+    //KRVector3 translation = KRVector3(light_translation[0], light_translation[1], light_translation[2]);
     
     KRLight *new_light = NULL;
     
@@ -633,9 +636,9 @@ void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNo
     }
     
     if(new_light) {
-        fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
-        fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
-        fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
         new_light->setLocalRotation(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]));
         new_light->setLocalTranslation(KRVector3(local_translation[0], local_translation[1], local_translation[2]));
         new_light->setLocalScale(KRVector3(local_scale[0], local_scale[1], local_scale[2]));

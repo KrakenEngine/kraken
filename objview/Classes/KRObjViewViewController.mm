@@ -184,6 +184,8 @@
     CFTimeInterval frame_start_time = CACurrentMediaTime();
     
     NSAutoreleasePool *framePool = [[NSAutoreleasePool alloc] init];
+    
+    
     CFTimeInterval time = [displayLink timestamp];
 	float deltaTime = (time - _lastTime);
     _lastTime = time;
