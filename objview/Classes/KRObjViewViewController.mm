@@ -213,47 +213,21 @@
     
     if(bUpdateParam) {
         bUpdateParam = false;
-        if(iParam == [engine getParameterCount] && dRightSlider > 0.9) {
-            if(!bLoadedTestInstances) {
-                bLoadedTestInstances = true;
-                
-                KRModelManager *pModelManager = [engine getModelManager];
-
-                KRScene *scene =[glView getScene];
-                
-                 srand ( time(NULL) );
-                 for(int iHouse=1; iHouse < 12; iHouse++) {
-                     for(int iInstance=0; iInstance < 20; iInstance++) {
-                         char szName[100];
-                         sprintf(szName, "fachwerkhaus%i", iHouse);
-                         KRMat4 pos;
-                         
-                         pos.rotate((double)rand() / (double)RAND_MAX * 6.282, Y_AXIS);
-                         pos.translate((double)rand() / (double)RAND_MAX * 10000 - 5000, 0.0, (double)rand() / (double)RAND_MAX * 10000 - 5000);
-                         
-                         scene->addInstance(szName, szName, pos, "");
-                     }
-                 }
-                
-            }
-
-        } else {
-            double dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
-            switch([engine getParameterTypeWithIndex: iParam]) {
-                case KRENGINE_PARAMETER_INT:
-                    dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] + 0.5 - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
-                    [engine setParameterValueWithIndex: iParam Value: dValue];
-                    break;
-                case KRENGINE_PARAMETER_BOOL:
-                    [engine setParameterValueWithIndex: iParam Value: 1.0 - dValue];
-                    break;
-                case KRENGINE_PARAMETER_FLOAT:
-                    [engine setParameterValueWithIndex: iParam Value: dValue];
-                    break;
-            }
-            
-
+        
+        double dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
+        switch([engine getParameterTypeWithIndex: iParam]) {
+            case KRENGINE_PARAMETER_INT:
+                dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] + 0.5 - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
+                [engine setParameterValueWithIndex: iParam Value: dValue];
+                break;
+            case KRENGINE_PARAMETER_BOOL:
+                [engine setParameterValueWithIndex: iParam Value: 1.0 - dValue];
+                break;
+            case KRENGINE_PARAMETER_FLOAT:
+                [engine setParameterValueWithIndex: iParam Value: dValue];
+                break;
         }
+
     }
     
     

@@ -57,7 +57,6 @@ public:
     
     static KRScene *LoadXML(const std::string& path);
     
-    KRInstance *addInstance(std::string instance_name, std::string model_name, KRMat4 modelMatrix, std::string shadow_map);
     KRNode *getRootNode();
     
 #if TARGET_OS_IPHONE
@@ -68,14 +67,9 @@ public:
     
     KRBoundingVolume getExtents(KRModelManager *pModelManager);
 private:
-    vector<KRInstance *> m_instances;
     KRNode *m_pRootNode;
-    
-    
     KRBoundingVolume *m_pExtents;
-    
-    void calcExtents(KRModelManager *pModelManager);
-    void clearExtents();
+
 };
 
 

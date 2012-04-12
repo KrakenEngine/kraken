@@ -45,10 +45,7 @@
 	/* OpenGL names for the renderbuffer and framebuffers used to render to this view */
 	GLuint viewFramebuffer, viewRenderbuffer;
     
-    KREngine *renderEngine;
-    
-    KRScene *m_pScene;
-	
+    KREngine *renderEngine;	
 }
 
 // OpenGL drawing

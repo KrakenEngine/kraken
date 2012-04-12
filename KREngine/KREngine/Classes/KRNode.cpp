@@ -12,14 +12,17 @@
 #import "KRPointLight.h"
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
+#import "KRInstance.h"
 
 
 KRNode::KRNode(std::string name)
 {
+    m_pExtents = NULL;
     m_name = name;
     m_localScale = KRVector3(1.0f, 1.0f, 1.0f);
     m_localRotation = KRVector3(0.0f, 0.0f, 0.0f);
     m_localTranslation = KRVector3(0.0f, 0.0f, 0.0f);
+    m_parentNode = NULL;
 }
 
 KRNode::~KRNode() {
@@ -27,10 +30,14 @@ KRNode::~KRNode() {
         delete *itr;
     }
     m_childNodes.clear();
+    clearExtents();
 }
 
 void KRNode::addChild(KRNode *child) {
+    assert(child->m_parentNode == NULL);
+    child->m_parentNode = this;
     m_childNodes.push_back(child);
+    clearExtents();
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
@@ -78,16 +85,20 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
             addChild(child_node);
         }
     }
+    clearExtents();
 }
 
 void KRNode::setLocalTranslation(const KRVector3 &v) {
     m_localTranslation = v;
+    clearExtents();
 }
 void KRNode::setLocalScale(const KRVector3 &v) {
     m_localScale = v;
+    clearExtents();
 }
 void KRNode::setLocalRotation(const KRVector3 &v) {
     m_localRotation = v;
+    clearExtents();
 }
 
 const KRVector3 &KRNode::getLocalTranslation() {
@@ -117,6 +128,7 @@ KRNode *KRNode::LoadXML(tinyxml2::XMLElement *e) {
     } else if(strcmp(szElementName, "spot_light") == 0) {
         new_node = new KRSpotLight(szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
+        new_node = new KRInstance(szName, szName, KRMat4(), e->Attribute("light_map"));
         
     }
     
@@ -127,3 +139,43 @@ KRNode *KRNode::LoadXML(tinyxml2::XMLElement *e) {
     return new_node;
 }
 
+#if TARGET_OS_IPHONE
+
+void KRNode::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+    
+    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        KRNode *child = (*itr);
+        child->render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+    }
+}
+
+#endif
+
+void KRNode::clearExtents() {
+    if(m_pExtents) {
+        delete m_pExtents;
+        m_pExtents = NULL;
+    }
+    if(m_parentNode) {
+        m_parentNode->clearExtents();
+    }
+}
+
+KRBoundingVolume KRNode::getExtents(KRModelManager *pModelManager) {
+    if(!m_pExtents) {
+        calcExtents(pModelManager);
+    }
+    return *m_pExtents;
+}
+
+void KRNode::calcExtents(KRModelManager *pModelManager) {
+    clearExtents();
+    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        KRNode *child = (*itr);
+        if(m_pExtents) {
+            *m_pExtents = m_pExtents->get_union(child->getExtents(pModelManager));
+        } else {
+            m_pExtents = new KRBoundingVolume(child->getExtents(pModelManager));
+        }
+    }
+}

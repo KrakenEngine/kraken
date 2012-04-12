@@ -53,7 +53,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
     e->SetAttribute("mesh_name", m_model_name.c_str());
-    e->SetAttribute("lightmap", m_shadowMap.c_str());
+    e->SetAttribute("light_map", m_shadowMap.c_str());
     return e;
 }
 
@@ -64,14 +64,14 @@ KRMat4 &KRInstance::getModelMatrix() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     
     if(m_pModel == NULL) {
         m_pModel = pModelManager->getModel(m_model_name.c_str());
     }
     
-    if(m_pModel != NULL) {
-        
+    if(m_pModel != NULL && (getExtents(pModelManager).test_intersect(frustrumVolume) || bRenderShadowMap)) {
+
         if(m_pShadowMap == NULL && m_shadowMap.size()) {
             m_pShadowMap = pTextureManager->getTexture(m_shadowMap.c_str());
         }
@@ -101,16 +101,23 @@ void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRMate
             
     }
     
+    KRNode::render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
 }
 
 #endif
 
-KRBoundingVolume KRInstance::getExtents(KRModelManager *pModelManager) {
+void KRInstance::calcExtents(KRModelManager *pModelManager) {
+    KRNode::calcExtents(pModelManager);
     if(m_pModel == NULL) {
         m_pModel = pModelManager->getModel(m_model_name.c_str());
     }
     assert(m_pModel != NULL);
     
     KRMesh *pMesh = m_pModel->getMesh();
-    return KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
+    KRBoundingVolume mesh_bounds = KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
+    if(m_pExtents) {
+        *m_pExtents = m_pExtents->get_union(mesh_bounds);
+    } else {
+        m_pExtents = new KRBoundingVolume(mesh_bounds);
+    }
 }

@@ -86,10 +86,6 @@
 }
 
 - (void)dealloc {
-    if(m_pScene) {
-        delete m_pScene;
-        m_pScene = NULL;
-    }
     if(renderEngine) {
         [renderEngine release];
         renderEngine = nil;
@@ -102,9 +98,7 @@
 #pragma mark OpenGL drawing
 
 - (BOOL)loadObjects
-{
-    m_pScene = new KRScene("default");
-    
+{    
     NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSFileManager* fileManager = [NSFileManager defaultManager];
     
@@ -149,7 +143,7 @@
     //m_scene.addInstance(pModelManager->getModel("HoganCombined"), KRMat4());
     //m_scene.addInstance(pModelManager->getModel("polySurface12848"), KRMat4(), "PillarLightmap2k");
     //m_scene.addInstance(pModelManager->getModel("Wall2"), KRMat4(), "Wall2_lightmap");
-    
+    /*
     std::map<std::string, KRModel *> models = pModelManager->getModels();
     for(std::map<std::string, KRModel *>::iterator itr=models.begin(); itr != models.end(); itr++) {
         std::string lightmap = (*itr).first;
@@ -157,6 +151,7 @@
         m_pScene->addInstance((*itr).second->getName(), (*itr).second->getName(), KRMat4(), lightmap);
         
     }
+     */
     
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];
@@ -262,7 +257,7 @@
 
 - (KRScene *)getScene;
 {
-    return m_pScene;
+    return renderEngine.getSceneManager->getFirstScene();
 }
 
 #pragma mark -

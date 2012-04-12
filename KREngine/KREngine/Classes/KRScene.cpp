@@ -38,25 +38,12 @@
 #import "KRScene.h"
 
 KRScene::KRScene(std::string name) : KRResource(name) {
-    m_pExtents = NULL;
+
     m_pRootNode = new KRNode("scene_root");
 }
-KRScene::~KRScene() {
-    for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
-        delete *itr;
-    }
-    m_instances.empty();
-    
+KRScene::~KRScene() {    
     delete m_pRootNode;
     m_pRootNode = NULL;
-    
-    clearExtents();
-}
-KRInstance *KRScene::addInstance(std::string instance_name, std::string model_name, KRMat4 modelMatrix, std::string shadow_map) {
-    clearExtents();
-    KRInstance *pInstance = new KRInstance(instance_name, model_name, modelMatrix, shadow_map);
-    m_instances.push_back(pInstance);
-    return pInstance;
 }
 
 #if TARGET_OS_IPHONE
@@ -89,43 +76,14 @@ void KRScene::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
-    
-    
-    for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
-        KRInstance *pInstance = *itr;
-        
-        if(pInstance->getExtents(pModelManager).test_intersect(frustrumVolume) || bRenderShadowMap) {
-            pInstance->render(pCamera, pModelManager, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
-        }
-    }
+
+    m_pRootNode->render(pCamera, pModelManager, frustrumVolume, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
 }
 
 #endif
 
-void KRScene::calcExtents(KRModelManager *pModelManager) {
-    clearExtents();
-    for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
-        KRInstance *pInstance = *itr;
-        if(m_pExtents) {
-            *m_pExtents = m_pExtents->get_union(pInstance->getExtents(pModelManager));
-        } else {
-            m_pExtents = new KRBoundingVolume(pInstance->getExtents(pModelManager));
-        }
-    }
-}
-
 KRBoundingVolume KRScene::getExtents(KRModelManager *pModelManager) {
-    if(!m_pExtents) {
-        calcExtents(pModelManager);
-    }
-    return *m_pExtents;
-}
-
-void KRScene::clearExtents() {
-    if(m_pExtents) {
-        delete m_pExtents;
-        m_pExtents = NULL;
-    }
+    return m_pRootNode->getExtents(pModelManager);
 }
 
 

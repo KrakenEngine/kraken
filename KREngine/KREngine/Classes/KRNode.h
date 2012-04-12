@@ -12,6 +12,13 @@
 #import "KRResource.h"
 #import "KRVector3.h"
 #import "tinyxml2.h"
+class KRBoundingVolume;
+class KRCamera;
+class KRShaderManager;
+class KRModelManager;
+class KRMaterialManager;
+class KRMat4;
+class KRTextureManager;
 
 class KRNode
 {
@@ -35,6 +42,18 @@ public:
     const KRVector3 &getLocalScale();
     const KRVector3 &getLocalRotation();
     
+    void clearExtents();
+    virtual void calcExtents(KRModelManager *pModelManager);
+    KRBoundingVolume getExtents(KRModelManager *pModelManager);    
+#if TARGET_OS_IPHONE
+    
+    virtual void render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+
+#endif
+    
+protected:
+    KRBoundingVolume *m_pExtents;
+    
 private:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
@@ -43,6 +62,8 @@ private:
     std::string m_name;
     
     std::vector<KRNode *> m_childNodes;
+    KRNode *m_parentNode;
+    
 };
 
 
