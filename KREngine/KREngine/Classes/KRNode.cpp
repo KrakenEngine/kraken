@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <assert.h>
 
 #import "KRNode.h"
 #import "KRPointLight.h"
