@@ -10,15 +10,27 @@
 #define KREngine_KRLight_h
 
 #import "KRResource.h"
+#import "KRNode.h"
 
-class KRLight : public KRResource {
+class KRLight : public KRNode {
 public:
-    ~KRLight();
+    virtual ~KRLight();
+    virtual std::string getElementName() = 0;
+    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path) = 0;
+    void setIntensity(float intensity);
+    float getIntensity();
+    void setDecayStart(float decayStart);
+    float getDecayStart();
+    const KRVector3 &getColor();
+    void setColor(const KRVector3 &color);
+    
 protected:
     KRLight(std::string name);
+    
+    float m_intensity;
+    float m_decayStart;
+    KRVector3 m_color;
 };
 
 #endif

@@ -39,7 +39,7 @@
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
 #import "KRModelManager.h"
-#import "KRLightManager.h"
+#import "KRSceneManager.h"
 #import "KRCamera.h"
 
 #import "KREngine-common.h"
@@ -81,11 +81,11 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
     GLuint m_postShaderProgram;
     GLuint m_shadowShaderProgram;
     
+    KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
     KRModelManager *m_pModelManager;
-    KRLightManager *m_pLightManager;
     
     int m_iFrame;
 
@@ -103,6 +103,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 - (void)renderShadowBufferNumber: (int)iShadow ForScene: (KRScene *)pScene;
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition;
 - (KRModelManager *)getModelManager;
+- (KRSceneManager *)getSceneManager;
 - (void)invalidateShadowBuffers;
 - (void)allocateShadowBuffers;
 

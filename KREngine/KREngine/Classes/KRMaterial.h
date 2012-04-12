@@ -37,15 +37,17 @@
 
 using std::list;
 
-#ifndef KRMATERIAL_H
-#define KRMATRIAL_H
-
 #import "KRTexture.h"
 #import "KRShaderManager.h"
 #import "KRShader.h"
 #import "KRCamera.h"
 #import "KRResource.h"
 #import "KRVector2.h"
+
+#ifndef KRMATERIAL_H
+#define KRMATERIAL_H
+
+
 
 class KRTextureManager;
 

@@ -1,5 +1,5 @@
 //
-//  KRInstance.h
+//  KRSceneManager.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,50 +29,34 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KRSceneManager.h"
 
+KRSceneManager::KRSceneManager() {
+}
 
-#import "KREngine-common.h"
+KRSceneManager::~KRSceneManager() {
+    for(map<std::string, KRScene *>::iterator itr = m_scenes.begin(); itr != m_scenes.end(); ++itr){
+        delete (*itr).second;
+    }
+    m_scenes.empty();
+}
 
-#ifndef KRINSTANCE_H
-#define KRINSTANCE_H
+KRScene *KRSceneManager::loadScene(const char *szName, const char *szPath) {
+    KRScene *pScene = KRScene::LoadXML(szName);
+    m_scenes[szName] = pScene;
+    return pScene;
+}
 
-#import "KRModel.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRBoundingVolume.h"
-#import "KRInstance.h"
-#import "KRCamera.h"
-#import "KRModelManager.h"
-#import "KRNode.h"
+KRScene *KRSceneManager::getScene(const char *szName) {
+    return m_scenes[szName];
+}
 
-class KRBoundingVolume;
+KRScene *KRSceneManager::getFirstScene() {
+    static std::map<std::string, KRScene *>::iterator Scene_itr = m_scenes.begin();
+    return (*Scene_itr).second;
+}
 
-class KRInstance : public KRNode {
-    
-public:
-    KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string shadow_map);
-    virtual ~KRInstance();
-    
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    
-#if TARGET_OS_IPHONE
-    
-    void render(KRCamera *pCamera, KRModelManager *pModelManager, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix,  KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
-    
-#endif
-    
-    KRBoundingVolume getExtents(KRModelManager *pModelManager);
-    
-    KRMat4 &getModelMatrix();
-    
-private:
-    KRModel *m_pModel;
-    KRMat4 m_modelMatrix;
-    KRTexture *m_pShadowMap;
-    std::string m_shadowMap;
-    std::string m_model_name;
-};
+std::map<std::string, KRScene *> KRSceneManager::getScenes() {
+    return m_scenes;
+}
 
-
-#endif

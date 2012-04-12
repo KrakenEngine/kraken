@@ -46,7 +46,8 @@
 #import "KRShaderManager.h"
 
 
-KRModel::KRModel(std::string path, KRMaterialManager *pMaterialManager) {
+KRModel::KRModel(std::string name, std::string path, KRMaterialManager *pMaterialManager) {
+    m_name = name;
     loadPack(path, pMaterialManager);
 }
 
@@ -63,9 +64,14 @@ void KRModel::loadPack(std::string path, KRMaterialManager *pMaterialManager) {
     }
 }
 
+std::string KRModel::getName() {
+    return m_name;
+}
+
 KRModel::~KRModel() {
 
 }
+#if TARGET_OS_IPHONE
 
 void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pShadowMap) {
     KRMaterial *pPrevBoundMaterial = NULL;
@@ -101,6 +107,8 @@ void KRModel::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, boo
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+#endif
 
 KRMesh *KRModel::getMesh() {
     return m_pMesh;

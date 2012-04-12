@@ -28,6 +28,8 @@
 #include "KRPointLight.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
+#include "KRNode.h"
+#include "KRScene.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -37,41 +39,44 @@
 void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene);
 void DestroySdkObjects(KFbxSdkManager* pSdkManager);
 bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
-void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
-void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
-void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode);
+void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 
 
 std::vector<KRResource *> KRResource::LoadFbx(const std::string& path)
 {
     std::vector<KRResource *> resources;
+    KRScene *pScene = new KRScene(KRResource::GetFileBase(path));
+    resources.push_back(pScene);
+    
     
     
     KFbxSdkManager* lSdkManager = NULL;
-    KFbxScene* pScene = NULL;
+    KFbxScene* pFbxScene = NULL;
     bool lResult;
     KFbxGeometryConverter *pGeometryConverter = NULL;
     
     // Prepare the FBX SDK.
-    InitializeSdkObjects(lSdkManager, pScene);
+    InitializeSdkObjects(lSdkManager, pFbxScene);
     
     // Initialize Geometry Converter
     pGeometryConverter = new KFbxGeometryConverter(lSdkManager);
     
     // Load the scene.
-    lResult = LoadScene(lSdkManager, pScene, path.c_str());
+    lResult = LoadScene(lSdkManager, pFbxScene, path.c_str());
     
     
     // ----====---- Walk Through Scene ----====----
     
     int i;
-    KFbxNode* pNode = pScene->GetRootNode();
+    KFbxNode* pNode = pFbxScene->GetRootNode();
     
     if(pNode)
     {
         for(i = 0; i < pNode->GetChildCount(); i++)
         {
-            LoadNode(resources, pGeometryConverter, pNode->GetChild(i));
+            LoadNode(pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
         }
     }
     
@@ -232,7 +237,7 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     return lStatus;
 }
 
-void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     KFbxVector4 lTmpVector;
     
     /*
@@ -247,10 +252,10 @@ void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     KFbxNodeAttribute::EAttributeType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
     switch(attribute_type) {
         case KFbxNodeAttribute::eMESH:
-            LoadMesh(resources, pGeometryConverter, pNode);
+            LoadMesh(parent_node, resources, pGeometryConverter, pNode);
             break;
         case KFbxNodeAttribute::eLIGHT:
-            LoadLight(resources, pNode);
+            LoadLight(parent_node, resources, pNode);
             break;
     }
     
@@ -258,11 +263,24 @@ void LoadNode(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
     // Load child nodes
     for(int i = 0; i < pNode->GetChildCount(); i++)
     {
-        LoadNode(resources, pGeometryConverter, pNode->GetChild(i));
+        LoadNode(parent_node, resources, pGeometryConverter, pNode->GetChild(i));
     }
 }
 
-void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+    std::string shadow_map = pNode->GetName();
+    shadow_map.append("_lightmap");
+    
+    KRInstance *new_instance = new KRInstance(pNode->GetName(), pNode->GetName(), KRMat4(), shadow_map);
+    fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+    fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+    fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+    new_instance->setLocalRotation(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]));
+    new_instance->setLocalTranslation(KRVector3(local_translation[0], local_translation[1], local_translation[2]));
+    new_instance->setLocalScale(KRVector3(local_scale[0], local_scale[1], local_scale[2]));
+    parent_node->addChild(new_instance);
+    
+    
     printf("Mesh: %s\n", pNode->GetName());
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
@@ -558,7 +576,10 @@ void LoadMesh(std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeom
 
 }
 
-void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode) {
+void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+    const GLfloat PI = 3.14159265;
+    const GLfloat d2r = PI * 2 / 360;
+    
     KFbxLight* pLight = (KFbxLight*) pNode->GetNodeAttribute();
     const char *szName = pNode->GetName();
     
@@ -575,19 +596,55 @@ void LoadLight(std::vector<KRResource *> &resources, KFbxNode* pNode) {
 //    KFbxLight::eQUADRATIC    - attenuation of 1/d^2
 //    KFbxLight::eCUBIC        - attenuation of 
     
+    KFbxVector4 light_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+    KFbxVector4 light_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+    KFbxVector4 light_scaling = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+    
+    
+    KRVector3 translation = KRVector3(light_translation[0], light_translation[1], light_translation[2]);
+    
+    KRLight *new_light = NULL;
+    
     switch(pLight->LightType.Get()) {
         case KFbxLight::ePOINT:
-            resources.push_back(new KRPointLight(szName));
+        {
+            KRPointLight *l = new KRPointLight(szName);
+            new_light = l;
+            
+        }
             break;
         case KFbxLight::eDIRECTIONAL:
-            resources.push_back(new KRDirectionalLight(szName));
+        {
+            KRDirectionalLight *l = new KRDirectionalLight(szName);
+            new_light = l;
+        }
             break;
         case KFbxLight::eSPOT:
-            resources.push_back(new KRSpotLight(szName));
+        {
+            KRSpotLight *l = new KRSpotLight(szName);
+            l->setInnerAngle(light_hotspot * d2r);
+            l->setOuterAngle(light_coneangle * d2r);
+            new_light = l;
+        }
             break;
         case KFbxLight::eAREA:
             // Not supported yet
             break;
     }
+    
+    if(new_light) {
+        fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+        new_light->setLocalRotation(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]));
+        new_light->setLocalTranslation(KRVector3(local_translation[0], local_translation[1], local_translation[2]));
+        new_light->setLocalScale(KRVector3(local_scale[0], local_scale[1], local_scale[2]));
+        new_light->setColor(KRVector3(light_color[0], light_color[1], light_color[2]));
+        new_light->setIntensity(light_intensity);
+        new_light->setDecayStart(light_decaystart);
+        
+        parent_node->addChild(new_light);
+    }
+    
 }
 

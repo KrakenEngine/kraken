@@ -15,9 +15,9 @@ class KRPointLight : public KRLight {
     
 public:
     KRPointLight(std::string name);
-    ~KRPointLight();
+    virtual ~KRPointLight();
     
-    virtual bool save(const std::string& path);
+    virtual std::string getElementName();
 };
 
 #endif

@@ -87,6 +87,8 @@ KRTexture::~KRTexture() {
     }
 }
 
+#if TARGET_OS_IPHONE
+
 bool KRTexture::loadFromFile(const char *szFile) {
     struct stat statbuf;
     m_fdFile = open(szFile, O_RDONLY);
@@ -178,6 +180,8 @@ bool KRTexture::loadFromFile(const char *szFile) {
         }
     }
 }
+
+#endif
 
 bool KRTexture::createGLTexture() {
 	int width = m_iWidth;

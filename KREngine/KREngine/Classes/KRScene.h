@@ -40,24 +40,41 @@
 #import "KRMat4.h"
 #import "KRModel.h"
 #import "KRCamera.h"
-
+#import "KRModelManager.h"
+#import "KRNode.h"
 class KRBoundingVolume;
 class KRInstance;
 
 using std::vector;
 
-class KRScene {
+class KRScene : public KRResource {
 public:
-    KRScene();
+    KRScene(std::string name);
     ~KRScene();
-    KRInstance *addInstance(KRModel *pModel, KRMat4 modelMatrix, std::string shadow_map);
-    void render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
-    KRBoundingVolume getExtents();
+    
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    
+    static KRScene *LoadXML(const std::string& path);
+    
+    KRInstance *addInstance(std::string instance_name, std::string model_name, KRMat4 modelMatrix, std::string shadow_map);
+    KRNode *getRootNode();
+    
+#if TARGET_OS_IPHONE
+    
+    void render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
+    
+#endif
+    
+    KRBoundingVolume getExtents(KRModelManager *pModelManager);
 private:
     vector<KRInstance *> m_instances;
+    KRNode *m_pRootNode;
+    
+    
     KRBoundingVolume *m_pExtents;
     
-    void calcExtents();
+    void calcExtents(KRModelManager *pModelManager);
     void clearExtents();
 };
 

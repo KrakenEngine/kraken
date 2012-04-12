@@ -86,6 +86,10 @@
 }
 
 - (void)dealloc {
+    if(m_pScene) {
+        delete m_pScene;
+        m_pScene = NULL;
+    }
     if(renderEngine) {
         [renderEngine release];
         renderEngine = nil;
@@ -99,8 +103,17 @@
 
 - (BOOL)loadObjects
 {
+    m_pScene = new KRScene("default");
+    
     NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSFileManager* fileManager = [NSFileManager defaultManager];
+    
+    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
+        if([fileName hasSuffix: @".scene"]) {
+            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+            [renderEngine loadResource: path];
+        }
+    }
     
     for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
         if([fileName hasSuffix: @".pvr"]) {
@@ -134,7 +147,7 @@
     for(std::map<std::string, KRModel *>::iterator itr=models.begin(); itr != models.end(); itr++) {
         std::string lightmap = (*itr).first;
         lightmap.append("_lightmap");
-        m_scene.addInstance((*itr).second, KRMat4(), lightmap);
+        m_pScene->addInstance((*itr).second->getName(), (*itr).second->getName(), KRMat4(), lightmap);
         
     }
     
@@ -242,7 +255,7 @@
 
 - (KRScene *)getScene;
 {
-    return &m_scene;
+    return m_pScene;
 }
 
 #pragma mark -

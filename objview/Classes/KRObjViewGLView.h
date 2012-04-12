@@ -47,7 +47,7 @@
     
     KREngine *renderEngine;
     
-    KRScene m_scene;
+    KRScene *m_pScene;
 	
 }
 

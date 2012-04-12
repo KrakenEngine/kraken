@@ -31,57 +31,85 @@
 
 #include <iostream>
 #import "KRInstance.h"
+#include <assert.h>
 
-KRInstance::KRInstance(KRModel *pModel, const KRMat4 modelMatrix, std::string shadow_map) {
-    m_pModel = pModel;
+KRInstance::KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string shadow_map) : KRNode(instance_name) {
     m_modelMatrix = modelMatrix;
     m_shadowMap = shadow_map;
     m_pShadowMap = NULL;
+    m_pModel = NULL;
+    m_model_name = model_name;
 }
 
 KRInstance::~KRInstance() {
     
 }
 
+std::string KRInstance::getElementName() {
+    return "mesh";
+}
+
+tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
+{
+    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+    e->SetAttribute("lightmap", m_shadowMap.c_str());
+    return e;
+}
+
+
 KRMat4 &KRInstance::getModelMatrix() {
     return m_modelMatrix;
 }
-KRModel *KRInstance::getModel() {
-    return m_pModel;
+
+#if TARGET_OS_IPHONE
+
+void KRInstance::render(KRCamera *pCamera, KRModelManager *pModelManager, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+    
+    if(m_pModel == NULL) {
+        m_pModel = pModelManager->getModel(m_model_name.c_str());
+    }
+    
+    if(m_pModel != NULL) {
+        
+        if(m_pShadowMap == NULL && m_shadowMap.size()) {
+            m_pShadowMap = pTextureManager->getTexture(m_shadowMap.c_str());
+        }
+        
+        if(cShadowBuffers == 0 && m_pShadowMap && pCamera->bEnableShadowMap && !bRenderShadowMap) {
+            int iTextureName = m_pShadowMap->getName();
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, iTextureName);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+        
+        KRMat4 projectionMatrix;
+        if(!bRenderShadowMap) {
+            projectionMatrix = pCamera->getProjectionMatrix();
+        }
+        KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
+        
+        // Transform location of camera to object space for calculation of specular halfVec
+        KRMat4 inverseModelMatrix = m_modelMatrix;
+        inverseModelMatrix.invert();
+        KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
+        KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
+        
+        m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pShadowMap);
+            
+    }
+    
 }
 
-void KRInstance::render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
-    
-    if(m_pShadowMap == NULL && m_shadowMap.size()) {
-        m_pShadowMap = pTextureManager->getTexture(m_shadowMap.c_str());
-    }
-    
-    if(cShadowBuffers == 0 && m_pShadowMap && pCamera->bEnableShadowMap && !bRenderShadowMap) {
-        int iTextureName = m_pShadowMap->getName();
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, iTextureName);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-    
-    KRMat4 projectionMatrix;
-    if(!bRenderShadowMap) {
-        projectionMatrix = pCamera->getProjectionMatrix();
-    }
-    KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-    
-    // Transform location of camera to object space for calculation of specular halfVec
-    KRMat4 inverseModelMatrix = m_modelMatrix;
-    inverseModelMatrix.invert();
-    KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
-    KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
-    
-    m_pModel->render(pCamera, pMaterialManager, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager, m_pShadowMap);
-    
-}
+#endif
 
-KRBoundingVolume KRInstance::getExtents() {
+KRBoundingVolume KRInstance::getExtents(KRModelManager *pModelManager) {
+    if(m_pModel == NULL) {
+        m_pModel = pModelManager->getModel(m_model_name.c_str());
+    }
+    assert(m_pModel != NULL);
+    
     KRMesh *pMesh = m_pModel->getMesh();
     return KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
 }

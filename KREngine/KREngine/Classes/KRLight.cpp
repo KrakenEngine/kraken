@@ -10,9 +10,9 @@
 
 #import "KRLight.h"
 
-KRLight::KRLight(std::string name) : KRResource(name)
+KRLight::KRLight(std::string name) : KRNode(name)
 {
-
+    m_intensity = 1.0f;
 }
 
 KRLight::~KRLight()
@@ -20,7 +20,36 @@ KRLight::~KRLight()
 
 }
 
-std::string KRLight::getExtension()
+tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
 {
-    return "krlight";
+    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+    e->SetAttribute("intensity", m_intensity);
+    e->SetAttribute("color_r", m_color.x);
+    e->SetAttribute("color_g", m_color.y);
+    e->SetAttribute("color_b", m_color.z);
+    e->SetAttribute("decay_start", m_decayStart);
+    return e;
+}
+
+void KRLight::setIntensity(float intensity) {
+    m_intensity = intensity;
+}
+float KRLight::getIntensity() {
+    return m_intensity;
+}
+
+const KRVector3 &KRLight::getColor() {
+    return m_color;
+}
+
+void KRLight::setColor(const KRVector3 &color) {
+    m_color = color;
+}
+
+void KRLight::setDecayStart(float decayStart) {
+    m_decayStart = decayStart;
+}
+
+float KRLight::getDecayStart() {
+    return m_decayStart;
 }

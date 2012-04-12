@@ -45,7 +45,11 @@ public:
     KRTexture();
     ~KRTexture();
     
+#if TARGET_OS_IPHONE
+    
     bool loadFromFile(const char *szFile);
+    
+#endif
     bool createGLTexture();
     GLuint getName();
     

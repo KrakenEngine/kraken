@@ -19,7 +19,28 @@ KRSpotLight::~KRSpotLight()
     
 }
 
-bool KRSpotLight::save(const std::string& path)
+std::string KRSpotLight::getElementName() {
+    return "spot_light";
+}
+
+tinyxml2::XMLElement *KRSpotLight::saveXML( tinyxml2::XMLNode *parent)
 {
-    return true;
+    tinyxml2::XMLElement *e = KRLight::saveXML(parent);
+    e->SetAttribute("inner_angle", m_innerAngle);
+    e->SetAttribute("outer_angle", m_outerAngle);
+    return e;
+}
+
+
+float KRSpotLight::getInnerAngle() {
+    return m_innerAngle;
+}
+float KRSpotLight::getOuterAngle() {
+    return m_outerAngle;
+}
+void KRSpotLight::setInnerAngle(float innerAngle) {
+    m_innerAngle = innerAngle;
+}
+void KRSpotLight::setOuterAngle(float outerAngle) {
+    m_outerAngle = outerAngle;
 }

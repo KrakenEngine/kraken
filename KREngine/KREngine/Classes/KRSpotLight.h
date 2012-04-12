@@ -14,9 +14,19 @@
 class KRSpotLight : public KRLight {
 public:
     KRSpotLight(std::string name);
-    ~KRSpotLight();
+    virtual ~KRSpotLight();
     
-    virtual bool save(const std::string& path);
+    virtual std::string getElementName();
+    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    
+    float getInnerAngle();
+    float getOuterAngle();
+    void setInnerAngle(float innerAngle);
+    void setOuterAngle(float outerAngle);
+    
+private:
+    float m_innerAngle; // Inner angle of the cone, in radians.  Inside this radius, the light will be at full brightness
+    float m_outerAngle; // Outer angle of the cone, in radians.  Outside this radius, the light will be completely attenuated
 };
 
 

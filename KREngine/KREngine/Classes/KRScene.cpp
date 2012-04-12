@@ -33,26 +33,35 @@
 
 #import "KRVector3.h"
 #import "KRMat4.h"
+#import "tinyxml2.h"
 
 #import "KRScene.h"
 
-KRScene::KRScene() {
+KRScene::KRScene(std::string name) : KRResource(name) {
     m_pExtents = NULL;
+    m_pRootNode = new KRNode("scene_root");
 }
 KRScene::~KRScene() {
     for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
         delete *itr;
     }
     m_instances.empty();
+    
+    delete m_pRootNode;
+    m_pRootNode = NULL;
+    
     clearExtents();
 }
-KRInstance *KRScene::addInstance(KRModel *pModel, KRMat4 modelMatrix, std::string shadow_map) {
+KRInstance *KRScene::addInstance(std::string instance_name, std::string model_name, KRMat4 modelMatrix, std::string shadow_map) {
     clearExtents();
-    KRInstance *pInstance = new KRInstance(pModel, modelMatrix, shadow_map);
+    KRInstance *pInstance = new KRInstance(instance_name, model_name, modelMatrix, shadow_map);
     m_instances.push_back(pInstance);
     return pInstance;
 }
-void KRScene::render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
+
+#if TARGET_OS_IPHONE
+
+void KRScene::render(KRCamera *pCamera, KRModelManager *pModelManager, KRBoundingVolume &frustrumVolume, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager) {
     
     if(cShadowBuffers > 0 && !bRenderShadowMap) {
         glActiveTexture(GL_TEXTURE3);
@@ -85,27 +94,29 @@ void KRScene::render(KRCamera *pCamera, KRBoundingVolume &frustrumVolume, KRMate
     for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
         KRInstance *pInstance = *itr;
         
-        if(pInstance->getExtents().test_intersect(frustrumVolume) || bRenderShadowMap) {
-            pInstance->render(pCamera, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
+        if(pInstance->getExtents(pModelManager).test_intersect(frustrumVolume) || bRenderShadowMap) {
+            pInstance->render(pCamera, pModelManager, pMaterialManager, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pShaderManager, pTextureManager);
         }
     }
 }
 
-void KRScene::calcExtents() {
+#endif
+
+void KRScene::calcExtents(KRModelManager *pModelManager) {
     clearExtents();
     for(vector<KRInstance *>::iterator itr = m_instances.begin(); itr != m_instances.end(); ++itr){
         KRInstance *pInstance = *itr;
         if(m_pExtents) {
-            *m_pExtents = m_pExtents->get_union(pInstance->getExtents());
+            *m_pExtents = m_pExtents->get_union(pInstance->getExtents(pModelManager));
         } else {
-            m_pExtents = new KRBoundingVolume(pInstance->getExtents());
+            m_pExtents = new KRBoundingVolume(pInstance->getExtents(pModelManager));
         }
     }
 }
 
-KRBoundingVolume KRScene::getExtents() {
+KRBoundingVolume KRScene::getExtents(KRModelManager *pModelManager) {
     if(!m_pExtents) {
-        calcExtents();
+        calcExtents(pModelManager);
     }
     return *m_pExtents;
 }
@@ -115,4 +126,31 @@ void KRScene::clearExtents() {
         delete m_pExtents;
         m_pExtents = NULL;
     }
+}
+
+
+std::string KRScene::getExtension() {
+    return "krscene";
+}
+
+KRNode *KRScene::getRootNode() {
+    return m_pRootNode;
+}
+
+bool KRScene::save(const std::string& path) {
+    tinyxml2::XMLDocument doc;
+    tinyxml2::XMLNode *scene_node = doc.InsertEndChild( doc.NewElement( "scene" ));
+    m_pRootNode->saveXML(scene_node);
+    doc.SaveFile(path.c_str());
+    return true;
+}
+
+
+KRScene *KRScene::LoadXML(const std::string& path)
+{
+    tinyxml2::XMLDocument doc;
+    doc.LoadFile(path.c_str());
+    KRScene *new_scene = new KRScene(KRResource::GetFileBase(path));
+    
+    return new_scene;
 }

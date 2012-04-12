@@ -42,6 +42,8 @@ KRTextureManager::~KRTextureManager() {
     }
 }
 
+#if TARGET_OS_IPHONE
+
 KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szPath) {
     KRTexture *pTexture = new KRTexture();
     if(!pTexture->loadFromFile(szPath)) {
@@ -63,6 +65,8 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szPath)
     m_textures[lowerName] = pTexture;
     return pTexture;
 }
+
+#endif
 
 GLuint KRTextureManager::getTextureName(const char *szName) {
     KRTexture *pTexture = getTexture(szName);

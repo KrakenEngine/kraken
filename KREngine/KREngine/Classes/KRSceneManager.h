@@ -1,5 +1,5 @@
 //
-//  KRInstance.h
+//  KRSceneManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,50 +29,35 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
+#ifndef KRENGINE_KRSCENEMANAGER_H
+#define KRENGINE_KRSCENEMANAGER_H
 
 #import "KREngine-common.h"
 
-#ifndef KRINSTANCE_H
-#define KRINSTANCE_H
+#include "KRScene.h"
 
-#import "KRModel.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRBoundingVolume.h"
-#import "KRInstance.h"
-#import "KRCamera.h"
-#import "KRModelManager.h"
-#import "KRNode.h"
+#include <map>
+#import <string>
+using std::map;
 
-class KRBoundingVolume;
 
-class KRInstance : public KRNode {
-    
+class KRSceneManager {
 public:
-    KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string shadow_map);
-    virtual ~KRInstance();
+    KRSceneManager();
+    ~KRSceneManager();
     
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    KRScene *loadScene(const char *szName, const char *szPath);
+
+    KRScene *getScene(const char *szName);
+    KRScene *getFirstScene();
     
-#if TARGET_OS_IPHONE
-    
-    void render(KRCamera *pCamera, KRModelManager *pModelManager, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &viewMatrix,  KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager);
-    
-#endif
-    
-    KRBoundingVolume getExtents(KRModelManager *pModelManager);
-    
-    KRMat4 &getModelMatrix();
+    std::vector<std::string> getSceneNames();
+    std::map<std::string, KRScene *> getScenes();
+
     
 private:
-    KRModel *m_pModel;
-    KRMat4 m_modelMatrix;
-    KRTexture *m_pShadowMap;
-    std::string m_shadowMap;
-    std::string m_model_name;
+    std::map<std::string, KRScene *> m_scenes;
+    
 };
-
 
 #endif

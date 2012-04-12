@@ -44,7 +44,12 @@ public:
     KRTextureManager();
     ~KRTextureManager();
     
+#if TARGET_OS_IPHONE
+    
     KRTexture *loadTexture(const char *szName, const char *szPath);
+    
+#endif
+    
     GLuint getTextureName(const char *szName);
     KRTexture *getTexture(const char *szFile);
     

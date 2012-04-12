@@ -20,7 +20,6 @@ KRPointLight::~KRPointLight()
 
 }
 
-bool KRPointLight::save(const std::string& path)
-{
-    return true;
+std::string KRPointLight::getElementName() {
+    return "point_light";
 }

@@ -43,7 +43,7 @@ KRModelManager::~KRModelManager() {
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, const char *szPath) {
-    KRModel *pModel = new KRModel(szPath, m_pMaterialManager);
+    KRModel *pModel = new KRModel(szName, szPath, m_pMaterialManager);
     m_models[szName] = pModel;
     return pModel;
 }

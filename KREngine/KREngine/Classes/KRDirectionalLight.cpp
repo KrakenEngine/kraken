@@ -20,7 +20,6 @@ KRDirectionalLight::~KRDirectionalLight()
     
 }
 
-bool KRDirectionalLight::save(const std::string& path)
-{
-    return true;
+std::string KRDirectionalLight::getElementName() {
+    return "directional_light";
 }

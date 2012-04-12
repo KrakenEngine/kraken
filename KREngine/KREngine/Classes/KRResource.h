@@ -21,6 +21,7 @@ class KRResource
 public:
     std::string getName();
     virtual std::string getExtension() = 0;
+    virtual bool save(const std::string& path) = 0;
     
     static std::string GetFileExtension(const std::string& name);
     static std::string GetFileBase(const std::string& name);
@@ -29,7 +30,7 @@ public:
     static std::vector<KRResource *> Load(const std::string& path);
     
     virtual ~KRResource();
-    virtual bool save(const std::string& path) = 0;
+   
 protected:
     KRResource(std::string name);
    

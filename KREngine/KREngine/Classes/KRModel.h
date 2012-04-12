@@ -49,12 +49,17 @@ using std::set;
 class KRModel {
     
 public:
-    KRModel(std::string path, KRMaterialManager *pMaterialManager);
+    KRModel(std::string name, std::string path, KRMaterialManager *pMaterialManager);
     ~KRModel();
+    
+#if TARGET_OS_IPHONE
     
     void render(KRCamera *pCamera, KRMaterialManager *pMaterialManager, bool bRenderShadowMap, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRShaderManager *pShaderManager, KRTextureManager *pTextureManager, KRTexture *pShadowMap);
     
+#endif
+    
     KRMesh *getMesh();
+    std::string getName();
 
 private:
     void loadPack(std::string path, KRMaterialManager *pMaterialManager);
@@ -62,6 +67,7 @@ private:
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
     KRMesh *m_pMesh;
+    std::string m_name;
 
 };
 
