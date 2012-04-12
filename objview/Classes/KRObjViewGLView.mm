@@ -209,14 +209,9 @@
             [self createFramebuffers];
 		}
         
-        glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+        //glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
         
         glViewport(0, 0, backingWidth, backingHeight);
-        
-        /*
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        */
     }
 }
 
@@ -226,7 +221,7 @@
     
     if (context)
     {
-        glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
+        //glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
         
         success = [context presentRenderbuffer:GL_RENDERBUFFER];
     }

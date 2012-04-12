@@ -57,7 +57,7 @@ double const PI = 3.141592653589793f;
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height
 {
-    debug_text = @"";
+    debug_text = [[NSString alloc] init];
     sun_yaw = 4.333;
     sun_pitch = 0.55;
     m_iFrame = 0;
@@ -587,6 +587,8 @@ double const PI = 3.141592653589793f;
     
     [self invalidatePostShader];
     [self destroyBuffers];
+    [debug_text release];
+    debug_text = nil;
     [super dealloc];
 }
 
@@ -752,15 +754,6 @@ double const PI = 3.141592653589793f;
                 -1.0f,              dScale * iPos + dScale - 1.0,
                 -1.0 + dScale,      dScale * iPos + dScale - 1.0,
             };
-            
-            /*
-             GLfloat charTexCoords[] = {
-                dTexScale * iCol,                 dTexScale * iRow,
-                dTexScale * iCol + dTexScale,     dTexScale * iRow,
-                dTexScale * iCol,                 dTexScale * iRow + dTexScale,
-                dTexScale * iCol + dTexScale,     dTexScale * iRow + dTexScale
-            };
-             */
             
             GLfloat charTexCoords[] = {
                 dTexScale * iCol,                 dTexScale * iRow + dTexScale,
@@ -1150,7 +1143,8 @@ double const PI = 3.141592653589793f;
 
 - (void)setDebugText: (NSString *)text
 {
-    debug_text = text;
+    [debug_text release];
+    debug_text = [text retain];
 }
 
 

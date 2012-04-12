@@ -95,6 +95,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
     NSString *debug_text;
     
 }
+
 - (id)initForWidth: (GLuint)width Height: (GLuint)height;
 
 - (BOOL)loadVertexShader:(NSString *)vertexShaderName fragmentShader:(NSString *)fragmentShaderName forProgram:(GLuint *)programPointer withOptions:(NSString *)options;
