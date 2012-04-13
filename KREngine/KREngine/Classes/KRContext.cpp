@@ -10,8 +10,8 @@
 
 #include "KRContext.h"
 
-KRContext::KRContext(const GLchar *szVertShaderSource, const GLchar *szFragShaderSource) {
-     m_pShaderManager = new KRShaderManager(szVertShaderSource, szFragShaderSource);
+KRContext::KRContext() {
+     m_pShaderManager = new KRShaderManager();
      m_pTextureManager = new KRTextureManager();
      m_pMaterialManager = new KRMaterialManager(m_pTextureManager, m_pShaderManager);
      m_pModelManager = new KRModelManager();
@@ -73,6 +73,10 @@ void KRContext::loadResource(std::string path) {
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), path.c_str());
 #endif
+    } else if(extension.compare("vsh") == 0) {
+        m_pShaderManager->loadVertexShader(name.c_str(), path.c_str());
+    } else if(extension.compare("fsh") == 0) {
+        m_pShaderManager->loadFragmentShader(name.c_str(), path.c_str());
     } else if(extension.compare("mtl") == 0) {
         m_pMaterialManager->loadFile(path.c_str());
     } else {

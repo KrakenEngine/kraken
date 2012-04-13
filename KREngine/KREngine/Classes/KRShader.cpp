@@ -31,13 +31,13 @@
 
 #include "KRShader.h"
 
-KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource) {
+KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) {
     strcpy(m_szKey, szKey);
     m_iProgram = 0;
     GLuint vertexShader = 0, fragShader = 0;
     try {
-        const GLchar *vertSource[2] = {options.c_str(), szVertShaderSource};
-        const GLchar *fragSource[2] = {options.c_str(), szFragShaderSource};
+        const GLchar *vertSource[2] = {options.c_str(), vertShaderSource.c_str()};
+        const GLchar *fragSource[2] = {options.c_str(), fragShaderSource.c_str()};
         
         // Create shader program.
         m_iProgram = glCreateProgram();

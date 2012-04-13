@@ -46,7 +46,7 @@ using std::vector;
 
 class KRShader {
 public:
-    KRShader(char *szKey, std::string options, const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
+    KRShader(char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     ~KRShader();
     GLuint getProgram();
     char *getKey();

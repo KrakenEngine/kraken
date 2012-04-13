@@ -30,26 +30,24 @@
 //
 
 #include "KRShaderManager.h"
-#include <sstream> 
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
-KRShaderManager::KRShaderManager(const GLchar *szVertShaderSource, const GLchar *szFragShaderSource) {
-    m_szFragShaderSource = new GLchar[strlen(szFragShaderSource)+1];
-    m_szVertShaderSource = new GLchar[strlen(szVertShaderSource)+1];
-    strcpy(m_szFragShaderSource, szFragShaderSource);
-    strcpy(m_szVertShaderSource, szVertShaderSource);
+KRShaderManager::KRShaderManager() {
+
 }
 
 KRShaderManager::~KRShaderManager() {
-    delete m_szFragShaderSource;
-    delete m_szVertShaderSource;
+
 }
 
 
 KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, int gBufferPass) {
 
-    char szKey[128];
+    char szKey[256];
     sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, gBufferPass, shader_name.c_str());
     
     
@@ -92,9 +90,33 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
         stream << "\n";
         std::string options = stream.str();
         
-        pShader = new KRShader(szKey, options, m_szVertShaderSource, m_szFragShaderSource);
+        pShader = new KRShader(szKey, options, m_vertShaderSource[shader_name], m_fragShaderSource[shader_name]);
 
         m_shaders[szKey] = pShader;
     }
     return pShader;
+}
+
+void KRShaderManager::loadFragmentShader(const std::string &name, const std::string &path) {
+    ifstream ifs(path.c_str(), ios::in | ios::binary | ios::ate);
+    
+    ifstream::pos_type fileSize = ifs.tellg();
+    ifs.seekg(0, ios::beg);
+    
+    vector<char> bytes(fileSize);
+    ifs.read(&bytes[0], fileSize);
+    
+    m_fragShaderSource[name] = string(&bytes[0], fileSize);
+    
+}
+void KRShaderManager::loadVertexShader(const std::string &name, const std::string &path) {
+    ifstream ifs(path.c_str(), ios::in | ios::binary | ios::ate);
+    
+    ifstream::pos_type fileSize = ifs.tellg();
+    ifs.seekg(0, ios::beg);
+    
+    vector<char> bytes(fileSize);
+    ifs.read(&bytes[0], fileSize);
+    
+    m_vertShaderSource[name] = string(&bytes[0], fileSize);
 }

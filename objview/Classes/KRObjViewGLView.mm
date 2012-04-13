@@ -107,54 +107,10 @@
         NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
         [renderEngine loadResource: path];
     }
-//    
-//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-//        if([fileName hasSuffix: @".scene"]) {
-//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-//            [renderEngine loadResource: path];
-//        }
-//    }
-//    
-//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-//        if([fileName hasSuffix: @".pvr"]) {
-//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-//            [renderEngine loadResource: path];
-//        }
-//    }
-//    
-//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-//        if([fileName hasSuffix: @".mtl"]) {
-//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-//            [renderEngine loadResource: path];
-//        }
-//    }
-//    
-//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-//        if([fileName hasSuffix: @".krobject"]) {
-//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-//            [renderEngine loadResource: path];
-//        }
-//    }
-//    
-//    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
-//        if([fileName hasSuffix: @".krscene"]) {
-//            NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-//            [renderEngine loadResource: path];
-//        }
-//    }
-    
+
     [renderEngine setNearZ: 25.0];
     [renderEngine setFarZ: 5000.0];
-    /*
-     
-     startPos 156.0 -55.0 -825.0
-     touchScale 95.0
-     nearZ 25.0
-     farZ 5000.0
-     
-     */
-    
-    // [renderEngine setParameterValueWithName: @];
+
     return TRUE;
 }
 

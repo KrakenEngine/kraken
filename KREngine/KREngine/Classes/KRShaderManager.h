@@ -47,16 +47,20 @@ using std::vector;
 
 class KRShaderManager {
 public:
-    KRShaderManager(const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
+    KRShaderManager();
     ~KRShaderManager();
+    
+    void loadFragmentShader(const std::string &name, const std::string &path);
+    void loadVertexShader(const std::string &name, const std::string &path);
+    
     
     KRShader *getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, int gBufferPass);
     
 private:
     std::map<std::string, KRShader *> m_shaders;
     
-    GLchar *m_szFragShaderSource;
-    GLchar *m_szVertShaderSource;
+    std::map<std::string, std::string> m_fragShaderSource;
+    std::map<std::string, std::string> m_vertShaderSource;
     
     KRShader *m_pShader;
 };

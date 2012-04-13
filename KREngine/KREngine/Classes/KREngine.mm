@@ -42,7 +42,6 @@ using namespace std;
 
 
 @interface KREngine (PrivateMethods)
-//- (BOOL)loadObjects;
 - (BOOL)loadShaders;
 - (BOOL)createBuffers;
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file;
@@ -75,14 +74,11 @@ double const PI = 3.141592653589793f;
 
     
     if ((self = [super init])) {
-        NSString *vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"ObjectShader" ofType:@"vsh"];
-        NSString *fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"ObjectShader" ofType:@"fsh"];
-        GLchar * szVertShaderSource = (GLchar *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
-        GLchar * szFragShaderSource = (GLchar *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
         
-        m_pContext = new KRContext(szVertShaderSource, szFragShaderSource);
+        m_pContext = new KRContext();
+
         
-        if (![self createBuffers] || ![self loadShaders] /*|| ![self loadObjects]*/ )
+        if (![self createBuffers] || ![self loadShaders] )
         {
             [self release];
             return nil;
@@ -649,6 +645,15 @@ double const PI = 3.141592653589793f;
 
 - (BOOL)loadShaders
 {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString *bundle_directory = [[NSBundle mainBundle] bundlePath];
+    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: bundle_directory error:nil]) {
+        if([fileName hasSuffix: @".vsh"] || [fileName hasSuffix: @".fsh"]) {
+            NSString* path = [NSString stringWithFormat:@"%@/%@", bundle_directory, fileName];
+            m_pContext->loadResource([path UTF8String]);
+        }
+    }
+    
     [self loadVertexShader:@"ShadowShader" fragmentShader:@"ShadowShader" forProgram:&m_shadowShaderProgram withOptions: NULL];
     
     m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "shadow_mvp1");

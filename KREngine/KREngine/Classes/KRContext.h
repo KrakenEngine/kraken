@@ -17,7 +17,7 @@
 
 class KRContext {
 public:
-    KRContext(const GLchar *szVertShaderSource, const GLchar *szFragShaderSource);
+    KRContext();
     ~KRContext();
     
     void loadResource(std::string path);
