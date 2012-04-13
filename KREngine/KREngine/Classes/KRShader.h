@@ -51,7 +51,7 @@ public:
     GLuint getProgram();
     char *getKey();
     
-    void bind(KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
+    void bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers);
     
     enum {
         KRENGINE_ATTRIB_VERTEX,
@@ -69,6 +69,7 @@ public:
         KRENGINE_UNIFORM_MATERIAL_ALPHA,
         KRENGINE_UNIFORM_MATERIAL_SHININESS,
         KRENGINE_UNIFORM_MVP,
+        KRENGINE_UNIFORM_M2V,
         KRENGINE_UNIFORM_LIGHTDIRECTION,
         KRENGINE_UNIFORM_CAMERAPOS,
         KRENGINE_UNIFORM_DIFFUSETEXTURE,

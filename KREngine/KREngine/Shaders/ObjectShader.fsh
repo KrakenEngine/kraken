@@ -25,6 +25,16 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#define GBUFFER_PASS 0
+
+#if GBUFFER_PASS == 1
+#if HAS_NORMAL_MAP == 1
+varying highp mat3 tangent_to_view;
+#else
+uniform highp mat4 model_to_view;
+#endif
+#endif
+
 uniform lowp vec3       material_ambient, material_diffuse, material_specular;
 uniform lowp float   material_alpha;
 
@@ -178,36 +188,53 @@ void main()
         specularFactor = 0.0;
     }
 #endif
+
     
-#if ENABLE_AMBIENT
-    // -------------------- Add ambient light and alpha component --------------------
-    gl_FragColor = vec4(vec3(diffuseMaterial) * material_ambient, material_alpha);
-#else
-    gl_FragColor = vec4(0.0, 0.0, 0.0, material_alpha);
-#endif
-    
-#if ENABLE_DIFFUSE
-    // -------------------- Add diffuse light --------------------
-    gl_FragColor += vec4(vec3(diffuseMaterial) * material_diffuse * lamberFactor, 0.0);
-#endif
-    
-#if ENABLE_SPECULAR
-    
-    // -------------------- Add specular light --------------------
-#if HAS_SPEC_MAP == 1    
-    gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor, 0.0);
-#else
-    gl_FragColor += vec4(material_specular * specularFactor, 0.0);
-#endif
-    
-#endif
+#if GBUFFER_PASS == 0
+        
+    #if ENABLE_AMBIENT
+        // -------------------- Add ambient light and alpha component --------------------
+        gl_FragColor = vec4(vec3(diffuseMaterial) * material_ambient, material_alpha);
+    #else
+        gl_FragColor = vec4(0.0, 0.0, 0.0, material_alpha);
+    #endif
+        
+    #if ENABLE_DIFFUSE
+        // -------------------- Add diffuse light --------------------
+        gl_FragColor += vec4(vec3(diffuseMaterial) * material_diffuse * lamberFactor, 0.0);
+    #endif
+        
+    #if ENABLE_SPECULAR
+        
+        // -------------------- Add specular light --------------------
+    #if HAS_SPEC_MAP == 1    
+        gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor, 0.0);
+    #else
+        gl_FragColor += vec4(material_specular * specularFactor, 0.0);
+    #endif
+        
+    #endif
 
 
-    // -------------------- Multiply light map -------------------- 
+        // -------------------- Multiply light map -------------------- 
+        
+    #if HAS_LIGHT_MAP
+        mediump vec3 shadowColor = vec3(texture2D(shadowTexture1, shadowCoord));
+        gl_FragColor = vec4(gl_FragColor.r * shadowColor.r, gl_FragColor.g * shadowColor.g, gl_FragColor.b * shadowColor.b, 1.0);
+    #endif
+#endif
     
-#if HAS_LIGHT_MAP
-    mediump vec3 shadowColor = vec3(texture2D(shadowTexture1, shadowCoord));
-    gl_FragColor = vec4(gl_FragColor.r * shadowColor.r, gl_FragColor.g * shadowColor.g, gl_FragColor.b * shadowColor.b, 1.0);
+#if GBUFFER_PASS == 1
+    
+    //gl_FragColor = vec4((normal + 1.0) / 2.0, 1.0f);
+    
+#if HAS_NORMAL_MAP == 1
+    mediump vec3 view_space_normal = tangent_to_view * normal;
+#else
+    mediump vec3 view_space_normal = vec3(model_to_view * vec4(normal, 1.0));
+#endif
+    gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, 1.0);
+
 #endif
     
 }

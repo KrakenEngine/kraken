@@ -95,6 +95,7 @@ public:
     void rotate(GLfloat angle, AXIS axis);
     void bias();
     bool invert();
+    void transpose();
     KRVector3 dot(const KRVector3 &v) const;
 };
 

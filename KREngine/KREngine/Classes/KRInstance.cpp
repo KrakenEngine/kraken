@@ -91,6 +91,9 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             projectionMatrix = pCamera->getProjectionMatrix();
         }
         KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
+        KRMat4 matModelToView = viewMatrix * m_modelMatrix;
+        matModelToView.transpose();
+        matModelToView.invert();
         
         // Transform location of camera to object space for calculation of specular halfVec
         KRMat4 inverseModelMatrix = m_modelMatrix;
@@ -98,7 +101,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
         KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
         KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
         
-        m_pModel->render(pCamera, pContext, bRenderShadowMap, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap);
+        m_pModel->render(pCamera, pContext, bRenderShadowMap, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap);
             
     }
     

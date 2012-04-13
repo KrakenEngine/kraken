@@ -746,12 +746,12 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 31;
+    return 32;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
 {
-    NSString *parameter_names[31] = {
+    NSString *parameter_names[32] = {
         @"camera_fov",
         @"sun_direction",
         @"sun_attitude",
@@ -782,13 +782,14 @@ double const PI = 3.141592653589793f;
         @"debug_enable_ambient",
         @"debug_enable_diffuse",
         @"debug_enable_specular",
-        @"debug_super_shiny"
+        @"debug_super_shiny",
+        @"enable_deferred_lighting"
     };
     return parameter_names[i];
 }
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[31] = {
+    NSString *parameter_labels[32] = {
         @"Camera FOV",
         @"Sun Direction",
         @"Sun Attitude",
@@ -819,13 +820,15 @@ double const PI = 3.141592653589793f;
         @"Debug - Enable Ambient",
         @"Debug - Enable Diffuse",
         @"Debug - Enable Specular",
-        @"Debug - Super Shiny"
+        @"Debug - Super Shiny",
+        @"Enable Deferred Lighting"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[31] = {
+    KREngineParameterType types[32] = {
+        
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
@@ -851,6 +854,7 @@ double const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
@@ -862,7 +866,7 @@ double const PI = 3.141592653589793f;
 }
 -(double)getParameterValueWithIndex: (int)i
 {
-    double values[31] = {
+    double values[32] = {
         m_camera.perspective_fov,
         sun_yaw,
         sun_pitch,
@@ -893,7 +897,8 @@ double const PI = 3.141592653589793f;
         m_camera.bEnableAmbient ? 1.0f : 0.0f,
         m_camera.bEnableDiffuse ? 1.0f : 0.0f,
         m_camera.bEnableSpecular ? 1.0f : 0.0f,
-        m_camera.bDebugSuperShiny ? 1.0f : 0.0f
+        m_camera.bDebugSuperShiny ? 1.0f : 0.0f,
+        m_camera.bEnableDeferredLighting ? 1.0f : 0.0f
     };
     return values[i];
 }
@@ -1043,18 +1048,22 @@ double const PI = 3.141592653589793f;
                 m_camera.bDebugSuperShiny = bNewBoolVal;
             }
             break;
+        case 31:
+            if(m_camera.bEnableDeferredLighting != bNewBoolVal) {
+                m_camera.bEnableDeferredLighting = bNewBoolVal;
+            }
     }
 }
 
 -(double)getParameterMinWithIndex: (int)i
 {
-    double minValues[31] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    double minValues[32] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     return minValues[i];
 }
 
 -(double)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[31] = {PI, 2.0f * PI, PI, 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f, 0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    double maxValues[32] = {PI, 2.0f * PI, PI, 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f, 0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
     return maxValues[i];
 }
 

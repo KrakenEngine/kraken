@@ -50,7 +50,7 @@ KRShaderManager::~KRShaderManager() {
 KRShader *KRShaderManager::getShader(KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset) {
 
     char szKey[128];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, /*pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB, pCamera->dSunR, pCamera->dSunG, pCamera->dSunB, */pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset);
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d", pCamera->bEnablePerPixel, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset);
     
     
     /*

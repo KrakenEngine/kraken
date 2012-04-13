@@ -79,6 +79,7 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess");
         
         m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "myMVPMatrix");
+        m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix1");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix2");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix3");
@@ -133,12 +134,13 @@ KRShader::~KRShader() {
     }
 }
 
-void KRShader::bind(KRCamera *pCamera, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
+void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers) {
     glUseProgram(m_iProgram);
     
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer());
+    glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView.getPointer());
 
     KRVector3 nLightDir = lightDirection;
     nLightDir.normalize();

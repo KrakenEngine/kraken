@@ -54,6 +54,7 @@ public:
     bool bEnableAmbient;
     bool bEnableDiffuse;
     bool bEnableSpecular;
+    bool bEnableDeferredLighting;
     double dSunR;
     double dSunG;
     double dSunB;

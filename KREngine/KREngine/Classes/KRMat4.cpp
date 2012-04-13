@@ -241,6 +241,16 @@ bool KRMat4::invert() {
     return true;
 }
 
+void KRMat4::transpose() {
+    GLfloat trans[16];
+    for(int x=0; x<4; x++) {
+        for(int y=0; y<4; y++) {
+            trans[x + y * 4] = m_mat[y + x * 4];
+        }
+    }
+    memcpy(m_mat, trans, sizeof(GLfloat) * 16);
+}
+
 /* Dot Product */
 KRVector3 KRMat4::dot(const KRVector3 &v) const {
     return KRVector3(

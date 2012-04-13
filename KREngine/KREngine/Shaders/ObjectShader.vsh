@@ -29,11 +29,21 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#define GBUFFER_PASS 0
+
 attribute highp vec3	myVertex, myNormal;
 attribute highp vec3    myTangent;
 attribute mediump vec2	myUV;
 attribute mediump vec2   shadowuv;
 uniform highp mat4      myMVPMatrix, myShadowMVPMatrix1,myShadowMVPMatrix2,myShadowMVPMatrix3; // mvpmatrix is the result of multiplying the model, view, and projection matrices 
+
+#if GBUFFER_PASS == 1 && HAS_NORMAL_MAP == 1
+uniform highp mat4 model_to_view;
+varying highp mat3 tangent_to_view;
+
+#endif
+
+
 // uniform lowp vec3       material_ambient, material_diffuse, material_specular;
 uniform highp vec3      lightDirection; // Must be normalized before entering shader
 uniform highp vec3      cameraPosition;
@@ -187,12 +197,15 @@ void main()
 #endif
     
 
+#if (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || GBUFFER_PASS == 1
+    mediump vec3 a_bitangent = cross(myNormal, myTangent);
+#endif
+    
      // ----------- Directional Light (Sun) -----------
-     
 #if HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1
     // ----- Calculate per-pixel lighting in tangent space, for normal mapping ------
     mediump vec3 eyeVec = normalize(cameraPosition - myVertex);
-    mediump vec3 a_bitangent = cross(myNormal, myTangent);
+    
     lightVec = normalize(vec3(dot(lightDirection, myTangent), dot(lightDirection, a_bitangent), dot(lightDirection, myNormal)));
     halfVec = normalize(vec3(dot(eyeVec, myTangent), dot(eyeVec, a_bitangent), dot(eyeVec, myNormal)));
     halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2
@@ -210,5 +223,12 @@ void main()
     lamberFactor = max(0.0,dot(lightDirection, myNormal));
     specularFactor = max(0.0,pow(dot(halfVec,myNormal), material_shininess));
 #endif
+#endif
+
+    
+#if GBUFFER_PASS == 1 && HAS_NORMAL_MAP == 1
+    tangent_to_view[0] = vec3(model_to_view * vec4(myTangent, 1.0));
+    tangent_to_view[1] = vec3(model_to_view * vec4(a_bitangent, 1.0));
+    tangent_to_view[2] = vec3(model_to_view * vec4(myNormal, 1.0));
 #endif
 }
