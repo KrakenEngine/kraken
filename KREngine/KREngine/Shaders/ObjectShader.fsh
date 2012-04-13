@@ -25,7 +25,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#define GBUFFER_PASS 0
+uniform lowp vec3       material_ambient, material_diffuse, material_specular;
+uniform lowp float   material_alpha;
 
 #if GBUFFER_PASS == 1
 #if HAS_NORMAL_MAP == 1
@@ -35,8 +36,7 @@ uniform highp mat4 model_to_view;
 #endif
 #endif
 
-uniform lowp vec3       material_ambient, material_diffuse, material_specular;
-uniform lowp float   material_alpha;
+
 
 #if ENABLE_PER_PIXEL == 1
 uniform mediump float   material_shininess;
@@ -190,7 +190,7 @@ void main()
 #endif
 
     
-#if GBUFFER_PASS == 0
+#if GBUFFER_PASS == 0 || GBUFFER_PASS == 2
         
     #if ENABLE_AMBIENT
         // -------------------- Add ambient light and alpha component --------------------
@@ -225,15 +225,12 @@ void main()
 #endif
     
 #if GBUFFER_PASS == 1
-    
-    //gl_FragColor = vec4((normal + 1.0) / 2.0, 1.0f);
-    
-#if HAS_NORMAL_MAP == 1
-    mediump vec3 view_space_normal = tangent_to_view * normal;
-#else
-    mediump vec3 view_space_normal = vec3(model_to_view * vec4(normal, 1.0));
-#endif
-    gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, 1.0);
+    #if HAS_NORMAL_MAP == 1
+        mediump vec3 view_space_normal = tangent_to_view * normal;
+    #else
+        mediump vec3 view_space_normal = vec3(model_to_view * vec4(normal, 1.0));
+    #endif
+        gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, material_shininess / 100.0);
 
 #endif
     

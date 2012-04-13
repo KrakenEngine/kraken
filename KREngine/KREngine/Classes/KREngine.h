@@ -53,6 +53,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
     GLint backingWidth, backingHeight;
     
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
+    GLuint lightAccumulationBuffer;
     
     int m_cShadowBuffers;
     GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];

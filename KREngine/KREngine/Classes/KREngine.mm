@@ -157,6 +157,21 @@ double const PI = 3.141592653589793f;
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
 
+    
+    // ===== Create offscreen compositing framebuffer object =====
+    glGenFramebuffers(1, &lightAccumulationBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer);
+    
+    // ----- Create texture color buffer for compositeFramebuffer -----
+	glGenTextures(1, &lightAccumulationBuffer);
+	glBindTexture(GL_TEXTURE_2D, lightAccumulationBuffer);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0);
+    
     [self allocateShadowBuffers];
     return TRUE;
 }
@@ -179,6 +194,11 @@ double const PI = 3.141592653589793f;
     if (compositeFramebuffer) {
         glDeleteFramebuffers(1, &compositeFramebuffer);
         compositeFramebuffer = 0;
+    }
+    
+    if (lightAccumulationBuffer) {
+        glDeleteFramebuffers(1, &lightAccumulationBuffer);
+        lightAccumulationBuffer = 0;
     }
 }
 
@@ -328,32 +348,119 @@ double const PI = 3.141592653589793f;
     KRVector3 cameraPosition;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
-    pScene->render(&m_camera, m_pContext, shadowVolume, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers);
+    pScene->render(&m_camera, m_pContext, shadowVolume, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, 0);
     glViewport(0, 0, 768, 1024);
 }
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition
 {
     
+
+    
+
+    
+    KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz, m_camera.perspective_farz);
+    if(m_camera.bEnableDeferredLighting) {
+        //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
+        
+        // Set render target
+        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        // Enable backface culling
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        
+        // Enable z-buffer test
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDepthRangef(0.0, 1.0);
+        
+        // Disable alpha blending
+        glDisable(GL_BLEND);
+        
+        // Render the geometry
+        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 1);
+        
+        //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
+        // Set render target
+        glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Enable additive blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        
+        // Render the geometry
+        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 2);
+        
+        //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
+        // Set render target
+        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Enable backface culling
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        
+        // Enable z-buffer test
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDepthRangef(0.0, 1.0);
+        
+        // Render the geometry
+        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 3);
+        
+    } else {
+        // ----====---- Opaque Geometry, Forward Rendering ----====---- 
+        
+        // Set render target
+        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        
+        // Enable backface culling
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        
+        // Enable z-buffer test
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDepthRangef(0.0, 1.0);
+        
+        // Disable alpha blending
+        glDisable(GL_BLEND);
+        
+        // Render the geometry
+        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 0);
+    }
+    
+    // ----====---- Transparent Geometry, Forward Rendering ----====----
+    
+    // Set render target
     glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Enable backface culling
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
     
     // Enable z-buffer test
     glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LEQUAL);
     glDepthRangef(0.0, 1.0);
     
     // Enable alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz, m_camera.perspective_farz);
-    pScene -> render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers);
+    // TODO: Need to perform a forward render of all transparent geometry here...
+    //pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 0);
 }
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file withOptions: (NSString *)options
@@ -593,6 +700,9 @@ double const PI = 3.141592653589793f;
 {
     
     glBindFramebuffer(GL_FRAMEBUFFER, 1); // renderFramebuffer
+    
+    // Disable alpha blending
+    glDisable(GL_BLEND);
     
     // Replace the implementation of this method to do your own custom drawing.
     static const GLfloat squareVertices[] = {

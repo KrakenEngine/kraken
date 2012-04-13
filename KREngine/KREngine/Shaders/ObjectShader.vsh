@@ -29,8 +29,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#define GBUFFER_PASS 0
-
 attribute highp vec3	myVertex, myNormal;
 attribute highp vec3    myTangent;
 attribute mediump vec2	myUV;
