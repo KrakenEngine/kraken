@@ -47,10 +47,30 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         glShaderSource(vertexShader, 2, vertSource, NULL);
         glCompileShader(vertexShader);
         
+        // Report any compile issues to stderr
+        GLint logLength;
+        glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0) {
+            GLchar *log = (GLchar *)malloc(logLength);
+            glGetShaderInfoLog(vertexShader, logLength, &logLength, log);
+            fprintf(stderr, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
+            free(log);
+        }
+
+        
         // Create and compile vertex shader.
         fragShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragShader, 2, fragSource, NULL);
         glCompileShader(fragShader);
+        
+        // Report any compile issues to stderr
+        glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0) {
+            GLchar *log = (GLchar *)malloc(logLength);
+            glGetShaderInfoLog(vertexShader, logLength, &logLength, log);
+            fprintf(stderr, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
+            free(log);
+        }
         
         // Attach vertex shader to program.
         glAttachShader(m_iProgram, vertexShader);
@@ -62,14 +82,24 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         // This needs to be done prior to linking.
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "position");
         glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "inputTextureCoordinate");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVB, "shadowuv");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "myVertex");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_NORMAL, "myNormal");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TANGENT, "myTangent");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "myUV");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "vertex_position");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_NORMAL, "vertex_normal");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TANGENT, "vertex_tangent");
+        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "vertex_uv");
         
         // Link program.
         glLinkProgram(m_iProgram);
+        
+        // Report any linking issues to stderr
+        glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0)
+        {
+            GLchar *log = (GLchar *)malloc(logLength);
+            glGetProgramInfoLog(m_iProgram, logLength, &logLength, log);
+            fprintf(stderr, "KREngine - Failed to link shader program: %s\nProgram link log:\n%s", szKey, log);
+            free(log);
+        }
         
         // Get uniform locations
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient");
@@ -78,11 +108,11 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess");
         
-        m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "myMVPMatrix");
-        m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view");
-        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix1");
-        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix2");
-        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "myShadowMVPMatrix3");
+        m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix");
+        m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view_matrix");
+        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1");
+        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2");
+        m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3");
         m_uniforms[KRENGINE_UNIFORM_LIGHTDIRECTION] = glGetUniformLocation(m_iProgram, "lightDirection");
         m_uniforms[KRENGINE_UNIFORM_CAMERAPOS] = glGetUniformLocation(m_iProgram, "cameraPosition");
         
@@ -103,6 +133,9 @@ KRShader::KRShader(char *szKey, std::string options, const GLchar *szVertShaderS
         m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] = glGetUniformLocation(m_iProgram, "shadowTexture2");
         m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] = glGetUniformLocation(m_iProgram, "shadowTexture3");
         
+        
+        m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME] = glGetUniformLocation(m_iProgram, "gbuffer_frame");
+        m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] = glGetUniformLocation(m_iProgram, "gbuffer_depth");
         
     } catch(...) {
         if(vertexShader) {
@@ -180,6 +213,9 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4);
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5);
     
+    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6);
+    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7);
+    
 #if defined(DEBUG)
     GLint logLength;
     
@@ -189,7 +225,7 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(m_iProgram, logLength, &logLength, log);
-        fprintf(stderr, "Program validate log:\n%s", log);
+        fprintf(stderr, "KREngine - Failed to validate shader program: %s\n Program validate log:\n%s", m_szKey, log);
         free(log);
     }
 #endif

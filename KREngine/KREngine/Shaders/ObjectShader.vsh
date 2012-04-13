@@ -29,204 +29,210 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute highp vec3	myVertex, myNormal;
-attribute highp vec3    myTangent;
-attribute mediump vec2	myUV;
-attribute mediump vec2   shadowuv;
-uniform highp mat4      myMVPMatrix, myShadowMVPMatrix1,myShadowMVPMatrix2,myShadowMVPMatrix3; // mvpmatrix is the result of multiplying the model, view, and projection matrices 
+attribute highp vec3	vertex_position, vertex_normal, vertex_tangent;
+attribute mediump vec2	vertex_uv;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
-#if GBUFFER_PASS == 1 && HAS_NORMAL_MAP == 1
-uniform highp mat4 model_to_view;
-varying highp mat3 tangent_to_view;
+#if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
+    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1
+        varying highp vec2 texCoord;
+    #endif
+    #if HAS_NORMAL_MAP == 1
+        #if HAS_NORMAL_MAP_SCALE == 1
+            uniform highp vec2 normalTexture_Scale;
+        #endif
 
-#endif
+        #if HAS_NORMAL_MAP_OFFSET == 1
+            uniform highp vec2 normalTexture_Offset;
+        #endif
 
-
-// uniform lowp vec3       material_ambient, material_diffuse, material_specular;
-uniform highp vec3      lightDirection; // Must be normalized before entering shader
-uniform highp vec3      cameraPosition;
-
-#if ENABLE_PER_PIXEL == 0
-uniform mediump float   material_shininess;
-#endif
-
-#if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
-varying highp vec2	texCoord;
-#endif
-
-#if HAS_LIGHT_MAP == 1
-varying mediump vec2  shadowCoord;
-#endif
-
-
-#if ENABLE_PER_PIXEL == 1
-varying mediump vec3    lightVec;
-varying mediump vec3    halfVec;
+        #if HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1
+            varying highp vec2 normal_uv;
+        #endif
+    #else
+        varying mediump vec3 normal;
+    #endif
 #else
-varying mediump float   lamberFactor;
-varying mediump float   specularFactor;
+    uniform mediump float material_shininess;
+    #if HAS_DIFFUSE_MAP == 1
+        varying highp vec2 texCoord;
+    #endif
 #endif
 
-#if HAS_DIFFUSE_MAP_SCALE == 1
-uniform highp vec2    diffuseTexture_Scale;
+#if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
+    varying mediump vec2 gbuffer_uv;
 #endif
 
-#if HAS_NORMAL_MAP_SCALE == 1
-uniform highp vec2    normalTexture_Scale;
+#if GBUFFER_PASS == 1
+    #if HAS_NORMAL_MAP == 1
+        uniform highp mat4 model_to_view_matrix;
+        varying highp mat3 tangent_to_view_matrix;
+    #endif
+#else
+
+    uniform highp vec3  lightDirection; // Must be normalized before entering shader
+    uniform highp vec3  cameraPosition;
+
+    #if HAS_LIGHT_MAP == 1
+        attribute mediump vec2  vertex_lightmap_uv;
+        varying mediump vec2    lightmap_uv;
+    #endif
+
+    #if ENABLE_PER_PIXEL == 1
+        varying mediump vec3    lightVec;
+        varying mediump vec3    halfVec;
+
+        #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
+            varying highp vec2 spec_uv;
+        #endif
+
+        #if HAS_SPEC_MAP_SCALE == 1
+            uniform highp vec2    specularTexture_Scale;
+        #endif
+
+        #if HAS_SPEC_MAP_OFFSET == 1
+            uniform highp vec2    specularTexture_Offset;
+        #endif
+
+        #if SHADOW_QUALITY >= 1
+            uniform highp mat4  shadow_mvp1;
+            varying highp vec4	shadowMapCoord1;
+        #endif
+
+        #if SHADOW_QUALITY >= 2
+            uniform highp mat4  shadow_mvp2;
+            varying highp vec4	shadowMapCoord2;
+        #endif
+
+        #if SHADOW_QUALITY >= 3
+            uniform highp mat4  shadow_mvp3;
+            varying highp vec4	shadowMapCoord3;
+        #endif
+
+    #else
+        varying mediump float   lamberFactor;
+        varying mediump float   specularFactor;
+    #endif
+
+    #if HAS_DIFFUSE_MAP_SCALE == 1
+        uniform highp vec2    diffuseTexture_Scale;
+    #endif
+
+    #if HAS_DIFFUSE_MAP_OFFSET == 1
+        uniform highp vec2    diffuseTexture_Offset;
+    #endif
+
+    #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+        varying highp vec2  diffuse_uv;
+    #endif
+
 #endif
 
-#if HAS_SPEC_MAP_SCALE == 1
-uniform highp vec2    specularTexture_Scale;
-#endif
 
-#if HAS_NORMAL_MAP_OFFSET == 1
-uniform highp vec2    normalTexture_Offset;
-#endif
-
-#if HAS_SPEC_MAP_OFFSET == 1
-uniform highp vec2    specularTexture_Offset;
-#endif
-
-#if HAS_DIFFUSE_MAP_OFFSET == 1
-uniform highp vec2    diffuseTexture_Offset;
-#endif
-
-#if HAS_NORMAL_MAP == 0 && ENABLE_PER_PIXEL == 1
-varying mediump vec3      normal;
-#endif
-
-#if SHADOW_QUALITY >= 1
-varying highp vec4	shadowMapCoord1;
-#endif
-
-#if SHADOW_QUALITY >= 2
-varying highp vec4	shadowMapCoord2;
-#endif
-
-#if SHADOW_QUALITY >= 3
-varying highp vec4	shadowMapCoord3;
-#endif
-
-#if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-varying highp vec2  normal_uv;
-#endif
-
-#if (HAS_SPEC_MAP_OFFSET == 1|| HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-varying highp vec2 spec_uv;
-#endif
-
-#if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-varying highp vec2  diffuse_uv;
-#endif
 
 void main()
 {
     // Transform position
-    gl_Position = myMVPMatrix * vec4(myVertex,1.0);
+    gl_Position = mvp_matrix * vec4(vertex_position,1.0);
+    
+#if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
+    gbuffer_uv = gl_Position.xy;
+#endif
+    
+    #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1)
+        // Pass UV co-ordinates
+        texCoord = vertex_uv.st;
+    #endif
     
 
-    
-#if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || HAS_SPEC_MAP == 1
-    // Pass UV co-ordinates
-    texCoord = myUV.st;
-#endif
-    
+    // Scaled and translated normal map UV's
+    #if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+        normal_uv = texCoord;
+        
+        #if HAS_NORMAL_MAP_OFFSET == 1
+            normal_uv + normalTexture_Offset;
+        #endif
+            
+        #if HAS_NORMAL_MAP_SCALE == 1
+            normal_uv *= normalTexture_Scale;
+        #endif
+        
+    #endif
 
-// Scaled and translated normal map UV's
-#if (HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-    normal_uv = texCoord;
+    #if GBUFFER_PASS == 1
+        #if HAS_NORMAL_MAP == 1
+            mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
+            tangent_to_view_matrix[0] = vec3(model_to_view_matrix * vec4(vertex_tangent, 1.0));
+            tangent_to_view_matrix[1] = vec3(model_to_view_matrix * vec4(a_bitangent, 1.0));
+            tangent_to_view_matrix[2] = vec3(model_to_view_matrix * vec4(vertex_normal, 1.0));
+        #else
+            normal = vertex_normal;
+        #endif
+    #else
+        #if HAS_LIGHT_MAP == 1
+            // Pass shadow UV co-ordinates
+            lightmap_uv = vertex_lightmap_uv.st;
+        #endif
     
-#if HAS_NORMAL_MAP_OFFSET == 1
-    normal_uv + normalTexture_Offset;
-#endif
-    
-#if HAS_NORMAL_MAP_SCALE == 1
-    normal_uv *= normalTexture_Scale;
-#endif
-    
-#endif
+        // Scaled and translated diffuse map UV's
+        #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+            diffuse_uv = texCoord;
+            
+            #if HAS_DIFFUSE_MAP_OFFSET == 1
+                diffuse_uv + diffuseTexture_Offset;
+            #endif
+                
+            #if HAS_DIFFUSE_MAP_SCALE == 1
+                diffuse_uv *= diffuseTexture_Scale;
+            #endif
+        #endif
 
-    
-// Scaled and translated diffuse map UV's
-#if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-    diffuse_uv = texCoord;
-    
-#if HAS_DIFFUSE_MAP_OFFSET == 1
-    diffuse_uv + diffuseTexture_Offset;
-#endif
-    
-#if HAS_DIFFUSE_MAP_SCALE == 1
-    diffuse_uv *= diffuseTexture_Scale;
-#endif
-    
-#endif
+        #if ENABLE_PER_PIXEL == 1
+            // Scaled and translated specular map UV's
+            #if (HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+                spec_uv = texCoord;
+                #if HAS_SPEC_MAP_OFFSET == 1
+                    spec_uv + specularTexture_Offset;
+                #endif
+                    
+                #if HAS_SPEC_MAP_SCALE == 1
+                    spec_uv *= specularTexture_Scale;
+                #endif
+            #endif
+        
+        
+            #if SHADOW_QUALITY >= 1
+                shadowMapCoord1 = shadow_mvp1 * vec4(vertex_position,1.0);
+            #endif
+                
+            #if SHADOW_QUALITY >= 2
+                shadowMapCoord2 = shadow_mvp2 * vec4(vertex_position,1.0);
+            #endif
+                
+            #if SHADOW_QUALITY >= 3
+                shadowMapCoord3 = shadow_mvp3 * vec4(vertex_position,1.0);
+            #endif
 
-
-// Scaled and translated specular map UV's
-#if (HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-    spec_uv = texCoord;
-#if HAS_SPEC_MAP_OFFSET == 1
-    spec_uv + specularTexture_Offset;
-#endif
-    
-#if HAS_SPEC_MAP_SCALE == 1
-    spec_uv *= specularTexture_Scale;
-#endif
-    
-#endif    
-    
-    
-    
-#if HAS_LIGHT_MAP == 1
-    // Pass shadow UV co-ordinates
-    shadowCoord = shadowuv.st;
-#endif
-    
-#if SHADOW_QUALITY >= 1
-    shadowMapCoord1 = myShadowMVPMatrix1 * vec4(myVertex,1.0);
-#endif
-    
-#if SHADOW_QUALITY >= 2
-    shadowMapCoord2 = myShadowMVPMatrix2 * vec4(myVertex,1.0);
-#endif
-    
-#if SHADOW_QUALITY >= 3
-    shadowMapCoord3 = myShadowMVPMatrix3 * vec4(myVertex,1.0);
-#endif
-    
-
-#if (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || GBUFFER_PASS == 1
-    mediump vec3 a_bitangent = cross(myNormal, myTangent);
-#endif
-    
-     // ----------- Directional Light (Sun) -----------
-#if HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1
-    // ----- Calculate per-pixel lighting in tangent space, for normal mapping ------
-    mediump vec3 eyeVec = normalize(cameraPosition - myVertex);
-    
-    lightVec = normalize(vec3(dot(lightDirection, myTangent), dot(lightDirection, a_bitangent), dot(lightDirection, myNormal)));
-    halfVec = normalize(vec3(dot(eyeVec, myTangent), dot(eyeVec, a_bitangent), dot(eyeVec, myNormal)));
-    halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2
-
-#else
-
-#if ENABLE_PER_PIXEL == 1
-    // ------ Calculate per-pixel lighting without normal mapping ------
-    normal = myNormal;
-    lightVec = lightDirection;
-    halfVec = normalize((normalize(cameraPosition - myVertex) + lightVec)); // Normalizing anyways, no need to divide by 2
-#else
-    // ------ Calculate per-vertex lighting ------
-    mediump vec3 halfVec = normalize((normalize(cameraPosition - myVertex) + lightDirection)); // Normalizing anyways, no need to divide by 2
-    lamberFactor = max(0.0,dot(lightDirection, myNormal));
-    specularFactor = max(0.0,pow(dot(halfVec,myNormal), material_shininess));
-#endif
-#endif
-
-    
-#if GBUFFER_PASS == 1 && HAS_NORMAL_MAP == 1
-    tangent_to_view[0] = vec3(model_to_view * vec4(myTangent, 1.0));
-    tangent_to_view[1] = vec3(model_to_view * vec4(a_bitangent, 1.0));
-    tangent_to_view[2] = vec3(model_to_view * vec4(myNormal, 1.0));
-#endif
+            // ----------- Directional Light (Sun) -----------
+            #if HAS_NORMAL_MAP == 1
+                // ----- Calculate per-pixel lighting in tangent space, for normal mapping ------
+                mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
+                mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
+                
+                lightVec = normalize(vec3(dot(lightDirection, vertex_tangent), dot(lightDirection, a_bitangent), dot(lightDirection, vertex_normal)));
+                halfVec = normalize(vec3(dot(eyeVec, vertex_tangent), dot(eyeVec, a_bitangent), dot(eyeVec, vertex_normal)));
+                halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2
+            #else
+                // ------ Calculate per-pixel lighting without normal mapping ------
+                normal = vertex_normal;
+                lightVec = lightDirection;
+                halfVec = normalize((normalize(cameraPosition - vertex_position) + lightVec)); // Normalizing anyways, no need to divide by 2
+            #endif
+        #else
+            // ------ Calculate per-vertex lighting ------
+            mediump vec3 halfVec = normalize((normalize(cameraPosition - vertex_position) + lightDirection)); // Normalizing anyways, no need to divide by 2
+            lamberFactor = max(0.0,dot(lightDirection, vertex_normal));
+            specularFactor = max(0.0,pow(dot(halfVec,vertex_normal), material_shininess));
+        #endif
+    #endif
 }

@@ -390,6 +390,12 @@ double const PI = 3.141592653589793f;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        // Set source to buffers from pass 1
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
+        glActiveTexture(GL_TEXTURE7);
+        glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
+        
         // Enable additive blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -404,6 +410,10 @@ double const PI = 3.141592653589793f;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        // Set source to buffers from pass 2
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, lightAccumulationBuffer);
+        
         // Enable backface culling
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
@@ -415,6 +425,12 @@ double const PI = 3.141592653589793f;
         
         // Render the geometry
         pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 3);
+        
+        // Deactivate source buffer texture units
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE7);
+        glBindTexture(GL_TEXTURE_2D, 0);
         
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====---- 
@@ -588,11 +604,11 @@ double const PI = 3.141592653589793f;
     // This needs to be done prior to linking.
     glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "position");
     glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "inputTextureCoordinate");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "shadowuv");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "myVertex");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "myNormal");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TANGENT, "myTangent");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "myUV");
+    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv");
+    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "vertex_position");
+    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "vertex_normal");
+    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TANGENT, "vertex_tangent");
+    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "vertex_uv");
     
     // Link program.
     if (![self linkProgram:*programPointer])
@@ -635,7 +651,7 @@ double const PI = 3.141592653589793f;
 {
     [self loadVertexShader:@"ShadowShader" fragmentShader:@"ShadowShader" forProgram:&m_shadowShaderProgram withOptions: NULL];
     
-    m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "myShadowMVPMatrix1");
+    m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "shadow_mvp1");
 
     
     return TRUE;
