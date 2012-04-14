@@ -159,14 +159,14 @@ double const PI = 3.141592653589793f;
     glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer);
     
     // ----- Create texture color buffer for compositeFramebuffer -----
-	glGenTextures(1, &lightAccumulationBuffer);
-	glBindTexture(GL_TEXTURE_2D, lightAccumulationBuffer);
+	glGenTextures(1, &lightAccumulationTexture);
+	glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0);
     
     [self allocateShadowBuffers];
     return TRUE;
@@ -186,6 +186,11 @@ double const PI = 3.141592653589793f;
 		glDeleteTextures(1, &compositeColorTexture);
 		compositeColorTexture = 0;
 	}
+    
+    if (lightAccumulationTexture) {
+        glDeleteTextures(1, &lightAccumulationTexture);
+        lightAccumulationTexture = 0;
+    }
     
     if (compositeFramebuffer) {
         glDeleteFramebuffers(1, &compositeFramebuffer);
@@ -386,29 +391,34 @@ double const PI = 3.141592653589793f;
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        // Enable additive blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        
         // Set source to buffers from pass 1
         glActiveTexture(GL_TEXTURE6);
         glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
         glActiveTexture(GL_TEXTURE7);
         glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
         
-        // Enable additive blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
         
         // Render the geometry
-        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 2);
+        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, 2);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
         glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        
+        // Disable alpha blending
+        glDisable(GL_BLEND);
+        
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         // Set source to buffers from pass 2
         glActiveTexture(GL_TEXTURE6);
-        glBindTexture(GL_TEXTURE_2D, lightAccumulationBuffer);
+        glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
         
         // Enable backface culling
         glCullFace(GL_BACK);
@@ -427,12 +437,15 @@ double const PI = 3.141592653589793f;
         glBindTexture(GL_TEXTURE_2D, 0);
         glActiveTexture(GL_TEXTURE7);
         glBindTexture(GL_TEXTURE_2D, 0);
-        
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====---- 
         
         // Set render target
         glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+        
+        // Disable alpha blending
+        glDisable(GL_BLEND);
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -446,8 +459,7 @@ double const PI = 3.141592653589793f;
         glDepthFunc(GL_LEQUAL);
         glDepthRangef(0.0, 1.0);
         
-        // Disable alpha blending
-        glDisable(GL_BLEND);
+
         
         // Render the geometry
         pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 0);
@@ -598,8 +610,6 @@ double const PI = 3.141592653589793f;
     
     // Bind attribute locations.
     // This needs to be done prior to linking.
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "position");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "inputTextureCoordinate");
     glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv");
     glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "vertex_position");
     glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "vertex_normal");
@@ -725,7 +735,6 @@ double const PI = 3.141592653589793f;
     // Disable alpha blending
     glDisable(GL_BLEND);
     
-    // Replace the implementation of this method to do your own custom drawing.
     static const GLfloat squareVertices[] = {
         -1.0f, -1.0f,
         1.0f, -1.0f,
@@ -766,6 +775,7 @@ double const PI = 3.141592653589793f;
     
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
+    //glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
     
     glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1);
 	

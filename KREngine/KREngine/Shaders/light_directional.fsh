@@ -25,13 +25,27 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute vec4 vertex_position;
-attribute lowp vec4 vertex_uv;
 
-varying mediump vec2 textureCoordinate;
+uniform sampler2D gbuffer_frame;
+uniform sampler2D gbuffer_depth;
+
+uniform highp vec3 lightDirection; // Must be normalized before entering shader
+uniform highp mat4 model_to_view_matrix;
 
 void main()
 {
-	gl_Position = vertex_position;
-	textureCoordinate = vertex_uv.xy;
+
+   
+    mediump vec2 gbuffer_uv = vec2(gl_FragCoord.x / 768.0, gl_FragCoord.y / 1024.0);
+    
+    lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
+    
+    mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
+    mediump float gbuffer_specular_exponent = gbuffer_sample.a;
+    
+    mediump vec3 view_space_light = vec3(model_to_view_matrix * vec4(lightDirection, 1.0));
+    mediump float lamberFactor = max(0.0,dot(view_space_light, gbuffer_normal));
+     
+    gl_FragColor = vec4(vec3(lamberFactor), 0.0);
+    
 }

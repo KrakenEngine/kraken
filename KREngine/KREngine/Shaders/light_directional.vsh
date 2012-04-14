@@ -26,12 +26,8 @@
 //
 
 attribute vec4 vertex_position;
-attribute lowp vec4 vertex_uv;
-
-varying mediump vec2 textureCoordinate;
 
 void main()
 {
 	gl_Position = vertex_position;
-	textureCoordinate = vertex_uv.xy;
 }

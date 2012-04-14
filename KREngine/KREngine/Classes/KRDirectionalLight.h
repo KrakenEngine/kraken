@@ -10,6 +10,7 @@
 #define KREngine_KRDirectionalLight_h
 
 #import "KRLight.h"
+#import "KRMat4.h"
 
 class KRDirectionalLight : public KRLight {
     
@@ -23,6 +24,9 @@ public:
     
     virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass);
 #endif
+    
+private:
+    KRMat4 m_modelMatrix;
 };
 
 

@@ -49,11 +49,9 @@
 #endif
 
 
-#if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
+#if GBUFFER_PASS == 3
     uniform sampler2D gbuffer_frame;
     uniform sampler2D gbuffer_depth;
-
-    varying mediump vec2 gbuffer_uv;
 #endif
 
 #if GBUFFER_PASS == 1
@@ -118,6 +116,10 @@
 
 void main()
 {
+    #if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
+        mediump vec2 gbuffer_uv = vec2(gl_FragCoord.x / 768.0, gl_FragCoord.y / 1024.0);
+    #endif
+    
     #if GBUFFER_PASS == 2
         lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
         mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
@@ -151,14 +153,16 @@ void main()
                 // lookup normal from normal map, move from [0,1] to  [-1, 1] range, normalize
                 mediump vec3 normal = normalize(2.0 * texture2D(normalTexture,normal_uv).rgb - 1.0);
             #endif
-            mediump float lamberFactor = max(0.0,dot(lightVec, normal));
+    
+            #if GBUFFER_PASS == 3
+                mediump float lamberFactor = gbuffer_lamber_factor.r;
+            #else
+                mediump float lamberFactor = max(0.0,dot(lightVec, normal));
+            #endif
             mediump float specularFactor = 0.0;
             if(material_shininess > 0.0) {
                 specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
             }
-
-
-
 
             #if SHADOW_QUALITY == 1
                 highp float shadowMapDepth = 1.0;
@@ -246,17 +250,4 @@ void main()
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, 1.0);
         #endif
     #endif
-    
-#if GBUFFER_PASS == 2
-    // mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
-    // mediump float gbuffer_specular_exponent = gbuffer_sample.a;
-#endif
-    
-#if GBUFFER_PASS == 3
-    // lowp vec3 gbuffer_lamber_factor = gbuffer_sample.rgb;
-    // lowp float gbuffer_specular_factor = gbuffer_sample.a;
-    
-    gl_FragColor = vec4(vec3(gbuffer_lamber_factor), 1.0);
-    gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-#endif
 }

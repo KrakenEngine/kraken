@@ -30,6 +30,10 @@
 		E46FED3113C9A49F009F5814 /* ObjectShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2513C9A488009F5814 /* ObjectShader.vsh */; };
 		E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2613C9A488009F5814 /* PostShader.vsh */; };
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
+		E4FF48C21538FBF0002053FC /* light_directional.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
+		E4FF48C31538FBF0002053FC /* light_directional.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
+		E4FF48C51538FBF8002053FC /* light_directional.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
+		E4FF48C61538FBFC002053FC /* light_directional.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +67,8 @@
 		E46FED2513C9A488009F5814 /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = ../KREngine/KREngine/Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E46FED2613C9A488009F5814 /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = ../KREngine/KREngine/Shaders/PostShader.vsh; sourceTree = "<group>"; };
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
+		E4FF48C01538FBF0002053FC /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = ../KREngine/KREngine/Shaders/light_directional.fsh; sourceTree = "<group>"; };
+		E4FF48C11538FBF0002053FC /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = ../KREngine/KREngine/Shaders/light_directional.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +182,8 @@
 		E46FED2013C9A472009F5814 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				E4FF48C01538FBF0002053FC /* light_directional.fsh */,
+				E4FF48C11538FBF0002053FC /* light_directional.vsh */,
 				E46FED2113C9A488009F5814 /* ShadowShader.vsh */,
 				E46FED2213C9A488009F5814 /* ShadowShader.fsh */,
 				E46FED2313C9A488009F5814 /* PostShader.fsh */,
@@ -259,6 +267,8 @@
 				E46FED2E13C9A49F009F5814 /* ShadowShader.fsh in Resources */,
 				E46FED2F13C9A49F009F5814 /* PostShader.fsh in Resources */,
 				E46FED3013C9A49F009F5814 /* ObjectShader.fsh in Resources */,
+				E4FF48C51538FBF8002053FC /* light_directional.fsh in Resources */,
+				E4FF48C61538FBFC002053FC /* light_directional.vsh in Resources */,
 				E46FED3113C9A49F009F5814 /* ObjectShader.vsh in Resources */,
 				E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
@@ -279,6 +289,8 @@
 				1D3623260D0F684500981E51 /* KRObjViewAppDelegate.mm in Sources */,
 				28D7ACF80DDB3853001CB0EB /* KRObjViewViewController.mm in Sources */,
 				1063FC77136D6A1B00EE555B /* KRObjViewGLView.mm in Sources */,
+				E4FF48C21538FBF0002053FC /* light_directional.fsh in Sources */,
+				E4FF48C31538FBF0002053FC /* light_directional.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

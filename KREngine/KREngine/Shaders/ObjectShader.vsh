@@ -59,10 +59,6 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
     #endif
 #endif
 
-#if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
-    varying mediump vec2 gbuffer_uv;
-#endif
-
 #if GBUFFER_PASS == 1
     #if HAS_NORMAL_MAP == 1
         uniform highp mat4 model_to_view_matrix;
@@ -135,10 +131,6 @@ void main()
     // Transform position
     gl_Position = mvp_matrix * vec4(vertex_position,1.0);
     
-#if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
-    gbuffer_uv = gl_Position.xy;
-#endif
-    
     #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1)
         // Pass UV co-ordinates
         texCoord = vertex_uv.st;
@@ -189,7 +181,7 @@ void main()
 
         #if ENABLE_PER_PIXEL == 1
             // Scaled and translated specular map UV's
-            #if (HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+            #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
                 spec_uv = texCoord;
                 #if HAS_SPEC_MAP_OFFSET == 1
                     spec_uv + specularTexture_Offset;
@@ -229,6 +221,7 @@ void main()
                 halfVec = normalize((normalize(cameraPosition - vertex_position) + lightVec)); // Normalizing anyways, no need to divide by 2
             #endif
         #else
+    
             // ------ Calculate per-vertex lighting ------
             mediump vec3 halfVec = normalize((normalize(cameraPosition - vertex_position) + lightDirection)); // Normalizing anyways, no need to divide by 2
             lamberFactor = max(0.0,dot(lightDirection, vertex_normal));
