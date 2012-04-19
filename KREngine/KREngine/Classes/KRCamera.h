@@ -35,6 +35,7 @@
 #import "KREngine-common.h"
 
 #import "KRMat4.h"
+#import "KRVector2.h"
 
 class KRCamera {
 public:
@@ -42,6 +43,8 @@ public:
     ~KRCamera();
     
     KRMat4 getProjectionMatrix();
+    const KRVector2 &getViewportSize();
+    void setViewportSize(const KRVector2 &size);
     
     bool bEnablePerPixel;
     bool bEnableDiffuseMap;
@@ -77,6 +80,8 @@ public:
     bool bEnableVignette;
     double vignette_radius;
     double vignette_falloff;
+    
+    KRVector2 m_viewportSize;
 };
 
 #endif

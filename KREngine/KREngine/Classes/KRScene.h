@@ -44,6 +44,7 @@
 #import "KRNode.h"
 class KRBoundingVolume;
 class KRInstance;
+class KRDirectionalLight;
 
 using std::vector;
 
@@ -58,6 +59,7 @@ public:
     static KRScene *LoadXML(const std::string& path);
     
     KRNode *getRootNode();
+    KRDirectionalLight *getFirstDirectionalLight();
     
 #if TARGET_OS_IPHONE
     
@@ -67,8 +69,11 @@ public:
     
     KRBoundingVolume getExtents(KRContext *pContext);
 private:
+    KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
+    
     KRNode *m_pRootNode;
     KRBoundingVolume *m_pExtents;
+    KRDirectionalLight *m_pFirstDirectionalLight;
 
 };
 

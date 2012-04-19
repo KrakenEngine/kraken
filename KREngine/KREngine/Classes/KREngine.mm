@@ -350,12 +350,12 @@ double const PI = 3.141592653589793f;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
     pScene->render(&m_camera, m_pContext, shadowVolume, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, 0);
-    glViewport(0, 0, 768, 1024);
+    glViewport(0, 0, backingWidth, backingHeight);
 }
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition
 {
-    
+    m_camera.setViewportSize(KRVector2(backingWidth, backingHeight));
 
     
 

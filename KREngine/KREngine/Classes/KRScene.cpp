@@ -35,10 +35,12 @@
 #import "KRMat4.h"
 #import "tinyxml2.h"
 
+#import "KRDirectionalLight.h"
+
 #import "KRScene.h"
 
 KRScene::KRScene(std::string name) : KRResource(name) {
-
+    m_pFirstDirectionalLight = NULL;
     m_pRootNode = new KRNode("scene_root");
 }
 KRScene::~KRScene() {    
@@ -77,7 +79,13 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
-    m_pRootNode->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);
+    KRVector3 forward_render_light_direction = lightDirection;
+    KRDirectionalLight *directional_light = getFirstDirectionalLight();
+    if(directional_light) {
+        forward_render_light_direction = directional_light->getLightDirection();
+    }
+    
+    m_pRootNode->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);
 }
 
 #endif
@@ -104,6 +112,22 @@ bool KRScene::save(const std::string& path) {
 }
 
 
+KRDirectionalLight *KRScene::findFirstDirectionalLight(KRNode &node) {
+    KRDirectionalLight *pLight = dynamic_cast<KRDirectionalLight *>(&node);
+    if(pLight) {
+        return pLight;
+    } else {
+        const std::vector<KRNode *> children = node.getChildren();
+        for(std::vector<KRNode *>::const_iterator itr=children.begin(); itr < children.end(); ++itr) {
+            pLight = findFirstDirectionalLight(*(*itr));
+            if(pLight) {
+                return pLight;
+            }
+        }
+    }
+    return NULL;
+}
+
 KRScene *KRScene::LoadXML(const std::string& path)
 {
     tinyxml2::XMLDocument doc;
@@ -114,6 +138,13 @@ KRScene *KRScene::LoadXML(const std::string& path)
     if(n) {
         new_scene->getRootNode()->addChild(n);
     }
-    
     return new_scene;
+}
+
+KRDirectionalLight *KRScene::getFirstDirectionalLight()
+{
+    if(m_pFirstDirectionalLight == NULL) {
+        m_pFirstDirectionalLight = findFirstDirectionalLight(*m_pRootNode);
+    }
+    return m_pFirstDirectionalLight;
 }

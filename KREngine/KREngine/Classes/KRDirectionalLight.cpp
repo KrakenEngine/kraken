@@ -11,6 +11,7 @@
 #import "KRDirectionalLight.h"
 #import "KRShader.h"
 #import "KRContext.h"
+#import "KRMat4.h"
 
 KRDirectionalLight::KRDirectionalLight(std::string name) : KRLight(name)
 {
@@ -24,6 +25,17 @@ KRDirectionalLight::~KRDirectionalLight()
 
 std::string KRDirectionalLight::getElementName() {
     return "directional_light";
+}
+
+KRVector3 KRDirectionalLight::getLightDirection() {
+    KRVector3 world_rotation = getWorldRotation();
+    KRVector3 light_rotation = KRVector3(0.0, -1.0, 0.0);
+    KRMat4 m;
+    m.rotate(world_rotation.x, X_AXIS);
+    m.rotate(world_rotation.y, Y_AXIS);
+    m.rotate(world_rotation.z, Z_AXIS);
+    KRVector3 light_direction = m.dot(light_rotation);
+    return light_direction;
 }
 
 #if TARGET_OS_IPHONE
@@ -40,9 +52,12 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         matModelToView.transpose();
         matModelToView.invert();
         
+        KRVector3 light_direction = getLightDirection();
+        light_direction = matModelToView.dot(light_direction);
+        light_direction.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, gBufferPass);
-        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
+        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, light_direction, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
         
         
         // Render a full screen quad

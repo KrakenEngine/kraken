@@ -19,6 +19,7 @@ public:
     virtual ~KRDirectionalLight();
     
     virtual std::string getElementName();
+    KRVector3 getLightDirection();
     
 #if TARGET_OS_IPHONE
     

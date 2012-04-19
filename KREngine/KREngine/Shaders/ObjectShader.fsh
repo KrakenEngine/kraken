@@ -114,10 +114,14 @@
 
 #endif
 
+#if GBUFFER_PASS == 1 || GBUFFER_PASS == 3
+uniform mediump vec4 viewport;
+#endif
+
 void main()
 {
     #if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
-        mediump vec2 gbuffer_uv = vec2(gl_FragCoord.x / 768.0, gl_FragCoord.y / 1024.0);
+        mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
     #endif
     
     #if GBUFFER_PASS == 2
@@ -161,7 +165,11 @@ void main()
             #endif
             mediump float specularFactor = 0.0;
             if(material_shininess > 0.0) {
-                specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
+                #if GBUFFER_PASS == 3
+                    specularFactor = gbuffer_specular_factor;   
+                #else
+                    specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
+                #endif
             }
 
             #if SHADOW_QUALITY == 1
@@ -249,5 +257,8 @@ void main()
             mediump vec3 lightMapColor = vec3(texture2D(shadowTexture1, lightmap_uv));
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, 1.0);
         #endif
+    
+        //gl_FragColor = vec4(vec3(specularFactor), 1.0);
+    
     #endif
 }

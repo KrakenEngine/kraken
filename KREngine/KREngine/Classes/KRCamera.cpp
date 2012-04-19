@@ -31,6 +31,7 @@
 
 #include <iostream>
 
+#import "KRVector2.h"
 #import "KRCamera.h"
 
 KRCamera::KRCamera() {
@@ -47,7 +48,7 @@ KRCamera::KRCamera() {
     bEnableSpecular = true;
     bEnableLightMap = true;
     bDebugSuperShiny = false;
-    bEnableDeferredLighting = false;
+    bEnableDeferredLighting = true;
     
     
     dAmbientR = 0.25f;
@@ -88,4 +89,12 @@ KRMat4 KRCamera::getProjectionMatrix() {
     projectionMatrix.perspective(perspective_fov, perspective_aspect, perspective_nearz, perspective_farz);
     projectionMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
     return projectionMatrix;
+}
+
+const KRVector2 &KRCamera::getViewportSize() {
+    return m_viewportSize;
+}
+
+void KRCamera::setViewportSize(const KRVector2 &size) {
+    m_viewportSize = size;
 }

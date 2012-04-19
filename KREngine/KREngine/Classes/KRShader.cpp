@@ -114,6 +114,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3");
         m_uniforms[KRENGINE_UNIFORM_LIGHTDIRECTION] = glGetUniformLocation(m_iProgram, "lightDirection");
         m_uniforms[KRENGINE_UNIFORM_CAMERAPOS] = glGetUniformLocation(m_iProgram, "cameraPosition");
+        m_uniforms[KRENGINE_UNIFORM_VIEWPORT] = glGetUniformLocation(m_iProgram, "viewport");
         
         m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture");
         m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] = glGetUniformLocation(m_iProgram, "specularTexture");
@@ -191,6 +192,14 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
                 (GLfloat)cameraPosition.x,
                 (GLfloat)cameraPosition.y,
                 (GLfloat)cameraPosition.z
+    );
+    
+    glUniform4f(
+                m_uniforms[KRENGINE_UNIFORM_VIEWPORT],
+                (GLfloat)0.0,
+                (GLfloat)0.0,
+                (GLfloat)pCamera->getViewportSize().x,
+                (GLfloat)pCamera->getViewportSize().y
     );
     
     // Bind the shadowmap space matrices

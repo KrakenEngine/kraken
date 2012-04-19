@@ -34,6 +34,7 @@ public:
     virtual std::string getElementName();
     
     void addChild(KRNode *child);
+    const std::vector<KRNode *> &getChildren();
     
     void setLocalTranslation(const KRVector3 &v);
     void setLocalScale(const KRVector3 &v);
@@ -42,6 +43,10 @@ public:
     const KRVector3 &getLocalTranslation();
     const KRVector3 &getLocalScale();
     const KRVector3 &getLocalRotation();
+    
+    const KRVector3 &getWorldTranslation();
+    const KRVector3 &getWorldScale();
+    const KRVector3 &getWorldRotation();
     
     void clearExtents();
     virtual void calcExtents(KRContext *Context);

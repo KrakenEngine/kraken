@@ -112,6 +112,16 @@ const KRVector3 &KRNode::getLocalRotation() {
     return m_localRotation;
 }
 
+const KRVector3 &KRNode::getWorldTranslation() {
+    return m_localTranslation;
+}
+const KRVector3 &KRNode::getWorldScale() {
+    return m_localScale;
+}
+const KRVector3 &KRNode::getWorldRotation() {
+    return m_localRotation;
+}
+
 std::string KRNode::getElementName() {
     return "node";
 }
@@ -179,4 +189,8 @@ void KRNode::calcExtents(KRContext *pContext) {
             m_pExtents = new KRBoundingVolume(child->getExtents(pContext));
         }
     }
+}
+
+const std::vector<KRNode *> &KRNode::getChildren() {
+    return m_childNodes;
 }
