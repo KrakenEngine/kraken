@@ -83,6 +83,10 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
     KRDirectionalLight *directional_light = getFirstDirectionalLight();
     if(directional_light) {
         forward_render_light_direction = directional_light->getLightDirection();
+        KRVector3 sun_color = directional_light->getColor() * (directional_light->getIntensity() / 100.0f);
+        pCamera->dSunR = sun_color.x;
+        pCamera->dSunG = sun_color.y;
+        pCamera->dSunB = sun_color.z;
     }
     
     m_pRootNode->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);

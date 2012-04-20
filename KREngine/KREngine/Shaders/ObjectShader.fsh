@@ -124,12 +124,6 @@ void main()
         mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
     #endif
     
-    #if GBUFFER_PASS == 2
-        lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
-        mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
-        mediump float gbuffer_specular_exponent = gbuffer_sample.a;
-    #endif
-    
     #if GBUFFER_PASS == 3
         lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
         lowp vec3 gbuffer_lamber_factor = gbuffer_sample.rgb;
@@ -159,7 +153,7 @@ void main()
             #endif
     
             #if GBUFFER_PASS == 3
-                mediump float lamberFactor = gbuffer_lamber_factor.r;
+                mediump vec3 lamberFactor = gbuffer_lamber_factor;
             #else
                 mediump float lamberFactor = max(0.0,dot(lightVec, normal));
             #endif
@@ -221,7 +215,11 @@ void main()
                     
             #if SHADOW_QUALITY >= 1
                 if(vertexShadowDepth >= shadowMapDepth && shadowMapDepth < 1.0) {
-                    lamberFactor = 0.0;
+                    #if GBUFFER_PASS == 3
+                        lamberFactor = vec3(0.0);
+                    #else
+                        lamberFactor = 0.0;
+                    #endif
                     specularFactor = 0.0;
                 }
             #endif

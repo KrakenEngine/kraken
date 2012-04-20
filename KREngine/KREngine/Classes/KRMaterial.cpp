@@ -232,21 +232,41 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         if(!bSameDiffuse) {
-            glUniform3f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-                m_kd_r * pCamera->dSunR,
-                m_kd_g * pCamera->dSunG,
-                m_kd_b * pCamera->dSunB
-            );
+            if(gBufferPass == 0) {
+                // We pre-multiply the light color with the material color in the forward renderer
+                glUniform3f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
+                    m_kd_r * pCamera->dSunR,
+                    m_kd_g * pCamera->dSunG,
+                    m_kd_b * pCamera->dSunB
+                );
+            } else {
+                glUniform3f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
+                    m_kd_r,
+                    m_kd_g,
+                    m_kd_b
+                );
+            }
         }
         
         if(!bSameSpecular) {
-            glUniform3f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-                m_ks_r * pCamera->dSunR,
-                m_ks_g * pCamera->dSunG,
-                m_ks_b * pCamera->dSunB
-            );
+            if(gBufferPass == 0) {
+                // We pre-multiply the light color with the material color in the forward renderer
+                glUniform3f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
+                    m_ks_r * pCamera->dSunR,
+                    m_ks_g * pCamera->dSunG,
+                    m_ks_b * pCamera->dSunB
+                );
+            } else {
+                glUniform3f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
+                    m_ks_r,
+                    m_ks_g,
+                    m_ks_b
+                );
+            }
         }
         
         if(bDiffuseMap && !bSameDiffuseScale && m_diffuseMapScale != default_scale) {

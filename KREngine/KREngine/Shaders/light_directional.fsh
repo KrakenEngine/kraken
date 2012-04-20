@@ -29,7 +29,8 @@
 uniform sampler2D gbuffer_frame;
 uniform sampler2D gbuffer_depth;
 
-uniform highp vec3 lightDirection; // Must be normalized and converted to view space before entering shader
+uniform mediump vec3 lightDirection; // Must be normalized and converted to view space before entering shader
+uniform lowp vec3 light_color;
 uniform mediump vec4 viewport;
 
 void main()
@@ -55,5 +56,5 @@ void main()
         specularFactor = clamp(pow(dot(halfVec,normalize(gbuffer_normal)), gbuffer_specular_exponent), 0.0, 1.0);
     }
     
-    gl_FragColor = vec4(vec3(lamberFactor), specularFactor);
+    gl_FragColor = vec4(light_color * lamberFactor, specularFactor);
 }

@@ -58,7 +58,12 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, gBufferPass);
         pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, light_direction, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
-        
+        glUniform3f(
+            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
+            m_color.x * m_intensity / 100.0f,
+            m_color.y * m_intensity / 100.0f,
+            m_color.z * m_intensity / 100.0f
+        );
         
         // Render a full screen quad
         static const GLfloat squareVertices[] = {

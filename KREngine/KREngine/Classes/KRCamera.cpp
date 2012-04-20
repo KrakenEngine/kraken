@@ -51,13 +51,13 @@ KRCamera::KRCamera() {
     bEnableDeferredLighting = true;
     
     
-    dAmbientR = 0.25f;
-    dAmbientG = 0.25f;
-    dAmbientB = 0.35f;
+    dAmbientR = 0.0f;
+    dAmbientG = 0.0f;
+    dAmbientB = 0.0f;
     
     dSunR = 1.0f;
     dSunG = 1.0f;
-    dSunB = 0.70f;
+    dSunB = 1.0f;
     
     perspective_fov = PI / 8.0;
     perspective_nearz = 0.25f;
