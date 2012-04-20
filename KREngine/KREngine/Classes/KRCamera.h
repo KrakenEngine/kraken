@@ -67,7 +67,6 @@ public:
     double perspective_fov;
     double perspective_nearz;
     double perspective_farz;
-    double perspective_aspect;
     
     int dof_quality;
     double dof_depth;

@@ -210,11 +210,14 @@ double const PI = 3.141592653589793f;
     viewMatrix.rotate(yaw, Y_AXIS);
     viewMatrix.rotate(pitch, X_AXIS);
     viewMatrix.rotate(roll, Z_AXIS);
+    
     [self renderScene: pScene WithViewMatrix: viewMatrix];
 }
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix
 {
+    viewMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
+    
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
     
@@ -248,7 +251,7 @@ double const PI = 3.141592653589793f;
             
             newShadowMVP = ext.calcShadowProj(pScene, m_pContext, sun_yaw, sun_pitch);
         } else {
-            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
+            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.getViewportSize().x / m_camera.getViewportSize().y, m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], m_camera.perspective_nearz + (m_camera.perspective_farz - m_camera.perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
             newShadowMVP = frustrumSliceVolume.calcShadowProj(pScene, m_pContext, sun_yaw, sun_pitch);
         }
         
@@ -360,7 +363,7 @@ double const PI = 3.141592653589793f;
     
 
     
-    KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.perspective_aspect, m_camera.perspective_nearz, m_camera.perspective_farz);
+    KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, m_camera.perspective_fov, m_camera.getViewportSize().x / m_camera.getViewportSize().y, m_camera.perspective_nearz, m_camera.perspective_farz);
     if(m_camera.bEnableDeferredLighting) {
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
         
@@ -1235,13 +1238,6 @@ double const PI = 3.141592653589793f;
 {
     if(m_camera.perspective_farz != dFarZ) {
         m_camera.perspective_farz = dFarZ;
-        [self invalidateShadowBuffers];
-    }
-}
-- (void)setAspect: (double)dAspect
-{
-    if(m_camera.perspective_aspect != dAspect) {
-        m_camera.perspective_aspect = dAspect;
         [self invalidateShadowBuffers];
     }
 }

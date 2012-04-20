@@ -60,7 +60,6 @@ KRCamera::KRCamera() {
     dSunB = 0.70f;
     
     perspective_fov = PI / 8.0;
-    perspective_aspect = 1.3333;
     perspective_nearz = 0.25f;
     perspective_farz = 100.0f;
     
@@ -86,8 +85,7 @@ KRCamera::~KRCamera() {
 
 KRMat4 KRCamera::getProjectionMatrix() {
     KRMat4 projectionMatrix;
-    projectionMatrix.perspective(perspective_fov, perspective_aspect, perspective_nearz, perspective_farz);
-    projectionMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
+    projectionMatrix.perspective(perspective_fov, m_viewportSize.x / m_viewportSize.y, perspective_nearz, perspective_farz);
     return projectionMatrix;
 }
 

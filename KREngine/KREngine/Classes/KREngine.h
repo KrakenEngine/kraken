@@ -121,7 +121,6 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 - (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll;
 - (void)setNearZ: (double)dNearZ;
 - (void)setFarZ: (double)dFarZ;
-- (void)setAspect: (double)dAspect;
 - (void)setDebugText: (NSString *)text;
 
 @end
