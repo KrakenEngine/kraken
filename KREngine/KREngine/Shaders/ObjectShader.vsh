@@ -111,11 +111,11 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
     #endif
 
     #if HAS_DIFFUSE_MAP_SCALE == 1
-        uniform highp vec2    diffuseTexture_Scale;
+        uniform highp vec2  diffuseTexture_Scale;
     #endif
 
     #if HAS_DIFFUSE_MAP_OFFSET == 1
-        uniform highp vec2    diffuseTexture_Offset;
+        uniform highp vec2  diffuseTexture_Offset;
     #endif
 
     #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1

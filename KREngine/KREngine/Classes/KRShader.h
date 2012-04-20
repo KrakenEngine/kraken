@@ -51,7 +51,11 @@ public:
     GLuint getProgram();
     char *getKey();
     
+#if TARGET_OS_IPHONE
+    
     void bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass);
+    
+#endif
     
     enum {
         KRENGINE_ATTRIB_VERTEX,

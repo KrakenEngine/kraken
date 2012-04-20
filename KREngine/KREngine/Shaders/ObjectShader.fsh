@@ -258,7 +258,5 @@ void main()
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, 1.0);
         #endif
     
-        //gl_FragColor = vec4(vec3(specularFactor), 1.0);
-    
     #endif
 }
