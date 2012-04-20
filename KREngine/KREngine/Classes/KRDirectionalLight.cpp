@@ -29,7 +29,7 @@ std::string KRDirectionalLight::getElementName() {
 
 KRVector3 KRDirectionalLight::getLightDirection() {
     KRVector3 world_rotation = getWorldRotation();
-    KRVector3 light_rotation = KRVector3(0.0, -1.0, 0.0);
+    KRVector3 light_rotation = KRVector3(0.0, 0.0, 1.0);
     KRMat4 m;
     m.rotate(world_rotation.x, X_AXIS);
     m.rotate(world_rotation.y, Y_AXIS);

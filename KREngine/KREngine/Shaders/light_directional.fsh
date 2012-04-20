@@ -58,10 +58,16 @@ void main()
     
     highp vec3 view_space_vertex_position;
     view_space_vertex_position.xy = ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1.0;
-    view_space_vertex_position.z = -texture2D(gbuffer_depth, gbuffer_uv).r;
+    //view_space_vertex_position.z = -texture2D(gbuffer_depth, gbuffer_uv).r * 2.0;
+    view_space_vertex_position.z = (2.0 * -texture2D(gbuffer_depth, gbuffer_uv).r - gl_DepthRange.near - gl_DepthRange.far) /
+    (gl_DepthRange.far - gl_DepthRange.near);
+    
     
     highp vec3 halfVec = normalize((normalize(vec3(0.0, 0.0, 0.0) - view_space_vertex_position) + view_space_light)); // Normalizing anyways, no need to divide by 2
-    mediump float specularFactor = clamp(pow(dot(halfVec,normalize(gbuffer_normal)), gbuffer_specular_exponent), 0.0, 1.0);
+    mediump float specularFactor = 0.0;
+    if(gbuffer_specular_exponent > 0.0) {
+        specularFactor = clamp(pow(dot(halfVec,normalize(gbuffer_normal)), gbuffer_specular_exponent), 0.0, 1.0);
+    }
     
     gl_FragColor = vec4(vec3(lamberFactor), specularFactor);
 }
