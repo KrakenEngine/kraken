@@ -82,7 +82,7 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
     KRVector3 forward_render_light_direction = lightDirection;
     KRDirectionalLight *directional_light = getFirstDirectionalLight();
     if(directional_light) {
-        forward_render_light_direction = directional_light->getLightDirection();
+        forward_render_light_direction = directional_light->getWorldLightDirection();
         KRVector3 sun_color = directional_light->getColor() * (directional_light->getIntensity() / 100.0f);
         pCamera->dSunR = sun_color.x;
         pCamera->dSunG = sun_color.y;

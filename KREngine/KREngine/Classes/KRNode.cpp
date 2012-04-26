@@ -194,3 +194,7 @@ void KRNode::calcExtents(KRContext *pContext) {
 const std::vector<KRNode *> &KRNode::getChildren() {
     return m_childNodes;
 }
+
+const std::string &KRNode::getName() {
+    return m_name;
+}

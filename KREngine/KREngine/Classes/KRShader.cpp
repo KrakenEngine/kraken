@@ -67,7 +67,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength);
-            glGetShaderInfoLog(vertexShader, logLength, &logLength, log);
+            glGetShaderInfoLog(fragShader, logLength, &logLength, log);
             fprintf(stderr, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
         }
@@ -104,17 +104,31 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular");
+        
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_light_position");
         m_uniforms[KRENGINE_UNIFORM_LIGHT_COLOR] = glGetUniformLocation(m_iProgram, "light_color");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_INTENSITY] = glGetUniformLocation(m_iProgram, "light_intensity");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_DECAY_START] = glGetUniformLocation(m_iProgram, "light_decay_start");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_CUTOFF] = glGetUniformLocation(m_iProgram, "light_cutoff");
+        
+        
+        
 
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess");
         
         m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix");
+        m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix");
+        
+        m_uniforms[KRENGINE_UNIFORM_MN2V] = glGetUniformLocation(m_iProgram, "model_normal_to_view_matrix");
         m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view_matrix");
+        m_uniforms[KRENGINE_UNIFORM_V2M] = glGetUniformLocation(m_iProgram, "view_to_model_matrix");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2");
         m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3");
-        m_uniforms[KRENGINE_UNIFORM_LIGHTDIRECTION] = glGetUniformLocation(m_iProgram, "lightDirection");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION] = glGetUniformLocation(m_iProgram, "light_direction");
+        m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_view_space");
         m_uniforms[KRENGINE_UNIFORM_CAMERAPOS] = glGetUniformLocation(m_iProgram, "cameraPosition");
         m_uniforms[KRENGINE_UNIFORM_VIEWPORT] = glGetUniformLocation(m_iProgram, "viewport");
         
@@ -173,18 +187,18 @@ KRShader::~KRShader() {
 
 void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass) {
     glUseProgram(m_iProgram);
-    
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer());
-    glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView.getPointer());
+    glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MN2V], 1, GL_FALSE, matModelToView.getPointer());
+
 
     KRVector3 nLightDir = lightDirection;
     nLightDir.normalize();
 
     // Bind the light direction vector
     glUniform3f(
-                m_uniforms[KRENGINE_UNIFORM_LIGHTDIRECTION],
+                m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION],
                 (GLfloat)nLightDir.x,
                 (GLfloat)nLightDir.y,
                 (GLfloat)nLightDir.z

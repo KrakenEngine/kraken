@@ -32,6 +32,7 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     virtual std::string getElementName();
+    const std::string &getName();
     
     void addChild(KRNode *child);
     const std::vector<KRNode *> &getChildren();

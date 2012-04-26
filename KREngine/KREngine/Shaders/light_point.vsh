@@ -1,7 +1,3 @@
-//
-//  KRVector3.h
-//  KREngine
-//
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
@@ -29,53 +25,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRVECTOR3
-#define KRVECTOR3
-#include <math.h>
+attribute vec4 vertex_position;
+uniform highp mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
-#import "KREngine-common.h"
-
-class KRVector3
+void main()
 {
-
-public:
-    float x, y, z;
-    
-	//default constructor
-    
-	KRVector3(float X, float Y, float Z);
-    KRVector3(float v);
-    KRVector3();
-	~KRVector3();
-    
-    KRVector3(const KRVector3& p);
-    KRVector3& operator = ( const KRVector3& p );
-    friend bool operator== (KRVector3 &v1, KRVector3 &v2);
-    friend bool operator!= (KRVector3 &v1, KRVector3 &v2);
-    
-	//calculate and return the magnitude of this vector
-	float GetMagnitude();
-    
-	//multiply this vector by a scalar
-	KRVector3 operator*(float num) const;
-    
-	//pass in a vector, pass in a scalar, return the product
-	//friend KRVector3 operator*(float num, KRVector3 const &vec);
-    
-	//add two vectors
-	KRVector3 operator+(const KRVector3 &vec) const;
-    
-	//subtract two vectors
-	KRVector3 operator-(const KRVector3 &vec) const;
-    
-	//normalize this vector
-	void normalize();
-	
-	//calculate and return dot product
-	float dot(const KRVector3 &vec) const;
-    
-	//calculate and return cross product
-	KRVector3 cross(const KRVector3 &vec) const;
-};
-
-#endif
+	gl_Position = mvp_matrix * vertex_position;
+    gl_Position.z = max(gl_Position.z / gl_Position.w, 0.0) * gl_Position.w;
+}

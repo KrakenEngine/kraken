@@ -15,11 +15,13 @@
 class KRDirectionalLight : public KRLight {
     
 public:
+    
     KRDirectionalLight(std::string name);
     virtual ~KRDirectionalLight();
     
     virtual std::string getElementName();
-    KRVector3 getLightDirection();
+    KRVector3 getLocalLightDirection();
+    KRVector3 getWorldLightDirection();
     
 #if TARGET_OS_IPHONE
     

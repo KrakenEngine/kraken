@@ -36,6 +36,7 @@
 
 KRCamera::KRCamera() {
     double const PI = 3.141592653589793f;
+    double const D2R = PI * 2 / 360;
     
     bShowShadowBuffer = false;
     bEnablePerPixel = true;
@@ -59,8 +60,8 @@ KRCamera::KRCamera() {
     dSunG = 1.0f;
     dSunB = 1.0f;
     
-    perspective_fov = PI / 8.0;
-    perspective_nearz = 0.25f;
+    perspective_fov = 45.0 * D2R;
+    perspective_nearz = 5.0f;
     perspective_farz = 100.0f;
     
     dof_quality = 0;

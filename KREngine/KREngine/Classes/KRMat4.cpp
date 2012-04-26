@@ -108,16 +108,26 @@ KRMat4 KRMat4::operator*(const KRMat4 &m) {
 /* Generate a perspective view matrix using a field of view angle fov,
  * window aspect ratio, near and far clipping planes */
 void KRMat4::perspective(GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat farz) {
-    GLfloat range;
-    
-    range = tan(fov / 2.0f) * nearz; 
+   
     memset(m_mat, 0, sizeof(GLfloat) * 16);
+    
+    GLfloat range= tan(fov / 2.0f) * nearz; 
     m_mat[0] = (2 * nearz) / ((range * aspect) - (-range * aspect));
     m_mat[5] = (2 * nearz) / (2 * range);
     m_mat[10] = -(farz + nearz) / (farz - nearz);
     m_mat[11] = -1;
     m_mat[14] = -(2 * farz * nearz) / (farz - nearz);
+    /*
+    GLfloat range= atan(fov / 20.0f) * nearz; 
+    GLfloat r = range * aspect;
+    GLfloat t = range * 1.0;
     
+    m_mat[0] = nearz / r;
+    m_mat[5] = nearz / t;
+    m_mat[10] = -(farz + nearz) / (farz - nearz);
+    m_mat[11] = -(2.0 * farz * nearz) / (farz - nearz);
+    m_mat[14] = -1.0;
+    */
 }
 
 /* Perform translation operations on a matrix */

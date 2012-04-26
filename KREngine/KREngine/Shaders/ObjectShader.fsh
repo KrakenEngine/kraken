@@ -58,7 +58,7 @@
     #if HAS_NORMAL_MAP == 1
         varying highp mat3 tangent_to_view_matrix;
     #else
-        uniform highp mat4 model_to_view_matrix;
+        uniform highp mat4 model_normal_to_view_matrix;
     #endif
 #else
     uniform lowp vec3   material_ambient, material_diffuse, material_specular;
@@ -136,7 +136,7 @@ void main()
             mediump vec3 normal = normalize(2.0 * texture2D(normalTexture,normal_uv).rgb - 1.0);
             mediump vec3 view_space_normal = tangent_to_view_matrix * normal;
         #else
-            mediump vec3 view_space_normal = vec3(model_to_view_matrix * vec4(normal, 1.0));
+            mediump vec3 view_space_normal = vec3(model_normal_to_view_matrix * vec4(normal, 1.0));
         #endif
         gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, material_shininess / 100.0);
     #else
@@ -255,6 +255,5 @@ void main()
             mediump vec3 lightMapColor = vec3(texture2D(shadowTexture1, lightmap_uv));
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, 1.0);
         #endif
-    
     #endif
 }

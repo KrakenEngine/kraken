@@ -61,12 +61,12 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 #if GBUFFER_PASS == 1
     #if HAS_NORMAL_MAP == 1
-        uniform highp mat4 model_to_view_matrix;
+        uniform highp mat4 model_normal_to_view_matrix;
         varying highp mat3 tangent_to_view_matrix;
     #endif
 #else
 
-    uniform highp vec3  lightDirection; // Must be normalized before entering shader
+    uniform highp vec3  light_direction; // Must be normalized before entering shader
     uniform highp vec3  cameraPosition;
 
     #if HAS_LIGHT_MAP == 1
@@ -154,9 +154,9 @@ void main()
     #if GBUFFER_PASS == 1
         #if HAS_NORMAL_MAP == 1
             mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
-            tangent_to_view_matrix[0] = vec3(model_to_view_matrix * vec4(vertex_tangent, 1.0));
-            tangent_to_view_matrix[1] = vec3(model_to_view_matrix * vec4(a_bitangent, 1.0));
-            tangent_to_view_matrix[2] = vec3(model_to_view_matrix * vec4(vertex_normal, 1.0));
+            tangent_to_view_matrix[0] = vec3(model_normal_to_view_matrix * vec4(vertex_tangent, 1.0));
+            tangent_to_view_matrix[1] = vec3(model_normal_to_view_matrix * vec4(a_bitangent, 1.0));
+            tangent_to_view_matrix[2] = vec3(model_normal_to_view_matrix * vec4(vertex_normal, 1.0));
         #else
             normal = vertex_normal;
         #endif
@@ -211,20 +211,20 @@ void main()
                 mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
                 mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
                 
-                lightVec = normalize(vec3(dot(lightDirection, vertex_tangent), dot(lightDirection, a_bitangent), dot(lightDirection, vertex_normal)));
+                lightVec = normalize(vec3(dot(light_direction, vertex_tangent), dot(light_direction, a_bitangent), dot(light_direction, vertex_normal)));
                 halfVec = normalize(vec3(dot(eyeVec, vertex_tangent), dot(eyeVec, a_bitangent), dot(eyeVec, vertex_normal)));
                 halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2
             #else
                 // ------ Calculate per-pixel lighting without normal mapping ------
                 normal = vertex_normal;
-                lightVec = lightDirection;
+                lightVec = light_direction;
                 halfVec = normalize((normalize(cameraPosition - vertex_position) + lightVec)); // Normalizing anyways, no need to divide by 2
             #endif
         #else
     
             // ------ Calculate per-vertex lighting ------
-            mediump vec3 halfVec = normalize((normalize(cameraPosition - vertex_position) + lightDirection)); // Normalizing anyways, no need to divide by 2
-            lamberFactor = max(0.0,dot(lightDirection, vertex_normal));
+            mediump vec3 halfVec = normalize((normalize(cameraPosition - vertex_position) + light_direction)); // Normalizing anyways, no need to divide by 2
+            lamberFactor = max(0.0,dot(light_direction, vertex_normal));
             specularFactor = max(0.0,pow(dot(halfVec,vertex_normal), material_shininess));
         #endif
     #endif

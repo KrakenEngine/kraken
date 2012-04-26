@@ -39,6 +39,12 @@ KRVector3::KRVector3()
     z = 0.0f;
 }
 
+KRVector3::KRVector3(float v) {
+    x = v;
+    y = v;
+    z = v;
+}
+
 KRVector3::KRVector3(float X, float Y, float Z)
 {
     x = X;

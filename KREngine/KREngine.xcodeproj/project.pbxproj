@@ -83,6 +83,8 @@
 		E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95C151BF05F00D3DC67 /* CoreServices.framework */; };
 		E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */; };
 		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
+		E4A9DEBE154120C4009DF363 /* light_point.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEBD154120C4009DF363 /* light_point.fsh */; };
+		E4A9DEC1154120E8009DF363 /* light_point.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEC0154120E8009DF363 /* light_point.vsh */; };
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
@@ -204,6 +206,8 @@
 		E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		E49E79FC15126146009CF99C /* KRMesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRMesh.h; path = Classes/KRMesh.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E49E79FE1512615F009CF99C /* KRMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRMesh.cpp; path = Classes/KRMesh.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E4A9DEBD154120C4009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = Shaders/light_point.fsh; sourceTree = "<group>"; };
+		E4A9DEC0154120E8009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = Shaders/light_point.vsh; sourceTree = "<group>"; };
 		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4BBBB871512A40300F43B5B /* krengine_osx-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "krengine_osx-Info.plist"; sourceTree = "<group>"; };
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -260,6 +264,8 @@
 				E45772F613C9A13C0037BEEA /* PostShader.vsh */,
 				E4D133B91538F7480070068C /* light_directional.fsh */,
 				E4D133BB1538F7560070068C /* light_directional.vsh */,
+				E4A9DEBD154120C4009DF363 /* light_point.fsh */,
+				E4A9DEC0154120E8009DF363 /* light_point.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -650,6 +656,8 @@
 				E48C697215374F7E00232E28 /* KRContext.cpp in Sources */,
 				E4D133BA1538F7480070068C /* light_directional.fsh in Sources */,
 				E4D133BC1538F7560070068C /* light_directional.vsh in Sources */,
+				E4A9DEBE154120C4009DF363 /* light_point.fsh in Sources */,
+				E4A9DEC1154120E8009DF363 /* light_point.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

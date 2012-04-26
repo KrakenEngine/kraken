@@ -10,14 +10,29 @@
 #define KREngine_KRPointLight_h
 
 #import "KRLight.h"
+#import "KRMat4.h"
 
 class KRPointLight : public KRLight {
     
 public:
+    
     KRPointLight(std::string name);
     virtual ~KRPointLight();
     
     virtual std::string getElementName();
+    
+#if TARGET_OS_IPHONE
+    
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass);
+#endif
+    
+private:
+    KRMat4 m_modelMatrix;
+    
+    void generateMesh();
+    
+    GLfloat *m_sphereVertices;
+    int m_cVertices;
 };
 
 #endif

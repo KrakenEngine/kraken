@@ -263,7 +263,7 @@
     
     double frameTime = CACurrentMediaTime() - frame_start_time;
     
-     NSLog(@"frameTime = %.1f ms (%.2f fps / %.2f fps) - %.2f%%", frameTime * 1000.0f, 1.0f / frameTime, 1.0f / deltaTime, frameTime / deltaTime * 100.0f);
+    //NSLog(@"frameTime = %.1f ms (%.2f fps / %.2f fps) - %.2f%%", frameTime * 1000.0f, 1.0f / frameTime, 1.0f / deltaTime, frameTime / deltaTime * 100.0f);
 }
 
 @end

@@ -27,8 +27,8 @@ std::string KRDirectionalLight::getElementName() {
     return "directional_light";
 }
 
-KRVector3 KRDirectionalLight::getLightDirection() {
-    KRVector3 world_rotation = getWorldRotation();
+KRVector3 KRDirectionalLight::getWorldLightDirection() {
+    KRVector3 world_rotation = getLocalRotation();
     KRVector3 light_rotation = KRVector3(0.0, 0.0, 1.0);
     KRMat4 m;
     m.rotate(world_rotation.x, X_AXIS);
@@ -36,6 +36,10 @@ KRVector3 KRDirectionalLight::getLightDirection() {
     m.rotate(world_rotation.z, Z_AXIS);
     KRVector3 light_direction = m.dot(light_rotation);
     return light_direction;
+}
+
+KRVector3 KRDirectionalLight::getLocalLightDirection() {
+   return KRVector3(0.0, 0.0, 1.0);
 }
 
 #if TARGET_OS_IPHONE
@@ -52,18 +56,38 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         matModelToView.transpose();
         matModelToView.invert();
         
-        KRVector3 light_direction = getLightDirection();
-        light_direction = matModelToView.dot(light_direction);
-        light_direction.normalize();
+        KRVector3 light_direction_view_space = getWorldLightDirection();
+        light_direction_view_space = matModelToView.dot(light_direction_view_space);
+        light_direction_view_space.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, gBufferPass);
-        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, light_direction, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
+        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
+        
+        
         glUniform3f(
-            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
-            m_color.x * m_intensity / 100.0f,
-            m_color.y * m_intensity / 100.0f,
-            m_color.z * m_intensity / 100.0f
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE],
+                    light_direction_view_space.x,
+                    light_direction_view_space.y,
+                    light_direction_view_space.z
         );
+        
+        glUniform3f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
+                    m_color.x,
+                    m_color.y,
+                    m_color.z
+                    );
+        
+        glUniform1f(
+                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
+                    m_intensity / 100.0f
+                    );
+        
+        // Disable z-buffer write
+        glDepthMask(GL_FALSE);
+        
+        // Disable z-buffer test
+        glDisable(GL_DEPTH_TEST);
         
         // Render a full screen quad
         static const GLfloat squareVertices[] = {
@@ -72,9 +96,6 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
             -1.0f,  1.0f,
             1.0f,  1.0f,
         };
-        
-        // Disable z-buffer test
-        glDisable(GL_DEPTH_TEST);
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);

@@ -151,6 +151,8 @@ double const PI = 3.141592653589793f;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
 
     
@@ -376,6 +378,9 @@ double const PI = 3.141592653589793f;
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
         
+        // Enable z-buffer write
+        glDepthMask(GL_TRUE);
+        
         // Enable z-buffer test
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -397,6 +402,9 @@ double const PI = 3.141592653589793f;
         // Enable additive blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
+        
+        // Disable z-buffer write
+        glDepthMask(GL_FALSE);
         
         // Set source to buffers from pass 1
         glActiveTexture(GL_TEXTURE6);
@@ -432,6 +440,9 @@ double const PI = 3.141592653589793f;
         glDepthFunc(GL_LEQUAL);
         glDepthRangef(0.0, 1.0);
         
+        // Enable z-buffer write
+        glDepthMask(GL_TRUE);
+        
         // Render the geometry
         pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 3);
         
@@ -457,6 +468,9 @@ double const PI = 3.141592653589793f;
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
         
+        // Enable z-buffer write
+        glDepthMask(GL_TRUE);
+        
         // Enable z-buffer test
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -476,6 +490,9 @@ double const PI = 3.141592653589793f;
     // Enable backface culling
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
+    
+    // Enable z-buffer write
+    glDepthMask(GL_TRUE);
     
     // Enable z-buffer test
     glEnable(GL_DEPTH_TEST);
