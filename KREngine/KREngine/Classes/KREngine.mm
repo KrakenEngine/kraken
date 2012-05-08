@@ -907,12 +907,12 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 32;
+    return 33;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
 {
-    NSString *parameter_names[32] = {
+    NSString *parameter_names[33] = {
         @"camera_fov",
         @"sun_direction",
         @"sun_attitude",
@@ -921,6 +921,7 @@ double const PI = 3.141592653589793f;
         @"enable_diffuse_map",
         @"enable_normal_map",
         @"enable_spec_map",
+        @"enable_reflection_map",
         @"enable_light_map",
         @"ambient_r",
         @"ambient_g",
@@ -950,7 +951,7 @@ double const PI = 3.141592653589793f;
 }
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[32] = {
+    NSString *parameter_labels[33] = {
         @"Camera FOV",
         @"Sun Direction",
         @"Sun Attitude",
@@ -959,6 +960,7 @@ double const PI = 3.141592653589793f;
         @"Enable diffuse map",
         @"Enable normal map",
         @"Enable specular map",
+        @"Enable reflection map",
         @"Enable light map",
         @"Ambient light red intensity",
         @"Ambient light green intensity",
@@ -988,12 +990,13 @@ double const PI = 3.141592653589793f;
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[32] = {
+    KREngineParameterType types[33] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
+        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
@@ -1027,7 +1030,7 @@ double const PI = 3.141592653589793f;
 }
 -(double)getParameterValueWithIndex: (int)i
 {
-    double values[32] = {
+    double values[33] = {
         m_camera.perspective_fov,
         sun_yaw,
         sun_pitch,
@@ -1036,6 +1039,7 @@ double const PI = 3.141592653589793f;
         m_camera.bEnableDiffuseMap ? 1.0f : 0.0f,
         m_camera.bEnableNormalMap ? 1.0f : 0.0f,
         m_camera.bEnableSpecMap ? 1.0f : 0.0f,
+        m_camera.bEnableReflectionMap ? 1.0f : 0.0f,
         m_camera.bEnableLightMap ? 1.0f : 0.0f,
         m_camera.dAmbientR,
         m_camera.dAmbientG,
@@ -1099,117 +1103,120 @@ double const PI = 3.141592653589793f;
             m_camera.bEnableSpecMap = bNewBoolVal;
             break;
         case 8:
-            m_camera.bEnableLightMap = bNewBoolVal;
+            m_camera.bEnableReflectionMap = bNewBoolVal;
             break;
         case 9:
-            m_camera.dAmbientR = v;
+            m_camera.bEnableLightMap = bNewBoolVal;
             break;
         case 10:
-            m_camera.dAmbientG = v;
+            m_camera.dAmbientR = v;
             break;
         case 11:
-            m_camera.dAmbientB = v;
+            m_camera.dAmbientG = v;
             break;
         case 12:
-            m_camera.dSunR = v;
+            m_camera.dAmbientB = v;
             break;
         case 13:
-            m_camera.dSunG = v;
+            m_camera.dSunR = v;
             break;
         case 14:
-            m_camera.dSunB = v;
+            m_camera.dSunG = v;
             break;
         case 15:
+            m_camera.dSunB = v;
+            break;
+        case 16:
             if(m_camera.dof_quality != (int)v) {
                 m_camera.dof_quality = (int)v;
                 [self invalidatePostShader];
             }
             break;
-        case 16:
+        case 17:
             if(m_camera.dof_depth != v) {
                 m_camera.dof_depth = v;
                 [self invalidatePostShader];
             }
             break;
-        case 17:
+        case 18:
             if(m_camera.dof_falloff != v) {
                 m_camera.dof_falloff = v;
                 [self invalidatePostShader];
             }
             break;
-        case 18:
+        case 19:
             if(m_camera.bEnableFlash != bNewBoolVal) {
                 m_camera.bEnableFlash = bNewBoolVal;
                 [self invalidatePostShader];
             }
             break;
-        case 19:
+        case 20:
             if(m_camera.flash_intensity != v) {
                 m_camera.flash_intensity = v;
                 [self invalidatePostShader];
             }
             break;
-        case 20:
+        case 21:
             if(m_camera.flash_depth != v) {
                 m_camera.flash_depth = v;
                 [self invalidatePostShader];
             }
             break;
-        case 21:
+        case 22:
             if(m_camera.flash_falloff != v) {
                 m_camera.flash_falloff = v;
                 [self invalidatePostShader];
             }
             break;
-        case 22:
+        case 23:
             if(m_camera.bEnableVignette != bNewBoolVal) {
                 m_camera.bEnableVignette = bNewBoolVal;
                 [self invalidatePostShader];
             }
             break;
-        case 23:
+        case 24:
             if(m_camera.vignette_radius != v) {
                 m_camera.vignette_radius = v;
                 [self invalidatePostShader];
             }
             break;
-        case 24:
+        case 25:
             if(m_camera.vignette_falloff != v) {
                 m_camera.vignette_falloff = v;
                 [self invalidatePostShader];
             }
             break;
-        case 25:
+        case 26:
             if(m_camera.bShowShadowBuffer != bNewBoolVal) {
                 m_camera.bShowShadowBuffer = bNewBoolVal;
             }
             break;
-        case 26:
+        case 27:
             if(m_camera.bDebugPSSM != bNewBoolVal) {
                 m_camera.bDebugPSSM = bNewBoolVal;
             }
             break;
-        case 27:
+        case 28:
             if(m_camera.bEnableAmbient != bNewBoolVal) {
                 m_camera.bEnableAmbient = bNewBoolVal;
             }
             break;
-        case 28:
+        case 29:
             if(m_camera.bEnableDiffuse != bNewBoolVal) {
                 m_camera.bEnableDiffuse = bNewBoolVal;
             }
             break;
-        case 29:
+        case 30:
             if(m_camera.bEnableSpecular != bNewBoolVal) {
                 m_camera.bEnableSpecular = bNewBoolVal;
             }
             break;
-        case 30:
+        case 31:
             if(m_camera.bDebugSuperShiny != bNewBoolVal) {
                 m_camera.bDebugSuperShiny = bNewBoolVal;
             }
             break;
-        case 31:
+        case 32:
             if(m_camera.bEnableDeferredLighting != bNewBoolVal) {
                 m_camera.bEnableDeferredLighting = bNewBoolVal;
             }

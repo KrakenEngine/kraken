@@ -43,6 +43,7 @@ KRCamera::KRCamera() {
     bEnableDiffuseMap = true;
     bEnableNormalMap = true;
     bEnableSpecMap = true;
+    bEnableReflectionMap = true;
     bDebugPSSM = false;
     bEnableAmbient = true;
     bEnableDiffuse = true;

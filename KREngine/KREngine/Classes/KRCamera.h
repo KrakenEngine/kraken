@@ -50,6 +50,7 @@ public:
     bool bEnableDiffuseMap;
     bool bEnableNormalMap;
     bool bEnableSpecMap;
+    bool bEnableReflectionMap;
     bool bEnableLightMap;
     bool bDebugPSSM;
     bool bDebugSuperShiny;

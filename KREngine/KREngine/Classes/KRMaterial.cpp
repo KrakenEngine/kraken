@@ -45,27 +45,27 @@ KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
     m_pDiffuseMap = NULL;
     m_pSpecularMap = NULL;
     m_pNormalMap = NULL;
-    m_ka_r = (GLfloat)0.0f;
-    m_ka_g = (GLfloat)0.0f;
-    m_ka_b = (GLfloat)0.0f;
-    m_kd_r = (GLfloat)1.0f;
-    m_kd_g = (GLfloat)1.0f;
-    m_kd_b = (GLfloat)1.0f;
-    m_ks_r = (GLfloat)1.0f;
-    m_ks_g = (GLfloat)1.0f;
-    m_ks_b = (GLfloat)1.0f;
+    m_pReflectionMap = NULL;
+    m_ambientColor = KRVector3(0.0f, 0.0f, 0.0f);
+    m_diffuseColor = KRVector3(1.0f, 1.0f, 1.0f);
+    m_specularColor = KRVector3(1.0f, 1.0f, 1.0f);
+    m_reflectionColor = KRVector3(1.0f, 1.0f, 1.0f);
     m_tr = (GLfloat)0.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";
     m_diffuseMap = "";
     m_specularMap = "";
     m_normalMap = "";
+    m_reflectionMap = "";
     m_ambientMapOffset = KRVector2(0.0f, 0.0f);
     m_specularMapOffset = KRVector2(0.0f, 0.0f);
     m_diffuseMapOffset = KRVector2(0.0f, 0.0f);
     m_ambientMapScale = KRVector2(1.0f, 1.0f);
     m_specularMapScale = KRVector2(1.0f, 1.0f);
     m_diffuseMapScale = KRVector2(1.0f, 1.0f);
+    m_reflectionMapOffset = KRVector2(0.0f, 0.0f);
+    m_reflectionMapScale = KRVector2(1.0f, 1.0f);
+    m_reflectionFactor = 0.0f;
 }
 
 KRMaterial::~KRMaterial() {
@@ -82,11 +82,13 @@ bool KRMaterial::save(const std::string& path) {
     } else {
 
         fprintf(f, "newmtl %s\n", m_szName);
-        fprintf(f, "ka %f %f %f\n", m_ka_r, m_ka_g, m_ka_b);
-        fprintf(f, "kd %f %f %f\n", m_kd_r, m_kd_g, m_kd_b);
-        fprintf(f, "ks %f %f %f\n", m_ks_r, m_ks_g, m_ks_b);
+        fprintf(f, "ka %f %f %f\n", m_ambientColor.x, m_ambientColor.y, m_ambientColor.z);
+        fprintf(f, "kd %f %f %f\n", m_diffuseColor.x, m_diffuseColor.y, m_diffuseColor.z);
+        fprintf(f, "ks %f %f %f\n", m_specularColor.x, m_specularColor.y, m_specularColor.z);
+        fprintf(f, "kr %f %f %f\n", m_reflectionColor.x, m_reflectionColor.y, m_reflectionColor.z);
         fprintf(f, "Tr %f\n", m_tr);
         fprintf(f, "Ns %f\n", m_ns);
+        fprintf(f, "reflectionFactor %f\n", m_reflectionFactor);
         if(m_ambientMap.size()) {
             fprintf(f, "map_Ka %s.pvr -s %f %f -o %f %f\n", m_ambientMap.c_str(), m_ambientMapScale.x, m_ambientMapScale.y, m_ambientMapOffset.x, m_ambientMapOffset.y);
         }
@@ -98,6 +100,9 @@ bool KRMaterial::save(const std::string& path) {
         }
         if(m_normalMap.size()) {
             fprintf(f, "map_Normal %s.pvr -s %f %f -o %f %f\n", m_normalMap.c_str(), m_normalMapScale.x, m_normalMapScale.y, m_normalMapOffset.x, m_normalMapOffset.y);
+        }
+        if(m_reflectionMap.size()) {
+            fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
         }
         fclose(f);
         return true;
@@ -128,22 +133,26 @@ void KRMaterial::setNormalMap(std::string texture_name, KRVector2 texture_scale,
     m_normalMapOffset = texture_offset;
 }
 
-void KRMaterial::setAmbient(GLfloat r, GLfloat g, GLfloat b) {
-    m_ka_r = r;
-    m_ka_g = g;
-    m_ka_b = b;
+void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+    m_reflectionMap = texture_name;
+    m_reflectionMapScale = texture_scale;
+    m_reflectionMapOffset = texture_offset;
 }
 
-void KRMaterial::setDiffuse(GLfloat r, GLfloat g, GLfloat b) {
-    m_kd_r = r;
-    m_kd_g = g;
-    m_kd_b = b;
+void KRMaterial::setAmbient(const KRVector3 &c) {
+    m_ambientColor = c;
 }
 
-void KRMaterial::setSpecular(GLfloat r, GLfloat g, GLfloat b) {
-    m_ks_r = r;
-    m_ks_g = g;
-    m_ks_b = b;
+void KRMaterial::setDiffuse(const KRVector3 &c) {
+    m_diffuseColor = c;
+}
+
+void KRMaterial::setSpecular(const KRVector3 &c) {
+    m_specularColor = c;
+}
+
+void KRMaterial::setReflection(const KRVector3 &c) {
+    m_reflectionColor = c;
 }
 
 void KRMaterial::setTransparency(GLfloat a) {
@@ -152,6 +161,10 @@ void KRMaterial::setTransparency(GLfloat a) {
 
 void KRMaterial::setShininess(GLfloat s) {
     m_ns = s;
+}
+
+void KRMaterial::setReflectionFactor(GLfloat r) {
+    m_reflectionFactor = r;
 }
 
 bool KRMaterial::isTransparent() {
@@ -174,10 +187,9 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
     if(!m_pSpecularMap && m_specularMap.size()) {
         m_pSpecularMap = pContext->getTextureManager()->getTexture(m_specularMap.c_str());
     }
-    
-    
-
-    
+    if(!m_pReflectionMap && m_reflectionMap.size()) {
+        m_pReflectionMap = pContext->getTextureManager()->getTexture(m_reflectionMap.c_str());
+    }
     
     if(!bSameMaterial) { 
         KRVector2 default_scale = KRVector2(1.0f, 1.0f);
@@ -186,6 +198,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;
         bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
         bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
+        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->bEnableReflectionMap;
         
         KRShader *pShader = pContext->getShaderManager()->getShader("ObjectShader", pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, gBufferPass);
 
@@ -199,35 +212,41 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bSameAmbient = false;
         bool bSameDiffuse = false;
         bool bSameSpecular = false;
+        bool bSameReflection = false;
         bool bSameAmbientScale = false;
         bool bSameDiffuseScale = false;
         bool bSameSpecularScale = false;
+        bool bSameReflectionScale = false;
         bool bSameNormalScale = false;
         bool bSameAmbientOffset = false;
         bool bSameDiffuseOffset = false;
         bool bSameSpecularOffset = false;
+        bool bSameReflectionOffset = false;
         bool bSameNormalOffset = false;
         
         if(*prevBoundMaterial && bSameShader) {
-            bSameAmbient = (*prevBoundMaterial)->m_ka_r == m_ka_r && (*prevBoundMaterial)->m_ka_g == m_ka_g && (*prevBoundMaterial)->m_ka_b == m_ka_b;
-            bSameDiffuse = (*prevBoundMaterial)->m_kd_r == m_kd_r && (*prevBoundMaterial)->m_kd_g == m_kd_g && (*prevBoundMaterial)->m_kd_b == m_kd_b;
-            bSameSpecular = (*prevBoundMaterial)->m_ks_r == m_ks_r && (*prevBoundMaterial)->m_ks_g == m_ks_g && (*prevBoundMaterial)->m_ks_b == m_ks_b;
+            bSameAmbient = (*prevBoundMaterial)->m_ambientColor == m_ambientColor;
+            bSameDiffuse = (*prevBoundMaterial)->m_diffuseColor == m_diffuseColor;
+            bSameSpecular = (*prevBoundMaterial)->m_specularColor == m_specularColor;
+            bSameReflection = (*prevBoundMaterial)->m_reflectionColor == m_reflectionColor;
             bSameAmbientScale = (*prevBoundMaterial)->m_ambientMapScale == m_ambientMapScale;
             bSameDiffuseScale = (*prevBoundMaterial)->m_diffuseMapScale == m_diffuseMapScale;
             bSameSpecularScale = (*prevBoundMaterial)->m_specularMapScale == m_specularMapScale;
+            bSameReflectionScale = (*prevBoundMaterial)->m_reflectionMapScale == m_reflectionMapScale;
             bSameNormalScale = (*prevBoundMaterial)->m_normalMapScale == m_normalMapScale;
             bSameAmbientOffset = (*prevBoundMaterial)->m_ambientMapOffset == m_ambientMapOffset;
             bSameDiffuseOffset = (*prevBoundMaterial)->m_diffuseMapOffset == m_diffuseMapOffset;
             bSameSpecularOffset = (*prevBoundMaterial)->m_specularMapOffset == m_specularMapOffset;
+            bSameReflectionOffset = (*prevBoundMaterial)->m_reflectionMapOffset == m_reflectionMapOffset;
             bSameNormalOffset = (*prevBoundMaterial)->m_normalMapOffset == m_normalMapOffset;
         }
         
         if(!bSameAmbient) {
             glUniform3f(
                 pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
-                m_ka_r + pCamera->dAmbientR,
-                m_ka_g + pCamera->dAmbientG,
-                m_ka_b + pCamera->dAmbientB
+                m_ambientColor.x + pCamera->dAmbientR,
+                m_ambientColor.y + pCamera->dAmbientG,
+                m_ambientColor.z + pCamera->dAmbientB
             );
         }
         
@@ -236,16 +255,16 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 // We pre-multiply the light color with the material color in the forward renderer
                 glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-                    m_kd_r * pCamera->dSunR,
-                    m_kd_g * pCamera->dSunG,
-                    m_kd_b * pCamera->dSunB
+                    m_diffuseColor.x * pCamera->dSunR,
+                    m_diffuseColor.y * pCamera->dSunG,
+                    m_diffuseColor.z * pCamera->dSunB
                 );
             } else {
                 glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-                    m_kd_r,
-                    m_kd_g,
-                    m_kd_b
+                    m_diffuseColor.x,
+                    m_diffuseColor.y,
+                    m_diffuseColor.z
                 );
             }
         }
@@ -255,18 +274,27 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 // We pre-multiply the light color with the material color in the forward renderer
                 glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-                    m_ks_r * pCamera->dSunR,
-                    m_ks_g * pCamera->dSunG,
-                    m_ks_b * pCamera->dSunB
+                    m_specularColor.x * pCamera->dSunR,
+                    m_specularColor.y * pCamera->dSunG,
+                    m_specularColor.z * pCamera->dSunB
                 );
             } else {
                 glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-                    m_ks_r,
-                    m_ks_g,
-                    m_ks_b
+                    m_specularColor.x,
+                    m_specularColor.y,
+                    m_specularColor.z
                 );
             }
+        }
+        
+        if(!bSameReflection) {
+            glUniform3f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION],
+                m_reflectionColor.x,
+                m_reflectionColor.y,
+                m_reflectionColor.z
+                );
         }
         
         if(bDiffuseMap && !bSameDiffuseScale && m_diffuseMapScale != default_scale) {
@@ -282,6 +310,14 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE],
                 m_specularMapScale.x,
                 m_specularMapScale.y
+            );
+        }
+        
+        if(bReflectionMap && !bSameReflectionScale && m_reflectionMapScale != default_scale) {
+            glUniform2f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE],
+                m_reflectionMapScale.x,
+                m_reflectionMapScale.y
             );
         }
         
@@ -309,6 +345,14 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             );
         }
         
+        if(bReflectionMap && !bSameReflectionOffset && m_reflectionMapOffset != default_offset) {
+            glUniform2f(
+                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET],
+                m_reflectionMapOffset.x,
+                m_reflectionMapOffset.y
+            );
+        }
+        
         if(bNormalMap && !bSameNormalOffset && m_normalMapOffset != default_offset) {
             glUniform2f(
                 pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET],
@@ -318,16 +362,21 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr);
-
+        glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY], m_reflectionFactor);
+        
         bool bSameDiffuseMap = false;
         bool bSameSpecMap = false;
         bool bSameNormalMap = false;
+        bool bSameReflectionMap = false;
         if(*prevBoundMaterial) {
             if((*prevBoundMaterial)->m_pDiffuseMap == m_pDiffuseMap) {
                 bSameDiffuseMap = true;
             }
             if((*prevBoundMaterial)->m_pSpecularMap == m_pSpecularMap) {
                 bSameSpecMap = true;
+            }
+            if((*prevBoundMaterial)->m_pReflectionMap == m_pReflectionMap) {
+                bSameReflectionMap = true;
             }
             if((*prevBoundMaterial)->m_pNormalMap == m_pNormalMap) {
                 bSameNormalMap = true;
@@ -355,6 +404,16 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         if(bNormalMap && !bSameNormalMap) {
             int iTextureName = m_pNormalMap->getName();
             glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, iTextureName);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+        
+        if(bReflectionMap && !bSameReflectionMap && (gBufferPass == 0 || gBufferPass == 3)) {
+            // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
+            int iTextureName = m_pReflectionMap->getName();
+            glActiveTexture(GL_TEXTURE7);
             glBindTexture(GL_TEXTURE_2D, iTextureName);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

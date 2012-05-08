@@ -120,37 +120,49 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                                     char *pScan2 = szSymbol[1];
                                     double r = strtof(pScan2, &pScan2);
                                     if(cSymbols == 2) {
-                                        pMaterial->setAmbient(r, r, r);
+                                        pMaterial->setAmbient(KRVector3(r, r, r));
                                     } else if(cSymbols == 4) {
                                         pScan2 = szSymbol[2];
                                         double g = strtof(pScan2, &pScan2);
                                         pScan2 = szSymbol[3];
                                         double b = strtof(pScan2, &pScan2);
-                                        pMaterial->setAmbient(r, g, b);
+                                        pMaterial->setAmbient(KRVector3(r, g, b));
                                     }
                                 } else if(strcmp(szSymbol[0], "Kd") == 0) {
                                     char *pScan2 = szSymbol[1];
                                     double r = strtof(pScan2, &pScan2);
                                     if(cSymbols == 2) {
-                                        pMaterial->setDiffuse(r, r, r);
+                                        pMaterial->setDiffuse(KRVector3(r, r, r));
                                     } else if(cSymbols == 4) {
                                         pScan2 = szSymbol[2];
                                         double g = strtof(pScan2, &pScan2);
                                         pScan2 = szSymbol[3];
                                         double b = strtof(pScan2, &pScan2);
-                                        pMaterial->setDiffuse(r, g, b);
+                                        pMaterial->setDiffuse(KRVector3(r, g, b));
                                     }
                                 } else if(strcmp(szSymbol[0], "Ks") == 0) {
                                     char *pScan2 = szSymbol[1];
                                     double r = strtof(pScan2, &pScan2);
                                     if(cSymbols == 2) {
-                                        pMaterial->setSpecular(r, r, r);
+                                        pMaterial->setSpecular(KRVector3(r, r, r));
                                     } else if(cSymbols == 4) {
                                         pScan2 = szSymbol[2];
                                         double g = strtof(pScan2, &pScan2);
                                         pScan2 = szSymbol[3];
                                         double b = strtof(pScan2, &pScan2);
-                                        pMaterial->setSpecular(r, g, b);
+                                        pMaterial->setSpecular(KRVector3(r, g, b));
+                                    }
+                                } else if(strcmp(szSymbol[0], "Kr") == 0) {
+                                    char *pScan2 = szSymbol[1];
+                                    double r = strtof(pScan2, &pScan2);
+                                    if(cSymbols == 2) {
+                                        pMaterial->setReflection(KRVector3(r, r, r));
+                                    } else if(cSymbols == 4) {
+                                        pScan2 = szSymbol[2];
+                                        double g = strtof(pScan2, &pScan2);
+                                        pScan2 = szSymbol[3];
+                                        double b = strtof(pScan2, &pScan2);
+                                        pMaterial->setReflection(KRVector3(r, g, b));
                                     }
                                 } else if(strcmp(szSymbol[0], "Tr") == 0) {
                                     char *pScan2 = szSymbol[1];
@@ -217,6 +229,8 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                                         pMaterial->setSpecularMap(szSymbol[1], texture_scale, texture_offset);
                                     } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
                                         pMaterial->setNormalMap(szSymbol[1], texture_scale, texture_offset);
+                                    } else if(strcmp(szSymbol[0], "map_Reflection") == 0) {
+                                        pMaterial->setReflectionMap(szSymbol[1], texture_scale, texture_offset);
                                     }
 
                                 }

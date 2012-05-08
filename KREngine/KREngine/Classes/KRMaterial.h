@@ -64,12 +64,15 @@ public:
     void setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setAmbient(GLfloat r, GLfloat g, GLfloat b);
-    void setDiffuse(GLfloat r, GLfloat g, GLfloat b);    
-    void setSpecular(GLfloat r, GLfloat g, GLfloat b);
+    void setAmbient(const KRVector3 &c);
+    void setDiffuse(const KRVector3 &c);    
+    void setSpecular(const KRVector3 &c);
+    void setReflection(const KRVector3 &c);
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
+    void setReflectionFactor(GLfloat r);
     
 
     bool isTransparent();
@@ -86,10 +89,12 @@ private:
     KRTexture *m_pAmbientMap; // mtl map_Ka value
     KRTexture *m_pDiffuseMap; // mtl map_Kd value
     KRTexture *m_pSpecularMap; // mtl map_Ks value
+    KRTexture *m_pReflectionMap; // mtl refl value
     KRTexture *m_pNormalMap; // mtl map_Normal value
     std::string m_ambientMap;
     std::string m_diffuseMap;
     std::string m_specularMap;
+    std::string m_reflectionMap;
     std::string m_normalMap;
     
     KRVector2 m_ambientMapScale;
@@ -98,15 +103,24 @@ private:
     KRVector2 m_diffuseMapOffset;
     KRVector2 m_specularMapScale;
     KRVector2 m_specularMapOffset;
+    KRVector2 m_reflectionMapScale;
+    KRVector2 m_reflectionMapOffset;
     KRVector2 m_normalMapScale;
     KRVector2 m_normalMapOffset;
     
-    GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
-    GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb
-    GLfloat m_ks_r, m_ks_g, m_ks_b; // Specular rgb
+    KRVector3 m_ambientColor; // Ambient rgb
+    KRVector3 m_diffuseColor; // Diffuse rgb
+    KRVector3 m_specularColor; // Specular rgb
+    KRVector3 m_reflectionColor; // Reflection rgb
+    
+    //GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
+    //GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb
+    //GLfloat m_ks_r, m_ks_g, m_ks_b; // Specular rgb
+    //GLfloat m_kr_r, m_kr_g, m_kr_b; // Reflection rgb
     
     GLfloat m_tr; // Transparency
     GLfloat m_ns; // Shininess
+    GLfloat m_reflectionFactor; // Level of reflectivity
 };
 
 #endif

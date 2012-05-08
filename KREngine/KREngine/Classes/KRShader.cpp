@@ -104,6 +104,8 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse");
         m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular");
+        m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTION] = glGetUniformLocation(m_iProgram, "material_reflection");
+        m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY] = glGetUniformLocation(m_iProgram, "material_reflectivity");
         
         m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position");
         m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_light_position");
@@ -134,14 +136,17 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         
         m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture");
         m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] = glGetUniformLocation(m_iProgram, "specularTexture");
+        m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE] = glGetUniformLocation(m_iProgram, "reflectionTexture");
         m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE] = glGetUniformLocation(m_iProgram, "normalTexture");
         
         m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "diffuseTexture_Scale");
         m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "specularTexture_Scale");
+        m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "reflectionTexture_Scale");
         m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "normalTexture_Scale");
         m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "ambientTexture_Scale");
         m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "diffuseTexture_Offset");
         m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "specularTexture_Offset");
+        m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "reflectionTexture_Offset");
         m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "normalTexture_Offset");
         m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "ambientTexture_Offset");
         
@@ -240,7 +245,9 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5);
     
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6);
+    
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7);
+    glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7);
     
 #if defined(DEBUG)
     GLint logLength;

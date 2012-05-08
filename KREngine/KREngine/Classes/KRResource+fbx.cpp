@@ -453,13 +453,16 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
                 // Shininess
                 lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
                 new_material->setShininess(lKFbxDouble1.Get());
-                
-                // ShininessFactor
+                		
+                // Specular Factor
                 lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
                 double specular_factor = lKFbxDouble1.Get();
                 
-                // Display the Reflectivity
-                //lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+                // Reflection color
+                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Reflection;
+                
+                // Reflection factor
+                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
             } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
                 // We found a Lambert material.
                 
