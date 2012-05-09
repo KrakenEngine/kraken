@@ -121,43 +121,18 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             // Disable z-buffer write
             glDepthMask(GL_FALSE);
             
-            //if(view_space_light_position.GetMagnitude() > influence_radius) {
-                // Render sphere of light's influence
-                generateMesh();
+            // Render sphere of light's influence
+            generateMesh();
+        
+            // Enable z-buffer test
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            glDepthRangef(0.0, 1.0);
             
-                // Enable z-buffer test
-                glEnable(GL_DEPTH_TEST);
-                glDepthFunc(GL_LEQUAL);
-                glDepthRangef(0.0, 1.0);
-                
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-                glDrawArrays(GL_TRIANGLES, 0, m_cVertices);
-            /*
-             } else {
-                // Sphere would be clipped against view frustrum.  Fall back to a full screen quad
-                
-                // Disable z-buffer test
-                glDisable(GL_DEPTH_TEST);
-                
-                // Render a full screen quad
-                static const GLfloat squareVertices[] = {
-                    -1.0f, -1.0f, 0.0f,
-                    1.0f, -1.0f, 0.0f,
-                    -1.0f,  1.0f, 0.0f,
-                    1.0f,  1.0f, 0.0f,
-                };
-                
-                KRMat4 matIdentity;
-                glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MVP], 1, GL_FALSE, matIdentity.getPointer());
-                
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, squareVertices);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-             */
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices);
+            glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+            glDrawArrays(GL_TRIANGLES, 0, m_cVertices);
         }
     }
     

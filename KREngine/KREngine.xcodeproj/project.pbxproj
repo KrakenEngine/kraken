@@ -30,6 +30,8 @@
 		E461A176152E5C5600F2044A /* KRPointLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A157152E555400F2044A /* KRPointLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A177152E5C6600F2044A /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
+		E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */; };
+		E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */ = {isa = PBXBuildFile; fileRef = E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */; };
 		E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
 		E46C214615364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
 		E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E46C214315364BC8009CABF3 /* tinyxml2.h */; };
@@ -159,6 +161,8 @@
 		E461A15E152E565700F2044A /* KRDirectionalLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRDirectionalLight.cpp; path = Classes/KRDirectionalLight.cpp; sourceTree = "<group>"; };
 		E461A164152E56C000F2044A /* KRSpotLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSpotLight.cpp; path = Classes/KRSpotLight.cpp; sourceTree = "<group>"; };
 		E461A167152E570500F2044A /* KRSpotLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRSpotLight.h; path = Classes/KRSpotLight.h; sourceTree = "<group>"; };
+		E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "KRResource+blend.cpp"; path = "Classes/KRResource+blend.cpp"; sourceTree = "<group>"; };
+		E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "KRResource+blend.h"; path = "Classes/KRResource+blend.h"; sourceTree = "<group>"; };
 		E46C214115364BC8009CABF3 /* tinyxml2_readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = tinyxml2_readme.txt; path = KREngine/Classes/tinyxml2_readme.txt; sourceTree = "<group>"; };
 		E46C214215364BC8009CABF3 /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = KREngine/Classes/tinyxml2.cpp; sourceTree = "<group>"; };
 		E46C214315364BC8009CABF3 /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyxml2.h; path = KREngine/Classes/tinyxml2.h; sourceTree = "<group>"; };
@@ -279,6 +283,8 @@
 				E497B949151BCEE900D3DC67 /* KRResource.h */,
 				E497B94C151BCF2500D3DC67 /* KRResource.cpp */,
 				E497B94F151BD2CE00D3DC67 /* KRResource+obj.cpp */,
+				E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */,
+				E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */,
 				E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */,
 			);
 			name = Resources;
@@ -542,6 +548,7 @@
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E46C214815364BC8009CABF3 /* tinyxml2.h in Headers */,
+				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -692,6 +699,7 @@
 				E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */,
 				E46C214C15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
 				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
+				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

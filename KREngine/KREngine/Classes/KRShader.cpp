@@ -246,8 +246,8 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     
     glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6);
     
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7);
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7);
+    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+    glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
     
 #if defined(DEBUG)
     GLint logLength;

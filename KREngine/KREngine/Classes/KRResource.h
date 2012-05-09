@@ -40,6 +40,7 @@ private:
     
     static std::vector<KRResource *> LoadObj(const std::string& path);
     static std::vector<KRResource *> LoadFbx(const std::string& path);
+    static std::vector<KRResource *> LoadBlenderScene(const std::string& path);
 };
 
 #endif

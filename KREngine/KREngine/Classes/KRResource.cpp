@@ -64,6 +64,8 @@ std::vector<KRResource *> KRResource::Load(const std::string& path)
         return LoadObj(path);
     } else if(extension.compare("fbx") == 0) {
         return LoadFbx(path);
+    } else if(extension.compare("blend") == 0) {
+        return LoadBlenderScene(path);
     }
     
     return resources;

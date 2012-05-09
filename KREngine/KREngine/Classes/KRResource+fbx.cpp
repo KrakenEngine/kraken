@@ -433,15 +433,15 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
                 
                 // Ambient Color
                 lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Ambient;
-                new_material->setAmbient(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
                 
                 // Diffuse Color
                 lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Diffuse;
-                new_material->setDiffuse(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
                 
                 // Specular Color (unique to Phong materials)
                 lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Specular;
-                new_material->setSpecular(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                new_material->setSpecular(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
                 
                 // Emissive Color
                 //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
@@ -468,11 +468,11 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
                 
                 // Ambient Color
                 lKFbxDouble3=((KFbxSurfaceLambert *)pMaterial)->Ambient;
-                new_material->setAmbient(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
                 
                 // Diffuse Color
                 lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Diffuse;
-                new_material->setDiffuse(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
                 
                 // Emissive
                 //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
