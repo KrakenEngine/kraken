@@ -14,7 +14,7 @@
 
 class KRLight : public KRNode {
 public:
-    static const float KRLIGHT_MIN_INFLUENCE = 0.10f;
+    static const float KRLIGHT_MIN_INFLUENCE = 0.05f;
     
     virtual ~KRLight();
     virtual std::string getElementName() = 0;

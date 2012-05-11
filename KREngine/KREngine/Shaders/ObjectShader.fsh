@@ -126,7 +126,7 @@ void main()
     
     #if GBUFFER_PASS == 3
         lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
-        lowp vec3 gbuffer_lamber_factor = gbuffer_sample.rgb;
+        mediump vec3 gbuffer_lamber_factor = gbuffer_sample.rgb * 5.0;
         lowp float gbuffer_specular_factor = gbuffer_sample.a;
     #endif
     

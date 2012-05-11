@@ -57,5 +57,5 @@ void main()
         specularFactor = clamp(pow(dot(halfVec,normalize(gbuffer_normal)), gbuffer_specular_exponent), 0.0, 1.0);
     }
     
-    gl_FragColor = vec4(light_color * lamberFactor, specularFactor) * light_intensity;
+    gl_FragColor = vec4(light_color * lamberFactor * 0.2, specularFactor) * light_intensity;
 }
