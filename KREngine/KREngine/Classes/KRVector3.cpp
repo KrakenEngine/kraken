@@ -39,6 +39,67 @@ KRVector3::KRVector3()
     z = 0.0f;
 }
 
+KRVector3 KRVector3::ZeroVector() {
+    return KRVector3(0.0f, 0.0f, 0.0f);
+}
+
+KRVector3 KRVector3::OneVector() {
+    return KRVector3(1.0f, 1.0f, 1.0f);
+}
+
+KRVector3 KRVector3::ForwardVector() {
+    return KRVector3(0.0f, 0.0f, 1.0f);
+}
+
+KRVector3 KRVector3::BackwardVector() {
+    return KRVector3(0.0f, 0.0f, -1.0f);
+}
+
+KRVector3 KRVector3::UpVector() {
+    return KRVector3(0.0f, 1.0f, 0.0f);
+}
+
+KRVector3 KRVector3::DownVector() {
+    return KRVector3(0.0f, -1.0f, 0.0f);
+}
+
+KRVector3 KRVector3::LeftVector() {
+    return KRVector3(-1.0f, 0.0f, 0.0f);
+}
+
+KRVector3 KRVector3::RightVector() {
+    return KRVector3(1.0f, 0.0f, 0.0f);
+}
+
+KRVector3 KRVector3::Lerp(const KRVector3 &v1, const KRVector3 &v2, float d) {
+    return v1 + (v2 - v1) * d;
+}
+
+KRVector3 KRVector3::Slerp(const KRVector3 &v1, const KRVector3 &v2, float d) {
+    // From: http://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
+    // Dot product - the cosine of the angle between 2 vectors.
+    float dot = KRVector3::Dot(v1, v2);     
+    // Clamp it to be in the range of Acos()
+    if(dot < -1.0f) dot = -1.0f;
+    if(dot > 1.0f) dot = 1.0f;
+    // Acos(dot) returns the angle between start and end,
+    // And multiplying that by percent returns the angle between
+    // start and the final result.
+    float theta = acos(dot)*d;
+    KRVector3 RelativeVec = v2 - v1*dot;
+    RelativeVec.normalize();     // Orthonormal basis
+    // The final result.
+    return ((v1*cos(theta)) + (RelativeVec*sin(theta)));
+}
+
+void KRVector3::OrthoNormalize(KRVector3 &normal, KRVector3 &tangent) {
+    // Gram-Schmidt Orthonormalization
+    normal.normalize();
+    KRVector3 proj = normal * Dot(tangent, normal);
+    tangent = tangent - proj;
+    tangent.normalize();
+}
+
 KRVector3::KRVector3(float v) {
     x = v;
     y = v;
@@ -73,7 +134,12 @@ KRVector3::~KRVector3()
 //calculate and return the magnitude of this vector
 float KRVector3::GetMagnitude()
 {
-    return sqrtf(x * x + y * y + z * z);
+    return sqrtf(GetSqrMagnitude());
+}
+
+float KRVector3::GetSqrMagnitude()
+{
+    return x * x + y * y + z * z;
 }
 
 //multiply this vector by a scalar
@@ -109,6 +175,10 @@ void KRVector3::normalize()
     x /= magnitude;
     y /= magnitude;
     z /= magnitude;
+}
+
+float KRVector3::Dot(const KRVector3 &v1, const KRVector3 &v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 //calculate and return dot product

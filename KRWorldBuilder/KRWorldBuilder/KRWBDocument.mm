@@ -8,16 +8,46 @@
 
 #import "KRWBDocument.h"
 
+#import <KREngine_osx/KRVector2.h>
+#import <KREngine_osx/KRVector3.h>
+#import <KREngine_osx/KRMesh.h>
+#import <KREngine_osx/KRWorld.h>
+#import "KRWBFileSystemItem.h"
+
+@interface KRWBDocument() {
+    KRWorld *_world;
+    NSOutlineView *_outlineView;
+}
+
+@end
+
 @implementation KRWBDocument
+
+@synthesize outlineView = _outlineView;
+
+- (KRWorld *)world
+{
+    return _world;
+}
 
 - (id)init
 {
+    _world = NULL;
     self = [super init];
     if (self) {
         // Add your subclass-specific initialization here.
         // If an error occurs here, return nil.
+        _world = new KRWorld();
     }
     return self;
+}
+
+- (void)dealloc
+{
+    if(_world) {
+        delete _world;
+        _world = NULL;
+    }
 }
 
 - (NSString *)windowNibName
@@ -30,6 +60,8 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
+
+    //[[self.windowControllers objectAtIndex:0] setBackgroundColor: [NSColor blackColor]];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 }
 
@@ -51,14 +83,47 @@
     You can also choose to override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
     If you override either of these, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
     */
+    /*
     NSException *exception = [NSException exceptionWithName:@"UnimplementedMethod" reason:[NSString stringWithFormat:@"%@ is unimplemented", NSStringFromSelector(_cmd)] userInfo:nil];
     @throw exception;
+     */
+    
     return YES;
 }
 
 + (BOOL)autosavesInPlace
 {
     return YES;
+}
+
+
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
+    if(item == nil) {
+        return [[KRWBFileSystemItem rootItem] numberOfChildren];
+    } else {
+        return [item numberOfChildren];
+    }
+    //return (item == nil) ? 1 : [item numberOfChildren];
+}
+
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
+    return (item == nil) ? YES : ([item numberOfChildren] != -1);
+}
+
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
+    if(item == nil) {
+        return [[KRWBFileSystemItem rootItem] childAtIndex:index];
+    } else {
+        return [(KRWBFileSystemItem *)item childAtIndex:index];
+    }
+    //return (item == nil) ? [KRWBFileSystemItem rootItem] : [(KRWBFileSystemItem *)item childAtIndex:index];
+}
+
+
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
+    return (item == nil) ? @"/" : [item relativePath];
 }
 
 @end

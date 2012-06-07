@@ -7,16 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E440D976155E46DB00C4887B /* KRWBFileSystemItem.m in Sources */ = {isa = PBXBuildFile; fileRef = E440D975155E46DB00C4887B /* KRWBFileSystemItem.m */; };
+		E46F4A07155DF5E500CCF8B8 /* krengine_osx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E46F4A06155DF5E500CCF8B8 /* krengine_osx.framework */; };
 		E474D77514E5BBF70017DCEC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E474D77414E5BBF70017DCEC /* Cocoa.framework */; };
 		E474D77F14E5BBF70017DCEC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E474D77D14E5BBF70017DCEC /* InfoPlist.strings */; };
 		E474D78114E5BBF70017DCEC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E474D78014E5BBF70017DCEC /* main.m */; };
 		E474D78514E5BBF70017DCEC /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E474D78314E5BBF70017DCEC /* Credits.rtf */; };
-		E474D78814E5BBF70017DCEC /* KRWBDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = E474D78714E5BBF70017DCEC /* KRWBDocument.m */; };
+		E474D78814E5BBF70017DCEC /* KRWBDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = E474D78714E5BBF70017DCEC /* KRWBDocument.mm */; };
 		E474D78B14E5BBF70017DCEC /* KRWBDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = E474D78914E5BBF70017DCEC /* KRWBDocument.xib */; };
 		E474D78E14E5BBF80017DCEC /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E474D78C14E5BBF80017DCEC /* MainMenu.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E440D974155E46DB00C4887B /* KRWBFileSystemItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRWBFileSystemItem.h; sourceTree = "<group>"; };
+		E440D975155E46DB00C4887B /* KRWBFileSystemItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KRWBFileSystemItem.m; sourceTree = "<group>"; };
+		E46F4A06155DF5E500CCF8B8 /* krengine_osx.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = krengine_osx.framework; path = ../KREngine/build/Release/krengine_osx.framework; sourceTree = "<group>"; };
 		E474D77014E5BBF70017DCEC /* KRWorldBuilder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KRWorldBuilder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E474D77414E5BBF70017DCEC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E474D77714E5BBF70017DCEC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -28,7 +33,7 @@
 		E474D78214E5BBF70017DCEC /* KRWorldBuilder-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KRWorldBuilder-Prefix.pch"; sourceTree = "<group>"; };
 		E474D78414E5BBF70017DCEC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		E474D78614E5BBF70017DCEC /* KRWBDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KRWBDocument.h; sourceTree = "<group>"; };
-		E474D78714E5BBF70017DCEC /* KRWBDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KRWBDocument.m; sourceTree = "<group>"; };
+		E474D78714E5BBF70017DCEC /* KRWBDocument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KRWBDocument.mm; sourceTree = "<group>"; };
 		E474D78A14E5BBF70017DCEC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/KRWBDocument.xib; sourceTree = "<group>"; };
 		E474D78D14E5BBF80017DCEC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -38,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E46F4A07155DF5E500CCF8B8 /* krengine_osx.framework in Frameworks */,
 				E474D77514E5BBF70017DCEC /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,6 +71,7 @@
 		E474D77314E5BBF70017DCEC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E46F4A06155DF5E500CCF8B8 /* krengine_osx.framework */,
 				E474D77414E5BBF70017DCEC /* Cocoa.framework */,
 				E474D77614E5BBF70017DCEC /* Other Frameworks */,
 			);
@@ -85,8 +92,10 @@
 			isa = PBXGroup;
 			children = (
 				E474D78614E5BBF70017DCEC /* KRWBDocument.h */,
-				E474D78714E5BBF70017DCEC /* KRWBDocument.m */,
+				E474D78714E5BBF70017DCEC /* KRWBDocument.mm */,
 				E474D78914E5BBF70017DCEC /* KRWBDocument.xib */,
+				E440D974155E46DB00C4887B /* KRWBFileSystemItem.h */,
+				E440D975155E46DB00C4887B /* KRWBFileSystemItem.m */,
 				E474D78C14E5BBF80017DCEC /* MainMenu.xib */,
 				E474D77B14E5BBF70017DCEC /* Supporting Files */,
 			);
@@ -171,7 +180,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E474D78114E5BBF70017DCEC /* main.m in Sources */,
-				E474D78814E5BBF70017DCEC /* KRWBDocument.m in Sources */,
+				E474D78814E5BBF70017DCEC /* KRWBDocument.mm in Sources */,
+				E440D976155E46DB00C4887B /* KRWBFileSystemItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +311,7 @@
 				E474D79314E5BBF80017DCEC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -8,6 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface KRWBDocument : NSDocument
+class KRWorld;
+
+@interface KRWBDocument : NSDocument <NSOutlineViewDelegate, NSOutlineViewDataSource>
+
+@property (nonatomic, readonly) KRWorld *world;
+@property (nonatomic, retain) IBOutlet NSOutlineView *outlineView;
 
 @end

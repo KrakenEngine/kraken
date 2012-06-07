@@ -31,5 +31,5 @@ uniform highp mat4 mvp_matrix; // mvp_matrix is the result of multiplying the mo
 void main()
 {
 	gl_Position = mvp_matrix * vertex_position;
-    gl_Position.z = max(gl_Position.z / gl_Position.w, 0.0) * gl_Position.w;
+    gl_Position.z = max(gl_Position.z / gl_Position.w, 0.00) * gl_Position.w;
 }

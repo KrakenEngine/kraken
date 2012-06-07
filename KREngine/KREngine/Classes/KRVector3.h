@@ -48,13 +48,29 @@ public:
     KRVector3();
 	~KRVector3();
     
+    static KRVector3 ZeroVector();
+    static KRVector3 OneVector();
+    static KRVector3 ForwardVector();
+    static KRVector3 BackwardVector();
+    static KRVector3 UpVector();
+    static KRVector3 DownVector();
+    static KRVector3 LeftVector();
+    static KRVector3 RightVector();
+    static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
+    static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
+    static float Dot(const KRVector3 &v1, const KRVector3 &v2);
+    static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
+    
     KRVector3(const KRVector3& p);
     KRVector3& operator = ( const KRVector3& p );
     friend bool operator== (KRVector3 &v1, KRVector3 &v2);
     friend bool operator!= (KRVector3 &v1, KRVector3 &v2);
     
-	//calculate and return the magnitude of this vector
+	// calculate and return the magnitude of this vector
 	float GetMagnitude();
+    
+    // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function used in GetMagnitude
+    float GetSqrMagnitude();
     
 	//multiply this vector by a scalar
 	KRVector3 operator*(float num) const;
@@ -70,6 +86,8 @@ public:
     
 	//normalize this vector
 	void normalize();
+    
+    
 	
 	//calculate and return dot product
 	float dot(const KRVector3 &vec) const;
