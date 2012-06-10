@@ -31,22 +31,49 @@
 
 #ifndef KRVECTOR3
 #define KRVECTOR3
-#include <math.h>
 
 #import "KREngine-common.h"
 
-class KRVector3
-{
+class KRVector3 {
 
 public:
     float x, y, z;
     
-	//default constructor
-    
+    KRVector3();
 	KRVector3(float X, float Y, float Z);
     KRVector3(float v);
-    KRVector3();
+    KRVector3(const KRVector3 &v);
 	~KRVector3();
+    
+    
+    KRVector3& operator =(const KRVector3& b);
+    KRVector3 operator +(const KRVector3& b) const;
+    KRVector3 operator -(const KRVector3& b) const;
+    KRVector3 operator +() const;
+    KRVector3 operator -() const;
+    KRVector3 operator *(const float v) const;
+    KRVector3 operator /(const float v) const;
+    
+    KRVector3& operator +=(const KRVector3& b);
+    KRVector3& operator -=(const KRVector3& b);
+    KRVector3& operator *=(const float v);
+    KRVector3& operator /=(const float v);
+    
+    bool operator ==(const KRVector3& b) const;
+    bool operator !=(const KRVector3& b) const;
+    
+    float& operator[](unsigned i);
+    float operator[](unsigned i) const;
+    
+    float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
+    float magnitude() const;
+    
+    void normalize();
+    static KRVector3 Normalize(const KRVector3 &v);
+    
+    static KRVector3 Cross(const KRVector3 &v1, const KRVector3 &v2);
+    
+    static float Dot(const KRVector3 &v1, const KRVector3 &v2);
     
     static KRVector3 ZeroVector();
     static KRVector3 OneVector();
@@ -58,42 +85,7 @@ public:
     static KRVector3 RightVector();
     static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
-    static float Dot(const KRVector3 &v1, const KRVector3 &v2);
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
-    
-    KRVector3(const KRVector3& p);
-    KRVector3& operator = ( const KRVector3& p );
-    friend bool operator== (KRVector3 &v1, KRVector3 &v2);
-    friend bool operator!= (KRVector3 &v1, KRVector3 &v2);
-    
-	// calculate and return the magnitude of this vector
-	float GetMagnitude();
-    
-    // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function used in GetMagnitude
-    float GetSqrMagnitude();
-    
-	//multiply this vector by a scalar
-	KRVector3 operator*(float num) const;
-    
-	//pass in a vector, pass in a scalar, return the product
-	//friend KRVector3 operator*(float num, KRVector3 const &vec);
-    
-	//add two vectors
-	KRVector3 operator+(const KRVector3 &vec) const;
-    
-	//subtract two vectors
-	KRVector3 operator-(const KRVector3 &vec) const;
-    
-	//normalize this vector
-	void normalize();
-    
-    
-	
-	//calculate and return dot product
-	float dot(const KRVector3 &vec) const;
-    
-	//calculate and return cross product
-	KRVector3 cross(const KRVector3 &vec) const;
 };
 
 #endif

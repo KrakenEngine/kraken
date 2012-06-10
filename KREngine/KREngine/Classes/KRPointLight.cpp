@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <math.h>
 
 #import "KRPointLight.h"
 #import "KRMat4.h"

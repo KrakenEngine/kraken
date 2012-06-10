@@ -31,12 +31,20 @@
 
 #include "KRVector3.h"
 
+#include <math.h>
+
 //default constructor
 KRVector3::KRVector3()
 {
     x = 0.0f;
     y = 0.0f;
     z = 0.0f;
+}
+
+KRVector3::KRVector3(const KRVector3 &v) {
+    x = v.x;
+    y = v.y;
+    z = v.z;
 }
 
 KRVector3 KRVector3::ZeroVector() {
@@ -113,92 +121,128 @@ KRVector3::KRVector3(float X, float Y, float Z)
     z = Z;
 }
 
-KRVector3::KRVector3(const KRVector3& p) {
-    x = p.x;
-    y = p.y;
-    z = p.z;
-}
-
-KRVector3& KRVector3::operator = ( const KRVector3& p ) {
-    x = p.x;
-    y = p.y;
-    z = p.z;
-    
-    return *this;
-}
-
 KRVector3::~KRVector3()
 {
 }
 
-//calculate and return the magnitude of this vector
-float KRVector3::GetMagnitude()
-{
-    return sqrtf(GetSqrMagnitude());
+KRVector3& KRVector3::operator =(const KRVector3& b) {
+    x = b.x;
+    y = b.y;
+    z = b.z;
+    return *this;
+}
+KRVector3 KRVector3::operator +(const KRVector3& b) const {
+    return KRVector3(x + b.x, y + b.y, z + b.z);
+}
+KRVector3 KRVector3::operator -(const KRVector3& b) const {
+    return KRVector3(x - b.x, y - b.y, z - b.z);
+}
+KRVector3 KRVector3::operator +() const {
+    return *this;
+}
+KRVector3 KRVector3::operator -() const {
+    return KRVector3(-x, -y, -z);
 }
 
-float KRVector3::GetSqrMagnitude()
-{
+KRVector3 KRVector3::operator *(const float v) const {
+    return KRVector3(x * v, y * v, z * v);
+}
+
+KRVector3 KRVector3::operator /(const float v) const {
+    return KRVector3(x / v, y / v, z / v);
+}
+
+KRVector3& KRVector3::operator +=(const KRVector3& b) {
+    x += b.x;
+    y += b.y;
+    z += b.z;
+    
+    return *this;
+}
+
+KRVector3& KRVector3::operator -=(const KRVector3& b) {
+    x -= b.x;
+    y -= b.y;
+    z -= b.z;
+    
+    return *this;
+}
+
+KRVector3& KRVector3::operator *=(const float v) {
+    x *= v;
+    y *= v;
+    z *= v;
+    
+    return *this;
+}
+
+KRVector3& KRVector3::operator /=(const float v) {
+    x /= v;
+    y /= v;
+    z /= v;
+    
+    return *this;
+}
+
+bool KRVector3::operator ==(const KRVector3& b) const {
+    return x == b.x && y == b.y && z == b.z;
+    
+}
+bool KRVector3::operator !=(const KRVector3& b) const {
+    return x != b.x || y != b.y || z != b.z;
+}
+
+float& KRVector3::operator[](unsigned i) {
+    switch(i) {
+        case 0:
+            return x;
+        case 1:
+            return y;
+        default:
+        case 2:
+            return z;
+    }
+}
+
+float KRVector3::operator[](unsigned i) const {
+    switch(i) {
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+        default:
+            return z;
+    }
+}
+
+float KRVector3::sqrMagnitude() const {
+    // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
     return x * x + y * y + z * z;
 }
 
-//multiply this vector by a scalar
-KRVector3 KRVector3::operator*(float num) const
-{
-    return KRVector3(x * num, y * num, z * num);
+float KRVector3::magnitude() const {
+    return sqrtf(x * x + y * y + z * z);
 }
 
-//pass in a vector, pass in a scalar, return the product
-/*
-KRVector3 KRVector3::operator*(float num, KRVector3 const &vec)
-{
-    return KRVector3(vec.x * num, vec.y * num, vec.z * num);
-}
- */
-
-//add two vectors
-KRVector3 KRVector3::operator+(const KRVector3 &vec) const
-{
-    return KRVector3(x + vec.x, y + vec.y, z + vec.z);
-}
-
-//subtract two vectors
-KRVector3 KRVector3::operator-(const KRVector3 &vec) const
-{
-    return KRVector3(x - vec.x, y - vec.y, z - vec.z);
-}
-
-//normalize this vector
-void KRVector3::normalize()
-{
+void KRVector3::normalize() {
     float magnitude = sqrtf(x * x + y * y + z * z);
     x /= magnitude;
     y /= magnitude;
     z /= magnitude;
+}
+KRVector3 KRVector3::Normalize(const KRVector3 &v) {
+    float magnitude = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+    return KRVector3(v.x / magnitude, v.y / magnitude, v.z / magnitude);
+}
+
+KRVector3 KRVector3::Cross(const KRVector3 &v1, const KRVector3 &v2) {
+    return KRVector3(v1.y * v2.z - v1.z * v2.y,
+                     v1.z * v2.x - v1.x * v2.z,
+                     v1.x * v2.y - v1.y * v2.x);
 }
 
 float KRVector3::Dot(const KRVector3 &v1, const KRVector3 &v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-//calculate and return dot product
-float KRVector3::dot(const KRVector3 &vec) const
-{
-    return x * vec.x + y * vec.y + z * vec.z;
-}
-
-//calculate and return cross product
-KRVector3 KRVector3::cross(const KRVector3 &vec) const
-{
-    return KRVector3(y * vec.z - z * vec.y,
-                   z * vec.x - x * vec.z,
-                   x * vec.y - y * vec.x);
-}
-
-bool operator== (KRVector3 &v1, KRVector3 &v2) {
-    return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
-}
-
-bool operator!= (KRVector3 &v1, KRVector3 &v2) {
-    return !(v1 == v2);
-}

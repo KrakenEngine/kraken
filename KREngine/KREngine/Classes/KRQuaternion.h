@@ -1,5 +1,5 @@
 //
-//  KRVector2.h
+//  KRQuaternion.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,58 +29,54 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRVECTOR2
-#define KRVECTOR2
+#ifndef KRQUATERNION
+#define KRQUATERNION
+#include <math.h>
 
 #import "KREngine-common.h"
 
-class KRVector2 {
-    
+class KRVector3;
+
+class KRQuaternion {
 public:
-    float x, y;
+    KRQuaternion();
+    KRQuaternion(float w, float x, float y, float z);
+    KRQuaternion(const KRQuaternion& p);
+    KRQuaternion(const KRVector3 &euler);
+    ~KRQuaternion();
     
-    KRVector2();
-    KRVector2(float X, float Y);
-    KRVector2(float v);
-    KRVector2(const KRVector2 &v);
-    ~KRVector2();
+    KRQuaternion& operator =( const KRQuaternion& p );
+	KRQuaternion operator +(const KRQuaternion &v) const;
+	KRQuaternion operator -(const KRQuaternion &v) const;
+    KRQuaternion operator +() const;
+    KRQuaternion operator -() const;
     
-    KRVector2& operator =(const KRVector2& b);
-    KRVector2 operator +(const KRVector2& b) const;
-    KRVector2 operator -(const KRVector2& b) const;
-    KRVector2 operator +() const;
-    KRVector2 operator -() const;
-    KRVector2 operator *(const float v) const;
-    KRVector2 operator /(const float v) const;
+    KRQuaternion operator *(const KRQuaternion &v);
+	KRQuaternion operator *(float num) const;
+    KRQuaternion operator /(float num) const;
     
-    KRVector2& operator +=(const KRVector2& b);
-    KRVector2& operator -=(const KRVector2& b);
-    KRVector2& operator *=(const float v);
-    KRVector2& operator /=(const float v);
-    
-    bool operator ==(const KRVector2& b) const;
-    bool operator !=(const KRVector2& b) const;
-    
-    float& operator[](unsigned i);
-    float operator[](unsigned i) const;
-    
-    float sqrMagnitude() const;
-    float magnitude() const;
+    KRQuaternion& operator +=(const KRQuaternion& v);
+    KRQuaternion& operator -=(const KRQuaternion& v);
+    KRQuaternion& operator *=(const KRQuaternion& v);
+    KRQuaternion& operator *=(const float& v);
+    KRQuaternion& operator /=(const float& v);
 
+    friend bool operator ==(KRVector3 &v1, KRVector3 &v2);
+    friend bool operator !=(KRVector3 &v1, KRVector3 &v2);
+    float& operator [](unsigned i);
+    float operator [](unsigned i) const;
+    
+    
+    void setEuler(const KRVector3 &euler);
+    KRVector3 euler() const;
+    
     void normalize();
-    static KRVector2 Normalize(const KRVector2 &v);
-
-    static float Cross(const KRVector2 &v1, const KRVector2 &v2);
+    static KRQuaternion Normalize(const KRQuaternion &v1);
     
-    static float Dot(const KRVector2 &v1, const KRVector2 &v2);
-    
-    static KRVector2 ZeroVector();
-    static KRVector2 OneVector();
-    
+    void conjugate();
+    static KRQuaternion Conjugate(const KRQuaternion &v1);
 private:
-    
-    
+    float m_val[4];
 };
-
 
 #endif

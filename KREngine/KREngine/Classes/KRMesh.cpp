@@ -378,7 +378,7 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         // -- Calculate normal --
         if(pVertex->normal.x == 0 && pVertex->normal.y == 0 && pVertex->normal.z == 0) {
             
-            KRVector3 normal = v1.cross( v2 );
+            KRVector3 normal = KRVector3::Cross(v1, v2);
             
             normal.normalize();
             

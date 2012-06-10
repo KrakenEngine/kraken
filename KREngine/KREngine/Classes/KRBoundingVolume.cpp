@@ -30,6 +30,7 @@
 //
 
 #include <iostream>
+#include <math.h>
 
 #import "KRBoundingVolume.h"
 
