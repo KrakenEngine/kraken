@@ -47,35 +47,35 @@ KRVector3::KRVector3(const KRVector3 &v) {
     z = v.z;
 }
 
-KRVector3 KRVector3::ZeroVector() {
+KRVector3 KRVector3::Zero() {
     return KRVector3(0.0f, 0.0f, 0.0f);
 }
 
-KRVector3 KRVector3::OneVector() {
+KRVector3 KRVector3::One() {
     return KRVector3(1.0f, 1.0f, 1.0f);
 }
 
-KRVector3 KRVector3::ForwardVector() {
+KRVector3 KRVector3::Forward() {
     return KRVector3(0.0f, 0.0f, 1.0f);
 }
 
-KRVector3 KRVector3::BackwardVector() {
+KRVector3 KRVector3::Backward() {
     return KRVector3(0.0f, 0.0f, -1.0f);
 }
 
-KRVector3 KRVector3::UpVector() {
+KRVector3 KRVector3::Up() {
     return KRVector3(0.0f, 1.0f, 0.0f);
 }
 
-KRVector3 KRVector3::DownVector() {
+KRVector3 KRVector3::Down() {
     return KRVector3(0.0f, -1.0f, 0.0f);
 }
 
-KRVector3 KRVector3::LeftVector() {
+KRVector3 KRVector3::Left() {
     return KRVector3(-1.0f, 0.0f, 0.0f);
 }
 
-KRVector3 KRVector3::RightVector() {
+KRVector3 KRVector3::Right() {
     return KRVector3(1.0f, 0.0f, 0.0f);
 }
 

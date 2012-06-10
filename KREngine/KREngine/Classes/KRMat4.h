@@ -81,6 +81,9 @@ public:
     // Overload compound multiply operator
     KRMat4& operator*=(const KRMat4 &m);
     
+    float& operator[](unsigned i);
+    float operator[](unsigned i) const;
+    
     // Overload multiply operator
     //KRMat4& operator*(const KRMat4 &m);
     KRMat4 operator*(const KRMat4 &m);
@@ -96,7 +99,8 @@ public:
     void bias();
     bool invert();
     void transpose();
-    KRVector3 dot(const KRVector3 &v) const;
+    
+    static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
 };
 
 #endif // KRMAT4_I

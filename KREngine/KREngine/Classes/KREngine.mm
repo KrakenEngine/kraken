@@ -223,7 +223,7 @@ double const PI = 3.141592653589793f;
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
     
-    KRVector3 cameraPosition = invViewMatrix.dot(KRVector3(0.0,0.0,0.0));
+    KRVector3 cameraPosition = KRMat4::Dot(invViewMatrix, KRVector3(0.0,0.0,0.0));
 
     KRVector3 lightDirection(0.0, 0.0, 1.0);
     
@@ -231,7 +231,7 @@ double const PI = 3.141592653589793f;
     KRMat4 shadowvp;
     shadowvp.rotate(sun_pitch, X_AXIS);
     shadowvp.rotate(sun_yaw, Y_AXIS);
-    lightDirection = shadowvp.dot(lightDirection);
+    lightDirection = KRMat4::Dot(shadowvp, lightDirection);
     shadowvp.invert();
     
     
@@ -348,7 +348,7 @@ double const PI = 3.141592653589793f;
     vertices[7] = KRVector3(-1.0,  1.0, 1.0);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
-        vertices[iVertex] = matInvShadow.dot(vertices[iVertex]);
+        vertices[iVertex] = KRMat4::Dot(matInvShadow, vertices[iVertex]);
     }
     
     KRVector3 cameraPosition;

@@ -61,7 +61,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         KRMat4 matViewToModel = m_modelMatrix * viewMatrix;
         matViewToModel.invert();
         
-        KRVector3 view_space_light_position = matModelToView2.dot(KRVector3(0.0)); // Origin point of model space is the light source position.  No perspective, so no w divide required
+        KRVector3 view_space_light_position = KRMat4::Dot(matModelToView2, KRVector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
         
         KRBoundingVolume influence_extents = KRBoundingVolume(KRVector3(-1.0), KRVector3(1.0), m_modelMatrix);
         

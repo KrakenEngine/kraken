@@ -52,7 +52,7 @@ KRBoundingVolume::KRBoundingVolume(const KRVector3 &corner1, const KRVector3 &co
     m_vertices[7] = KRVector3(corner1.x, corner2.y, corner2.z);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
-        m_vertices[iVertex] = modelMatrix.dot(m_vertices[iVertex]);
+        m_vertices[iVertex] = KRMat4::Dot(modelMatrix, m_vertices[iVertex]);
     }
 }
 
@@ -74,7 +74,7 @@ KRBoundingVolume::KRBoundingVolume(const KRMat4 &matView, GLfloat fov, GLfloat a
     m_vertices[7] = KRVector3(-1.0 * r * farz * aspect,  1.0 * r * farz, -farz);
     
     for(int iVertex=0; iVertex < 8; iVertex++) {
-        m_vertices[iVertex] = invView.dot(m_vertices[iVertex]);
+        m_vertices[iVertex] = KRMat4::Dot(invView, m_vertices[iVertex]);
     }
 }
 
@@ -203,9 +203,9 @@ KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, KRContext *pContext, GL
     shadowvp.invert();
     shadowvp.scale(1.0, 1.0, -1.0);
     
-    KRVector3 minPointFrustrum = shadowvp.dot(m_vertices[0]), maxPointFrustrum = minPointFrustrum;
+    KRVector3 minPointFrustrum = KRMat4::Dot(shadowvp, m_vertices[0]), maxPointFrustrum = minPointFrustrum;
     for(int iVertex=1; iVertex < 8; iVertex++) {
-        KRVector3 v = shadowvp.dot(m_vertices[iVertex]);
+        KRVector3 v = KRMat4::Dot(shadowvp, m_vertices[iVertex]);
         if(v.x < minPointFrustrum.x) {
             minPointFrustrum.x = v.x;
         }
@@ -227,9 +227,9 @@ KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, KRContext *pContext, GL
     }
     
     
-    KRVector3 minPointScene = shadowvp.dot(sceneVolume.m_vertices[0]), maxPointScene = minPointScene;
+    KRVector3 minPointScene = KRMat4::Dot(shadowvp, sceneVolume.m_vertices[0]), maxPointScene = minPointScene;
     for(int iVertex=1; iVertex < 8; iVertex++) {
-        KRVector3 v = shadowvp.dot(sceneVolume.m_vertices[iVertex]);
+        KRVector3 v = KRMat4::Dot(shadowvp, sceneVolume.m_vertices[iVertex]);
         if(v.x < minPointScene.x) {
             minPointScene.x = v.x;
         }

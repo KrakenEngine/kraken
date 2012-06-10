@@ -102,8 +102,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             // Transform location of camera to object space for calculation of specular halfVec
             KRMat4 inverseModelMatrix = m_modelMatrix;
             inverseModelMatrix.invert();
-            KRVector3 cameraPosObject = inverseModelMatrix.dot(cameraPosition);
-            KRVector3 lightDirObject = inverseModelMatrix.dot(lightDirection);
+            KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
+            KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
             
             m_pModel->render(pCamera, pContext, bRenderShadowMap, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, gBufferPass);
                 

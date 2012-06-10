@@ -20,9 +20,9 @@ KRNode::KRNode(std::string name)
 {
     m_pExtents = NULL;
     m_name = name;
-    m_localScale = KRVector3(1.0f, 1.0f, 1.0f);
-    m_localRotation = KRVector3(0.0f, 0.0f, 0.0f);
-    m_localTranslation = KRVector3(0.0f, 0.0f, 0.0f);
+    m_localScale = KRVector3::One();
+    m_localRotation = KRVector3::Zero();
+    m_localTranslation = KRVector3::Zero();
     m_parentNode = NULL;
 }
 

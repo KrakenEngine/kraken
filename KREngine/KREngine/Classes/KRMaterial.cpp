@@ -46,10 +46,10 @@ KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
     m_pSpecularMap = NULL;
     m_pNormalMap = NULL;
     m_pReflectionMap = NULL;
-    m_ambientColor = KRVector3(0.0f, 0.0f, 0.0f);
-    m_diffuseColor = KRVector3(1.0f, 1.0f, 1.0f);
-    m_specularColor = KRVector3(1.0f, 1.0f, 1.0f);
-    m_reflectionColor = KRVector3(1.0f, 1.0f, 1.0f);
+    m_ambientColor = KRVector3::Zero();
+    m_diffuseColor = KRVector3::One();
+    m_specularColor = KRVector3::One();
+    m_reflectionColor = KRVector3::One();
     m_tr = (GLfloat)0.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";

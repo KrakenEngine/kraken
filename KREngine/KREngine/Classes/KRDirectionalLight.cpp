@@ -38,7 +38,7 @@ KRVector3 KRDirectionalLight::getWorldLightDirection() {
     m.rotate(world_rotation.y, Y_AXIS);
     m.rotate(world_rotation.z, X_AXIS);
     m.rotate(-90.0 * d2r, Y_AXIS);
-    KRVector3 light_direction = m.dot(light_rotation);
+    KRVector3 light_direction = KRMat4::Dot(m, light_rotation);
     return light_direction;
 }
 
@@ -61,7 +61,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         matModelToView.invert();
         
         KRVector3 light_direction_view_space = getWorldLightDirection();
-        light_direction_view_space = matModelToView.dot(light_direction_view_space);
+        light_direction_view_space = KRMat4::Dot(matModelToView, light_direction_view_space);
         light_direction_view_space.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, gBufferPass);

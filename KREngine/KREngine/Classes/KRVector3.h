@@ -75,14 +75,14 @@ public:
     
     static float Dot(const KRVector3 &v1, const KRVector3 &v2);
     
-    static KRVector3 ZeroVector();
-    static KRVector3 OneVector();
-    static KRVector3 ForwardVector();
-    static KRVector3 BackwardVector();
-    static KRVector3 UpVector();
-    static KRVector3 DownVector();
-    static KRVector3 LeftVector();
-    static KRVector3 RightVector();
+    static KRVector3 Zero();
+    static KRVector3 One();
+    static KRVector3 Forward();
+    static KRVector3 Backward();
+    static KRVector3 Up();
+    static KRVector3 Down();
+    static KRVector3 Left();
+    static KRVector3 Right();
     static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization

@@ -71,6 +71,14 @@ KRMat4& KRMat4::operator=(const KRMat4 &m) {
     return *this;
 }
 
+float& KRMat4::operator[](unsigned i) {
+    return m_mat[i];
+}
+
+float KRMat4::operator[](unsigned i) const {
+    return m_mat[i];
+}
+
 // Overload comparison operator
 bool KRMat4::operator==(const KRMat4 &m) {
     return memcmp(m_mat, m.m_mat, sizeof(GLfloat) * 16) == 0;
@@ -262,10 +270,10 @@ void KRMat4::transpose() {
 }
 
 /* Dot Product */
-KRVector3 KRMat4::dot(const KRVector3 &v) const {
+KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
     return KRVector3(
-        v.x * (float)m_mat[0*4 + 0] + v.y * (float)m_mat[1*4 + 0] + v.z * (float)m_mat[2*4 + 0] + (float)m_mat[3*4 + 0],
-        v.x * (float)m_mat[0*4 + 1] + v.y * (float)m_mat[1*4 + 1] + v.z * (float)m_mat[2*4 + 1] + (float)m_mat[3*4 + 1],
-        v.x * (float)m_mat[0*4 + 2] + v.y * (float)m_mat[1*4 + 2] + v.z * (float)m_mat[2*4 + 2] + (float)m_mat[3*4 + 2]
+        v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0] + (float)m[3*4 + 0],
+        v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1] + (float)m[3*4 + 1],
+        v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2] + (float)m[3*4 + 2]
     );
 }

@@ -31,11 +31,11 @@ KRVector2::KRVector2(const KRVector2 &v) {
     y = v.y;
 }
 
-KRVector2 KRVector2::ZeroVector() {
+KRVector2 KRVector2::Zero() {
     return KRVector2(0.0f);
 }
 
-KRVector2 KRVector2::OneVector() {
+KRVector2 KRVector2::One() {
     return KRVector2(1.0f);
 }
 

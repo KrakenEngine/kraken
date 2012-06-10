@@ -74,8 +74,8 @@ public:
     
     static float Dot(const KRVector2 &v1, const KRVector2 &v2);
     
-    static KRVector2 ZeroVector();
-    static KRVector2 OneVector();
+    static KRVector2 Zero();
+    static KRVector2 One();
     
 private:
     
