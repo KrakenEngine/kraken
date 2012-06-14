@@ -50,9 +50,9 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass) {
+void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    if(cShadowBuffers > 0 && !bRenderShadowMap) {
+    if(cShadowBuffers > 0 && renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -61,7 +61,7 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
     
-    if(cShadowBuffers > 1 && !bRenderShadowMap) {
+    if(cShadowBuffers > 1 && renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -70,7 +70,7 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
     
-    if(cShadowBuffers > 2 && !bRenderShadowMap) {
+    if(cShadowBuffers > 2 && renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -89,7 +89,7 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         pCamera->dSunB = sun_color.z;
     }
     
-    m_pRootNode->render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);
+    m_pRootNode->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 }
 
 #endif

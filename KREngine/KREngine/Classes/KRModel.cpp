@@ -67,7 +67,7 @@ KRModel::~KRModel() {
 }
 #if TARGET_OS_IPHONE
 
-void KRModel::render(KRCamera *pCamera, KRContext *pContext, bool bRenderShadowMap, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, int gBufferPass) {
+void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
     if(m_materials.size() == 0) {
         vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
@@ -84,7 +84,7 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, bool bRenderShadowM
     char szPrevShaderKey[128];
     szPrevShaderKey[0] = '\0';
     int cSubmeshes = m_pMesh->getSubmeshes().size();
-    if(bRenderShadowMap) {
+    if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
         for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
             KRMaterial *pMaterial = m_materials[iSubmesh];
             
@@ -104,7 +104,7 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, bool bRenderShadowM
                 KRMaterial *pMaterial = m_materials[iSubmesh];
                 
                 if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, gBufferPass);
+                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass);
                     m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
                 }
             }

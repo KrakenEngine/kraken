@@ -36,9 +36,12 @@ std::string KRPointLight::getElementName() {
 
 #if TARGET_OS_IPHONE
 
-void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass) {
+void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    if(gBufferPass == 2) {
+    if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+        // Render light flare on transparency pass
+    }
+    if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
         
         KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
@@ -70,8 +73,8 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         if(influence_extents.test_intersect(frustrumVolumeNoNearClip)) {
             // Cull out any lights not within the view frustrum
             
-            KRShader *pShader = pContext->getShaderManager()->getShader("light_point", pCamera, false, false, false, 0, false, false, false, false, false, false, false, gBufferPass);
-            pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, gBufferPass);
+            KRShader *pShader = pContext->getShaderManager()->getShader("light_point", pCamera, false, false, false, 0, false, false, false, false, false, false, false, renderPass);
+            pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
             glUniform3f(
                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
                         m_color.x,
@@ -137,7 +140,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         }
     }
     
-    KRNode::render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);
+    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 }
 
 void KRPointLight::generateMesh() {

@@ -12,6 +12,7 @@
 #import "KRResource.h"
 #import "KRVector3.h"
 #import "tinyxml2.h"
+
 class KRBoundingVolume;
 class KRCamera;
 class KRShaderManager;
@@ -24,6 +25,15 @@ class KRContext;
 class KRNode
 {
 public:
+    enum RenderPass {
+        RENDER_PASS_FORWARD_OPAQUE,
+        RENDER_PASS_DEFERRED_GBUFFER,
+        RENDER_PASS_DEFERRED_LIGHTS,
+        RENDER_PASS_DEFERRED_OPAQUE,
+        RENDER_PASS_FORWARD_TRANSPARENT,
+        RENDER_PASS_SHADOWMAP
+    };
+    
     KRNode(std::string name);
     virtual ~KRNode();
     
@@ -54,7 +64,7 @@ public:
     KRBoundingVolume getExtents(KRContext *pContext);    
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 
 #endif
     

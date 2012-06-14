@@ -43,6 +43,7 @@ using std::vector;
 #import "KRShader.h"
 #import "KRMat4.h"
 #import "KRCamera.h"
+#import "KRNode.h"
 
 class KRShader {
 public:
@@ -53,7 +54,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass);
+    void bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
     
 #endif
     

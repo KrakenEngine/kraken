@@ -34,7 +34,7 @@
 #import <string>
 #import "KRMesh.h"
 #import "KRVector2.h"
-#import "KRcontext.h"
+#import "KRContext.h"
 
 #import "KREngine-common.h"
 
@@ -47,6 +47,8 @@ using std::set;
 #import "KRMaterialManager.h"
 #import "KRCamera.h"
 
+class KRMaterial;
+
 class KRModel {
     
 public:
@@ -55,7 +57,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, KRContext *pContext, bool bRenderShadowMap, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, int gBufferPass);
+    void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
     

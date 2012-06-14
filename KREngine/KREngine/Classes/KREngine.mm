@@ -33,6 +33,7 @@
 #import "KRVector3.h"
 #import "KRScene.h"
 #import "KRSceneManager.h"
+#import "KRNode.h"
 
 #import <string>
 #import <sstream> 
@@ -354,7 +355,7 @@ double const PI = 3.141592653589793f;
     KRVector3 cameraPosition;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
-    pScene->render(&m_camera, m_pContext, shadowVolume, true, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, 0);
+    pScene->render(&m_camera, m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP);
     glViewport(0, 0, backingWidth, backingHeight);
 }
 
@@ -390,7 +391,7 @@ double const PI = 3.141592653589793f;
         glDisable(GL_BLEND);
         
         // Render the geometry
-        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 1);
+        pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
         // Set render target
@@ -414,7 +415,7 @@ double const PI = 3.141592653589793f;
         
         
         // Render the geometry
-        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, 2);
+        pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -444,7 +445,7 @@ double const PI = 3.141592653589793f;
         glDepthMask(GL_TRUE);
         
         // Render the geometry
-        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 3);
+        pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
         
         // Deactivate source buffer texture units
         glActiveTexture(GL_TEXTURE6);
@@ -479,7 +480,7 @@ double const PI = 3.141592653589793f;
 
         
         // Render the geometry
-        pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 0);
+        pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE);
     }
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -504,7 +505,7 @@ double const PI = 3.141592653589793f;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     // TODO: Need to perform a forward render of all transparent geometry here...
-    //pScene->render(&m_camera, m_pContext, frustrumVolume, false, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, 0);
+    pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 }
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file withOptions: (NSString *)options

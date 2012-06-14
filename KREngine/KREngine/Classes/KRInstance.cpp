@@ -65,9 +65,9 @@ KRMat4 &KRInstance::getModelMatrix() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, bool bRenderShadowMap, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, int gBufferPass) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    if(gBufferPass != 2) {
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
     
     
@@ -75,13 +75,13 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             m_pModel = pContext->getModelManager()->getModel(m_model_name.c_str());
         }
         
-        if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || bRenderShadowMap)) {
+        if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP)) {
 
             if(m_pLightMap == NULL && m_lightMap.size()) {
                 m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
             }
             
-            if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && !bRenderShadowMap) {
+            if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
                 int iTextureName = m_pLightMap->getName();
                 glActiveTexture(GL_TEXTURE3);
                 glBindTexture(GL_TEXTURE_2D, iTextureName);
@@ -91,7 +91,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             }
             
             KRMat4 projectionMatrix;
-            if(!bRenderShadowMap) {
+            if(renderPass != RENDER_PASS_SHADOWMAP) {
                 projectionMatrix = pCamera->getProjectionMatrix();
             }
             KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
@@ -105,14 +105,14 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
             KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
             
-            m_pModel->render(pCamera, pContext, bRenderShadowMap, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, gBufferPass);
+            m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
                 
         }
         
 
     }
     
-    KRNode::render(pCamera, pContext, frustrumVolume, bRenderShadowMap, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, gBufferPass);
+    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 }
 
 #endif
