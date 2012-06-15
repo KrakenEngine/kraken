@@ -487,13 +487,13 @@ double const PI = 3.141592653589793f;
     
     // Set render target
     glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
     
-    // Enable backface culling
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
+    // Disable backface culling
+    glDisable(GL_CULL_FACE);
     
-    // Enable z-buffer write
-    glDepthMask(GL_TRUE);
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
     
     // Enable z-buffer test
     glEnable(GL_DEPTH_TEST);
@@ -503,9 +503,36 @@ double const PI = 3.141592653589793f;
     // Enable alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    // TODO: Need to perform a forward render of all transparent geometry here...
+
+    // Render all transparent geometry
     pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    
+    // ----====---- Flares ----====----
+    
+    // Set render target
+    glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+    
+    // Disable backface culling
+    glDisable(GL_CULL_FACE);
+    
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
+    
+    // Disable z-buffer test
+    glDisable(GL_DEPTH_TEST);
+    glDepthRangef(0.0, 1.0);
+    
+    // Enable additive blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    
+    // Render all transparent geometry
+    pScene->render(&m_camera, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
+    
+    
+    // Re-enable z-buffer write
+    glDepthMask(GL_TRUE);
 }
 
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file withOptions: (NSString *)options

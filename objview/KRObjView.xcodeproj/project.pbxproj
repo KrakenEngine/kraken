@@ -29,6 +29,8 @@
 		E46FED3013C9A49F009F5814 /* ObjectShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2413C9A488009F5814 /* ObjectShader.fsh */; };
 		E46FED3113C9A49F009F5814 /* ObjectShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2513C9A488009F5814 /* ObjectShader.vsh */; };
 		E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2613C9A488009F5814 /* PostShader.vsh */; };
+		E4769DF3158A7915004B83AC /* flare.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF1158A7915004B83AC /* flare.fsh */; };
+		E4769DF4158A7915004B83AC /* flare.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF2158A7915004B83AC /* flare.vsh */; };
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
 		E4A9DEC615412906009DF363 /* light_point.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
@@ -69,6 +71,8 @@
 		E46FED2413C9A488009F5814 /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ObjectShader.fsh; path = ../KREngine/KREngine/Shaders/ObjectShader.fsh; sourceTree = "<group>"; };
 		E46FED2513C9A488009F5814 /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = ../KREngine/KREngine/Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E46FED2613C9A488009F5814 /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = ../KREngine/KREngine/Shaders/PostShader.vsh; sourceTree = "<group>"; };
+		E4769DF1158A7915004B83AC /* flare.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare.fsh; path = ../KREngine/KREngine/Shaders/flare.fsh; sourceTree = "<group>"; };
+		E4769DF2158A7915004B83AC /* flare.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare.vsh; path = ../KREngine/KREngine/Shaders/flare.vsh; sourceTree = "<group>"; };
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		E4A9DEC2154128F0009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = ../KREngine/KREngine/Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC515412906009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = ../KREngine/KREngine/Shaders/light_point.vsh; sourceTree = "<group>"; };
@@ -187,6 +191,8 @@
 		E46FED2013C9A472009F5814 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				E4769DF1158A7915004B83AC /* flare.fsh */,
+				E4769DF2158A7915004B83AC /* flare.vsh */,
 				E4A9DEC2154128F0009DF363 /* light_point.fsh */,
 				E4A9DEC515412906009DF363 /* light_point.vsh */,
 				E4FF48C01538FBF0002053FC /* light_directional.fsh */,
@@ -270,6 +276,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4769DF3158A7915004B83AC /* flare.fsh in Resources */,
+				E4769DF4158A7915004B83AC /* flare.vsh in Resources */,
 				E4A9DEC715412923009DF363 /* light_point.fsh in Resources */,
 				E4A9DEC815412923009DF363 /* light_point.vsh in Resources */,
 				E46FED2D13C9A49F009F5814 /* ShadowShader.vsh in Resources */,

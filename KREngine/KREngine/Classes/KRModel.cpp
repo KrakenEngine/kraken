@@ -69,48 +69,53 @@ KRModel::~KRModel() {
 
 void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
-    if(m_materials.size() == 0) {
-        vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
-        
-        for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
-            KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
-            m_materials.push_back(pMaterial);
-            m_uniqueMaterials.insert(pMaterial);
-        }
-    }
+    if(renderPass != KRNode::RENDER_PASS_FLARES) {
     
-    KRMaterial *pPrevBoundMaterial = NULL;
-    int iPrevBuffer = -1;
-    char szPrevShaderKey[128];
-    szPrevShaderKey[0] = '\0';
-    int cSubmeshes = m_pMesh->getSubmeshes().size();
-    if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
-        for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
-            KRMaterial *pMaterial = m_materials[iSubmesh];
+        if(m_materials.size() == 0) {
+            vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
             
-            if(pMaterial != NULL) {
-
-                if(!pMaterial->isTransparent()) {
-                    // Exclude transparent and semi-transparent meshes from shadow maps
-                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
-                }
+            for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
+                KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
+                m_materials.push_back(pMaterial);
+                m_uniqueMaterials.insert(pMaterial);
             }
-            
         }
-    } else {
-        // Apply submeshes in per-material batches to reduce number of state changes
-        for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        
+        KRMaterial *pPrevBoundMaterial = NULL;
+        int iPrevBuffer = -1;
+        char szPrevShaderKey[128];
+        szPrevShaderKey[0] = '\0';
+        int cSubmeshes = m_pMesh->getSubmeshes().size();
+        if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
             for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
                 KRMaterial *pMaterial = m_materials[iSubmesh];
                 
-                if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                    pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass);
-                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                if(pMaterial != NULL) {
+
+                    if(!pMaterial->isTransparent()) {
+                        // Exclude transparent and semi-transparent meshes from shadow maps
+                        m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                    }
+                }
+                
+            }
+        } else {
+            // Apply submeshes in per-material batches to reduce number of state changes
+            for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+                for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+                    KRMaterial *pMaterial = m_materials[iSubmesh];
+                    
+                    if(pMaterial != NULL && pMaterial == (*mat_itr)) {
+                        if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                            pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass);
+                            m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                        }
+                    }
                 }
             }
         }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 #endif

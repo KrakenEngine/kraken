@@ -11,6 +11,7 @@
 
 #import "KRResource.h"
 #import "KRNode.h"
+#import "KRTexture.h"
 
 static const float KRLIGHT_MIN_INFLUENCE = 0.05f;
 
@@ -30,12 +31,25 @@ public:
     const KRVector3 &getColor();
     void setColor(const KRVector3 &color);
     
+    void setFlareTexture(std::string flare_texture);
+    void setFlareSize(float flare_size);
+    
+#if TARGET_OS_IPHONE
+    
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
+    
+#endif
+    
 protected:
     KRLight(std::string name);
     
     float m_intensity;
     float m_decayStart;
     KRVector3 m_color;
+    
+    std::string m_flareTexture;
+    KRTexture *m_pFlareTexture;
+    float m_flareSize;
 };
 
 #endif

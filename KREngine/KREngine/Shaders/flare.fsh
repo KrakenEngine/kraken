@@ -1,5 +1,5 @@
 //
-//  KRSettings.h
+//  flare.fsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,65 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRCAMERA_H
-#define KRCAMERA_H
+varying mediump vec2 texCoord;
+uniform sampler2D diffuseTexture;
 
-#import "KREngine-common.h"
-
-#import "KRMat4.h"
-#import "KRVector2.h"
-
-class KRCamera {
-public:
-    KRCamera();
-    ~KRCamera();
-    
-    KRVector3 getPosition() const;
-    void setPosition(const KRVector3 &position);
-    
-    KRMat4 getProjectionMatrix();
-    const KRVector2 &getViewportSize();
-    void setViewportSize(const KRVector2 &size);
-    
-    bool bEnablePerPixel;
-    bool bEnableDiffuseMap;
-    bool bEnableNormalMap;
-    bool bEnableSpecMap;
-    bool bEnableReflectionMap;
-    bool bEnableLightMap;
-    bool bDebugPSSM;
-    bool bDebugSuperShiny;
-    bool bShowShadowBuffer;
-    bool bEnableAmbient;
-    bool bEnableDiffuse;
-    bool bEnableSpecular;
-    bool bEnableDeferredLighting;
-    double dSunR;
-    double dSunG;
-    double dSunB;
-    double dAmbientR;
-    double dAmbientG;
-    double dAmbientB;
-    double perspective_fov;
-    double perspective_nearz;
-    double perspective_farz;
-    
-    int dof_quality;
-    double dof_depth;
-    double dof_falloff;
-    bool bEnableFlash;
-    double flash_intensity;
-    double flash_depth;
-    double flash_falloff;
-    
-    bool bEnableVignette;
-    double vignette_radius;
-    double vignette_falloff;
-    
-    KRVector2 m_viewportSize;
-
-private:
-    KRVector3 m_position;
-};
-
-#endif
+void main() {
+    gl_FragColor = vec4(vec3(texture2D(diffuseTexture, texCoord)), 1.0);
+}

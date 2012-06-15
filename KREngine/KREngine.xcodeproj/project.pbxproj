@@ -57,6 +57,8 @@
 		E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4769DED158A78B6004B83AC /* flare.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4769DEC158A78B6004B83AC /* flare.fsh */; };
+		E4769DF0158A78C6004B83AC /* flare.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4769DEF158A78C6004B83AC /* flare.vsh */; };
 		E47C25A213F4F65A00FF4370 /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; };
 		E47C25A513F4F66F00FF4370 /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; };
 		E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; };
@@ -190,6 +192,8 @@
 		E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRWorld.cpp; path = Classes/KRWorld.cpp; sourceTree = "<group>"; };
 		E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRDataBlock.h; path = Classes/KRDataBlock.h; sourceTree = "<group>"; };
 		E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRDataBlock.cpp; path = Classes/KRDataBlock.cpp; sourceTree = "<group>"; };
+		E4769DEC158A78B6004B83AC /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = flare.fsh; path = Shaders/flare.fsh; sourceTree = "<group>"; };
+		E4769DEF158A78C6004B83AC /* flare.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = flare.vsh; path = Shaders/flare.vsh; sourceTree = "<group>"; };
 		E47C25A113F4F65A00FF4370 /* KRShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRShaderManager.h; path = Classes/KRShaderManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E47C25A413F4F66F00FF4370 /* KRShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRShader.h; path = Classes/KRShader.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRShaderManager.cpp; path = Classes/KRShaderManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -290,6 +294,8 @@
 				E4D133BB1538F7560070068C /* light_directional.vsh */,
 				E4A9DEBD154120C4009DF363 /* light_point.fsh */,
 				E4A9DEC0154120E8009DF363 /* light_point.vsh */,
+				E4769DEC158A78B6004B83AC /* flare.fsh */,
+				E4769DEF158A78C6004B83AC /* flare.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -702,6 +708,8 @@
 				E46F4A04155DF47C00CCF8B8 /* KRWorld.cpp in Sources */,
 				E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
 				E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
+				E4769DED158A78B6004B83AC /* flare.fsh in Sources */,
+				E4769DF0158A78C6004B83AC /* flare.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

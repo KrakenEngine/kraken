@@ -1,5 +1,5 @@
 //
-//  KRSettings.h
+//  flare.vsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,65 +29,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRCAMERA_H
-#define KRCAMERA_H
+attribute mediump vec2	vertex_uv;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+uniform mediump vec4    viewport;
+uniform mediump float   flare_size;
 
-#import "KREngine-common.h"
+varying mediump vec2 texCoord;
 
-#import "KRMat4.h"
-#import "KRVector2.h"
-
-class KRCamera {
-public:
-    KRCamera();
-    ~KRCamera();
-    
-    KRVector3 getPosition() const;
-    void setPosition(const KRVector3 &position);
-    
-    KRMat4 getProjectionMatrix();
-    const KRVector2 &getViewportSize();
-    void setViewportSize(const KRVector2 &size);
-    
-    bool bEnablePerPixel;
-    bool bEnableDiffuseMap;
-    bool bEnableNormalMap;
-    bool bEnableSpecMap;
-    bool bEnableReflectionMap;
-    bool bEnableLightMap;
-    bool bDebugPSSM;
-    bool bDebugSuperShiny;
-    bool bShowShadowBuffer;
-    bool bEnableAmbient;
-    bool bEnableDiffuse;
-    bool bEnableSpecular;
-    bool bEnableDeferredLighting;
-    double dSunR;
-    double dSunG;
-    double dSunB;
-    double dAmbientR;
-    double dAmbientG;
-    double dAmbientB;
-    double perspective_fov;
-    double perspective_nearz;
-    double perspective_farz;
-    
-    int dof_quality;
-    double dof_depth;
-    double dof_falloff;
-    bool bEnableFlash;
-    double flash_intensity;
-    double flash_depth;
-    double flash_falloff;
-    
-    bool bEnableVignette;
-    double vignette_radius;
-    double vignette_falloff;
-    
-    KRVector2 m_viewportSize;
-
-private:
-    KRVector3 m_position;
-};
-
-#endif
+void main() {
+    texCoord = vertex_uv;
+    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+}

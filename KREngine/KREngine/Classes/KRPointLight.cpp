@@ -38,12 +38,12 @@ std::string KRPointLight::getElementName() {
 
 void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
-        // Render light flare on transparency pass
-    }
+    KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+
+    
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
-        
+
         KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
         KRVector3 light_position = getLocalTranslation();
         
@@ -58,6 +58,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         KRMat4 matModelToView = viewMatrix * m_modelMatrix;
         matModelToView.transpose();
         matModelToView.invert();
+
         
         KRMat4 matModelToView2 = KRMat4() * m_modelMatrix * viewMatrix;
         
@@ -140,7 +141,6 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         }
     }
     
-    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 }
 
 void KRPointLight::generateMesh() {

@@ -98,3 +98,10 @@ const KRVector2 &KRCamera::getViewportSize() {
 void KRCamera::setViewportSize(const KRVector2 &size) {
     m_viewportSize = size;
 }
+
+KRVector3 KRCamera::getPosition() const {
+    return m_position;
+}
+void KRCamera::setPosition(const KRVector3 &position) {
+    m_position = position;
+}
