@@ -13,7 +13,7 @@
 #import "KRNode.h"
 #import "KRTexture.h"
 
-static const float KRLIGHT_MIN_INFLUENCE = 0.05f;
+static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
 
 class KRLight : public KRNode {
 public:

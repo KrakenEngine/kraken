@@ -108,8 +108,8 @@
         [renderEngine loadResource: path];
     }
 
-    [renderEngine setNearZ: 150.0];
-    [renderEngine setFarZ: 3000.0];
+    [renderEngine setNearZ: 5.0];
+    [renderEngine setFarZ: 500.0];
     //[renderEngine setNearZ: 1.0];
     //[renderEngine setFarZ: 3000.0];
 

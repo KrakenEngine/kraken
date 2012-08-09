@@ -162,7 +162,7 @@
     bLoadedTestInstances = false;
     cParamDisplayFrames = 0;
     
-    camera_position = KRVector3(-850, -10, -700);
+    camera_position = KRVector3(-85, -1, -70);
     
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
     [displayLink setFrameInterval:2]; // Maximum 30fps
@@ -246,7 +246,7 @@
 
     }
 
-    double dScaleFactor = 1000.0f * deltaTime;
+    double dScaleFactor = 200.0f * deltaTime;
     
     camera_position.z += (-cos(camera_pitch) * cos(camera_yaw) * leftStickDeltaX  + -cos(camera_pitch) * cos(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
     camera_position.x += (cos(camera_pitch) * sin(camera_yaw) * leftStickDeltaX + cos(camera_pitch) * sin(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
