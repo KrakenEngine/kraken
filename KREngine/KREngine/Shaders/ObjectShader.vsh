@@ -151,6 +151,22 @@ void main()
         
     #endif
 
+    #if GBUFFER_PASS != 1 || ALPHA_TEST == 1
+        // Scaled and translated diffuse map UV's
+        #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+            diffuse_uv = texCoord;
+                
+            #if HAS_DIFFUSE_MAP_OFFSET == 1
+                diffuse_uv + diffuseTexture_Offset;
+            #endif
+                
+            #if HAS_DIFFUSE_MAP_SCALE == 1
+                diffuse_uv *= diffuseTexture_Scale;
+            #endif
+        #endif
+    #endif
+    
+    
     #if GBUFFER_PASS == 1
         #if HAS_NORMAL_MAP == 1
             mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
@@ -166,18 +182,7 @@ void main()
             lightmap_uv = vertex_lightmap_uv.st;
         #endif
     
-        // Scaled and translated diffuse map UV's
-        #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-            diffuse_uv = texCoord;
-            
-            #if HAS_DIFFUSE_MAP_OFFSET == 1
-                diffuse_uv + diffuseTexture_Offset;
-            #endif
-                
-            #if HAS_DIFFUSE_MAP_SCALE == 1
-                diffuse_uv *= diffuseTexture_Scale;
-            #endif
-        #endif
+
 
         #if ENABLE_PER_PIXEL == 1
             // Scaled and translated specular map UV's

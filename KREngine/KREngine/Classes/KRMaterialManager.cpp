@@ -116,7 +116,11 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                                 m_materials[szSymbol[1]] = pMaterial;
                             }
                             if(pMaterial != NULL) {
-                                if(strcmp(szSymbol[0], "Ka") == 0) {
+                                if(strcmp(szSymbol[0], "alpha_test") == 0) {
+                                    if(cSymbols == 2) {
+                                        pMaterial->setAlphaTest(strcmp(szSymbol[1], "true") == 0);
+                                    }
+                                } else if(strcmp(szSymbol[0], "Ka") == 0) {
                                     char *pScan2 = szSymbol[1];
                                     double r = strtof(pScan2, &pScan2);
                                     if(cSymbols == 2) {

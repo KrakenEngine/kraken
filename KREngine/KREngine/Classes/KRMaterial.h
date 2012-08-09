@@ -74,6 +74,7 @@ public:
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
     void setReflectionFactor(GLfloat r);
+    void setAlphaTest(bool bAlphaTest);
     
 
     bool isTransparent();
@@ -122,6 +123,8 @@ private:
     GLfloat m_tr; // Transparency
     GLfloat m_ns; // Shininess
     GLfloat m_reflectionFactor; // Level of reflectivity
+    
+    bool m_bAlphaTest; // When true, alpha in diffuse texture is interpreted as punch-through when < 0.5
 };
 
 #endif

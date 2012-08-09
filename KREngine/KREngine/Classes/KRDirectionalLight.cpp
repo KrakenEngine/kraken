@@ -67,7 +67,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         light_direction_view_space = KRMat4::Dot(matModelToView, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, renderPass);
+        KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
         pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
         
         

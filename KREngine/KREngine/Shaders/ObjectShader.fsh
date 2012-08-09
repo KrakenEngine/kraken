@@ -25,7 +25,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
     uniform mediump float material_shininess;
     #if HAS_NORMAL_MAP == 1
@@ -59,6 +58,15 @@
         varying highp mat3 tangent_to_view_matrix;
     #else
         uniform highp mat4 model_normal_to_view_matrix;
+    #endif
+
+    #if HAS_DIFFUSE_MAP == 1 && ALPHA_TEST == 1
+        uniform sampler2D 		diffuseTexture;
+        #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+            varying highp vec2  diffuse_uv;
+        #else
+            #define diffuse_uv texCoord
+        #endif
     #endif
 #else
     uniform lowp vec3   material_ambient, material_diffuse, material_specular;
@@ -120,6 +128,15 @@ uniform mediump vec4 viewport;
 
 void main()
 {
+    #if ALPHA_TEST == 1 && HAS_DIFFUSE_MAP == 1
+        mediump vec4 diffuseMaterial = texture2D(diffuseTexture, diffuse_uv);
+        if(diffuseMaterial.a < 0.5) discard;
+    #endif
+    
+    #if GBUFFER_PASS == 1 && ALPHA_TEST
+        if(texture2D(diffuseTexture, diffuse_uv).a < 0.5) discard;
+    #endif
+    
     #if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
         mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
     #endif
@@ -141,7 +158,12 @@ void main()
         gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, material_shininess / 100.0);
     #else
         #if HAS_DIFFUSE_MAP == 1
-            mediump vec4 diffuseMaterial = vec4(vec3(texture2D(diffuseTexture, diffuse_uv)), material_alpha);
+            #if ALPHA_TEST
+                diffuseMaterial.a = 1.0;
+            #else
+                mediump vec4 diffuseMaterial = vec4(vec3(texture2D(diffuseTexture, diffuse_uv)), material_alpha);
+            #endif
+            
         #else
             mediump vec4 diffuseMaterial = vec4(vec3(1.0), material_alpha);
         #endif

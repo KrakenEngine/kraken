@@ -144,7 +144,7 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
             
                 
                 // Render light flare on transparency pass
-                KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, renderPass);
+                KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
                 pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, m_pFlareTexture->getName());
