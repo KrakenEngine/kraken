@@ -52,6 +52,8 @@ public:
     
     void loadFragmentShader(const std::string &name, const std::string &path);
     void loadVertexShader(const std::string &name, const std::string &path);
+    const std::string &getFragShaderSource(const std::string &name);
+    const std::string &getVertShaderSource(const std::string &name);
     
     
     KRShader *getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bAlphaTest, KRNode::RenderPass renderPass);

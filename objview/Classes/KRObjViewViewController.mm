@@ -219,10 +219,10 @@
                 break;
         }
         NSString *debug_text = [[NSString alloc] initWithUTF8String:szText];
-        [engine setDebugText: debug_text];
+        engine.debug_text = debug_text;
         [debug_text release];
     } else {
-        [engine setDebugText: @""];
+        engine.debug_text = @"";
     }
     
     

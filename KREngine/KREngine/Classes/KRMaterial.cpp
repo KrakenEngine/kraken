@@ -106,7 +106,7 @@ bool KRMaterial::save(const std::string& path) {
             fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
         }
         if(m_bAlphaTest) {
-            fprintf(f, "alpha_test true");
+            fprintf(f, "alpha_mode test");
         }
         fclose(f);
         return true;

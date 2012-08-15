@@ -42,8 +42,11 @@
 KRScene::KRScene(std::string name) : KRResource(name) {
     m_pFirstDirectionalLight = NULL;
     m_pRootNode = new KRNode("scene_root");
+    
+    sun_yaw = 4.333; // TODO - Remove temporary testing code
+    sun_pitch = 0.55;
 }
-KRScene::~KRScene() {    
+KRScene::~KRScene() {
     delete m_pRootNode;
     m_pRootNode = NULL;
 }

@@ -14,6 +14,7 @@
 #import <stdint.h>
 #import <vector>
 #import <string>
+#import <set>
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"

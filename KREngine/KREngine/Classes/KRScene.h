@@ -68,6 +68,7 @@ public:
 #endif
     
     KRBoundingVolume getExtents(KRContext *pContext);
+    double sun_pitch, sun_yaw;
 private:
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
     

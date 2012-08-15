@@ -32,11 +32,8 @@
 		E4769DF3158A7915004B83AC /* flare.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF1158A7915004B83AC /* flare.fsh */; };
 		E4769DF4158A7915004B83AC /* flare.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF2158A7915004B83AC /* flare.vsh */; };
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
-		E4A9DEC615412906009DF363 /* light_point.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
 		E4A9DEC815412923009DF363 /* light_point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
-		E4FF48C21538FBF0002053FC /* light_directional.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
-		E4FF48C31538FBF0002053FC /* light_directional.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
 		E4FF48C51538FBF8002053FC /* light_directional.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
 		E4FF48C61538FBFC002053FC /* light_directional.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
 /* End PBXBuildFile section */
@@ -306,9 +303,6 @@
 				1D3623260D0F684500981E51 /* KRObjViewAppDelegate.mm in Sources */,
 				28D7ACF80DDB3853001CB0EB /* KRObjViewViewController.mm in Sources */,
 				1063FC77136D6A1B00EE555B /* KRObjViewGLView.mm in Sources */,
-				E4FF48C21538FBF0002053FC /* light_directional.fsh in Sources */,
-				E4FF48C31538FBF0002053FC /* light_directional.vsh in Sources */,
-				E4A9DEC615412906009DF363 /* light_point.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +314,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -328,7 +323,7 @@
 				HEADER_SEARCH_PATHS = "";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "KRObjView-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -337,6 +332,7 @@
 				);
 				PRODUCT_NAME = KRObjView2;
 				PROVISIONING_PROFILE = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/Users/kearwood/Documents/dev/svn/kearwood/krengine/KREngine/KREngine/Classes/**";
 			};
@@ -347,12 +343,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Kearwood Gilbert (G7RHEU3F3A)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = KRObjView_Prefix.pch;
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "KRObjView-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -361,6 +358,7 @@
 				);
 				PRODUCT_NAME = KRObjView2;
 				PROVISIONING_PROFILE = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "833D5E39-C2AD-4221-9136-B9DCF6FF81A1";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "/Users/kearwood/Documents/dev/svn/kearwood/krengine/KREngine/KREngine/Classes/**";
 				VALIDATE_PRODUCT = YES;
@@ -417,7 +415,7 @@
 				HEADER_SEARCH_PATHS = "";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				INFOPLIST_FILE = "KRObjView-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",

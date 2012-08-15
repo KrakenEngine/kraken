@@ -57,8 +57,6 @@
 		E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4769DED158A78B6004B83AC /* flare.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4769DEC158A78B6004B83AC /* flare.fsh */; };
-		E4769DF0158A78C6004B83AC /* flare.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4769DEF158A78C6004B83AC /* flare.vsh */; };
 		E47C25A213F4F65A00FF4370 /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; };
 		E47C25A513F4F66F00FF4370 /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; };
 		E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; };
@@ -101,8 +99,6 @@
 		E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95C151BF05F00D3DC67 /* CoreServices.framework */; };
 		E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */; };
 		E49E79FF1512615F009CF99C /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E49E79FE1512615F009CF99C /* KRMesh.cpp */; };
-		E4A9DEBE154120C4009DF363 /* light_point.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEBD154120C4009DF363 /* light_point.fsh */; };
-		E4A9DEC1154120E8009DF363 /* light_point.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4A9DEC0154120E8009DF363 /* light_point.vsh */; };
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
@@ -117,8 +113,6 @@
 		E4D13365153767FF0070068C /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4D133661537685A0070068C /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4D13367153768610070068C /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4D133BA1538F7480070068C /* light_directional.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4D133B91538F7480070068C /* light_directional.fsh */; };
-		E4D133BC1538F7560070068C /* light_directional.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4D133BB1538F7560070068C /* light_directional.vsh */; };
 		E4F711A51512BB56007EE923 /* libfbxsdk-2012.2-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F711A41512BB56007EE923 /* libfbxsdk-2012.2-static.a */; };
 		E4F975321536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; };
 		E4F975331536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -637,7 +631,7 @@
 		E491015813C99B9D0098455B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0440;
 				ORGANIZATIONNAME = "Kearwood Software";
 			};
 			buildConfigurationList = E491015B13C99B9D0098455B /* Build configuration list for PBXProject "KREngine" */;
@@ -701,15 +695,9 @@
 				E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */,
 				E46C214B15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
 				E48C697215374F7E00232E28 /* KRContext.cpp in Sources */,
-				E4D133BA1538F7480070068C /* light_directional.fsh in Sources */,
-				E4D133BC1538F7560070068C /* light_directional.vsh in Sources */,
-				E4A9DEBE154120C4009DF363 /* light_point.fsh in Sources */,
-				E4A9DEC1154120E8009DF363 /* light_point.vsh in Sources */,
 				E46F4A04155DF47C00CCF8B8 /* KRWorld.cpp in Sources */,
 				E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
 				E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
-				E4769DED158A78B6004B83AC /* flare.fsh in Sources */,
-				E4769DF0158A78C6004B83AC /* flare.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -835,6 +823,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -876,6 +865,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;

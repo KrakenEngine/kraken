@@ -135,3 +135,11 @@ void KRShaderManager::loadVertexShader(const std::string &name, const std::strin
     
     m_vertShaderSource[name] = string(&bytes[0], fileSize);
 }
+
+const std::string &KRShaderManager::getFragShaderSource(const std::string &name) {
+    return m_fragShaderSource[name];
+}
+
+const std::string &KRShaderManager::getVertShaderSource(const std::string &name) {
+    return m_vertShaderSource[name];
+}

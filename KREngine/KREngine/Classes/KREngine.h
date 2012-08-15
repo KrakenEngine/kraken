@@ -42,81 +42,20 @@
 
 typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL} KREngineParameterType;
 
-#define KRENGINE_MAX_SHADOW_BUFFERS 3
-#define KRENGINE_SHADOW_MAP_WIDTH 2048
-#define KRENGINE_SHADOW_MAP_HEIGHT 2048
 
 @interface KREngine : NSObject
 {
 @private
 
-    GLint backingWidth, backingHeight;
-    
-    GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
-    GLuint lightAccumulationBuffer, lightAccumulationTexture;
-    
-    int m_cShadowBuffers;
-    GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
-    bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
-    KRMat4 shadowmvpmatrix[KRENGINE_MAX_SHADOW_BUFFERS]; /* MVP Matrix for view from light source */
-    
-    // uniform index
-    enum {
-        KRENGINE_UNIFORM_MATERIAL_AMBIENT,
-        KRENGINE_UNIFORM_MATERIAL_DIFFUSE,
-        KRENGINE_UNIFORM_MATERIAL_SPECULAR,
-        KRENGINE_UNIFORM_LIGHT_POSITION,
-        KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE,
-        KRENGINE_UNIFORM_LIGHT_DIRECTION,
-        KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE,
-        KRENGINE_UNIFORM_LIGHT_COLOR,
-        KRENGINE_UNIFORM_LIGHT_DECAY_START,
-        KRENGINE_UNIFORM_LIGHT_CUTOFF,
-        KRENGINE_UNIFORM_LIGHT_INTENSITY,
-        KRENGINE_UNIFORM_FLARE_SIZE,
-        KRENGINE_UNIFORM_MVP,
-        KRENGINE_UNIFORM_INVP,
-        KRENGINE_UNIFORM_MN2V,
-        KRENGINE_UNIFORM_M2V,
-        KRENGINE_UNIFORM_V2M,
-        KRENGINE_UNIFORM_SHADOWMVP1,
-        KRENGINE_UNIFORM_SHADOWMVP2,
-        KRENGINE_UNIFORM_SHADOWMVP3,
-        
-        KRENGINE_UNIFORM_CAMERAPOS,
-        KRENGINE_UNIFORM_VIEWPORT,
-        KRENGINE_NUM_UNIFORMS
-    };
-    GLint m_shadowUniforms[KRENGINE_NUM_UNIFORMS];
-
-    GLuint m_postShaderProgram;
-    GLuint m_shadowShaderProgram;
-    
-    KRContext *m_pContext;
-    
-    int m_iFrame;
-
-    double sun_pitch, sun_yaw;
-    
-    KRCamera m_camera;
-    NSString *debug_text;
-    
+    KRContext m_context;
+    KRCamera m_camera;    
 }
 
 @property(nonatomic, readonly) KRContext *context;
+@property(nonatomic, retain) NSString *debug_text;
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height;
-
-- (BOOL)loadVertexShader:(NSString *)vertexShaderName fragmentShader:(NSString *)fragmentShaderName forProgram:(GLuint *)programPointer withOptions:(NSString *)options;
 - (BOOL)loadResource:(NSString *)path;
-
-- (void)renderShadowBufferNumber: (int)iShadow ForScene: (KRScene *)pScene;
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix LightDirection: (KRVector3)lightDirection CameraPosition: (KRVector3)cameraPosition;
-- (void)invalidateShadowBuffers;
-- (void)allocateShadowBuffers;
-
-- (void)invalidatePostShader;
-- (void)bindPostShader;
 
 // Parameter enumeration interface
 -(int)getParameterCount;
@@ -133,7 +72,6 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 - (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll;
 - (void)setNearZ: (double)dNearZ;
 - (void)setFarZ: (double)dFarZ;
-- (void)setDebugText: (NSString *)text;
 
 @end
 
