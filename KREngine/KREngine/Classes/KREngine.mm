@@ -58,6 +58,39 @@ double const PI = 3.141592653589793f;
     if ((self = [super init])) {
         _context = new KRContext();
         _camera = new KRCamera(*_context, width, height);
+        _parameter_names = @{
+            @"camera_fov" : @0,
+            @"shadow_quality" : @1,
+            @"enable_per_pixel" : @2,
+            @"enable_diffuse_map" : @3,
+            @"enable_normal_map" : @4,
+            @"enable_spec_map" : @5,
+            @"enable_reflection_map" : @6,
+            @"enable_light_map" : @7,
+            @"ambient_r" : @8,
+            @"ambient_g" : @9,
+            @"ambient_b" : @10,
+            @"sun_r" : @11,
+            @"sun_g" : @12,
+            @"sun_b" : @13,
+            @"dof_quality" : @14,
+            @"dof_depth" : @15,
+            @"dof_falloff" : @16,
+            @"flash_enable" : @17,
+            @"flash_intensity" : @18,
+            @"flash_depth" : @19,
+            @"flash_falloff" : @20,
+            @"vignette_enable" : @21,
+            @"vignette_radius" : @22,
+            @"vignette_falloff" : @23,
+            @"debug_shadowmap" : @24,
+            @"debug_pssm" : @25,
+            @"debug_enable_ambient" : @26,
+            @"debug_enable_diffuse" : @27,
+            @"debug_enable_specular" : @28,
+            @"debug_super_shiny" : @29,
+            @"enable_deferred_lighting" : @30
+        };
         [self loadShaders];
         
     }
@@ -106,6 +139,7 @@ double const PI = 3.141592653589793f;
 
 - (void)dealloc
 {
+    [_parameter_names release]; _parameter_names = nil;
     if(_camera) {
         delete _camera; _camera = NULL;
     }
@@ -122,41 +156,9 @@ double const PI = 3.141592653589793f;
 
 -(NSString *)getParameterNameWithIndex: (int)i
 {
-    NSString *parameter_names[31] = {
-        @"camera_fov",
-        @"shadow_quality",
-        @"enable_per_pixel",
-        @"enable_diffuse_map",
-        @"enable_normal_map",
-        @"enable_spec_map",
-        @"enable_reflection_map",
-        @"enable_light_map",
-        @"ambient_r",
-        @"ambient_g",
-        @"ambient_b",
-        @"sun_r",
-        @"sun_g",
-        @"sun_b",
-        @"dof_quality",
-        @"dof_depth",
-        @"dof_falloff",
-        @"flash_enable",
-        @"flash_intensity",
-        @"flash_depth",
-        @"flash_falloff",
-        @"vignette_enable",
-        @"vignette_radius",
-        @"vignette_falloff",
-        @"debug_shadowmap",
-        @"debug_pssm",
-        @"debug_enable_ambient",
-        @"debug_enable_diffuse",
-        @"debug_enable_specular",
-        @"debug_super_shiny",
-        @"enable_deferred_lighting"
-    };
-    return parameter_names[i];
+    return [[self.parameter_names allKeysForObject:[NSNumber numberWithInt:i]] objectAtIndex:0];
 }
+
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
     NSString *parameter_labels[31] = {

@@ -45,6 +45,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 
 @interface KREngine : NSObject
 
+@property(nonatomic, readonly) NSDictionary *parameter_names;
 @property(nonatomic, assign) KRContext *context;
 @property(nonatomic, assign) KRCamera *camera;
 @property(nonatomic, retain) NSString *debug_text;
