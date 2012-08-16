@@ -118,7 +118,15 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                             if(pMaterial != NULL) {
                                 if(strcmp(szSymbol[0], "alpha_mode") == 0) {
                                     if(cSymbols == 2) {
-                                        pMaterial->setAlphaTest(strcmp(szSymbol[1], "test") == 0);
+                                        if(strcmp(szSymbol[1], "test") == 0) {
+                                            pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_TEST);
+                                        } else if(strcmp(szSymbol[1], "blendoneside") == 0) {
+                                            pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
+                                        } else if(strcmp(szSymbol[1], "blendtwoside") == 0) {
+                                            pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
+                                        } else {
+                                            pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE);
+                                        }
                                     }
                                 } else if(strcmp(szSymbol[0], "Ka") == 0) {
                                     char *pScan2 = szSymbol[1];

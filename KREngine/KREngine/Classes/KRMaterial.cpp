@@ -66,7 +66,7 @@ KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
     m_reflectionMapOffset = KRVector2(0.0f, 0.0f);
     m_reflectionMapScale = KRVector2(1.0f, 1.0f);
     m_reflectionFactor = 0.0f;
-    m_bAlphaTest = false;
+    m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
 }
 
 KRMaterial::~KRMaterial() {
@@ -105,8 +105,19 @@ bool KRMaterial::save(const std::string& path) {
         if(m_reflectionMap.size()) {
             fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
         }
-        if(m_bAlphaTest) {
-            fprintf(f, "alpha_mode test");
+        switch(m_alpha_mode) {
+            case KRMATERIAL_ALPHA_MODE_OPAQUE:
+                fprintf(f, "alpha_mode opaque");
+                break;
+            case KRMATERIAL_ALPHA_MODE_TEST:
+                fprintf(f, "alpha_mode test");
+                break;
+            case KRMATERIAL_ALPHA_MODE_BLENDONESIDE:
+                fprintf(f, "alpha_mode blendoneside");
+                break;
+            case KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE:
+                fprintf(f, "alpha_mode blendtwoside");
+                break;
         }
         fclose(f);
         return true;
@@ -143,8 +154,8 @@ void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_sc
     m_reflectionMapOffset = texture_offset;
 }
 
-void KRMaterial::setAlphaTest(bool bAlphaTest) {
-    m_bAlphaTest = bAlphaTest;
+void KRMaterial::setAlphaMode(KRMaterial::alpha_mode_type alpha_mode) {
+    m_alpha_mode = alpha_mode;
 }
 
 void KRMaterial::setAmbient(const KRVector3 &c) {
@@ -207,7 +218,7 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
         bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
         bool bReflectionMap = m_pReflectionMap != NULL && pCamera->bEnableReflectionMap;
-        bool bAlphaTest = m_bAlphaTest && bDiffuseMap;
+        bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
         
         KRShader *pShader = pContext->getShaderManager()->getShader("ObjectShader", pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, renderPass);
 

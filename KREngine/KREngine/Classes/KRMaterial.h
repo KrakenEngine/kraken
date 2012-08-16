@@ -55,6 +55,13 @@ class KRContext;
 
 class KRMaterial : public KRResource {
 public:
+    typedef enum {
+        KRMATERIAL_ALPHA_MODE_OPAQUE, // Non-transparent materials
+        KRMATERIAL_ALPHA_MODE_TEST, // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+        KRMATERIAL_ALPHA_MODE_BLENDONESIDE, // Blended alpha with backface culling
+        KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+    } alpha_mode_type;
+    
     KRMaterial(const char *szName);
     ~KRMaterial();
     
@@ -74,7 +81,7 @@ public:
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
     void setReflectionFactor(GLfloat r);
-    void setAlphaTest(bool bAlphaTest);
+    void setAlphaMode(alpha_mode_type blend_mode);
     
 
     bool isTransparent();
@@ -84,6 +91,8 @@ public:
     void bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
+    
+
     
 private:
     char m_szName[64];
@@ -124,7 +133,7 @@ private:
     GLfloat m_ns; // Shininess
     GLfloat m_reflectionFactor; // Level of reflectivity
     
-    bool m_bAlphaTest; // When true, alpha in diffuse texture is interpreted as punch-through when < 0.5
+    alpha_mode_type m_alpha_mode;
 };
 
 #endif
