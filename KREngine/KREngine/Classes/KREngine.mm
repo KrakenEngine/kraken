@@ -59,8 +59,7 @@ double const PI = 3.141592653589793f;
 
         m_camera.backingWidth = width;
         m_camera.backingHeight = height;
-        m_camera.createBuffers();
-        m_camera.loadShaders(m_context);
+        m_camera.createBuffers(m_context);
         
     }
     

@@ -58,9 +58,7 @@ public:
     void invalidatePostShader();
     void invalidateShadowBuffers();
     void allocateShadowBuffers();
-    void createBuffers();
-    
-    void loadShaders(KRContext &context);
+    void createBuffers(KRContext &context);
     
     KRVector3 getPosition() const;
     void setPosition(const KRVector3 &position);
@@ -162,6 +160,8 @@ private:
     void destroyBuffers();
     
     void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
+    
+    void loadShaders(KRContext &context);
     
     // Code using these shader functions will later be refactored to integrate with KRShaderManager
     static bool ValidateProgram(GLuint prog);

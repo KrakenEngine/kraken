@@ -352,7 +352,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
 }
 
 
-void KRCamera::createBuffers() {
+void KRCamera::createBuffers(KRContext &context) {
     // ===== Create offscreen compositing framebuffer object =====
     glGenFramebuffers(1, &compositeFramebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
@@ -394,6 +394,7 @@ void KRCamera::createBuffers() {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0);
     
     allocateShadowBuffers();
+    loadShaders(context);
 }
 
 void KRCamera::allocateShadowBuffers() {

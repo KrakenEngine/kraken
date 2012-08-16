@@ -201,7 +201,7 @@
 
 - (KRScene *)getScene;
 {
-    return renderEngine.context->getSceneManager()->getFirstScene();
+    return renderEngine.context.getSceneManager()->getFirstScene();
 }
 
 #pragma mark -
