@@ -48,7 +48,7 @@ class KRContext;
 
 class KRCamera {
 public:
-    KRCamera();
+    KRCamera(KRContext &context, GLint width, GLint height);
     ~KRCamera();
     
     GLint backingWidth, backingHeight;

@@ -49,17 +49,16 @@ using namespace std;
 
 @implementation KREngine
 @synthesize debug_text = _debug_text;
-@synthesize context = m_context;
 double const PI = 3.141592653589793f;
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height
 {
+    _camera = NULL;
+    _context = NULL;
     if ((self = [super init])) {
+        _context = new KRContext();
+        _camera = new KRCamera(*_context, width, height);
         [self loadShaders];
-
-        m_camera.backingWidth = width;
-        m_camera.backingHeight = height;
-        m_camera.createBuffers(m_context);
         
     }
     
@@ -80,7 +79,7 @@ double const PI = 3.141592653589793f;
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix
 {
     viewMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
-    m_camera.renderFrame(m_context, *pScene, viewMatrix);
+    _camera->renderFrame(*_context, *pScene, viewMatrix);
 
 }
 
@@ -91,7 +90,7 @@ double const PI = 3.141592653589793f;
     for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: bundle_directory error:nil]) {
         if([fileName hasSuffix: @".vsh"] || [fileName hasSuffix: @".fsh"]) {
             NSString* path = [NSString stringWithFormat:@"%@/%@", bundle_directory, fileName];
-            m_context.loadResource([path UTF8String]);
+            _context->loadResource([path UTF8String]);
         }
     }
 
@@ -100,13 +99,19 @@ double const PI = 3.141592653589793f;
 
 - (BOOL)loadResource:(NSString *)path
 {
-    m_context.loadResource([path UTF8String]);
+    _context->loadResource([path UTF8String]);
     
     return TRUE;
 }
 
 - (void)dealloc
 {
+    if(_camera) {
+        delete _camera; _camera = NULL;
+    }
+    if(_context) {
+        delete _context; _context = NULL;
+    }
     [super dealloc];
 }
 
@@ -230,37 +235,37 @@ double const PI = 3.141592653589793f;
 -(double)getParameterValueWithIndex: (int)i
 {
     double values[31] = {
-        m_camera.perspective_fov,
-        (double)m_camera.m_cShadowBuffers,
-        m_camera.bEnablePerPixel ? 1.0f : 0.0f,
-        m_camera.bEnableDiffuseMap ? 1.0f : 0.0f,
-        m_camera.bEnableNormalMap ? 1.0f : 0.0f,
-        m_camera.bEnableSpecMap ? 1.0f : 0.0f,
-        m_camera.bEnableReflectionMap ? 1.0f : 0.0f,
-        m_camera.bEnableLightMap ? 1.0f : 0.0f,
-        m_camera.dAmbientR,
-        m_camera.dAmbientG,
-        m_camera.dAmbientB,
-        m_camera.dSunR,
-        m_camera.dSunG,
-        m_camera.dSunB,
-        m_camera.dof_quality,
-        m_camera.dof_depth,
-        m_camera.dof_falloff,
-        m_camera.bEnableFlash ? 1.0f : 0.0f,
-        m_camera.flash_intensity,
-        m_camera.flash_depth,
-        m_camera.flash_falloff,
-        m_camera.bEnableVignette ? 1.0f : 0.0f,
-        m_camera.vignette_radius,
-        m_camera.vignette_falloff,
-        m_camera.bShowShadowBuffer ? 1.0f : 0.0f,
-        m_camera.bDebugPSSM ? 1.0f : 0.0f,
-        m_camera.bEnableAmbient ? 1.0f : 0.0f,
-        m_camera.bEnableDiffuse ? 1.0f : 0.0f,
-        m_camera.bEnableSpecular ? 1.0f : 0.0f,
-        m_camera.bDebugSuperShiny ? 1.0f : 0.0f,
-        m_camera.bEnableDeferredLighting ? 1.0f : 0.0f
+        _camera->perspective_fov,
+        (double)_camera->m_cShadowBuffers,
+        _camera->bEnablePerPixel ? 1.0f : 0.0f,
+        _camera->bEnableDiffuseMap ? 1.0f : 0.0f,
+        _camera->bEnableNormalMap ? 1.0f : 0.0f,
+        _camera->bEnableSpecMap ? 1.0f : 0.0f,
+        _camera->bEnableReflectionMap ? 1.0f : 0.0f,
+        _camera->bEnableLightMap ? 1.0f : 0.0f,
+        _camera->dAmbientR,
+        _camera->dAmbientG,
+        _camera->dAmbientB,
+        _camera->dSunR,
+        _camera->dSunG,
+        _camera->dSunB,
+        _camera->dof_quality,
+        _camera->dof_depth,
+        _camera->dof_falloff,
+        _camera->bEnableFlash ? 1.0f : 0.0f,
+        _camera->flash_intensity,
+        _camera->flash_depth,
+        _camera->flash_falloff,
+        _camera->bEnableVignette ? 1.0f : 0.0f,
+        _camera->vignette_radius,
+        _camera->vignette_falloff,
+        _camera->bShowShadowBuffer ? 1.0f : 0.0f,
+        _camera->bDebugPSSM ? 1.0f : 0.0f,
+        _camera->bEnableAmbient ? 1.0f : 0.0f,
+        _camera->bEnableDiffuse ? 1.0f : 0.0f,
+        _camera->bEnableSpecular ? 1.0f : 0.0f,
+        _camera->bDebugSuperShiny ? 1.0f : 0.0f,
+        _camera->bEnableDeferredLighting ? 1.0f : 0.0f
     };
     return values[i];
 }
@@ -270,140 +275,140 @@ double const PI = 3.141592653589793f;
     NSLog(@"Set Parameter: (%s, %f)", [[self getParameterNameWithIndex: i] UTF8String], v);
     switch(i) {
         case 0: // FOV
-            m_camera.perspective_fov = v;
+            _camera->perspective_fov = v;
             break;
         case 1: // Shadow Quality
-            m_camera.m_cShadowBuffers = (int)v;
+            _camera->m_cShadowBuffers = (int)v;
             break;
         case 2:
-            m_camera.bEnablePerPixel = bNewBoolVal;
+            _camera->bEnablePerPixel = bNewBoolVal;
             break;
         case 3:
-            m_camera.bEnableDiffuseMap = bNewBoolVal;
+            _camera->bEnableDiffuseMap = bNewBoolVal;
             break;
         case 4:
-            m_camera.bEnableNormalMap = bNewBoolVal;
+            _camera->bEnableNormalMap = bNewBoolVal;
             break;
         case 5:
-            m_camera.bEnableSpecMap = bNewBoolVal;
+            _camera->bEnableSpecMap = bNewBoolVal;
             break;
         case 6:
-            m_camera.bEnableReflectionMap = bNewBoolVal;
+            _camera->bEnableReflectionMap = bNewBoolVal;
             break;
         case 7:
-            m_camera.bEnableLightMap = bNewBoolVal;
+            _camera->bEnableLightMap = bNewBoolVal;
             break;
         case 8:
-            m_camera.dAmbientR = v;
+            _camera->dAmbientR = v;
             break;
         case 9:
-            m_camera.dAmbientG = v;
+            _camera->dAmbientG = v;
             break;
         case 10:
-            m_camera.dAmbientB = v;
+            _camera->dAmbientB = v;
             break;
         case 11:
-            m_camera.dSunR = v;
+            _camera->dSunR = v;
             break;
         case 12:
-            m_camera.dSunG = v;
+            _camera->dSunG = v;
             break;
         case 13:
-            m_camera.dSunB = v;
+            _camera->dSunB = v;
             break;
         case 14:
-            if(m_camera.dof_quality != (int)v) {
-                m_camera.dof_quality = (int)v;
-                m_camera.invalidatePostShader();
+            if(_camera->dof_quality != (int)v) {
+                _camera->dof_quality = (int)v;
+                _camera->invalidatePostShader();
             }
             break;
         case 15:
-            if(m_camera.dof_depth != v) {
-                m_camera.dof_depth = v;
-                m_camera.invalidatePostShader();
+            if(_camera->dof_depth != v) {
+                _camera->dof_depth = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 16:
-            if(m_camera.dof_falloff != v) {
-                m_camera.dof_falloff = v;
-                m_camera.invalidatePostShader();
+            if(_camera->dof_falloff != v) {
+                _camera->dof_falloff = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 17:
-            if(m_camera.bEnableFlash != bNewBoolVal) {
-                m_camera.bEnableFlash = bNewBoolVal;
-                m_camera.invalidatePostShader();
+            if(_camera->bEnableFlash != bNewBoolVal) {
+                _camera->bEnableFlash = bNewBoolVal;
+                _camera->invalidatePostShader();
             }
             break;
         case 18:
-            if(m_camera.flash_intensity != v) {
-                m_camera.flash_intensity = v;
-                m_camera.invalidatePostShader();
+            if(_camera->flash_intensity != v) {
+                _camera->flash_intensity = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 19:
-            if(m_camera.flash_depth != v) {
-                m_camera.flash_depth = v;
-                m_camera.invalidatePostShader();
+            if(_camera->flash_depth != v) {
+                _camera->flash_depth = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 20:
-            if(m_camera.flash_falloff != v) {
-                m_camera.flash_falloff = v;
-                m_camera.invalidatePostShader();
+            if(_camera->flash_falloff != v) {
+                _camera->flash_falloff = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 21:
-            if(m_camera.bEnableVignette != bNewBoolVal) {
-                m_camera.bEnableVignette = bNewBoolVal;
-                m_camera.invalidatePostShader();
+            if(_camera->bEnableVignette != bNewBoolVal) {
+                _camera->bEnableVignette = bNewBoolVal;
+                _camera->invalidatePostShader();
             }
             break;
         case 22:
-            if(m_camera.vignette_radius != v) {
-                m_camera.vignette_radius = v;
-                m_camera.invalidatePostShader();
+            if(_camera->vignette_radius != v) {
+                _camera->vignette_radius = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 23:
-            if(m_camera.vignette_falloff != v) {
-                m_camera.vignette_falloff = v;
-                m_camera.invalidatePostShader();
+            if(_camera->vignette_falloff != v) {
+                _camera->vignette_falloff = v;
+                _camera->invalidatePostShader();
             }
             break;
         case 24:
-            if(m_camera.bShowShadowBuffer != bNewBoolVal) {
-                m_camera.bShowShadowBuffer = bNewBoolVal;
+            if(_camera->bShowShadowBuffer != bNewBoolVal) {
+                _camera->bShowShadowBuffer = bNewBoolVal;
             }
             break;
         case 25:
-            if(m_camera.bDebugPSSM != bNewBoolVal) {
-                m_camera.bDebugPSSM = bNewBoolVal;
+            if(_camera->bDebugPSSM != bNewBoolVal) {
+                _camera->bDebugPSSM = bNewBoolVal;
             }
             break;
         case 26:
-            if(m_camera.bEnableAmbient != bNewBoolVal) {
-                m_camera.bEnableAmbient = bNewBoolVal;
+            if(_camera->bEnableAmbient != bNewBoolVal) {
+                _camera->bEnableAmbient = bNewBoolVal;
             }
             break;
         case 27:
-            if(m_camera.bEnableDiffuse != bNewBoolVal) {
-                m_camera.bEnableDiffuse = bNewBoolVal;
+            if(_camera->bEnableDiffuse != bNewBoolVal) {
+                _camera->bEnableDiffuse = bNewBoolVal;
             }
             break;
         case 28:
-            if(m_camera.bEnableSpecular != bNewBoolVal) {
-                m_camera.bEnableSpecular = bNewBoolVal;
+            if(_camera->bEnableSpecular != bNewBoolVal) {
+                _camera->bEnableSpecular = bNewBoolVal;
             }
             break;
         case 29:
-            if(m_camera.bDebugSuperShiny != bNewBoolVal) {
-                m_camera.bDebugSuperShiny = bNewBoolVal;
+            if(_camera->bDebugSuperShiny != bNewBoolVal) {
+                _camera->bDebugSuperShiny = bNewBoolVal;
             }
             break;
         case 30:
-            if(m_camera.bEnableDeferredLighting != bNewBoolVal) {
-                m_camera.bEnableDeferredLighting = bNewBoolVal;
+            if(_camera->bEnableDeferredLighting != bNewBoolVal) {
+                _camera->bEnableDeferredLighting = bNewBoolVal;
             }
     }
 }
@@ -432,16 +437,16 @@ double const PI = 3.141592653589793f;
 
 - (void)setNearZ: (double)dNearZ
 {
-    if(m_camera.perspective_nearz != dNearZ) {
-        m_camera.perspective_nearz = dNearZ;
-        m_camera.invalidateShadowBuffers();
+    if(_camera->perspective_nearz != dNearZ) {
+        _camera->perspective_nearz = dNearZ;
+        _camera->invalidateShadowBuffers();
     }
 }
 - (void)setFarZ: (double)dFarZ
 {
-    if(m_camera.perspective_farz != dFarZ) {
-        m_camera.perspective_farz = dFarZ;
-        m_camera.invalidateShadowBuffers();
+    if(_camera->perspective_farz != dFarZ) {
+        _camera->perspective_farz = dFarZ;
+        _camera->invalidateShadowBuffers();
     }
 }
 
@@ -451,7 +456,7 @@ double const PI = 3.141592653589793f;
     _debug_text = value;
     [_debug_text retain];
     
-    m_camera.m_debug_text = value.UTF8String;
+    _camera->m_debug_text = value.UTF8String;
 }
 
 @end

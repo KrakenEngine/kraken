@@ -38,7 +38,11 @@
 #import "KRCamera.h"
 #import "KRBoundingVolume.h"
 
-KRCamera::KRCamera() {
+KRCamera::KRCamera(KRContext &context, GLint width, GLint height) {
+    backingWidth = width;
+    backingHeight = height;
+    
+    
     double const PI = 3.141592653589793f;
     double const D2R = PI * 2 / 360;
     
@@ -91,6 +95,8 @@ KRCamera::KRCamera() {
     
     m_postShaderProgram = 0;
     m_iFrame = 0;
+    
+    createBuffers(context);
 }
 
 KRCamera::~KRCamera() {
