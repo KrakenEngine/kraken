@@ -54,7 +54,6 @@ public:
     GLint backingWidth, backingHeight;
     
     void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix);
-    void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
     void renderShadowBuffer(KRContext &context, KRScene &scene, int iShadow);
     void invalidatePostShader();
     void invalidateShadowBuffers();
@@ -162,6 +161,7 @@ private:
     
     void destroyBuffers();
     
+    void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
     
     // Code using these shader functions will later be refactored to integrate with KRShaderManager
     static bool ValidateProgram(GLuint prog);
