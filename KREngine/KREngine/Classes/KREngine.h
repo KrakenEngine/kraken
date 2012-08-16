@@ -51,7 +51,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
     KRCamera m_camera;    
 }
 
-@property(nonatomic, readonly) KRContext *context;
+@property(nonatomic, readonly, assign) KRContext context;
 @property(nonatomic, retain) NSString *debug_text;
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height;

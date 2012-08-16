@@ -49,12 +49,8 @@ using namespace std;
 
 @implementation KREngine
 @synthesize debug_text = _debug_text;
+@synthesize context = m_context;
 double const PI = 3.141592653589793f;
-
--(KRContext *)getContext
-{
-    return &m_context;
-}
 
 - (id)initForWidth: (GLuint)width Height: (GLuint)height
 {
