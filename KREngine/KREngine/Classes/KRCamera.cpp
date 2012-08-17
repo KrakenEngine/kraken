@@ -38,7 +38,7 @@
 #import "KRCamera.h"
 #import "KRBoundingVolume.h"
 
-KRCamera::KRCamera(KRContext &context, GLint width, GLint height) {
+KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(context) {
     backingWidth = width;
     backingHeight = height;
     
@@ -903,4 +903,20 @@ void KRCamera::loadShaders(KRContext &context)
     LoadShader(context, "ShadowShader", &m_shadowShaderProgram, "");
     
     m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "shadow_mvp1");
+}
+
+
+void KRCamera::notify_sceneGraphCreate(KRNode *pNode)
+{
+    fprintf(stderr, "KRCamera - notify_sceneGraphCreate");
+}
+
+void KRCamera::notify_sceneGraphDelete(KRNode *pNode)
+{
+    fprintf(stderr, "KRCamera - notify_sceneGraphDelete");
+}
+
+void KRCamera::notify_sceneGraphModify(KRNode *pNode)
+{
+    fprintf(stderr, "KRCamera - notify_sceneGraphModify");
 }

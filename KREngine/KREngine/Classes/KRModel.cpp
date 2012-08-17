@@ -46,7 +46,7 @@
 #import "KRShaderManager.h"
 #import "KRContext.h"
 
-KRModel::KRModel(std::string name, std::string path) {
+KRModel::KRModel(KRContext &context, std::string name, std::string path) : KRContextObject(context) {
     m_name = name;
     loadPack(path);
 }
@@ -54,7 +54,7 @@ KRModel::KRModel(std::string name, std::string path) {
 void KRModel::loadPack(std::string path) {
     m_materials.clear();
     m_uniqueMaterials.clear();
-    m_pMesh = new KRMesh(KRResource::GetFileBase(path));
+    m_pMesh = new KRMesh(*m_pContext, KRResource::GetFileBase(path));
     m_pMesh->loadPack(path);
 }
 

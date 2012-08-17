@@ -14,6 +14,7 @@
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
 #import "KRModelManager.h"
+#import "KRNotified.h"
 
 class KRContext {
 public:
@@ -28,12 +29,23 @@ public:
     KRShaderManager *getShaderManager();
     KRModelManager *getModelManager();
     
+    KRCamera *createCamera(int width, int height);
+    
+    void registerNotified(KRNotified *pNotified);
+    void unregisterNotified(KRNotified *pNotified);
+    
+    void notify_sceneGraphCreate(KRNode *pNode);
+    void notify_sceneGraphDelete(KRNode *pNode);
+    void notify_sceneGraphModify(KRNode *pNode);
+    
 private:
     KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
     KRModelManager *m_pModelManager;
+    
+    std::set<KRNotified *> m_notifiedObjects;
 };
 
 #endif

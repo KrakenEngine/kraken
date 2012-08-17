@@ -22,7 +22,7 @@
 #import "KRShaderManager.h"
 #import "KRShader.h"
 
-KRLight::KRLight(std::string name) : KRNode(name)
+KRLight::KRLight(KRContext &context, std::string name) : KRNode(context, name)
 {
     m_intensity = 1.0f;
     m_flareTexture = "";

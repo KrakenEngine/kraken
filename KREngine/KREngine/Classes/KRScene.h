@@ -50,13 +50,13 @@ using std::vector;
 
 class KRScene : public KRResource {
 public:
-    KRScene(std::string name);
+    KRScene(KRContext &context, std::string name);
     ~KRScene();
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
     
-    static KRScene *LoadXML(const std::string& path);
+    static KRScene *LoadXML(KRContext &context, const std::string& path);
     
     KRNode *getRootNode();
     KRDirectionalLight *getFirstDirectionalLight();
@@ -70,6 +70,7 @@ public:
     KRBoundingVolume getExtents(KRContext *pContext);
     double sun_pitch, sun_yaw;
 private:
+    KRContext *m_pContext;
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
     
     KRNode *m_pRootNode;

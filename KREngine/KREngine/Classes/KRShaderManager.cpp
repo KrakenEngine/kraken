@@ -36,7 +36,7 @@
 
 using namespace std;
 
-KRShaderManager::KRShaderManager() {
+KRShaderManager::KRShaderManager(KRContext &context) : KRContextObject(context) {
 
 }
 

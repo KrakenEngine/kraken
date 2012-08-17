@@ -39,7 +39,7 @@
 
 #import "KRcontext.h"
 
-KRMaterial::KRMaterial(const char *szName) : KRResource(szName) {
+KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(context, szName) {
     strcpy(m_szName, szName);
     m_pAmbientMap = NULL;
     m_pDiffuseMap = NULL;

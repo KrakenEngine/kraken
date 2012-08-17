@@ -10,7 +10,7 @@
 
 #import "KRSpotLight.h"
 
-KRSpotLight::KRSpotLight(std::string name) : KRLight(name)
+KRSpotLight::KRSpotLight(KRContext &context, std::string name) : KRLight(context, name)
 {
 }
 

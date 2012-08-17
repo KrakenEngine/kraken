@@ -39,7 +39,8 @@
 #include <unistd.h>
 
 
-KRMaterialManager::KRMaterialManager(KRTextureManager *pTextureManager, KRShaderManager *pShaderManager) {
+KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager) : KRContextObject(context)
+{
     m_pTextureManager = pTextureManager;
     m_pShaderManager = pShaderManager;
 }
@@ -112,7 +113,7 @@ bool KRMaterialManager::loadFile(const char *szPath) {
                             
                             if(strcmp(szSymbol[0], "newmtl") == 0 && cSymbols >= 2) {
                                 
-                                pMaterial = new KRMaterial(szSymbol[1]);
+                                pMaterial = new KRMaterial(*m_pContext, szSymbol[1]);
                                 m_materials[szSymbol[1]] = pMaterial;
                             }
                             if(pMaterial != NULL) {

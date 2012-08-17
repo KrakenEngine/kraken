@@ -53,7 +53,7 @@ class KRBoundingVolume;
 class KRInstance : public KRNode {
     
 public:
-    KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map);
+    KRInstance(KRContext &context, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map);
     virtual ~KRInstance();
     
     virtual std::string getElementName();

@@ -10,7 +10,7 @@
 
 #import "KRResource.h"
 
-KRResource::KRResource(std::string name) {
+KRResource::KRResource(KRContext &context, std::string name) : KRContextObject(context) {
     m_name = name;
 }
 KRResource::~KRResource() {
@@ -56,16 +56,16 @@ std::string KRResource::GetFilePath(const std::string& name)
     }
 }
 
-std::vector<KRResource *> KRResource::Load(const std::string& path)
+std::vector<KRResource *> KRResource::Load(KRContext &context, const std::string& path)
 {
     std::vector<KRResource *> resources;
     std::string extension = GetFileExtension(path);
     if(extension.compare("obj") == 0) {
-        return LoadObj(path);
+        return LoadObj(context, path);
     } else if(extension.compare("fbx") == 0) {
-        return LoadFbx(path);
+        return LoadFbx(context, path);
     } else if(extension.compare("blend") == 0) {
-        return LoadBlenderScene(path);
+        return LoadBlenderScene(context, path);
     }
     
     return resources;

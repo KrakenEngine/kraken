@@ -33,7 +33,7 @@
 
 #import "KRModel.h"
 
-KRModelManager::KRModelManager() {
+KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
 
 }
 
@@ -45,7 +45,7 @@ KRModelManager::~KRModelManager() {
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, const char *szPath) {
-    KRModel *pModel = new KRModel(szName, szPath);
+    KRModel *pModel = new KRModel(*m_pContext, szName, szPath);
     m_models[szName] = pModel;
     return pModel;
 }

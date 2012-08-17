@@ -12,11 +12,12 @@
 #import <list>
 #import <string>
 #import "KREngine-common.h"
+#import "KRContextObject.h"
 
 #ifndef KREngine_KRResource_h
 #define KREngine_KRResource_h
 
-class KRResource
+class KRResource : public KRContextObject
 {
 public:
     std::string getName();
@@ -27,20 +28,20 @@ public:
     static std::string GetFileBase(const std::string& name);
     static std::string GetFilePath(const std::string& name);
     
-    static std::vector<KRResource *> Load(const std::string& path);
+    static std::vector<KRResource *> Load(KRContext &context, const std::string& path);
     
     virtual ~KRResource();
    
 protected:
-    KRResource(std::string name);
+    KRResource(KRContext &context, std::string name);
    
    
 private:
     std::string m_name;
     
-    static std::vector<KRResource *> LoadObj(const std::string& path);
-    static std::vector<KRResource *> LoadFbx(const std::string& path);
-    static std::vector<KRResource *> LoadBlenderScene(const std::string& path);
+    static std::vector<KRResource *> LoadObj(KRContext &context, const std::string& path);
+    static std::vector<KRResource *> LoadFbx(KRContext &context, const std::string& path);
+    static std::vector<KRResource *> LoadBlenderScene(KRContext &context, const std::string& path);
 };
 
 #endif

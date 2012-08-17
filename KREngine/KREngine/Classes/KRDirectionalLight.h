@@ -16,7 +16,7 @@ class KRDirectionalLight : public KRLight {
     
 public:
     
-    KRDirectionalLight(std::string name);
+    KRDirectionalLight(KRContext &context, std::string name);
     virtual ~KRDirectionalLight();
     
     virtual std::string getElementName();

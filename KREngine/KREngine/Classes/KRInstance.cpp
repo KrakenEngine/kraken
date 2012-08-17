@@ -34,7 +34,7 @@
 #import "KRContext.h"
 #include <assert.h>
 
-KRInstance::KRInstance(std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(instance_name) {
+KRInstance::KRInstance(KRContext &context, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(context, instance_name) {
     m_modelMatrix = modelMatrix;
     m_lightMap = light_map;
     m_pLightMap = NULL;

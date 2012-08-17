@@ -36,6 +36,7 @@
 
 #import "KRMat4.h"
 #import "KRVector2.h"
+#import "KRNotified.h"
 
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
@@ -46,10 +47,10 @@ class KRInstance;
 class KRScene;
 class KRContext;
 
-class KRCamera {
+class KRCamera : public KRNotified {
 public:
     KRCamera(KRContext &context, GLint width, GLint height);
-    ~KRCamera();
+    virtual ~KRCamera();
     
     GLint backingWidth, backingHeight;
     
@@ -108,6 +109,10 @@ public:
     int m_cShadowBuffers;
     
     std::string m_debug_text;
+    
+    virtual void notify_sceneGraphCreate(KRNode *pNode);
+    virtual void notify_sceneGraphDelete(KRNode *pNode);
+    virtual void notify_sceneGraphModify(KRNode *pNode);
 
 private:
     KRVector3 m_position;

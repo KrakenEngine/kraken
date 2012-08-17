@@ -62,8 +62,8 @@ public:
         KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
     } alpha_mode_type;
     
-    KRMaterial(const char *szName);
-    ~KRMaterial();
+    KRMaterial(KRContext &context, const char *szName);
+    virtual ~KRMaterial();
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);

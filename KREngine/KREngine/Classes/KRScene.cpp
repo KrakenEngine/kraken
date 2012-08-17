@@ -39,9 +39,10 @@
 
 #import "KRScene.h"
 
-KRScene::KRScene(std::string name) : KRResource(name) {
+KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
+    m_pContext = &context;
     m_pFirstDirectionalLight = NULL;
-    m_pRootNode = new KRNode("scene_root");
+    m_pRootNode = new KRNode(context, "scene_root");
     
     sun_yaw = 4.333; // TODO - Remove temporary testing code
     sun_pitch = 0.55;
@@ -138,13 +139,13 @@ KRDirectionalLight *KRScene::findFirstDirectionalLight(KRNode &node) {
     return NULL;
 }
 
-KRScene *KRScene::LoadXML(const std::string& path)
+KRScene *KRScene::LoadXML(KRContext &context, const std::string& path)
 {
     tinyxml2::XMLDocument doc;
     doc.LoadFile(path.c_str());
-    KRScene *new_scene = new KRScene(KRResource::GetFileBase(path));
+    KRScene *new_scene = new KRScene(context, KRResource::GetFileBase(path));
     
-    KRNode *n = KRNode::LoadXML(doc.RootElement()->FirstChildElement());
+    KRNode *n = KRNode::LoadXML(context, doc.RootElement()->FirstChildElement());
     if(n) {
         new_scene->getRootNode()->addChild(n);
     }

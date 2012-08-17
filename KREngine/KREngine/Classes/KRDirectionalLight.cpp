@@ -13,7 +13,7 @@
 #import "KRContext.h"
 #import "KRMat4.h"
 
-KRDirectionalLight::KRDirectionalLight(std::string name) : KRLight(name)
+KRDirectionalLight::KRDirectionalLight(KRContext &context, std::string name) : KRLight(context, name)
 {
 
 }

@@ -43,7 +43,6 @@
 }
 
 - (id)initWithFrame:(CGRect)frame {
-    
     self = [super initWithFrame:frame];
     if (self) {
 
@@ -79,17 +78,14 @@
 		}
         
         // Initialize KREngine
-        renderEngine = [[KREngine alloc] initForWidth: backingWidth Height: backingHeight];
+        _engine = [[KREngine alloc] initForWidth: backingWidth Height: backingHeight];
         [self loadObjects];
     }
     return self;
 }
 
 - (void)dealloc {
-    if(renderEngine) {
-        [renderEngine release];
-        renderEngine = nil;
-    }
+    [_engine release]; _engine = nil;
     
     [super dealloc];
 }
@@ -105,11 +101,11 @@
     
     for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: documentsDirectory error:nil]) {
         NSString* path = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-        [renderEngine loadResource: path];
+        [self.engine loadResource: path];
     }
 
-    [renderEngine setNearZ: 5.0];
-    [renderEngine setFarZ: 500.0];
+    [self.engine setNearZ: 5.0];
+    [self.engine setFarZ: 500.0];
     //[renderEngine setNearZ: 1.0];
     //[renderEngine setFarZ: 3000.0];
 
@@ -194,14 +190,9 @@
     return success;
 }
 
-- (KREngine *)getEngine;
+- (KRScene *)getScene
 {
-    return renderEngine;
-}
-
-- (KRScene *)getScene;
-{
-    return renderEngine.context.getSceneManager()->getFirstScene();
+    return self.engine.context->getSceneManager()->getFirstScene();
 }
 
 #pragma mark -

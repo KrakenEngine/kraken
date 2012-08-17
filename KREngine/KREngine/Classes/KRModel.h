@@ -49,11 +49,11 @@ using std::set;
 
 class KRMaterial;
 
-class KRModel {
+class KRModel : public KRContextObject {
     
 public:
-    KRModel(std::string name, std::string path);
-    ~KRModel();
+    KRModel(KRContext &context, std::string name, std::string path);
+    virtual ~KRModel();
     
 #if TARGET_OS_IPHONE
     

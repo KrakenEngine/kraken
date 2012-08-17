@@ -22,7 +22,7 @@ class KRMat4;
 class KRTextureManager;
 class KRContext;
 
-class KRNode
+class KRNode : public KRContextObject
 {
 public:
     enum RenderPass {
@@ -35,11 +35,11 @@ public:
         RENDER_PASS_SHADOWMAP
     };
     
-    KRNode(std::string name);
+    KRNode(KRContext &context, std::string name);
     virtual ~KRNode();
     
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    static KRNode *LoadXML(tinyxml2::XMLElement *e);
+    static KRNode *LoadXML(KRContext &context, tinyxml2::XMLElement *e);
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     virtual std::string getElementName();

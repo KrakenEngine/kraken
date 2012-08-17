@@ -9,13 +9,14 @@
 #include <iostream>
 
 #include "KRContext.h"
+#include "KRCamera.h"
 
 KRContext::KRContext() {
-     m_pShaderManager = new KRShaderManager();
-     m_pTextureManager = new KRTextureManager();
-     m_pMaterialManager = new KRMaterialManager(m_pTextureManager, m_pShaderManager);
-     m_pModelManager = new KRModelManager();
-     m_pSceneManager = new KRSceneManager();
+     m_pShaderManager = new KRShaderManager(*this);
+     m_pTextureManager = new KRTextureManager(*this);
+     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
+     m_pModelManager = new KRModelManager(*this);
+     m_pSceneManager = new KRSceneManager(*this);
 }
 
 KRContext::~KRContext() {
@@ -82,4 +83,30 @@ void KRContext::loadResource(std::string path) {
     } else {
         fprintf(stderr, "KRContext::loadResource - Unknown resource file type: %s\n", path.c_str());
     }
+}
+
+void KRContext::registerNotified(KRNotified *pNotified)
+{
+    m_notifiedObjects.insert(pNotified);
+}
+
+void KRContext::unregisterNotified(KRNotified *pNotified)
+{
+    m_notifiedObjects.erase(pNotified);
+}
+
+
+void KRContext::notify_sceneGraphCreate(KRNode *pNode)
+{
+    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
+        (*itr)->notify_sceneGraphCreate(pNode);
+    }
+}
+void KRContext::notify_sceneGraphDelete(KRNode *pNode)
+{
+    
+}
+void KRContext::notify_sceneGraphModify(KRNode *pNode)
+{
+    
 }

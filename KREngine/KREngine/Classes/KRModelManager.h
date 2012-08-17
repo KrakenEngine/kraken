@@ -33,6 +33,7 @@
 #define KRMODELMANAGER_H
 
 #import "KREngine-common.h"
+#import "KRContextObject.h"
 
 class KRContext;
 class KRModel;
@@ -41,10 +42,10 @@ class KRModel;
 #import <string>
 using std::map;
 
-class KRModelManager {
+class KRModelManager : public KRContextObject {
 public:
-    KRModelManager();
-    ~KRModelManager();
+    KRModelManager(KRContext &context);
+    virtual ~KRModelManager();
     
     KRModel *loadModel(const char *szName, const char *szPath);
     KRModel *getModel(const char *szName);

@@ -16,7 +16,7 @@ class KRPointLight : public KRLight {
     
 public:
     
-    KRPointLight(std::string name);
+    KRPointLight(KRContext &context, std::string name);
     virtual ~KRPointLight();
     
     virtual std::string getElementName();

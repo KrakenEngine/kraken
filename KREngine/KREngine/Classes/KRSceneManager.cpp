@@ -32,7 +32,7 @@
 #import "KRSceneManager.h"
 #import "KRScene.h"
 
-KRSceneManager::KRSceneManager() {
+KRSceneManager::KRSceneManager(KRContext &context) : KRContextObject(context){
 }
 
 KRSceneManager::~KRSceneManager() {
@@ -43,7 +43,7 @@ KRSceneManager::~KRSceneManager() {
 }
 
 KRScene *KRSceneManager::loadScene(const char *szName, const char *szPath) {
-    KRScene *pScene = KRScene::LoadXML(szPath);
+    KRScene *pScene = KRScene::LoadXML(*m_pContext, szPath);
     m_scenes[szName] = pScene;
     return pScene;
 }

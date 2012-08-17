@@ -16,7 +16,7 @@
 #import "KRInstance.h"
 
 
-KRNode::KRNode(std::string name)
+KRNode::KRNode(KRContext &context, std::string name) : KRContextObject(context)
 {
     m_pExtents = NULL;
     m_name = name;
@@ -81,7 +81,7 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_localRotation = KRVector3(x,y,z);
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
-        KRNode *child_node = KRNode::LoadXML(child_element);
+        KRNode *child_node = KRNode::LoadXML(*m_pContext, child_element);
         if(child_node) {
             addChild(child_node);
         }
@@ -126,20 +126,20 @@ std::string KRNode::getElementName() {
     return "node";
 }
 
-KRNode *KRNode::LoadXML(tinyxml2::XMLElement *e) {
+KRNode *KRNode::LoadXML(KRContext &context, tinyxml2::XMLElement *e) {
     KRNode *new_node = NULL;
     const char *szElementName = e->Name();
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
-        new_node = new KRNode(szName);
+        new_node = new KRNode(context, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
-        new_node = new KRPointLight(szName);
+        new_node = new KRPointLight(context, szName);
     } else if(strcmp(szElementName, "directional_light") == 0) {
-        new_node = new KRDirectionalLight(szName);
+        new_node = new KRDirectionalLight(context, szName);
     } else if(strcmp(szElementName, "spot_light") == 0) {
-        new_node = new KRSpotLight(szName);
+        new_node = new KRSpotLight(context, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
-        new_node = new KRInstance(szName, szName, KRMat4(), e->Attribute("light_map"));
+        new_node = new KRInstance(context, szName, szName, KRMat4(), e->Attribute("light_map"));
         
     }
     

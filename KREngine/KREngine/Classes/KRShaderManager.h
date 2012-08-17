@@ -45,9 +45,9 @@ using std::vector;
 
 #define KRENGINE_MAX_SHADER_HANDLES 100
 
-class KRShaderManager {
+class KRShaderManager : public KRContextObject {
 public:
-    KRShaderManager();
+    KRShaderManager(KRContext &context);
     ~KRShaderManager();
     
     void loadFragmentShader(const std::string &name, const std::string &path);

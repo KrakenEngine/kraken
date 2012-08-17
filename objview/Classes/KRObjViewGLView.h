@@ -44,8 +44,6 @@
 	
 	/* OpenGL names for the renderbuffer and framebuffers used to render to this view */
 	GLuint viewFramebuffer, viewRenderbuffer;
-    
-    KREngine *renderEngine;	
 }
 
 // OpenGL drawing
@@ -53,9 +51,11 @@
 - (void)destroyFramebuffer;
 - (void)setDisplayFramebuffer;
 - (BOOL)presentFramebuffer;
-- (KREngine *)getEngine;
-- (KRScene *)getScene;
 - (BOOL)loadObjects;
+
+@property(nonatomic,retain) KREngine *engine;
+
+- (KRScene *)getScene;
 
 
 @end

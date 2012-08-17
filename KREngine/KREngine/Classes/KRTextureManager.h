@@ -33,16 +33,17 @@
 #define KRTEXTUREMANAGER_H
 
 #include "KRTexture.h"
+#include "KRContextObject.h"
 
 #include <map>
 #import <string>
 
 using std::map;
 
-class KRTextureManager {
+class KRTextureManager : public KRContextObject {
 public:
-    KRTextureManager();
-    ~KRTextureManager();
+    KRTextureManager(KRContext &context);
+    virtual ~KRTextureManager();
     
 #if TARGET_OS_IPHONE
     

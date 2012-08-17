@@ -40,7 +40,7 @@
 #include <string.h>
 #include <assert.h>
 
-KRMesh::KRMesh(std::string name) : KRResource(name) {
+KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name) {
     m_fdPackFile = 0;
     m_pPackData = NULL;
     m_iPackFileSize = 0;

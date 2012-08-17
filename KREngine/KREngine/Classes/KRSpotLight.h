@@ -13,7 +13,7 @@
 
 class KRSpotLight : public KRLight {
 public:
-    KRSpotLight(std::string name);
+    KRSpotLight(KRContext &context, std::string name);
     virtual ~KRSpotLight();
     
     virtual std::string getElementName();

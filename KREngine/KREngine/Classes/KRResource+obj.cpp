@@ -19,11 +19,11 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 
-std::vector<KRResource *> KRResource::LoadObj(const std::string& path)
+std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::string& path)
 {
     std::vector<KRResource *> resources;
     
-    KRMesh *new_mesh = new KRMesh(KRResource::GetFileBase(path));
+    KRMesh *new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
     resources.push_back(new_mesh);
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;

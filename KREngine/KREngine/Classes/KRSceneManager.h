@@ -33,6 +33,7 @@
 #define KRENGINE_KRSCENEMANAGER_H
 
 #import "KREngine-common.h"
+#import "KRContextObject.h"
 
 class KRScene;
 
@@ -41,10 +42,10 @@ class KRScene;
 using std::map;
 
 
-class KRSceneManager {
+class KRSceneManager : public KRContextObject {
 public:
-    KRSceneManager();
-    ~KRSceneManager();
+    KRSceneManager(KRContext &context);
+    virtual ~KRSceneManager();
     
     KRScene *loadScene(const char *szName, const char *szPath);
 

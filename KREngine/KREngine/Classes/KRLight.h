@@ -41,7 +41,7 @@ public:
 #endif
     
 protected:
-    KRLight(std::string name);
+    KRLight(KRContext &context, std::string name);
     
     float m_intensity;
     float m_decayStart;

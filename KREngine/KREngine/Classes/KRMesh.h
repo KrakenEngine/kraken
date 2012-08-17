@@ -58,8 +58,8 @@ using std::vector;
 
 class KRMesh : public KRResource {
 public:    
-    KRMesh(std::string name);
-    ~KRMesh();
+    KRMesh(KRContext &context, std::string name);
+    virtual ~KRMesh();
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);

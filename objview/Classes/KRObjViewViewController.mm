@@ -194,7 +194,7 @@
     const GLfloat d2r = PI * 2 / 360;
     
     
-    KREngine *engine = [glView getEngine];
+    KREngine *engine = glView.engine;
     int iParam = int(dLeftSlider * ([engine getParameterCount] + 1));
     if(iParam > [engine getParameterCount]) {
         iParam = [engine getParameterCount];
@@ -256,7 +256,8 @@
 
     
     [glView setDisplayFramebuffer];
-    [engine renderScene: [glView getScene] WithPosition:camera_position Yaw: camera_yaw Pitch: camera_pitch Roll:0.0f];
+    KRScene *scene = [glView getScene];
+    [engine renderScene: scene WithPosition:camera_position Yaw: camera_yaw Pitch: camera_pitch Roll:0.0f];
     [glView presentFramebuffer];
     
     [framePool release];

@@ -45,10 +45,10 @@
 
 using std::map;
 
-class KRMaterialManager {
+class KRMaterialManager : public KRContextObject {
 public:
-    KRMaterialManager(KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
-    ~KRMaterialManager();
+    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
+    virtual ~KRMaterialManager();
     
     bool loadFile(const char *szPath);
     KRMaterial *getMaterial(const char *szName);
