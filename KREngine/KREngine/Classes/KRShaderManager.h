@@ -48,7 +48,7 @@ using std::vector;
 class KRShaderManager : public KRContextObject {
 public:
     KRShaderManager(KRContext &context);
-    ~KRShaderManager();
+    virtual ~KRShaderManager();
     
     void loadFragmentShader(const std::string &name, const std::string &path);
     void loadVertexShader(const std::string &name, const std::string &path);

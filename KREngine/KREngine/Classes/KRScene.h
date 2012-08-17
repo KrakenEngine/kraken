@@ -51,7 +51,7 @@ using std::vector;
 class KRScene : public KRResource {
 public:
     KRScene(KRContext &context, std::string name);
-    ~KRScene();
+    virtual ~KRScene();
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
