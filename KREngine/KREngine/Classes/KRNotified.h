@@ -46,9 +46,6 @@ public:
     virtual void notify_sceneGraphCreate(KRNode *pNode) = 0;
     virtual void notify_sceneGraphDelete(KRNode *pNode) = 0;
     virtual void notify_sceneGraphModify(KRNode *pNode) = 0;
-
-protected:
-    KRContext *m_pContext;
 };
 
 #endif

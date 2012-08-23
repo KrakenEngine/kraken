@@ -58,7 +58,7 @@ double const PI = 3.141592653589793f;
     if ((self = [super init])) {
         _context = new KRContext();
         _camera = new KRCamera(*_context, width, height);
-        _parameter_names = @{
+        _parameter_names = [@{
             @"camera_fov" : @0,
             @"shadow_quality" : @1,
             @"enable_per_pixel" : @2,
@@ -90,7 +90,7 @@ double const PI = 3.141592653589793f;
             @"debug_enable_specular" : @28,
             @"debug_super_shiny" : @29,
             @"enable_deferred_lighting" : @30
-        };
+        } copy];
         [self loadShaders];
         
     }
@@ -112,7 +112,7 @@ double const PI = 3.141592653589793f;
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix
 {
     viewMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
-    _camera->renderFrame(*_context, *pScene, viewMatrix);
+    _camera->renderFrame(*pScene, viewMatrix);
 
 }
 

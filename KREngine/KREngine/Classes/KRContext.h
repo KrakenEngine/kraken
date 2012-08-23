@@ -46,6 +46,7 @@ private:
     KRModelManager *m_pModelManager;
     
     std::set<KRNotified *> m_notifiedObjects;
+    std::set<KRNode *> m_allNodes;
 };
 
 #endif

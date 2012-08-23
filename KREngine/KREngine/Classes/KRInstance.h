@@ -68,12 +68,16 @@ public:
     
     KRMat4 &getModelMatrix();
     
+    bool hasTransparency();
+    
 private:
     KRModel *m_pModel;
     KRMat4 m_modelMatrix;
     KRTexture *m_pLightMap;
     std::string m_lightMap;
     std::string m_model_name;
+    
+    void loadModel();
 };
 
 

@@ -27,6 +27,7 @@ KRNode::KRNode(KRContext &context, std::string name) : KRContextObject(context)
 }
 
 KRNode::~KRNode() {
+    m_pContext->notify_sceneGraphDelete(this);
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         delete *itr;
     }
@@ -39,6 +40,7 @@ void KRNode::addChild(KRNode *child) {
     child->m_parentNode = this;
     m_childNodes.push_back(child);
     clearExtents();
+    m_pContext->notify_sceneGraphCreate(child);
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {

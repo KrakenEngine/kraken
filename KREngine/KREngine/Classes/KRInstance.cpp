@@ -65,6 +65,15 @@ KRMat4 &KRInstance::getModelMatrix() {
 
 #if TARGET_OS_IPHONE
 
+void KRInstance::loadModel() {
+    if(m_pModel == NULL) {
+        m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
+        if(m_pModel->hasTransparency()) {
+            m_pContext->notify_sceneGraphModify(this);
+        }
+    }
+}
+
 void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
     KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
@@ -72,10 +81,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_FLARES) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
     
-    
-        if(m_pModel == NULL) {
-            m_pModel = pContext->getModelManager()->getModel(m_model_name.c_str());
-        }
+        loadModel();
         
         if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP)) {
 
@@ -120,11 +126,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
 
 void KRInstance::calcExtents(KRContext *pContext) {
     KRNode::calcExtents(pContext);
-    if(m_pModel == NULL) {
-        m_pModel = pContext->getModelManager()->getModel(m_model_name.c_str());
-    }
-    assert(m_pModel != NULL);
-    
+    loadModel();    
     KRMesh *pMesh = m_pModel->getMesh();
     KRBoundingVolume mesh_bounds = KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
     if(m_pExtents) {
@@ -132,4 +134,13 @@ void KRInstance::calcExtents(KRContext *pContext) {
     } else {
         m_pExtents = new KRBoundingVolume(mesh_bounds);
     }
+}
+
+bool KRInstance::hasTransparency() {
+    if(m_pModel) {
+        return m_pModel->hasTransparency();
+    } else {
+        return false;
+    }
+    
 }

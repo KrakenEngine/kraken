@@ -34,7 +34,7 @@
 
 KRNotified::KRNotified(KRContext &context) : KRContextObject(context)
 {
-    context.registerNotified(this);
+    
 }
 
 KRNotified::~KRNotified()

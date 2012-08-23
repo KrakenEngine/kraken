@@ -54,12 +54,12 @@ public:
     
     GLint backingWidth, backingHeight;
     
-    void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix);
-    void renderShadowBuffer(KRContext &context, KRScene &scene, int iShadow);
+    void renderFrame(KRScene &scene, KRMat4 &viewMatrix);
+    void renderShadowBuffer(KRScene &scene, int iShadow);
     void invalidatePostShader();
     void invalidateShadowBuffers();
     void allocateShadowBuffers();
-    void createBuffers(KRContext &context);
+    void createBuffers();
     
     KRVector3 getPosition() const;
     void setPosition(const KRVector3 &position);
@@ -105,7 +105,6 @@ public:
     
     KRVector2 m_viewportSize;
     
-    std::vector<KRInstance *> m_transparentInstances;
     int m_cShadowBuffers;
     
     std::string m_debug_text;
@@ -159,20 +158,43 @@ private:
     GLuint m_postShaderProgram;
     GLuint m_shadowShaderProgram;
     
-    void renderPost(KRContext &context);
-    void bindPostShader(KRContext &context);
+    void renderPost();
+    void bindPostShader();
     
     void destroyBuffers();
     
-    void renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
+    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
     
-    void loadShaders(KRContext &context);
+    void loadShaders();
     
     // Code using these shader functions will later be refactored to integrate with KRShaderManager
     static bool ValidateProgram(GLuint prog);
     static bool LoadShader(KRContext &context, const std::string &name, GLuint *programPointer, const std::string &options);
     static bool CompileShader(GLuint *shader, GLenum type, const std::string &shader_source, const std::string &options);
     static bool LinkProgram(GLuint prog);
+    
+    
+    class KRInstanceDistance {
+    public:
+        KRInstanceDistance(KRInstance *pInstance, float distance) : m_pInstance(pInstance), m_distance(distance) {};
+        ~KRInstanceDistance() {};
+        
+        // a predicate implemented as a class:
+        class InstanceEqualsPredicate
+        {
+        public:
+            InstanceEqualsPredicate(KRInstance *pInstance) : m_pInstance(pInstance) {};
+            bool operator() (const KRInstanceDistance& value) {return value.m_pInstance == m_pInstance; }
+            
+        private:
+            KRInstance *m_pInstance;
+        };
+                           
+        KRInstance *m_pInstance;
+        float m_distance;
+    };
+    
+    std::list<KRInstanceDistance> m_transparentInstances;
     
 };
 

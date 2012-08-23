@@ -56,6 +56,14 @@ void KRModel::loadPack(std::string path) {
     m_uniqueMaterials.clear();
     m_pMesh = new KRMesh(*m_pContext, KRResource::GetFileBase(path));
     m_pMesh->loadPack(path);
+    
+     m_hasTransparency = false;
+    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        if((*mat_itr)->isTransparent()) {
+            m_hasTransparency = true;
+            break;
+        }
+    }
 }
 
 std::string KRModel::getName() {
@@ -122,5 +130,9 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
 
 KRMesh *KRModel::getMesh() {
     return m_pMesh;
+}
+
+bool KRModel::hasTransparency() {
+    return m_hasTransparency;
 }
 

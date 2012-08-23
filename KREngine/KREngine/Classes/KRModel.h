@@ -55,6 +55,8 @@ public:
     KRModel(KRContext &context, std::string name, std::string path);
     virtual ~KRModel();
     
+    bool hasTransparency();
+    
 #if TARGET_OS_IPHONE
     
     void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
@@ -71,6 +73,8 @@ private:
     set<KRMaterial *> m_uniqueMaterials;
     KRMesh *m_pMesh;
     std::string m_name;
+    
+    bool m_hasTransparency;
 
 };
 

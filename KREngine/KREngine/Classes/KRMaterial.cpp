@@ -187,8 +187,9 @@ void KRMaterial::setReflectionFactor(GLfloat r) {
 }
 
 bool KRMaterial::isTransparent() {
-    return m_tr != 0.0;
+    return m_tr != 0.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
+
 #if TARGET_OS_IPHONE
 void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;

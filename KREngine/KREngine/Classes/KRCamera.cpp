@@ -96,7 +96,7 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(c
     m_postShaderProgram = 0;
     m_iFrame = 0;
     
-    createBuffers(context);
+    createBuffers();
 }
 
 KRCamera::~KRCamera() {
@@ -126,7 +126,7 @@ void KRCamera::setPosition(const KRVector3 &position) {
     m_position = position;
 }
 
-void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix)
+void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 {
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
@@ -157,12 +157,12 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
         
         KRMat4 newShadowMVP;
         if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
-            KRBoundingVolume ext = KRBoundingVolume(scene.getExtents(&context));
+            KRBoundingVolume ext = KRBoundingVolume(scene.getExtents(m_pContext));
             
-            newShadowMVP = ext.calcShadowProj(&scene, &context, scene.sun_yaw, scene.sun_pitch);
+            newShadowMVP = ext.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
         } else {
             KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-            newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, &context, scene.sun_yaw, scene.sun_pitch);
+            newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
         }
         
         if(!(shadowmvpmatrix[iShadow] == newShadowMVP)) {
@@ -173,19 +173,19 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
             shadowValid[iShadow] = true;
             
             shadowmvpmatrix[iShadow] = newShadowMVP;
-            renderShadowBuffer(context, scene, iShadow);
+            renderShadowBuffer(scene, iShadow);
             
             break;
         }
     }
     
-    renderFrame(context, scene, viewMatrix, lightDirection, cameraPosition);
-    renderPost(context);
+    renderFrame(scene, viewMatrix, lightDirection, cameraPosition);
+    renderPost();
     
     m_iFrame++;
 }
 
-void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition) {
+void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition) {
     setViewportSize(KRVector2(backingWidth, backingHeight));
     
     KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz, perspective_farz);
@@ -213,7 +213,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
         glDisable(GL_BLEND);
         
         // Render the geometry
-        scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
+        scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
         // Set render target
@@ -237,7 +237,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
         
         
         // Render the geometry
-        scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS);
+        scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -267,7 +267,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
         glDepthMask(GL_TRUE);
         
         // Render the geometry
-        scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
+        scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
         
         // Deactivate source buffer texture units
         glActiveTexture(GL_TEXTURE6);
@@ -302,7 +302,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
         
         
         // Render the geometry
-        scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE);
     }
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -327,7 +327,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     // Render all transparent geometry
-    scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     // ----====---- Flares ----====----
     
@@ -350,7 +350,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
     glBlendFunc(GL_ONE, GL_ONE);
     
     // Render all transparent geometry
-    scene.render(this, &context, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
+    scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
     
     // Re-enable z-buffer write
     glDepthMask(GL_TRUE);
@@ -358,7 +358,7 @@ void KRCamera::renderFrame(KRContext &context, KRScene &scene, KRMat4 &viewMatri
 }
 
 
-void KRCamera::createBuffers(KRContext &context) {
+void KRCamera::createBuffers() {
     // ===== Create offscreen compositing framebuffer object =====
     glGenFramebuffers(1, &compositeFramebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
@@ -400,7 +400,7 @@ void KRCamera::createBuffers(KRContext &context) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0);
     
     allocateShadowBuffers();
-    loadShaders(context);
+    loadShaders();
 }
 
 void KRCamera::allocateShadowBuffers() {
@@ -473,7 +473,7 @@ void KRCamera::destroyBuffers()
 }
 
 
-void KRCamera::renderShadowBuffer(KRContext &context, KRScene &scene, int iShadow)
+void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
 {
     
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]);
@@ -539,7 +539,7 @@ void KRCamera::renderShadowBuffer(KRContext &context, KRScene &scene, int iShado
     KRVector3 cameraPosition;
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
-    scene.render(this, &context, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP);
+    scene.render(this, m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP);
     glViewport(0, 0, backingWidth, backingHeight);
 }
 
@@ -565,7 +565,7 @@ bool KRCamera::ValidateProgram(GLuint prog)
     return true;
 }
 
-void KRCamera::renderPost(KRContext &context)
+void KRCamera::renderPost()
 {
     
     glBindFramebuffer(GL_FRAMEBUFFER, 1); // renderFramebuffer
@@ -605,7 +605,7 @@ void KRCamera::renderPost(KRContext &context)
     };
 	
     glDisable(GL_DEPTH_TEST);
-    bindPostShader(context);
+    bindPostShader();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
@@ -667,7 +667,7 @@ void KRCamera::renderPost(KRContext &context)
     
     const char *szText = m_debug_text.c_str();
     if(*szText) {
-        KRTexture *pFontTexture = context.getTextureManager()->getTexture("font");
+        KRTexture *pFontTexture = m_pContext->getTextureManager()->getTexture("font");
         
         glDisable(GL_DEPTH_TEST);
         glUseProgram(m_postShaderProgram);
@@ -724,7 +724,7 @@ void KRCamera::renderPost(KRContext &context)
 }
 
 
-void KRCamera::bindPostShader(KRContext &context)
+void KRCamera::bindPostShader()
 {
     if(!m_postShaderProgram) {
         std::stringstream stream;
@@ -743,7 +743,7 @@ void KRCamera::bindPostShader(KRContext &context)
         stream << "\n#define VIGNETTE_FALLOFF " << vignette_falloff;
         
         stream << "\n";
-        LoadShader(context, "PostShader", &m_postShaderProgram, stream.str());
+        LoadShader(*m_pContext, "PostShader", &m_postShaderProgram, stream.str());
     }
     glUseProgram(m_postShaderProgram);
 }
@@ -898,9 +898,9 @@ bool KRCamera::LinkProgram(GLuint prog)
 }
 
 
-void KRCamera::loadShaders(KRContext &context)
+void KRCamera::loadShaders()
 {
-    LoadShader(context, "ShadowShader", &m_shadowShaderProgram, "");
+    LoadShader(*m_pContext, "ShadowShader", &m_shadowShaderProgram, "");
     
     m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "shadow_mvp1");
 }
@@ -909,14 +909,36 @@ void KRCamera::loadShaders(KRContext &context)
 void KRCamera::notify_sceneGraphCreate(KRNode *pNode)
 {
     fprintf(stderr, "KRCamera - notify_sceneGraphCreate");
+    
+    KRInstance *pInstance = dynamic_cast<KRInstance *>(pNode);
+    if(pInstance) {
+        if(pInstance->hasTransparency()) {
+            KRInstanceDistance transparentInstanceDistance = KRInstanceDistance(pInstance, 0.0f);
+            m_transparentInstances.push_back(transparentInstanceDistance);
+        }
+    }
 }
 
 void KRCamera::notify_sceneGraphDelete(KRNode *pNode)
 {
     fprintf(stderr, "KRCamera - notify_sceneGraphDelete");
+    
+    KRInstance *pInstance = dynamic_cast<KRInstance *>(pNode);
+    if(pInstance) {
+        m_transparentInstances.remove_if(KRInstanceDistance::InstanceEqualsPredicate(pInstance));
+    }
 }
 
 void KRCamera::notify_sceneGraphModify(KRNode *pNode)
 {
     fprintf(stderr, "KRCamera - notify_sceneGraphModify");
+    
+    KRInstance *pInstance = dynamic_cast<KRInstance *>(pNode);
+    if(pInstance) {
+        m_transparentInstances.remove_if(KRInstanceDistance::InstanceEqualsPredicate(pInstance));
+        if(pInstance->hasTransparency()) {
+            KRInstanceDistance transparentInstanceDistance = KRInstanceDistance(pInstance, 0.0f);
+            m_transparentInstances.push_back(transparentInstanceDistance);
+        }
+    }
 }

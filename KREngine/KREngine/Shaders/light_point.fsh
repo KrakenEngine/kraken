@@ -42,10 +42,10 @@ uniform highp vec3 view_space_light_position;
 void main()
 {
     
-    mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
+    lowp vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
     lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
     
-    mediump vec3 gbuffer_normal = 2.0 * gbuffer_sample.rgb - 1.0;
+    mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
     mediump float gbuffer_specular_exponent = gbuffer_sample.a * 100.0;
     
     mediump vec4 clip_space_vertex_position = vec4(
@@ -61,13 +61,13 @@ void main()
     mediump float light_distance = max(0.0, distance(view_space_light_position.xyz, view_space_vertex_position.xyz) - light_decay_start);
     mediump float light_attenuation = (light_intensity / ((light_distance + 1.0) * (light_distance + 1.0)) - light_cutoff) / (1.0 - light_cutoff);
     mediump vec3 light_vec = normalize(view_space_light_position.xyz - view_space_vertex_position.xyz);
-    mediump float lamberFactor = clamp(dot(light_vec, gbuffer_normal), 0.0, 1.0);
+    mediump float lamberFactor = dot(light_vec, gbuffer_normal) * 0.2;
     
     mediump float specularFactor = 0.0;
-    if(gbuffer_specular_exponent > 0.0) {
+    //if(gbuffer_specular_exponent > 0.0) {
         mediump vec3 halfVec = normalize((normalize(- view_space_vertex_position.xyz) + light_vec));
-        specularFactor = clamp(pow(dot(halfVec,normalize(gbuffer_normal)), gbuffer_specular_exponent), 0.0, 1.0);
-    }
+        specularFactor = pow(dot(halfVec,gbuffer_normal), gbuffer_specular_exponent);
+    //}
 
-    gl_FragColor = vec4(light_color * lamberFactor * 0.2, specularFactor) * light_attenuation;
+    gl_FragColor = vec4(light_color * lamberFactor, specularFactor) * light_attenuation;
 }
