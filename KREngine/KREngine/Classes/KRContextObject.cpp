@@ -17,3 +17,8 @@ KRContextObject::~KRContextObject()
 {
     
 }
+
+KRContext &KRContextObject::getContext()
+{
+    return *m_pContext;
+}

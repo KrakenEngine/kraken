@@ -16,6 +16,8 @@ class KRContextObject {
 public:
     KRContextObject(KRContext &context);
     ~KRContextObject();
+    
+    KRContext &getContext();
 protected:
     KRContext *m_pContext;
 };
