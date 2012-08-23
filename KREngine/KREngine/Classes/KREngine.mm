@@ -437,6 +437,18 @@ double const PI = 3.141592653589793f;
     }
 }
 
+-(int)getParameterIndexWithName: (NSString *)name
+{
+    int cParameters = [self getParameterCount];
+    for(int i=0; i < cParameters; i++) {
+        if([[self getParameterNameWithIndex:i] caseInsensitiveCompare:name] == NSOrderedSame)
+        {
+            return i;
+        }
+    }
+    return -1; // not found
+}
+
 - (void)setNearZ: (double)dNearZ
 {
     if(_camera->perspective_nearz != dNearZ) {
