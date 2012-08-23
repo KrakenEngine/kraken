@@ -32,7 +32,8 @@ public:
         RENDER_PASS_DEFERRED_OPAQUE,
         RENDER_PASS_FORWARD_TRANSPARENT,
         RENDER_PASS_FLARES,
-        RENDER_PASS_SHADOWMAP
+        RENDER_PASS_SHADOWMAP,
+        RENDER_PASS_SKYBOX
     };
     
     KRNode(KRContext &context, std::string name);
