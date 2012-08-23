@@ -52,8 +52,10 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szPath)
     }
     
     if(!pTexture->createGLTexture()) {
-        delete pTexture;
-        return NULL;
+        if(!pTexture->createGLTexture()) { // FINDME - HACK!  The first texture fails with 0x501 return code but loads on second try
+            delete pTexture;
+            return NULL;
+        }
     }
     
     std::string lowerName = szName;
