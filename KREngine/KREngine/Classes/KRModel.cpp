@@ -52,18 +52,11 @@ KRModel::KRModel(KRContext &context, std::string name, std::string path) : KRCon
 }
 
 void KRModel::loadPack(std::string path) {
+    m_hasTransparency = false;
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pMesh = new KRMesh(*m_pContext, KRResource::GetFileBase(path));
     m_pMesh->loadPack(path);
-    
-     m_hasTransparency = false;
-    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-        if((*mat_itr)->isTransparent()) {
-            m_hasTransparency = true;
-            break;
-        }
-    }
 }
 
 std::string KRModel::getName() {
@@ -86,6 +79,14 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                 KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
                 m_materials.push_back(pMaterial);
                 m_uniqueMaterials.insert(pMaterial);
+            }
+            
+            m_hasTransparency = false;
+            for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+                if((*mat_itr)->isTransparent()) {
+                    m_hasTransparency = true;
+                    break;
+                }
             }
         }
         
@@ -116,7 +117,27 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                             pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass);
-                            m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                            
+                            switch(pMaterial->getAlphaMode()) {
+                                case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
+                                case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+                                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                                    break;
+                                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
+                                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                                    break;
+                                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+                                    // Render back faces first
+                                    glCullFace(GL_BACK);
+                                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                                    
+                                    // Render front faces second
+                                    glCullFace(GL_BACK);
+                                    m_pMesh->renderSubmesh(iSubmesh, &iPrevBuffer);
+                                    break;
+                            }
+                            
+                           
                         }
                     }
                 }

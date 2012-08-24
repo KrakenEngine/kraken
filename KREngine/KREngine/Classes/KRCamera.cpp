@@ -349,7 +349,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
     
-    // Render all transparent geometry
+    // Render all flares
     scene.render(this, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
     
     // Re-enable z-buffer write

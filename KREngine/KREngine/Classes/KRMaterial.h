@@ -82,6 +82,7 @@ public:
     void setShininess(GLfloat s);
     void setReflectionFactor(GLfloat r);
     void setAlphaMode(alpha_mode_type blend_mode);
+    alpha_mode_type getAlphaMode();
     
 
     bool isTransparent();

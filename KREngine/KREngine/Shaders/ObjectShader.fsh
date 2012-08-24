@@ -161,11 +161,11 @@ void main()
             #if ALPHA_TEST
                 diffuseMaterial.a = 1.0;
             #else
-                mediump vec4 diffuseMaterial = vec4(vec3(texture2D(diffuseTexture, diffuse_uv)), material_alpha);
+                mediump vec4 diffuseMaterial = texture2D(diffuseTexture, diffuse_uv);
             #endif
             
         #else
-            mediump vec4 diffuseMaterial = vec4(vec3(1.0), material_alpha);
+            mediump vec4 diffuseMaterial = vec4(1.0);
         #endif
     
         #if ENABLE_PER_PIXEL == 1
@@ -249,14 +249,16 @@ void main()
             
         #if ENABLE_AMBIENT
             // -------------------- Add ambient light and alpha component --------------------
-            gl_FragColor = vec4(vec3(diffuseMaterial) * material_ambient, material_alpha);
+            gl_FragColor = vec4(vec3(diffuseMaterial) * material_ambient, 0.0);
         #else
-            gl_FragColor = vec4(0.0, 0.0, 0.0, material_alpha);
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
         #endif
             
         #if ENABLE_DIFFUSE
             // -------------------- Add diffuse light --------------------
-            gl_FragColor += vec4(vec3(diffuseMaterial) * material_diffuse * lamberFactor, 0.0);
+            gl_FragColor += diffuseMaterial * vec4(material_diffuse, 1.0) * vec4(vec3(lamberFactor), 1.0);
+            
+            //gl_FragColor += vec4(vec3(diffuseMaterial) * material_diffuse * lamberFactor, 0.0);
         #endif
             
         #if ENABLE_SPECULAR
@@ -270,12 +272,15 @@ void main()
             
         #endif
 
+        #if ALPHA_BLEND
+            gl_FragColor.a = gl_FragColor.a * material_alpha;
+        #endif
 
             // -------------------- Multiply light map -------------------- 
             
         #if HAS_LIGHT_MAP
             mediump vec3 lightMapColor = vec3(texture2D(shadowTexture1, lightmap_uv));
-            gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, 1.0);
+            gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, gl_FragColor.a);
         #endif
     #endif
 }
