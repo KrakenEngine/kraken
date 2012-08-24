@@ -78,23 +78,23 @@
 		E48C697215374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
 		E48C697315374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
 		E491018713C99BDC0098455B /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
-		E491018A13C99BDC0098455B /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E491018E13C99BDC0098455B /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E491018A13C99BDC0098455B /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (); }; };
+		E491018E13C99BDC0098455B /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (); }; };
 		E491018F13C99BDC0098455B /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
 		E491019113C99BDC0098455B /* KRModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017913C99BDC0098455B /* KRModel.cpp */; };
-		E491019213C99BDC0098455B /* KRModel.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017A13C99BDC0098455B /* KRModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E491019213C99BDC0098455B /* KRModel.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017A13C99BDC0098455B /* KRModel.h */; settings = {ATTRIBUTES = (); }; };
 		E491019313C99BDC0098455B /* KRMaterialManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017B13C99BDC0098455B /* KRMaterialManager.cpp */; };
 		E491019413C99BDC0098455B /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
-		E491019513C99BDC0098455B /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		E491019613C99BDC0098455B /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E491019513C99BDC0098455B /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (); }; };
+		E491019613C99BDC0098455B /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (); }; };
 		E491019713C99BDC0098455B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
 		E491019813C99BDC0098455B /* KRTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018013C99BDC0098455B /* KRTextureManager.cpp */; };
 		E491019913C99BDC0098455B /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture.cpp */; };
 		E491019A13C99BDC0098455B /* KRModelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018213C99BDC0098455B /* KRModelManager.cpp */; };
-		E491019B13C99BDC0098455B /* KRModelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018313C99BDC0098455B /* KRModelManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		E491019B13C99BDC0098455B /* KRModelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018313C99BDC0098455B /* KRModelManager.h */; settings = {ATTRIBUTES = (); }; };
+		E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (); }; };
+		E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (); }; };
+		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (); }; };
 		E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
 		E497B946151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
 		E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
@@ -541,15 +541,15 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E491019513C99BDC0098455B /* KRMaterial.h in Headers */,
+				E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */,
+				E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */,
+				E491019E13C99BDC0098455B /* KRTexture.h in Headers */,
 				E491018A13C99BDC0098455B /* KREngine.h in Headers */,
 				E491018E13C99BDC0098455B /* KRMat4.h in Headers */,
 				E491019B13C99BDC0098455B /* KRModelManager.h in Headers */,
 				E491019213C99BDC0098455B /* KRModel.h in Headers */,
 				E491019613C99BDC0098455B /* KRVector3.h in Headers */,
-				E491019513C99BDC0098455B /* KRMaterial.h in Headers */,
-				E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */,
-				E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */,
-				E491019E13C99BDC0098455B /* KRTexture.h in Headers */,
 				E47C25A213F4F65A00FF4370 /* KRShaderManager.h in Headers */,
 				E47C25A513F4F66F00FF4370 /* KRShader.h in Headers */,
 				E414BAE21435557300A668C4 /* KRInstance.h in Headers */,
@@ -798,6 +798,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -811,6 +812,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -829,6 +831,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -847,6 +850,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
