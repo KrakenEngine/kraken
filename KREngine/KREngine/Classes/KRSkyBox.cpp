@@ -16,6 +16,19 @@
 
 KRSkyBox::KRSkyBox(KRContext &context, std::string name) : KRNode(context, name)
 {
+    m_frontTexture = "";
+    m_backTexture = "";
+    m_topTexture = "";
+    m_bottomTexture = "";
+    m_leftTexture = "";
+    m_rightTexture = "";
+    
+    m_pFrontTexture = NULL;
+    m_pBackTexture = NULL;
+    m_pTopTexture = NULL;
+    m_pBottomTexture = NULL;
+    m_pLeftTexture = NULL;
+    m_pRightTexture = NULL;
 
 }
 
@@ -27,6 +40,60 @@ KRSkyBox::~KRSkyBox()
 std::string KRSkyBox::getElementName() {
     return "sky_box";
 }
+
+void KRSkyBox::loadXML(tinyxml2::XMLElement *e) {
+    KRNode::loadXML(e);
+    
+    const char *szFrontTexture = e->Attribute("front_texture");
+    if(szFrontTexture) {
+        m_frontTexture = szFrontTexture;
+    } else {
+        m_frontTexture = "";
+    }
+    m_pFrontTexture = NULL;
+    
+    const char *szBackTexture = e->Attribute("back_texture");
+    if(szBackTexture) {
+        m_backTexture = szBackTexture;
+    } else {
+        m_backTexture = "";
+    }
+    m_pBackTexture = NULL;
+    
+    const char *szTopTexture = e->Attribute("top_texture");
+    if(szTopTexture) {
+        m_topTexture = szTopTexture;
+    } else {
+        m_topTexture = "";
+    }
+    m_pTopTexture = NULL;
+    
+    const char *szBottomTexture = e->Attribute("bottom_texture");
+    if(szBottomTexture) {
+        m_bottomTexture = szBottomTexture;
+    } else {
+        m_bottomTexture = "";
+    }
+    m_pBottomTexture = NULL;
+    
+    const char *szLeftTexture = e->Attribute("left_texture");
+    if(szLeftTexture) {
+        m_leftTexture = szLeftTexture;
+    } else {
+        m_leftTexture = "";
+    }
+    m_pLeftTexture = NULL;
+    
+    const char *szRightTexture = e->Attribute("right_texture");
+    if(szRightTexture) {
+        m_rightTexture = szRightTexture;
+    } else {
+        m_rightTexture = "";
+    }
+    m_pRightTexture = NULL;
+    
+}
+
 
 #if TARGET_OS_IPHONE
 
@@ -42,9 +109,9 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
         matModelToView.transpose();
         matModelToView.invert();
                 
-        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
+//        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
         
-        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
+//        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
         
         // Disable z-buffer write
         glDepthMask(GL_FALSE);
@@ -68,3 +135,4 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
 }
 
 #endif
+

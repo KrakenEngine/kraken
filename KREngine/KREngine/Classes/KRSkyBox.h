@@ -12,6 +12,7 @@
 #include <iostream>
 #import "KRMat4.h"
 #import "KRNode.h"
+#import "KRTexture.h"
 
 class KRSkyBox : public KRNode {
     
@@ -21,6 +22,7 @@ public:
     virtual ~KRSkyBox();
     
     virtual std::string getElementName();
+    virtual void loadXML(tinyxml2::XMLElement *e);
     
 #if TARGET_OS_IPHONE
     
@@ -29,6 +31,22 @@ public:
     
 private:
     KRMat4 m_modelMatrix;
+    
+protected:
+    std::string m_frontTexture;
+    std::string m_backTexture;
+    std::string m_topTexture;
+    std::string m_bottomTexture;
+    std::string m_leftTexture;
+    std::string m_rightTexture;
+
+    KRTexture *m_pFrontTexture;
+    KRTexture *m_pBackTexture;
+    KRTexture *m_pTopTexture;
+    KRTexture *m_pBottomTexture;
+    KRTexture *m_pLeftTexture;
+    KRTexture *m_pRightTexture;
+    
 };
 
 

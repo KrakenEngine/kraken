@@ -14,6 +14,7 @@
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
+#import "KRSkyBox.h"
 
 
 KRNode::KRNode(KRContext &context, std::string name) : KRContextObject(context)
@@ -142,7 +143,8 @@ KRNode *KRNode::LoadXML(KRContext &context, tinyxml2::XMLElement *e) {
         new_node = new KRSpotLight(context, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
         new_node = new KRInstance(context, szName, szName, KRMat4(), e->Attribute("light_map"));
-        
+    } else if(strcmp(szElementName, "sky_box") == 0) {
+        new_node = new KRSkyBox(context, szName);
     }
     
     if(new_node) {
