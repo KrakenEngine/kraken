@@ -96,6 +96,10 @@
 		E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (); }; };
 		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (); }; };
 		E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
+		E4924C2615EE95E800B965C6 /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; };
+		E4924C2715EE95E800B965C6 /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; };
+		E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
+		E4924C2C15EE96AB00B965C6 /* KROctreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */; };
 		E497B946151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
 		E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
 		E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */ = {isa = PBXBuildFile; fileRef = E497B943151BA93400D3DC67 /* KRVector2.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -234,6 +238,10 @@
 		E491018513C99BDC0098455B /* KRTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTextureManager.h; path = Classes/KRTextureManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491018613C99BDC0098455B /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491019F13C99BF50098455B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		E4924C2415EE95E700B965C6 /* KROctree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KROctree.cpp; path = Classes/KROctree.cpp; sourceTree = "<group>"; };
+		E4924C2515EE95E800B965C6 /* KROctree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KROctree.h; path = Classes/KROctree.h; sourceTree = "<group>"; };
+		E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KROctreeNode.cpp; path = Classes/KROctreeNode.cpp; sourceTree = "<group>"; };
+		E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KROctreeNode.h; path = Classes/KROctreeNode.h; sourceTree = "<group>"; };
 		E497B943151BA93400D3DC67 /* KRVector2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KRVector2.h; path = Classes/KRVector2.h; sourceTree = "<group>"; };
 		E497B945151BA99400D3DC67 /* KRVector2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRVector2.cpp; path = Classes/KRVector2.cpp; sourceTree = "<group>"; };
 		E497B949151BCEE900D3DC67 /* KRResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRResource.h; path = Classes/KRResource.h; sourceTree = "<group>"; };
@@ -437,6 +445,10 @@
 				E45772E313C99F160037BEEA /* Shaders */,
 				E491016E13C99BAE0098455B /* Classes */,
 				E491016713C99B9E0098455B /* Supporting Files */,
+				E4924C2415EE95E700B965C6 /* KROctree.cpp */,
+				E4924C2515EE95E800B965C6 /* KROctree.h */,
+				E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */,
+				E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */,
 			);
 			path = KREngine;
 			sourceTree = "<group>";
@@ -568,6 +580,8 @@
 				E42CB1EC158446940066E0D8 /* KRQuaternion.h in Headers */,
 				E43B0ACB15DDBB8500A5CB9F /* KRNotified.h in Headers */,
 				E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
+				E4924C2715EE95E800B965C6 /* KROctree.h in Headers */,
+				E4924C2C15EE96AB00B965C6 /* KROctreeNode.h in Headers */,
 				1000469E15E6EF550053B072 /* KRSkyBox.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -727,6 +741,8 @@
 				E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
 				E43B0AC915DDBB8500A5CB9F /* KRNotified.cpp in Sources */,
 				E43B0AD615DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */,
+				E4924C2615EE95E800B965C6 /* KROctree.cpp in Sources */,
+				E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */,
 				1000469D15E6EF550053B072 /* KRSkyBox.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

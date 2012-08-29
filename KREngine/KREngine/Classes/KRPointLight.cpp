@@ -16,7 +16,7 @@
 #import "KRContext.h"
 #import "KRBoundingVolume.h"
 
-KRPointLight::KRPointLight(KRContext &context, std::string name) : KRLight(context, name)
+KRPointLight::KRPointLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {
     m_sphereVertices = NULL;
     m_cVertices = 0;

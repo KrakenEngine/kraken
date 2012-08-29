@@ -94,13 +94,8 @@ void KRMesh::loadPack(std::string path) {
                 m_iPackFileSize = statbuf.st_size;
                 
                 pack_header *pHeader = (pack_header *)m_pPackData;
-                
-                m_minx = pHeader->minx;
-                m_miny = pHeader->miny;
-                m_minz = pHeader->minz;
-                m_maxx = pHeader->maxx;
-                m_maxy = pHeader->maxy;
-                m_maxz = pHeader->maxz;
+                m_minPoint = KRVector3(pHeader->minx, pHeader->miny, pHeader->minz);
+                m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 
             }
         }
@@ -156,29 +151,10 @@ void KRMesh::unmap() {
 
 GLfloat KRMesh::getMaxDimension() {
     GLfloat m = 0.0;
-    if(m_maxx - m_minx > m) m = m_maxx - m_minx;
-    if(m_maxy - m_miny > m) m = m_maxy - m_miny;
-    if(m_maxz - m_minz > m) m = m_maxz - m_minz;
+    if(m_maxPoint.x - m_minPoint.x > m) m = m_maxPoint.x - m_minPoint.x;
+    if(m_maxPoint.y - m_minPoint.y > m) m = m_maxPoint.y - m_minPoint.y;
+    if(m_maxPoint.z - m_minPoint.z > m) m = m_maxPoint.z - m_minPoint.z;
     return m;
-}
-
-GLfloat KRMesh::getMinX() {
-    return m_minx;
-}
-GLfloat KRMesh::getMaxX() {
-    return m_maxx;
-}
-GLfloat KRMesh::getMinY() {
-    return m_miny;
-}
-GLfloat KRMesh::getMaxY() {
-    return m_maxy;
-}
-GLfloat KRMesh::getMinZ() {
-    return m_minz;
-}
-GLfloat KRMesh::getMaxZ() {
-    return m_maxz;
 }
 
 vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
@@ -301,19 +277,15 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         pVertex->vertex.z = source_vertex.z;
         if(bFirstVertex) {
             bFirstVertex = false;
-            m_minx = source_vertex.x;
-            m_miny = source_vertex.y;
-            m_minz = source_vertex.z;
-            m_maxx = source_vertex.x;
-            m_maxy = source_vertex.y;
-            m_maxz = source_vertex.z;
+            m_minPoint = source_vertex;
+            m_maxPoint = source_vertex;
         } else {
-            if(source_vertex.x < m_minx) m_minx = source_vertex.x;
-            if(source_vertex.y < m_miny) m_miny = source_vertex.y;
-            if(source_vertex.z < m_minz) m_minz = source_vertex.z;
-            if(source_vertex.x > m_maxx) m_maxx = source_vertex.x;
-            if(source_vertex.y > m_maxy) m_maxy = source_vertex.y;
-            if(source_vertex.z > m_maxz) m_maxz = source_vertex.z;
+            if(source_vertex.x < m_minPoint.x) m_minPoint.x = source_vertex.x;
+            if(source_vertex.y < m_minPoint.y) m_minPoint.y = source_vertex.y;
+            if(source_vertex.z < m_minPoint.z) m_minPoint.z = source_vertex.z;
+            if(source_vertex.x > m_maxPoint.x) m_maxPoint.x = source_vertex.x;
+            if(source_vertex.y > m_maxPoint.y) m_maxPoint.y = source_vertex.y;
+            if(source_vertex.z > m_maxPoint.z) m_maxPoint.z = source_vertex.z;
         }
         if(uva.size() > iVertex) {
             KRVector2 source_uva = uva[iVertex];
@@ -355,12 +327,12 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         pVertex++;
     }
     
-    pHeader->minx = m_minx;
-    pHeader->miny = m_miny;
-    pHeader->minz = m_minz;
-    pHeader->maxx = m_maxx;
-    pHeader->maxy = m_maxy;
-    pHeader->maxz = m_maxz;
+    pHeader->minx = m_minPoint.x;
+    pHeader->miny = m_minPoint.y;
+    pHeader->minz = m_minPoint.z;
+    pHeader->maxx = m_maxPoint.x;
+    pHeader->maxy = m_maxPoint.y;
+    pHeader->maxz = m_maxPoint.z;
     
     
     // Calculate missing surface normals and tangents
@@ -430,3 +402,10 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
     }
 }
 
+KRVector3 KRMesh::getMinPoint() const {
+    return m_minPoint;
+}
+
+KRVector3 KRMesh::getMaxPoint() const {
+    return m_maxPoint;
+}

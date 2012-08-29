@@ -31,6 +31,14 @@ KRVector2::KRVector2(const KRVector2 &v) {
     y = v.y;
 }
 
+KRVector2 KRVector2::Min() {
+    return KRVector2(-std::numeric_limits<float>::max());
+}
+
+KRVector2 KRVector2::Max() {
+    return KRVector2(std::numeric_limits<float>::max());
+}
+
 KRVector2 KRVector2::Zero() {
     return KRVector2(0.0f);
 }

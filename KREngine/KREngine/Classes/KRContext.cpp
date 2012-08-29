@@ -84,39 +84,3 @@ void KRContext::loadResource(std::string path) {
         fprintf(stderr, "KRContext::loadResource - Unknown resource file type: %s\n", path.c_str());
     }
 }
-
-void KRContext::registerNotified(KRNotified *pNotified)
-{
-    m_notifiedObjects.insert(pNotified);
-    for(std::set<KRNode *>::iterator itr=m_allNodes.begin(); itr != m_allNodes.end(); itr++) {
-        pNotified->notify_sceneGraphCreate(*itr);
-    }
-}
-
-void KRContext::unregisterNotified(KRNotified *pNotified)
-{
-    m_notifiedObjects.erase(pNotified);
-}
-
-void KRContext::notify_sceneGraphCreate(KRNode *pNode)
-{
-    m_allNodes.insert(pNode);
-    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
-        (*itr)->notify_sceneGraphCreate(pNode);
-    }
-}
-
-void KRContext::notify_sceneGraphDelete(KRNode *pNode)
-{
-    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
-        (*itr)->notify_sceneGraphDelete(pNode);
-    }
-    m_allNodes.erase(pNode);
-}
-
-void KRContext::notify_sceneGraphModify(KRNode *pNode)
-{
-    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
-        (*itr)->notify_sceneGraphModify(pNode);
-    }
-}

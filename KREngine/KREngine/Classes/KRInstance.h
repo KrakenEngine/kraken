@@ -53,7 +53,7 @@ class KRBoundingVolume;
 class KRInstance : public KRNode {
     
 public:
-    KRInstance(KRContext &context, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map);
+    KRInstance(KRScene &scene, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map);
     virtual ~KRInstance();
     
     virtual std::string getElementName();
@@ -69,6 +69,10 @@ public:
     KRMat4 &getModelMatrix();
     
     bool hasTransparency();
+    
+    
+    virtual KRVector3 getMinPoint();
+    virtual KRVector3 getMaxPoint();
     
 private:
     KRModel *m_pModel;

@@ -42,7 +42,7 @@
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pContext = &context;
     m_pFirstDirectionalLight = NULL;
-    m_pRootNode = new KRNode(context, "scene_root");
+    m_pRootNode = new KRNode(*this, "scene_root");
     
     sun_yaw = 4.333; // TODO - Remove temporary testing code
     sun_pitch = 0.55;
@@ -55,6 +55,8 @@ KRScene::~KRScene() {
 #if TARGET_OS_IPHONE
 
 void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+    
+    updateOctree();
     
     if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
     
@@ -145,7 +147,7 @@ KRScene *KRScene::LoadXML(KRContext &context, const std::string& path)
     doc.LoadFile(path.c_str());
     KRScene *new_scene = new KRScene(context, KRResource::GetFileBase(path));
     
-    KRNode *n = KRNode::LoadXML(context, doc.RootElement()->FirstChildElement());
+    KRNode *n = KRNode::LoadXML(*new_scene, doc.RootElement()->FirstChildElement());
     if(n) {
         new_scene->getRootNode()->addChild(n);
     }
@@ -158,4 +160,58 @@ KRDirectionalLight *KRScene::getFirstDirectionalLight()
         m_pFirstDirectionalLight = findFirstDirectionalLight(*m_pRootNode);
     }
     return m_pFirstDirectionalLight;
+}
+
+void KRScene::registerNotified(KRNotified *pNotified)
+{
+    m_notifiedObjects.insert(pNotified);
+    for(std::set<KRNode *>::iterator itr=m_allNodes.begin(); itr != m_allNodes.end(); itr++) {
+        pNotified->notify_sceneGraphCreate(*itr);
+    }
+}
+
+void KRScene::unregisterNotified(KRNotified *pNotified)
+{
+    m_notifiedObjects.erase(pNotified);
+}
+
+void KRScene::notify_sceneGraphCreate(KRNode *pNode)
+{
+    m_allNodes.insert(pNode);
+    m_newNodes.insert(pNode);
+    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
+        (*itr)->notify_sceneGraphCreate(pNode);
+    }
+}
+
+void KRScene::notify_sceneGraphDelete(KRNode *pNode)
+{
+    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
+        (*itr)->notify_sceneGraphDelete(pNode);
+    }
+    m_allNodes.erase(pNode);
+    m_modifiedNodes.erase(pNode);
+    if(!m_newNodes.erase(pNode)) {
+        m_nodeTree.remove(pNode);
+    }
+}
+
+void KRScene::notify_sceneGraphModify(KRNode *pNode)
+{
+    m_modifiedNodes.insert(pNode);
+    for(std::set<KRNotified *>::iterator itr = m_notifiedObjects.begin(); itr != m_notifiedObjects.end(); itr++) {
+        (*itr)->notify_sceneGraphModify(pNode);
+    }
+}
+
+void KRScene::updateOctree()
+{
+    for(std::set<KRNode *>::iterator itr=m_newNodes.begin(); itr != m_newNodes.end(); itr++) {
+        m_nodeTree.add(*itr);
+    }
+    for(std::set<KRNode *>::iterator itr=m_modifiedNodes.begin(); itr != m_modifiedNodes.end(); itr++) {
+        m_nodeTree.update(*itr);
+    }
+    m_newNodes.clear();
+    m_modifiedNodes.clear();
 }

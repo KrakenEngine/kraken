@@ -18,7 +18,7 @@ class KRSkyBox : public KRNode {
     
 public:
     
-    KRSkyBox(KRContext &context, std::string name);
+    KRSkyBox(KRScene &scene, std::string name);
     virtual ~KRSkyBox();
     
     virtual std::string getElementName();

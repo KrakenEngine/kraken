@@ -34,10 +34,13 @@
 
 KRNotified::KRNotified(KRContext &context) : KRContextObject(context)
 {
-    
+    m_pSubscribedScene = NULL;
 }
 
 KRNotified::~KRNotified()
 {
-    m_pContext->unregisterNotified(this);
+    if(m_pSubscribedScene) {
+        m_pSubscribedScene->unregisterNotified(this);
+        m_pSubscribedScene = NULL;
+    }
 }

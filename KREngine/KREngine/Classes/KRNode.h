@@ -21,6 +21,7 @@ class KRMaterialManager;
 class KRMat4;
 class KRTextureManager;
 class KRContext;
+class KRScene;
 
 class KRNode : public KRContextObject
 {
@@ -36,11 +37,11 @@ public:
         RENDER_PASS_SKYBOX
     };
     
-    KRNode(KRContext &context, std::string name);
+    KRNode(KRScene &scene, std::string name);
     virtual ~KRNode();
     
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    static KRNode *LoadXML(KRContext &context, tinyxml2::XMLElement *e);
+    static KRNode *LoadXML(KRScene &scene, tinyxml2::XMLElement *e);
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     virtual std::string getElementName();
@@ -63,7 +64,12 @@ public:
     
     void clearExtents();
     virtual void calcExtents(KRContext *Context);
-    KRBoundingVolume getExtents(KRContext *pContext);    
+    KRBoundingVolume getExtents(KRContext *pContext);
+    
+    virtual KRVector3 getMinPoint();
+    virtual KRVector3 getMaxPoint();
+    
+    KRScene &getScene();
 #if TARGET_OS_IPHONE
     
     virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
@@ -82,6 +88,8 @@ private:
     
     std::vector<KRNode *> m_childNodes;
     KRNode *m_parentNode;
+    
+    KRScene *m_pScene;
     
 };
 

@@ -14,7 +14,7 @@
 #import "KRMat4.h"
 #import "KRResource.h"
 
-KRSkyBox::KRSkyBox(KRContext &context, std::string name) : KRNode(context, name)
+KRSkyBox::KRSkyBox(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_frontTexture = "";
     m_backTexture = "";

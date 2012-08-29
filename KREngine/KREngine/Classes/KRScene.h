@@ -42,6 +42,7 @@
 #import "KRCamera.h"
 #import "KRModelManager.h"
 #import "KRNode.h"
+#import "KROctree.h"
 class KRBoundingVolume;
 class KRInstance;
 class KRDirectionalLight;
@@ -69,6 +70,14 @@ public:
     
     KRBoundingVolume getExtents(KRContext *pContext);
     double sun_pitch, sun_yaw;
+    
+    void registerNotified(KRNotified *pNotified);
+    void unregisterNotified(KRNotified *pNotified);
+    
+    void notify_sceneGraphCreate(KRNode *pNode);
+    void notify_sceneGraphDelete(KRNode *pNode);
+    void notify_sceneGraphModify(KRNode *pNode);
+    
 private:
     KRContext *m_pContext;
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
@@ -76,6 +85,14 @@ private:
     KRNode *m_pRootNode;
     KRBoundingVolume *m_pExtents;
     KRDirectionalLight *m_pFirstDirectionalLight;
+    
+    std::set<KRNotified *> m_notifiedObjects;
+    std::set<KRNode *> m_allNodes;
+    std::set<KRNode *> m_newNodes;
+    std::set<KRNode *> m_modifiedNodes;
+    
+    KROctree m_nodeTree;
+    void updateOctree();
 
 };
 

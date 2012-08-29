@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <limits>
 
 #import "KRNode.h"
 #import "KRPointLight.h"
@@ -17,7 +18,7 @@
 #import "KRSkyBox.h"
 
 
-KRNode::KRNode(KRContext &context, std::string name) : KRContextObject(context)
+KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
 {
     m_pExtents = NULL;
     m_name = name;
@@ -25,10 +26,11 @@ KRNode::KRNode(KRContext &context, std::string name) : KRContextObject(context)
     m_localRotation = KRVector3::Zero();
     m_localTranslation = KRVector3::Zero();
     m_parentNode = NULL;
+    m_pScene = &scene;
 }
 
 KRNode::~KRNode() {
-    m_pContext->notify_sceneGraphDelete(this);
+    getScene().notify_sceneGraphDelete(this);
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         delete *itr;
     }
@@ -41,7 +43,7 @@ void KRNode::addChild(KRNode *child) {
     child->m_parentNode = this;
     m_childNodes.push_back(child);
     clearExtents();
-    m_pContext->notify_sceneGraphCreate(child);
+    getScene().notify_sceneGraphCreate(child);
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
@@ -84,7 +86,7 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_localRotation = KRVector3(x,y,z);
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
-        KRNode *child_node = KRNode::LoadXML(*m_pContext, child_element);
+        KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
         if(child_node) {
             addChild(child_node);
         }
@@ -129,22 +131,22 @@ std::string KRNode::getElementName() {
     return "node";
 }
 
-KRNode *KRNode::LoadXML(KRContext &context, tinyxml2::XMLElement *e) {
+KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     KRNode *new_node = NULL;
     const char *szElementName = e->Name();
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
-        new_node = new KRNode(context, szName);
+        new_node = new KRNode(scene, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
-        new_node = new KRPointLight(context, szName);
+        new_node = new KRPointLight(scene, szName);
     } else if(strcmp(szElementName, "directional_light") == 0) {
-        new_node = new KRDirectionalLight(context, szName);
+        new_node = new KRDirectionalLight(scene, szName);
     } else if(strcmp(szElementName, "spot_light") == 0) {
-        new_node = new KRSpotLight(context, szName);
+        new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
-        new_node = new KRInstance(context, szName, szName, KRMat4(), e->Attribute("light_map"));
+        new_node = new KRInstance(scene, szName, szName, KRMat4(), e->Attribute("light_map"));
     } else if(strcmp(szElementName, "sky_box") == 0) {
-        new_node = new KRSkyBox(context, szName);
+        new_node = new KRSkyBox(scene, szName);
     }
     
     if(new_node) {
@@ -201,4 +203,17 @@ const std::vector<KRNode *> &KRNode::getChildren() {
 
 const std::string &KRNode::getName() {
     return m_name;
+}
+
+KRScene &KRNode::getScene() {
+    return *m_pScene;
+}
+
+
+KRVector3 KRNode::getMinPoint() {
+    return KRVector3::Min();
+}
+
+KRVector3 KRNode::getMaxPoint() {
+    return KRVector3::Max();
 }

@@ -73,7 +73,8 @@ public:
     static float Cross(const KRVector2 &v1, const KRVector2 &v2);
     
     static float Dot(const KRVector2 &v1, const KRVector2 &v2);
-    
+    static KRVector2 Min();
+    static KRVector2 Max();
     static KRVector2 Zero();
     static KRVector2 One();
     

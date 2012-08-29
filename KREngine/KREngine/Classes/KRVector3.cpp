@@ -32,6 +32,7 @@
 #include "KRVector3.h"
 
 #include <math.h>
+#include <limits.h>
 
 //default constructor
 KRVector3::KRVector3()
@@ -45,6 +46,14 @@ KRVector3::KRVector3(const KRVector3 &v) {
     x = v.x;
     y = v.y;
     z = v.z;
+}
+
+KRVector3 KRVector3::Min() {
+    return KRVector3(-std::numeric_limits<float>::max());
+}
+
+KRVector3 KRVector3::Max() {
+    return KRVector3(std::numeric_limits<float>::max());
 }
 
 KRVector3 KRVector3::Zero() {

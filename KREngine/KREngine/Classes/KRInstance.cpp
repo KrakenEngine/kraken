@@ -32,9 +32,10 @@
 #include <iostream>
 #import "KRInstance.h"
 #import "KRContext.h"
+#import "KRMesh.h"
 #include <assert.h>
 
-KRInstance::KRInstance(KRContext &context, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(context, instance_name) {
+KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(scene, instance_name) {
     m_modelMatrix = modelMatrix;
     m_lightMap = light_map;
     m_pLightMap = NULL;
@@ -68,9 +69,6 @@ KRMat4 &KRInstance::getModelMatrix() {
 void KRInstance::loadModel() {
     if(m_pModel == NULL) {
         m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
-        if(m_pModel->hasTransparency()) {
-            m_pContext->notify_sceneGraphModify(this);
-        }
     }
 }
 
@@ -128,7 +126,7 @@ void KRInstance::calcExtents(KRContext *pContext) {
     KRNode::calcExtents(pContext);
     loadModel();    
     KRMesh *pMesh = m_pModel->getMesh();
-    KRBoundingVolume mesh_bounds = KRBoundingVolume(KRVector3(pMesh->getMinX(), pMesh->getMinY(), pMesh->getMinZ()), KRVector3(pMesh->getMaxX(), pMesh->getMaxY(), pMesh->getMaxZ()), m_modelMatrix);
+    KRBoundingVolume mesh_bounds = KRBoundingVolume(pMesh->getMinPoint(), pMesh->getMaxPoint(), m_modelMatrix);
     if(m_pExtents) {
         *m_pExtents = m_pExtents->get_union(mesh_bounds);
     } else {
@@ -142,5 +140,14 @@ bool KRInstance::hasTransparency() {
     } else {
         return false;
     }
-    
+}
+
+KRVector3 KRInstance::getMinPoint() {
+    loadModel();
+    return KRMat4::Dot(m_modelMatrix, m_pModel->getMesh()->getMinPoint());
+}
+
+KRVector3 KRInstance::getMaxPoint() {
+    loadModel();
+    return KRMat4::Dot(m_modelMatrix, m_pModel->getMesh()->getMaxPoint());
 }

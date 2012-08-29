@@ -71,12 +71,9 @@ public:
     void renderSubmesh(int iSubmesh, int *iPrevBuffer);
     
     GLfloat getMaxDimension();
-    GLfloat getMinX();
-    GLfloat getMaxX();
-    GLfloat getMinY();
-    GLfloat getMaxY();
-    GLfloat getMinZ();
-    GLfloat getMaxZ();
+    
+    KRVector3 getMinPoint() const;
+    KRVector3 getMaxPoint() const;
     
     typedef struct {
         GLint start_vertex;
@@ -114,7 +111,7 @@ public:
     } pack_material;
     
 protected:
-    GLfloat m_minx, m_miny, m_minz, m_maxx, m_maxy, m_maxz;
+    KRVector3 m_minPoint, m_maxPoint;
 
     int m_fdPackFile;
     void *m_pPackData;
