@@ -98,6 +98,31 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         pCamera->dSunB = sun_color.z;
     }
     
+/*
+ 
+ 
+ 
+ GLuint occlusionTest,hasBeenTested,theParams = 0;
+ glGenQueriesEXT(1, &occlusionTest);
+ glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, occlusionTest);
+ m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+ glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT);
+ 
+ 
+ 
+ // ----
+ 
+ 
+ if (hasBeenTested) glGetQueryObjectuivEXT(occlusionTest, GL_QUERY_RESULT_EXT, &theParams);
+ if (!theParams) {
+ fprintf(stderr, "Occluded: %s\n", getName().c_str());
+ } else {
+ fprintf(stderr, " Visible: %s\n", getName().c_str());
+ }
+ glDeleteQueriesEXT(1, &occlusionTest);
+ 
+ */
+    
     m_pRootNode->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 }
 

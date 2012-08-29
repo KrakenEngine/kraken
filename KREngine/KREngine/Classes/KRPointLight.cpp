@@ -36,9 +36,9 @@ std::string KRPointLight::getElementName() {
 
 #if TARGET_OS_IPHONE
 
-void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    bool bRendered = KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 
     
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
@@ -141,6 +141,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         }
     }
     
+    return bRendered;
 }
 
 void KRPointLight::generateMesh() {

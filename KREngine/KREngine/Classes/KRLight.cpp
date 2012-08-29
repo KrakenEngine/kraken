@@ -117,9 +117,9 @@ float KRLight::getDecayStart() {
 
 #if TARGET_OS_IPHONE
 
-void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
-    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    bool bRendered = KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_FLARES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
@@ -169,6 +169,8 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         }
         
     }
+    
+    return bRendered || true;
 }
 
 #endif
