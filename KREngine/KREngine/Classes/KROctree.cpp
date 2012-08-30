@@ -82,3 +82,14 @@ void KROctree::shrink()
         }
     }
 }
+
+KROctreeNode *KROctree::getRootNode()
+{
+    return m_pRootNode;
+}
+
+std::set<KRNode *> &KROctree::getOuterSceneNodes()
+{
+    return m_outerSceneNodes;
+}
+

@@ -6,11 +6,12 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KRAABBTREE_H
-#define KRAABBTREE_H
+#ifndef KROCTREE_H
+#define KROCTREE_H
 
 #import "KREngine-common.h"
 #include "KROctreeNode.h"
+#include "KRMat4.h"
 
 class KRNode;
 
@@ -23,11 +24,15 @@ public:
     void remove(KRNode *pNode);
     void update(KRNode *pNode);
     
+    KROctreeNode *getRootNode();
+    std::set<KRNode *> &getOuterSceneNodes();
+    
 private:
     KROctreeNode *m_pRootNode;
     std::set<KRNode *>m_outerSceneNodes;
+    //std::set<KRMat4> visibleMVPs;
     
     void shrink();
 };
 
-#endif /* defined(KRAABBTREE_H) */
+#endif /* defined(KROCTREE_H) */

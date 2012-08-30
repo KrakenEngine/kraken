@@ -170,3 +170,14 @@ KROctreeNode *KROctreeNode::stripChild()
     }
     return NULL;
 }
+
+
+KROctreeNode **KROctreeNode::getChildren()
+{
+    return m_children;
+}
+
+std::set<KRNode *> &KROctreeNode::getSceneNodes()
+{
+    return m_sceneNodes;
+}

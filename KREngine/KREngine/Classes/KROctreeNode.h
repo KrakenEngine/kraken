@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KRAABBTREENODE_H
-#define KRAABBTREENODE_H
+#ifndef KROCTREENODE_H
+#define KROCTREENODE_H
 
 #import "KREngine-common.h"
 #include "KRVector3.h"
@@ -19,6 +19,9 @@ public:
     KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint);
     KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint, int iChild, KROctreeNode *pChild);
     ~KROctreeNode();
+    
+    KROctreeNode **getChildren();
+    std::set<KRNode *> &getSceneNodes();
     
     void add(KRNode *pNode);
     void remove(KRNode *pNode);
@@ -44,4 +47,4 @@ private:
 };
 
 
-#endif /* defined(KRAABBTREENODE_H) */
+#endif /* defined(KROCTREENODE_H) */
