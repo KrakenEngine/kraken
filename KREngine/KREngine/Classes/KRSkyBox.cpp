@@ -99,9 +99,35 @@ void KRSkyBox::loadXML(tinyxml2::XMLElement *e) {
 
 void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRNode::RenderPass renderPass) {
     
+//    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+
     if(renderPass == KRNode::RENDER_PASS_SKYBOX) {
         // Skybox is rendered on the final pass of the deferred renderer
-        
+
+        if(m_frontTexture.size() && !m_pFrontTexture) {
+            m_pFrontTexture = pContext->getTextureManager()->getTexture(m_frontTexture.c_str());
+        }
+
+        if(m_backTexture.size() && !m_pBackTexture) {
+            m_pBackTexture = pContext->getTextureManager()->getTexture(m_backTexture.c_str());
+        }
+
+        if(m_topTexture.size() && !m_pTopTexture) {
+            m_pTopTexture = pContext->getTextureManager()->getTexture(m_topTexture.c_str());
+        }
+
+        if(m_bottomTexture.size() && !m_pBottomTexture) {
+            m_pBottomTexture = pContext->getTextureManager()->getTexture(m_bottomTexture.c_str());
+        }
+
+        if(m_leftTexture.size() && !m_pLeftTexture) {
+            m_pLeftTexture = pContext->getTextureManager()->getTexture(m_leftTexture.c_str());
+        }
+
+        if(m_rightTexture.size() && !m_pRightTexture) {
+            m_pRightTexture = pContext->getTextureManager()->getTexture(m_rightTexture.c_str());
+        }
+
         KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
         
         KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
@@ -110,9 +136,16 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
         matModelToView.invert();
                 
 //        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
-        
 //        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
         
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_pFrontTexture->getName());
+        glBindTexture(GL_TEXTURE_2D, m_pBackTexture->getName());
+        glBindTexture(GL_TEXTURE_2D, m_pTopTexture->getName());
+        glBindTexture(GL_TEXTURE_2D, m_pBottomTexture->getName());
+        glBindTexture(GL_TEXTURE_2D, m_pLeftTexture->getName());
+        glBindTexture(GL_TEXTURE_2D, m_pRightTexture->getName());
+
         // Disable z-buffer write
         glDepthMask(GL_FALSE);
         
