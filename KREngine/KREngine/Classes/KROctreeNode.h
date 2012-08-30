@@ -11,13 +11,14 @@
 
 #import "KREngine-common.h"
 #include "KRVector3.h"
+#include "KRAABB.h"
 
 class KRNode;
 
 class KROctreeNode {
 public:
-    KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint);
-    KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint, int iChild, KROctreeNode *pChild);
+    KROctreeNode(const KRAABB &bounds);
+    KROctreeNode(const KRAABB &bounds, int iChild, KROctreeNode *pChild);
     ~KROctreeNode();
     
     KROctreeNode **getChildren();
@@ -27,8 +28,7 @@ public:
     void remove(KRNode *pNode);
     void update(KRNode *pNode);
     
-    KRVector3 getMinPoint();
-    KRVector3 getMaxPoint();
+    KRAABB getBounds();
     
     void setChildNode(int iChild, KROctreeNode *pChild);
     int getChildIndex(KRNode *pNode);
@@ -37,9 +37,21 @@ public:
     bool canShrinkRoot() const;
     KROctreeNode *stripChild();
     
+    void beginOcclusionQuery(bool bTransparentPass);
+    void endOcclusionQuery();
+    bool getOcclusionQueryResults(std::set<KRAABB> &renderedBounds);
+    
 private:
-    KRVector3 m_minPoint;
-    KRVector3 m_maxPoint;
+    
+    GLuint m_occlusionQuery;
+    bool m_occlusionTested;
+    
+    GLuint m_occlusionQueryTransparent;
+    bool m_occlusionTestedTransparent;
+    
+    bool m_activeQuery;
+    
+    KRAABB m_bounds;
     
     KROctreeNode *m_children[8];
     

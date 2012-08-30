@@ -31,19 +31,18 @@ void KROctree::add(KRNode *pNode)
     } else { 
         if(m_pRootNode == NULL) {
             // First item inserted, create a node large enough to fit it
-            m_pRootNode = new KROctreeNode(pNode->getMinPoint(), pNode->getMaxPoint());
+            m_pRootNode = new KROctreeNode(KRAABB(pNode->getMinPoint(), pNode->getMaxPoint()));
             m_pRootNode->add(pNode);
         } else {
             // Keep encapsulating the root node until the new root contains the inserted node
             bool bInsideRoot = false;
             while(!bInsideRoot) {
-                KRVector3 rootMinPoint = m_pRootNode->getMinPoint();
-                KRVector3 rootMaxPoint = m_pRootNode->getMaxPoint();
-                KRVector3 rootSize = rootMaxPoint - rootMinPoint;
-                if(minPoint.x < rootMinPoint.x || minPoint.y < rootMinPoint.y || minPoint.z < rootMinPoint.z) {
-                    m_pRootNode = new KROctreeNode(rootMinPoint - rootSize, rootMaxPoint, 7, m_pRootNode);
-                } else if(maxPoint.x > rootMaxPoint.x || maxPoint.y > rootMaxPoint.y || maxPoint.z > rootMaxPoint.z) {
-                    m_pRootNode = new KROctreeNode(rootMaxPoint, rootMaxPoint + rootSize, 0, m_pRootNode);
+                KRAABB rootBounds = m_pRootNode->getBounds();
+                KRVector3 rootSize = rootBounds.size();
+                if(minPoint.x < rootBounds.min.x || minPoint.y < rootBounds.min.y || minPoint.z < rootBounds.min.z) {
+                    m_pRootNode = new KROctreeNode(KRAABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
+                } else if(maxPoint.x > rootBounds.max.x || maxPoint.y > rootBounds.max.y || maxPoint.z > rootBounds.max.z) {
+                    m_pRootNode = new KROctreeNode(KRAABB(rootBounds.max, rootBounds.max + rootSize), 0, m_pRootNode);
                 } else {
                     bInsideRoot = true;
                 }
@@ -91,5 +90,13 @@ KROctreeNode *KROctree::getRootNode()
 std::set<KRNode *> &KROctree::getOuterSceneNodes()
 {
     return m_outerSceneNodes;
+}
+
+void KROctree::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
+{
+    renderedBounds.clear();
+    if(m_pRootNode) {
+        m_pRootNode->getOcclusionQueryResults(renderedBounds);
+    }
 }
 

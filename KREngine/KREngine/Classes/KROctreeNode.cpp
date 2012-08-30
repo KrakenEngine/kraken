@@ -9,20 +9,28 @@
 #include "KROctreeNode.h"
 #include "KRNode.h"
 
-KROctreeNode::KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint)
+KROctreeNode::KROctreeNode(const KRAABB &bounds) : m_bounds(bounds)
 {
-    m_minPoint = minPoint;
-    m_maxPoint = maxPoint;
     for(int i=0; i<8; i++) m_children[i] = NULL;
+    
+    m_occlusionQuery = 0;
+    m_occlusionTested = false;
+    m_occlusionQueryTransparent = 0;
+    m_occlusionTestedTransparent = false;
+    m_activeQuery = false;
 }
 
-KROctreeNode::KROctreeNode(const KRVector3 &minPoint, const KRVector3 &maxPoint, int iChild, KROctreeNode *pChild)
+KROctreeNode::KROctreeNode(const KRAABB &bounds, int iChild, KROctreeNode *pChild) : m_bounds(bounds)
 {
     // This constructor is used when expanding the octree and replacing the root node with a new root that encapsulates it
-    m_minPoint = minPoint;
-    m_maxPoint = maxPoint;
     for(int i=0; i<8; i++) m_children[i] = NULL;
     m_children[iChild] = pChild;
+    
+    m_occlusionQuery = 0;
+    m_occlusionTested = false;
+    m_occlusionQueryTransparent = 0;
+    m_occlusionTestedTransparent = false;
+    m_activeQuery = false;
 }
 
 KROctreeNode::~KROctreeNode()
@@ -32,28 +40,105 @@ KROctreeNode::~KROctreeNode()
             delete m_children[i];
         }
     }
+    
+    if(m_occlusionTested) {
+        glDeleteQueriesEXT(1, &m_occlusionQuery);
+    }
+    if(m_occlusionTestedTransparent) {
+        glDeleteQueriesEXT(1, &m_occlusionQueryTransparent);
+    }
+}
+
+
+void KROctreeNode::beginOcclusionQuery(bool bTransparentPass)
+{
+    if(bTransparentPass && !m_occlusionTestedTransparent) {
+        glGenQueriesEXT(1, &m_occlusionQueryTransparent);
+        glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQueryTransparent);
+        m_occlusionTestedTransparent = true;
+        m_activeQuery = true;
+    } else if(!bTransparentPass && !m_occlusionTested){
+        glGenQueriesEXT(1, &m_occlusionQuery);
+        glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery);
+        m_occlusionTested = true;
+        m_activeQuery = true;
+    }
+}
+
+void KROctreeNode::endOcclusionQuery()
+{
+    if(m_activeQuery) {
+        // Only end a query if we started one
+        glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT);
+    }
+}
+
+bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
+{
+    bool bRendered = false;
+    bool bGoDeeper = false;
+    
+    if(m_occlusionTested) {
+        GLuint params = 0;
+        glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params);
+        if(params) bRendered = true; // At least one opaque fragment processed
+        
+        glDeleteQueriesEXT(1, &m_occlusionQuery);
+        m_occlusionTested = false;
+        bGoDeeper = true;
+    }
+    if(m_occlusionTestedTransparent) {
+        GLuint params = 0;
+        glGetQueryObjectuivEXT(m_occlusionQueryTransparent, GL_QUERY_RESULT_EXT, &params);
+        if(params) bRendered = true; // At least one transparent fragment processed
+        
+        glDeleteQueriesEXT(1, &m_occlusionQueryTransparent);
+        m_occlusionTestedTransparent = false;
+        
+        bGoDeeper = true;
+    }
+    
+    if(bGoDeeper) { // Only recurse deeper if we reached this level in the previous pass
+        for(int i=0; i<8; i++) {
+            if(m_children[i]) {
+                if(m_children[i]->getOcclusionQueryResults(renderedBounds)) {
+                    bRendered = true; // We must always include the parent, even if the parent's local scene graph nodes are fully occluded
+                }
+            }
+        }
+    }
+    
+    if(bRendered) {
+        renderedBounds.insert(m_bounds);
+    }
+    
+    return bRendered;
+}
+
+KRAABB KROctreeNode::getBounds()
+{
+    return m_bounds;
 }
 
 void KROctreeNode::add(KRNode *pNode)
 {
-
-    
-    KRVector3 center = (m_minPoint + m_maxPoint) / 2.0f;
+    KRVector3 center = m_bounds.center();
     
     int iChild = getChildIndex(pNode);
     if(iChild == -1) {
         m_sceneNodes.insert(pNode);
     } else {
         if(m_children[iChild] == NULL) {
-            m_children[iChild] = new KROctreeNode(
-                  KRVector3(
-                    (iChild & 1) == 0 ? m_minPoint.x : center.x,
-                    (iChild & 2) == 0 ? m_minPoint.y : center.y,
-                    (iChild & 4) == 0 ? m_minPoint.z : center.z),
-                  KRVector3(
-                    (iChild & 1) == 0 ? center.x : m_maxPoint.x,
-                    (iChild & 2) == 0 ? center.y : m_maxPoint.y,
-                    (iChild & 4) == 0 ? center.z : m_maxPoint.z)
+            m_children[iChild] = new KROctreeNode(KRAABB(
+                      KRVector3(
+                        (iChild & 1) == 0 ? m_bounds.min.x : center.x,
+                        (iChild & 2) == 0 ? m_bounds.min.y : center.y,
+                        (iChild & 4) == 0 ? m_bounds.min.z : center.z),
+                      KRVector3(
+                        (iChild & 1) == 0 ? center.x : m_bounds.max.x,
+                        (iChild & 2) == 0 ? center.y : m_bounds.max.y,
+                        (iChild & 4) == 0 ? center.z : m_bounds.max.z)
+                  )
             );
         }
         m_children[iChild]->add(pNode);
@@ -73,7 +158,7 @@ int KROctreeNode::getChildIndex(KRNode *pNode)
     // 6: max.x < center.x && min.y > center.y && min.z > center.z
     // 7: min.x > center.x && min.y > center.y && min.z > center.z
     
-    KRVector3 center = (m_minPoint + m_maxPoint) / 2.0f;
+    KRVector3 center = m_bounds.center();
     int iChild = -1;
     if(max.z < center.z) {
         if(max.y < center.y) {
@@ -124,16 +209,6 @@ void KROctreeNode::remove(KRNode *pNode)
 void KROctreeNode::update(KRNode *pNode)
 {
     
-}
-
-KRVector3 KROctreeNode::getMinPoint()
-{
-    return m_minPoint;
-}
-
-KRVector3 KROctreeNode::getMaxPoint()
-{
-    return m_maxPoint;
 }
 
 bool KROctreeNode::isEmpty() const

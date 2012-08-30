@@ -27,6 +27,8 @@ public:
     KROctreeNode *getRootNode();
     std::set<KRNode *> &getOuterSceneNodes();
     
+    void getOcclusionQueryResults(std::set<KRAABB> &renderedBounds);
+    
 private:
     KROctreeNode *m_pRootNode;
     std::set<KRNode *>m_outerSceneNodes;

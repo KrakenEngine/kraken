@@ -255,3 +255,38 @@ float KRVector3::Dot(const KRVector3 &v1, const KRVector3 &v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
+bool KRVector3::operator >(const KRVector3& b) const
+{
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    if(x > b.x) {
+        return true;
+    } else if(x < b.x) {
+        return false;
+    } else if(y > b.y) {
+        return true;
+    } else if(y < b.y) {
+        return false;
+    } else if(z > b.z) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool KRVector3::operator <(const KRVector3& b) const
+{
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    if(x < b.x) {
+        return true;
+    } else if(x > b.x) {
+        return false;
+    } else if(y < b.y) {
+        return true;
+    } else if(y > b.y) {
+        return false;
+    } else if(z < b.z) {
+        return true;
+    } else {
+        return false;
+    }
+}

@@ -54,7 +54,7 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
     updateOctree();
     
@@ -124,7 +124,7 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
  */
     
     //m_pRootNode->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-    render(m_nodeTree.getRootNode(), pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    render(m_nodeTree.getRootNode(), visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     
     for(std::set<KRNode *>::iterator itr=m_nodeTree.getOuterSceneNodes().begin(); itr != m_nodeTree.getOuterSceneNodes().end(); itr++) {
@@ -132,14 +132,16 @@ void KRScene::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
+void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
 {
     if(pOctreeNode) {
+        pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
             (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
         }
+        pOctreeNode->endOcclusionQuery();
         for(int i=0; i<8; i++) {
-            render(pOctreeNode->getChildren()[i], pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+            render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
         }
     }
 }
@@ -257,4 +259,9 @@ void KRScene::updateOctree()
     }
     m_newNodes.clear();
     m_modifiedNodes.clear();
+}
+
+void KRScene::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
+{
+    m_nodeTree.getOcclusionQueryResults(renderedBounds);
 }

@@ -37,6 +37,7 @@
 #import "KRMat4.h"
 #import "KRVector2.h"
 #import "KRNotified.h"
+#import "KRAABB.h"
 
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
@@ -195,6 +196,9 @@ private:
     };
     
     std::list<KRInstanceDistance> m_transparentInstances;
+    
+    std::set<KRAABB> m_visibleBounds; // AABB's that output fragments in the last frame
+    std::set<KRAABB> m_shadowVisibleBounds[KRENGINE_MAX_SHADOW_BUFFERS]; // AABB's that output fragments in the last frame for each shadow map
     
 };
 

@@ -62,6 +62,10 @@ public:
     bool operator ==(const KRVector3& b) const;
     bool operator !=(const KRVector3& b) const;
     
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    bool operator >(const KRVector3& b) const;
+    bool operator <(const KRVector3& b) const;
+    
     float& operator[](unsigned i);
     float operator[](unsigned i) const;
     
