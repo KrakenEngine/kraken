@@ -43,6 +43,7 @@
 #import <KREngine_osx/KRVector2.h>
 #import <KREngine_osx/KRVector3.h>
 #import <KREngine_osx/KRMesh.h>
+#import <KREngine_osx/KRContext.h>
 
 KROBJPacker::KROBJPacker() {
     
@@ -56,7 +57,9 @@ void KROBJPacker::pack(const char *szPath) {
     std::cout << "Reading " << szPath << " ...\n";
     std::string base_path = KRResource::GetFilePath(szPath);
     
-    vector<KRResource *> resources = KRResource::Load(szPath);
+    KRContext context = KRContext();
+    
+    vector<KRResource *> resources = KRResource::Load(context, szPath);
     
     try {    
         vector<KRResource *>::iterator resource_itr = resources.begin();

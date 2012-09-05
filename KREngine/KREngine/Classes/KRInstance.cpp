@@ -64,13 +64,15 @@ KRMat4 &KRInstance::getModelMatrix() {
     return m_modelMatrix;
 }
 
-#if TARGET_OS_IPHONE
+
 
 void KRInstance::loadModel() {
     if(m_pModel == NULL) {
         m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
     }
 }
+
+#if TARGET_OS_IPHONE
 
 bool KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 

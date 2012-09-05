@@ -93,7 +93,9 @@ public:
     void perspective(GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat farz);
     void ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLfloat nearz, GLfloat farz);
     void translate(GLfloat x, GLfloat y, GLfloat z);
+    void translate(const KRVector3 &v);
     void scale(GLfloat x, GLfloat y, GLfloat z);
+    void scale(const KRVector3 &v);
     void scale(GLfloat s);
     void rotate(GLfloat angle, AXIS axis);
     void bias();

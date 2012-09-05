@@ -91,7 +91,7 @@ std::set<KRNode *> &KROctree::getOuterSceneNodes()
 {
     return m_outerSceneNodes;
 }
-
+#if TARGET_OS_IPHONE
 void KROctree::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
 {
     renderedBounds.clear();
@@ -99,4 +99,4 @@ void KROctree::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
         m_pRootNode->getOcclusionQueryResults(renderedBounds);
     }
 }
-
+#endif

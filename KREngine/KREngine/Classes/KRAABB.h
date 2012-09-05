@@ -18,8 +18,9 @@ public:
     KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint);
     ~KRAABB();
     
-    KRVector3 center();
-    KRVector3 size();
+    KRVector3 center() const;
+    KRVector3 size() const;
+    bool intersects(const KRAABB& b) const;
     
     KRAABB& operator =(const KRAABB& b);
     bool operator ==(const KRAABB& b) const;

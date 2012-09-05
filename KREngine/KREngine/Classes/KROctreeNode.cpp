@@ -40,16 +40,17 @@ KROctreeNode::~KROctreeNode()
             delete m_children[i];
         }
     }
-    
+#if TARGET_OS_IPHONE
     if(m_occlusionTested) {
         glDeleteQueriesEXT(1, &m_occlusionQuery);
     }
     if(m_occlusionTestedTransparent) {
         glDeleteQueriesEXT(1, &m_occlusionQueryTransparent);
     }
+#endif
 }
 
-
+#if TARGET_OS_IPHONE
 void KROctreeNode::beginOcclusionQuery(bool bTransparentPass)
 {
     if(bTransparentPass && !m_occlusionTestedTransparent) {
@@ -98,6 +99,10 @@ bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
         bGoDeeper = true;
     }
     
+    // FINDME - Test Code:
+    bGoDeeper = true;
+    bRendered = true;
+    
     if(bGoDeeper) { // Only recurse deeper if we reached this level in the previous pass
         for(int i=0; i<8; i++) {
             if(m_children[i]) {
@@ -114,6 +119,8 @@ bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
     
     return bRendered;
 }
+
+#endif
 
 KRAABB KROctreeNode::getBounds()
 {

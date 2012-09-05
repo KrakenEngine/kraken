@@ -149,6 +149,11 @@ void KRMat4::translate(GLfloat x, GLfloat y, GLfloat z) {
     *this *= newMatrix;
 }
 
+void KRMat4::translate(const KRVector3 &v)
+{
+    translate(v.x, v.y, v.z);
+}
+
 /* Rotate a matrix by an angle on a X, Y, or Z axis */
 void KRMat4::rotate(GLfloat angle, AXIS axis) {
     const int cos1[3] = { 5, 0, 0 };
@@ -175,6 +180,10 @@ void KRMat4::scale(GLfloat x, GLfloat y, GLfloat z) {
     newMatrix.m_mat[10] = z;
     
     *this *= newMatrix;
+}
+
+void KRMat4::scale(const KRVector3 &v) {
+    scale(v.x, v.y, v.z);
 }
 
 /* Scale all dimensions equally */

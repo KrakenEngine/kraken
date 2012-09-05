@@ -107,7 +107,7 @@
 		E404C88F136B8E2F00B6C99B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0440;
 				ORGANIZATIONNAME = "Kearwood Software";
 			};
 			buildConfigurationList = E404C892136B8E2F00B6C99B /* Build configuration list for PBXProject "objpack" */;

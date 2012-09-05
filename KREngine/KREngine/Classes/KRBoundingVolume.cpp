@@ -193,6 +193,42 @@ bool KRBoundingVolume::test_intersect(const KRBoundingVolume &p) const {
     return bIntersect;
 }
 
+bool KRBoundingVolume::test_intersect(const KRAABB &p) const {
+    // Simple, non-aligned bounding box intersection test
+    
+    KRVector3 minPoint = m_vertices[0], maxPoint = m_vertices[0], minPoint2 = p.min, maxPoint2 = p.max;
+    for(int iVertex=1; iVertex < 8; iVertex++) {
+        if(m_vertices[iVertex].x < minPoint.x) {
+            minPoint.x = m_vertices[iVertex].x;
+        }
+        if(m_vertices[iVertex].y < minPoint.y) {
+            minPoint.y = m_vertices[iVertex].y;
+        }
+        if(m_vertices[iVertex].z < minPoint.z) {
+            minPoint.z = m_vertices[iVertex].z;
+        }
+        if(m_vertices[iVertex].x > maxPoint.x) {
+            maxPoint.x = m_vertices[iVertex].x;
+        }
+        if(m_vertices[iVertex].y > maxPoint.y) {
+            maxPoint.y = m_vertices[iVertex].y;
+        }
+        if(m_vertices[iVertex].z > maxPoint.z) {
+            maxPoint.z = m_vertices[iVertex].z;
+        }
+    }
+    
+    bool bIntersect =
+        maxPoint.x >= minPoint2.x
+        && maxPoint.y >= minPoint2.y
+        && maxPoint.z >= minPoint2.z
+        && minPoint.x <= maxPoint2.x
+        && minPoint.y <= maxPoint2.y
+        && minPoint.z <= maxPoint2.z;
+    
+    return bIntersect;
+}
+
 
 KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, KRContext *pContext, GLfloat sun_yaw, GLfloat sun_pitch) const {
     KRBoundingVolume sceneVolume = pScene->getExtents(pContext);

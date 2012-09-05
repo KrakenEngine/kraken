@@ -329,6 +329,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     // Render all transparent geometry
     scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
+    
     // ----====---- Flares ----====----
     
     // Set render target
@@ -352,12 +353,63 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     // Render all flares
     scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
     
-    // Re-enable z-buffer write
-    glDepthMask(GL_TRUE);
+    // ----====---- Debug Overlay ----====----
+    
+    bool bVisualize = true;
+    if(bVisualize) {
+        // Enable z-buffer test
+        glEnable(GL_DEPTH_TEST);
+        glDepthRangef(0.0, 1.0);
+        
+        // Enable backface culling
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        
+        KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    
+        KRMat4 projectionMatrix = getProjectionMatrix();
+        
+        static const GLfloat cubeVertices[] = {
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+            -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+             1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0,  1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0, -1.0,
+             1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+            -1.0,  1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0,  1.0
+        };
+        
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices);
+        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+        
+        for(std::set<KRAABB>::iterator itr=m_visibleBounds.begin(); itr != m_visibleBounds.end(); itr++) {
+            KRMat4 matModel = KRMat4();
+            matModel.scale((*itr).size() / 2.0f);
+            matModel.translate((*itr).center());
+            KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
+            
+            pVisShader->bind(this, viewMatrix, mvpmatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 17);
+        }
+    }
     
     scene.getOcclusionQueryResults(m_visibleBounds);
     
     fprintf(stderr, "visible bounds: %i\n", (int)m_visibleBounds.size());
+    
+    // Re-enable z-buffer write
+    glDepthMask(GL_TRUE);
 
 }
 

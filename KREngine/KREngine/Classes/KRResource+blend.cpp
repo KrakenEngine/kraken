@@ -22,9 +22,9 @@
 #include "KRResource+blend.h"
 
 
-std::vector<KRResource *> KRResource::LoadBlenderScene(const std::string& path) {
+std::vector<KRResource *> KRResource::LoadBlenderScene(KRContext &context, const std::string& path) {
     std::vector<KRResource *> resources;
-    KRScene *pScene = new KRScene(KRResource::GetFileBase(path));
+    KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
     resources.push_back(pScene);
     
     int fdFile = 0;

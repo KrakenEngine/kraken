@@ -44,10 +44,10 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
 void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 
 
-std::vector<KRResource *> KRResource::LoadFbx(const std::string& path)
+std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::string& path)
 {
     std::vector<KRResource *> resources;
-    KRScene *pScene = new KRScene(KRResource::GetFileBase(path));
+    KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
     resources.push_back(pScene);
     
     
@@ -271,7 +271,7 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
     std::string light_map = pNode->GetName();
     light_map.append("_lightmap");
     
-    KRInstance *new_instance = new KRInstance(pNode->GetName(), pNode->GetName(), KRMat4(), light_map);
+    KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), KRMat4(), light_map);
     fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
     fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
     fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
@@ -423,7 +423,7 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
             printf("  %s: %i - %i\n", pMaterial->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
             
             // ----====---- Output Material File ----====----
-            KRMaterial *new_material = new KRMaterial(pMaterial->GetName());            
+            KRMaterial *new_material = new KRMaterial(parent_node->getContext(), pMaterial->GetName());
             
             KFbxPropertyDouble3 lKFbxDouble3;
             KFbxPropertyDouble1 lKFbxDouble1;
@@ -509,8 +509,6 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
                 assert(pTexture->GetRotationU() == 0.0f);
                 assert(pTexture->GetRotationV() == 0.0f);
                 assert(pTexture->GetRotationW() == 0.0f);
-                assert(pTexture->GetScaleU() == 1.0f);
-                assert(pTexture->GetScaleV() == 1.0f);
                 
                 KFbxFileTexture *pFileTexture = KFbxCast<KFbxFileTexture>(pTexture);
                 if(pFileTexture) {
@@ -573,7 +571,7 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
     
     // ----====---- Generate Output Mesh Object ----====----
 
-    KRMesh *new_mesh = new KRMesh(pNode->GetName());
+    KRMesh *new_mesh = new KRMesh(parent_node->getContext(), pNode->GetName());
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
 
@@ -614,20 +612,20 @@ void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNo
     switch(pLight->LightType.Get()) {
         case KFbxLight::ePOINT:
         {
-            KRPointLight *l = new KRPointLight(szName);
+            KRPointLight *l = new KRPointLight(parent_node->getScene(), szName);
             new_light = l;
             
         }
             break;
         case KFbxLight::eDIRECTIONAL:
         {
-            KRDirectionalLight *l = new KRDirectionalLight(szName);
+            KRDirectionalLight *l = new KRDirectionalLight(parent_node->getScene(), szName);
             new_light = l;
         }
             break;
         case KFbxLight::eSPOT:
         {
-            KRSpotLight *l = new KRSpotLight(szName);
+            KRSpotLight *l = new KRSpotLight(parent_node->getScene(), szName);
             l->setInnerAngle(light_hotspot * d2r);
             l->setOuterAngle(light_coneangle * d2r);
             new_light = l;

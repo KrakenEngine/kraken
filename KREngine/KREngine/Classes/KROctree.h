@@ -26,9 +26,9 @@ public:
     
     KROctreeNode *getRootNode();
     std::set<KRNode *> &getOuterSceneNodes();
-    
+#if TARGET_OS_IPHONE
     void getOcclusionQueryResults(std::set<KRAABB> &renderedBounds);
-    
+#endif
 private:
     KROctreeNode *m_pRootNode;
     std::set<KRNode *>m_outerSceneNodes;

@@ -135,13 +135,17 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
 void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
 {
     if(pOctreeNode) {
-        pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-        for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-            (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-        }
-        pOctreeNode->endOcclusionQuery();
-        for(int i=0; i<8; i++) {
-            render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+        if(frustrumVolume.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+            pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+            for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+                (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+            }
+            pOctreeNode->endOcclusionQuery();
+            for(int i=0; i<8; i++) {
+                render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+            }
+        } else {
+            fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
         }
     }
 }
@@ -260,8 +264,11 @@ void KRScene::updateOctree()
     m_newNodes.clear();
     m_modifiedNodes.clear();
 }
+#if TARGET_OS_IPHONE
 
 void KRScene::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
 {
     m_nodeTree.getOcclusionQueryResults(renderedBounds);
 }
+
+#endif

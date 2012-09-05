@@ -36,12 +36,12 @@ bool KRAABB::operator !=(const KRAABB& b) const
     return min != b.min || max != b.max;
 }
 
-KRVector3 KRAABB::center()
+KRVector3 KRAABB::center() const
 {
     return (min + max) / 2.0f;
 }
 
-KRVector3 KRAABB::size()
+KRVector3 KRAABB::size() const
 {
     return max - min;
 }
@@ -72,4 +72,10 @@ bool KRAABB::operator <(const KRAABB& b) const
     } else {
         return false;
     }
+}
+
+bool KRAABB::intersects(const KRAABB& b) const
+{
+    // Return true if the two volumes intersect
+    return min.x <= b.max.x && min.y <= b.max.y && min.z <= b.max.z && max.x >= b.min.x && max.y >= b.min.y && max.z >= b.max.z;
 }
