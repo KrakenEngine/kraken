@@ -355,7 +355,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     
     // ----====---- Debug Overlay ----====----
     
-    bool bVisualize = true;
+    bool bVisualize = false; // MIKE EDIT: True->false
     if(bVisualize) {
         // Enable z-buffer test
         glEnable(GL_DEPTH_TEST);
