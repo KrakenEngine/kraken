@@ -41,7 +41,9 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
     KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 
     
-    if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
+    bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->bShowDeferred;
+    
+    if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
 
         KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
@@ -78,8 +80,10 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->perspective_nearz) * (influence_radius + pCamera->perspective_nearz);
             
-            KRShader *pShader = pContext->getShaderManager()->getShader(bInsideLight ? "light_point_inside" : "light_point", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
             pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
+            
+            
             glUniform3f(
                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
                         m_color.x,
@@ -126,6 +130,13 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             matInvProjection.invert();
             glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_INVP], 1, GL_FALSE, matInvProjection.getPointer());
             
+            
+            if(bVisualize) {
+                // Enable additive blending
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE, GL_ONE);
+            }
+            
             // Disable z-buffer write
             glDepthMask(GL_FALSE);
             
@@ -159,6 +170,12 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
                 glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices);
                 glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
                 glDrawArrays(GL_TRIANGLES, 0, m_cVertices);
+            }
+            
+            if(bVisualize) {
+                // Enable alpha blending
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             }
         }
     }

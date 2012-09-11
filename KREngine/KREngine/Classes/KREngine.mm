@@ -90,7 +90,8 @@ double const PI = 3.141592653589793f;
             @"debug_enable_specular" : @28,
             @"debug_super_shiny" : @29,
             @"debug_octree" : @30,
-            @"enable_deferred_lighting" : @31
+            @"debug_deferred" : @31,
+            @"enable_deferred_lighting" : @32
         } copy];
         [self loadShaders];
         
@@ -152,7 +153,7 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 32;
+    return 33;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -162,7 +163,7 @@ double const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[32] = {
+    NSString *parameter_labels[33] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -194,13 +195,14 @@ double const PI = 3.141592653589793f;
         @"Debug - Enable Specular",
         @"Debug - Super Shiny",
         @"Debug - Octree Visualize",
+        @"Debug - Deferred Lights Visualize",
         @"Enable Deferred Lighting"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[32] = {
+    KREngineParameterType types[33] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -233,13 +235,14 @@ double const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
+        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL
     };
     return types[i];
 }
 -(double)getParameterValueWithIndex: (int)i
 {
-    double values[32] = {
+    double values[33] = {
         _camera->perspective_fov,
         (double)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -271,6 +274,7 @@ double const PI = 3.141592653589793f;
         _camera->bEnableSpecular ? 1.0f : 0.0f,
         _camera->bDebugSuperShiny ? 1.0f : 0.0f,
         _camera->bShowOctree ? 1.0f : 0.0f,
+        _camera->bShowDeferred ? 1.0f : 0.0f,
         _camera->bEnableDeferredLighting ? 1.0f : 0.0f
     };
     return values[i];
@@ -418,6 +422,11 @@ double const PI = 3.141592653589793f;
             }
             break;
         case 31:
+            if(_camera->bShowDeferred != bNewBoolVal) {
+                _camera->bShowDeferred = bNewBoolVal;
+            }
+            break;
+        case 32:
             if(_camera->bEnableDeferredLighting != bNewBoolVal) {
                 _camera->bEnableDeferredLighting = bNewBoolVal;
             }
@@ -427,22 +436,22 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMinWithIndex: (int)i
 {
-    double minValues[32] = {
+    double minValues[33] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f
+        0.0f, 0.0f, 0.0f
     };
     return minValues[i];
 }
 
 -(double)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[32] = {
+    double maxValues[33] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f,
         3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f
+        1.0f, 1.0f, 1.0f
     };
     
     return maxValues[i];

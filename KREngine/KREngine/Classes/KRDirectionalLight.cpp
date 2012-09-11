@@ -52,7 +52,6 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
     
     KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 
-    
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
         

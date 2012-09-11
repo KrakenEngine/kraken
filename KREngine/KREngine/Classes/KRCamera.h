@@ -79,6 +79,7 @@ public:
     bool bDebugSuperShiny;
     bool bShowShadowBuffer;
     bool bShowOctree;
+    bool bShowDeferred;
     bool bEnableAmbient;
     bool bEnableDiffuse;
     bool bEnableSpecular;
