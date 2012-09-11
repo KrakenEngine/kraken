@@ -23,15 +23,14 @@ KROctree::~KROctree()
 
 void KROctree::add(KRNode *pNode)
 {
-    KRVector3 minPoint = pNode->getMinPoint();
-    KRVector3 maxPoint = pNode->getMaxPoint();
-    if(pNode->getMinPoint() == KRVector3::Min() && pNode->getMaxPoint() == KRVector3::Max()) {
+    KRAABB nodeBounds = pNode->getBounds();
+    if(nodeBounds == KRAABB::Infinite()) {
         // This item is infinitely large; we track it separately
         m_outerSceneNodes.insert(pNode);
     } else { 
         if(m_pRootNode == NULL) {
             // First item inserted, create a node large enough to fit it
-            m_pRootNode = new KROctreeNode(KRAABB(pNode->getMinPoint(), pNode->getMaxPoint()));
+            m_pRootNode = new KROctreeNode(nodeBounds);
             m_pRootNode->add(pNode);
         } else {
             // Keep encapsulating the root node until the new root contains the inserted node
@@ -39,9 +38,9 @@ void KROctree::add(KRNode *pNode)
             while(!bInsideRoot) {
                 KRAABB rootBounds = m_pRootNode->getBounds();
                 KRVector3 rootSize = rootBounds.size();
-                if(minPoint.x < rootBounds.min.x || minPoint.y < rootBounds.min.y || minPoint.z < rootBounds.min.z) {
+                if(nodeBounds.min.x < rootBounds.min.x || nodeBounds.min.y < rootBounds.min.y || nodeBounds.min.z < rootBounds.min.z) {
                     m_pRootNode = new KROctreeNode(KRAABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
-                } else if(maxPoint.x > rootBounds.max.x || maxPoint.y > rootBounds.max.y || maxPoint.z > rootBounds.max.z) {
+                } else if(nodeBounds.max.x > rootBounds.max.x || nodeBounds.max.y > rootBounds.max.y || nodeBounds.max.z > rootBounds.max.z) {
                     m_pRootNode = new KROctreeNode(KRAABB(rootBounds.max, rootBounds.max + rootSize), 0, m_pRootNode);
                 } else {
                     bInsideRoot = true;

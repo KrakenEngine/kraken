@@ -46,17 +46,13 @@
 #import "KRShaderManager.h"
 #import "KRContext.h"
 
-KRModel::KRModel(KRContext &context, std::string name, std::string path) : KRContextObject(context) {
+KRModel::KRModel(KRContext &context, std::string name, KRDataBlock *data) : KRContextObject(context) {
     m_name = name;
-    loadPack(path);
-}
-
-void KRModel::loadPack(std::string path) {
     m_hasTransparency = false;
     m_materials.clear();
     m_uniqueMaterials.clear();
-    m_pMesh = new KRMesh(*m_pContext, KRResource::GetFileBase(path));
-    m_pMesh->loadPack(path);
+    m_pMesh = new KRMesh(*m_pContext, name);
+    m_pMesh->loadPack(data);
 }
 
 std::string KRModel::getName() {
@@ -70,6 +66,8 @@ KRModel::~KRModel() {
 
 void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
+    // fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
+    
     if(renderPass != KRNode::RENDER_PASS_FLARES) {
     
         if(m_materials.size() == 0) {
@@ -78,7 +76,9 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
             for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
                 KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
                 m_materials.push_back(pMaterial);
-                m_uniqueMaterials.insert(pMaterial);
+                if(pMaterial) {
+                    m_uniqueMaterials.insert(pMaterial);
+                }
             }
             
             m_hasTransparency = false;

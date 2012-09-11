@@ -47,6 +47,7 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(c
     double const D2R = PI * 2 / 360;
     
     bShowShadowBuffer = false;
+    bShowOctree = false;
     bEnablePerPixel = true;
     bEnableDiffuseMap = true;
     bEnableNormalMap = true;
@@ -230,8 +231,10 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         glDepthMask(GL_FALSE);
         
         // Set source to buffers from pass 1
+        m_pContext->getTextureManager()->selectTexture(6, NULL);
         glActiveTexture(GL_TEXTURE6);
         glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
+        m_pContext->getTextureManager()->selectTexture(7, NULL);
         glActiveTexture(GL_TEXTURE7);
         glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
         
@@ -251,6 +254,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         glClear(GL_COLOR_BUFFER_BIT);
         
         // Set source to buffers from pass 2
+        m_pContext->getTextureManager()->selectTexture(6, NULL);
         glActiveTexture(GL_TEXTURE6);
         glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
         
@@ -270,8 +274,10 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
         
         // Deactivate source buffer texture units
+        m_pContext->getTextureManager()->selectTexture(6, NULL);
         glActiveTexture(GL_TEXTURE6);
         glBindTexture(GL_TEXTURE_2D, 0);
+        m_pContext->getTextureManager()->selectTexture(7, NULL);
         glActiveTexture(GL_TEXTURE7);
         glBindTexture(GL_TEXTURE_2D, 0);
     } else {
@@ -355,38 +361,36 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     
     // ----====---- Debug Overlay ----====----
     
-    bool bVisualize = false; // MIKE EDIT: True->false
-    if(bVisualize) {
+    if(bShowOctree) {
         // Enable z-buffer test
         glEnable(GL_DEPTH_TEST);
         glDepthRangef(0.0, 1.0);
         
+        
         // Enable backface culling
         glCullFace(GL_BACK);
         glEnable(GL_CULL_FACE);
+        
         
         KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
         KRMat4 projectionMatrix = getProjectionMatrix();
         
         static const GLfloat cubeVertices[] = {
-            -1.0,  1.0,  1.0,
-             1.0,  1.0,  1.0,
-            -1.0, -1.0,  1.0,
-             1.0, -1.0,  1.0,
-            -1.0, -1.0, -1.0,
-             1.0, -1.0, -1.0,
-            -1.0,  1.0, -1.0,
-             1.0,  1.0, -1.0,
-            -1.0,  1.0,  1.0,
-             1.0,  1.0,  1.0,
-             1.0, -1.0,  1.0,
-             1.0,  1.0, -1.0,
-             1.0, -1.0, -1.0,
-            -1.0, -1.0, -1.0,
-            -1.0,  1.0, -1.0,
-            -1.0, -1.0,  1.0,
-            -1.0,  1.0,  1.0
+             1.0, 1.0, 1.0,
+            -1.0, 1.0, 1.0,
+             1.0,-1.0, 1.0,
+            -1.0,-1.0, 1.0,
+            -1.0,-1.0,-1.0,
+            -1.0, 1.0, 1.0,
+            -1.0, 1.0,-1.0,
+             1.0, 1.0, 1.0,
+             1.0, 1.0,-1.0,
+             1.0,-1.0, 1.0,
+             1.0,-1.0,-1.0,
+            -1.0,-1.0,-1.0,
+             1.0, 1.0,-1.0,
+            -1.0, 1.0,-1.0
         };
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -400,16 +404,17 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
             KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
             
             pVisShader->bind(this, viewMatrix, mvpmatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 17);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
         }
     }
     
     scene.getOcclusionQueryResults(m_visibleBounds);
     
-    fprintf(stderr, "visible bounds: %i\n", (int)m_visibleBounds.size());
+    // fprintf(stderr, "visible bounds: %i\n", (int)m_visibleBounds.size());
     
     // Re-enable z-buffer write
     glDepthMask(GL_TRUE);
+    
 
 }
 
@@ -664,10 +669,12 @@ void KRCamera::renderPost()
     glDisable(GL_DEPTH_TEST);
     bindPostShader();
     
+    m_pContext->getTextureManager()->selectTexture(0, NULL);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
     glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
     
+    m_pContext->getTextureManager()->selectTexture(1, NULL);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
     //glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
@@ -682,9 +689,11 @@ void KRCamera::renderPost()
 	
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
+    m_pContext->getTextureManager()->selectTexture(0, NULL);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     
+    m_pContext->getTextureManager()->selectTexture(1, NULL);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -693,6 +702,7 @@ void KRCamera::renderPost()
         glDisable(GL_DEPTH_TEST);
         glUseProgram(m_postShaderProgram);
         
+        m_pContext->getTextureManager()->selectTexture(0, NULL);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
         glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
@@ -706,6 +716,7 @@ void KRCamera::renderPost()
         glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
         
         for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
+            m_pContext->getTextureManager()->selectTexture(1, NULL);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]);
             glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVerticesShadow[iShadow]);
@@ -713,9 +724,11 @@ void KRCamera::renderPost()
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         }
         
+        m_pContext->getTextureManager()->selectTexture(0, NULL);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
         
+        m_pContext->getTextureManager()->selectTexture(1, NULL);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -729,11 +742,11 @@ void KRCamera::renderPost()
         glDisable(GL_DEPTH_TEST);
         glUseProgram(m_postShaderProgram);
         
+        m_pContext->getTextureManager()->selectTexture(0, NULL);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
         
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, pFontTexture->getName());
+        m_pContext->getTextureManager()->selectTexture(1, pFontTexture);
         
         glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
         glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1);
@@ -774,8 +787,7 @@ void KRCamera::renderPost()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
         
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        m_pContext->getTextureManager()->selectTexture(1, NULL);
     }
     
 }

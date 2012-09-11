@@ -74,34 +74,31 @@ void KRInstance::loadModel() {
 
 #if TARGET_OS_IPHONE
 
-bool KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
-    bool bRendered = KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_FLARES) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
     
         loadModel();
         
+        KRMat4 projectionMatrix;
+        if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
+            projectionMatrix = pCamera->getProjectionMatrix();
+        }
+        
         if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP)) {
+        //if(m_pModel != NULL && (getBounds().visible(viewMatrix * projectionMatrix) || renderPass == RENDER_PASS_SHADOWMAP)) {
 
             if(m_pLightMap == NULL && m_lightMap.size()) {
                 m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
             }
             
             if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
-                int iTextureName = m_pLightMap->getName();
-                glActiveTexture(GL_TEXTURE3);
-                glBindTexture(GL_TEXTURE_2D, iTextureName);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                m_pContext->getTextureManager()->selectTexture(3, m_pLightMap);
             }
             
-            KRMat4 projectionMatrix;
-            if(renderPass != RENDER_PASS_SHADOWMAP) {
-                projectionMatrix = pCamera->getProjectionMatrix();
-            }
             KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
             KRMat4 matModelToView = viewMatrix * m_modelMatrix;
             matModelToView.transpose();
@@ -113,30 +110,15 @@ bool KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
             KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
             
-            
-            
-            GLuint occlusionTest,hasBeenTested,theParams = 0;
-            glGenQueriesEXT(1, &occlusionTest);
-            glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, occlusionTest);
             m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
-            glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT);
-            /*
-             glGetQueryObjectuivEXT(occlusionTest, GL_QUERY_RESULT_AVAILABLE_EXT, &hasBeenTested);
-            if (hasBeenTested) glGetQueryObjectuivEXT(occlusionTest, GL_QUERY_RESULT_EXT, &theParams);
-            if (theParams) {
-                bRendered = true;
-            }
-             */
-            bRendered = true;
-            glDeleteQueriesEXT(1, &occlusionTest);
         }
     }
-    return bRendered;
 }
 
 #endif
 
-void KRInstance::calcExtents(KRContext *pContext) {
+void KRInstance::calcExtents(KRContext *pContext)
+{
     KRNode::calcExtents(pContext);
     loadModel();    
     KRMesh *pMesh = m_pModel->getMesh();
@@ -156,12 +138,47 @@ bool KRInstance::hasTransparency() {
     }
 }
 
-KRVector3 KRInstance::getMinPoint() {
+KRAABB KRInstance::getBounds() {
     loadModel();
-    return KRMat4::Dot(m_modelMatrix, m_pModel->getMesh()->getMinPoint());
-}
-
-KRVector3 KRInstance::getMaxPoint() {
-    loadModel();
-    return KRMat4::Dot(m_modelMatrix, m_pModel->getMesh()->getMaxPoint());
+    
+    KRMesh *pMesh = m_pModel->getMesh();
+    KRVector3 meshMin = pMesh->getMinPoint();
+    KRVector3 meshMax = pMesh->getMaxPoint();
+    
+    KRVector3 min, max;
+    for(int iCorner=0; iCorner < 8; iCorner++) {
+        KRVector3 cornerVertex = KRVector3(
+           (iCorner & 1) == 0 ? meshMin.x : meshMax.x,
+           (iCorner & 2) == 0 ? meshMin.y : meshMax.y,
+           (iCorner & 4) == 0 ? meshMin.z : meshMax.z);
+        
+        cornerVertex = KRMat4::Dot(m_modelMatrix, cornerVertex);
+        if(iCorner == 0) {
+            // Prime with first point
+            min = cornerVertex;
+            max = cornerVertex;
+        } else {
+            
+            if(cornerVertex.x < min.x) {
+                min.x = cornerVertex.x;
+            }
+            if(cornerVertex.y < min.y) {
+                min.y = cornerVertex.y;
+            }
+            if(cornerVertex.z < min.z) {
+                min.z = cornerVertex.z;
+            }
+            if(cornerVertex.x > max.x) {
+                max.x = cornerVertex.x;
+            }
+            if(cornerVertex.y > max.y) {
+                max.y = cornerVertex.y;
+            }
+            if(cornerVertex.z > max.z) {
+                max.z = cornerVertex.z;
+            }
+        }
+    }
+    
+    return KRAABB(min, max);
 }

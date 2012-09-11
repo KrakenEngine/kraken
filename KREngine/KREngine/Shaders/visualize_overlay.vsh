@@ -1,3 +1,7 @@
+//
+//  visualize_overlay.vsh
+//  KREngine
+//
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are

@@ -32,8 +32,11 @@
 #ifndef KRMODELMANAGER_H
 #define KRMODELMANAGER_H
 
+#define KRENGINE_MAX_VBO_HANDLES 50
+
 #import "KREngine-common.h"
 #import "KRContextObject.h"
+#import "KRDataBlock.h"
 
 class KRContext;
 class KRModel;
@@ -47,15 +50,30 @@ public:
     KRModelManager(KRContext &context);
     virtual ~KRModelManager();
     
-    KRModel *loadModel(const char *szName, const char *szPath);
+    KRModel *loadModel(const char *szName, KRDataBlock *pData);
     KRModel *getModel(const char *szName);
     KRModel *getFirstModel();
     
     std::vector<std::string> getModelNames();
     std::map<std::string, KRModel *> getModels();
     
+    
+    void bindVBO(const GLvoid *data, GLsizeiptr size);
+    
 private:
     std::map<std::string, KRModel *> m_models;
+    
+    typedef struct vbo_info {
+        GLuint handle;
+        GLsizeiptr size;
+        const GLvoid *data;
+    } vbo_info_type;
+    
+    vbo_info_type m_currentVBO;
+    
+    std::map<const GLvoid *, vbo_info_type> m_vbos;
+    
+    
 };
 
 #endif

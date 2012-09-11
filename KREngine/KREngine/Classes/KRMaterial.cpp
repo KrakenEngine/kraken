@@ -390,65 +390,27 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr);
         glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY], m_reflectionFactor);
         
-        bool bSameDiffuseMap = false;
-        bool bSameSpecMap = false;
-        bool bSameNormalMap = false;
-        bool bSameReflectionMap = false;
-        if(*prevBoundMaterial) {
-            if((*prevBoundMaterial)->m_pDiffuseMap == m_pDiffuseMap) {
-                bSameDiffuseMap = true;
-            }
-            if((*prevBoundMaterial)->m_pSpecularMap == m_pSpecularMap) {
-                bSameSpecMap = true;
-            }
-            if((*prevBoundMaterial)->m_pReflectionMap == m_pReflectionMap) {
-                bSameReflectionMap = true;
-            }
-            if((*prevBoundMaterial)->m_pNormalMap == m_pNormalMap) {
-                bSameNormalMap = true;
-            }
+        if(bDiffuseMap) {
+            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
         }
         
-        if(bDiffuseMap && !bSameDiffuseMap) {
-            int iTextureName = m_pDiffuseMap->getName();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, iTextureName);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        }
-        
-        if(bSpecMap && !bSameSpecMap) {
-            int iTextureName = m_pSpecularMap->getName();
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, iTextureName);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        if(bSpecMap) {
+            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
         }
 
-        if(bNormalMap && !bSameNormalMap) {
-            int iTextureName = m_pNormalMap->getName();
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, iTextureName);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        if(bNormalMap) {
+            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
         }
         
-        if(bReflectionMap && !bSameReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+        if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
             // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-            int iTextureName = m_pReflectionMap->getName();
-            glActiveTexture(GL_TEXTURE7);
-            glBindTexture(GL_TEXTURE_2D, iTextureName);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
         }
         
         *prevBoundMaterial = this;
     } // if(!bSameMaterial)
 }
+
 #endif
 
 char *KRMaterial::getName() {

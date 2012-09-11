@@ -16,6 +16,7 @@
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
 #import "KRSkyBox.h"
+#import "KRAABB.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -158,16 +159,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
 
 #if TARGET_OS_IPHONE
 
-bool KRNode::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
-    
-    /*
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
-        KRNode *child = (*itr);
-        child->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-    }
-     */
-    
-    return false;
+void KRNode::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 }
 
 #endif
@@ -191,6 +183,7 @@ KRBoundingVolume KRNode::getExtents(KRContext *pContext) {
 
 void KRNode::calcExtents(KRContext *pContext) {
     clearExtents();
+    /*
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         if(m_pExtents) {
@@ -199,6 +192,7 @@ void KRNode::calcExtents(KRContext *pContext) {
             m_pExtents = new KRBoundingVolume(child->getExtents(pContext));
         }
     }
+     */
 }
 
 const std::vector<KRNode *> &KRNode::getChildren() {
@@ -213,11 +207,6 @@ KRScene &KRNode::getScene() {
     return *m_pScene;
 }
 
-
-KRVector3 KRNode::getMinPoint() {
-    return KRVector3::Min();
-}
-
-KRVector3 KRNode::getMaxPoint() {
-    return KRVector3::Max();
+KRAABB KRNode::getBounds() {
+    return KRAABB::Infinite();
 }

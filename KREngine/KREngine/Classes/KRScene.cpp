@@ -38,6 +38,7 @@
 #import "KRDirectionalLight.h"
 
 #import "KRScene.h"
+#import "KRNode.h"
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pContext = &context;
@@ -61,6 +62,7 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
     if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
     
         if(cShadowBuffers > 0) {
+            m_pContext->getTextureManager()->selectTexture(3, NULL);
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -70,6 +72,7 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
         }
         
         if(cShadowBuffers > 1) {
+            m_pContext->getTextureManager()->selectTexture(4, NULL);
             glActiveTexture(GL_TEXTURE4);
             glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -79,6 +82,7 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
         }
         
         if(cShadowBuffers > 2) {
+            m_pContext->getTextureManager()->selectTexture(5, NULL);
             glActiveTexture(GL_TEXTURE5);
             glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -135,17 +139,93 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
 void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
 {
     if(pOctreeNode) {
-        if(frustrumVolume.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
-            pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-            for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-                (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+        KRMat4 projectionMatrix;
+        if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
+            projectionMatrix = pCamera->getProjectionMatrix();
+        }
+        
+        KRAABB octreeBounds = pOctreeNode->getBounds();
+        
+        if(true) {
+        //if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
+        //if(frustrumVolume.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+            
+            bool can_occlusion_test = renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+
+            if(true) {
+            //if(visibleBounds.find(octreeBounds) != visibleBounds.end()) {
+                if(can_occlusion_test) {
+                    pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                }
+                
+                // Occlusion test indicates that this bounding box was visible in the last frame
+                for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+                    //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
+                    
+                    (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                }
+                
+                if(can_occlusion_test) {
+                    pOctreeNode->endOcclusionQuery();
+                }
+                
+                for(int i=0; i<8; i++) {
+                    render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                }
+            } else if(KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
+                if(pOctreeNode->getSceneNodes().empty()) {
+                    for(int i=0; i<8; i++) {
+                        render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                    }
+                } else {
+                    pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                    
+                    KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                    
+                    KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
+                    
+                    static const GLfloat cubeVertices[] = {
+                        1.0, 1.0, 1.0,
+                        -1.0, 1.0, 1.0,
+                        1.0,-1.0, 1.0,
+                        -1.0,-1.0, 1.0,
+                        -1.0,-1.0,-1.0,
+                        -1.0, 1.0, 1.0,
+                        -1.0, 1.0,-1.0,
+                        1.0, 1.0, 1.0,
+                        1.0, 1.0,-1.0,
+                        1.0,-1.0, 1.0,
+                        1.0,-1.0,-1.0,
+                        -1.0,-1.0,-1.0,
+                        1.0, 1.0,-1.0,
+                        -1.0, 1.0,-1.0
+                    };
+                    
+                    glBindBuffer(GL_ARRAY_BUFFER, 0);
+                    glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices);
+                    glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+                    
+                    KRMat4 matModel = KRMat4();
+                    matModel.scale(octreeBounds.size() / 2.0f);
+                    matModel.translate(octreeBounds.center());
+                    KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
+                    
+                    // Enable additive blending
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_ONE, GL_ONE);
+                     
+                    
+                    pVisShader->bind(pCamera, viewMatrix, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+                    
+                    glDisable(GL_BLEND);
+                    
+                    pOctreeNode->endOcclusionQuery();
+                }
             }
-            pOctreeNode->endOcclusionQuery();
-            for(int i=0; i<8; i++) {
-                render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-            }
+
         } else {
-            fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
+            //fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
         }
     }
 }
@@ -190,16 +270,20 @@ KRDirectionalLight *KRScene::findFirstDirectionalLight(KRNode &node) {
     return NULL;
 }
 
-KRScene *KRScene::LoadXML(KRContext &context, const std::string& path)
+KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
+    data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
     tinyxml2::XMLDocument doc;
-    doc.LoadFile(path.c_str());
-    KRScene *new_scene = new KRScene(context, KRResource::GetFileBase(path));
+    fprintf(stderr, "Scene Content: %s\n", data->getStart());
+    doc.Parse((char *)data->getStart());
+    KRScene *new_scene = new KRScene(context, name);
     
     KRNode *n = KRNode::LoadXML(*new_scene, doc.RootElement()->FirstChildElement());
     if(n) {
         new_scene->getRootNode()->addChild(n);
     }
+    
+    delete data;
     return new_scene;
 }
 

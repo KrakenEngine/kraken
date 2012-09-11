@@ -113,28 +113,14 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
     return pShader;
 }
 
-void KRShaderManager::loadFragmentShader(const std::string &name, const std::string &path) {
-    ifstream ifs(path.c_str(), ios::in | ios::binary | ios::ate);
-    
-    ifstream::pos_type fileSize = ifs.tellg();
-    ifs.seekg(0, ios::beg);
-    
-    vector<char> bytes(fileSize);
-    ifs.read(&bytes[0], fileSize);
-    
-    m_fragShaderSource[name] = string(&bytes[0], fileSize);
-    
+void KRShaderManager::loadFragmentShader(const std::string &name, KRDataBlock *data) {
+    m_fragShaderSource[name] = string((char *)data->getStart(), data->getSize());
+    delete data;
 }
-void KRShaderManager::loadVertexShader(const std::string &name, const std::string &path) {
-    ifstream ifs(path.c_str(), ios::in | ios::binary | ios::ate);
-    
-    ifstream::pos_type fileSize = ifs.tellg();
-    ifs.seekg(0, ios::beg);
-    
-    vector<char> bytes(fileSize);
-    ifs.read(&bytes[0], fileSize);
-    
-    m_vertShaderSource[name] = string(&bytes[0], fileSize);
+
+void KRShaderManager::loadVertexShader(const std::string &name, KRDataBlock *data) {
+    m_vertShaderSource[name] = string((char *)data->getStart(), data->getSize());
+    delete data;
 }
 
 const std::string &KRShaderManager::getFragShaderSource(const std::string &name) {

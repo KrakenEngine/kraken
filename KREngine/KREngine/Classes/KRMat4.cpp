@@ -278,11 +278,28 @@ void KRMat4::transpose() {
     memcpy(m_mat, trans, sizeof(GLfloat) * 16);
 }
 
-/* Dot Product */
+/* Dot Product, returning KRVector3 */
 KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
     return KRVector3(
         v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0] + (float)m[3*4 + 0],
         v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1] + (float)m[3*4 + 1],
         v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2] + (float)m[3*4 + 2]
     );
+}
+
+/* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
+float KRMat4::DotW(const KRMat4 &m, const KRVector3 &v) {
+    return v.x * (float)m[0*4 + 3] + v.y * (float)m[1*4 + 3] + v.z * (float)m[2*4 + 3] + (float)m[3*4 + 3];
+}
+
+/* Dot Product followed by W-divide */
+KRVector3 KRMat4::DotWDiv(const KRMat4 &m, const KRVector3 &v) {
+    KRVector3 r = KRVector3(
+        v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0] + (float)m[3*4 + 0],
+        v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1] + (float)m[3*4 + 1],
+        v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2] + (float)m[3*4 + 2]
+    );
+    // Get W component, then divide x, y, and z by w.
+    r /= DotW(m, v);
+    return r;
 }

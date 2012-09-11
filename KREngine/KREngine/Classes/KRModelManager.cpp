@@ -34,7 +34,8 @@
 #import "KRModel.h"
 
 KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
-
+    m_currentVBO.handle = 0;
+    m_currentVBO.data = NULL;
 }
 
 KRModelManager::~KRModelManager() {
@@ -44,8 +45,8 @@ KRModelManager::~KRModelManager() {
     m_models.empty();
 }
 
-KRModel *KRModelManager::loadModel(const char *szName, const char *szPath) {
-    KRModel *pModel = new KRModel(*m_pContext, szName, szPath);
+KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
+    KRModel *pModel = new KRModel(*m_pContext, szName, pData);
     m_models[szName] = pModel;
     return pModel;
 }
@@ -61,5 +62,37 @@ KRModel *KRModelManager::getFirstModel() {
 
 std::map<std::string, KRModel *> KRModelManager::getModels() {
     return m_models;
+}
+
+void KRModelManager::bindVBO(const GLvoid *data, GLsizeiptr size) {
+    assert(size > 0);
+    
+    if(m_currentVBO.data != data || m_currentVBO.size != size) {
+        
+        if(m_vbos.find(data) != m_vbos.end()) {
+            m_currentVBO = m_vbos[data];
+            assert(m_currentVBO.size == size);
+            glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
+        } else {
+            
+            while(m_vbos.size() >= KRENGINE_MAX_VBO_HANDLES) {
+                // TODO - This should maintain a max size limit for VBO's rather than a limit on the number of VBO's.  As meshes are split to multiple small VBO's, this is not too bad, but still not optimial.
+                std::map<const GLvoid *, vbo_info_type>::iterator first_itr = m_vbos.begin();
+                vbo_info_type firstVBO = first_itr->second;
+                glDeleteBuffers(1, &firstVBO.handle);
+                m_vbos.erase(first_itr);
+                fprintf(stderr, "VBO Swapping...");
+            }
+            
+            m_currentVBO.handle = -1;
+            glGenBuffers(1, &m_currentVBO.handle);
+            glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
+            glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+            m_currentVBO.size = size;
+            m_currentVBO.data = data;
+            
+            m_vbos[data] = m_currentVBO;
+        }
+    }
 }
 

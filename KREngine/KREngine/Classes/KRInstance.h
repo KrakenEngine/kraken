@@ -61,7 +61,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual bool render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 #endif
     
     virtual void calcExtents(KRContext *pContext);
@@ -71,8 +71,7 @@ public:
     bool hasTransparency();
     
     
-    virtual KRVector3 getMinPoint();
-    virtual KRVector3 getMaxPoint();
+    virtual KRAABB getBounds();
     
 private:
     KRModel *m_pModel;

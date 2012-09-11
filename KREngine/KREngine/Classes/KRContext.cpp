@@ -12,14 +12,16 @@
 #include "KRCamera.h"
 
 KRContext::KRContext() {
-     m_pShaderManager = new KRShaderManager(*this);
-     m_pTextureManager = new KRTextureManager(*this);
-     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
-     m_pModelManager = new KRModelManager(*this);
-     m_pSceneManager = new KRSceneManager(*this);
+    m_pBundleManager = new KRBundleManager(*this);
+    m_pShaderManager = new KRShaderManager(*this);
+    m_pTextureManager = new KRTextureManager(*this);
+    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
+    m_pModelManager = new KRModelManager(*this);
+    m_pSceneManager = new KRSceneManager(*this);
 }
 
 KRContext::~KRContext() {
+    
     if(m_pSceneManager) {
         delete m_pSceneManager;
         m_pSceneManager = NULL;
@@ -44,9 +46,17 @@ KRContext::~KRContext() {
         delete m_pShaderManager;
         m_pShaderManager = NULL;
     }
+    
+    // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
+    if(m_pBundleManager) {
+        delete m_pBundleManager;
+        m_pBundleManager = NULL;
+    }
 }
 
-
+KRBundleManager *KRContext::getBundleManager() {
+    return m_pBundleManager;
+}
 KRSceneManager *KRContext::getSceneManager() {
     return m_pSceneManager;
 }
@@ -63,24 +73,41 @@ KRModelManager *KRContext::getModelManager() {
     return m_pModelManager;
 }
 
-void KRContext::loadResource(std::string path) {
-    std::string name = KRResource::GetFileBase(path);
-    std::string extension = KRResource::GetFileExtension(path);
-    if(extension.compare("krobject") == 0) {
-        m_pModelManager->loadModel(name.c_str(), path.c_str());
+void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
+    std::string name = KRResource::GetFileBase(file_name);
+    std::string extension = KRResource::GetFileExtension(file_name);
+    
+    fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
+    
+    if(extension.compare("krbundle") == 0) {
+        m_pBundleManager->loadBundle(name.c_str(), data);
+    } else if(extension.compare("krobject") == 0) {
+        m_pModelManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
-        m_pSceneManager->loadScene(name.c_str(), path.c_str());
+        m_pSceneManager->loadScene(name.c_str(), data);
 #if TARGET_OS_IPHONE
     } else if(extension.compare("pvr") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), path.c_str());
+        m_pTextureManager->loadTexture(name.c_str(), data);
 #endif
     } else if(extension.compare("vsh") == 0) {
-        m_pShaderManager->loadVertexShader(name.c_str(), path.c_str());
+        m_pShaderManager->loadVertexShader(name.c_str(), data);
     } else if(extension.compare("fsh") == 0) {
-        m_pShaderManager->loadFragmentShader(name.c_str(), path.c_str());
+        m_pShaderManager->loadFragmentShader(name.c_str(), data);
     } else if(extension.compare("mtl") == 0) {
-        m_pMaterialManager->loadFile(path.c_str());
+        m_pMaterialManager->load(name.c_str(), data);
     } else {
-        fprintf(stderr, "KRContext::loadResource - Unknown resource file type: %s\n", path.c_str());
+        fprintf(stderr, "KRContext::loadResource - Unknown resource file type: %s\n", file_name.c_str());
+        delete data;
+    }
+    
+    
+}
+
+void KRContext::loadResource(std::string path) {
+    KRDataBlock *data = new KRDataBlock();
+    if(data->load(path)) {
+        loadResource(path, data);
+    } else {
+        delete data;
     }
 }

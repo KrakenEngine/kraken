@@ -34,6 +34,7 @@
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
+#import "KRDataBlock.h"
 
 class KRScene;
 
@@ -47,7 +48,7 @@ public:
     KRSceneManager(KRContext &context);
     virtual ~KRSceneManager();
     
-    KRScene *loadScene(const char *szName, const char *szPath);
+    KRScene *loadScene(const char *szName, KRDataBlock *data);
 
     KRScene *getScene(const char *szName);
     KRScene *getFirstScene();

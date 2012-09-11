@@ -13,6 +13,8 @@
 
 #include "KRVector3.h"
 
+class KRMat4;
+
 class KRAABB {
 public:
     KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint);
@@ -21,6 +23,8 @@ public:
     KRVector3 center() const;
     KRVector3 size() const;
     bool intersects(const KRAABB& b) const;
+    bool contains(const KRAABB &b) const;
+    bool visible(const KRMat4 &matViewProjection) const;
     
     KRAABB& operator =(const KRAABB& b);
     bool operator ==(const KRAABB& b) const;
@@ -32,6 +36,8 @@ public:
     
     KRVector3 min;
     KRVector3 max;
+    
+    static KRAABB Infinite();
 };
 
 

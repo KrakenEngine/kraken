@@ -117,9 +117,9 @@ float KRLight::getDecayStart() {
 
 #if TARGET_OS_IPHONE
 
-bool KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
-    bool bRendered = KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_FLARES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
@@ -146,8 +146,7 @@ bool KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
                 // Render light flare on transparency pass
                 KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
                 pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, m_pFlareTexture->getName());
+                m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
                 
                 static const GLfloat squareVertices[] = {
                     0.0f, 0.0f,
@@ -169,8 +168,6 @@ bool KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
         }
         
     }
-    
-    return bRendered || true;
 }
 
 #endif

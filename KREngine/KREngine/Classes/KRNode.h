@@ -22,6 +22,7 @@ class KRMat4;
 class KRTextureManager;
 class KRContext;
 class KRScene;
+class KRAABB;
 
 class KRNode : public KRContextObject
 {
@@ -66,13 +67,12 @@ public:
     virtual void calcExtents(KRContext *Context);
     KRBoundingVolume getExtents(KRContext *pContext);
     
-    virtual KRVector3 getMinPoint();
-    virtual KRVector3 getMaxPoint();
+    virtual KRAABB getBounds();
     
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
-    virtual bool render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 
 #endif
     

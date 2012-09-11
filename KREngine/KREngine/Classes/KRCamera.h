@@ -78,6 +78,7 @@ public:
     bool bDebugPSSM;
     bool bDebugSuperShiny;
     bool bShowShadowBuffer;
+    bool bShowOctree;
     bool bEnableAmbient;
     bool bEnableDiffuse;
     bool bEnableSpecular;

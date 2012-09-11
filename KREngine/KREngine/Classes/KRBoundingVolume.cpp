@@ -194,7 +194,7 @@ bool KRBoundingVolume::test_intersect(const KRBoundingVolume &p) const {
 }
 
 bool KRBoundingVolume::test_intersect(const KRAABB &p) const {
-    // Simple, non-aligned bounding box intersection test
+    // Axis aligned bounding box intersection test
     
     KRVector3 minPoint = m_vertices[0], maxPoint = m_vertices[0], minPoint2 = p.min, maxPoint2 = p.max;
     for(int iVertex=1; iVertex < 8; iVertex++) {

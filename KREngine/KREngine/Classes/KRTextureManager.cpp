@@ -33,7 +33,9 @@
 #include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
-    
+    for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
+        m_activeTextures[iTexture] = NULL;
+    }
 }
 
 KRTextureManager::~KRTextureManager() {
@@ -44,19 +46,8 @@ KRTextureManager::~KRTextureManager() {
 
 #if TARGET_OS_IPHONE
 
-KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szPath) {
-    KRTexture *pTexture = new KRTexture();
-    if(!pTexture->loadFromFile(szPath)) {
-        delete pTexture;
-        return NULL;
-    }
-    
-    if(!pTexture->createGLTexture()) {
-        if(!pTexture->createGLTexture()) { // FINDME - HACK!  The first texture fails with 0x501 return code but loads on second try
-            delete pTexture;
-            return NULL;
-        }
-    }
+KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) {
+    KRTexture *pTexture = new KRTexture(data, this);
     
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),
@@ -69,15 +60,6 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szPath)
 }
 
 #endif
-
-GLuint KRTextureManager::getTextureName(const char *szName) {
-    KRTexture *pTexture = getTexture(szName);
-    if(pTexture) {
-        return pTexture->getName();
-    } else {
-        return NULL;
-    }
-}
 
 KRTexture *KRTextureManager::getTexture(const char *szName) {
     std::string lowerName = szName;
@@ -93,3 +75,43 @@ KRTexture *KRTextureManager::getTexture(const char *szName) {
     }
 
 }
+
+void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
+    if(m_activeTextures[iTextureUnit] != pTexture) {
+        glActiveTexture(GL_TEXTURE0 + iTextureUnit);
+        if(pTexture != NULL) {
+            m_textureCache.erase(pTexture); // Ensure that the texture will not be deleted while it is bound to a texture unit, and return it to the top of the texture cache when it is released
+            glBindTexture(GL_TEXTURE_2D, pTexture->getHandle());
+            // TODO - These texture parameters should be assigned by the material or texture parameters
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+        if(m_activeTextures[iTextureUnit] != NULL) {
+            KRTexture *unloadedTexture = m_activeTextures[iTextureUnit];
+            bool bActive = false;
+            for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
+                if(m_activeTextures[iTexture] == unloadedTexture) {
+                    bActive = true;
+                }
+            }
+            if(!bActive) {
+                // Only return a texture to the cache when the last texture unit referencing it is re-assigned to a different texture
+                if(m_textureCache.find(unloadedTexture) == m_textureCache.end()) {
+                    m_textureCache.insert(unloadedTexture);
+                    while(m_textureCache.size() > KRENGINE_MAX_TEXTURE_HANDLES) {
+                        // Keep texture size within limits
+                        KRTexture *droppedTexture = (*m_textureCache.begin());
+                        droppedTexture->releaseHandle();
+                        m_textureCache.erase(droppedTexture);
+                        fprintf(stderr, "Texture Swapping...\n");
+                    }
+                }
+            }
+        }
+        m_activeTextures[iTextureUnit] = pTexture;
+    }
+}
+

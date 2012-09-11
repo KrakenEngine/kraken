@@ -52,7 +52,7 @@ class KRMaterial;
 class KRModel : public KRContextObject {
     
 public:
-    KRModel(KRContext &context, std::string name, std::string path);
+    KRModel(KRContext &context, std::string name, KRDataBlock *data);
     virtual ~KRModel();
     
     bool hasTransparency();
@@ -66,9 +66,7 @@ public:
     KRMesh *getMesh();
     std::string getName();
 
-private:
-    void loadPack(std::string path);
-    
+private:    
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
     KRMesh *m_pMesh;

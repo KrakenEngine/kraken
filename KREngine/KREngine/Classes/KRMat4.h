@@ -103,6 +103,8 @@ public:
     void transpose();
     
     static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
+    static float DotW(const KRMat4 &m, const KRVector3 &v);
+    static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
 };
 
 #endif // KRMAT4_I

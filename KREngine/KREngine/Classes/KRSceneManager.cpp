@@ -42,8 +42,8 @@ KRSceneManager::~KRSceneManager() {
     m_scenes.empty();
 }
 
-KRScene *KRSceneManager::loadScene(const char *szName, const char *szPath) {
-    KRScene *pScene = KRScene::LoadXML(*m_pContext, szPath);
+KRScene *KRSceneManager::loadScene(const char *szName, KRDataBlock *data) {
+    KRScene *pScene = KRScene::Load(*m_pContext, szName, data);
     m_scenes[szName] = pScene;
     return pScene;
 }

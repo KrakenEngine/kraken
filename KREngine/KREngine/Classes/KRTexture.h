@@ -34,24 +34,23 @@
 #import <string>
 
 #import "KREngine-common.h"
+#import "KRDataBlock.h"
 
 using std::list;
 
 #ifndef KRTEXTURE_H
 #define KRTEXTURE_H
 
+class KRTextureManager;
+
 class KRTexture {
 public:
-    KRTexture();
+    KRTexture(KRDataBlock *data, KRTextureManager *manager);
     ~KRTexture();
     
-#if TARGET_OS_IPHONE
-    
-    bool loadFromFile(const char *szFile);
-    
-#endif
     bool createGLTexture();
-    GLuint getName();
+    GLuint getHandle();
+    void releaseHandle();
     
 private:
     
@@ -68,9 +67,11 @@ private:
     
     std::list<dataBlockStruct> m_blocks;
     
-    int m_fdFile;
-    int m_fileSize;
-    void *m_pFile;
+    KRDataBlock *m_pData;
+    
+    bool load();
+    
+    KRTextureManager *m_pManager;
 };
 
 #endif

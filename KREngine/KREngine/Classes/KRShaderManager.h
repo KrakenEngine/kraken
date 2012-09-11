@@ -34,6 +34,7 @@
 #import <map>
 #import <string>
 #import "KRCamera.h"
+#import "KRDataBlock.h"
 
 using std::map;
 using std::vector;
@@ -50,8 +51,8 @@ public:
     KRShaderManager(KRContext &context);
     virtual ~KRShaderManager();
     
-    void loadFragmentShader(const std::string &name, const std::string &path);
-    void loadVertexShader(const std::string &name, const std::string &path);
+    void loadFragmentShader(const std::string &name, KRDataBlock *data);
+    void loadVertexShader(const std::string &name, KRDataBlock *data);
     const std::string &getFragShaderSource(const std::string &name);
     const std::string &getVertShaderSource(const std::string &name);
     

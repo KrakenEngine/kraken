@@ -48,9 +48,9 @@ KRVector3 KRDirectionalLight::getLocalLightDirection() {
 
 #if TARGET_OS_IPHONE
 
-bool KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    bool bRendered = KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRLight::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 
     
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
@@ -109,8 +109,6 @@ bool KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
-    
-    return bRendered;
 }
 
 #endif

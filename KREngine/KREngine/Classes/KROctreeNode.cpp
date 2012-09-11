@@ -100,8 +100,8 @@ bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
     }
     
     // FINDME - Test Code:
-    bGoDeeper = true;
-    bRendered = true;
+    //bGoDeeper = true;
+    //bRendered = true;
     
     if(bGoDeeper) { // Only recurse deeper if we reached this level in the previous pass
         for(int i=0; i<8; i++) {
@@ -129,33 +129,40 @@ KRAABB KROctreeNode::getBounds()
 
 void KROctreeNode::add(KRNode *pNode)
 {
-    KRVector3 center = m_bounds.center();
-    
     int iChild = getChildIndex(pNode);
     if(iChild == -1) {
         m_sceneNodes.insert(pNode);
     } else {
         if(m_children[iChild] == NULL) {
-            m_children[iChild] = new KROctreeNode(KRAABB(
-                      KRVector3(
-                        (iChild & 1) == 0 ? m_bounds.min.x : center.x,
-                        (iChild & 2) == 0 ? m_bounds.min.y : center.y,
-                        (iChild & 4) == 0 ? m_bounds.min.z : center.z),
-                      KRVector3(
-                        (iChild & 1) == 0 ? center.x : m_bounds.max.x,
-                        (iChild & 2) == 0 ? center.y : m_bounds.max.y,
-                        (iChild & 4) == 0 ? center.z : m_bounds.max.z)
-                  )
-            );
+            m_children[iChild] = new KROctreeNode(getChildBounds(iChild));
         }
         m_children[iChild]->add(pNode);
     }
 }
 
+KRAABB KROctreeNode::getChildBounds(int iChild)
+{
+    KRVector3 center = m_bounds.center();
+    
+    return KRAABB(
+       KRVector3(
+                 (iChild & 1) == 0 ? m_bounds.min.x : center.x,
+                 (iChild & 2) == 0 ? m_bounds.min.y : center.y,
+                 (iChild & 4) == 0 ? m_bounds.min.z : center.z),
+       KRVector3(
+                 (iChild & 1) == 0 ? center.x : m_bounds.max.x,
+                 (iChild & 2) == 0 ? center.y : m_bounds.max.y,
+                 (iChild & 4) == 0 ? center.z : m_bounds.max.z)
+    );
+}
+
 int KROctreeNode::getChildIndex(KRNode *pNode)
 {
-    KRVector3 min = pNode->getMinPoint();
-    KRVector3 max = pNode->getMaxPoint();
+    /*
+     
+     KRVector3 min = pNode->getMinPoint();
+     KRVector3 max = pNode->getMaxPoint();
+     
     // 0: max.x < center.x && max.y < center.y && max.z < center.z
     // 1: min.x > center.x && max.y < center.y && max.z < center.z
     // 2: max.x < center.x && min.y > center.y && max.z < center.z
@@ -197,6 +204,14 @@ int KROctreeNode::getChildIndex(KRNode *pNode)
         }
     }
     return iChild;
+     */
+    
+    for(int iChild=0; iChild < 8; iChild++) {
+        if(getChildBounds(iChild).contains(pNode->getBounds())) {
+            return iChild;
+        }
+    }
+    return -1;
 }
 
 void KROctreeNode::remove(KRNode *pNode)

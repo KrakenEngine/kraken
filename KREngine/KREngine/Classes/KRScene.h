@@ -57,7 +57,7 @@ public:
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
     
-    static KRScene *LoadXML(KRContext &context, const std::string& path);
+    static KRScene *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
     KRNode *getRootNode();
     KRDirectionalLight *getFirstDirectionalLight();

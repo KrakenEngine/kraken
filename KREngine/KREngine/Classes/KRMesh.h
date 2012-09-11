@@ -38,6 +38,7 @@
 #import "KRVector2.h"
 #import "KRVector3.h"
 #import "KRResource.h"
+#import "KRDataBlock.h"
 
 #import "KREngine-common.h"
 
@@ -65,7 +66,7 @@ public:
     virtual bool save(const std::string& path);
     
     void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names);
-    void loadPack(std::string path);
+    void loadPack(KRDataBlock *data);
     
     
     void renderSubmesh(int iSubmesh, int *iPrevBuffer);
@@ -113,9 +114,7 @@ public:
 protected:
     KRVector3 m_minPoint, m_maxPoint;
 
-    int m_fdPackFile;
-    void *m_pPackData;
-    int m_iPackFileSize;
+    KRDataBlock *m_pData;
     
     typedef struct {
         char szTag[16];
@@ -124,15 +123,8 @@ protected:
         int32_t submesh_count;
     } pack_header;
     
-
-
-    
-    GLsizei m_cBuffers;
-    GLuint *m_pBuffers;
-    
     vector<Submesh *> m_submeshes;
     
-    void unmap();
     void clearData();
     void clearBuffers();
 };

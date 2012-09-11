@@ -21,6 +21,10 @@
 		28D7ACF80DDB3853001CB0EB /* KRObjViewViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* KRObjViewViewController.mm */; };
 		E40611D714E4E98B0065996A /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = E40611D314E4E98B0065996A /* README.txt */; };
 		E40611D814E4E98B0065996A /* release_notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = E40611D414E4E98B0065996A /* release_notes.txt */; };
+		E430D08615F88A9F0010558D /* occlusion_test.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E430D08515F88A9F0010558D /* occlusion_test.fsh */; };
+		E430D08B15F88B950010558D /* occlusion_test.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E430D08A15F88B950010558D /* occlusion_test.vsh */; };
+		E430D08C15F88BC50010558D /* occlusion_test.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E430D08A15F88B950010558D /* occlusion_test.vsh */; };
+		E430D08D15F88BC70010558D /* occlusion_test.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E430D08515F88A9F0010558D /* occlusion_test.fsh */; };
 		E43A7A6E13CA2BA2000A565E /* libKREngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E43A7A6D13CA2BA2000A565E /* libKREngine.a */; };
 		E46DBE831512B7C300D59F86 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E40611D214E4E98B0065996A /* libTestFlight.a */; };
 		E46FED2D13C9A49F009F5814 /* ShadowShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E46FED2113C9A488009F5814 /* ShadowShader.vsh */; };
@@ -32,7 +36,8 @@
 		E4769DF3158A7915004B83AC /* flare.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF1158A7915004B83AC /* flare.fsh */; };
 		E4769DF4158A7915004B83AC /* flare.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4769DF2158A7915004B83AC /* flare.vsh */; };
 		E48278B415F037B9001C9431 /* visualize_overlay.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E48278B215F037B9001C9431 /* visualize_overlay.vsh */; };
-		E48278B515F037B9001C9431 /* visualize_overlay.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E48278B315F037B9001C9431 /* visualize_overlay.fsh */; };
+		E48839A415F92C6900BD66D5 /* visualize_overlay.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E48839A315F92C6900BD66D5 /* visualize_overlay.fsh */; };
+		E48839A515F92C8D00BD66D5 /* visualize_overlay.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E48839A315F92C6900BD66D5 /* visualize_overlay.fsh */; };
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
 		E4A9DEC815412923009DF363 /* light_point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
@@ -63,6 +68,8 @@
 		E40611D314E4E98B0065996A /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		E40611D414E4E98B0065996A /* release_notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = release_notes.txt; sourceTree = "<group>"; };
 		E40611D514E4E98B0065996A /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TestFlight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E430D08515F88A9F0010558D /* occlusion_test.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.fsh; path = ../KREngine/KREngine/Shaders/occlusion_test.fsh; sourceTree = "<group>"; };
+		E430D08A15F88B950010558D /* occlusion_test.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.vsh; path = ../KREngine/KREngine/Shaders/occlusion_test.vsh; sourceTree = "<group>"; };
 		E43A7A6D13CA2BA2000A565E /* libKREngine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKREngine.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E46FED2113C9A488009F5814 /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ShadowShader.vsh; path = ../KREngine/KREngine/Shaders/ShadowShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E46FED2213C9A488009F5814 /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = ../KREngine/KREngine/Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
@@ -72,8 +79,8 @@
 		E46FED2613C9A488009F5814 /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = ../KREngine/KREngine/Shaders/PostShader.vsh; sourceTree = "<group>"; };
 		E4769DF1158A7915004B83AC /* flare.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare.fsh; path = ../KREngine/KREngine/Shaders/flare.fsh; sourceTree = "<group>"; };
 		E4769DF2158A7915004B83AC /* flare.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare.vsh; path = ../KREngine/KREngine/Shaders/flare.vsh; sourceTree = "<group>"; };
-		E48278B215F037B9001C9431 /* visualize_overlay.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = visualize_overlay.vsh; path = ../KREngine/KREngine/Shaders/visualize_overlay.vsh; sourceTree = "<group>"; };
-		E48278B315F037B9001C9431 /* visualize_overlay.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = visualize_overlay.fsh; path = ../KREngine/KREngine/visualize_overlay.fsh; sourceTree = "<group>"; };
+		E48278B215F037B9001C9431 /* visualize_overlay.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = visualize_overlay.vsh; path = ../KREngine/KREngine/Shaders/visualize_overlay.vsh; sourceTree = "<group>"; };
+		E48839A315F92C6900BD66D5 /* visualize_overlay.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = visualize_overlay.fsh; path = ../KREngine/KREngine/Shaders/visualize_overlay.fsh; sourceTree = "<group>"; };
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		E4A9DEC2154128F0009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = ../KREngine/KREngine/Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC515412906009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = ../KREngine/KREngine/Shaders/light_point.vsh; sourceTree = "<group>"; };
@@ -192,8 +199,10 @@
 		E46FED2013C9A472009F5814 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				E48839A315F92C6900BD66D5 /* visualize_overlay.fsh */,
+				E430D08A15F88B950010558D /* occlusion_test.vsh */,
+				E430D08515F88A9F0010558D /* occlusion_test.fsh */,
 				E48278B215F037B9001C9431 /* visualize_overlay.vsh */,
-				E48278B315F037B9001C9431 /* visualize_overlay.fsh */,
 				E4769DF1158A7915004B83AC /* flare.fsh */,
 				E4769DF2158A7915004B83AC /* flare.vsh */,
 				E4A9DEC2154128F0009DF363 /* light_point.fsh */,
@@ -279,6 +288,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E48839A515F92C8D00BD66D5 /* visualize_overlay.fsh in Resources */,
 				E4769DF3158A7915004B83AC /* flare.fsh in Resources */,
 				E4769DF4158A7915004B83AC /* flare.vsh in Resources */,
 				E4A9DEC715412923009DF363 /* light_point.fsh in Resources */,
@@ -292,7 +302,8 @@
 				E46FED3113C9A49F009F5814 /* ObjectShader.vsh in Resources */,
 				E46FED3213C9A49F009F5814 /* PostShader.vsh in Resources */,
 				E48278B415F037B9001C9431 /* visualize_overlay.vsh in Resources */,
-				E48278B515F037B9001C9431 /* visualize_overlay.fsh in Resources */,
+				E430D08C15F88BC50010558D /* occlusion_test.vsh in Resources */,
+				E430D08D15F88BC70010558D /* occlusion_test.fsh in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */,
 				E40611D714E4E98B0065996A /* README.txt in Resources */,
@@ -311,6 +322,9 @@
 				1D3623260D0F684500981E51 /* KRObjViewAppDelegate.mm in Sources */,
 				28D7ACF80DDB3853001CB0EB /* KRObjViewViewController.mm in Sources */,
 				1063FC77136D6A1B00EE555B /* KRObjViewGLView.mm in Sources */,
+				E430D08615F88A9F0010558D /* occlusion_test.fsh in Sources */,
+				E430D08B15F88B950010558D /* occlusion_test.vsh in Sources */,
+				E48839A415F92C6900BD66D5 /* visualize_overlay.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

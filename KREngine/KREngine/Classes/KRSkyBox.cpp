@@ -13,6 +13,7 @@
 #import "KRContext.h"
 #import "KRMat4.h"
 #import "KRResource.h"
+#import "KRContext.h"
 
 KRSkyBox::KRSkyBox(KRScene &scene, std::string name) : KRNode(scene, name)
 {
@@ -138,14 +139,13 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
 //        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
 //        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
         
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_pFrontTexture->getName());
-        glBindTexture(GL_TEXTURE_2D, m_pBackTexture->getName());
-        glBindTexture(GL_TEXTURE_2D, m_pTopTexture->getName());
-        glBindTexture(GL_TEXTURE_2D, m_pBottomTexture->getName());
-        glBindTexture(GL_TEXTURE_2D, m_pLeftTexture->getName());
-        glBindTexture(GL_TEXTURE_2D, m_pRightTexture->getName());
-
+        m_pContext->getTextureManager()->selectTexture(0, m_pFrontTexture);
+        m_pContext->getTextureManager()->selectTexture(1, m_pBackTexture);
+        m_pContext->getTextureManager()->selectTexture(2, m_pTopTexture);
+        m_pContext->getTextureManager()->selectTexture(3, m_pBottomTexture);
+        m_pContext->getTextureManager()->selectTexture(4, m_pLeftTexture);
+        m_pContext->getTextureManager()->selectTexture(5, m_pRightTexture);
+        
         // Disable z-buffer write
         glDepthMask(GL_FALSE);
         

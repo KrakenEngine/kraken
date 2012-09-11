@@ -1,5 +1,5 @@
 //
-//  flare.fsh
+//  visualize_overlay.fsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -32,3 +32,4 @@
 void main() {
     gl_FragColor = vec4(0.0, 0.05, 0.05, 0.0);
 }
+

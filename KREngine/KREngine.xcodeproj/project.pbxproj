@@ -23,6 +23,8 @@
 		E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; };
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
 		E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
+		E430D08115F8882F0010558D /* occlusion_test.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E430D08015F8882F0010558D /* occlusion_test.fsh */; };
+		E430D08915F88AD10010558D /* occlusion_test.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E430D08815F88AD10010558D /* occlusion_test.vsh */; };
 		E43B0AC915DDBB8500A5CB9F /* KRNotified.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AC715DDBB8500A5CB9F /* KRNotified.cpp */; };
 		E43B0ACA15DDBB8500A5CB9F /* KRNotified.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AC715DDBB8500A5CB9F /* KRNotified.cpp */; };
 		E43B0ACB15DDBB8500A5CB9F /* KRNotified.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AC815DDBB8500A5CB9F /* KRNotified.h */; };
@@ -67,7 +69,7 @@
 		E46F4A05155DF47C00CCF8B8 /* KRWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */; };
 		E46F4A09155DF6E400CCF8B8 /* KRWorld.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46F4A0B155E002100CCF8B8 /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; };
-		E46F4A0C155E002100CCF8B8 /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; };
+		E46F4A0C155E002100CCF8B8 /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
 		E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -75,7 +77,15 @@
 		E47C25A513F4F66F00FF4370 /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; };
 		E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; };
 		E47C25A913F4F6DD00FF4370 /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; };
-		E48278B115F03028001C9431 /* visualize_overlay.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E48278B015F03028001C9431 /* visualize_overlay.fsh */; };
+		E488399415F928CA00BD66D5 /* KRBundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399215F928CA00BD66D5 /* KRBundle.cpp */; };
+		E488399515F928CA00BD66D5 /* KRBundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399215F928CA00BD66D5 /* KRBundle.cpp */; };
+		E488399615F928CA00BD66D5 /* KRBundle.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399315F928CA00BD66D5 /* KRBundle.h */; };
+		E488399715F928CA00BD66D5 /* KRBundle.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399315F928CA00BD66D5 /* KRBundle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E488399C15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */; };
+		E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */; };
+		E488399E15F92BE000BD66D5 /* KRBundleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399B15F92BE000BD66D5 /* KRBundleManager.h */; };
+		E488399F15F92BE000BD66D5 /* KRBundleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399B15F92BE000BD66D5 /* KRBundleManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E48839A115F92C2800BD66D5 /* visualize_overlay.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */; };
 		E48B3CBD14393DF5000C50E2 /* KRCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B3CBC14393DF5000C50E2 /* KRCamera.h */; };
 		E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
 		E48C696F15374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; };
@@ -189,6 +199,8 @@
 		E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRBoundingVolume.cpp; path = Classes/KRBoundingVolume.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E42CB1EB158446940066E0D8 /* KRQuaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRQuaternion.h; path = Classes/KRQuaternion.h; sourceTree = "<group>"; };
 		E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRQuaternion.cpp; path = Classes/KRQuaternion.cpp; sourceTree = "<group>"; };
+		E430D08015F8882F0010558D /* occlusion_test.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.fsh; path = Shaders/occlusion_test.fsh; sourceTree = "<group>"; };
+		E430D08815F88AD10010558D /* occlusion_test.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.vsh; path = Shaders/occlusion_test.vsh; sourceTree = "<group>"; };
 		E43B0AC715DDBB8500A5CB9F /* KRNotified.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRNotified.cpp; path = Classes/KRNotified.cpp; sourceTree = "<group>"; };
 		E43B0AC815DDBB8500A5CB9F /* KRNotified.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRNotified.h; path = Classes/KRNotified.h; sourceTree = "<group>"; };
 		E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRContextObject.cpp; path = Classes/KRContextObject.cpp; sourceTree = "<group>"; };
@@ -227,7 +239,11 @@
 		E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRShaderManager.cpp; path = Classes/KRShaderManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E47C25A813F4F6DD00FF4370 /* KRShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRShader.cpp; path = Classes/KRShader.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E48278AE15F03010001C9431 /* visualize_overlay.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = visualize_overlay.vsh; path = Shaders/visualize_overlay.vsh; sourceTree = "<group>"; };
-		E48278B015F03028001C9431 /* visualize_overlay.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = visualize_overlay.fsh; sourceTree = "<group>"; };
+		E488399215F928CA00BD66D5 /* KRBundle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRBundle.cpp; path = Classes/KRBundle.cpp; sourceTree = "<group>"; };
+		E488399315F928CA00BD66D5 /* KRBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRBundle.h; path = Classes/KRBundle.h; sourceTree = "<group>"; };
+		E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRBundleManager.cpp; path = Classes/KRBundleManager.cpp; sourceTree = "<group>"; };
+		E488399B15F92BE000BD66D5 /* KRBundleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRBundleManager.h; path = Classes/KRBundleManager.h; sourceTree = "<group>"; };
+		E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = visualize_overlay.fsh; path = Shaders/visualize_overlay.fsh; sourceTree = "<group>"; };
 		E48B3CBC14393DF5000C50E2 /* KRCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRCamera.h; path = Classes/KRCamera.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRCamera.cpp; path = Classes/KRCamera.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E48C696E15374F5A00232E28 /* KRContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContext.h; path = Classes/KRContext.h; sourceTree = "<group>"; };
@@ -331,7 +347,9 @@
 				E4769DEC158A78B6004B83AC /* flare.fsh */,
 				E4769DEF158A78C6004B83AC /* flare.vsh */,
 				E48278AE15F03010001C9431 /* visualize_overlay.vsh */,
-				E48278B015F03028001C9431 /* visualize_overlay.fsh */,
+				E430D08015F8882F0010558D /* occlusion_test.fsh */,
+				E430D08815F88AD10010558D /* occlusion_test.vsh */,
+				E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -339,9 +357,7 @@
 		E461A170152E598200F2044A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E48C696C15374A1500232E28 /* Scene Graph */,
 				E461A174152E5A1300F2044A /* Meshes */,
-				E461A172152E59BC00F2044A /* Materials */,
 				E497B949151BCEE900D3DC67 /* KRResource.h */,
 				E497B94C151BCF2500D3DC67 /* KRResource.cpp */,
 				E497B94F151BD2CE00D3DC67 /* KRResource+obj.cpp */,
@@ -365,15 +381,6 @@
 				E461A164152E56C000F2044A /* KRSpotLight.cpp */,
 			);
 			name = Lights;
-			sourceTree = "<group>";
-		};
-		E461A172152E59BC00F2044A /* Materials */ = {
-			isa = PBXGroup;
-			children = (
-				E491017C13C99BDC0098455B /* KRMaterial.cpp */,
-				E491017D13C99BDC0098455B /* KRMaterial.h */,
-			);
-			name = Materials;
 			sourceTree = "<group>";
 		};
 		E461A173152E59DF00F2044A /* Math */ = {
@@ -414,7 +421,87 @@
 			name = tinyxml2;
 			sourceTree = "<group>";
 		};
-		E48C696C15374A1500232E28 /* Scene Graph */ = {
+		E488399915F92BA300BD66D5 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				E48839AB15F930E200BD66D5 /* Bundle */,
+				E48839AA15F9309E00BD66D5 /* Material */,
+				E48839A915F9307E00BD66D5 /* Model */,
+				E48839A815F9304C00BD66D5 /* Texture */,
+				E48839A715F9302E00BD66D5 /* Shader */,
+				E48839A615F92FC300BD66D5 /* Scene */,
+			);
+			name = Managers;
+			sourceTree = "<group>";
+		};
+		E48839A615F92FC300BD66D5 /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				E46C214915364DDB009CABF3 /* KRSceneManager.h */,
+				E46C214A15364DEC009CABF3 /* KRSceneManager.cpp */,
+				E414BAE6143557D200A668C4 /* KRScene.h */,
+				E414BAE81435585A00A668C4 /* KRScene.cpp */,
+				E48C696C15374A1500232E28 /* Scene Graph Nodes */,
+			);
+			name = Scene;
+			sourceTree = "<group>";
+		};
+		E48839A715F9302E00BD66D5 /* Shader */ = {
+			isa = PBXGroup;
+			children = (
+				E47C25A113F4F65A00FF4370 /* KRShaderManager.h */,
+				E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */,
+				E47C25A413F4F66F00FF4370 /* KRShader.h */,
+				E47C25A813F4F6DD00FF4370 /* KRShader.cpp */,
+			);
+			name = Shader;
+			sourceTree = "<group>";
+		};
+		E48839A815F9304C00BD66D5 /* Texture */ = {
+			isa = PBXGroup;
+			children = (
+				E491018513C99BDC0098455B /* KRTextureManager.h */,
+				E491018013C99BDC0098455B /* KRTextureManager.cpp */,
+				E491018613C99BDC0098455B /* KRTexture.h */,
+				E491018113C99BDC0098455B /* KRTexture.cpp */,
+			);
+			name = Texture;
+			sourceTree = "<group>";
+		};
+		E48839A915F9307E00BD66D5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				E491018313C99BDC0098455B /* KRModelManager.h */,
+				E491018213C99BDC0098455B /* KRModelManager.cpp */,
+				E491017A13C99BDC0098455B /* KRModel.h */,
+				E491017913C99BDC0098455B /* KRModel.cpp */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		E48839AA15F9309E00BD66D5 /* Material */ = {
+			isa = PBXGroup;
+			children = (
+				E491018413C99BDC0098455B /* KRMaterialManager.h */,
+				E491017B13C99BDC0098455B /* KRMaterialManager.cpp */,
+				E491017D13C99BDC0098455B /* KRMaterial.h */,
+				E491017C13C99BDC0098455B /* KRMaterial.cpp */,
+			);
+			name = Material;
+			sourceTree = "<group>";
+		};
+		E48839AB15F930E200BD66D5 /* Bundle */ = {
+			isa = PBXGroup;
+			children = (
+				E488399B15F92BE000BD66D5 /* KRBundleManager.h */,
+				E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */,
+				E488399315F928CA00BD66D5 /* KRBundle.h */,
+				E488399215F928CA00BD66D5 /* KRBundle.cpp */,
+			);
+			name = Bundle;
+			sourceTree = "<group>";
+		};
+		E48C696C15374A1500232E28 /* Scene Graph Nodes */ = {
 			isa = PBXGroup;
 			children = (
 				E414BAE11435557300A668C4 /* KRInstance.h */,
@@ -422,12 +509,10 @@
 				E461A171152E599E00F2044A /* Lights */,
 				E4F975311536220900FD60B2 /* KRNode.h */,
 				E4F975351536221C00FD60B2 /* KRNode.cpp */,
-				E414BAE6143557D200A668C4 /* KRScene.h */,
-				E414BAE81435585A00A668C4 /* KRScene.cpp */,
 				1000469C15E6EF550053B072 /* KRSkyBox.h */,
 				1000469B15E6EF550053B072 /* KRSkyBox.cpp */,
 			);
-			name = "Scene Graph";
+			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
 		};
 		E491015613C99B9D0098455B = {
@@ -484,40 +569,25 @@
 		E491016E13C99BAE0098455B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E4F9753815362A5200FD60B2 /* 3rdparty */,
+				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
+				E48B3CBC14393DF5000C50E2 /* KRCamera.h */,
+				E48C697115374F7E00232E28 /* KRContext.cpp */,
+				E48C696E15374F5A00232E28 /* KRContext.h */,
 				E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */,
 				E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */,
-				E4F9753815362A5200FD60B2 /* 3rdparty */,
-				E461A173152E59DF00F2044A /* Math */,
-				E461A170152E598200F2044A /* Resources */,
-				E491016F13C99BDC0098455B /* KREngine.mm */,
-				E491017213C99BDC0098455B /* KREngine.h */,
-				E491017913C99BDC0098455B /* KRModel.cpp */,
-				E491017A13C99BDC0098455B /* KRModel.h */,
-				E491018413C99BDC0098455B /* KRMaterialManager.h */,
-				E491017B13C99BDC0098455B /* KRMaterialManager.cpp */,
-				E491018213C99BDC0098455B /* KRModelManager.cpp */,
-				E491018313C99BDC0098455B /* KRModelManager.h */,
-				E491018513C99BDC0098455B /* KRTextureManager.h */,
-				E491018013C99BDC0098455B /* KRTextureManager.cpp */,
-				E491018613C99BDC0098455B /* KRTexture.h */,
-				E491018113C99BDC0098455B /* KRTexture.cpp */,
-				E47C25A113F4F65A00FF4370 /* KRShaderManager.h */,
-				E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */,
-				E47C25A413F4F66F00FF4370 /* KRShader.h */,
-				E47C25A813F4F6DD00FF4370 /* KRShader.cpp */,
-				E48B3CBC14393DF5000C50E2 /* KRCamera.h */,
-				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
+				E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */,
+				E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */,
 				E46DBE841512B9E200D59F86 /* KREngine-common.h */,
-				E46C214915364DDB009CABF3 /* KRSceneManager.h */,
-				E46C214A15364DEC009CABF3 /* KRSceneManager.cpp */,
-				E48C696E15374F5A00232E28 /* KRContext.h */,
-				E48C697115374F7E00232E28 /* KRContext.cpp */,
+				E491017213C99BDC0098455B /* KREngine.h */,
+				E491016F13C99BDC0098455B /* KREngine.mm */,
 				E43B0AC715DDBB8500A5CB9F /* KRNotified.cpp */,
 				E43B0AC815DDBB8500A5CB9F /* KRNotified.h */,
-				E46F49FF155DF46700CCF8B8 /* KRWorld.h */,
-				E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */,
-				E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */,
 				E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */,
+				E46F49FF155DF46700CCF8B8 /* KRWorld.h */,
+				E488399915F92BA300BD66D5 /* Managers */,
+				E461A173152E59DF00F2044A /* Math */,
+				E461A170152E598200F2044A /* Resources */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -604,6 +674,8 @@
 				E4924C2C15EE96AB00B965C6 /* KROctreeNode.h in Headers */,
 				1000469E15E6EF550053B072 /* KRSkyBox.h in Headers */,
 				E40BA45615EFF79500D7C3DD /* KRAABB.h in Headers */,
+				E488399615F928CA00BD66D5 /* KRBundle.h in Headers */,
+				E488399E15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,14 +692,17 @@
 				E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
 				E4F975331536220900FD60B2 /* KRNode.h in Headers */,
 				E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */,
+				E46F4A0C155E002100CCF8B8 /* KRDataBlock.h in Headers */,
 				E46DBE811512AFE600D59F86 /* KRMesh.h in Headers */,
 				E4F9754115362CD900FD60B2 /* KRScene.h in Headers */,
 				E4F9754A153632AA00FD60B2 /* KRModelManager.cpp in Headers */,
 				E4F9754215362D0D00FD60B2 /* KRInstance.h in Headers */,
 				E4F975491536329E00FD60B2 /* KRTextureManager.h in Headers */,
 				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
+				E488399715F928CA00BD66D5 /* KRBundle.h in Headers */,
 				E4F9754C153632F000FD60B2 /* KRCamera.h in Headers */,
 				E4F975501536333500FD60B2 /* KRModel.h in Headers */,
+				E488399F15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
 				E4AFC6BC15F7C95D00DDB4C8 /* KRSceneManager.h in Headers */,
 				E4D133661537685A0070068C /* KRShader.h in Headers */,
 				E461A153152E54B500F2044A /* KRLight.h in Headers */,
@@ -648,7 +723,6 @@
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
-				E46F4A0C155E002100CCF8B8 /* KRDataBlock.h in Headers */,
 				E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -771,7 +845,11 @@
 				E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */,
 				1000469D15E6EF550053B072 /* KRSkyBox.cpp in Sources */,
 				E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */,
-				E48278B115F03028001C9431 /* visualize_overlay.fsh in Sources */,
+				E430D08115F8882F0010558D /* occlusion_test.fsh in Sources */,
+				E430D08915F88AD10010558D /* occlusion_test.vsh in Sources */,
+				E488399415F928CA00BD66D5 /* KRBundle.cpp in Sources */,
+				E488399C15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
+				E48839A115F92C2800BD66D5 /* visualize_overlay.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -816,6 +894,8 @@
 				E43B0ACA15DDBB8500A5CB9F /* KRNotified.cpp in Sources */,
 				E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */,
 				E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */,
+				E488399515F928CA00BD66D5 /* KRBundle.cpp in Sources */,
+				E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

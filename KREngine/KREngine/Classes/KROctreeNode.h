@@ -32,6 +32,7 @@ public:
     
     void setChildNode(int iChild, KROctreeNode *pChild);
     int getChildIndex(KRNode *pNode);
+    KRAABB getChildBounds(int iChild);
     bool isEmpty() const;
     
     bool canShrinkRoot() const;

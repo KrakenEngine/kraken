@@ -17,7 +17,6 @@
 #include <assert.h>
 
 #include "KRResource.h"
-#include "KRMesh.h"
 #include "KRScene.h"
 #include "KRResource+blend.h"
 
@@ -27,32 +26,11 @@ std::vector<KRResource *> KRResource::LoadBlenderScene(KRContext &context, const
     KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
     resources.push_back(pScene);
     
-    int fdFile = 0;
-    int fileSize = 0;
-    void *pFile = NULL;
+    KRDataBlock data;
     
-    struct stat statbuf;
-    fdFile = open(path.c_str(), O_RDONLY);
-    if(fdFile >= 0) {
-        if(fstat(fdFile, &statbuf) >= 0) {
-            if ((pFile = mmap (0, statbuf.st_size, PROT_READ, MAP_SHARED, fdFile, 0)) == (caddr_t) -1) {
-            } else {
-                fileSize = statbuf.st_size;
-                
-                
-                KRBlendFile blend_file = KRBlendFile(pFile);
-            }
-        }
+    if(data.load(path)) {
+        KRBlendFile blend_file = KRBlendFile(pFile);
     }
-    
-    if(pFile != NULL) {
-        munmap(pFile, fileSize);
-    }
-    
-    if(fdFile != 0) {
-        close(fdFile);
-    }
-    
     
     return resources;
 }

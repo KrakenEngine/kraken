@@ -9,6 +9,7 @@
 #ifndef KREngine_KRContext_h
 #define KREngine_KRContext_h
 
+#import "KRBundleManager.h"
 #import "KRSceneManager.h"
 #import "KRTextureManager.h"
 #import "KRMaterialManager.h"
@@ -21,8 +22,10 @@ public:
     KRContext();
     ~KRContext();
     
+    void loadResource(const std::string &file_name, KRDataBlock *data);
     void loadResource(std::string path);
     
+    KRBundleManager *getBundleManager();
     KRSceneManager *getSceneManager();
     KRTextureManager *getTextureManager();
     KRMaterialManager *getMaterialManager();
@@ -32,6 +35,7 @@ public:
     KRCamera *createCamera(int width, int height);
     
 private:
+    KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;

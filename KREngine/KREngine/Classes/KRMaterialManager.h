@@ -33,6 +33,8 @@
 #define KRMATERIALMANAGER_H
 
 
+
+
 #import "KREngine-common.h"
 
 #include "KRMaterial.h"
@@ -50,13 +52,16 @@ public:
     KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
     virtual ~KRMaterialManager();
     
-    bool loadFile(const char *szPath);
+    bool load(const char *szName, KRDataBlock *data);
     KRMaterial *getMaterial(const char *szName);
+    
+    
     
 private:
     map<std::string, KRMaterial *> m_materials;
     KRTextureManager *m_pTextureManager;
     KRShaderManager *m_pShaderManager;
+
 };
 
 #endif
