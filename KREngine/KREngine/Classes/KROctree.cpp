@@ -31,6 +31,7 @@ void KROctree::add(KRNode *pNode)
         if(m_pRootNode == NULL) {
             // First item inserted, create a node large enough to fit it
             m_pRootNode = new KROctreeNode(nodeBounds);
+            //m_pRootNode = new KROctreeNode(KRAABB(nodeBounds.min - nodeBounds.size() * 0.25f, nodeBounds.max + nodeBounds.size() * 0.25f));
             m_pRootNode->add(pNode);
         } else {
             // Keep encapsulating the root node until the new root contains the inserted node

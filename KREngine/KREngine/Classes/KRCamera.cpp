@@ -243,6 +243,8 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         // Render the geometry
         scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS);
         
+        scene.getOcclusionQueryResults(m_visibleBounds);
+        
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
         glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
@@ -310,6 +312,8 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         
         // Render the geometry
         scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        
+        scene.getOcclusionQueryResults(m_visibleBounds);
     }
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -409,7 +413,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         }
     }
     
-    scene.getOcclusionQueryResults(m_visibleBounds);
+//    scene.getOcclusionQueryResults(m_visibleBounds);
     
     // fprintf(stderr, "visible bounds: %i\n", (int)m_visibleBounds.size());
     

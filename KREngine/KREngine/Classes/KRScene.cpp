@@ -146,18 +146,25 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
         
         KRAABB octreeBounds = pOctreeNode->getBounds();
         
+        //KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->perspective_farz);
+        
         if(true) {
         //if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
-        //if(frustrumVolume.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+        //if(frustrumVolumeNoNearClip.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
             
-            bool can_occlusion_test = renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+            bool can_occlusion_test = renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
 
-            if(true) {
-            //if(visibleBounds.find(octreeBounds) != visibleBounds.end()) {
+            
+            bool bVisible = true;
+//            bool bVisible = renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE;
+//            if(!bVisible) {
+//                bVisible = visibleBounds.find(octreeBounds) != visibleBounds.end();
+//            }
+            
+            if(bVisible) {
                 if(can_occlusion_test) {
                     pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
                 }
-                
                 
                 // Occlusion test indicates that this bounding box was visible in the last frame
                 for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
@@ -170,8 +177,15 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     pOctreeNode->endOcclusionQuery();
                 }
                 
-                for(int i=0; i<8; i++) {
-                    render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                
+                bool bRenderChildren = renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE;
+                if(!bRenderChildren) {
+                    bRenderChildren = visibleBounds.find(octreeBounds) != visibleBounds.end();
+                }
+                if(bRenderChildren) {
+                    for(int i=0; i<8; i++) {
+                        render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                    }
                 }
             } else if(KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
                 if(pOctreeNode->getSceneNodes().empty()) {
