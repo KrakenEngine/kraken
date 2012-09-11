@@ -74,7 +74,11 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
         if(influence_extents.test_intersect(frustrumVolumeNoNearClip)) {
             // Cull out any lights not within the view frustrum
             
-            KRShader *pShader = pContext->getShaderManager()->getShader("light_point", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
+            KRVector3 view_light_position = KRMat4::Dot(viewMatrix, light_position);
+            
+            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->perspective_nearz) * (influence_radius + pCamera->perspective_nearz);
+            
+            KRShader *pShader = pContext->getShaderManager()->getShader(bInsideLight ? "light_point_inside" : "light_point", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
             pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
             glUniform3f(
                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
@@ -122,22 +126,40 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             matInvProjection.invert();
             glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_INVP], 1, GL_FALSE, matInvProjection.getPointer());
             
-            
             // Disable z-buffer write
             glDepthMask(GL_FALSE);
             
-            // Render sphere of light's influence
-            generateMesh();
-        
-            // Enable z-buffer test
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
-            glDepthRangef(0.0, 1.0);
+            if(bInsideLight) {
+                
+                // Disable z-buffer test
+                glDisable(GL_DEPTH_TEST);
+                
+                // Render a full screen quad
+                static const GLfloat squareVertices[] = {
+                    -1.0f, -1.0f,
+                    1.0f, -1.0f,
+                    -1.0f,  1.0f,
+                    1.0f,  1.0f,
+                };
+                
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            } else {
+                // Render sphere of light's influence
+                generateMesh();
             
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices);
-            glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-            glDrawArrays(GL_TRIANGLES, 0, m_cVertices);
+                // Enable z-buffer test
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LEQUAL);
+                glDepthRangef(0.0, 1.0);
+                
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices);
+                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+                glDrawArrays(GL_TRIANGLES, 0, m_cVertices);
+            }
         }
     }
 }

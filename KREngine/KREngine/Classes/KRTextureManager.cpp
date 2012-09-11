@@ -30,6 +30,7 @@
 //
 
 #include "KRTextureManager.h"
+#include "KRContext.h"
 #include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {

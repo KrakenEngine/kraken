@@ -144,6 +144,8 @@
 		E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
 		E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
 		E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
+		E4CE184D15FF124600F80870 /* light_point_inside.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE184C15FF124600F80870 /* light_point_inside.fsh */; };
+		E4CE184F15FF125700F80870 /* light_point_inside.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE184E15FF125700F80870 /* light_point_inside.vsh */; };
 		E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4D13365153767FF0070068C /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -297,6 +299,8 @@
 		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		E4BBBB9A1512A48200F43B5B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = Shaders/font.pvr; sourceTree = "<group>"; };
+		E4CE184C15FF124600F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.fsh; path = Shaders/light_point_inside.fsh; sourceTree = "<group>"; };
+		E4CE184E15FF125700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
 		E4D133B91538F7480070068C /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = Shaders/light_directional.fsh; sourceTree = "<group>"; };
 		E4D133BB1538F7560070068C /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = Shaders/light_directional.vsh; sourceTree = "<group>"; };
 		E4F711A41512BB56007EE923 /* libfbxsdk-2012.2-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2012.2-static.a"; path = "../../../../../../../../Applications/Autodesk/FBXSDK20122/lib/gcc4/ub/libfbxsdk-2012.2-static.a"; sourceTree = "<group>"; };
@@ -351,6 +355,8 @@
 				E430D08015F8882F0010558D /* occlusion_test.fsh */,
 				E430D08815F88AD10010558D /* occlusion_test.vsh */,
 				E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */,
+				E4CE184C15FF124600F80870 /* light_point_inside.fsh */,
+				E4CE184E15FF125700F80870 /* light_point_inside.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -860,6 +866,8 @@
 				E488399415F928CA00BD66D5 /* KRBundle.cpp in Sources */,
 				E488399C15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
 				E48839A115F92C2800BD66D5 /* visualize_overlay.fsh in Sources */,
+				E4CE184D15FF124600F80870 /* light_point_inside.fsh in Sources */,
+				E4CE184F15FF125700F80870 /* light_point_inside.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

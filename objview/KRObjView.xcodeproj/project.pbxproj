@@ -42,6 +42,10 @@
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
 		E4A9DEC815412923009DF363 /* light_point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
 		E4CE184A15FEEE8500F80870 /* font.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E4CE184915FEEE8500F80870 /* font.pvr */; };
+		E4CE185215FF12A700F80870 /* light_point_inside.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE185015FF12A700F80870 /* light_point_inside.fsh */; };
+		E4CE185315FF12A700F80870 /* light_point_inside.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE185115FF12A700F80870 /* light_point_inside.vsh */; };
+		E4CE185415FF12B700F80870 /* light_point_inside.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4CE185015FF12A700F80870 /* light_point_inside.fsh */; };
+		E4CE185515FF12B700F80870 /* light_point_inside.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4CE185115FF12A700F80870 /* light_point_inside.vsh */; };
 		E4FF48C51538FBF8002053FC /* light_directional.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
 		E4FF48C61538FBFC002053FC /* light_directional.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
 /* End PBXBuildFile section */
@@ -86,6 +90,8 @@
 		E4A9DEC2154128F0009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = ../KREngine/KREngine/Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC515412906009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = ../KREngine/KREngine/Shaders/light_point.vsh; sourceTree = "<group>"; };
 		E4CE184915FEEE8500F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = ../KREngine/KREngine/Shaders/font.pvr; sourceTree = "<group>"; };
+		E4CE185015FF12A700F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.fsh; path = ../KREngine/KREngine/Shaders/light_point_inside.fsh; sourceTree = "<group>"; };
+		E4CE185115FF12A700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = ../KREngine/KREngine/Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
 		E4FF48C01538FBF0002053FC /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = ../KREngine/KREngine/Shaders/light_directional.fsh; sourceTree = "<group>"; };
 		E4FF48C11538FBF0002053FC /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = ../KREngine/KREngine/Shaders/light_directional.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -202,6 +208,8 @@
 		E46FED2013C9A472009F5814 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				E4CE185015FF12A700F80870 /* light_point_inside.fsh */,
+				E4CE185115FF12A700F80870 /* light_point_inside.vsh */,
 				E48839A315F92C6900BD66D5 /* visualize_overlay.fsh */,
 				E430D08A15F88B950010558D /* occlusion_test.vsh */,
 				E430D08515F88A9F0010558D /* occlusion_test.fsh */,
@@ -291,6 +299,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4CE185415FF12B700F80870 /* light_point_inside.fsh in Resources */,
+				E4CE185515FF12B700F80870 /* light_point_inside.vsh in Resources */,
 				E48839A515F92C8D00BD66D5 /* visualize_overlay.fsh in Resources */,
 				E4769DF3158A7915004B83AC /* flare.fsh in Resources */,
 				E4769DF4158A7915004B83AC /* flare.vsh in Resources */,
@@ -329,6 +339,8 @@
 				E430D08615F88A9F0010558D /* occlusion_test.fsh in Sources */,
 				E430D08B15F88B950010558D /* occlusion_test.vsh in Sources */,
 				E48839A415F92C6900BD66D5 /* visualize_overlay.fsh in Sources */,
+				E4CE185215FF12A700F80870 /* light_point_inside.fsh in Sources */,
+				E4CE185315FF12A700F80870 /* light_point_inside.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

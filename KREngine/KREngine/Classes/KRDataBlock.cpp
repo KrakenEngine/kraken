@@ -55,9 +55,7 @@ void KRDataBlock::unload()
 {
     if(m_fdPackFile) {
         // Memory mapped file
-        if(m_bMalloced) {
-            munmap(m_data, m_data_size);
-        }
+        munmap(m_data, m_data_size);
         close(m_fdPackFile);
     } else if(m_data != NULL && m_bMalloced) {
         // Malloc'ed data

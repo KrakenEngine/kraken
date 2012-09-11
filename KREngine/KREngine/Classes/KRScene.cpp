@@ -158,6 +158,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
                 }
                 
+                
                 // Occlusion test indicates that this bounding box was visible in the last frame
                 for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
                     //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check

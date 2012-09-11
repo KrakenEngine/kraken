@@ -66,13 +66,11 @@ std::map<std::string, KRModel *> KRModelManager::getModels() {
 }
 
 void KRModelManager::bindVBO(const GLvoid *data, GLsizeiptr size) {
-    assert(size > 0);
     
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
         if(m_vbos.find(data) != m_vbos.end()) {
             m_currentVBO = m_vbos[data];
-            assert(m_currentVBO.size == size);
             glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
         } else {
             m_vboMemUsed += size;

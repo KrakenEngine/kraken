@@ -165,16 +165,16 @@ bool KRTexture::createGLTexture() {
 	int width = m_iWidth;
 	int height = m_iHeight;
 	GLenum err;
+    
+    if(m_blocks.size() == 0) {
+        return false;
+    }
 	
-	if (m_blocks.size() > 0)
-	{
-		if (m_iName != 0) {
-            glDeleteTextures(1, &m_iName);
-        }
-		
-		glGenTextures(1, &m_iName);
-		glBindTexture(GL_TEXTURE_2D, m_iName);
-	}
+    glGenTextures(1, &m_iName);
+    if(m_iName == 0) {
+        return false;
+    }
+    glBindTexture(GL_TEXTURE_2D, m_iName);
 	
 	if (m_blocks.size() > 1) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -188,6 +188,8 @@ bool KRTexture::createGLTexture() {
 		
 		err = glGetError();
 		if (err != GL_NO_ERROR) {
+            glDeleteTextures(1, &m_iName);
+            m_iName = 0;
 			return false;
 		}
 		
@@ -216,7 +218,7 @@ GLuint KRTexture::getHandle(long &textureMemUsed) {
             textureMemUsed += getMemSize();
         }
         
-        createGLTexture();
+        //createGLTexture();
     }
     return m_iName;
 }
