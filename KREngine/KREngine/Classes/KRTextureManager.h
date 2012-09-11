@@ -30,7 +30,8 @@
 //
 
 #define KRENGINE_MAX_TEXTURE_UNITS 8
-#define KRENGINE_MAX_TEXTURE_HANDLES 20
+#define KRENGINE_MAX_TEXTURE_HANDLES 1000
+#define KRENGINE_MAX_TEXTURE_MEM 100000000
 
 #ifndef KRTEXTUREMANAGER_H
 #define KRTEXTUREMANAGER_H
@@ -58,11 +59,15 @@ public:
     
     KRTexture *getTexture(const char *szFile);
     
+    long getMemUsed();
+    
 private:
     std::map<std::string, KRTexture *> m_textures;
     
     KRTexture *m_activeTextures[KRENGINE_MAX_TEXTURE_UNITS];
     std::set<KRTexture *> m_textureCache;
+    
+    long m_textureMemUsed;
 };
 
 #endif

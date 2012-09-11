@@ -122,7 +122,7 @@ double const PI = 3.141592653589793f;
     NSFileManager* fileManager = [NSFileManager defaultManager];
     NSString *bundle_directory = [[NSBundle mainBundle] bundlePath];
     for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: bundle_directory error:nil]) {
-        if([fileName hasSuffix: @".vsh"] || [fileName hasSuffix: @".fsh"]) {
+        if([fileName hasSuffix: @".vsh"] || [fileName hasSuffix: @".fsh"] || [fileName isEqualToString:@"font.pvr"]) {
             NSString* path = [NSString stringWithFormat:@"%@/%@", bundle_directory, fileName];
             _context->loadResource([path UTF8String]);
         }

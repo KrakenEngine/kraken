@@ -296,6 +296,7 @@
 		E4BBBB961512A46700F43B5B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = DEVELOPER_DIR; };
 		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		E4BBBB9A1512A48200F43B5B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = Shaders/font.pvr; sourceTree = "<group>"; };
 		E4D133B91538F7480070068C /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = Shaders/light_directional.fsh; sourceTree = "<group>"; };
 		E4D133BB1538F7560070068C /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = Shaders/light_directional.vsh; sourceTree = "<group>"; };
 		E4F711A41512BB56007EE923 /* libfbxsdk-2012.2-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2012.2-static.a"; path = "../../../../../../../../Applications/Autodesk/FBXSDK20122/lib/gcc4/ub/libfbxsdk-2012.2-static.a"; sourceTree = "<group>"; };
@@ -547,12 +548,12 @@
 		E491016613C99B9E0098455B /* KREngine */ = {
 			isa = PBXGroup;
 			children = (
+				E4CE184615FEED6800F80870 /* Standard Assets */,
 				E491016E13C99BAE0098455B /* Classes */,
 				E4924C2415EE95E700B965C6 /* KROctree.cpp */,
 				E4924C2515EE95E800B965C6 /* KROctree.h */,
 				E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */,
 				E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */,
-				E45772E313C99F160037BEEA /* Shaders */,
 				E491016713C99B9E0098455B /* Supporting Files */,
 			);
 			path = KREngine;
@@ -625,6 +626,15 @@
 				E4BBBB941512A45500F43B5B /* Cocoa.framework */,
 			);
 			name = "OSX Frameworks";
+			sourceTree = "<group>";
+		};
+		E4CE184615FEED6800F80870 /* Standard Assets */ = {
+			isa = PBXGroup;
+			children = (
+				E4CE184815FEEDA200F80870 /* font.pvr */,
+				E45772E313C99F160037BEEA /* Shaders */,
+			);
+			name = "Standard Assets";
 			sourceTree = "<group>";
 		};
 		E4F9753815362A5200FD60B2 /* 3rdparty */ = {

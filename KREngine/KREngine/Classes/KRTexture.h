@@ -49,8 +49,10 @@ public:
     ~KRTexture();
     
     bool createGLTexture();
-    GLuint getHandle();
-    void releaseHandle();
+    GLuint getHandle(long &textureMemUsed);
+    void releaseHandle(long &textureMemUsed);
+    
+    long getMemSize();
     
 private:
     
@@ -72,6 +74,7 @@ private:
     bool load();
     
     KRTextureManager *m_pManager;
+
 };
 
 #endif

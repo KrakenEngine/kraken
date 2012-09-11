@@ -32,7 +32,8 @@
 #ifndef KRMODELMANAGER_H
 #define KRMODELMANAGER_H
 
-#define KRENGINE_MAX_VBO_HANDLES 50
+#define KRENGINE_MAX_VBO_HANDLES 1000
+#define KRENGINE_MAX_VBO_MEM 100000000
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
@@ -59,6 +60,7 @@ public:
     
     
     void bindVBO(const GLvoid *data, GLsizeiptr size);
+    long getMemUsed();
     
 private:
     std::map<std::string, KRModel *> m_models;
@@ -69,6 +71,7 @@ private:
         const GLvoid *data;
     } vbo_info_type;
     
+    long m_vboMemUsed;
     vbo_info_type m_currentVBO;
     
     std::map<const GLvoid *, vbo_info_type> m_vbos;

@@ -77,7 +77,8 @@ KRTexture::KRTexture(KRDataBlock *data, KRTextureManager *manager) {
 }
 
 KRTexture::~KRTexture() {
-    releaseHandle();
+    long textureMemFreed = 0;
+    releaseHandle(textureMemFreed);
     delete m_pData;
 }
 
@@ -205,10 +206,14 @@ bool KRTexture::createGLTexture() {
     return true;
 }
 
-GLuint KRTexture::getHandle() {
+GLuint KRTexture::getHandle(long &textureMemUsed) {
     if(m_iName == 0) {
         if(!createGLTexture()) {
-            createGLTexture(); // FINDME - HACK!  The first texture fails with 0x501 return code but loads on second try
+            if(createGLTexture()) { // FINDME - HACK!  The first texture fails with 0x501 return code but loads on second try
+                textureMemUsed += getMemSize();
+            }
+        } else {
+            textureMemUsed += getMemSize();
         }
         
         createGLTexture();
@@ -216,9 +221,14 @@ GLuint KRTexture::getHandle() {
     return m_iName;
 }
 
-void KRTexture::releaseHandle() {
+void KRTexture::releaseHandle(long &textureMemUsed) {
     if(m_iName != 0) {
+        textureMemUsed -= getMemSize();
         glDeleteTextures(1, &m_iName);
         m_iName = 0;
     }
+}
+
+long KRTexture::getMemSize() {
+    return m_pData->getSize(); // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }

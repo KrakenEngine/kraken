@@ -36,6 +36,7 @@
 KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.handle = 0;
     m_currentVBO.data = NULL;
+    m_vboMemUsed = 0;
 }
 
 KRModelManager::~KRModelManager() {
@@ -74,20 +75,23 @@ void KRModelManager::bindVBO(const GLvoid *data, GLsizeiptr size) {
             assert(m_currentVBO.size == size);
             glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
         } else {
+            m_vboMemUsed += size;
             
-            while(m_vbos.size() >= KRENGINE_MAX_VBO_HANDLES) {
+            while(m_vbos.size() >= KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed >= KRENGINE_MAX_VBO_MEM) {
                 // TODO - This should maintain a max size limit for VBO's rather than a limit on the number of VBO's.  As meshes are split to multiple small VBO's, this is not too bad, but still not optimial.
                 std::map<const GLvoid *, vbo_info_type>::iterator first_itr = m_vbos.begin();
                 vbo_info_type firstVBO = first_itr->second;
                 glDeleteBuffers(1, &firstVBO.handle);
+                m_vboMemUsed -= firstVBO.size;
                 m_vbos.erase(first_itr);
-                fprintf(stderr, "VBO Swapping...");
+                fprintf(stderr, "VBO Swapping...\n");
             }
             
             m_currentVBO.handle = -1;
             glGenBuffers(1, &m_currentVBO.handle);
             glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
             glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+            
             m_currentVBO.size = size;
             m_currentVBO.data = data;
             
@@ -96,3 +100,7 @@ void KRModelManager::bindVBO(const GLvoid *data, GLsizeiptr size) {
     }
 }
 
+long KRModelManager::getMemUsed()
+{
+    return m_vboMemUsed;
+}

@@ -41,6 +41,7 @@
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
 		E4A9DEC815412923009DF363 /* light_point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
+		E4CE184A15FEEE8500F80870 /* font.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E4CE184915FEEE8500F80870 /* font.pvr */; };
 		E4FF48C51538FBF8002053FC /* light_directional.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C01538FBF0002053FC /* light_directional.fsh */; };
 		E4FF48C61538FBFC002053FC /* light_directional.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4FF48C11538FBF0002053FC /* light_directional.vsh */; };
 /* End PBXBuildFile section */
@@ -84,6 +85,7 @@
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		E4A9DEC2154128F0009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = ../KREngine/KREngine/Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC515412906009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = ../KREngine/KREngine/Shaders/light_point.vsh; sourceTree = "<group>"; };
+		E4CE184915FEEE8500F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = ../KREngine/KREngine/Shaders/font.pvr; sourceTree = "<group>"; };
 		E4FF48C01538FBF0002053FC /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = ../KREngine/KREngine/Shaders/light_directional.fsh; sourceTree = "<group>"; };
 		E4FF48C11538FBF0002053FC /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = ../KREngine/KREngine/Shaders/light_directional.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -180,6 +182,7 @@
 		E400687C1373AB6400B3D28B /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				E4CE184915FEEE8500F80870 /* font.pvr */,
 				E46FED2013C9A472009F5814 /* Shaders */,
 			);
 			name = Assets;
@@ -308,6 +311,7 @@
 				E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */,
 				E40611D714E4E98B0065996A /* README.txt in Resources */,
 				E40611D814E4E98B0065996A /* release_notes.txt in Resources */,
+				E4CE184A15FEEE8500F80870 /* font.pvr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

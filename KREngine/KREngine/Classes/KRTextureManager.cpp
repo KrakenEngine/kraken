@@ -33,6 +33,7 @@
 #include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
+    m_textureMemUsed = 0;
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         m_activeTextures[iTexture] = NULL;
     }
@@ -81,7 +82,7 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
         glActiveTexture(GL_TEXTURE0 + iTextureUnit);
         if(pTexture != NULL) {
             m_textureCache.erase(pTexture); // Ensure that the texture will not be deleted while it is bound to a texture unit, and return it to the top of the texture cache when it is released
-            glBindTexture(GL_TEXTURE_2D, pTexture->getHandle());
+            glBindTexture(GL_TEXTURE_2D, pTexture->getHandle(m_textureMemUsed));
             // TODO - These texture parameters should be assigned by the material or texture parameters
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -91,6 +92,7 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
         }
         if(m_activeTextures[iTextureUnit] != NULL) {
             KRTexture *unloadedTexture = m_activeTextures[iTextureUnit];
+            m_activeTextures[iTextureUnit] = NULL;
             bool bActive = false;
             for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
                 if(m_activeTextures[iTexture] == unloadedTexture) {
@@ -101,10 +103,10 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
                 // Only return a texture to the cache when the last texture unit referencing it is re-assigned to a different texture
                 if(m_textureCache.find(unloadedTexture) == m_textureCache.end()) {
                     m_textureCache.insert(unloadedTexture);
-                    while(m_textureCache.size() > KRENGINE_MAX_TEXTURE_HANDLES) {
+                    while(m_textureCache.size() > KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRENGINE_MAX_TEXTURE_MEM) {
                         // Keep texture size within limits
                         KRTexture *droppedTexture = (*m_textureCache.begin());
-                        droppedTexture->releaseHandle();
+                        droppedTexture->releaseHandle(m_textureMemUsed);
                         m_textureCache.erase(droppedTexture);
                         fprintf(stderr, "Texture Swapping...\n");
                     }
@@ -113,5 +115,9 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
         }
         m_activeTextures[iTextureUnit] = pTexture;
     }
+}
+
+long KRTextureManager::getMemUsed() {
+    return m_textureMemUsed;
 }
 
