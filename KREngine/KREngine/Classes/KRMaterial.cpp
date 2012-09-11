@@ -231,9 +231,10 @@ void KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
             pShader->bind(pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-            glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns );
+            
             strcpy(szPrevShaderKey, pShader->getKey());
         }
+        glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns );
         
         bool bSameAmbient = false;
         bool bSameDiffuse = false;
