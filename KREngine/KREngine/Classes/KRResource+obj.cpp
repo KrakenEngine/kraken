@@ -38,7 +38,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
     
     KRDataBlock data;
     
-    char szSymbol[500][64];
+    char szSymbol[500][256];
     
     int *pFaces = NULL;
     
@@ -249,9 +249,9 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         KRMesh::pack_material *pMaterial = new KRMesh::pack_material();
         pMaterial->start_vertex = iVertex;
         pMaterial->vertex_count = 0;
-        memset(pMaterial->szName, 64, 0);
+        memset(pMaterial->szName, 256, 0);
         if(material_itr < material_names_t.end()) {
-            strncpy(pMaterial->szName, (*material_itr++).c_str(), 64);
+            strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
         }
         m_materials.push_back(pMaterial);
         
@@ -314,10 +314,10 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 pMaterial = new KRMesh::pack_material();
                 pMaterial->start_vertex = iVertex;
                 pMaterial->vertex_count = 0;
-                memset(pMaterial->szName, 64, 0);
+                memset(pMaterial->szName, 256, 0);
                 
                 if(material_itr < material_names_t.end()) {
-                    strncpy(pMaterial->szName, (*material_itr++).c_str(), 64);
+                    strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
                 }
                 m_materials.push_back(pMaterial);
             }

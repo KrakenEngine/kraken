@@ -61,7 +61,7 @@ KRMaterial *KRMaterialManager::getMaterial(const char *szName) {
 }
 bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
     KRMaterial *pMaterial = NULL;
-    char szSymbol[16][64];
+    char szSymbol[16][256];
     
  
     char *pScan = (char *)data->getStart();

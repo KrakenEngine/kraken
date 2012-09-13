@@ -111,3 +111,11 @@ void KRContext::loadResource(std::string path) {
         delete data;
     }
 }
+
+void KRContext::rotateBuffers() {
+    //fprintf(stderr, "Rotating Buffers...\n");
+    GLDEBUG(glFinish());
+
+    m_pModelManager->rotateBuffers();
+    m_pTextureManager->rotateBuffers();
+}

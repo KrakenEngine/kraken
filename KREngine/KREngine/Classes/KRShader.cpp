@@ -40,62 +40,62 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         const GLchar *fragSource[2] = {options.c_str(), fragShaderSource.c_str()};
         
         // Create shader program.
-        m_iProgram = glCreateProgram();
+        GLDEBUG(m_iProgram = glCreateProgram());
         
         // Create and compile vertex shader.
-        vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 2, vertSource, NULL);
-        glCompileShader(vertexShader);
+        GLDEBUG(vertexShader = glCreateShader(GL_VERTEX_SHADER));
+        GLDEBUG(glShaderSource(vertexShader, 2, vertSource, NULL));
+        GLDEBUG(glCompileShader(vertexShader));
         
         // Report any compile issues to stderr
         GLint logLength;
-        glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
+        GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength);
-            glGetShaderInfoLog(vertexShader, logLength, &logLength, log);
+            GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
             fprintf(stderr, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
         }
 
         
         // Create and compile vertex shader.
-        fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragShader, 2, fragSource, NULL);
-        glCompileShader(fragShader);
+        GLDEBUG(fragShader = glCreateShader(GL_FRAGMENT_SHADER));
+        GLDEBUG(glShaderSource(fragShader, 2, fragSource, NULL));
+        GLDEBUG(glCompileShader(fragShader));
         
         // Report any compile issues to stderr
-        glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength);
+        GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength);
-            glGetShaderInfoLog(fragShader, logLength, &logLength, log);
+            GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
             fprintf(stderr, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
         }
         
         // Attach vertex shader to program.
-        glAttachShader(m_iProgram, vertexShader);
+        GLDEBUG(glAttachShader(m_iProgram, vertexShader));
         
         // Attach fragment shader to program.
-        glAttachShader(m_iProgram, fragShader);
+        GLDEBUG(glAttachShader(m_iProgram, fragShader));
         
         // Bind attribute locations.
         // This needs to be done prior to linking.
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "vertex_position");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_NORMAL, "vertex_normal");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TANGENT, "vertex_tangent");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "vertex_uv");
-        glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv");
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_VERTEX, "vertex_position"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
 
         
         // Link program.
-        glLinkProgram(m_iProgram);
+        GLDEBUG(glLinkProgram(m_iProgram));
         
         // Report any linking issues to stderr
-        glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength);
+        GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0)
         {
             GLchar *log = (GLchar *)malloc(logLength);
-            glGetProgramInfoLog(m_iProgram, logLength, &logLength, log);
+            GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
             fprintf(stderr, "KREngine - Failed to link shader program: %s\nProgram link log:\n%s", szKey, log);
             free(log);
         }
@@ -161,104 +161,104 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         
     } catch(...) {
         if(vertexShader) {
-            glDeleteShader(vertexShader);
+            GLDEBUG(glDeleteShader(vertexShader));
             vertexShader = 0;
         }
         if(fragShader) {
-            glDeleteShader(fragShader);
+            GLDEBUG(glDeleteShader(fragShader));
             fragShader = 0;
         }
         if(m_iProgram) {
-            glDeleteProgram(m_iProgram);
+            GLDEBUG(glDeleteProgram(m_iProgram));
             m_iProgram = 0;
         }
     }
     
     // Release vertex and fragment shaders.
     if (vertexShader) {
-        glDeleteShader(vertexShader);
+        GLDEBUG(glDeleteShader(vertexShader));
 	}
     if (fragShader) {
-        glDeleteShader(fragShader);		
+        GLDEBUG(glDeleteShader(fragShader));
 	}
 }
 
 KRShader::~KRShader() {
     if(m_iProgram) {
-        glDeleteProgram(m_iProgram);
+        GLDEBUG(glDeleteProgram(m_iProgram));
     }
 }
 
 #if TARGET_OS_IPHONE
 
 void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
-    glUseProgram(m_iProgram);
+    GLDEBUG(glUseProgram(m_iProgram));
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer());
-    glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MN2V], 1, GL_FALSE, matModelToView.getPointer());
+    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer()));
+    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MN2V], 1, GL_FALSE, matModelToView.getPointer()));
 
 
     KRVector3 nLightDir = lightDirection;
     nLightDir.normalize();
 
     // Bind the light direction vector
-    glUniform3f(
+    GLDEBUG(glUniform3f(
                 m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION],
                 (GLfloat)nLightDir.x,
                 (GLfloat)nLightDir.y,
                 (GLfloat)nLightDir.z
-    );
+    ));
 
     // Bind the camera position, in model space    
-    glUniform3f(
+    GLDEBUG(glUniform3f(
                 m_uniforms[KRENGINE_UNIFORM_CAMERAPOS],
                 (GLfloat)cameraPosition.x,
                 (GLfloat)cameraPosition.y,
                 (GLfloat)cameraPosition.z
-    );
+    ));
     
-    glUniform4f(
+    GLDEBUG(glUniform4f(
                 m_uniforms[KRENGINE_UNIFORM_VIEWPORT],
                 (GLfloat)0.0,
                 (GLfloat)0.0,
                 (GLfloat)pCamera->getViewportSize().x,
                 (GLfloat)pCamera->getViewportSize().y
-    );
+    ));
     
     // Bind the shadowmap space matrices
     for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
-        glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow], 1, GL_FALSE, pShadowMatrices[iShadow].getPointer());
+        GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow], 1, GL_FALSE, pShadowMatrices[iShadow].getPointer()));
     }
     
     // Sets the diffuseTexture variable to the first texture unit
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0);
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0));
     
     // Sets the specularTexture variable to the second texture unit
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE], 1);
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE], 1));
     
     // Sets the normalTexture variable to the third texture unit
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE], 2);
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE], 2));
     
     // Sets the shadowTexture variable to the fourth texture unit
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1], 3);
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4);
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5);
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1], 3));
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4));
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5));
     
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6);
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6));
     
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-    glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7)); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7)); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
     
 #if defined(DEBUG)
     GLint logLength;
     
-    glValidateProgram(m_iProgram);
-    glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength);
+    GLDEBUG(glValidateProgram(m_iProgram));
+    GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
     if (logLength > 0)
     {
         GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(m_iProgram, logLength, &logLength, log);
+        GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
         fprintf(stderr, "KREngine - Failed to validate shader program: %s\n Program validate log:\n%s", m_szKey, log);
         free(log);
     }

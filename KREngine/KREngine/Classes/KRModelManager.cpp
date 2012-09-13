@@ -30,6 +30,7 @@
 //
 
 #include "KRModelManager.h"
+#include <assert.h>
 
 #import "KRModel.h"
 
@@ -53,7 +54,13 @@ KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
 }
 
 KRModel *KRModelManager::getModel(const char *szName) {
-    return m_models[szName];
+    std::map<std::string, KRModel *>::iterator itr_match = m_models.find(szName);
+    if(itr_match == m_models.end()) {
+        fprintf(stderr, "ERROR: Model not found: %s\n", szName);
+        return NULL;
+    } else {
+        return itr_match->second;
+    }
 }
 
 KRModel *KRModelManager::getFirstModel() {
@@ -65,40 +72,71 @@ std::map<std::string, KRModel *> KRModelManager::getModels() {
     return m_models;
 }
 
-void KRModelManager::bindVBO(const GLvoid *data, GLsizeiptr size) {
+void KRModelManager::unbindVBO() {
+    if(m_currentVBO.data != NULL) {
+        GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        m_currentVBO.size = 0;
+        m_currentVBO.data = NULL;
+        m_currentVBO.handle = -1;
+    }
+}
+
+void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size) {
     
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
-        if(m_vbos.find(data) != m_vbos.end()) {
-            m_currentVBO = m_vbos[data];
-            glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
+        if(m_vbosActive.find(data) != m_vbosActive.end()) {
+            m_currentVBO = m_vbosActive[data];
+            GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle));
+        } else if(m_vbosPool.find(data) != m_vbosPool.end()) {
+            m_currentVBO = m_vbosPool[data];
+            m_vbosPool.erase(data);
+            m_vbosActive[data] = m_currentVBO;
+            GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle));
         } else {
             m_vboMemUsed += size;
             
-            while(m_vbos.size() >= KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed >= KRENGINE_MAX_VBO_MEM) {
-                // TODO - This should maintain a max size limit for VBO's rather than a limit on the number of VBO's.  As meshes are split to multiple small VBO's, this is not too bad, but still not optimial.
-                std::map<const GLvoid *, vbo_info_type>::iterator first_itr = m_vbos.begin();
+            while(m_vbosPool.size() + m_vbosActive.size() >= KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed >= KRENGINE_MAX_VBO_MEM) {
+                if(m_vbosPool.empty()) {
+                    m_pContext->rotateBuffers();
+                }
+                std::map<GLvoid *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
                 vbo_info_type firstVBO = first_itr->second;
-                glDeleteBuffers(1, &firstVBO.handle);
+                GLDEBUG(glDeleteBuffers(1, &firstVBO.handle));
                 m_vboMemUsed -= firstVBO.size;
-                m_vbos.erase(first_itr);
-                fprintf(stderr, "VBO Swapping...\n");
+                m_vbosPool.erase(first_itr);
+                //fprintf(stderr, "VBO Swapping...\n");
             }
             
             m_currentVBO.handle = -1;
-            glGenBuffers(1, &m_currentVBO.handle);
-            glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle);
-            glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+            GLDEBUG(glGenBuffers(1, &m_currentVBO.handle));
+            
+            
+            GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.handle));
+            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
             
             m_currentVBO.size = size;
             m_currentVBO.data = data;
             
-            m_vbos[data] = m_currentVBO;
+            m_vbosActive[data] = m_currentVBO;
         }
     }
+    
+//    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
 }
 
 long KRModelManager::getMemUsed()
 {
     return m_vboMemUsed;
+}
+
+void KRModelManager::rotateBuffers()
+{
+    m_vbosPool.insert(m_vbosActive.begin(), m_vbosActive.end());
+    m_vbosActive.clear();
+    if(m_currentVBO.data != NULL) {
+        // Ensure that the currently active VBO does not get flushed to free memory
+        m_vbosPool.erase(m_currentVBO.data);
+        m_vbosActive[m_currentVBO.data] = m_currentVBO;
+    }
 }

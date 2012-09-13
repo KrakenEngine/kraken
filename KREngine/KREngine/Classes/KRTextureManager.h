@@ -30,7 +30,7 @@
 //
 
 #define KRENGINE_MAX_TEXTURE_UNITS 8
-#define KRENGINE_MAX_TEXTURE_HANDLES 1000
+#define KRENGINE_MAX_TEXTURE_HANDLES 10000
 #define KRENGINE_MAX_TEXTURE_MEM 100000000
 
 #ifndef KRTEXTUREMANAGER_H
@@ -49,6 +49,8 @@ public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
     
+    void rotateBuffers();
+    
     void selectTexture(int iTextureUnit, KRTexture *pTexture);
     
 #if TARGET_OS_IPHONE
@@ -64,8 +66,9 @@ public:
 private:
     std::map<std::string, KRTexture *> m_textures;
     
-    KRTexture *m_activeTextures[KRENGINE_MAX_TEXTURE_UNITS];
-    std::set<KRTexture *> m_textureCache;
+    KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
+    std::set<KRTexture *> m_activeTextures;
+    std::set<KRTexture *> m_poolTextures;
     
     long m_textureMemUsed;
 };

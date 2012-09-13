@@ -42,10 +42,10 @@ KROctreeNode::~KROctreeNode()
     }
 #if TARGET_OS_IPHONE
     if(m_occlusionTested) {
-        glDeleteQueriesEXT(1, &m_occlusionQuery);
+        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
     }
     if(m_occlusionTestedTransparent) {
-        glDeleteQueriesEXT(1, &m_occlusionQueryTransparent);
+        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQueryTransparent));
     }
 #endif
 }
@@ -54,13 +54,13 @@ KROctreeNode::~KROctreeNode()
 void KROctreeNode::beginOcclusionQuery(bool bTransparentPass)
 {
     if(bTransparentPass && !m_occlusionTestedTransparent) {
-        glGenQueriesEXT(1, &m_occlusionQueryTransparent);
-        glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQueryTransparent);
+        GLDEBUG(glGenQueriesEXT(1, &m_occlusionQueryTransparent));
+        GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQueryTransparent));
         m_occlusionTestedTransparent = true;
         m_activeQuery = true;
     } else if(!bTransparentPass && !m_occlusionTested){
-        glGenQueriesEXT(1, &m_occlusionQuery);
-        glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery);
+        GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+        GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
         m_occlusionTested = true;
         m_activeQuery = true;
     }
@@ -70,7 +70,7 @@ void KROctreeNode::endOcclusionQuery()
 {
     if(m_activeQuery) {
         // Only end a query if we started one
-        glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT);
+        GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
     }
 }
 
@@ -81,19 +81,19 @@ bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
     
     if(m_occlusionTested) {
         GLuint params = 0;
-        glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params);
+        GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
         if(params) bRendered = true; // At least one opaque fragment processed
         
-        glDeleteQueriesEXT(1, &m_occlusionQuery);
+        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
         m_occlusionTested = false;
         bGoDeeper = true;
     }
     if(m_occlusionTestedTransparent) {
         GLuint params = 0;
-        glGetQueryObjectuivEXT(m_occlusionQueryTransparent, GL_QUERY_RESULT_EXT, &params);
+        GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQueryTransparent, GL_QUERY_RESULT_EXT, &params));
         if(params) bRendered = true; // At least one transparent fragment processed
         
-        glDeleteQueriesEXT(1, &m_occlusionQueryTransparent);
+        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQueryTransparent));
         m_occlusionTestedTransparent = false;
         
         bGoDeeper = true;

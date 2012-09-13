@@ -33,7 +33,7 @@
 #define KRMODELMANAGER_H
 
 #define KRENGINE_MAX_VBO_HANDLES 1000
-#define KRENGINE_MAX_VBO_MEM 100000000
+#define KRENGINE_MAX_VBO_MEM 50000000
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
@@ -51,6 +51,8 @@ public:
     KRModelManager(KRContext &context);
     virtual ~KRModelManager();
     
+    void rotateBuffers();
+    
     KRModel *loadModel(const char *szName, KRDataBlock *pData);
     KRModel *getModel(const char *szName);
     KRModel *getFirstModel();
@@ -59,7 +61,8 @@ public:
     std::map<std::string, KRModel *> getModels();
     
     
-    void bindVBO(const GLvoid *data, GLsizeiptr size);
+    void bindVBO(GLvoid *data, GLsizeiptr size);
+    void unbindVBO();
     long getMemUsed();
     
 private:
@@ -68,14 +71,14 @@ private:
     typedef struct vbo_info {
         GLuint handle;
         GLsizeiptr size;
-        const GLvoid *data;
+        GLvoid *data;
     } vbo_info_type;
     
     long m_vboMemUsed;
     vbo_info_type m_currentVBO;
     
-    std::map<const GLvoid *, vbo_info_type> m_vbos;
-    
+    std::map<GLvoid *, vbo_info_type> m_vbosActive;
+    std::map<GLvoid *, vbo_info_type> m_vbosPool;
     
 };
 

@@ -44,7 +44,7 @@ using std::vector;
 #ifndef KRSHADERMANAGER_H
 #define KRSHADERMANAGER_H
 
-#define KRENGINE_MAX_SHADER_HANDLES 100
+#define KRENGINE_MAX_SHADER_HANDLES 1000
 
 class KRShaderManager : public KRContextObject {
 public:

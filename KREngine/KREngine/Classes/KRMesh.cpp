@@ -95,7 +95,10 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
             Submesh *pSubmesh = new Submesh();
             pSubmesh->start_vertex = pPackMaterial->start_vertex;
             pSubmesh->vertex_count = pPackMaterial->vertex_count;
-            strcpy(pSubmesh->szMaterialName, pPackMaterial->szName);
+            
+            strncpy(pSubmesh->szMaterialName, pPackMaterial->szName, 256);
+            pSubmesh->szMaterialName[63] = '\0';
+            //fprintf(stderr, "Submesh material: \"%s\"\n", pSubmesh->szMaterialName);
             m_submeshes.push_back(pSubmesh);
         }
     }
@@ -104,20 +107,6 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
 
 void KRMesh::renderSubmesh(int iSubmesh, int &iPrevBuffer) {
     VertexData *pVertexData = getVertexData();
-//    
-//    if(m_cBuffers == 0) {
-//        pack_header *pHeader = (pack_header *)m_pData->getStart();
-//        m_cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
-//        m_pBuffers = new GLuint[m_cBuffers];
-//        glGenBuffers(m_cBuffers, m_pBuffers);
-//        for(GLsizei iBuffer=0; iBuffer < m_cBuffers; iBuffer++) {
-//            GLsizei cVertexes = iBuffer < m_cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-//            glBindBuffer(GL_ARRAY_BUFFER, m_pBuffers[iBuffer]);
-//            glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * cVertexes, pVertexData + iBuffer * MAX_VBO_SIZE, GL_STATIC_DRAW);
-//            glBindBuffer(GL_ARRAY_BUFFER, 0);
-//            
-//        }
-//    }
     
     pack_header *pHeader = (pack_header *)m_pData->getStart();
     int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
@@ -130,38 +119,47 @@ void KRMesh::renderSubmesh(int iSubmesh, int &iPrevBuffer) {
     iVertex = iVertex % MAX_VBO_SIZE;
     int cVertexes = pSubmesh->vertex_count;
     while(cVertexes > 0) {
+        GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
         if(iPrevBuffer != iBuffer) {
-            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-            m_pContext->getModelManager()->bindVBO(pVertexData + iBuffer * MAX_VBO_SIZE, sizeof(VertexData) * cBufferVertexes);
+            assert(pVertexData + iBuffer * MAX_VBO_SIZE >= m_pData->getStart());
+            int vertex_size = sizeof(VertexData) ;
+            void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE + vertex_size * cBufferVertexes;
+            void *buffer_end = m_pData->getEnd();
+            assert(vbo_end <= buffer_end);
+            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE, sizeof(VertexData) * cBufferVertexes);
         
             if(iPrevBuffer == -1) {
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB);
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL));
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT));
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB));
             }
             
             
             int data_size = sizeof(VertexData);
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(0));
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D)));
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 2));
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3));
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3 + sizeof(TexCoord)));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(0)));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D))));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 2)));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3)));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3 + sizeof(TexCoord))));
         }
         iPrevBuffer = iBuffer;
     
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {
-            glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex));
+            assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
+            GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+            
             cVertexes -= (MAX_VBO_SIZE - iVertex);
             iVertex = 0;
             iBuffer++;
         } else {
-            glDrawArrays(GL_TRIANGLES, iVertex, cVertexes);
+            assert(iVertex + cVertexes <= cBufferVertexes);
+            GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
             cVertexes = 0;
         }
+        m_pContext->getModelManager()->unbindVBO();
     }
 }
 
@@ -193,7 +191,7 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         pack_material *pPackMaterial = pPackMaterials + iMaterial;
         pPackMaterial->start_vertex = submesh_starts[iMaterial];
         pPackMaterial->vertex_count = submesh_lengths[iMaterial];
-        strcpy(pPackMaterial->szName, material_names[iMaterial].c_str());
+        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), 63);
     }
     
     bool bFirstVertex = true;

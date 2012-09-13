@@ -145,7 +145,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     } else if(strcmp(szElementName, "spot_light") == 0) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
-        new_node = new KRInstance(scene, szName, szName, KRMat4(), e->Attribute("light_map"));
+        new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"));
     } else if(strcmp(szElementName, "sky_box") == 0) {
         new_node = new KRSkyBox(scene, szName);
     }

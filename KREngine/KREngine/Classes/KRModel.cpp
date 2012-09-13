@@ -66,7 +66,7 @@ KRModel::~KRModel() {
 
 void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
-    // fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
+    //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     
     if(renderPass != KRNode::RENDER_PASS_FLARES) {
     
@@ -74,7 +74,8 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
             vector<KRMesh::Submesh *> submeshes = m_pMesh->getSubmeshes();
             
             for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
-                KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial((*itr)->szMaterialName);
+                const char *szMaterialName = (*itr)->szMaterialName;
+                KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial(szMaterialName);
                 m_materials.push_back(pMaterial);
                 if(pMaterial) {
                     m_uniqueMaterials.insert(pMaterial);
@@ -128,11 +129,11 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                                     break;
                                 case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                     // Render back faces first
-                                    glCullFace(GL_BACK);
+                                    GLDEBUG(glCullFace(GL_BACK));
                                     m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
                                     
                                     // Render front faces second
-                                    glCullFace(GL_BACK);
+                                    GLDEBUG(glCullFace(GL_BACK));
                                     m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
                                     break;
                             }
@@ -143,7 +144,6 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                 }
             }
         }
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
 

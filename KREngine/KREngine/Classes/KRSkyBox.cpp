@@ -147,10 +147,10 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
         m_pContext->getTextureManager()->selectTexture(5, m_pRightTexture);
         
         // Disable z-buffer write
-        glDepthMask(GL_FALSE);
+        GLDEBUG(glDepthMask(GL_FALSE));
         
         // Disable z-buffer test
-        glDisable(GL_DEPTH_TEST);
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
         
         // Render a full screen quad
         static const GLfloat squareVertices[] = {
@@ -160,10 +160,9 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
             1.0f,  1.0f,
         };
         
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
+        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
 }
 

@@ -35,8 +35,7 @@
 #import "KRMesh.h"
 #include <assert.h>
 
-KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, const KRMat4 modelMatrix, std::string light_map) : KRNode(scene, instance_name) {
-    m_modelMatrix = modelMatrix;
+KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
     m_pModel = NULL;
@@ -61,6 +60,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
 
 
 KRMat4 &KRInstance::getModelMatrix() {
+    calcModelMatrix();
     return m_modelMatrix;
 }
 
@@ -76,6 +76,8 @@ void KRInstance::loadModel() {
 
 void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
+    calcModelMatrix();
+    
     KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_FLARES) {
@@ -119,6 +121,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
 
 void KRInstance::calcExtents(KRContext *pContext)
 {
+    calcModelMatrix();
+    
     KRNode::calcExtents(pContext);
     loadModel();    
     KRMesh *pMesh = m_pModel->getMesh();
@@ -139,6 +143,7 @@ bool KRInstance::hasTransparency() {
 }
 
 KRAABB KRInstance::getBounds() {
+    calcModelMatrix();
     loadModel();
     
     KRMesh *pMesh = m_pModel->getMesh();
@@ -181,4 +186,14 @@ KRAABB KRInstance::getBounds() {
     }
     
     return KRAABB(min, max);
+}
+
+void KRInstance::calcModelMatrix()
+{
+    m_modelMatrix = KRMat4();
+//    m_modelMatrix.scale(m_localScale);
+//    m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
+//    m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
+//    m_modelMatrix.rotate(m_localRotation.z, Z_AXIS);
+//    m_modelMatrix.translate(m_localTranslation);
 }

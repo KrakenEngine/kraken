@@ -12,6 +12,7 @@
 #import "KRShader.h"
 #import "KRContext.h"
 #import "KRMat4.h"
+#import "assert.h"
 
 KRDirectionalLight::KRDirectionalLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {
@@ -70,30 +71,30 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
         
         
-        glUniform3f(
+        GLDEBUG(glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE],
                     light_direction_view_space.x,
                     light_direction_view_space.y,
                     light_direction_view_space.z
-        );
+        ));
         
-        glUniform3f(
+        GLDEBUG(glUniform3f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
                     m_color.x,
                     m_color.y,
                     m_color.z
-                    );
+                    ));
         
-        glUniform1f(
+        GLDEBUG(glUniform1f(
                     pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
                     m_intensity / 100.0f
-                    );
+                    ));
         
         // Disable z-buffer write
-        glDepthMask(GL_FALSE);
+        GLDEBUG(glDepthMask(GL_FALSE));
         
         // Disable z-buffer test
-        glDisable(GL_DEPTH_TEST);
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
         
         // Render a full screen quad
         static const GLfloat squareVertices[] = {
@@ -103,10 +104,9 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
             1.0f,  1.0f,
         };
         
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
+        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
 }
 

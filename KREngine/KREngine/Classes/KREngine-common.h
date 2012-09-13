@@ -35,3 +35,14 @@
 
 
 #endif
+
+
+#define GLDEBUG(x) \
+x; \
+{ \
+GLenum e; \
+while( (e=glGetError()) != GL_NO_ERROR) \
+{ \
+fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
+} \
+}

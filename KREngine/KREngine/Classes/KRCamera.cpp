@@ -33,6 +33,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#import <assert.h>
 
 #import "KRVector2.h"
 #import "KRCamera.h"
@@ -57,15 +58,15 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(c
     bDebugPSSM = false;
     bEnableAmbient = true;
     bEnableDiffuse = true;
-    bEnableSpecular = true;
+    bEnableSpecular = false; // FINDME - Should be "true"
     bEnableLightMap = true;
     bDebugSuperShiny = false;
-    bEnableDeferredLighting = true;
+    bEnableDeferredLighting = true; // FINDME - should be "true"
     
     
-    dAmbientR = 0.0f;
-    dAmbientG = 0.0f;
-    dAmbientB = 0.0f;
+    dAmbientR = 0.25f; // FINDME - should be "0.0f"
+    dAmbientG = 0.25f; // FINDME - should be "0.0f"
+    dAmbientB = 0.25f; // FINDME - should be "0.0f"
     
     dSunR = 1.0f;
     dSunG = 1.0f;
@@ -130,6 +131,7 @@ void KRCamera::setPosition(const KRVector3 &position) {
 
 void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 {
+    m_pContext->rotateBuffers();
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
     
@@ -195,49 +197,49 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
         
         // Set render target
-        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+        GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
         // Enable backface culling
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
+        GLDEBUG(glCullFace(GL_BACK));
+        GLDEBUG(glEnable(GL_CULL_FACE));
         
         // Enable z-buffer write
-        glDepthMask(GL_TRUE);
+        GLDEBUG(glDepthMask(GL_TRUE));
         
         // Enable z-buffer test
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDepthRangef(0.0, 1.0);
+        GLDEBUG(glEnable(GL_DEPTH_TEST));
+        GLDEBUG(glDepthFunc(GL_LEQUAL));
+        GLDEBUG(glDepthRangef(0.0, 1.0));
         
         // Disable alpha blending
-        glDisable(GL_BLEND);
+        GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
         scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
         // Set render target
-        glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+        GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
         // Enable additive blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
+        GLDEBUG(glEnable(GL_BLEND));
+        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
         
         // Disable z-buffer write
-        glDepthMask(GL_FALSE);
+        GLDEBUG(glDepthMask(GL_FALSE));
         
         // Set source to buffers from pass 1
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        glActiveTexture(GL_TEXTURE6);
-        glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
+        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
         m_pContext->getTextureManager()->selectTexture(7, NULL);
-        glActiveTexture(GL_TEXTURE7);
-        glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
+        GLDEBUG(glActiveTexture(GL_TEXTURE7));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
         
         // Render the geometry
@@ -247,66 +249,66 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
-        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
         
         // Disable alpha blending
-        glDisable(GL_BLEND);
+        GLDEBUG(glDisable(GL_BLEND));
         
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
         // Set source to buffers from pass 2
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        glActiveTexture(GL_TEXTURE6);
-        glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
+        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
         
         // Enable backface culling
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
+        GLDEBUG(glCullFace(GL_BACK));
+        GLDEBUG(glEnable(GL_CULL_FACE));
         
         // Enable z-buffer test
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDepthRangef(0.0, 1.0);
+        GLDEBUG(glEnable(GL_DEPTH_TEST));
+        GLDEBUG(glDepthFunc(GL_LEQUAL));
+        GLDEBUG(glDepthRangef(0.0, 1.0));
         
         // Enable z-buffer write
-        glDepthMask(GL_TRUE);
+        GLDEBUG(glDepthMask(GL_TRUE));
         
         // Render the geometry
         scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        glActiveTexture(GL_TEXTURE6);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         m_pContext->getTextureManager()->selectTexture(7, NULL);
-        glActiveTexture(GL_TEXTURE7);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE7));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====----
         
         // Set render target
-        glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
         
         // Disable alpha blending
-        glDisable(GL_BLEND);
+        GLDEBUG(glDisable(GL_BLEND));
         
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         
         // Enable backface culling
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
+        GLDEBUG(glCullFace(GL_BACK));
+        GLDEBUG(glEnable(GL_CULL_FACE));
         
         // Enable z-buffer write
-        glDepthMask(GL_TRUE);
+        GLDEBUG(glDepthMask(GL_TRUE));
         
         // Enable z-buffer test
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDepthRangef(0.0, 1.0);
+        GLDEBUG(glEnable(GL_DEPTH_TEST));
+        GLDEBUG(glDepthFunc(GL_LEQUAL));
+        GLDEBUG(glDepthRangef(0.0, 1.0));
         
         
         
@@ -319,23 +321,23 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     // ----====---- Transparent Geometry, Forward Rendering ----====----
     
     // Set render target
-    glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
     
     // Disable backface culling
-    glDisable(GL_CULL_FACE);
+    GLDEBUG(glDisable(GL_CULL_FACE));
     
     // Disable z-buffer write
-    glDepthMask(GL_FALSE);
+    GLDEBUG(glDepthMask(GL_FALSE));
     
     // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
+    GLDEBUG(glEnable(GL_DEPTH_TEST));
+    GLDEBUG(glDepthFunc(GL_LEQUAL));
+    GLDEBUG(glDepthRangef(0.0, 1.0));
     
     // Enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GLDEBUG(glEnable(GL_BLEND));
+    GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
     // Render all transparent geometry
     scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
@@ -344,22 +346,22 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     // ----====---- Flares ----====----
     
     // Set render target
-    glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
     
     // Disable backface culling
-    glDisable(GL_CULL_FACE);
+    GLDEBUG(glDisable(GL_CULL_FACE));
     
     // Disable z-buffer write
-    glDepthMask(GL_FALSE);
+    GLDEBUG(glDepthMask(GL_FALSE));
     
     // Disable z-buffer test
-    glDisable(GL_DEPTH_TEST);
-    glDepthRangef(0.0, 1.0);
+    GLDEBUG(glDisable(GL_DEPTH_TEST));
+    GLDEBUG(glDepthRangef(0.0, 1.0));
     
     // Enable additive blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
+    GLDEBUG(glEnable(GL_BLEND));
+    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
     scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES);
@@ -368,13 +370,13 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     
     if(bShowOctree) {
         // Enable z-buffer test
-        glEnable(GL_DEPTH_TEST);
-        glDepthRangef(0.0, 1.0);
+        GLDEBUG(glEnable(GL_DEPTH_TEST));
+        GLDEBUG(glDepthRangef(0.0, 1.0));
         
         
         // Enable backface culling
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
+        GLDEBUG(glCullFace(GL_BACK));
+        GLDEBUG(glEnable(GL_CULL_FACE));
         
         
         KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
@@ -398,9 +400,8 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
             -1.0, 1.0,-1.0
         };
         
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices);
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices));
+        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
         
         for(std::set<KRAABB>::iterator itr=m_visibleBounds.begin(); itr != m_visibleBounds.end(); itr++) {
             KRMat4 matModel = KRMat4();
@@ -409,7 +410,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
             KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
             
             pVisShader->bind(this, viewMatrix, mvpmatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
         }
     }
     
@@ -418,53 +419,53 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     // fprintf(stderr, "visible bounds: %i\n", (int)m_visibleBounds.size());
     
     // Re-enable z-buffer write
-    glDepthMask(GL_TRUE);
+    GLDEBUG(glDepthMask(GL_TRUE));
     
 
-    //fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
+    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
 }
 
 
 void KRCamera::createBuffers() {
     // ===== Create offscreen compositing framebuffer object =====
-    glGenFramebuffers(1, &compositeFramebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer);
+    GLDEBUG(glGenFramebuffers(1, &compositeFramebuffer));
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
     
     // ----- Create texture color buffer for compositeFramebuffer -----
-	glGenTextures(1, &compositeColorTexture);
-	glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0);
+	GLDEBUG(glGenTextures(1, &compositeColorTexture));
+	GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0));
     
     // ----- Create Depth Texture for compositeFramebuffer -----
-    glGenTextures(1, &compositeDepthTexture);
-	glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0);
+    GLDEBUG(glGenTextures(1, &compositeDepthTexture));
+	GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+    //GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+    //GLDEBUG(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
     
     // ===== Create offscreen compositing framebuffer object =====
-    glGenFramebuffers(1, &lightAccumulationBuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer);
+    GLDEBUG(glGenFramebuffers(1, &lightAccumulationBuffer));
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
     
     // ----- Create texture color buffer for compositeFramebuffer -----
-	glGenTextures(1, &lightAccumulationTexture);
-	glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // This is necessary for non-power-of-two textures
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0);
+	GLDEBUG(glGenTextures(1, &lightAccumulationTexture));
+	GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
     
     allocateShadowBuffers();
     loadShaders();
@@ -474,12 +475,12 @@ void KRCamera::allocateShadowBuffers() {
     // First deallocate buffers no longer needed
     for(int iShadow = m_cShadowBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
         if (shadowDepthTexture[iShadow]) {
-            glDeleteTextures(1, shadowDepthTexture + iShadow);
+            GLDEBUG(glDeleteTextures(1, shadowDepthTexture + iShadow));
             shadowDepthTexture[iShadow] = 0;
         }
         
         if (shadowFramebuffer[iShadow]) {
-            glDeleteFramebuffers(1, shadowFramebuffer + iShadow);
+            GLDEBUG(glDeleteFramebuffers(1, shadowFramebuffer + iShadow));
             shadowFramebuffer[iShadow] = 0;
         }
     }
@@ -489,21 +490,21 @@ void KRCamera::allocateShadowBuffers() {
         if(!shadowDepthTexture[iShadow]) {
             shadowValid[iShadow] = false;
             
-            glGenFramebuffers(1, shadowFramebuffer + iShadow);
-            glGenTextures(1, shadowDepthTexture + iShadow);
+            GLDEBUG(glGenFramebuffers(1, shadowFramebuffer + iShadow));
+            GLDEBUG(glGenTextures(1, shadowDepthTexture + iShadow));
             // ===== Create offscreen shadow framebuffer object =====
             
-            glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]);
+            GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
             
             // ----- Create Depth Texture for shadowFramebuffer -----
-            glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+           GLDEBUG( glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
             
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0);
+            GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
         }
     }
 }
@@ -514,27 +515,27 @@ void KRCamera::destroyBuffers()
     allocateShadowBuffers();
     
     if (compositeDepthTexture) {
-        glDeleteTextures(1, &compositeDepthTexture);
+        GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));
         compositeDepthTexture = 0;
     }
     
     if (compositeColorTexture) {
-		glDeleteTextures(1, &compositeColorTexture);
+		GLDEBUG(glDeleteTextures(1, &compositeColorTexture));
 		compositeColorTexture = 0;
 	}
     
     if (lightAccumulationTexture) {
-        glDeleteTextures(1, &lightAccumulationTexture);
+        GLDEBUG(glDeleteTextures(1, &lightAccumulationTexture));
         lightAccumulationTexture = 0;
     }
     
     if (compositeFramebuffer) {
-        glDeleteFramebuffers(1, &compositeFramebuffer);
+        GLDEBUG(glDeleteFramebuffers(1, &compositeFramebuffer));
         compositeFramebuffer = 0;
     }
     
     if (lightAccumulationBuffer) {
-        glDeleteFramebuffers(1, &lightAccumulationBuffer);
+        GLDEBUG(glDeleteFramebuffers(1, &lightAccumulationBuffer));
         lightAccumulationBuffer = 0;
     }
 }
@@ -543,27 +544,27 @@ void KRCamera::destroyBuffers()
 void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
 {
     
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]);
-    glClearDepthf(1.0f);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
+    GLDEBUG(glClearDepthf(1.0f));
+    GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
     
     //glViewport(1, 1, 2046, 2046);
     
-    glDisable(GL_DITHER);
+    GLDEBUG(glDisable(GL_DITHER));
     
-    glCullFace(GL_BACK); // Enable frontface culling, which eliminates some self-cast shadow artifacts
-    glEnable(GL_CULL_FACE);
+    GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
+    GLDEBUG(glEnable(GL_CULL_FACE));
     
     // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-    glDepthRangef(0.0, 1.0);
+    GLDEBUG(glEnable(GL_DEPTH_TEST));
+	GLDEBUG(glDepthFunc(GL_LESS));
+    GLDEBUG(glDepthRangef(0.0, 1.0));
     
     // Disable alpha blending as we are using alpha channel for packed depth info
-    glDisable(GL_BLEND);
+    GLDEBUG(glDisable(GL_BLEND));
     
     // Use shader program
-    glUseProgram(m_shadowShaderProgram);
+    GLDEBUG(glUseProgram(m_shadowShaderProgram));
     
     // Sets the diffuseTexture variable to the first texture unit
     /*
@@ -582,7 +583,7 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     
     
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    glUniformMatrix4fv(m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer());
+    GLDEBUG(glUniformMatrix4fv(m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
     
     
     // Calculate the bounding volume of the light map
@@ -608,7 +609,7 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
     scene.render(this, m_shadowVisibleBounds[iShadow], m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP);
     scene.getOcclusionQueryResults(m_shadowVisibleBounds[iShadow]);
-    glViewport(0, 0, backingWidth, backingHeight);
+    GLDEBUG(glViewport(0, 0, backingWidth, backingHeight));
 }
 
 
@@ -616,17 +617,17 @@ bool KRCamera::ValidateProgram(GLuint prog)
 {
     GLint logLength, status;
     
-    glValidateProgram(prog);
-    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+    GLDEBUG(glValidateProgram(prog));
+    GLDEBUG(glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength));
     if (logLength > 0)
     {
         GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(prog, logLength, &logLength, log);
+        GLDEBUG(glGetProgramInfoLog(prog, logLength, &logLength, log));
         fprintf(stderr, "Program validate log:\n%s", log);
         free(log);
     }
     
-    glGetProgramiv(prog, GL_VALIDATE_STATUS, &status);
+    GLDEBUG(glGetProgramiv(prog, GL_VALIDATE_STATUS, &status));
     if (status == 0)
         return false;
     
@@ -636,10 +637,10 @@ bool KRCamera::ValidateProgram(GLuint prog)
 void KRCamera::renderPost()
 {
     
-    glBindFramebuffer(GL_FRAMEBUFFER, 1); // renderFramebuffer
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, 1)); // renderFramebuffer
     
     // Disable alpha blending
-    glDisable(GL_BLEND);
+    GLDEBUG(glDisable(GL_BLEND));
     
     static const GLfloat squareVertices[] = {
         -1.0f, -1.0f,
@@ -672,71 +673,71 @@ void KRCamera::renderPost()
         1.0f,  1.0f,
     };
 	
-    glDisable(GL_DEPTH_TEST);
+    GLDEBUG(glDisable(GL_DEPTH_TEST));
     bindPostShader();
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
-    glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
+    GLDEBUG(glActiveTexture(GL_TEXTURE0));
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
+    GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
     
     m_pContext->getTextureManager()->selectTexture(1, NULL);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, compositeColorTexture);
-    //glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture);
+    GLDEBUG(glActiveTexture(GL_TEXTURE1));
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
+    //GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
     
-    glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1);
+    GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
 	
 	// Update attribute values.
-	glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
-	glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-	glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices);
-	glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
+	GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
+	GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+	GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices));
+	GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
 	
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GLDEBUG(glActiveTexture(GL_TEXTURE0));
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
     m_pContext->getTextureManager()->selectTexture(1, NULL);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GLDEBUG(glActiveTexture(GL_TEXTURE1));
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
     
     if(bShowShadowBuffer) {
-        glDisable(GL_DEPTH_TEST);
-        glUseProgram(m_postShaderProgram);
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
+        GLDEBUG(glUseProgram(m_postShaderProgram));
         
         m_pContext->getTextureManager()->selectTexture(0, NULL);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
-        glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE0));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
+        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
         
         
-        glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1);
+        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
         
         // Update attribute values.
         
-        glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices);
-        glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
+        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices));
+        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
         
         for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
             m_pContext->getTextureManager()->selectTexture(1, NULL);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]);
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVerticesShadow[iShadow]);
-            glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            GLDEBUG(glActiveTexture(GL_TEXTURE1));
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVerticesShadow[iShadow]));
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
         
         m_pContext->getTextureManager()->selectTexture(0, NULL);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE0));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         
         m_pContext->getTextureManager()->selectTexture(1, NULL);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE1));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     }
     
     
@@ -745,17 +746,17 @@ void KRCamera::renderPost()
     if(*szText) {
         KRTexture *pFontTexture = m_pContext->getTextureManager()->getTexture("font");
         
-        glDisable(GL_DEPTH_TEST);
-        glUseProgram(m_postShaderProgram);
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
+        GLDEBUG(glUseProgram(m_postShaderProgram));
         
         m_pContext->getTextureManager()->selectTexture(0, NULL);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, compositeDepthTexture);
+        GLDEBUG(glActiveTexture(GL_TEXTURE0));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
         m_pContext->getTextureManager()->selectTexture(1, pFontTexture);
         
-        glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0);
-        glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1);
+        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
+        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
         
         const char *pChar = szText;
         int iPos=0;
@@ -780,18 +781,18 @@ void KRCamera::renderPost()
                 dTexScale * iCol + dTexScale,     dTexScale * iRow
             };
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords);
-            glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
             
-            glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices);
-            glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
             
             iPos++;
         }
         
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        GLDEBUG(glActiveTexture(GL_TEXTURE0));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         
         m_pContext->getTextureManager()->selectTexture(1, NULL);
     }
@@ -820,13 +821,13 @@ void KRCamera::bindPostShader()
         stream << "\n";
         LoadShader(*m_pContext, "PostShader", &m_postShaderProgram, stream.str());
     }
-    glUseProgram(m_postShaderProgram);
+    GLDEBUG(glUseProgram(m_postShaderProgram));
 }
 
 void KRCamera::invalidatePostShader()
 {
     if(m_postShaderProgram) {
-        glDeleteProgram(m_postShaderProgram);
+        GLDEBUG(glDeleteProgram(m_postShaderProgram));
         m_postShaderProgram = 0;
     }
 }
@@ -843,7 +844,7 @@ bool KRCamera::LoadShader(KRContext &context, const std::string &name, GLuint *p
     GLuint vertexShader, fragShader;
     
     // Create shader program.
-    *programPointer = glCreateProgram();
+    GLDEBUG(*programPointer = glCreateProgram());
     
     // Create and compile vertex shader.
     
@@ -859,33 +860,33 @@ bool KRCamera::LoadShader(KRContext &context, const std::string &name, GLuint *p
     }
     
     // Attach vertex shader to program.
-    glAttachShader(*programPointer, vertexShader);
+    GLDEBUG(glAttachShader(*programPointer, vertexShader));
     
     // Attach fragment shader to program.
-    glAttachShader(*programPointer, fragShader);
+    GLDEBUG(glAttachShader(*programPointer, fragShader));
     
     // Bind attribute locations.
     // This needs to be done prior to linking.
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "vertex_position");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "vertex_normal");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TANGENT, "vertex_tangent");
-    glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "vertex_uv");
+    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
+    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
+    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
+    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
+    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
     
     // Link program.
     if(!LinkProgram(*programPointer)) {
         fprintf(stderr, "Failed to link program: %d", *programPointer);
         
         if (vertexShader) {
-            glDeleteShader(vertexShader);
+            GLDEBUG(glDeleteShader(vertexShader));
             vertexShader = 0;
         }
         if (fragShader) {
-            glDeleteShader(fragShader);
+            GLDEBUG(glDeleteShader(fragShader));
             fragShader = 0;
         }
         if (*programPointer) {
-            glDeleteProgram(*programPointer);
+            GLDEBUG(glDeleteProgram(*programPointer));
             *programPointer = 0;
         }
         
@@ -895,11 +896,11 @@ bool KRCamera::LoadShader(KRContext &context, const std::string &name, GLuint *p
     // Release vertex and fragment shaders.
     if (vertexShader)
 	{
-        glDeleteShader(vertexShader);
+        GLDEBUG(glDeleteShader(vertexShader));
 	}
     if (fragShader)
 	{
-        glDeleteShader(fragShader);
+        GLDEBUG(glDeleteShader(fragShader));
 	}
     
     return true;
@@ -922,25 +923,25 @@ bool KRCamera::CompileShader(GLuint *shader, GLenum type, const std::string &sha
     }
     
     
-    *shader = glCreateShader(type);
-    glShaderSource(*shader, options.length() ? 2 : 1, source, NULL);
-    glCompileShader(*shader);
+    GLDEBUG(*shader = glCreateShader(type));
+    GLDEBUG(glShaderSource(*shader, options.length() ? 2 : 1, source, NULL));
+    GLDEBUG(glCompileShader(*shader));
     
 #if defined(DEBUG)
     GLint logLength;
-    glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
+    GLDEBUG(glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength));
     if (logLength > 0)
     {
         GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(*shader, logLength, &logLength, log);
+        GLDEBUG(glGetShaderInfoLog(*shader, logLength, &logLength, log));
         fprintf(stderr, "Shader compile log:\n%s", log);
         free(log);
     }
 #endif
     
-    glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
+    GLDEBUG(glGetShaderiv(*shader, GL_COMPILE_STATUS, &status));
     if (status == 0) {
-        glDeleteShader(*shader);
+        GLDEBUG(glDeleteShader(*shader));
         return false;
     }
     
@@ -951,21 +952,21 @@ bool KRCamera::LinkProgram(GLuint prog)
 {
     GLint status;
     
-    glLinkProgram(prog);
+    GLDEBUG(glLinkProgram(prog));
     
 #if defined(DEBUG)
     GLint logLength;
-    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+    GLDEBUG(glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength));
     if (logLength > 0)
     {
         GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(prog, logLength, &logLength, log);
+        GLDEBUG(glGetProgramInfoLog(prog, logLength, &logLength, log));
         fprintf(stderr, "Program link log:\n%s", log);
         free(log);
     }
 #endif
     
-    glGetProgramiv(prog, GL_LINK_STATUS, &status);
+    GLDEBUG(glGetProgramiv(prog, GL_LINK_STATUS, &status));
     if (status == 0)
         return false;
     

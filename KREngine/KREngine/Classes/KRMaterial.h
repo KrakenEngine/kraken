@@ -96,7 +96,7 @@ public:
 
     
 private:
-    char m_szName[64];
+    char m_szName[256];
     
     KRTexture *m_pAmbientMap; // mtl map_Ka value
     KRTexture *m_pDiffuseMap; // mtl map_Kd value

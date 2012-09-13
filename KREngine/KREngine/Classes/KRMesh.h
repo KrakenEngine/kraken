@@ -79,7 +79,7 @@ public:
     typedef struct {
         GLint start_vertex;
         GLsizei vertex_count;
-        char szMaterialName[64];
+        char szMaterialName[256];
     } Submesh;
     
     typedef struct {
@@ -108,7 +108,7 @@ public:
     typedef struct {
         int32_t start_vertex;
         int32_t vertex_count;
-        char szName[64];
+        char szName[256];
     } pack_material;
     
 protected:

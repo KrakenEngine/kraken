@@ -36,7 +36,7 @@
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
     m_textureMemUsed = 0;
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
-        m_activeTextures[iTexture] = NULL;
+        m_boundTextures[iTexture] = NULL;
     }
 }
 
@@ -71,6 +71,7 @@ KRTexture *KRTextureManager::getTexture(const char *szName) {
     map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
         // Not found
+        //fprintf(stderr, "ERROR: Texture not found: %s\n", szName);
         return NULL;
     } else {
         return (*itr).second;
@@ -79,46 +80,55 @@ KRTexture *KRTextureManager::getTexture(const char *szName) {
 }
 
 void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
-    if(m_activeTextures[iTextureUnit] != pTexture) {
-        glActiveTexture(GL_TEXTURE0 + iTextureUnit);
+
+    if(m_boundTextures[iTextureUnit] != pTexture) {
+        GLDEBUG(glActiveTexture(GL_TEXTURE0 + iTextureUnit));
         if(pTexture != NULL) {
-            m_textureCache.erase(pTexture); // Ensure that the texture will not be deleted while it is bound to a texture unit, and return it to the top of the texture cache when it is released
-            glBindTexture(GL_TEXTURE_2D, pTexture->getHandle(m_textureMemUsed));
+            m_poolTextures.erase(pTexture);
+            if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
+                m_activeTextures.insert(pTexture);
+            }
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, pTexture->getHandle(m_textureMemUsed)));
             // TODO - These texture parameters should be assigned by the material or texture parameters
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
         } else {
-            glBindTexture(GL_TEXTURE_2D, 0);
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         }
-        if(m_activeTextures[iTextureUnit] != NULL) {
-            KRTexture *unloadedTexture = m_activeTextures[iTextureUnit];
-            m_activeTextures[iTextureUnit] = NULL;
-            bool bActive = false;
-            for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
-                if(m_activeTextures[iTexture] == unloadedTexture) {
-                    bActive = true;
-                }
+        m_boundTextures[iTextureUnit] = pTexture;
+        while(m_activeTextures.size() + m_poolTextures.size() > KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRENGINE_MAX_TEXTURE_MEM) {
+            if(m_poolTextures.empty()) {
+                m_pContext->rotateBuffers();
             }
-            if(!bActive) {
-                // Only return a texture to the cache when the last texture unit referencing it is re-assigned to a different texture
-                if(m_textureCache.find(unloadedTexture) == m_textureCache.end()) {
-                    m_textureCache.insert(unloadedTexture);
-                    while(m_textureCache.size() > KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRENGINE_MAX_TEXTURE_MEM) {
-                        // Keep texture size within limits
-                        KRTexture *droppedTexture = (*m_textureCache.begin());
-                        droppedTexture->releaseHandle(m_textureMemUsed);
-                        m_textureCache.erase(droppedTexture);
-                        fprintf(stderr, "Texture Swapping...\n");
-                    }
-                }
-            }
-        }
-        m_activeTextures[iTextureUnit] = pTexture;
+            // Keep texture size within limits
+            KRTexture *droppedTexture = (*m_poolTextures.begin());
+            droppedTexture->releaseHandle(m_textureMemUsed);
+            m_poolTextures.erase(droppedTexture);
+            //fprintf(stderr, "Texture Swapping...\n");
+        } 
     }
+    
+//    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
 }
 
 long KRTextureManager::getMemUsed() {
     return m_textureMemUsed;
 }
 
+
+void KRTextureManager::rotateBuffers()
+{
+    m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
+    m_activeTextures.clear();
+    
+    for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
+        KRTexture *pBoundTexture = m_boundTextures[iTexture];
+        if(pBoundTexture != NULL) {
+            m_poolTextures.erase(pBoundTexture);
+            if(m_activeTextures.find(pBoundTexture) == m_activeTextures.end()) {
+                m_activeTextures.insert(pBoundTexture);
+            }
+        }
+    }
+}

@@ -105,7 +105,7 @@
     }
 
     [self.engine setNearZ: 5.0];
-    [self.engine setFarZ: 500.0];
+    [self.engine setFarZ: 1000.0];
     //[renderEngine setNearZ: 1.0];
     //[renderEngine setFarZ: 3000.0];
 
@@ -117,31 +117,34 @@
 {	
 	
 	// ===== Create onscreen framebuffer object =====
-	glGenFramebuffers(1, &viewFramebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+	GLDEBUG(glGenFramebuffers(1, &viewFramebuffer));
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer));
     
     // ----- Create color buffer for viewFramebuffer -----
-    glGenRenderbuffers(1, &viewRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
+    GLDEBUG(glGenRenderbuffers(1, &viewRenderbuffer));
+    GLDEBUG(glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer));
 	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
+    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth));
+	GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight));
 	NSLog(@"Backing width: %d, height: %d", backingWidth, backingHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, viewRenderbuffer);
+    GLDEBUG(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, viewRenderbuffer));
     
         
     
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		NSLog(@"Failure with depth buffer generation");
-		return NO;
-	}
+    GLDEBUG(
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            NSLog(@"Failure with depth buffer generation");
+            return NO;
+        }
+    );
 	
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-		NSLog(@"Incomplete FBO: %d", status);
-        exit(1);
-    }
-     
+    GLDEBUG(
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            NSLog(@"Incomplete FBO: %d", status);
+            exit(1);
+        }
+    );
 	
 	return TRUE;
 }
@@ -150,13 +153,13 @@
 {	
 	if (viewFramebuffer)
 	{
-		glDeleteFramebuffers(1, &viewFramebuffer);
+		GLDEBUG(glDeleteFramebuffers(1, &viewFramebuffer));
 		viewFramebuffer = 0;
 	}
 	
 	if (viewRenderbuffer)
 	{
-		glDeleteRenderbuffers(1, &viewRenderbuffer);
+		GLDEBUG(glDeleteRenderbuffers(1, &viewRenderbuffer));
 		viewRenderbuffer = 0;
 	}
 }
@@ -170,9 +173,9 @@
             [self createFramebuffers];
 		}
         
-        //glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
+        //GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer));
         
-        glViewport(0, 0, backingWidth, backingHeight);
+        GLDEBUG(glViewport(0, 0, backingWidth, backingHeight));
     }
 }
 
@@ -182,7 +185,7 @@
     
     if (context)
     {
-        //glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
+        //GLDEBUG(glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer));
         
         success = [context presentRenderbuffer:GL_RENDERBUFFER];
     }

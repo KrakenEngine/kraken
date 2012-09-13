@@ -63,32 +63,32 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
     
         if(cShadowBuffers > 0) {
             m_pContext->getTextureManager()->selectTexture(3, NULL);
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            GLDEBUG(glActiveTexture(GL_TEXTURE3));
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         }
         
         if(cShadowBuffers > 1) {
             m_pContext->getTextureManager()->selectTexture(4, NULL);
-            glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            GLDEBUG(glActiveTexture(GL_TEXTURE4));
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         }
         
         if(cShadowBuffers > 2) {
             m_pContext->getTextureManager()->selectTexture(5, NULL);
-            glActiveTexture(GL_TEXTURE5);
-            glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            GLDEBUG(glActiveTexture(GL_TEXTURE5));
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         }
     }
         
@@ -102,32 +102,6 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
         pCamera->dSunB = sun_color.z;
     }
     
-/*
- 
- 
- 
- GLuint occlusionTest,hasBeenTested,theParams = 0;
- glGenQueriesEXT(1, &occlusionTest);
- glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, occlusionTest);
- m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
- glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT);
- 
- 
- 
- // ----
- 
- 
- if (hasBeenTested) glGetQueryObjectuivEXT(occlusionTest, GL_QUERY_RESULT_EXT, &theParams);
- if (!theParams) {
- fprintf(stderr, "Occluded: %s\n", getName().c_str());
- } else {
- fprintf(stderr, " Visible: %s\n", getName().c_str());
- }
- glDeleteQueriesEXT(1, &occlusionTest);
- 
- */
-    
-    //m_pRootNode->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     render(m_nodeTree.getRootNode(), visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     
@@ -137,7 +111,7 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
 }
 
 void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
-{
+{    
     if(pOctreeNode) {
         KRMat4 projectionMatrix;
         if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
@@ -148,13 +122,13 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
         
         KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->perspective_farz);
         
-        if(true) {
+        //if(true) {
         //if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
-        //if(frustrumVolumeNoNearClip.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+        if(frustrumVolumeNoNearClip.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
             
             bool can_occlusion_test = renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER/* || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT*/;
 
-            
+            // can_occlusion_test = false;
             bool bVisible = true;
             //bool bVisible = visibleBounds.find(octreeBounds) != visibleBounds.end();
             
@@ -213,9 +187,8 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                         -1.0, 1.0,-1.0
                     };
                     
-                    glBindBuffer(GL_ARRAY_BUFFER, 0);
-                    glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices);
-                    glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX);
+                    GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices));
+                    GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
                     
                     KRMat4 matModel = KRMat4();
                     matModel.scale(octreeBounds.size() / 2.0f);
@@ -223,14 +196,14 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
                     
                     // Enable additive blending
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_ONE, GL_ONE);
+                    GLDEBUG(glEnable(GL_BLEND));
+                    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
                      
                     
                     pVisShader->bind(pCamera, viewMatrix, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     
-                    glDisable(GL_BLEND);
+                    GLDEBUG(glDisable(GL_BLEND));
                     
                     pOctreeNode->endOcclusionQuery();
                 }

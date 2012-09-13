@@ -79,10 +79,11 @@ public:
 protected:
     KRBoundingVolume *m_pExtents;
     
-private:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
     KRVector3 m_localRotation;
+    
+    private:
     
     std::string m_name;
     

@@ -82,10 +82,10 @@ KRTexture::~KRTexture() {
     delete m_pData;
 }
 
-#if TARGET_OS_IPHONE
+
 
 bool KRTexture::load() {
-
+#if TARGET_OS_IPHONE
     PVRTexHeader *header = (PVRTexHeader *)m_pData->getStart();
     uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
     if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
@@ -154,12 +154,12 @@ bool KRTexture::load() {
             height = 1;
         }
     }
-    
+#endif
     return true;
 
 }
 
-#endif
+
 
 bool KRTexture::createGLTexture() {
 	int width = m_iWidth;
@@ -170,25 +170,25 @@ bool KRTexture::createGLTexture() {
         return false;
     }
 	
-    glGenTextures(1, &m_iName);
+    GLDEBUG(glGenTextures(1, &m_iName));
     if(m_iName == 0) {
         return false;
     }
-    glBindTexture(GL_TEXTURE_2D, m_iName);
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iName));
 	
 	if (m_blocks.size() > 1) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     }
     int i=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
-		glCompressedTexImage2D(GL_TEXTURE_2D, i, m_internalFormat, width, height, 0, block.length, block.start);
+		GLDEBUG(glCompressedTexImage2D(GL_TEXTURE_2D, i, m_internalFormat, width, height, 0, block.length, block.start));
 		
 		err = glGetError();
 		if (err != GL_NO_ERROR) {
-            glDeleteTextures(1, &m_iName);
+            GLDEBUG(glDeleteTextures(1, &m_iName));
             m_iName = 0;
 			return false;
 		}
@@ -210,12 +210,10 @@ bool KRTexture::createGLTexture() {
 
 GLuint KRTexture::getHandle(long &textureMemUsed) {
     if(m_iName == 0) {
-        if(!createGLTexture()) {
-            if(createGLTexture()) { // FINDME - HACK!  The first texture fails with 0x501 return code but loads on second try
-                textureMemUsed += getMemSize();
-            }
-        } else {
+        if(createGLTexture()) {
             textureMemUsed += getMemSize();
+        } else {
+            assert(false);
         }
         
         //createGLTexture();
@@ -226,7 +224,7 @@ GLuint KRTexture::getHandle(long &textureMemUsed) {
 void KRTexture::releaseHandle(long &textureMemUsed) {
     if(m_iName != 0) {
         textureMemUsed -= getMemSize();
-        glDeleteTextures(1, &m_iName);
+        GLDEBUG(glDeleteTextures(1, &m_iName));
         m_iName = 0;
     }
 }

@@ -181,6 +181,9 @@
 
 - (void)drawView:(id)sender
 {
+    glGetError(); // Clear any prior errors...
+    
+    
     CFTimeInterval frame_start_time = CACurrentMediaTime();
     
     NSAutoreleasePool *framePool = [[NSAutoreleasePool alloc] init];

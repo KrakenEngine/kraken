@@ -29,7 +29,7 @@ std::vector<KRResource *> KRResource::LoadBlenderScene(KRContext &context, const
     KRDataBlock data;
     
     if(data.load(path)) {
-        KRBlendFile blend_file = KRBlendFile(pFile);
+        //KRBlendFile blend_file = KRBlendFile(pFile);
     }
     
     return resources;

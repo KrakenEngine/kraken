@@ -21,6 +21,7 @@
 #import "KRBoundingVolume.h"
 #import "KRShaderManager.h"
 #import "KRShader.h"
+#import "assert.h"
 
 KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
 {
@@ -155,15 +156,14 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
                     1.0f,  1.0f,
                 };
                 
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, squareVertices);
+                GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, squareVertices));
                 
-                glUniform1f(
+                GLDEBUG(glUniform1f(
                             pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                             m_flareSize
-                );
-                glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA);
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                ));
+                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
             }
         }
         
