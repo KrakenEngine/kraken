@@ -90,29 +90,31 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
             projectionMatrix = pCamera->getProjectionMatrix();
         }
         
-        if(m_pModel != NULL && (getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP)) {
-        //if(m_pModel != NULL && (getBounds().visible(viewMatrix * projectionMatrix) || renderPass == RENDER_PASS_SHADOWMAP)) {
+        if(m_pModel != NULL) {
+            if(getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP) {
+            //if(m_pModel != NULL && (getBounds().visible(viewMatrix * projectionMatrix) || renderPass == RENDER_PASS_SHADOWMAP)) {
 
-            if(m_pLightMap == NULL && m_lightMap.size()) {
-                m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
+                if(m_pLightMap == NULL && m_lightMap.size()) {
+                    m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
+                }
+                
+                if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
+                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap);
+                }
+                
+                KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
+                KRMat4 matModelToView = viewMatrix * m_modelMatrix;
+                matModelToView.transpose();
+                matModelToView.invert();
+                
+                // Transform location of camera to object space for calculation of specular halfVec
+                KRMat4 inverseModelMatrix = m_modelMatrix;
+                inverseModelMatrix.invert();
+                KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
+                KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
+                
+                m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
-            
-            if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
-                m_pContext->getTextureManager()->selectTexture(3, m_pLightMap);
-            }
-            
-            KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-            KRMat4 matModelToView = viewMatrix * m_modelMatrix;
-            matModelToView.transpose();
-            matModelToView.invert();
-            
-            // Transform location of camera to object space for calculation of specular halfVec
-            KRMat4 inverseModelMatrix = m_modelMatrix;
-            inverseModelMatrix.invert();
-            KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
-            KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
-            
-            m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
         }
     }
 }
@@ -124,13 +126,15 @@ void KRInstance::calcExtents(KRContext *pContext)
     calcModelMatrix();
     
     KRNode::calcExtents(pContext);
-    loadModel();    
-    KRMesh *pMesh = m_pModel->getMesh();
-    KRBoundingVolume mesh_bounds = KRBoundingVolume(pMesh->getMinPoint(), pMesh->getMaxPoint(), m_modelMatrix);
-    if(m_pExtents) {
-        *m_pExtents = m_pExtents->get_union(mesh_bounds);
-    } else {
-        m_pExtents = new KRBoundingVolume(mesh_bounds);
+    loadModel();
+    if(m_pModel != NULL) {
+        KRMesh *pMesh = m_pModel->getMesh();
+        KRBoundingVolume mesh_bounds = KRBoundingVolume(pMesh->getMinPoint(), pMesh->getMaxPoint(), m_modelMatrix);
+        if(m_pExtents) {
+            *m_pExtents = m_pExtents->get_union(mesh_bounds);
+        } else {
+            m_pExtents = new KRBoundingVolume(mesh_bounds);
+        }
     }
 }
 
@@ -145,6 +149,7 @@ bool KRInstance::hasTransparency() {
 KRAABB KRInstance::getBounds() {
     calcModelMatrix();
     loadModel();
+    assert(m_pModel != NULL);
     
     KRMesh *pMesh = m_pModel->getMesh();
     KRVector3 meshMin = pMesh->getMinPoint();

@@ -97,7 +97,7 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
             pSubmesh->vertex_count = pPackMaterial->vertex_count;
             
             strncpy(pSubmesh->szMaterialName, pPackMaterial->szName, 256);
-            pSubmesh->szMaterialName[63] = '\0';
+            pSubmesh->szMaterialName[255] = '\0';
             //fprintf(stderr, "Submesh material: \"%s\"\n", pSubmesh->szMaterialName);
             m_submeshes.push_back(pSubmesh);
         }
