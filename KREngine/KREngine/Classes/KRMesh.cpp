@@ -41,6 +41,8 @@
 #include <string.h>
 #include <assert.h>
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name) {
     m_pData = new KRDataBlock();
 }
@@ -126,24 +128,7 @@ void KRMesh::renderSubmesh(int iSubmesh, int &iPrevBuffer) {
             void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE + vertex_size * cBufferVertexes;
             void *buffer_end = m_pData->getEnd();
             assert(vbo_end <= buffer_end);
-            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE, sizeof(VertexData) * cBufferVertexes);
-        
-            if(iPrevBuffer == -1) {
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB));
-            }
-            
-            
-            int data_size = sizeof(VertexData);
-            
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(0)));
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D))));
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 2)));
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3)));
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(sizeof(KRVector3D) * 3 + sizeof(TexCoord))));
+            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE, sizeof(VertexData) * cBufferVertexes, true, true, true, true, true);
         }
         iPrevBuffer = iBuffer;
     

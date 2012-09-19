@@ -57,7 +57,6 @@ public:
     
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix);
     void renderShadowBuffer(KRScene &scene, int iShadow);
-    void invalidatePostShader();
     void invalidateShadowBuffers();
     void allocateShadowBuffers();
     void createBuffers();
@@ -158,11 +157,9 @@ private:
     };
     GLint m_shadowUniforms[KRENGINE_NUM_UNIFORMS];
     
-    GLuint m_postShaderProgram;
     GLuint m_shadowShaderProgram;
     
     void renderPost();
-    void bindPostShader();
     
     void destroyBuffers();
     

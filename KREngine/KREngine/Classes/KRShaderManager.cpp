@@ -48,7 +48,7 @@ KRShaderManager::~KRShaderManager() {
 KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
 
     char szKey[256];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, renderPass, shader_name.c_str());
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
     
     
     /*
@@ -62,6 +62,7 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
             std::map<std::string, KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;
             m_shaders.erase(itr);
+            fprintf(stderr, "Swapping shaders...\n");
         }
         
         stringstream stream;
@@ -99,12 +100,29 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
                 stream << "\n#define GBUFFER_PASS " << 0;
                 break;
         }
+
+        
+        stream << "\n#define DOF_QUALITY " << pCamera->dof_quality;
+        stream << "\n#define ENABLE_FLASH " << (pCamera->bEnableFlash ? "1" : "0");
+        stream << "\n#define ENABLE_VIGNETTE " << (pCamera->bEnableVignette ? "1" : "0");
+
         
         
         stream.setf(ios::fixed,ios::floatfield);
         
+        stream.precision(std::numeric_limits<long double>::digits10);
+        
+        stream << "\n#define DOF_DEPTH " << pCamera->dof_depth;
+        stream << "\n#define DOF_FALLOFF " << pCamera->dof_falloff;
+        stream << "\n#define FLASH_DEPTH " << pCamera->flash_depth;
+        stream << "\n#define FLASH_FALLOFF " << pCamera->flash_falloff;
+        stream << "\n#define FLASH_INTENSITY " << pCamera->flash_intensity;
+        stream << "\n#define VIGNETTE_RADIUS " << pCamera->vignette_radius;
+        stream << "\n#define VIGNETTE_FALLOFF " << pCamera->vignette_falloff;
+        
         stream << "\n";
         std::string options = stream.str();
+        fprintf(stderr, "Shader Options:\n%s\n\n", options.c_str());
         
         pShader = new KRShader(szKey, options, m_vertShaderSource[shader_name], m_fragShaderSource[shader_name]);
 

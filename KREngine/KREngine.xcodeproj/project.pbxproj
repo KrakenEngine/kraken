@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1000469D15E6EF550053B072 /* KRSkyBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1000469B15E6EF550053B072 /* KRSkyBox.cpp */; };
 		1000469E15E6EF550053B072 /* KRSkyBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1000469C15E6EF550053B072 /* KRSkyBox.h */; };
+		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; };
+		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; };
 		E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45615EFF79500D7C3DD /* KRAABB.h in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45315EFF79500D7C3DD /* KRAABB.h */; };
@@ -191,6 +193,7 @@
 /* Begin PBXFileReference section */
 		1000469B15E6EF550053B072 /* KRSkyBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSkyBox.cpp; path = Classes/KRSkyBox.cpp; sourceTree = "<group>"; };
 		1000469C15E6EF550053B072 /* KRSkyBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRSkyBox.h; path = Classes/KRSkyBox.h; sourceTree = "<group>"; };
+		E4030E4B160A3CF000592648 /* KRStockGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRStockGeometry.h; path = Classes/KRStockGeometry.h; sourceTree = "<group>"; };
 		E40BA45215EFF79500D7C3DD /* KRAABB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAABB.cpp; path = Classes/KRAABB.cpp; sourceTree = "<group>"; };
 		E40BA45315EFF79500D7C3DD /* KRAABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAABB.h; path = Classes/KRAABB.h; sourceTree = "<group>"; };
 		E414BAE11435557300A668C4 /* KRInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRInstance.h; path = Classes/KRInstance.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -556,10 +559,6 @@
 			children = (
 				E4CE184615FEED6800F80870 /* Standard Assets */,
 				E491016E13C99BAE0098455B /* Classes */,
-				E4924C2415EE95E700B965C6 /* KROctree.cpp */,
-				E4924C2515EE95E800B965C6 /* KROctree.h */,
-				E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */,
-				E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */,
 				E491016713C99B9E0098455B /* Supporting Files */,
 			);
 			path = KREngine;
@@ -576,6 +575,10 @@
 		E491016E13C99BAE0098455B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E4924C2415EE95E700B965C6 /* KROctree.cpp */,
+				E4924C2515EE95E800B965C6 /* KROctree.h */,
+				E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */,
+				E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */,
 				E4F9753815362A5200FD60B2 /* 3rdparty */,
 				E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */,
 				E48B3CBC14393DF5000C50E2 /* KRCamera.h */,
@@ -595,6 +598,7 @@
 				E488399915F92BA300BD66D5 /* Managers */,
 				E461A173152E59DF00F2044A /* Math */,
 				E461A170152E598200F2044A /* Resources */,
+				E4030E4B160A3CF000592648 /* KRStockGeometry.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -692,6 +696,7 @@
 				E40BA45615EFF79500D7C3DD /* KRAABB.h in Headers */,
 				E488399615F928CA00BD66D5 /* KRBundle.h in Headers */,
 				E488399E15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
+				E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,6 +745,7 @@
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
 				E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */,
+				E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -329,61 +329,51 @@ double const PI = 3.141592653589793f;
         case 14:
             if(_camera->dof_quality != (int)v) {
                 _camera->dof_quality = (int)v;
-                _camera->invalidatePostShader();
             }
             break;
         case 15:
             if(_camera->dof_depth != v) {
                 _camera->dof_depth = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 16:
             if(_camera->dof_falloff != v) {
                 _camera->dof_falloff = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 17:
             if(_camera->bEnableFlash != bNewBoolVal) {
                 _camera->bEnableFlash = bNewBoolVal;
-                _camera->invalidatePostShader();
             }
             break;
         case 18:
             if(_camera->flash_intensity != v) {
                 _camera->flash_intensity = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 19:
             if(_camera->flash_depth != v) {
                 _camera->flash_depth = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 20:
             if(_camera->flash_falloff != v) {
                 _camera->flash_falloff = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 21:
             if(_camera->bEnableVignette != bNewBoolVal) {
                 _camera->bEnableVignette = bNewBoolVal;
-                _camera->invalidatePostShader();
             }
             break;
         case 22:
             if(_camera->vignette_radius != v) {
                 _camera->vignette_radius = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 23:
             if(_camera->vignette_falloff != v) {
                 _camera->vignette_falloff = v;
-                _camera->invalidatePostShader();
             }
             break;
         case 24:

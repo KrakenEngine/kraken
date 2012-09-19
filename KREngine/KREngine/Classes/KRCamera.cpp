@@ -38,6 +38,7 @@
 #import "KRVector2.h"
 #import "KRCamera.h"
 #import "KRBoundingVolume.h"
+#import "KRStockGeometry.h"
 
 KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(context) {
     backingWidth = width;
@@ -61,7 +62,7 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(c
     bEnableSpecular = false; // FINDME - Should be "true"
     bEnableLightMap = true;
     bDebugSuperShiny = false;
-    bEnableDeferredLighting = true; // FINDME - should be "true"
+    bEnableDeferredLighting = false; // FINDME - should be "true"
     
     
     dAmbientR = 0.25f; // FINDME - should be "0.0f"
@@ -96,14 +97,12 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRNotified(c
     memset(shadowFramebuffer, sizeof(GLuint) * 3, 0);
     memset(shadowDepthTexture, sizeof(GLuint) * 3, 0);
     
-    m_postShaderProgram = 0;
     m_iFrame = 0;
     
     createBuffers();
 }
 
 KRCamera::~KRCamera() {
-    invalidatePostShader();
     destroyBuffers();
 }
 
@@ -383,26 +382,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     
         KRMat4 projectionMatrix = getProjectionMatrix();
         
-        static const GLfloat cubeVertices[] = {
-             1.0, 1.0, 1.0,
-            -1.0, 1.0, 1.0,
-             1.0,-1.0, 1.0,
-            -1.0,-1.0, 1.0,
-            -1.0,-1.0,-1.0,
-            -1.0, 1.0, 1.0,
-            -1.0, 1.0,-1.0,
-             1.0, 1.0, 1.0,
-             1.0, 1.0,-1.0,
-             1.0,-1.0, 1.0,
-             1.0,-1.0,-1.0,
-            -1.0,-1.0,-1.0,
-             1.0, 1.0,-1.0,
-            -1.0, 1.0,-1.0
-        };
-        
-        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices));
-        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
-        
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
         for(std::set<KRAABB>::iterator itr=m_visibleBounds.begin(); itr != m_visibleBounds.end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).size() / 2.0f);
@@ -642,12 +622,7 @@ void KRCamera::renderPost()
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
     
-    static const GLfloat squareVertices[] = {
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        -1.0f,  1.0f,
-        1.0f,  1.0f,
-    };
+
     
     static const GLfloat squareVerticesShadow[3][8] = {{
         -1.0f, -1.0f,
@@ -666,33 +641,24 @@ void KRCamera::renderPost()
         0.40f,  -0.60f,
     }};
 	
-	static const GLfloat textureVertices[] = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.0f,  1.0f,
-        1.0f,  1.0f,
-    };
+
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
-    bindPostShader();
+    KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRMat4 matIdentity; // Value not used by postshader
+    KRVector3 vec4Temp; // Value not used by postshader
+    postShader->bind(this, matIdentity, matIdentity, m_position, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
     GLDEBUG(glActiveTexture(GL_TEXTURE0));
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
-    GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
     
     m_pContext->getTextureManager()->selectTexture(1, NULL);
     GLDEBUG(glActiveTexture(GL_TEXTURE1));
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
-    //GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
-    
-    GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
 	
 	// Update attribute values.
-	GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
-	GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
-	GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices));
-	GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -707,27 +673,22 @@ void KRCamera::renderPost()
     
     if(bShowShadowBuffer) {
         GLDEBUG(glDisable(GL_DEPTH_TEST));
-        GLDEBUG(glUseProgram(m_postShaderProgram));
         
         m_pContext->getTextureManager()->selectTexture(0, NULL);
         GLDEBUG(glActiveTexture(GL_TEXTURE0));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
-        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
-        
-        
-        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
         
         // Update attribute values.
         
-        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, textureVertices));
-        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+        m_pContext->getModelManager()->configureAttribs(true, false, false, true, false);
+        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, KRENGINE_VERTICES_2D_SQUARE_UV));
         
         for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
             m_pContext->getTextureManager()->selectTexture(1, NULL);
             GLDEBUG(glActiveTexture(GL_TEXTURE1));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVerticesShadow[iShadow]));
-            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+            
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
         
@@ -747,16 +708,12 @@ void KRCamera::renderPost()
         KRTexture *pFontTexture = m_pContext->getTextureManager()->getTexture("font");
         
         GLDEBUG(glDisable(GL_DEPTH_TEST));
-        GLDEBUG(glUseProgram(m_postShaderProgram));
         
         m_pContext->getTextureManager()->selectTexture(0, NULL);
         GLDEBUG(glActiveTexture(GL_TEXTURE0));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
         m_pContext->getTextureManager()->selectTexture(1, pFontTexture);
-        
-        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "depthFrame"), 0));
-        GLDEBUG(glUniform1i(glGetUniformLocation(m_postShaderProgram, "renderFrame"), 1));
         
         const char *pChar = szText;
         int iPos=0;
@@ -781,11 +738,9 @@ void KRCamera::renderPost()
                 dTexScale * iCol + dTexScale,     dTexScale * iRow
             };
             
+            m_pContext->getModelManager()->configureAttribs(true, false, false, true, false);
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
-            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
-            
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
-            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
             
             iPos++;
@@ -797,39 +752,6 @@ void KRCamera::renderPost()
         m_pContext->getTextureManager()->selectTexture(1, NULL);
     }
     
-}
-
-
-void KRCamera::bindPostShader()
-{
-    if(!m_postShaderProgram) {
-        std::stringstream stream;
-        stream.precision(std::numeric_limits<long double>::digits10);
-        
-        stream << "#define DOF_QUALITY " << dof_quality;
-        stream << "\n#define ENABLE_FLASH " << (bEnableFlash ? "1" : "0");
-        stream << "\n#define ENABLE_VIGNETTE " << (bEnableVignette ? "1" : "0");
-        stream.setf(std::ios::fixed,std::ios::floatfield);
-        stream << "\n#define DOF_DEPTH " << dof_depth;
-        stream << "\n#define DOF_FALLOFF " << dof_falloff;
-        stream << "\n#define FLASH_DEPTH " << flash_depth;
-        stream << "\n#define FLASH_FALLOFF " << flash_falloff;
-        stream << "\n#define FLASH_INTENSITY " << flash_intensity;
-        stream << "\n#define VIGNETTE_RADIUS " << vignette_radius;
-        stream << "\n#define VIGNETTE_FALLOFF " << vignette_falloff;
-        
-        stream << "\n";
-        LoadShader(*m_pContext, "PostShader", &m_postShaderProgram, stream.str());
-    }
-    GLDEBUG(glUseProgram(m_postShaderProgram));
-}
-
-void KRCamera::invalidatePostShader()
-{
-    if(m_postShaderProgram) {
-        GLDEBUG(glDeleteProgram(m_postShaderProgram));
-        m_postShaderProgram = 0;
-    }
 }
 
 void KRCamera::invalidateShadowBuffers() {

@@ -38,6 +38,11 @@ KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.handle = 0;
     m_currentVBO.data = NULL;
     m_vboMemUsed = 0;
+    m_bVBOAttribEnabled_Vertex = false;
+    m_bVBOAttribEnabled_Normal = false;
+    m_bVBOAttribEnabled_Tangent = false;
+    m_bVBOAttribEnabled_UVA = false;
+    m_bVBOAttribEnabled_UVB = false;
 }
 
 KRModelManager::~KRModelManager() {
@@ -81,7 +86,7 @@ void KRModelManager::unbindVBO() {
     }
 }
 
-void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size) {
+void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb) {
     
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
@@ -120,9 +125,104 @@ void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size) {
             
             m_vbosActive[data] = m_currentVBO;
         }
+        
+        configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb);
+        
     }
     
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
+}
+
+void KRModelManager::configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb)
+{
+    bool reconfigured = false;
+    
+    if(m_bVBOAttribEnabled_Vertex != enable_vertex) {
+        if(enable_vertex) {
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+        } else {
+            GLDEBUG(glDisableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+        }
+        m_bVBOAttribEnabled_Vertex = enable_vertex;
+        reconfigured = true;
+    }
+    if(m_bVBOAttribEnabled_Normal != enable_normal) {
+        if(enable_normal) {
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL));
+        } else {
+            GLDEBUG(glDisableVertexAttribArray(KRShader::KRENGINE_ATTRIB_NORMAL));
+        }
+        m_bVBOAttribEnabled_Normal = enable_normal;
+        reconfigured = true;
+    }
+    if(m_bVBOAttribEnabled_Tangent != enable_tangent) {
+        if(enable_tangent) {
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT));
+        } else {
+            GLDEBUG(glDisableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TANGENT));
+        }
+        m_bVBOAttribEnabled_Tangent = enable_tangent;
+        reconfigured = true;
+    }
+    if(m_bVBOAttribEnabled_UVA != enable_uva) {
+        if(enable_uva) {
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+        } else {
+            GLDEBUG(glDisableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVA));
+        }
+        m_bVBOAttribEnabled_UVA = enable_uva;
+        reconfigured = true;
+    }
+    if(m_bVBOAttribEnabled_UVB != enable_uvb) {
+        if(enable_uvb) {
+            GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB));
+        } else {
+            GLDEBUG(glDisableVertexAttribArray(KRShader::KRENGINE_ATTRIB_TEXUVB));
+        }
+        m_bVBOAttribEnabled_UVB = enable_uvb;
+        reconfigured = true;
+    }
+    
+    if(reconfigured || true) {
+        int data_size = 0;
+        if(enable_vertex) {
+            data_size += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_normal) {
+            data_size += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_tangent) {
+            data_size += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_uva) {
+            data_size += sizeof(KRMesh::TexCoord);
+        }
+        if(enable_uvb) {
+            data_size += sizeof(KRMesh::TexCoord);
+        }
+        
+        int offset = 0;
+        if(enable_vertex) {
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
+            offset += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_normal) {
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
+            offset += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_tangent) {
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
+            offset += sizeof(KRMesh::KRVector3D);
+        }
+        if(enable_uva) {
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
+            offset += sizeof(KRMesh::TexCoord);
+        }
+        if(enable_uvb) {
+            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
+            offset += sizeof(KRMesh::TexCoord);
+        }
+    }
 }
 
 long KRModelManager::getMemUsed()
@@ -139,4 +239,5 @@ void KRModelManager::rotateBuffers()
         m_vbosPool.erase(m_currentVBO.data);
         m_vbosActive[m_currentVBO.data] = m_currentVBO;
     }
+
 }

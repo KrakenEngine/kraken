@@ -61,9 +61,11 @@ public:
     std::map<std::string, KRModel *> getModels();
     
     
-    void bindVBO(GLvoid *data, GLsizeiptr size);
+    void bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb);
     void unbindVBO();
     long getMemUsed();
+    
+    void configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb);
     
 private:
     std::map<std::string, KRModel *> m_models;
@@ -79,6 +81,13 @@ private:
     
     std::map<GLvoid *, vbo_info_type> m_vbosActive;
     std::map<GLvoid *, vbo_info_type> m_vbosPool;
+    
+    bool m_bVBOAttribEnabled_Vertex;
+    bool m_bVBOAttribEnabled_Normal;
+    bool m_bVBOAttribEnabled_Tangent;
+    bool m_bVBOAttribEnabled_UVA;
+    bool m_bVBOAttribEnabled_UVB;
+    
     
 };
 

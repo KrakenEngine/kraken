@@ -15,6 +15,7 @@
 #import "KRCamera.h"
 #import "KRContext.h"
 #import "KRBoundingVolume.h"
+#import "KRStockGeometry.h"
 #import "assert.h"
 
 KRPointLight::KRPointLight(KRScene &scene, std::string name) : KRLight(scene, name)
@@ -141,23 +142,18 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             // Disable z-buffer write
             GLDEBUG(glDepthMask(GL_FALSE));
             
+            
+            
             if(bInsideLight) {
                 
                 // Disable z-buffer test
                 GLDEBUG(glDisable(GL_DEPTH_TEST));
                 
                 // Render a full screen quad
-                static const GLfloat squareVertices[] = {
-                    -1.0f, -1.0f,
-                    1.0f, -1.0f,
-                    -1.0f,  1.0f,
-                    1.0f,  1.0f,
-                };
-                
-                GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+                m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
             } else {
+                m_pContext->getModelManager()->configureAttribs(true, false, false, false, false);
                 // Render sphere of light's influence
                 generateMesh();
             
@@ -167,7 +163,6 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
                 GLDEBUG(glDepthRangef(0.0, 1.0));
                 
                 GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
-                GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
                 GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
             }
             

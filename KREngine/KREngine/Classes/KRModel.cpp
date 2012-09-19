@@ -78,6 +78,8 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                 m_materials.push_back(pMaterial);
                 if(pMaterial) {
                     m_uniqueMaterials.insert(pMaterial);
+                } else {
+                    fprintf(stderr, "Missing material: %s\n", szMaterialName);
                 }
             }
             

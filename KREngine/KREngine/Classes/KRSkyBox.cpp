@@ -14,6 +14,7 @@
 #import "KRMat4.h"
 #import "KRResource.h"
 #import "KRContext.h"
+#import "KRStockGeometry.h"
 
 KRSkyBox::KRSkyBox(KRScene &scene, std::string name) : KRNode(scene, name)
 {
@@ -153,15 +154,7 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
         GLDEBUG(glDisable(GL_DEPTH_TEST));
         
         // Render a full screen quad
-        static const GLfloat squareVertices[] = {
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
-            -1.0f,  1.0f,
-            1.0f,  1.0f,
-        };
-        
-        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices));
-        GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
 }

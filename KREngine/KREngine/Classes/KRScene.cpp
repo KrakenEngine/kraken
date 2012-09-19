@@ -39,6 +39,7 @@
 
 #import "KRScene.h"
 #import "KRNode.h"
+#import "KRStockGeometry.h"
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pContext = &context;
@@ -170,26 +171,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     
                     KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
                     
-                    static const GLfloat cubeVertices[] = {
-                        1.0, 1.0, 1.0,
-                        -1.0, 1.0, 1.0,
-                        1.0,-1.0, 1.0,
-                        -1.0,-1.0, 1.0,
-                        -1.0,-1.0,-1.0,
-                        -1.0, 1.0, 1.0,
-                        -1.0, 1.0,-1.0,
-                        1.0, 1.0, 1.0,
-                        1.0, 1.0,-1.0,
-                        1.0,-1.0, 1.0,
-                        1.0,-1.0,-1.0,
-                        -1.0,-1.0,-1.0,
-                        1.0, 1.0,-1.0,
-                        -1.0, 1.0,-1.0
-                    };
-                    
-                    GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVertices));
-                    GLDEBUG(glEnableVertexAttribArray(KRShader::KRENGINE_ATTRIB_VERTEX));
-                    
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
                     KRMat4 matModel = KRMat4();
                     matModel.scale(octreeBounds.size() / 2.0f);
                     matModel.translate(octreeBounds.center());
