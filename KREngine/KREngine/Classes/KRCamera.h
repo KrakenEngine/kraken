@@ -38,6 +38,7 @@
 #import "KRVector2.h"
 #import "KRNotified.h"
 #import "KRAABB.h"
+#import "KRShader.h"
 
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
@@ -127,51 +128,15 @@ private:
     bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
     KRMat4 shadowmvpmatrix[KRENGINE_MAX_SHADOW_BUFFERS]; /* MVP Matrix for view from light source */
     
-    
-    // uniform index
-    enum {
-        KRENGINE_UNIFORM_MATERIAL_AMBIENT,
-        KRENGINE_UNIFORM_MATERIAL_DIFFUSE,
-        KRENGINE_UNIFORM_MATERIAL_SPECULAR,
-        KRENGINE_UNIFORM_LIGHT_POSITION,
-        KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE,
-        KRENGINE_UNIFORM_LIGHT_DIRECTION,
-        KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE,
-        KRENGINE_UNIFORM_LIGHT_COLOR,
-        KRENGINE_UNIFORM_LIGHT_DECAY_START,
-        KRENGINE_UNIFORM_LIGHT_CUTOFF,
-        KRENGINE_UNIFORM_LIGHT_INTENSITY,
-        KRENGINE_UNIFORM_FLARE_SIZE,
-        KRENGINE_UNIFORM_MVP,
-        KRENGINE_UNIFORM_INVP,
-        KRENGINE_UNIFORM_MN2V,
-        KRENGINE_UNIFORM_M2V,
-        KRENGINE_UNIFORM_V2M,
-        KRENGINE_UNIFORM_SHADOWMVP1,
-        KRENGINE_UNIFORM_SHADOWMVP2,
-        KRENGINE_UNIFORM_SHADOWMVP3,
-        
-        KRENGINE_UNIFORM_CAMERAPOS,
-        KRENGINE_UNIFORM_VIEWPORT,
-        KRENGINE_NUM_UNIFORMS
-    };
-    GLint m_shadowUniforms[KRENGINE_NUM_UNIFORMS];
-    
-    GLuint m_shadowShaderProgram;
-    
     void renderPost();
     
     void destroyBuffers();
     
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
     
-    void loadShaders();
     
-    // Code using these shader functions will later be refactored to integrate with KRShaderManager
-    static bool ValidateProgram(GLuint prog);
-    static bool LoadShader(KRContext &context, const std::string &name, GLuint *programPointer, const std::string &options);
-    static bool CompileShader(GLuint *shader, GLenum type, const std::string &shader_source, const std::string &options);
-    static bool LinkProgram(GLuint prog);
+    
+
     
     
     class KRInstanceDistance {

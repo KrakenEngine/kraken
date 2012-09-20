@@ -93,7 +93,6 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
         }
         
         KRMaterial *pPrevBoundMaterial = NULL;
-        int iPrevBuffer = -1;
         char szPrevShaderKey[128];
         szPrevShaderKey[0] = '\0';
         int cSubmeshes = m_pMesh->getSubmeshes().size();
@@ -105,7 +104,7 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
 
                     if(!pMaterial->isTransparent()) {
                         // Exclude transparent and semi-transparent meshes from shadow maps
-                        m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
+                        m_pMesh->renderSubmesh(iSubmesh);
                     }
                 }
                 
@@ -123,19 +122,19 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                             switch(pMaterial->getAlphaMode()) {
                                 case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
                                 case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                    m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
+                                    m_pMesh->renderSubmesh(iSubmesh);
                                     break;
                                 case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                    m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
+                                    m_pMesh->renderSubmesh(iSubmesh);
                                     break;
                                 case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                     // Render back faces first
                                     GLDEBUG(glCullFace(GL_BACK));
-                                    m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
+                                    m_pMesh->renderSubmesh(iSubmesh);
                                     
                                     // Render front faces second
                                     GLDEBUG(glCullFace(GL_BACK));
-                                    m_pMesh->renderSubmesh(iSubmesh, iPrevBuffer);
+                                    m_pMesh->renderSubmesh(iSubmesh);
                                     break;
                             }
                             

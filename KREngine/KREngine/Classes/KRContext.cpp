@@ -77,7 +77,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
     std::string extension = KRResource::GetFileExtension(file_name);
     
-    fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
+    //fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
     
     if(extension.compare("krbundle") == 0) {
         m_pBundleManager->loadBundle(name.c_str(), data);

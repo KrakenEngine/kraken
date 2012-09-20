@@ -69,7 +69,7 @@ public:
     void loadPack(KRDataBlock *data);
     
     
-    void renderSubmesh(int iSubmesh, int &iPrevBuffer);
+    void renderSubmesh(int iSubmesh);
     
     GLfloat getMaxDimension();
     

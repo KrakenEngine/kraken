@@ -448,7 +448,6 @@ void KRCamera::createBuffers() {
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
     
     allocateShadowBuffers();
-    loadShaders();
 }
 
 void KRCamera::allocateShadowBuffers() {
@@ -544,26 +543,19 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     GLDEBUG(glDisable(GL_BLEND));
     
     // Use shader program
-    GLDEBUG(glUseProgram(m_shadowShaderProgram));
+    KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRMat4 matIdentity; // Value not used by postshader
+    KRVector3 vec4Temp; // Value not used by postshader
+    shadowShader->bind(this, matIdentity, matIdentity, m_position, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     // Sets the diffuseTexture variable to the first texture unit
     /*
      glUniform1i(glGetUniformLocation(m_shadowShaderProgram, "diffuseTexture"), 0);
      */
     
-    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
-    // DEBUG macro must be defined in your debug configurations if that's not already the case.
-#if defined(DEBUG)
-    if (!ValidateProgram(m_shadowShaderProgram)) {
-        fprintf(stderr, "Failed to validate program: %d", m_shadowShaderProgram);
-        return;
-    }
-#endif
-    
-    
     
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    GLDEBUG(glUniformMatrix4fv(m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
+    GLDEBUG(glUniformMatrix4fv(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
     
     
     // Calculate the bounding volume of the light map
@@ -590,28 +582,6 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     scene.render(this, m_shadowVisibleBounds[iShadow], m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP);
     scene.getOcclusionQueryResults(m_shadowVisibleBounds[iShadow]);
     GLDEBUG(glViewport(0, 0, backingWidth, backingHeight));
-}
-
-
-bool KRCamera::ValidateProgram(GLuint prog)
-{
-    GLint logLength, status;
-    
-    GLDEBUG(glValidateProgram(prog));
-    GLDEBUG(glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        GLDEBUG(glGetProgramInfoLog(prog, logLength, &logLength, log));
-        fprintf(stderr, "Program validate log:\n%s", log);
-        free(log);
-    }
-    
-    GLDEBUG(glGetProgramiv(prog, GL_VALIDATE_STATUS, &status));
-    if (status == 0)
-        return false;
-    
-    return true;
 }
 
 void KRCamera::renderPost()
@@ -759,150 +729,6 @@ void KRCamera::invalidateShadowBuffers() {
         shadowValid[i] = false;
     }
 }
-
-
-bool KRCamera::LoadShader(KRContext &context, const std::string &name, GLuint *programPointer, const std::string &options)
-{
-    GLuint vertexShader, fragShader;
-    
-    // Create shader program.
-    GLDEBUG(*programPointer = glCreateProgram());
-    
-    // Create and compile vertex shader.
-    
-    if(!CompileShader(&vertexShader, GL_VERTEX_SHADER, context.getShaderManager()->getVertShaderSource(name), options)) {
-        fprintf(stderr, "Failed to compile vertex shader");
-        return false;
-    }
-    
-    // Create and compile fragment shader.
-    if(!CompileShader(&fragShader, GL_FRAGMENT_SHADER, context.getShaderManager()->getFragShaderSource(name), options)) {
-        fprintf(stderr, "Failed to compile fragment shader");
-        return false;
-    }
-    
-    // Attach vertex shader to program.
-    GLDEBUG(glAttachShader(*programPointer, vertexShader));
-    
-    // Attach fragment shader to program.
-    GLDEBUG(glAttachShader(*programPointer, fragShader));
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
-    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
-    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
-    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
-    GLDEBUG(glBindAttribLocation(*programPointer, KRShader::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
-    
-    // Link program.
-    if(!LinkProgram(*programPointer)) {
-        fprintf(stderr, "Failed to link program: %d", *programPointer);
-        
-        if (vertexShader) {
-            GLDEBUG(glDeleteShader(vertexShader));
-            vertexShader = 0;
-        }
-        if (fragShader) {
-            GLDEBUG(glDeleteShader(fragShader));
-            fragShader = 0;
-        }
-        if (*programPointer) {
-            GLDEBUG(glDeleteProgram(*programPointer));
-            *programPointer = 0;
-        }
-        
-        return false;
-    }
-    
-    // Release vertex and fragment shaders.
-    if (vertexShader)
-	{
-        GLDEBUG(glDeleteShader(vertexShader));
-	}
-    if (fragShader)
-	{
-        GLDEBUG(glDeleteShader(fragShader));
-	}
-    
-    return true;
-}
-
-bool KRCamera::CompileShader(GLuint *shader, GLenum type, const std::string &shader_source, const std::string &options)
-{
-    GLint status;
-    const GLchar *source[2];
-    
-    source[0] = (GLchar *)shader_source.c_str();
-    if (!source[0])
-    {
-        fprintf(stderr, "Failed to load vertex shader");
-        return false;
-    }
-    if(options.length()) {
-        source[1] = source[0];
-        source[0] = options.c_str();
-    }
-    
-    
-    GLDEBUG(*shader = glCreateShader(type));
-    GLDEBUG(glShaderSource(*shader, options.length() ? 2 : 1, source, NULL));
-    GLDEBUG(glCompileShader(*shader));
-    
-#if defined(DEBUG)
-    GLint logLength;
-    GLDEBUG(glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        GLDEBUG(glGetShaderInfoLog(*shader, logLength, &logLength, log));
-        fprintf(stderr, "Shader compile log:\n%s", log);
-        free(log);
-    }
-#endif
-    
-    GLDEBUG(glGetShaderiv(*shader, GL_COMPILE_STATUS, &status));
-    if (status == 0) {
-        GLDEBUG(glDeleteShader(*shader));
-        return false;
-    }
-    
-    return true;
-}
-        
-bool KRCamera::LinkProgram(GLuint prog)
-{
-    GLint status;
-    
-    GLDEBUG(glLinkProgram(prog));
-    
-#if defined(DEBUG)
-    GLint logLength;
-    GLDEBUG(glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        GLDEBUG(glGetProgramInfoLog(prog, logLength, &logLength, log));
-        fprintf(stderr, "Program link log:\n%s", log);
-        free(log);
-    }
-#endif
-    
-    GLDEBUG(glGetProgramiv(prog, GL_LINK_STATUS, &status));
-    if (status == 0)
-        return false;
-    
-    return true;
-}
-
-
-void KRCamera::loadShaders()
-{
-    LoadShader(*m_pContext, "ShadowShader", &m_shadowShaderProgram, "");
-    
-    m_shadowUniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_shadowShaderProgram, "shadow_mvp1");
-}
-
 
 void KRCamera::notify_sceneGraphCreate(KRNode *pNode)
 {
