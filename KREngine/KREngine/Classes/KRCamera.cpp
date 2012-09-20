@@ -546,13 +546,7 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     KRMat4 matIdentity; // Value not used by postshader
     KRVector3 vec4Temp; // Value not used by postshader
-    shadowShader->bind(this, matIdentity, matIdentity, m_position, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    
-    // Sets the diffuseTexture variable to the first texture unit
-    /*
-     glUniform1i(glGetUniformLocation(m_shadowShaderProgram, "diffuseTexture"), 0);
-     */
-    
+    shadowShader->bind(this, matIdentity, matIdentity, m_position, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);    
     
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     GLDEBUG(glUniformMatrix4fv(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
