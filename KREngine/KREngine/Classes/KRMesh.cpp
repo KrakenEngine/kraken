@@ -143,7 +143,7 @@ void KRMesh::renderSubmesh(int iSubmesh) {
             GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
             cVertexes = 0;
         }
-        m_pContext->getModelManager()->unbindVBO();
+        //m_pContext->getModelManager()->unbindVBO();
     }
 }
 

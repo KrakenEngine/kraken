@@ -389,8 +389,9 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
             matModel.translate((*itr).center());
             KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
             
-            pVisShader->bind(this, viewMatrix, mvpmatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+            if(pVisShader->bind(this, viewMatrix, mvpmatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+            }
         }
     }
     

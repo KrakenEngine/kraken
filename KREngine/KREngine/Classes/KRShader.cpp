@@ -52,6 +52,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength);
+            assert(log != NULL);
             GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
             fprintf(stderr, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
@@ -67,6 +68,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength);
+            assert(log != NULL);
             GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
             fprintf(stderr, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
@@ -90,64 +92,75 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
         // Link program.
         GLDEBUG(glLinkProgram(m_iProgram));
         
-        // Report any linking issues to stderr
-        GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
-        if (logLength > 0)
-        {
-            GLchar *log = (GLchar *)malloc(logLength);
-            GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-            fprintf(stderr, "KREngine - Failed to link shader program: %s\nProgram link log:\n%s", szKey, log);
-            free(log);
-        }
+        GLint link_success = GL_FALSE;
+        GLDEBUG(glGetProgramiv(m_iProgram, GL_LINK_STATUS, &link_success));
         
-        // Get uniform locations
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTION] = glGetUniformLocation(m_iProgram, "material_reflection"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY] = glGetUniformLocation(m_iProgram, "material_reflectivity"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_light_position"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_COLOR] = glGetUniformLocation(m_iProgram, "light_color"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_INTENSITY] = glGetUniformLocation(m_iProgram, "light_intensity"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DECAY_START] = glGetUniformLocation(m_iProgram, "light_decay_start"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_CUTOFF] = glGetUniformLocation(m_iProgram, "light_cutoff"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FLARE_SIZE] = glGetUniformLocation(m_iProgram, "flare_size"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MN2V] = glGetUniformLocation(m_iProgram, "model_normal_to_view_matrix"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view_matrix"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_V2M] = glGetUniformLocation(m_iProgram, "view_to_model_matrix"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION] = glGetUniformLocation(m_iProgram, "light_direction"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_view_space"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS] = glGetUniformLocation(m_iProgram, "cameraPosition"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] = glGetUniformLocation(m_iProgram, "viewport"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] = glGetUniformLocation(m_iProgram, "specularTexture"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE] = glGetUniformLocation(m_iProgram, "reflectionTexture"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE] = glGetUniformLocation(m_iProgram, "normalTexture"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "diffuseTexture_Scale"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "specularTexture_Scale"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "reflectionTexture_Scale"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "normalTexture_Scale"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "ambientTexture_Scale"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "diffuseTexture_Offset"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "specularTexture_Offset"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "reflectionTexture_Offset"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "normalTexture_Offset"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "ambientTexture_Offset"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] = glGetUniformLocation(m_iProgram, "shadowTexture1"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] = glGetUniformLocation(m_iProgram, "shadowTexture2"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] = glGetUniformLocation(m_iProgram, "shadowTexture3"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME] = glGetUniformLocation(m_iProgram, "gbuffer_frame"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] = glGetUniformLocation(m_iProgram, "gbuffer_depth"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME] = glGetUniformLocation(m_iProgram, "depthFrame"));
-        GLDEBUG(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME] = glGetUniformLocation(m_iProgram, "renderFrame"));
+        if(link_success != GL_TRUE) {
+            // Report any linking issues to stderr
+            fprintf(stderr, "KREngine - Failed to link shader program: %s\n", szKey);
+                    
+            GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
+            if (logLength > 0)
+            {
+                GLchar *log = (GLchar *)malloc(logLength);
+                assert(log != NULL);
+                GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
+                fprintf(stderr, "Program link log:\n%s", log);
+                free(log);
+            }
+            GLDEBUG(glDeleteProgram(m_iProgram));
+            m_iProgram = 0;
+        } else {
+        
+            // Get uniform locations
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTION] = glGetUniformLocation(m_iProgram, "material_reflection"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY] = glGetUniformLocation(m_iProgram, "material_reflectivity"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_light_position"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_COLOR] = glGetUniformLocation(m_iProgram, "light_color"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_INTENSITY] = glGetUniformLocation(m_iProgram, "light_intensity"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DECAY_START] = glGetUniformLocation(m_iProgram, "light_decay_start"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_CUTOFF] = glGetUniformLocation(m_iProgram, "light_cutoff"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FLARE_SIZE] = glGetUniformLocation(m_iProgram, "flare_size"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MN2V] = glGetUniformLocation(m_iProgram, "model_normal_to_view_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_V2M] = glGetUniformLocation(m_iProgram, "view_to_model_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION] = glGetUniformLocation(m_iProgram, "light_direction"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_view_space"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS] = glGetUniformLocation(m_iProgram, "cameraPosition"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] = glGetUniformLocation(m_iProgram, "viewport"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] = glGetUniformLocation(m_iProgram, "specularTexture"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE] = glGetUniformLocation(m_iProgram, "reflectionTexture"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE] = glGetUniformLocation(m_iProgram, "normalTexture"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "diffuseTexture_Scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "specularTexture_Scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "reflectionTexture_Scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "normalTexture_Scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "ambientTexture_Scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "diffuseTexture_Offset"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "specularTexture_Offset"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "reflectionTexture_Offset"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "normalTexture_Offset"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_AMBIENTTEXTURE_OFFSET] = glGetUniformLocation(m_iProgram, "ambientTexture_Offset"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] = glGetUniformLocation(m_iProgram, "shadowTexture1"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] = glGetUniformLocation(m_iProgram, "shadowTexture2"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] = glGetUniformLocation(m_iProgram, "shadowTexture3"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME] = glGetUniformLocation(m_iProgram, "gbuffer_frame"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] = glGetUniformLocation(m_iProgram, "gbuffer_depth"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME] = glGetUniformLocation(m_iProgram, "depthFrame"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME] = glGetUniformLocation(m_iProgram, "renderFrame"));
+        }
         
     } catch(...) {
         if(vertexShader) {
@@ -181,7 +194,12 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+    if(m_iProgram == 0) {
+        return false;
+    }
+    
+    
     GLDEBUG(glUseProgram(m_iProgram));
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
@@ -251,12 +269,15 @@ void KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     if (logLength > 0)
     {
         GLchar *log = (GLchar *)malloc(logLength);
+        assert(log != NULL);
         GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
         fprintf(stderr, "KREngine - Failed to validate shader program: %s\n Program validate log:\n%s", m_szKey, log);
         free(log);
+        return false;
     }
 #endif
 
+    return true;
 }
 
 #endif

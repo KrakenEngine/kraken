@@ -69,37 +69,38 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundi
         light_direction_view_space.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
-        
-        
-        GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE],
-                    light_direction_view_space.x,
-                    light_direction_view_space.y,
-                    light_direction_view_space.z
-        ));
-        
-        GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
-                    m_color.x,
-                    m_color.y,
-                    m_color.z
-                    ));
-        
-        GLDEBUG(glUniform1f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
-                    m_intensity / 100.0f
-                    ));
-        
-        // Disable z-buffer write
-        GLDEBUG(glDepthMask(GL_FALSE));
-        
-        // Disable z-buffer test
-        GLDEBUG(glDisable(GL_DEPTH_TEST));
-        
-        // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
-        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+        if(pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+            
+            
+            GLDEBUG(glUniform3f(
+                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE],
+                        light_direction_view_space.x,
+                        light_direction_view_space.y,
+                        light_direction_view_space.z
+            ));
+            
+            GLDEBUG(glUniform3f(
+                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
+                        m_color.x,
+                        m_color.y,
+                        m_color.z
+                        ));
+            
+            GLDEBUG(glUniform1f(
+                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
+                        m_intensity / 100.0f
+                        ));
+            
+            // Disable z-buffer write
+            GLDEBUG(glDepthMask(GL_FALSE));
+            
+            // Disable z-buffer test
+            GLDEBUG(glDisable(GL_DEPTH_TEST));
+            
+            // Render a full screen quad
+            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+        }
     }
 }
 

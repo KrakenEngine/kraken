@@ -122,6 +122,7 @@ void KRDataBlock::expand(size_t size)
     if(m_data == NULL) {
         // Starting with an empty data block; allocate memory on the heap
         m_data = malloc(size);
+        assert(m_data != NULL);
         m_data_size = size;
         m_bMalloced = true;
     } else if(m_bMalloced) {
@@ -132,6 +133,7 @@ void KRDataBlock::expand(size_t size)
         // Starting with a mmap'ed data block; copy it to ram before expanding to avoid updating the original file until save() is called
         // ... Or starting with a pointer reference, we must make our own copy and must not free the pointer
         void *pNewData = malloc(m_data_size + size);
+        assert(pNewData != NULL);
         memcpy((unsigned char *)pNewData, m_data, m_data_size); // Copy exising data
         // Unload existing data allocation, which is now redundant
         size_t new_size = m_data_size + size; // We need to store this before unload() as unload() will reset it

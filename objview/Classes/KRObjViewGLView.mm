@@ -57,15 +57,15 @@
         
 		eaglLayer.opaque = YES;
 		eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];		
-		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+		_context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 		
-        if (!context) 
+        if (!_context)
 		{
 			[self release];
 			return nil;
 		}
         
-		if (![EAGLContext setCurrentContext:context]) 
+		if (![EAGLContext setCurrentContext:_context])
 		{
 			[self release];
 			return nil;
@@ -86,6 +86,7 @@
 
 - (void)dealloc {
     [_engine release]; _engine = nil;
+    [_context release]; _context = nil;
     
     [super dealloc];
 }
@@ -123,7 +124,7 @@
     // ----- Create color buffer for viewFramebuffer -----
     GLDEBUG(glGenRenderbuffers(1, &viewRenderbuffer));
     GLDEBUG(glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer));
-	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
+	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth));
 	GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight));
 	NSLog(@"Backing width: %d, height: %d", backingWidth, backingHeight);
@@ -166,7 +167,7 @@
 
 - (void)setDisplayFramebuffer;
 {
-    if (context)
+    if (_context)
     {
         if (!viewFramebuffer)
 		{
@@ -183,11 +184,11 @@
 {
     BOOL success = FALSE;
     
-    if (context)
+    if (_context)
     {
         //GLDEBUG(glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer));
         
-        success = [context presentRenderbuffer:GL_RENDERBUFFER];
+        success = [_context presentRenderbuffer:GL_RENDERBUFFER];
     }
     
     return success;

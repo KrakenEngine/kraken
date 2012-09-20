@@ -40,11 +40,13 @@
 	/* The pixel dimensions of the backbuffer */
 	GLint backingWidth, backingHeight;
 	
-	EAGLContext *context;
+	
 	
 	/* OpenGL names for the renderbuffer and framebuffers used to render to this view */
 	GLuint viewFramebuffer, viewRenderbuffer;
 }
+
+@property (nonatomic, retain) EAGLContext *context;
 
 // OpenGL drawing
 - (BOOL)createFramebuffers;

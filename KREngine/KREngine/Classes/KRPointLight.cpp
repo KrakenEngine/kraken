@@ -83,89 +83,89 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolu
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->perspective_nearz) * (influence_radius + pCamera->perspective_nearz);
             
             KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-            pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
-            
-            
-            GLDEBUG(glUniform3f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
-                        m_color.x,
-                        m_color.y,
-                        m_color.z
-            ));
-            
-            GLDEBUG(glUniform1f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
-                    m_intensity / 100.0f
-            ));
-            
-            GLDEBUG(glUniform1f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START],
-                        getDecayStart()
-            ));
-            
-            GLDEBUG(glUniform1f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF],
-                        KRLIGHT_MIN_INFLUENCE
-            ));
-            
-            
-            GLDEBUG(glUniform3f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION],
-                        light_position.x,
-                        light_position.y,
-                        light_position.z
-            ));
-            
-            GLDEBUG(glUniform3f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE],
-                        view_space_light_position.x,
-                        view_space_light_position.y,
-                        view_space_light_position.z
-            ));
-            
-            GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_V2M], 1, GL_FALSE, matViewToModel.getPointer()));
-            GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView2.getPointer()));
-            
-            
-            KRMat4 matInvProjection;
-            matInvProjection = pCamera->getProjectionMatrix();
-            matInvProjection.invert();
-            GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_INVP], 1, GL_FALSE, matInvProjection.getPointer()));
-            
-            
-            if(bVisualize) {
-                // Enable additive blending
-                GLDEBUG(glEnable(GL_BLEND));
-                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+            if(pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+                
+                
+                GLDEBUG(glUniform3f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
+                            m_color.x,
+                            m_color.y,
+                            m_color.z
+                ));
+                
+                GLDEBUG(glUniform1f(
+                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
+                        m_intensity / 100.0f
+                ));
+                
+                GLDEBUG(glUniform1f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START],
+                            getDecayStart()
+                ));
+                
+                GLDEBUG(glUniform1f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF],
+                            KRLIGHT_MIN_INFLUENCE
+                ));
+                
+                
+                GLDEBUG(glUniform3f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION],
+                            light_position.x,
+                            light_position.y,
+                            light_position.z
+                ));
+                
+                GLDEBUG(glUniform3f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE],
+                            view_space_light_position.x,
+                            view_space_light_position.y,
+                            view_space_light_position.z
+                ));
+                
+                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_V2M], 1, GL_FALSE, matViewToModel.getPointer()));
+                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView2.getPointer()));
+                
+                
+                KRMat4 matInvProjection;
+                matInvProjection = pCamera->getProjectionMatrix();
+                matInvProjection.invert();
+                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_INVP], 1, GL_FALSE, matInvProjection.getPointer()));
+                
+                
+                if(bVisualize) {
+                    // Enable additive blending
+                    GLDEBUG(glEnable(GL_BLEND));
+                    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+                }
+                
+                // Disable z-buffer write
+                GLDEBUG(glDepthMask(GL_FALSE));
+                
+                
+                
+                if(bInsideLight) {
+                    
+                    // Disable z-buffer test
+                    GLDEBUG(glDisable(GL_DEPTH_TEST));
+                    
+                    // Render a full screen quad
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                } else {
+                    m_pContext->getModelManager()->configureAttribs(true, false, false, false, false);
+                    // Render sphere of light's influence
+                    generateMesh();
+                
+                    // Enable z-buffer test
+                    GLDEBUG(glEnable(GL_DEPTH_TEST));
+                    GLDEBUG(glDepthFunc(GL_LEQUAL));
+                    GLDEBUG(glDepthRangef(0.0, 1.0));
+                    
+                    GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
+                }
             }
-            
-            // Disable z-buffer write
-            GLDEBUG(glDepthMask(GL_FALSE));
-            
-            
-            
-            if(bInsideLight) {
-                
-                // Disable z-buffer test
-                GLDEBUG(glDisable(GL_DEPTH_TEST));
-                
-                // Render a full screen quad
-                m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
-                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-            } else {
-                m_pContext->getModelManager()->configureAttribs(true, false, false, false, false);
-                // Render sphere of light's influence
-                generateMesh();
-            
-                // Enable z-buffer test
-                GLDEBUG(glEnable(GL_DEPTH_TEST));
-                GLDEBUG(glDepthFunc(GL_LEQUAL));
-                GLDEBUG(glDepthRangef(0.0, 1.0));
-                
-                GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
-                GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
-            }
-            
             if(bVisualize) {
                 // Enable alpha blending
                 GLDEBUG(glEnable(GL_BLEND));
@@ -262,6 +262,7 @@ void KRPointLight::generateMesh() {
         }
         
         m_sphereVertices = (GLfloat *)malloc(sizeof(GLfloat) * m_cVertices * 3);
+        assert(m_sphereVertices != NULL);
         GLfloat *pDest = m_sphereVertices;
         for(int facet_index=0; facet_index < facet_count; facet_index++) {
             *pDest++ = f[facet_index].p1.x;

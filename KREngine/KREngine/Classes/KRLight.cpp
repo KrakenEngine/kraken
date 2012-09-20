@@ -146,14 +146,15 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
                 
                 // Render light flare on transparency pass
                 KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-                pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass);
-                GLDEBUG(glUniform1f(
-                                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
-                                    m_flareSize
-                                    ));
-                m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
-                m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
-                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                if(pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+                    GLDEBUG(glUniform1f(
+                                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
+                                        m_flareSize
+                                        ));
+                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                }
             }
         }
         

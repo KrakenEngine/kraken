@@ -113,7 +113,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         //  -----=====-----  Populate vertexes and faces -----=====----- 
         
         int *pFaces = (int *)malloc(sizeof(int *) * (cFaces + 1));
-        
+        assert(pFaces != NULL);
         
         std::vector<KRVector3> indexed_vertices;
         std::vector<KRVector2> indexed_uva;

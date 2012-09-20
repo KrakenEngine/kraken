@@ -117,25 +117,26 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModelToV
                     
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass);
+                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, matModelToView, mvpMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass)) {
                             
-                            switch(pMaterial->getAlphaMode()) {
-                                case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
-                                case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                    m_pMesh->renderSubmesh(iSubmesh);
-                                    break;
-                                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                    m_pMesh->renderSubmesh(iSubmesh);
-                                    break;
-                                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
-                                    // Render back faces first
-                                    GLDEBUG(glCullFace(GL_BACK));
-                                    m_pMesh->renderSubmesh(iSubmesh);
-                                    
-                                    // Render front faces second
-                                    GLDEBUG(glCullFace(GL_BACK));
-                                    m_pMesh->renderSubmesh(iSubmesh);
-                                    break;
+                                switch(pMaterial->getAlphaMode()) {
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+                                        m_pMesh->renderSubmesh(iSubmesh);
+                                        break;
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
+                                        m_pMesh->renderSubmesh(iSubmesh);
+                                        break;
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+                                        // Render back faces first
+                                        GLDEBUG(glCullFace(GL_BACK));
+                                        m_pMesh->renderSubmesh(iSubmesh);
+                                        
+                                        // Render front faces second
+                                        GLDEBUG(glCullFace(GL_BACK));
+                                        m_pMesh->renderSubmesh(iSubmesh);
+                                        break;
+                                }
                             }
                             
                            

@@ -182,8 +182,9 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
                      
                     
-                    pVisShader->bind(pCamera, viewMatrix, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+                    if(pVisShader->bind(pCamera, viewMatrix, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+                    }
                     
                     GLDEBUG(glDisable(GL_BLEND));
                     
