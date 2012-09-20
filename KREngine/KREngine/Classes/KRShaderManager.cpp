@@ -62,7 +62,7 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
             std::map<std::string, KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;
             m_shaders.erase(itr);
-            fprintf(stderr, "Swapping shaders...\n");
+            //fprintf(stderr, "Swapping shaders...\n");
         }
         
         stringstream stream;
@@ -147,4 +147,8 @@ const std::string &KRShaderManager::getFragShaderSource(const std::string &name)
 
 const std::string &KRShaderManager::getVertShaderSource(const std::string &name) {
     return m_vertShaderSource[name];
+}
+
+long KRShaderManager::getShaderHandlesUsed() {
+    return m_shaders.size();
 }

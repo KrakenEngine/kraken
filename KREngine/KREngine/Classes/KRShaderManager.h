@@ -44,7 +44,7 @@ using std::vector;
 #ifndef KRSHADERMANAGER_H
 #define KRSHADERMANAGER_H
 
-#define KRENGINE_MAX_SHADER_HANDLES 1000
+#define KRENGINE_MAX_SHADER_HANDLES 100
 
 class KRShaderManager : public KRContextObject {
 public:
@@ -58,6 +58,8 @@ public:
     
     
     KRShader *getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass);
+    
+    long getShaderHandlesUsed();
     
 private:
     std::map<std::string, KRShader *> m_shaders;

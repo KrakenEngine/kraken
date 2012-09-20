@@ -122,13 +122,15 @@ void KRMesh::renderSubmesh(int iSubmesh) {
     int cVertexes = pSubmesh->vertex_count;
     while(cVertexes > 0) {
         GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-
-        assert(pVertexData + iBuffer * MAX_VBO_SIZE >= m_pData->getStart());
         int vertex_size = sizeof(VertexData) ;
-        void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE + vertex_size * cBufferVertexes;
+        assert(pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size >= m_pData->getStart());
+        
+        void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
         void *buffer_end = m_pData->getEnd();
         assert(vbo_end <= buffer_end);
-        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE, vertex_size * cBufferVertexes, true, true, true, true, true);
+        assert(cBufferVertexes <= 65535);
+        
+        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, true, true, true, true, true);
 
     
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -140,10 +142,11 @@ void KRMesh::renderSubmesh(int iSubmesh) {
             iBuffer++;
         } else {
             assert(iVertex + cVertexes <= cBufferVertexes);
+
             GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
             cVertexes = 0;
         }
-        //m_pContext->getModelManager()->unbindVBO();
+
     }
 }
 

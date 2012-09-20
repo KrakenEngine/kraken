@@ -180,100 +180,101 @@
     [super dealloc];
 }
 
-
 - (void)drawView:(id)sender
 {
-    if(glView.context && glView.engine) {
-        //glGetError(); // Clear any prior errors...
-        
-        
-        CFTimeInterval frame_start_time = CACurrentMediaTime();
-        
-        //NSAutoreleasePool *framePool = [[NSAutoreleasePool alloc] init];
-        
-        
-        CFTimeInterval time = [displayLink timestamp];
-        float deltaTime = (time - _lastTime);
-        _lastTime = time;
-        
-        const GLfloat PI = 3.14159265;
-        const GLfloat d2r = PI * 2 / 360;
-        
-        
-        KREngine *engine = glView.engine;
-        int iParam = int(dLeftSlider * ([engine getParameterCount] + 1));
-        if(iParam > [engine getParameterCount]) {
-            iParam = [engine getParameterCount];
-        }
-        
-        
-        
-        if(cParamDisplayFrames && iParam < [engine getParameterCount]) {
-            cParamDisplayFrames--;
-            char szText[256];
-            const char *szName = [[engine getParameterLabelWithIndex: iParam] UTF8String];
-            double dValue = [engine getParameterValueWithIndex: iParam];
-            switch([engine getParameterTypeWithIndex: iParam]) {
-                case KRENGINE_PARAMETER_INT:
-                    sprintf(szText, "%s: %i", szName, (int)dValue);
-                    break;
-                case KRENGINE_PARAMETER_BOOL:
-                    sprintf(szText, "%s: %s", szName, dValue == 0.0 ? "false" : "true");
-                    break;
-                case KRENGINE_PARAMETER_FLOAT:
-                    sprintf(szText, "%s: %f", szName, dValue);
-                    break;
-            }
-            NSString *debug_text = [[NSString alloc] initWithUTF8String:szText];
-            engine.debug_text = debug_text;
-            [debug_text release];
-        } else {
-            engine.debug_text = @"";
-        }
-        
-        
-        
-        if(bUpdateParam) {
-            bUpdateParam = false;
+   // @synchronized(self) {
+        if(glView.context && glView.engine) {
+            //glGetError(); // Clear any prior errors...
             
-            double dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
-            switch([engine getParameterTypeWithIndex: iParam]) {
-                case KRENGINE_PARAMETER_INT:
-                    dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] + 0.5 - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
-                    [engine setParameterValueWithIndex: iParam Value: dValue];
-                    break;
-                case KRENGINE_PARAMETER_BOOL:
-                    [engine setParameterValueWithIndex: iParam Value: 1.0 - dValue];
-                    break;
-                case KRENGINE_PARAMETER_FLOAT:
-                    [engine setParameterValueWithIndex: iParam Value: dValue];
-                    break;
+            
+            CFTimeInterval frame_start_time = CACurrentMediaTime();
+            
+            //NSAutoreleasePool *framePool = [[NSAutoreleasePool alloc] init];
+            
+            
+            CFTimeInterval time = [displayLink timestamp];
+            float deltaTime = (time - _lastTime);
+            _lastTime = time;
+            
+            const GLfloat PI = 3.14159265;
+            const GLfloat d2r = PI * 2 / 360;
+            
+            
+            KREngine *engine = glView.engine;
+            int iParam = int(dLeftSlider * ([engine getParameterCount] + 1));
+            if(iParam > [engine getParameterCount]) {
+                iParam = [engine getParameterCount];
+            }
+            
+            
+            
+            if(cParamDisplayFrames && iParam < [engine getParameterCount]) {
+                cParamDisplayFrames--;
+                char szText[256];
+                const char *szName = [[engine getParameterLabelWithIndex: iParam] UTF8String];
+                double dValue = [engine getParameterValueWithIndex: iParam];
+                switch([engine getParameterTypeWithIndex: iParam]) {
+                    case KRENGINE_PARAMETER_INT:
+                        sprintf(szText, "%s: %i", szName, (int)dValue);
+                        break;
+                    case KRENGINE_PARAMETER_BOOL:
+                        sprintf(szText, "%s: %s", szName, dValue == 0.0 ? "false" : "true");
+                        break;
+                    case KRENGINE_PARAMETER_FLOAT:
+                        sprintf(szText, "%s: %f", szName, dValue);
+                        break;
+                }
+                NSString *debug_text = [[NSString alloc] initWithUTF8String:szText];
+                engine.debug_text = debug_text;
+                [debug_text release];
+            } else {
+                engine.debug_text = @"";
+            }
+            
+            
+            
+            if(bUpdateParam) {
+                bUpdateParam = false;
+                
+                double dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
+                switch([engine getParameterTypeWithIndex: iParam]) {
+                    case KRENGINE_PARAMETER_INT:
+                        dValue = dRightSlider * ([engine getParameterMaxWithIndex: iParam] + 0.5 - [engine getParameterMinWithIndex: iParam]) + [engine getParameterMinWithIndex: iParam];
+                        [engine setParameterValueWithIndex: iParam Value: dValue];
+                        break;
+                    case KRENGINE_PARAMETER_BOOL:
+                        [engine setParameterValueWithIndex: iParam Value: 1.0 - dValue];
+                        break;
+                    case KRENGINE_PARAMETER_FLOAT:
+                        [engine setParameterValueWithIndex: iParam Value: dValue];
+                        break;
+                }
+
             }
 
+            double dScaleFactor = 200.0f * deltaTime;
+            
+            camera_position.z += (-cos(camera_pitch) * cos(camera_yaw) * leftStickDeltaX  + -cos(camera_pitch) * cos(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
+            camera_position.x += (cos(camera_pitch) * sin(camera_yaw) * leftStickDeltaX + cos(camera_pitch) * sin(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
+            camera_position.y += sin(camera_pitch)  * leftStickDeltaX * dScaleFactor;
+            camera_yaw += rightStickDeltaY * 180.0 * d2r * deltaTime;
+            camera_pitch += rightStickDeltaX * 180.0 * d2r * deltaTime;
+
+            
+            
+            assert([EAGLContext setCurrentContext:glView.context]);
+            [glView setDisplayFramebuffer];
+            KRScene *scene = [glView getScene];
+            [engine renderScene: scene WithPosition:camera_position Yaw: camera_yaw Pitch: camera_pitch Roll:0.0f];
+            [glView presentFramebuffer];
+            
+            //[framePool release];
+            
+            double frameTime = CACurrentMediaTime() - frame_start_time;
+            
+            //NSLog(@"frameTime = %.1f ms (%.2f fps / %.2f fps) - %.2f%%", frameTime * 1000.0f, 1.0f / frameTime, 1.0f / deltaTime, frameTime / deltaTime * 100.0f);
         }
-
-        double dScaleFactor = 200.0f * deltaTime;
-        
-        camera_position.z += (-cos(camera_pitch) * cos(camera_yaw) * leftStickDeltaX  + -cos(camera_pitch) * cos(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
-        camera_position.x += (cos(camera_pitch) * sin(camera_yaw) * leftStickDeltaX + cos(camera_pitch) * sin(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
-        camera_position.y += sin(camera_pitch)  * leftStickDeltaX * dScaleFactor;
-        camera_yaw += rightStickDeltaY * 180.0 * d2r * deltaTime;
-        camera_pitch += rightStickDeltaX * 180.0 * d2r * deltaTime;
-
-        
-        
-        assert([EAGLContext setCurrentContext:glView.context]);
-        [glView setDisplayFramebuffer];
-        KRScene *scene = [glView getScene];
-        [engine renderScene: scene WithPosition:camera_position Yaw: camera_yaw Pitch: camera_pitch Roll:0.0f];
-        [glView presentFramebuffer];
-        
-        //[framePool release];
-        
-        double frameTime = CACurrentMediaTime() - frame_start_time;
-        
-        //NSLog(@"frameTime = %.1f ms (%.2f fps / %.2f fps) - %.2f%%", frameTime * 1000.0f, 1.0f / frameTime, 1.0f / deltaTime, frameTime / deltaTime * 100.0f);
-    }
+    //}
 }
 
 @end

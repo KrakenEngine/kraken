@@ -30,6 +30,7 @@
 //
 
 #include "KRShader.h"
+#import "assert.h"
 
 KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) {
     strcpy(m_szKey, szKey);
@@ -264,15 +265,21 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
 #if defined(DEBUG)
     GLint logLength;
     
+    GLint validate_status = GL_FALSE;
     GLDEBUG(glValidateProgram(m_iProgram));
-    GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        assert(log != NULL);
-        GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-        fprintf(stderr, "KREngine - Failed to validate shader program: %s\n Program validate log:\n%s", m_szKey, log);
-        free(log);
+    GLDEBUG(glGetProgramiv(m_iProgram, GL_VALIDATE_STATUS, &validate_status));
+    if(validate_status != GL_TRUE) {
+        fprintf(stderr, "KREngine - Failed to validate shader program: %s\n", m_szKey);
+        GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
+        if (logLength > 0)
+        {
+            GLchar *log = (GLchar *)malloc(logLength);
+            assert(log != NULL);
+            GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
+            fprintf(stderr, "Program validate log:\n%s", log);
+            free(log);
+            
+        }
         return false;
     }
 #endif

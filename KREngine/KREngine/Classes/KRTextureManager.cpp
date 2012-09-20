@@ -99,6 +99,7 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
         m_boundTextures[iTextureUnit] = pTexture;
         while(m_activeTextures.size() + m_poolTextures.size() > KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRENGINE_MAX_TEXTURE_MEM) {
             if(m_poolTextures.empty()) {
+                //fprintf(stderr, "flushBuffers due to texture exhaustion...\n");
                 m_pContext->rotateBuffers();
             }
             // Keep texture size within limits
