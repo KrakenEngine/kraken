@@ -91,8 +91,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
         }
         
         if(m_pModel != NULL) {
-            if(getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP) {
-            //if(m_pModel != NULL && (getBounds().visible(viewMatrix * projectionMatrix) || renderPass == RENDER_PASS_SHADOWMAP)) {
+            //if(getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP) {
+            if(getBounds().visible(viewMatrix * projectionMatrix)) {
 
                 if(m_pLightMap == NULL && m_lightMap.size()) {
                     m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());

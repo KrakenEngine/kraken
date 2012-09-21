@@ -24,6 +24,7 @@ public:
     KRVector3 size() const;
     bool intersects(const KRAABB& b) const;
     bool contains(const KRAABB &b) const;
+    bool contains(const KRVector3 &v) const;
     bool visible(const KRMat4 &matViewProjection) const;
     
     KRAABB& operator =(const KRAABB& b);

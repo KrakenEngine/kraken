@@ -15,8 +15,6 @@ KROctreeNode::KROctreeNode(const KRAABB &bounds) : m_bounds(bounds)
     
     m_occlusionQuery = 0;
     m_occlusionTested = false;
-    m_occlusionQueryTransparent = 0;
-    m_occlusionTestedTransparent = false;
     m_activeQuery = false;
 }
 
@@ -28,8 +26,6 @@ KROctreeNode::KROctreeNode(const KRAABB &bounds, int iChild, KROctreeNode *pChil
     
     m_occlusionQuery = 0;
     m_occlusionTested = false;
-    m_occlusionQueryTransparent = 0;
-    m_occlusionTestedTransparent = false;
     m_activeQuery = false;
 }
 
@@ -44,21 +40,13 @@ KROctreeNode::~KROctreeNode()
     if(m_occlusionTested) {
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
     }
-    if(m_occlusionTestedTransparent) {
-        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQueryTransparent));
-    }
 #endif
 }
 
 #if TARGET_OS_IPHONE
-void KROctreeNode::beginOcclusionQuery(bool bTransparentPass)
+void KROctreeNode::beginOcclusionQuery()
 {
-    if(bTransparentPass && !m_occlusionTestedTransparent) {
-        GLDEBUG(glGenQueriesEXT(1, &m_occlusionQueryTransparent));
-        GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQueryTransparent));
-        m_occlusionTestedTransparent = true;
-        m_activeQuery = true;
-    } else if(!bTransparentPass && !m_occlusionTested){
+    if(!m_occlusionTested){
         GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
         GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
         m_occlusionTested = true;
@@ -74,53 +62,8 @@ void KROctreeNode::endOcclusionQuery()
     }
 }
 
-bool KROctreeNode::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
-{
-    bool bRendered = false;
-    bool bGoDeeper = false;
-    
-    if(m_occlusionTested) {
-        GLuint params = 0;
-        GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
-        if(params) bRendered = true; // At least one opaque fragment processed
-        
-        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
-        m_occlusionTested = false;
-        bGoDeeper = true;
-    }
-    if(m_occlusionTestedTransparent) {
-        GLuint params = 0;
-        GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQueryTransparent, GL_QUERY_RESULT_EXT, &params));
-        if(params) bRendered = true; // At least one transparent fragment processed
-        
-        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQueryTransparent));
-        m_occlusionTestedTransparent = false;
-        
-        bGoDeeper = true;
-    }
-    
-    // FINDME - Test Code:
-    //bGoDeeper = true;
-    //bRendered = true;
-    
-    if(bGoDeeper) { // Only recurse deeper if we reached this level in the previous pass
-        for(int i=0; i<8; i++) {
-            if(m_children[i]) {
-                if(m_children[i]->getOcclusionQueryResults(renderedBounds)) {
-                    bRendered = true; // We must always include the parent, even if the parent's local scene graph nodes are fully occluded
-                }
-            }
-        }
-    }
-    
-    if(bRendered) {
-        renderedBounds.insert(m_bounds);
-    }
-    
-    return bRendered;
-}
-
 #endif
+
 
 KRAABB KROctreeNode::getBounds()
 {
@@ -157,55 +100,7 @@ KRAABB KROctreeNode::getChildBounds(int iChild)
 }
 
 int KROctreeNode::getChildIndex(KRNode *pNode)
-{
-    /*
-     
-     KRVector3 min = pNode->getMinPoint();
-     KRVector3 max = pNode->getMaxPoint();
-     
-    // 0: max.x < center.x && max.y < center.y && max.z < center.z
-    // 1: min.x > center.x && max.y < center.y && max.z < center.z
-    // 2: max.x < center.x && min.y > center.y && max.z < center.z
-    // 3: min.x > center.x && min.y > center.y && max.z < center.z
-    // 4: max.x < center.x && max.y < center.y && min.z > center.z
-    // 5: min.x > center.x && max.y < center.y && min.z > center.z
-    // 6: max.x < center.x && min.y > center.y && min.z > center.z
-    // 7: min.x > center.x && min.y > center.y && min.z > center.z
-    
-    KRVector3 center = m_bounds.center();
-    int iChild = -1;
-    if(max.z < center.z) {
-        if(max.y < center.y) {
-            if(max.x < center.x) {
-                iChild = 0;
-            } else if(min.x > center.x) {
-                iChild = 1;
-            }
-        } else if(min.y > center.y) {
-            if(max.x < center.x) {
-                iChild = 2;
-            } else if(min.x > center.x) {
-                iChild = 3;
-            }
-        }
-    } else if(min.z > center.z) {
-        if(max.y < center.y) {
-            if(min.x > center.x) {
-                iChild = 4;
-            } else if(min.x > center.x) {
-                iChild = 5;
-            }
-        } else if(min.y > center.y) {
-            if(max.x < center.x) {
-                iChild = 6;
-            } else if(min.x > center.x) {
-                iChild = 7;
-            }
-        }
-    }
-    return iChild;
-     */
-    
+{    
     for(int iChild=0; iChild < 8; iChild++) {
         if(getChildBounds(iChild).contains(pNode->getBounds())) {
             return iChild;

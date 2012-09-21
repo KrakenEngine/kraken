@@ -38,19 +38,14 @@ public:
     bool canShrinkRoot() const;
     KROctreeNode *stripChild();
     
-    void beginOcclusionQuery(bool bTransparentPass);
+    void beginOcclusionQuery();
     void endOcclusionQuery();
-    bool getOcclusionQueryResults(std::set<KRAABB> &renderedBounds);
     
-private:
     
     GLuint m_occlusionQuery;
     bool m_occlusionTested;
-    
-    GLuint m_occlusionQueryTransparent;
-    bool m_occlusionTestedTransparent;
-    
     bool m_activeQuery;
+private:
     
     KRAABB m_bounds;
     

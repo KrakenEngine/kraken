@@ -252,7 +252,7 @@
 
             }
 
-            double dScaleFactor = 200.0f * deltaTime;
+            double dScaleFactor = 500.0f * deltaTime;
             
             camera_position.z += (-cos(camera_pitch) * cos(camera_yaw) * leftStickDeltaX  + -cos(camera_pitch) * cos(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;
             camera_position.x += (cos(camera_pitch) * sin(camera_yaw) * leftStickDeltaX + cos(camera_pitch) * sin(camera_yaw - 90.0f * d2r) * -leftStickDeltaY) * dScaleFactor;

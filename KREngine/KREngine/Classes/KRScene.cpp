@@ -56,7 +56,7 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
     
     updateOctree();
     
@@ -103,7 +103,33 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
         pCamera->dSunB = sun_color.z;
     }
     
-    render(m_nodeTree.getRootNode(), visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    std::vector<KROctreeNode *> remainingOctrees;
+    std::vector<KROctreeNode *> remainingOctreesTestResults;
+    std::vector<KROctreeNode *> remainingOctreesTestResultsOnly;
+    if(m_nodeTree.getRootNode() != NULL) {
+        remainingOctrees.push_back(m_nodeTree.getRootNode());
+    }
+    
+    std::vector<KROctreeNode *> newRemainingOctrees;
+    std::vector<KROctreeNode *> newRemainingOctreesTestResults;
+    while((!remainingOctrees.empty() || !remainingOctreesTestResults.empty())) {
+        newRemainingOctrees.clear();
+        newRemainingOctreesTestResults.clear();
+        for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
+            render(*octree_itr, visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+        }
+        for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
+            render(*octree_itr, visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
+        }
+        remainingOctrees = newRemainingOctrees;
+        remainingOctreesTestResults = newRemainingOctreesTestResults;
+    }
+    
+    newRemainingOctrees.clear();
+    newRemainingOctreesTestResults.clear();
+    for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
+        render(*octree_itr, visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
+    }
     
     
     for(std::set<KRNode *>::iterator itr=m_nodeTree.getOuterSceneNodes().begin(); itr != m_nodeTree.getOuterSceneNodes().end(); itr++) {
@@ -111,61 +137,94 @@ void KRScene::render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRConte
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass)
+void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
-        KRMat4 projectionMatrix;
-        if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
-            projectionMatrix = pCamera->getProjectionMatrix();
-        }
         
         KRAABB octreeBounds = pOctreeNode->getBounds();
         
-        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->perspective_farz);
-        
-        //if(true) {
-        //if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
-        if(frustrumVolumeNoNearClip.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+        if(bOcclusionResultsPass) {
+            // ----====---- Occlusion results pass ----====----
+            if(pOctreeNode->m_occlusionTested) {
+                GLuint params = 0;
+                GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
+                if(params) {
+                    newVisibleBounds.insert(octreeBounds); // Record the actual tests that succeeded during this frame
+                    visibleBounds.insert(octreeBounds); // Update the list of tests that we won't repeat for subsequent passes during this frame
+                    if(!bOcclusionTestResultsOnly) {
+                        // Schedule a pass to perform the rendering
+                        remainingOctrees.push_back(pOctreeNode);
+                    }
+                }
+                
+                GLDEBUG(glDeleteQueriesEXT(1, &pOctreeNode->m_occlusionQuery));
+                pOctreeNode->m_occlusionTested = false;
+                pOctreeNode->m_occlusionQuery = 0;
+            }
+        } else {
             
-            bool can_occlusion_test = renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER/* || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT*/;
+            
+//        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->perspective_farz);
+//        if(frustrumVolumeNoNearClip.test_intersect(pOctreeNode->getBounds())) { // Only recurse deeper if within the view frustrum
+//            
 
-            // can_occlusion_test = false;
-            bool bVisible = true;
-            //bool bVisible = visibleBounds.find(octreeBounds) != visibleBounds.end();
             
-            if(bVisible) {
-                if(can_occlusion_test) {
-                    pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                }
-                
-                // Occlusion test indicates that this bounding box was visible in the last frame
-                for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-                    //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-                    
-                    (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
-                }
-                
-                if(can_occlusion_test) {
-                    pOctreeNode->endOcclusionQuery();
-                }
-                
-                
-                bool bRenderChildren = renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE;
-                if(!bRenderChildren) {
-                    bRenderChildren = visibleBounds.find(octreeBounds) != visibleBounds.end();
-                }
-                if(bRenderChildren) {
-                    for(int i=0; i<8; i++) {
-                        render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+            
+      KRMat4 projectionMatrix;
+      if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
+          projectionMatrix = pCamera->getProjectionMatrix();
+      }
+      if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
+          
+                // ----====---- Rendering and occlusion test pass ----====----
+                bool bVisible = false;
+                bool bNeedOcclusionTest = true;
+          
+                //bVisible = true; // FINDME - Test Code
+          
+                if(!bVisible) {
+                    // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
+                    // The near clipping plane of the camera is taken into consideration by expanding the match area
+                    KRMat4 invView = viewMatrix;
+                    invView.invert();
+                    KRVector3 cameraPos = KRMat4::Dot(invView, KRVector3::Zero());
+                    KRAABB cameraExtents = KRAABB(cameraPos - KRVector3(pCamera->perspective_nearz), cameraPos + KRVector3(pCamera->perspective_nearz));
+                    bVisible = octreeBounds.intersects(cameraExtents);
+                    if(bVisible) {
+                        newVisibleBounds.insert(octreeBounds); // Record the actual tests that succeeded during this frame
+                        visibleBounds.insert(octreeBounds); // Update the list of tests that we won't repeat for subsequent passes during this frame
+                        bNeedOcclusionTest = false;
                     }
                 }
-            } else if(KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
-                if(pOctreeNode->getSceneNodes().empty()) {
-                    for(int i=0; i<8; i++) {
-                        render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                
+                if(!bVisible) {
+                    // Check if an occlusion query from the prior pass has returned true
+                    bVisible = newVisibleBounds.find(octreeBounds) != newVisibleBounds.end();
+                    if(bVisible) {
+                        bNeedOcclusionTest = false;
                     }
-                } else {
-                    pOctreeNode->beginOcclusionQuery(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                }
+                
+                if(!bVisible) {
+                    // Take advantage of temporal consistency of visible elements from frame to frame
+                    // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
+                    bVisible = visibleBounds.find(octreeBounds) != visibleBounds.end();
+                    // We don't set bNeedOcclusionTest to false here, as we need to perform an occlusion test to record if this octree node was visible for the next frame
+                }
+                
+                if(!bVisible) {
+                    // Optimization: If this is an empty octree node with only a single child node, then immediately try to render the child node without an occlusion test for this higher level, as it would be more expensive than the occlusion test for the child
+                    if(pOctreeNode->getSceneNodes().empty()) {
+                        int child_count = 0;
+                        for(int i=0; i<8; i++) {
+                            if(pOctreeNode->getChildren()[i] != NULL) child_count++;
+                        }
+                        if(child_count == 1) bVisible = true;
+                    }
+                }
+                
+                if(bNeedOcclusionTest) {
+                    pOctreeNode->beginOcclusionQuery();
                     
                     KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
                     
@@ -180,22 +239,60 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     // Enable additive blending
                     GLDEBUG(glEnable(GL_BLEND));
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-                     
+                    
+                    
+                    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
+                       renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
+                       renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
+                       renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+                        
+                        // Disable z-buffer write
+                        GLDEBUG(glDepthMask(GL_FALSE));
+                    }
                     
                     if(pVisShader->bind(pCamera, viewMatrix, mvpmatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     }
                     
+                    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
+                       renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
+                       renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
+                       renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+                        
+                        // Re-enable z-buffer write
+                        GLDEBUG(glDepthMask(GL_TRUE));
+                    }
+                    
                     GLDEBUG(glDisable(GL_BLEND));
                     
                     pOctreeNode->endOcclusionQuery();
+                    
+                    
+                    if(bVisible) {
+                        // Schedule a pass to get the result of the occlusion test only for future frames and passes, without rendering the model or recurring further
+                        remainingOctreesTestResultsOnly.push_back(pOctreeNode);
+                    } else {
+                        // Schedule a pass to get the result of the occlusion test and continue recursion and rendering if test is true
+                        remainingOctreesTestResults.push_back(pOctreeNode);
+                    }
+                }
+                
+                if(bVisible) {
+                    
+                    for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+                        //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
+                        (*itr)->render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                    }
+                    
+                    for(int i=0; i<8; i++) {
+                        render(pOctreeNode->getChildren()[i], visibleBounds, pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+                    }
                 }
             }
-
-        } else {
-            //fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
+            
         }
     }
+//  fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
 }
 
 #endif
@@ -316,10 +413,5 @@ void KRScene::updateOctree()
     m_modifiedNodes.clear();
 }
 #if TARGET_OS_IPHONE
-
-void KRScene::getOcclusionQueryResults(std::set<KRAABB> &renderedBounds)
-{
-    m_nodeTree.getOcclusionQueryResults(renderedBounds);
-}
 
 #endif

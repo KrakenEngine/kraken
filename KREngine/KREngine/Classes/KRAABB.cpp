@@ -8,6 +8,7 @@
 
 #include "KRAABB.h"
 #include "KRMat4.h"
+#include "assert.h"
 
 KRAABB::KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint)
 {
@@ -87,6 +88,11 @@ bool KRAABB::contains(const KRAABB &b) const
     return b.min.x >= min.x && b.min.y >= min.y && b.min.z >= min.z && b.max.x <= max.x && b.max.y <= max.y && b.max.z <= max.z;
 }
 
+bool KRAABB::contains(const KRVector3 &v) const
+{
+    return v.x >= min.x && v.x <= max.x && v.y >= min.y && v.y <= max.y && v.z >= min.z && v.z <= max.z;
+}
+
 KRAABB KRAABB::Infinite()
 {
     return KRAABB(KRVector3::Min(), KRVector3::Max());
@@ -102,13 +108,13 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
     int outside_count[6] = {0, 0, 0, 0, 0, 0};
     
     for(int iCorner=0; iCorner<8; iCorner++) {
-        KRVector3 cornerVertex = KRVector3(
+        KRVector3 sourceCornerVertex = KRVector3(
            (iCorner & 1) == 0 ? min.x : max.x,
            (iCorner & 2) == 0 ? min.y : max.y,
            (iCorner & 4) == 0 ? min.z : max.z);
-        
-        cornerVertex = KRMat4::Dot(matViewProjection, cornerVertex);
-        float cornerVertexW = KRMat4::DotW(matViewProjection, cornerVertex);
+
+        KRVector3 cornerVertex = KRMat4::Dot(matViewProjection, sourceCornerVertex);
+        float cornerVertexW = KRMat4::DotW(matViewProjection, sourceCornerVertex);
         
         if(cornerVertex.x < -cornerVertexW) {
             outside_count[0]++;
@@ -130,6 +136,37 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
         }
     }
     
+//    for(int iCorner=0; iCorner<8; iCorner++) {
+//        KRVector3 sourceCornerVertex = KRVector3(
+//           (iCorner & 1) == 0 ? min.x : max.x,
+//           (iCorner & 2) == 0 ? min.y : max.y,
+//           (iCorner & 4) == 0 ? min.z : max.z);
+//        
+//        KRVector3 cornerVertex = KRMat4::Dot(matViewProjection, sourceCornerVertex);
+//        float cornerVertexW = KRMat4::DotW(matViewProjection, sourceCornerVertex);
+//        cornerVertex /= cornerVertexW;
+//        
+//        
+//        if(cornerVertex.x < -1.0) {
+//            outside_count[0]++;
+//        }
+//        if(cornerVertex.y < -1.0) {
+//            outside_count[1]++;
+//        }
+//        if(cornerVertex.z < -1.0) {
+//            outside_count[2]++;
+//        }
+//        if(cornerVertex.x > 1.0) {
+//            outside_count[3]++;
+//        }
+//        if(cornerVertex.y > 1.0) {
+//            outside_count[4]++;
+//        }
+//        if(cornerVertex.z > 1.0) {
+//            outside_count[5]++;
+//        }
+//    }
+    
     bool is_visible = true;
     for(int iFace=0; iFace < 6; iFace++) {
         if(outside_count[iFace] == 8) {
@@ -138,9 +175,10 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
     }
     
     if(!is_visible) {
-        fprintf(stderr, "AABB culled:  %i%i%i%i%i%i out, (%f, %f, %f) - (%f, %f, %f)\n", outside_count[0], outside_count[1], outside_count[2], outside_count[3], outside_count[4], outside_count[5], min.x, min.y, min.z, max.x, max.y, max.z);
+        //fprintf(stderr, "AABB culled:  %i%i%i%i%i%i out, (%f, %f, %f) - (%f, %f, %f)\n", outside_count[0], outside_count[1], outside_count[2], outside_count[3], outside_count[4], outside_count[5], min.x, min.y, min.z, max.x, max.y, max.z);
     } else {
-        fprintf(stderr, "AABB visible: %i%i%i%i%i%i out, (%f, %f, %f) - (%f, %f, %f)\n", outside_count[0], outside_count[1], outside_count[2], outside_count[3], outside_count[4], outside_count[5], min.x, min.y, min.z, max.x, max.y, max.z);
+        //fprintf(stderr, "AABB visible: %i%i%i%i%i%i out, (%f, %f, %f) - (%f, %f, %f)\n", outside_count[0], outside_count[1], outside_count[2], outside_count[3], outside_count[4], outside_count[5], min.x, min.y, min.z, max.x, max.y, max.z);
     }
+    //is_visible = true;
     return is_visible;
 }

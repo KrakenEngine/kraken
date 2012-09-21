@@ -106,7 +106,7 @@
     }
 
     [self.engine setNearZ: 5.0];
-    [self.engine setFarZ: 3000.0];
+    [self.engine setFarZ: 5000.0];
     //[renderEngine setNearZ: 1.0];
     //[renderEngine setFarZ: 3000.0];
 
