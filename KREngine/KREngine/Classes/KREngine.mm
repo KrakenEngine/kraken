@@ -67,31 +67,35 @@ double const PI = 3.141592653589793f;
             @"enable_spec_map" : @5,
             @"enable_reflection_map" : @6,
             @"enable_light_map" : @7,
-            @"ambient_r" : @8,
-            @"ambient_g" : @9,
-            @"ambient_b" : @10,
-            @"sun_r" : @11,
-            @"sun_g" : @12,
-            @"sun_b" : @13,
-            @"dof_quality" : @14,
-            @"dof_depth" : @15,
-            @"dof_falloff" : @16,
-            @"flash_enable" : @17,
-            @"flash_intensity" : @18,
-            @"flash_depth" : @19,
-            @"flash_falloff" : @20,
-            @"vignette_enable" : @21,
-            @"vignette_radius" : @22,
-            @"vignette_falloff" : @23,
-            @"debug_shadowmap" : @24,
-            @"debug_pssm" : @25,
-            @"debug_enable_ambient" : @26,
-            @"debug_enable_diffuse" : @27,
-            @"debug_enable_specular" : @28,
-            @"debug_super_shiny" : @29,
-            @"debug_octree" : @30,
-            @"debug_deferred" : @31,
-            @"enable_deferred_lighting" : @32
+            @"ambient_temp" : @8,
+            @"ambient_intensity" : @9,
+            @"sun_temp": @10,
+            @"sun_intensity": @11,
+//            @"ambient_r" : @8,
+//            @"ambient_g" : @9,
+//            @"ambient_b" : @10,
+//            @"sun_r" : @11,
+//            @"sun_g" : @12,
+//            @"sun_b" : @13,
+            @"dof_quality" : @12,
+            @"dof_depth" : @13,
+            @"dof_falloff" : @14,
+            @"flash_enable" : @15,
+            @"flash_intensity" : @16,
+            @"flash_depth" : @17,
+            @"flash_falloff" : @18,
+            @"vignette_enable" : @19,
+            @"vignette_radius" : @20,
+            @"vignette_falloff" : @21,
+            @"debug_shadowmap" : @22,
+            @"debug_pssm" : @23,
+            @"debug_enable_ambient" : @24,
+            @"debug_enable_diffuse" : @25,
+            @"debug_enable_specular" : @26,
+            @"debug_super_shiny" : @27,
+            @"debug_octree" : @28,
+            @"debug_deferred" : @29,
+            @"enable_deferred_lighting" : @30
         } copy];
         [self loadShaders];
         
@@ -153,7 +157,7 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 33;
+    return 31;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -163,7 +167,7 @@ double const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[33] = {
+    NSString *parameter_labels[31] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -172,12 +176,16 @@ double const PI = 3.141592653589793f;
         @"Enable specular map",
         @"Enable reflection map",
         @"Enable light map",
-        @"Ambient light red intensity",
-        @"Ambient light green intensity",
-        @"Ambient light blue intensity",
-        @"Sun red intensity",
-        @"Sun green intensity",
-        @"Sun blue intensity",
+        @"Ambient Color Temp",
+        @"Ambient Intensity",
+        @"Sun Color Temp",
+        @"Sun Intensity",
+//        @"Ambient light red intensity",
+//        @"Ambient light green intensity",
+//        @"Ambient light blue intensity",
+//        @"Sun red intensity",
+//        @"Sun green intensity",
+//        @"Sun blue intensity",
         @"DOF Quality",
         @"DOF Depth",
         @"DOF Falloff",
@@ -202,7 +210,7 @@ double const PI = 3.141592653589793f;
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[33] = {
+    KREngineParameterType types[31] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -216,8 +224,8 @@ double const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
-        KRENGINE_PARAMETER_FLOAT,
-        KRENGINE_PARAMETER_FLOAT,
+//        KRENGINE_PARAMETER_FLOAT,
+//        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
@@ -242,7 +250,7 @@ double const PI = 3.141592653589793f;
 }
 -(double)getParameterValueWithIndex: (int)i
 {
-    double values[33] = {
+    double values[31] = {
         _camera->perspective_fov,
         (double)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -251,12 +259,16 @@ double const PI = 3.141592653589793f;
         _camera->bEnableSpecMap ? 1.0f : 0.0f,
         _camera->bEnableReflectionMap ? 1.0f : 0.0f,
         _camera->bEnableLightMap ? 1.0f : 0.0f,
-        _camera->dAmbientR,
-        _camera->dAmbientG,
-        _camera->dAmbientB,
-        _camera->dSunR,
-        _camera->dSunG,
-        _camera->dSunB,
+        [self getAmbientTemperature],
+        [self getAmbientIntensity],
+        [self getSunTemperature],
+        [self getSunIntensity],
+//        _camera->dAmbientR,
+//        _camera->dAmbientG,
+//        _camera->dAmbientB,
+//        _camera->dSunR,
+//        _camera->dSunG,
+//        _camera->dSunB,
         _camera->dof_quality,
         _camera->dof_depth,
         _camera->dof_falloff,
@@ -309,114 +321,126 @@ double const PI = 3.141592653589793f;
             _camera->bEnableLightMap = bNewBoolVal;
             break;
         case 8:
-            _camera->dAmbientR = v;
+            [self setAmbientTemperature:v];
             break;
         case 9:
-            _camera->dAmbientG = v;
+            [self setAmbientIntensity:v];
             break;
         case 10:
-            _camera->dAmbientB = v;
+            [self setSunTemperature:v];
             break;
         case 11:
-            _camera->dSunR = v;
+            [self setSunIntensity:v];
             break;
+//        case 8:
+//            _camera->dAmbientR = v;
+//            break;
+//        case 9:
+//            _camera->dAmbientG = v;
+//            break;
+//        case 10:
+//            _camera->dAmbientB = v;
+//            break;
+//        case 11:
+//            _camera->dSunR = v;
+//            break;
+//        case 12:
+//            _camera->dSunG = v;
+//            break;
+//        case 13:
+//            _camera->dSunB = v;
+//            break;
         case 12:
-            _camera->dSunG = v;
-            break;
-        case 13:
-            _camera->dSunB = v;
-            break;
-        case 14:
             if(_camera->dof_quality != (int)v) {
                 _camera->dof_quality = (int)v;
             }
             break;
-        case 15:
+        case 13:
             if(_camera->dof_depth != v) {
                 _camera->dof_depth = v;
             }
             break;
-        case 16:
+        case 14:
             if(_camera->dof_falloff != v) {
                 _camera->dof_falloff = v;
             }
             break;
-        case 17:
+        case 15:
             if(_camera->bEnableFlash != bNewBoolVal) {
                 _camera->bEnableFlash = bNewBoolVal;
             }
             break;
-        case 18:
+        case 16:
             if(_camera->flash_intensity != v) {
                 _camera->flash_intensity = v;
             }
             break;
-        case 19:
+        case 17:
             if(_camera->flash_depth != v) {
                 _camera->flash_depth = v;
             }
             break;
-        case 20:
+        case 18:
             if(_camera->flash_falloff != v) {
                 _camera->flash_falloff = v;
             }
             break;
-        case 21:
+        case 19:
             if(_camera->bEnableVignette != bNewBoolVal) {
                 _camera->bEnableVignette = bNewBoolVal;
             }
             break;
-        case 22:
+        case 20:
             if(_camera->vignette_radius != v) {
                 _camera->vignette_radius = v;
             }
             break;
-        case 23:
+        case 21:
             if(_camera->vignette_falloff != v) {
                 _camera->vignette_falloff = v;
             }
             break;
-        case 24:
+        case 22:
             if(_camera->bShowShadowBuffer != bNewBoolVal) {
                 _camera->bShowShadowBuffer = bNewBoolVal;
             }
             break;
-        case 25:
+        case 23:
             if(_camera->bDebugPSSM != bNewBoolVal) {
                 _camera->bDebugPSSM = bNewBoolVal;
             }
             break;
-        case 26:
+        case 24:
             if(_camera->bEnableAmbient != bNewBoolVal) {
                 _camera->bEnableAmbient = bNewBoolVal;
             }
             break;
-        case 27:
+        case 25:
             if(_camera->bEnableDiffuse != bNewBoolVal) {
                 _camera->bEnableDiffuse = bNewBoolVal;
             }
             break;
-        case 28:
+        case 26:
             if(_camera->bEnableSpecular != bNewBoolVal) {
                 _camera->bEnableSpecular = bNewBoolVal;
             }
             break;
-        case 29:
+        case 27:
             if(_camera->bDebugSuperShiny != bNewBoolVal) {
                 _camera->bDebugSuperShiny = bNewBoolVal;
             }
             break;
-        case 30:
+        case 28:
             if(_camera->bShowOctree != bNewBoolVal) {
                 _camera->bShowOctree = bNewBoolVal;
             }
             break;
-        case 31:
+        case 29:
             if(_camera->bShowDeferred != bNewBoolVal) {
                 _camera->bShowDeferred = bNewBoolVal;
             }
             break;
-        case 32:
+        case 30:
             if(_camera->bEnableDeferredLighting != bNewBoolVal) {
                 _camera->bEnableDeferredLighting = bNewBoolVal;
             }
@@ -426,20 +450,27 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMinWithIndex: (int)i
 {
-    double minValues[33] = {
+//    double minValues[33] = {
+//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+//        0.0f, 0.0f, 0.0f
+//    };
+    double minValues[31] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f
     };
+
     return minValues[i];
 }
 
 -(double)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[33] = {
-        PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 3.0f,
-        3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
+    double maxValues[31] = {
+        PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f
     };
@@ -492,5 +523,101 @@ double const PI = 3.141592653589793f;
     
     _camera->m_debug_text = value.UTF8String;
 }
+
+// MIKE: adding getters and setters for sun_temperature, sun_intensity, ambient temperature, ambient intensity
+
+-(double) getSunTemperature
+{
+    if ( (_camera->dSunR == 0.0f ) ||  (_camera->dSunB == 0.0f)) {
+        return 0.5f;
+    }
+    
+    if  (_camera->dSunR > _camera->dSunB) {
+        return ((1.0f - (_camera->dSunB/_camera->dSunR))/2.0f + 0.5f);
+    }
+    
+    if (_camera->dSunB > _camera->dSunR) {
+        return ((_camera->dSunR/_camera->dSunB) * 0.5f);
+    }
+    
+    return 0.5f;
+}
+
+-(void) setSunTemperature:(double)t
+{
+    _camera->dSunR = ((t < 0.5f) ? (t*2.0f) : 1.0f);
+    _camera->dSunB = ((t < 0.5f) ? (t*2.0f) : (1.0f - ((t*2.0f) - 1.0f)));
+//    _camera->dSunG = ((t < 0.5f) ? 1.0f : ((t*2.0f) - 1.0f));
+    _camera->dSunG = 1.0f;
+
+}
+
+-(double) getSunIntensity
+{
+    if (_camera->dSunR > _camera->dSunB) {
+        return _camera->dSunB;
+    }
+    
+    if (_camera->dSunB > _camera->dSunR) {
+        return _camera->dSunR;
+    }
+    
+    return 1.0f;
+}
+
+-(void) setSunIntensity:(double)i
+{
+    _camera->dSunR *= i;
+    _camera->dSunB *= i;
+    _camera->dSunG *= i;
+}
+
+-(double) getAmbientTemperature
+{
+    if ( (_camera->dAmbientR == 0.0f ) ||  (_camera->dAmbientB == 0.0f)) {
+        return 0.5f;
+    }
+    
+    if  (_camera->dAmbientR > _camera->dAmbientB) {
+        return ((1.0f - (_camera->dAmbientB/_camera->dAmbientR))/2.0f + 0.5f);
+    }
+    
+    if (_camera->dAmbientB > _camera->dAmbientR) {
+        return ((_camera->dAmbientR/_camera->dAmbientB) * 0.5f);
+    }
+    
+    return 0.5f;
+}
+
+-(void) setAmbientTemperature:(double)t
+{
+    _camera->dAmbientR = ((t < 0.5f) ? (t*2.0f) : 1.0f);
+    _camera->dAmbientB = ((t < 0.5f) ? (t*2.0f) : (1.0f - ((t*2.0f) - 1.0f)));
+//    _camera->dAmbientG = ((t < 0.5f) ? 1.0f : ((t*2.0f) - 1.0f));
+    _camera->dAmbientG = 1.0f;
+
+}
+
+-(double) getAmbientIntensity
+{
+    if (_camera->dAmbientR > _camera->dAmbientB) {
+        return _camera->dAmbientB;
+    }
+    
+    if (_camera->dAmbientB > _camera->dAmbientR) {
+        return _camera->dAmbientR;
+    }
+    
+    return 1.0f;
+}
+
+-(void) setAmbientIntensity:(double)i
+{
+    _camera->dAmbientR *= i;
+    _camera->dAmbientB *= i;
+    _camera->dAmbientG *= i;
+    
+}
+
 
 @end
