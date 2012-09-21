@@ -29,6 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#define KRENGINE_SWAP_INT(x,y) {int t;t=x;x=y;y=t;}
+
 #import <string>
 #include <iostream>
 #include <sstream>
@@ -188,8 +190,51 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
     m_iFrame++;
 }
 
+
+
 void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition) {
     setViewportSize(KRVector2(backingWidth, backingHeight));
+    
+    
+    KRMat4 invViewMatrix = viewMatrix;
+    invViewMatrix.invert();
+    
+    KRVector3 vecCameraDirection = KRMat4::Dot(invViewMatrix, KRVector3(0.0, 0.0, 1.0)) - KRMat4::Dot(invViewMatrix, KRVector3(0.0, 0.0, 0.0));
+    
+    
+    int frontToBackOrder[8];
+    int backToFrontOrder[8];
+    for(int i=0; i<8; i++) {
+        frontToBackOrder[i] = i;
+    }
+    
+    if(vecCameraDirection.x > 0.0) {
+        KRENGINE_SWAP_INT(frontToBackOrder[0], frontToBackOrder[1]);
+        KRENGINE_SWAP_INT(frontToBackOrder[2], frontToBackOrder[3]);
+        KRENGINE_SWAP_INT(frontToBackOrder[4], frontToBackOrder[5]);
+        KRENGINE_SWAP_INT(frontToBackOrder[6], frontToBackOrder[7]);
+    }
+    
+    if(vecCameraDirection.y > 0.0) {
+        KRENGINE_SWAP_INT(frontToBackOrder[0], frontToBackOrder[2]);
+        KRENGINE_SWAP_INT(frontToBackOrder[1], frontToBackOrder[3]);
+        KRENGINE_SWAP_INT(frontToBackOrder[4], frontToBackOrder[6]);
+        KRENGINE_SWAP_INT(frontToBackOrder[5], frontToBackOrder[7]);
+    }
+    
+    if(vecCameraDirection.z > 0.0) {
+        KRENGINE_SWAP_INT(frontToBackOrder[0], frontToBackOrder[4]);
+        KRENGINE_SWAP_INT(frontToBackOrder[1], frontToBackOrder[5]);
+        KRENGINE_SWAP_INT(frontToBackOrder[2], frontToBackOrder[6]);
+        KRENGINE_SWAP_INT(frontToBackOrder[3], frontToBackOrder[7]);
+    }
+
+    
+    for(int i=0; i<8; i++) {
+        backToFrontOrder[i] = frontToBackOrder[7-i];
+    }
+    
+    fprintf(stderr, "Draw Order: %i%i%i%i%i%i%i%i    ", frontToBackOrder[0], frontToBackOrder[1], frontToBackOrder[2], frontToBackOrder[3], frontToBackOrder[4], frontToBackOrder[5], frontToBackOrder[6], frontToBackOrder[7]);
     
     KRBoundingVolume frustrumVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz, perspective_farz);
     
@@ -219,7 +264,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER, newVisibleBounds);
+        scene.render(this, frontToBackOrder, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_GBUFFER, newVisibleBounds);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
         // Set render target
@@ -245,7 +290,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         
         
         // Render the geometry
-        scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS, newVisibleBounds);
+        scene.render(this, frontToBackOrder, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_DEFERRED_LIGHTS, newVisibleBounds);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -277,7 +322,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         
         // Render the geometry
         std::set<KRAABB> emptyBoundsSet; // At this point, we only render octree nodes that produced fragments during the 1st pass into the GBuffer
-        scene.render(this, emptyBoundsSet, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE, newVisibleBounds);
+        scene.render(this, frontToBackOrder, emptyBoundsSet, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_DEFERRED_OPAQUE, newVisibleBounds);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(6, NULL);
@@ -314,7 +359,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         
         
         // Render the geometry
-        scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE, newVisibleBounds);
+        scene.render(this, frontToBackOrder, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE, newVisibleBounds);
     }
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -339,7 +384,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
     // Render all transparent geometry
-    scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, newVisibleBounds);
+    scene.render(this, backToFrontOrder, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, newVisibleBounds);
     
     
     // ----====---- Flares ----====----
@@ -363,7 +408,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
-    scene.render(this, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES, newVisibleBounds);
+    scene.render(this, backToFrontOrder, m_visibleBounds, m_pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES, newVisibleBounds);
     
     // ----====---- Debug Overlay ----====----
     
@@ -573,8 +618,15 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     KRVector3 lightDirection;
     KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
     
+    int frontToBackOrder[8];
+    int backToFrontOrder[8];
+    for(int i=0; i<8; i++) {
+        frontToBackOrder[i] = i;
+    }
+    
+    
     std::set<KRAABB> newVisibleBounds;
-    scene.render(this, m_shadowVisibleBounds[iShadow], m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP, newVisibleBounds);
+    scene.render(this, frontToBackOrder, m_shadowVisibleBounds[iShadow], m_pContext, shadowVolume, shadowmvpmatrix[iShadow], cameraPosition, lightDirection, shadowmvpmatrix, NULL, m_cShadowBuffers, KRNode::RENDER_PASS_SHADOWMAP, newVisibleBounds);
     m_shadowVisibleBounds[iShadow] = newVisibleBounds;
     GLDEBUG(glViewport(0, 0, backingWidth, backingHeight));
 }
