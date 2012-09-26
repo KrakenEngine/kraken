@@ -31,7 +31,11 @@
 
 #define KRENGINE_MAX_TEXTURE_UNITS 8
 #define KRENGINE_MAX_TEXTURE_HANDLES 10000
-#define KRENGINE_MAX_TEXTURE_MEM 128000000
+#define KRENGINE_MAX_TEXTURE_MEM 96000000
+#define KRENGINE_TARGET_TEXTURE_MEM_MAX 64000000
+#define KRENGINE_TARGET_TEXTURE_MEM_MIN 32000000
+#define KRENGINE_MAX_TEXTURE_DIM 2048
+#define KRENGINE_MIN_TEXTURE_DIM 16
 
 #ifndef KRTEXTUREMANAGER_H
 #define KRTEXTUREMANAGER_H
@@ -49,9 +53,9 @@ public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
     
-    void rotateBuffers();
+    void rotateBuffers(bool new_frame);
     
-    void selectTexture(int iTextureUnit, KRTexture *pTexture);
+    void selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim);
     
 #if TARGET_OS_IPHONE
     
@@ -62,8 +66,14 @@ public:
     KRTexture *getTexture(const char *szFile);
     
     long getMemUsed();
+    long getActiveMemUsed();
+    
+    int getLODDimCap();
     
 private:
+    void decreaseLODCap();
+    void increaseLODCap();
+    
     std::map<std::string, KRTexture *> m_textures;
     
     KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
@@ -71,6 +81,9 @@ private:
     std::set<KRTexture *> m_poolTextures;
     
     long m_textureMemUsed;
+    long m_activeTextureMemUsed;
+    
+    int m_lod_max_dim_cap;
 };
 
 #endif

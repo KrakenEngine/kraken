@@ -151,7 +151,7 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &f
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize
                                         ));
-                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
+                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 2048);
                     m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 }

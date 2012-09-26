@@ -34,7 +34,7 @@ public:
     
     KRCamera *createCamera(int width, int height);
     
-    void rotateBuffers();
+    void rotateBuffers(bool new_frame);
     
 private:
     KRBundleManager *m_pBundleManager;

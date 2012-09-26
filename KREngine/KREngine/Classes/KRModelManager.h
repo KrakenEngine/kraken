@@ -33,7 +33,7 @@
 #define KRMODELMANAGER_H
 
 #define KRENGINE_MAX_VBO_HANDLES 10000
-#define KRENGINE_MAX_VBO_MEM 50000000
+#define KRENGINE_MAX_VBO_MEM 128000000
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
@@ -51,7 +51,7 @@ public:
     KRModelManager(KRContext &context);
     virtual ~KRModelManager();
     
-    void rotateBuffers();
+    void rotateBuffers(bool new_frame);
     
     KRModel *loadModel(const char *szName, KRDataBlock *pData);
     KRModel *getModel(const char *szName);

@@ -48,15 +48,15 @@ public:
     KRTexture(KRDataBlock *data, KRTextureManager *manager);
     ~KRTexture();
     
-    bool createGLTexture();
-    GLuint getHandle(long &textureMemUsed);
+    bool createGLTexture(int lod_max_dim);
+    GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
     void releaseHandle(long &textureMemUsed);
     
     long getMemSize();
     
 private:
     
-    GLuint    m_iName;
+    GLuint    m_iHandle;
     uint32_t  m_iWidth;
     uint32_t  m_iHeight;
     GLenum    m_internalFormat;
@@ -74,7 +74,13 @@ private:
     bool load();
     
     KRTextureManager *m_pManager;
-
+    
+    int m_current_lod_max_dim;
+    
+    uint32_t m_max_lod_max_dim;
+    uint32_t m_min_lod_max_dim;
+    
+    uint32_t m_textureMemUsed;
 };
 
 #endif

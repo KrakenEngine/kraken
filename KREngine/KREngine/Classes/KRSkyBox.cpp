@@ -140,12 +140,12 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
 //        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
 //        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
         
-        m_pContext->getTextureManager()->selectTexture(0, m_pFrontTexture);
-        m_pContext->getTextureManager()->selectTexture(1, m_pBackTexture);
-        m_pContext->getTextureManager()->selectTexture(2, m_pTopTexture);
-        m_pContext->getTextureManager()->selectTexture(3, m_pBottomTexture);
-        m_pContext->getTextureManager()->selectTexture(4, m_pLeftTexture);
-        m_pContext->getTextureManager()->selectTexture(5, m_pRightTexture);
+        m_pContext->getTextureManager()->selectTexture(0, m_pFrontTexture, 2048);
+        m_pContext->getTextureManager()->selectTexture(1, m_pBackTexture, 2048);
+        m_pContext->getTextureManager()->selectTexture(2, m_pTopTexture, 2048);
+        m_pContext->getTextureManager()->selectTexture(3, m_pBottomTexture, 2048);
+        m_pContext->getTextureManager()->selectTexture(4, m_pLeftTexture, 2048);
+        m_pContext->getTextureManager()->selectTexture(5, m_pRightTexture, 2048);
         
         // Disable z-buffer write
         GLDEBUG(glDepthMask(GL_FALSE));

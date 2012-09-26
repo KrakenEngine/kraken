@@ -71,8 +71,10 @@ typedef struct _PVRTexHeader
 
 KRTexture::KRTexture(KRDataBlock *data, KRTextureManager *manager) {
     m_pData = data;
-    m_iName = 0;
+    m_iHandle = 0;
     m_pManager = manager;
+    m_current_lod_max_dim = 0;
+    m_textureMemUsed = 0;
     load();
 }
 
@@ -154,6 +156,9 @@ bool KRTexture::load() {
             height = 1;
         }
     }
+    
+    m_max_lod_max_dim = m_iWidth > m_iHeight ? m_iWidth : m_iHeight;
+    m_min_lod_max_dim = width >> height ? width : height;
 #endif
     return true;
 
@@ -161,7 +166,8 @@ bool KRTexture::load() {
 
 
 
-bool KRTexture::createGLTexture() {
+bool KRTexture::createGLTexture(int lod_max_dim) {    
+    m_current_lod_max_dim = 0;
 	int width = m_iWidth;
 	int height = m_iHeight;
 	GLenum err;
@@ -170,11 +176,11 @@ bool KRTexture::createGLTexture() {
         return false;
     }
 	
-    GLDEBUG(glGenTextures(1, &m_iName));
-    if(m_iName == 0) {
+    GLDEBUG(glGenTextures(1, &m_iHandle));
+    if(m_iHandle == 0) {
         return false;
     }
-    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iName));
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
 	
 	if (m_blocks.size() > 1) {
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
@@ -184,14 +190,26 @@ bool KRTexture::createGLTexture() {
     int i=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
-		GLDEBUG(glCompressedTexImage2D(GL_TEXTURE_2D, i, m_internalFormat, width, height, 0, block.length, block.start));
-		
-		err = glGetError();
-		if (err != GL_NO_ERROR) {
-            GLDEBUG(glDeleteTextures(1, &m_iName));
-            m_iName = 0;
-			return false;
-		}
+        if(width <= lod_max_dim && height <= lod_max_dim) {
+            if(width > m_current_lod_max_dim) {
+                m_current_lod_max_dim = width;
+            }
+            if(height > m_current_lod_max_dim) {
+                m_current_lod_max_dim = height;
+            }
+            GLDEBUG(glCompressedTexImage2D(GL_TEXTURE_2D, i, m_internalFormat, width, height, 0, block.length, block.start));
+            
+            err = glGetError();
+            if (err != GL_NO_ERROR) {
+                GLDEBUG(glDeleteTextures(1, &m_iHandle));
+                m_textureMemUsed = 0;
+                m_iHandle = 0;
+                lod_max_dim = 0;
+                return false;
+            }
+            m_textureMemUsed += block.length;
+            i++;
+        }
 		
         width = width >> 1;
         if(width < 1) {
@@ -201,16 +219,22 @@ bool KRTexture::createGLTexture() {
         if(height < 1) {
             height = 1;
         }
-        
-        i++;
 	}
     
     return true;
 }
 
-GLuint KRTexture::getHandle(long &textureMemUsed) {
-    if(m_iName == 0) {
-        if(createGLTexture()) {
+GLuint KRTexture::getHandle(long &textureMemUsed, int max_dim, bool can_resize) {
+    // Constrain target LOD to be within mipmap levels of texture
+    int target_dim = max_dim;
+    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+    if(target_dim > m_max_lod_max_dim) target_dim = m_max_lod_max_dim;
+    
+    if(can_resize && m_current_lod_max_dim != target_dim) {
+        releaseHandle(textureMemUsed);
+    }
+    if(m_iHandle == 0) {
+        if(createGLTexture(target_dim)) {
             textureMemUsed += getMemSize();
         } else {
             assert(false);
@@ -218,17 +242,18 @@ GLuint KRTexture::getHandle(long &textureMemUsed) {
         
         //createGLTexture();
     }
-    return m_iName;
+    return m_iHandle;
 }
 
 void KRTexture::releaseHandle(long &textureMemUsed) {
-    if(m_iName != 0) {
+    if(m_iHandle != 0) {
         textureMemUsed -= getMemSize();
-        GLDEBUG(glDeleteTextures(1, &m_iName));
-        m_iName = 0;
+        GLDEBUG(glDeleteTextures(1, &m_iHandle));
+        m_iHandle = 0;
+        m_textureMemUsed = 0;
     }
 }
 
 long KRTexture::getMemSize() {
-    return m_pData->getSize(); // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
+    return m_textureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }

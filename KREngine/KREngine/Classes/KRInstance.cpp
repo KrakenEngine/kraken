@@ -99,7 +99,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
                 }
                 
                 if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
-                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap);
+                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 0);
                 }
                 
                 KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;

@@ -104,14 +104,14 @@ void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, 
             while(m_vbosPool.size() + m_vbosActive.size() >= KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed >= KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
                     fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
-                    m_pContext->rotateBuffers();
+                    m_pContext->rotateBuffers(false);
                 }
                 std::map<GLvoid *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
                 vbo_info_type firstVBO = first_itr->second;
                 GLDEBUG(glDeleteBuffers(1, &firstVBO.handle));
                 m_vboMemUsed -= firstVBO.size;
                 m_vbosPool.erase(first_itr);
-                //fprintf(stderr, "VBO Swapping...\n");
+                fprintf(stderr, "VBO Swapping...\n");
             }
             
             m_currentVBO.handle = -1;
@@ -231,7 +231,7 @@ long KRModelManager::getMemUsed()
     return m_vboMemUsed;
 }
 
-void KRModelManager::rotateBuffers()
+void KRModelManager::rotateBuffers(bool new_frame)
 {
     m_vbosPool.insert(m_vbosActive.begin(), m_vbosActive.end());
     m_vbosActive.clear();

@@ -112,10 +112,10 @@ void KRContext::loadResource(std::string path) {
     }
 }
 
-void KRContext::rotateBuffers() {
+void KRContext::rotateBuffers(bool new_frame) {
     //fprintf(stderr, "Rotating Buffers...\n");
     GLDEBUG(glFinish());
 
-    m_pModelManager->rotateBuffers();
-    m_pTextureManager->rotateBuffers();
+    m_pModelManager->rotateBuffers(new_frame);
+    m_pTextureManager->rotateBuffers(new_frame);
 }

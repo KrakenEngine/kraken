@@ -63,7 +63,7 @@ void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visi
     if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
     
         if(cShadowBuffers > 0) {
-            m_pContext->getTextureManager()->selectTexture(3, NULL);
+            m_pContext->getTextureManager()->selectTexture(3, NULL, 0);
             GLDEBUG(glActiveTexture(GL_TEXTURE3));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]));
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -73,7 +73,7 @@ void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visi
         }
         
         if(cShadowBuffers > 1) {
-            m_pContext->getTextureManager()->selectTexture(4, NULL);
+            m_pContext->getTextureManager()->selectTexture(4, NULL, 0);
             GLDEBUG(glActiveTexture(GL_TEXTURE4));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]));
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -83,7 +83,7 @@ void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visi
         }
         
         if(cShadowBuffers > 2) {
-            m_pContext->getTextureManager()->selectTexture(5, NULL);
+            m_pContext->getTextureManager()->selectTexture(5, NULL, 0);
             GLDEBUG(glActiveTexture(GL_TEXTURE5));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]));
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

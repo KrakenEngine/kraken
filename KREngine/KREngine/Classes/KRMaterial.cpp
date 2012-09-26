@@ -397,20 +397,20 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY], m_reflectionFactor));
         
         if(bDiffuseMap) {
-            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
+            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap, 2048);
         }
         
         if(bSpecMap) {
-            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
+            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap, 2048);
         }
 
         if(bNormalMap) {
-            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
+            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, 2048);
         }
         
         if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
             // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
+            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, 2048);
         }
         
         *prevBoundMaterial = this;
