@@ -71,12 +71,6 @@ double const PI = 3.141592653589793f;
             @"ambient_intensity" : @9,
             @"sun_temp": @10,
             @"sun_intensity": @11,
-//            @"ambient_r" : @8,
-//            @"ambient_g" : @9,
-//            @"ambient_b" : @10,
-//            @"sun_r" : @11,
-//            @"sun_g" : @12,
-//            @"sun_b" : @13,
             @"dof_quality" : @12,
             @"dof_depth" : @13,
             @"dof_falloff" : @14,
@@ -180,12 +174,6 @@ double const PI = 3.141592653589793f;
         @"Ambient Intensity",
         @"Sun Color Temp",
         @"Sun Intensity",
-//        @"Ambient light red intensity",
-//        @"Ambient light green intensity",
-//        @"Ambient light blue intensity",
-//        @"Sun red intensity",
-//        @"Sun green intensity",
-//        @"Sun blue intensity",
         @"DOF Quality",
         @"DOF Depth",
         @"DOF Falloff",
@@ -224,8 +212,6 @@ double const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
-//        KRENGINE_PARAMETER_FLOAT,
-//        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
@@ -263,12 +249,6 @@ double const PI = 3.141592653589793f;
         [self getAmbientIntensity],
         [self getSunTemperature],
         [self getSunIntensity],
-//        _camera->dAmbientR,
-//        _camera->dAmbientG,
-//        _camera->dAmbientB,
-//        _camera->dSunR,
-//        _camera->dSunG,
-//        _camera->dSunB,
         _camera->dof_quality,
         _camera->dof_depth,
         _camera->dof_falloff,
@@ -332,24 +312,6 @@ double const PI = 3.141592653589793f;
         case 11:
             [self setSunIntensity:v];
             break;
-//        case 8:
-//            _camera->dAmbientR = v;
-//            break;
-//        case 9:
-//            _camera->dAmbientG = v;
-//            break;
-//        case 10:
-//            _camera->dAmbientB = v;
-//            break;
-//        case 11:
-//            _camera->dSunR = v;
-//            break;
-//        case 12:
-//            _camera->dSunG = v;
-//            break;
-//        case 13:
-//            _camera->dSunB = v;
-//            break;
         case 12:
             if(_camera->dof_quality != (int)v) {
                 _camera->dof_quality = (int)v;
@@ -450,12 +412,6 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMinWithIndex: (int)i
 {
-//    double minValues[33] = {
-//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-//        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-//        0.0f, 0.0f, 0.0f
-//    };
     double minValues[31] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -469,7 +425,7 @@ double const PI = 3.141592653589793f;
 -(double)getParameterMaxWithIndex: (int)i
 {
     double maxValues[31] = {
-        PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f
