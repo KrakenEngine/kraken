@@ -22,7 +22,7 @@
 
 
 #include "KRResource.h"
-#include "KRMesh.h"
+#include "KRModel.h"
 #include "KRMaterial.h"
 #include "KRLight.h"
 #include "KRPointLight.h"
@@ -576,7 +576,7 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
     
     // ----====---- Generate Output Mesh Object ----====----
 
-    KRMesh *new_mesh = new KRMesh(parent_node->getContext(), pNode->GetName());
+    KRModel *new_mesh = new KRModel(parent_node->getContext(), pNode->GetName());
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
 

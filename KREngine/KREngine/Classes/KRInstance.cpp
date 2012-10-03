@@ -32,7 +32,7 @@
 #include <iostream>
 #import "KRInstance.h"
 #import "KRContext.h"
-#import "KRMesh.h"
+#import "KRModel.h"
 #include <assert.h>
 
 KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map) : KRNode(scene, instance_name) {
@@ -131,8 +131,7 @@ void KRInstance::calcExtents(KRContext *pContext)
     KRNode::calcExtents(pContext);
     loadModel();
     if(m_pModel != NULL) {
-        KRMesh *pMesh = m_pModel->getMesh();
-        KRBoundingVolume mesh_bounds = KRBoundingVolume(pMesh->getMinPoint(), pMesh->getMaxPoint(), m_modelMatrix);
+        KRBoundingVolume mesh_bounds = KRBoundingVolume(m_pModel->getMinPoint(), m_pModel->getMaxPoint(), m_modelMatrix);
         if(m_pExtents) {
             *m_pExtents = m_pExtents->get_union(mesh_bounds);
         } else {
@@ -154,9 +153,8 @@ KRAABB KRInstance::getBounds() {
     loadModel();
     assert(m_pModel != NULL);
     
-    KRMesh *pMesh = m_pModel->getMesh();
-    KRVector3 meshMin = pMesh->getMinPoint();
-    KRVector3 meshMax = pMesh->getMaxPoint();
+    KRVector3 meshMin = m_pModel->getMinPoint();
+    KRVector3 meshMax = m_pModel->getMaxPoint();
     
     KRVector3 min, max;
     for(int iCorner=0; iCorner < 8; iCorner++) {

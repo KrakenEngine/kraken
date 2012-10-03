@@ -32,7 +32,6 @@
 #import <vector>
 #import <set>
 #import <string>
-#import "KRMesh.h"
 #import "KRVector2.h"
 #import "KRContext.h"
 
@@ -40,6 +39,13 @@
 
 using std::vector;
 using std::set;
+using std::list;
+
+
+#define MAX_VBO_SIZE 65535
+// MAX_VBO_SIZE must be divisible by 3 so triangles aren't split across VBO objects...
+
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 #ifndef KRMODEL_I
 #define KRMODEL_I
@@ -49,10 +55,11 @@ using std::set;
 
 class KRMaterial;
 
-class KRModel : public KRContextObject {
+class KRModel : public KRResource {
     
 public:
     KRModel(KRContext &context, std::string name, KRDataBlock *data);
+    KRModel(KRContext &context, std::string name);
     virtual ~KRModel();
     
     bool hasTransparency();
@@ -63,16 +70,78 @@ public:
     
 #endif
     
-    KRMesh *getMesh();
-    std::string getName();
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    
+    void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names);
+    void loadPack(KRDataBlock *data);
+    
+    
+    void renderSubmesh(int iSubmesh);
+    
+    GLfloat getMaxDimension();
+    
+    KRVector3 getMinPoint() const;
+    KRVector3 getMaxPoint() const;
+    
+    typedef struct {
+        GLint start_vertex;
+        GLsizei vertex_count;
+        char szMaterialName[256];
+    } Submesh;
+    
+    typedef struct {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+    } KRVector3D;
+    
+    typedef struct {
+        GLfloat u;
+        GLfloat v;
+    } TexCoord;
+    
+    typedef struct {
+        KRVector3D vertex;
+        KRVector3D normal;
+        KRVector3D tangent;
+        TexCoord uva;
+        TexCoord uvb;
+    } VertexData;
+    
+    VertexData *getVertexData();
+    
+    vector<Submesh *> getSubmeshes();
+    
+    typedef struct {
+        int32_t start_vertex;
+        int32_t vertex_count;
+        char szName[256];
+    } pack_material;
+
 
 private:    
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
-    KRMesh *m_pMesh;
-    std::string m_name;
     
     bool m_hasTransparency;
+    
+    
+    KRVector3 m_minPoint, m_maxPoint;
+    
+    KRDataBlock *m_pData;
+    
+    typedef struct {
+        char szTag[16];
+        float minx, miny, minz, maxx, maxy, maxz;
+        int32_t vertex_count;
+        int32_t submesh_count;
+    } pack_header;
+    
+    vector<Submesh *> m_submeshes;
+    
+    void clearData();
+    void clearBuffers();
 
 };
 

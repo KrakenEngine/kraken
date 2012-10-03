@@ -187,41 +187,41 @@ void KRModelManager::configureAttribs(bool enable_vertex, bool enable_normal, bo
     if(reconfigured || true) {
         int data_size = 0;
         if(enable_vertex) {
-            data_size += sizeof(KRMesh::KRVector3D);
+            data_size += sizeof(KRModel::KRVector3D);
         }
         if(enable_normal) {
-            data_size += sizeof(KRMesh::KRVector3D);
+            data_size += sizeof(KRModel::KRVector3D);
         }
         if(enable_tangent) {
-            data_size += sizeof(KRMesh::KRVector3D);
+            data_size += sizeof(KRModel::KRVector3D);
         }
         if(enable_uva) {
-            data_size += sizeof(KRMesh::TexCoord);
+            data_size += sizeof(KRModel::TexCoord);
         }
         if(enable_uvb) {
-            data_size += sizeof(KRMesh::TexCoord);
+            data_size += sizeof(KRModel::TexCoord);
         }
         
         int offset = 0;
         if(enable_vertex) {
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-            offset += sizeof(KRMesh::KRVector3D);
+            offset += sizeof(KRModel::KRVector3D);
         }
         if(enable_normal) {
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-            offset += sizeof(KRMesh::KRVector3D);
+            offset += sizeof(KRModel::KRVector3D);
         }
         if(enable_tangent) {
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-            offset += sizeof(KRMesh::KRVector3D);
+            offset += sizeof(KRModel::KRVector3D);
         }
         if(enable_uva) {
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-            offset += sizeof(KRMesh::TexCoord);
+            offset += sizeof(KRModel::TexCoord);
         }
         if(enable_uvb) {
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-            offset += sizeof(KRMesh::TexCoord);
+            offset += sizeof(KRModel::TexCoord);
         }
     }
 }
