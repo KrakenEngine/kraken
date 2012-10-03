@@ -111,9 +111,7 @@ double const PI = 3.141592653589793f;
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix
 {
-    viewMatrix.rotate(-90 * 0.0174532925199, Z_AXIS);
     _camera->renderFrame(*pScene, viewMatrix);
-
 }
 
 - (BOOL)loadShaders
