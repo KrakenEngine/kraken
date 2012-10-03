@@ -34,6 +34,7 @@
 #include <math.h>
 
 #import "KREngine-common.h"
+#import "KRMat4.h"
 
 class KRVector3;
 
@@ -69,6 +70,7 @@ public:
     
     void setEuler(const KRVector3 &euler);
     KRVector3 euler() const;
+    KRMat4 rotationMatrix() const;
     
     void normalize();
     static KRQuaternion Normalize(const KRQuaternion &v1);

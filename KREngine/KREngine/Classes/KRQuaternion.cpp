@@ -233,3 +233,21 @@ void KRQuaternion::conjugate() {
     m_val[3] = -m_val[3];
 }
 
+KRMat4 KRQuaternion::rotationMatrix() const {
+    KRMat4 matRotate;
+    
+    matRotate.getPointer()[0] = 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]);
+    matRotate.getPointer()[1] = 2.0 * (m_val[1] * m_val[2] - m_val[0] * m_val[3]);
+    matRotate.getPointer()[2] = 2.0 * (m_val[0] * m_val[2] + m_val[1] * m_val[3]);
+    
+    matRotate.getPointer()[4] = 2.0 * (m_val[1] * m_val[2] + m_val[0] * m_val[3]);
+    matRotate.getPointer()[5] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[3] * m_val[3]);
+    matRotate.getPointer()[6] = 2.0 * (m_val[2] * m_val[3] - m_val[0] * m_val[1]);
+    
+    matRotate.getPointer()[8] = 2.0 * (m_val[1] * m_val[3] - m_val[0] * m_val[2]);
+    matRotate.getPointer()[9] = 2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]);
+    matRotate.getPointer()[10] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]);
+    
+    return matRotate;
+}
+
