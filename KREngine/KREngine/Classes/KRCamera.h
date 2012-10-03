@@ -129,7 +129,7 @@ private:
     KRMat4 shadowmvpmatrix[KRENGINE_MAX_SHADOW_BUFFERS]; /* MVP Matrix for view from light source */
     
     void renderPost();
-    
+        
     void destroyBuffers();
     
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);

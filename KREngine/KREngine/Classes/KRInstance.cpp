@@ -69,6 +69,9 @@ KRMat4 &KRInstance::getModelMatrix() {
 void KRInstance::loadModel() {
     if(m_pModel == NULL) {
         m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
+        if(m_pModel == NULL) {
+            fprintf(stderr, "KREngine - Model not found: %s\n", m_model_name.c_str());
+        }
     }
 }
 

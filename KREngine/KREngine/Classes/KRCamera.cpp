@@ -132,6 +132,9 @@ void KRCamera::setPosition(const KRVector3 &position) {
 
 void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 {
+    GLint defaultFBO;
+    GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
+    
     m_pContext->rotateBuffers(true);
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
@@ -185,6 +188,8 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
     }
     
     renderFrame(scene, viewMatrix, lightDirection, cameraPosition);
+    
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
     
     m_iFrame++;
@@ -341,8 +346,9 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         // Disable alpha blending
         GLDEBUG(glDisable(GL_BLEND));
         
-        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        
         
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
@@ -633,9 +639,6 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
 
 void KRCamera::renderPost()
 {
-    
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, 1)); // renderFramebuffer
-    
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
     
