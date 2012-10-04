@@ -478,99 +478,86 @@ double const PI = 3.141592653589793f;
     _camera->m_debug_text = value.UTF8String;
 }
 
-// MIKE: adding getters and setters for sun_temperature, sun_intensity, ambient temperature, ambient intensity
-
--(double) getSunTemperature
-{
-    if ( (_camera->dSunR == 0.0f ) ||  (_camera->dSunB == 0.0f)) {
-        return 0.5f;
-    }
-    
-    if  (_camera->dSunR > _camera->dSunB) {
-        return ((1.0f - (_camera->dSunB/_camera->dSunR))/2.0f + 0.5f);
-    }
-    
-    if (_camera->dSunB > _camera->dSunR) {
-        return ((_camera->dSunR/_camera->dSunB) * 0.5f);
-    }
-    
-    return 0.5f;
-}
+// ---===--- Sun Temperature and intensity ---===--- 
 
 -(void) setSunTemperature:(double)t
 {
-    _camera->dSunR = ((t < 0.5f) ? (t*2.0f) : 1.0f);
-    _camera->dSunB = ((t < 0.5f) ? (t*2.0f) : (1.0f - ((t*2.0f) - 1.0f)));
-//    _camera->dSunG = ((t < 0.5f) ? 1.0f : ((t*2.0f) - 1.0f));
-    _camera->dSunG = 1.0f;
-
-}
-
--(double) getSunIntensity
-{
-    if (_camera->dSunR > _camera->dSunB) {
-        return _camera->dSunB;
-    }
+    double i = [self getSunIntensity];
     
-    if (_camera->dSunB > _camera->dSunR) {
-        return _camera->dSunR;
-    }
-    
-    return 1.0f;
+    _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
+    _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
+    _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
 -(void) setSunIntensity:(double)i
 {
-    _camera->dSunR *= i;
-    _camera->dSunB *= i;
-    _camera->dSunG *= i;
+    double t = [self getSunTemperature];
+    
+    _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
+    _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
+    _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
--(double) getAmbientTemperature
+-(double) getSunIntensity
 {
-    if ( (_camera->dAmbientR == 0.0f ) ||  (_camera->dAmbientB == 0.0f)) {
-        return 0.5f;
-    }
-    
-    if  (_camera->dAmbientR > _camera->dAmbientB) {
-        return ((1.0f - (_camera->dAmbientB/_camera->dAmbientR))/2.0f + 0.5f);
-    }
-    
-    if (_camera->dAmbientB > _camera->dAmbientR) {
-        return ((_camera->dAmbientR/_camera->dAmbientB) * 0.5f);
-    }
-    
-    return 0.5f;
+    double i = _camera->dSunR;
+    if(_camera->dSunG > i) i = _camera->dSunG;
+    if(_camera->dSunB > i) i = _camera->dSunB;
+    return i;
 }
+
+-(double) getSunTemperature
+{
+    double i = [self getSunIntensity];
+    if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
+    if(_camera->dSunB == i) {
+        // Cold side, t < 0.5
+        return _camera->dSunR / i * 0.5f;
+    } else {
+        // Warm side, t > 0.5
+        return 1.0f - (_camera->dSunB / i) * 0.5f;
+    }
+}
+
+// ---===--- Ambient Temperature and intensity ---===--- 
 
 -(void) setAmbientTemperature:(double)t
 {
-    _camera->dAmbientR = ((t < 0.5f) ? (t*2.0f) : 1.0f);
-    _camera->dAmbientB = ((t < 0.5f) ? (t*2.0f) : (1.0f - ((t*2.0f) - 1.0f)));
-//    _camera->dAmbientG = ((t < 0.5f) ? 1.0f : ((t*2.0f) - 1.0f));
-    _camera->dAmbientG = 1.0f;
-
-}
-
--(double) getAmbientIntensity
-{
-    if (_camera->dAmbientR > _camera->dAmbientB) {
-        return _camera->dAmbientB;
-    }
+    double i = [self getAmbientIntensity];
     
-    if (_camera->dAmbientB > _camera->dAmbientR) {
-        return _camera->dAmbientR;
-    }
-    
-    return 1.0f;
+    _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
+    _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
+    _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
 -(void) setAmbientIntensity:(double)i
 {
-    _camera->dAmbientR *= i;
-    _camera->dAmbientB *= i;
-    _camera->dAmbientG *= i;
+    double t = [self getAmbientTemperature];
     
+    _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
+    _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
+    _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
+}
+
+-(double) getAmbientIntensity
+{
+    double i = _camera->dAmbientR;
+    if(_camera->dAmbientG > i) i = _camera->dAmbientG;
+    if(_camera->dAmbientB > i) i = _camera->dAmbientB;
+    return i;
+}
+
+-(double) getAmbientTemperature
+{
+    double i = [self getAmbientIntensity];
+    if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
+    if(_camera->dAmbientB == i) {
+        // Cold side, t < 0.5
+        return _camera->dAmbientR / i * 0.5f;
+    } else {
+        // Warm side, t > 0.5
+        return 1.0f - (_camera->dAmbientB / i) * 0.5f;
+    }
 }
 
 

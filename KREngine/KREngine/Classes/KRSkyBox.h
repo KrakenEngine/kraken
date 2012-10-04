@@ -26,7 +26,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRNode::RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRNode::RenderPass renderPass);
 #endif
     
 private:

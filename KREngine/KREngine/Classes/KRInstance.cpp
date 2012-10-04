@@ -64,24 +64,25 @@ KRMat4 &KRInstance::getModelMatrix() {
     return m_modelMatrix;
 }
 
-
-
 void KRInstance::loadModel() {
     if(m_pModel == NULL) {
         m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
-        if(m_pModel == NULL) {
-            fprintf(stderr, "KREngine - Model not found: %s\n", m_model_name.c_str());
+        if(m_pModel != NULL) {
+            getScene().notify_sceneGraphModify(this);
         }
+//        if(m_pModel == NULL) {
+//            fprintf(stderr, "KREngine - Model not found: %s\n", m_model_name.c_str());
+//        }
     }
 }
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
     calcModelMatrix();
     
-    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_FLARES) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
@@ -94,7 +95,6 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
         }
         
         if(m_pModel != NULL) {
-            //if(getExtents(pContext).test_intersect(frustrumVolume) || renderPass == RENDER_PASS_SHADOWMAP) {
             if(getBounds().visible(viewMatrix * projectionMatrix)) {
 
                 if(m_pLightMap == NULL && m_lightMap.size()) {
@@ -110,35 +110,24 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume
                 matModelToView.transpose();
                 matModelToView.invert();
                 
+                
+                KRMat4 inverseViewMatrix = viewMatrix;
+                inverseViewMatrix.invert();
+                KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
+                
                 // Transform location of camera to object space for calculation of specular halfVec
                 KRMat4 inverseModelMatrix = m_modelMatrix;
                 inverseModelMatrix.invert();
                 KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
                 KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
                 
-                m_pModel->render(pCamera, pContext, matModelToView, mvpmatrix, cameraPosObject, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                m_pModel->render(pCamera, pContext, viewMatrix, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }
     }
 }
 
 #endif
-
-void KRInstance::calcExtents(KRContext *pContext)
-{
-    calcModelMatrix();
-    
-    KRNode::calcExtents(pContext);
-    loadModel();
-    if(m_pModel != NULL) {
-        KRBoundingVolume mesh_bounds = KRBoundingVolume(m_pModel->getMinPoint(), m_pModel->getMaxPoint(), m_modelMatrix);
-        if(m_pExtents) {
-            *m_pExtents = m_pExtents->get_union(mesh_bounds);
-        } else {
-            m_pExtents = new KRBoundingVolume(mesh_bounds);
-        }
-    }
-}
 
 bool KRInstance::hasTransparency() {
     if(m_pModel) {
@@ -151,10 +140,15 @@ bool KRInstance::hasTransparency() {
 KRAABB KRInstance::getBounds() {
     calcModelMatrix();
     loadModel();
-    assert(m_pModel != NULL);
     
-    KRVector3 meshMin = m_pModel->getMinPoint();
-    KRVector3 meshMax = m_pModel->getMaxPoint();
+    KRVector3 meshMin, meshMax;
+    if(m_pModel) {
+        meshMin = m_pModel->getMinPoint();
+        meshMax = m_pModel->getMaxPoint();
+    } else {
+        meshMin = -KRVector3::Max();
+        meshMax = KRVector3::Max();
+    }
     
     KRVector3 min, max;
     for(int iCorner=0; iCorner < 8; iCorner++) {

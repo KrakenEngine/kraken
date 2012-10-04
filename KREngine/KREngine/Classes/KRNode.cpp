@@ -21,13 +21,13 @@
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
 {
-    m_pExtents = NULL;
     m_name = name;
     m_localScale = KRVector3::One();
     m_localRotation = KRVector3::Zero();
     m_localTranslation = KRVector3::Zero();
     m_parentNode = NULL;
     m_pScene = &scene;
+    getScene().notify_sceneGraphCreate(this);
 }
 
 KRNode::~KRNode() {
@@ -36,15 +36,12 @@ KRNode::~KRNode() {
         delete *itr;
     }
     m_childNodes.clear();
-    clearExtents();
 }
 
 void KRNode::addChild(KRNode *child) {
     assert(child->m_parentNode == NULL);
     child->m_parentNode = this;
     m_childNodes.push_back(child);
-    clearExtents();
-    getScene().notify_sceneGraphCreate(child);
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
@@ -92,20 +89,16 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
             addChild(child_node);
         }
     }
-    clearExtents();
 }
 
 void KRNode::setLocalTranslation(const KRVector3 &v) {
     m_localTranslation = v;
-    clearExtents();
 }
 void KRNode::setLocalScale(const KRVector3 &v) {
     m_localScale = v;
-    clearExtents();
 }
 void KRNode::setLocalRotation(const KRVector3 &v) {
     m_localRotation = v;
-    clearExtents();
 }
 
 const KRVector3 &KRNode::getLocalTranslation() {
@@ -159,41 +152,10 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
 
 #if TARGET_OS_IPHONE
 
-void KRNode::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRNode::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 }
 
 #endif
-
-void KRNode::clearExtents() {
-    if(m_pExtents) {
-        delete m_pExtents;
-        m_pExtents = NULL;
-    }
-    if(m_parentNode) {
-        m_parentNode->clearExtents();
-    }
-}
-
-KRBoundingVolume KRNode::getExtents(KRContext *pContext) {
-    if(!m_pExtents) {
-        calcExtents(pContext);
-    }
-    return *m_pExtents;
-}
-
-void KRNode::calcExtents(KRContext *pContext) {
-    clearExtents();
-    /*
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
-        KRNode *child = (*itr);
-        if(m_pExtents) {
-            *m_pExtents = m_pExtents->get_union(child->getExtents(pContext));
-        } else {
-            m_pExtents = new KRBoundingVolume(child->getExtents(pContext));
-        }
-    }
-     */
-}
 
 const std::vector<KRNode *> &KRNode::getChildren() {
     return m_childNodes;

@@ -99,9 +99,9 @@ void KRSkyBox::loadXML(tinyxml2::XMLElement *e) {
 
 #if TARGET_OS_IPHONE
 
-void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRNode::RenderPass renderPass) {
+void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRNode::RenderPass renderPass) {
     
-//    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, cameraPosition, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+//    KRNode::render(pCamera, pContext, frustrumVolume, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
 
     if(renderPass == KRNode::RENDER_PASS_SKYBOX) {
         // Skybox is rendered on the final pass of the deferred renderer
@@ -138,7 +138,7 @@ void KRSkyBox::render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &
         matModelToView.invert();
                 
 //        KRShader *pShader = pContext->getShaderManager()->getShader("sky_box", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, renderPass);
-//        pShader->bind(pCamera, matModelToView, mvpmatrix, cameraPosition, NULL, NULL, NULL, 0, renderPass);
+//        pShader->bind(pCamera, matModelToView, mvpmatrix, NULL, NULL, NULL, 0, renderPass);
         
         m_pContext->getTextureManager()->selectTexture(0, m_pFrontTexture, 2048);
         m_pContext->getTextureManager()->selectTexture(1, m_pBackTexture, 2048);

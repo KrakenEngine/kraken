@@ -36,14 +36,12 @@
 
 #import <vector>
 #import "KRInstance.h"
-#import "KRBoundingVolume.h"
 #import "KRMat4.h"
 #import "KRModel.h"
 #import "KRCamera.h"
 #import "KRModelManager.h"
 #import "KRNode.h"
 #import "KROctree.h"
-class KRBoundingVolume;
 class KRInstance;
 class KRDirectionalLight;
 
@@ -64,17 +62,14 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visibleBounds, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
+    void render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visibleBounds, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
     
-    void render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+    void render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
 #endif
     
-    KRBoundingVolume getExtents(KRContext *pContext);
     double sun_pitch, sun_yaw;
     
-    void registerNotified(KRNotified *pNotified);
-    void unregisterNotified(KRNotified *pNotified);
     
     void notify_sceneGraphCreate(KRNode *pNode);
     void notify_sceneGraphDelete(KRNode *pNode);
@@ -85,11 +80,8 @@ private:
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
     
     KRNode *m_pRootNode;
-    KRBoundingVolume *m_pExtents;
     KRDirectionalLight *m_pFirstDirectionalLight;
     
-    std::set<KRNotified *> m_notifiedObjects;
-    std::set<KRNode *> m_allNodes;
     std::set<KRNode *> m_newNodes;
     std::set<KRNode *> m_modifiedNodes;
     

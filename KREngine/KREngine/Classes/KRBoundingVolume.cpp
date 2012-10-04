@@ -231,7 +231,7 @@ bool KRBoundingVolume::test_intersect(const KRAABB &p) const {
 
 
 KRMat4 KRBoundingVolume::calcShadowProj(KRScene *pScene, KRContext *pContext, GLfloat sun_yaw, GLfloat sun_pitch) const {
-    KRBoundingVolume sceneVolume = pScene->getExtents(pContext);
+    KRBoundingVolume sceneVolume = KRBoundingVolume(-KRVector3::One(), KRVector3::One(), KRMat4()); // HACK - Temporary workaround to compile until this logic is updated to use information from the Octree
    
     KRMat4 shadowvp;
     shadowvp.rotate(sun_pitch, X_AXIS);

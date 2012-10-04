@@ -15,8 +15,6 @@
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
 #import "KRModelManager.h"
-#import "KRNotified.h"
-
 class KRContext {
 public:
     KRContext();

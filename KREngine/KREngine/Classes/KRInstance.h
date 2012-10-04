@@ -39,7 +39,6 @@
 #import "KRModel.h"
 #import "KRMat4.h"
 #import "KRVector3.h"
-#import "KRBoundingVolume.h"
 #import "KRInstance.h"
 #import "KRCamera.h"
 #import "KRModelManager.h"
@@ -47,8 +46,6 @@
 #import "KRContext.h"
 #import "KRModel.h"
 #import "KRTexture.h"
-
-class KRBoundingVolume;
 
 class KRInstance : public KRNode {
     
@@ -61,10 +58,8 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, KRBoundingVolume &frustrumVolume, KRMat4 &viewMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 #endif
-    
-    virtual void calcExtents(KRContext *pContext);
     
     KRMat4 &getModelMatrix();
     

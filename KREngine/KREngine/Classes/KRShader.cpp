@@ -195,10 +195,14 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &cameraPosition, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     if(m_iProgram == 0) {
         return false;
     }
+    
+    KRMat4 inverseViewMatrix = matModelToView;
+    inverseViewMatrix.invert();
+    KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
     
     
     GLDEBUG(glUseProgram(m_iProgram));
