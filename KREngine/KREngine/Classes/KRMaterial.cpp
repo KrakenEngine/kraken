@@ -50,7 +50,7 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_diffuseColor = KRVector3::One();
     m_specularColor = KRVector3::One();
     m_reflectionColor = KRVector3::One();
-    m_tr = (GLfloat)0.0f;
+    m_tr = (GLfloat)1.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";
     m_diffuseMap = "";
@@ -179,7 +179,7 @@ void KRMaterial::setReflection(const KRVector3 &c) {
 }
 
 void KRMaterial::setTransparency(GLfloat a) {
-    if(a != 0.0f && m_alpha_mode == KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE) {
+    if(a < 1.0f && m_alpha_mode == KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE) {
         setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
     }
     m_tr = a;
@@ -194,7 +194,7 @@ void KRMaterial::setReflectionFactor(GLfloat r) {
 }
 
 bool KRMaterial::isTransparent() {
-    return m_tr != 0.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
+    return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
 #if TARGET_OS_IPHONE
@@ -393,7 +393,7 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             ));
         }
         
-        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], 1.0f - m_tr));
+        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY], m_reflectionFactor));
         
         if(bDiffuseMap) {
