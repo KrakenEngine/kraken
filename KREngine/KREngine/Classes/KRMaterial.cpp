@@ -179,7 +179,7 @@ void KRMaterial::setReflection(const KRVector3 &c) {
 }
 
 void KRMaterial::setTransparency(GLfloat a) {
-    if(a != 1.0f && m_alpha_mode == KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE) {
+    if(a != 0.0f && m_alpha_mode == KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE) {
         setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
     }
     m_tr = a;
