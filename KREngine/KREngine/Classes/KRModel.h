@@ -70,6 +70,8 @@ public:
     
 #endif
     
+    std::string m_lodBaseName;
+    
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
     
@@ -119,8 +121,14 @@ public:
         char szName[256];
     } pack_material;
 
+    int getLODCoverage() const;
+    std::string getLODBaseName() const;
+    
+    
+    static bool lod_sort_predicate(const KRModel *m1, const KRModel *m2);
 
-private:    
+private:
+    int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
     

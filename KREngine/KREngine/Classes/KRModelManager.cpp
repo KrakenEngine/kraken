@@ -46,26 +46,45 @@ KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
 }
 
 KRModelManager::~KRModelManager() {
-    for(map<std::string, KRModel *>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr){
+    for(std::multimap<std::string, KRModel *>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr){
         delete (*itr).second;
     }
     m_models.empty();
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
-    KRModel *pModel = new KRModel(*m_pContext, szName, pData);
-    m_models[szName] = pModel;
+    
+    std::string lowerName = szName;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    
+    KRModel *pModel = new KRModel(*m_pContext, lowerName, pData);
+    m_models.insert(std::pair<std::string, KRModel *>(pModel->getName(), pModel));
+
     return pModel;
 }
 
-KRModel *KRModelManager::getModel(const char *szName) {
-    std::map<std::string, KRModel *>::iterator itr_match = m_models.find(szName);
-    if(itr_match == m_models.end()) {
-        fprintf(stderr, "ERROR: Model not found: %s\n", szName);
-        return NULL;
-    } else {
-        return itr_match->second;
+std::vector<KRModel *> KRModelManager::getModel(const char *szName) {
+    std::string lowerName = szName;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    
+    std::vector<KRModel *> matching_models;
+    
+    std::pair<std::multimap<std::string, KRModel *>::iterator, std::multimap<std::string, KRModel *>::iterator> range = m_models.equal_range(lowerName);
+    for(std::multimap<std::string, KRModel *>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
+        matching_models.push_back(itr_match->second);
     }
+    
+    std::sort(matching_models.begin(), matching_models.end(), KRModel::lod_sort_predicate);
+    
+    if(matching_models.size() == 0) {
+        fprintf(stderr, "ERROR: Model not found: %s\n", lowerName.c_str());
+    }
+    
+    return matching_models;
 }
 
 KRModel *KRModelManager::getFirstModel() {
@@ -73,7 +92,7 @@ KRModel *KRModelManager::getFirstModel() {
     return (*model_itr).second;
 }
 
-std::map<std::string, KRModel *> KRModelManager::getModels() {
+std::multimap<std::string, KRModel *> KRModelManager::getModels() {
     return m_models;
 }
 

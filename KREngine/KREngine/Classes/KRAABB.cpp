@@ -8,6 +8,7 @@
 
 #include "KRAABB.h"
 #include "KRMat4.h"
+#include "KRVector2.h"
 #include "assert.h"
 
 KRAABB::KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint)
@@ -181,4 +182,32 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
     }
     //is_visible = true;
     return is_visible;
+}
+
+
+float KRAABB::coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const
+{
+    if(!visible(matMVP)) {
+        return 0.0f; // Culled out by view frustrum
+    } else {
+        KRVector2 screen_min;
+        KRVector2 screen_max;
+        // Loop through all corners and transform them to screen space
+        for(int i=0; i<8; i++) {
+            KRVector3 screen_pos = KRMat4::Dot(matMVP, KRVector3(i & 1 ? min.x : max.x, i & 2 ? min.y : max.y, i & 4 ? min.z :max.z));
+            if(i==0) {
+                screen_min.x = screen_pos.x;
+                screen_min.y = screen_pos.y;
+                screen_max.x = screen_pos.x;
+                screen_max.y = screen_pos.y;
+            } else {
+                if(screen_pos.x < screen_min.x) screen_min.x = screen_pos.x;
+                if(screen_pos.y < screen_min.y) screen_min.y = screen_pos.y;
+                if(screen_pos.x > screen_max.x) screen_max.x = screen_pos.x;
+                if(screen_pos.y > screen_max.y) screen_max.y = screen_pos.y;
+            }
+        }
+        
+        return (screen_max.x - screen_min.x) / viewportSize.x * (screen_max.y - screen_min.y) / viewportSize.y;
+    }
 }

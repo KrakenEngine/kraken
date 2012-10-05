@@ -14,6 +14,7 @@
 #include "KRVector3.h"
 
 class KRMat4;
+class KRVector2;
 
 class KRAABB {
 public:
@@ -39,6 +40,7 @@ public:
     KRVector3 max;
     
     static KRAABB Infinite();
+    float coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const;
 };
 
 

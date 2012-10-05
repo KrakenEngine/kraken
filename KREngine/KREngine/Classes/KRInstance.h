@@ -50,7 +50,7 @@
 class KRInstance : public KRNode {
     
 public:
-    KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map);
+    KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage);
     virtual ~KRInstance();
     
     virtual std::string getElementName();
@@ -70,12 +70,14 @@ public:
     void calcModelMatrix();
     
 private:
-    KRModel *m_pModel;
+    std::vector<KRModel *> m_models;
     KRMat4 m_modelMatrix;
     KRTexture *m_pLightMap;
     std::string m_lightMap;
     std::string m_model_name;
     
+    
+    float m_min_lod_coverage;
     void loadModel();
 };
 

@@ -35,15 +35,15 @@
 #import "KRModel.h"
 #include <assert.h>
 
-KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map) : KRNode(scene, instance_name) {
+KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
-    m_pModel = NULL;
     m_model_name = model_name;
+    m_min_lod_coverage = lod_min_coverage;
 }
 
 KRInstance::~KRInstance() {
-    
+
 }
 
 std::string KRInstance::getElementName() {
@@ -55,6 +55,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
     e->SetAttribute("mesh_name", m_model_name.c_str());
     e->SetAttribute("light_map", m_lightMap.c_str());
+    e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     return e;
 }
 
@@ -65,9 +66,9 @@ KRMat4 &KRInstance::getModelMatrix() {
 }
 
 void KRInstance::loadModel() {
-    if(m_pModel == NULL) {
-        m_pModel = m_pContext->getModelManager()->getModel(m_model_name.c_str());
-        if(m_pModel != NULL) {
+    if(m_models.size() == 0) {
+        m_models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
+        if(m_models.size() > 0) {
             getScene().notify_sceneGraphModify(this);
         }
 //        if(m_pModel == NULL) {
@@ -89,14 +90,28 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
     
         loadModel();
         
-        KRMat4 projectionMatrix;
-        if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
-            projectionMatrix = pCamera->getProjectionMatrix();
-        }
-        
-        if(m_pModel != NULL) {
-            if(getBounds().visible(viewMatrix * projectionMatrix)) {
-
+        if(m_models.size() > 0) {
+            KRMat4 projectionMatrix;
+            if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
+                projectionMatrix = pCamera->getProjectionMatrix();
+            }
+            KRMat4 matVP = viewMatrix * projectionMatrix;
+            float lod_coverage = getBounds().coverage(matVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
+            if(lod_coverage > m_min_lod_coverage) {
+                
+                // ---===--- Select the best LOD model based on screen coverage ---===---
+                std::vector<KRModel *>::iterator itr=m_models.begin();
+                KRModel *pModel = *itr++;
+                
+                while(itr != m_models.end()) {
+                    KRModel *pLODModel = *itr++;
+                    if((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage) {
+                        pModel = pLODModel;
+                    } else {
+                        break;
+                    }
+                }
+                
                 if(m_pLightMap == NULL && m_lightMap.size()) {
                     m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
                 }
@@ -121,7 +136,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
                 KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
                 KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
                 
-                m_pModel->render(pCamera, pContext, viewMatrix, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                pModel->render(pCamera, pContext, viewMatrix, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }
     }
@@ -130,8 +145,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
 #endif
 
 bool KRInstance::hasTransparency() {
-    if(m_pModel) {
-        return m_pModel->hasTransparency();
+    if(m_models.size() > 0) {
+        return m_models[0]->hasTransparency();
     } else {
         return false;
     }
@@ -142,9 +157,9 @@ KRAABB KRInstance::getBounds() {
     loadModel();
     
     KRVector3 meshMin, meshMax;
-    if(m_pModel) {
-        meshMin = m_pModel->getMinPoint();
-        meshMax = m_pModel->getMaxPoint();
+    if(m_models.size() > 0) {
+        meshMin = m_models[0]->getMinPoint();
+        meshMax = m_models[0]->getMaxPoint();
     } else {
         meshMin = -KRVector3::Max();
         meshMax = KRVector3::Max();

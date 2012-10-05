@@ -52,6 +52,23 @@ KRModel::KRModel(KRContext &context, std::string name) : KRResource(context, nam
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pData = new KRDataBlock();
+    m_lodCoverage = 100; // Default to being the full detail mesh; not an LOD level
+    m_lodBaseName = name;
+    
+    size_t last_underscore_pos = name.find_last_of('_');
+    if(last_underscore_pos != std::string::npos) {
+        // Found an underscore
+        std::string suffix = name.substr(last_underscore_pos + 1);
+        if(suffix.find_first_of("lod") == 0) {
+            std::string lod_level_string = suffix.substr(3);
+            char *end = NULL;
+            int c = (int)strtol(suffix.c_str(), &end, 10);
+            if(m_lodCoverage < 0 || m_lodCoverage > 100 || *end != '\0') {
+                m_lodCoverage = c;
+                m_lodBaseName = name.substr(0, last_underscore_pos - 1);
+            }
+        }
+    }
 }
 
 KRModel::KRModel(KRContext &context, std::string name, KRDataBlock *data) : KRResource(context, name) {
@@ -59,6 +76,7 @@ KRModel::KRModel(KRContext &context, std::string name, KRDataBlock *data) : KRRe
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pData = new KRDataBlock();
+    m_lodCoverage = 100;
     loadPack(data);
 }
 
@@ -432,5 +450,19 @@ void KRModel::clearData() {
 
 void KRModel::clearBuffers() {
     m_submeshes.clear();
+}
+
+int KRModel::getLODCoverage() const {
+    return m_lodCoverage;
+}
+
+std::string KRModel::getLODBaseName() const {
+    return m_lodBaseName;
+}
+
+// Predicate used with std::sort to sort by highest detail model first, decending to lowest detail LOD model
+bool KRModel::lod_sort_predicate(const KRModel *m1, const KRModel *m2)
+{
+    return m1->m_lodCoverage > m2->m_lodCoverage;
 }
 

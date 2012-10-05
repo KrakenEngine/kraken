@@ -54,11 +54,11 @@ public:
     void rotateBuffers(bool new_frame);
     
     KRModel *loadModel(const char *szName, KRDataBlock *pData);
-    KRModel *getModel(const char *szName);
+    std::vector<KRModel *> getModel(const char *szName);
     KRModel *getFirstModel();
     
     std::vector<std::string> getModelNames();
-    std::map<std::string, KRModel *> getModels();
+    std::multimap<std::string, KRModel *> getModels();
     
     
     void bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb);
@@ -68,7 +68,7 @@ public:
     void configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb);
     
 private:
-    std::map<std::string, KRModel *> m_models;
+    std::multimap<std::string, KRModel *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
     typedef struct vbo_info {
         GLuint handle;

@@ -138,7 +138,11 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     } else if(strcmp(szElementName, "spot_light") == 0) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
-        new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"));
+        float lod_min_coverage = 0.0f;
+        if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {
+            lod_min_coverage = 0.0f; //1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
+        }
+        new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"), lod_min_coverage);
     } else if(strcmp(szElementName, "sky_box") == 0) {
         new_node = new KRSkyBox(scene, szName);
     }

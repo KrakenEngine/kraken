@@ -168,7 +168,14 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
       if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
           projectionMatrix = pCamera->getProjectionMatrix();
       }
-      if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
+      KRMat4 matVP = viewMatrix * projectionMatrix;
+            
+            float min_coverage = 0.0f; // 1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
+            
+        float lod_coverage = pOctreeNode->getBounds().coverage(matVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
+        if(lod_coverage > min_coverage) {
+            
+//      if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
           
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;
