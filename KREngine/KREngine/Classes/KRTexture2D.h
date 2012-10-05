@@ -1,5 +1,5 @@
 //
-//  KRTextureManager.h
+//  KRTexture2D.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,61 +29,57 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-#define KRENGINE_MAX_TEXTURE_HANDLES 10000
-#define KRENGINE_MAX_TEXTURE_MEM 96000000
-#define KRENGINE_TARGET_TEXTURE_MEM_MAX 64000000
-#define KRENGINE_TARGET_TEXTURE_MEM_MIN 32000000
-#define KRENGINE_MAX_TEXTURE_DIM 2048
-#define KRENGINE_MIN_TEXTURE_DIM 64
-
-#ifndef KRTEXTUREMANAGER_H
-#define KRTEXTUREMANAGER_H
-
-#include "KRTexture.h"
-#include "KRContextObject.h"
-#include "KREngine-common.h"
-#include "KRDataBlock.h"
-
-#include <map>
-#include <set>
+#import <stdint.h>
+#import <list>
 #import <string>
 
-using std::map;
+#import "KREngine-common.h"
+#import "KRDataBlock.h"
 
-class KRTextureManager : public KRContextObject {
+using std::list;
+
+#ifndef KRTEXTURE2D_H
+#define KRTEXTURE2D_H
+
+#include "KRTexture.h"
+
+class KRTextureManager;
+
+class KRTexture2D : public KRTexture {
 public:
-    KRTextureManager(KRContext &context);
-    virtual ~KRTextureManager();
+    KRTexture2D(KRDataBlock *data, KRTextureManager *manager);
+    ~KRTexture2D();
     
-    void rotateBuffers(bool new_frame);
     
-    void selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim);
-    
-    KRTexture *loadTexture(const char *szName, KRDataBlock *data);
-    KRTexture *loadTextureCube(const char *szName, KRDataBlock *data);
-
-    KRTexture *getTexture(const char *szFile);
-    
-    long getMemUsed();
-    long getActiveMemUsed();
-    
-    int getLODDimCap();
+    virtual GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
+    virtual void releaseHandle(long &textureMemUsed);
+    virtual long getMemSize();
     
 private:
-    void decreaseLODCap();
-    void increaseLODCap();
     
-    std::map<std::string, KRTexture *> m_textures;
+    bool createGLTexture(int lod_max_dim);
     
-    KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
-    std::set<KRTexture *> m_activeTextures;
-    std::set<KRTexture *> m_poolTextures;
+    GLuint    m_iHandle;
+    uint32_t  m_iWidth;
+    uint32_t  m_iHeight;
+    GLenum    m_internalFormat;
+    bool      m_bHasAlpha;
     
-    long m_textureMemUsed;
-    long m_activeTextureMemUsed;
+    struct    dataBlockStruct {
+        void *start;
+        uint32_t length;
+    };
     
-    int m_lod_max_dim_cap;
+    std::list<dataBlockStruct> m_blocks;
+    
+    bool load();
+    
+    int m_current_lod_max_dim;
+    
+    uint32_t m_max_lod_max_dim;
+    uint32_t m_min_lod_max_dim;
+    
+    uint32_t m_textureMemUsed;
 };
 
 #endif

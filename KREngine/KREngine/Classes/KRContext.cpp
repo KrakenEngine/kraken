@@ -85,10 +85,10 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pModelManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
         m_pSceneManager->loadScene(name.c_str(), data);
-#if TARGET_OS_IPHONE
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), data);
-#endif
+    } else if(extension.compare("krcubemap") == 0) {
+        m_pTextureManager->loadTextureCube(name.c_str(), data);
     } else if(extension.compare("vsh") == 0) {
         m_pShaderManager->loadVertexShader(name.c_str(), data);
     } else if(extension.compare("fsh") == 0) {

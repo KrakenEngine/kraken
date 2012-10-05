@@ -100,12 +100,12 @@
 		E491019613C99BDC0098455B /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (); }; };
 		E491019713C99BDC0098455B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
 		E491019813C99BDC0098455B /* KRTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018013C99BDC0098455B /* KRTextureManager.cpp */; };
-		E491019913C99BDC0098455B /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture.cpp */; };
+		E491019913C99BDC0098455B /* KRTexture2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture2D.cpp */; };
 		E491019A13C99BDC0098455B /* KRModelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018213C99BDC0098455B /* KRModelManager.cpp */; };
 		E491019B13C99BDC0098455B /* KRModelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018313C99BDC0098455B /* KRModelManager.h */; settings = {ATTRIBUTES = (); }; };
 		E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (); }; };
 		E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (); }; };
-		E491019E13C99BDC0098455B /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (); }; };
+		E491019E13C99BDC0098455B /* KRTexture2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture2D.h */; settings = {ATTRIBUTES = (); }; };
 		E49101A013C99BF50098455B /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
 		E4924C2615EE95E800B965C6 /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; };
 		E4924C2715EE95E800B965C6 /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; };
@@ -130,6 +130,14 @@
 		E4AFC6BC15F7C95D00DDB4C8 /* KRSceneManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E46C214915364DDB009CABF3 /* KRSceneManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4B175AC161F5A1000B8FB80 /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */; };
+		E4B175AD161F5A1000B8FB80 /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */; };
+		E4B175AE161F5A1000B8FB80 /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175AB161F5A1000B8FB80 /* KRTexture.h */; };
+		E4B175AF161F5A1000B8FB80 /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175AB161F5A1000B8FB80 /* KRTexture.h */; };
+		E4B175B2161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */; };
+		E4B175B3161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */; };
+		E4B175B4161F5FAF00B8FB80 /* KRTextureCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */; };
+		E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */; };
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
@@ -167,8 +175,8 @@
 		E4F975501536333500FD60B2 /* KRModel.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017A13C99BDC0098455B /* KRModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F97551153633E200FD60B2 /* KRMaterialManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017B13C99BDC0098455B /* KRMaterialManager.cpp */; };
 		E4F97552153633EF00FD60B2 /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4F975531536340000FD60B2 /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture.cpp */; };
-		E4F975541536340400FD60B2 /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4F975531536340000FD60B2 /* KRTexture2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture2D.cpp */; };
+		E4F975541536340400FD60B2 /* KRTexture2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -259,12 +267,12 @@
 		E491017E13C99BDC0098455B /* KRVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRVector3.h; path = Classes/KRVector3.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491017F13C99BDC0098455B /* KRVector3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRVector3.cpp; path = Classes/KRVector3.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E491018013C99BDC0098455B /* KRTextureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRTextureManager.cpp; path = Classes/KRTextureManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E491018113C99BDC0098455B /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRTexture.cpp; path = Classes/KRTexture.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E491018113C99BDC0098455B /* KRTexture2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRTexture2D.cpp; path = Classes/KRTexture2D.cpp; sourceTree = "<group>"; };
 		E491018213C99BDC0098455B /* KRModelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRModelManager.cpp; path = Classes/KRModelManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E491018313C99BDC0098455B /* KRModelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRModelManager.h; path = Classes/KRModelManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491018413C99BDC0098455B /* KRMaterialManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRMaterialManager.h; path = Classes/KRMaterialManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491018513C99BDC0098455B /* KRTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTextureManager.h; path = Classes/KRTextureManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		E491018613C99BDC0098455B /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E491018613C99BDC0098455B /* KRTexture2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTexture2D.h; path = Classes/KRTexture2D.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E491019F13C99BF50098455B /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		E4924C2415EE95E700B965C6 /* KROctree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KROctree.cpp; path = Classes/KROctree.cpp; sourceTree = "<group>"; };
 		E4924C2515EE95E800B965C6 /* KROctree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KROctree.h; path = Classes/KROctree.h; sourceTree = "<group>"; };
@@ -280,6 +288,10 @@
 		E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		E4A9DEBD154120C4009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC0154120E8009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = Shaders/light_point.vsh; sourceTree = "<group>"; };
+		E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexture.cpp; path = Classes/KRTexture.cpp; sourceTree = "<group>"; };
+		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; };
+		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureCube.cpp; path = Classes/KRTextureCube.cpp; sourceTree = "<group>"; };
+		E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureCube.h; path = Classes/KRTextureCube.h; sourceTree = "<group>"; };
 		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4BBBB871512A40300F43B5B /* krengine_osx-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "krengine_osx-Info.plist"; sourceTree = "<group>"; };
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -451,8 +463,12 @@
 			children = (
 				E491018513C99BDC0098455B /* KRTextureManager.h */,
 				E491018013C99BDC0098455B /* KRTextureManager.cpp */,
-				E491018613C99BDC0098455B /* KRTexture.h */,
-				E491018113C99BDC0098455B /* KRTexture.cpp */,
+				E491018613C99BDC0098455B /* KRTexture2D.h */,
+				E491018113C99BDC0098455B /* KRTexture2D.cpp */,
+				E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */,
+				E4B175AB161F5A1000B8FB80 /* KRTexture.h */,
+				E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */,
+				E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */,
 			);
 			name = Texture;
 			sourceTree = "<group>";
@@ -643,7 +659,7 @@
 				E491019513C99BDC0098455B /* KRMaterial.h in Headers */,
 				E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */,
 				E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */,
-				E491019E13C99BDC0098455B /* KRTexture.h in Headers */,
+				E491019E13C99BDC0098455B /* KRTexture2D.h in Headers */,
 				E491018A13C99BDC0098455B /* KREngine.h in Headers */,
 				E491018E13C99BDC0098455B /* KRMat4.h in Headers */,
 				E491019B13C99BDC0098455B /* KRModelManager.h in Headers */,
@@ -673,6 +689,8 @@
 				E488399615F928CA00BD66D5 /* KRBundle.h in Headers */,
 				E488399E15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
 				E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */,
+				E4B175AE161F5A1000B8FB80 /* KRTexture.h in Headers */,
+				E4B175B4161F5FAF00B8FB80 /* KRTextureCube.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -705,7 +723,7 @@
 				E4F97552153633EF00FD60B2 /* KRMaterialManager.h in Headers */,
 				E461A176152E5C5600F2044A /* KRPointLight.h in Headers */,
 				E46F4A09155DF6E400CCF8B8 /* KRWorld.cpp in Headers */,
-				E4F975541536340400FD60B2 /* KRTexture.h in Headers */,
+				E4F975541536340400FD60B2 /* KRTexture2D.h in Headers */,
 				E46F4A01155DF46700CCF8B8 /* KRWorld.h in Headers */,
 				E48C697015374F5B00232E28 /* KRContext.h in Headers */,
 				E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */,
@@ -720,6 +738,8 @@
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
 				E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */,
 				E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */,
+				E4B175AF161F5A1000B8FB80 /* KRTexture.h in Headers */,
+				E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -812,7 +832,7 @@
 				E491019413C99BDC0098455B /* KRMaterial.cpp in Sources */,
 				E491019713C99BDC0098455B /* KRVector3.cpp in Sources */,
 				E491019813C99BDC0098455B /* KRTextureManager.cpp in Sources */,
-				E491019913C99BDC0098455B /* KRTexture.cpp in Sources */,
+				E491019913C99BDC0098455B /* KRTexture2D.cpp in Sources */,
 				E491019A13C99BDC0098455B /* KRModelManager.cpp in Sources */,
 				E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */,
 				E47C25A913F4F6DD00FF4370 /* KRShader.cpp in Sources */,
@@ -846,6 +866,8 @@
 				E48839A115F92C2800BD66D5 /* visualize_overlay.fsh in Sources */,
 				E4CE184D15FF124600F80870 /* light_point_inside.fsh in Sources */,
 				E4CE184F15FF125700F80870 /* light_point_inside.vsh in Sources */,
+				E4B175AC161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
+				E4B175B2161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -868,7 +890,7 @@
 				E4F9754B153632D800FD60B2 /* KRModelManager.cpp in Sources */,
 				E461A160152E565700F2044A /* KRDirectionalLight.cpp in Sources */,
 				E4F9754515362D2C00FD60B2 /* KRBoundingVolume.cpp in Sources */,
-				E4F975531536340000FD60B2 /* KRTexture.cpp in Sources */,
+				E4F975531536340000FD60B2 /* KRTexture2D.cpp in Sources */,
 				E4F9754015362CD400FD60B2 /* KRScene.cpp in Sources */,
 				E461A166152E56C000F2044A /* KRSpotLight.cpp in Sources */,
 				E4F9754315362D0F00FD60B2 /* KRInstance.cpp in Sources */,
@@ -890,6 +912,8 @@
 				E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */,
 				E488399515F928CA00BD66D5 /* KRBundle.cpp in Sources */,
 				E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
+				E4B175AD161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
+				E4B175B3161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

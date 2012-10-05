@@ -31,6 +31,8 @@
 
 #include "KRTextureManager.h"
 #include "KRContext.h"
+#include "KRTexture2D.h"
+#include "KRTextureCube.h"
 #include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
@@ -48,10 +50,8 @@ KRTextureManager::~KRTextureManager() {
     }
 }
 
-#if TARGET_OS_IPHONE
-
 KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) {
-    KRTexture *pTexture = new KRTexture(data, this);
+    KRTexture *pTexture = new KRTexture2D(data, this);
     
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),
@@ -63,7 +63,18 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) 
     return pTexture;
 }
 
-#endif
+KRTexture *KRTextureManager::loadTextureCube(const char *szName, KRDataBlock *data) {
+    KRTexture *pTexture = new KRTextureCube(data, this);
+    
+    std::string lowerName = szName;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    
+    
+    m_textures[lowerName] = pTexture;
+    return pTexture;
+}
 
 KRTexture *KRTextureManager::getTexture(const char *szName) {
     std::string lowerName = szName;
