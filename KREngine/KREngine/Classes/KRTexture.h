@@ -34,7 +34,7 @@
 #ifndef KRTEXTURE_H
 #define KRTEXTURE_H
 
-#import <OpenGLES/ES2/gl.h>
+#import "KREngine-common.h"
 
 class KRTextureManager;
 class KRDataBlock;
@@ -43,10 +43,12 @@ class KRTexture {
 public:
     KRTexture(KRDataBlock *data, KRTextureManager *manager);
     virtual ~KRTexture();
-    
+
     virtual GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize) = 0;
+
     virtual void releaseHandle(long &textureMemUsed) = 0;
     virtual long getMemSize() = 0;
+
     
 protected:
     
