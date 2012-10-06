@@ -33,26 +33,38 @@
 #define KRTEXTURECUBE_H
 
 #include "KRTexture.h"
-#include "KRTextureManager.h"
 
 class KRTextureCube : public KRTexture {
 public:
-    KRTextureCube(KRDataBlock *data, KRTextureManager *manager);
+    KRTextureCube(KRContext &context, std::string name);
     virtual ~KRTextureCube();
     
-    virtual GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
-    virtual void releaseHandle(long &textureMemUsed);
-    virtual long getMemSize();
-    
 private:
-    std::string m_frontTextureName;
-    std::string m_backTextureName;
-    std::string m_leftTextureName;
-    std::string m_rightTextureName;
-    std::string m_topTextureName;
-    std::string m_bottomTextureName;
+    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed);
+    
+    std::string m_name;
     
     GLuint m_iHandle;
+    
+    uint32_t m_textureMemUsed;
+    
+    const GLenum TARGETS[6] = {
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
+    
+    const char *SUFFIXES[6] = {
+        "_positive_x",
+        "_negative_x",
+        "_positive_y",
+        "_negative_y",
+        "_positive_z",
+        "_negative_z"
+    };
 };
 
 

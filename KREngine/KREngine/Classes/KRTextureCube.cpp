@@ -30,28 +30,55 @@
 //
 
 #include "KRTextureCube.h"
+#include "KRTexture2D.h"
+#include "KRContext.h"
 
-KRTextureCube::KRTextureCube(KRDataBlock *data, KRTextureManager *manager) : KRTexture(data, manager)
+KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(context)
 {
-    m_iHandle = 0;
+    m_name = name;
+    
+    m_max_lod_max_dim = 2048;
+    m_min_lod_max_dim = 64;
+    
+    for(int i=0; i<6; i++) {
+        std::string faceName = m_name + SUFFIXES[i];
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        if(faceTexture) {
+            if(faceTexture->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = faceTexture->getMaxMipMap();
+            if(faceTexture->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = faceTexture->getMinMipMap();
+        }
+    }
 }
 
 KRTextureCube::~KRTextureCube()
 {
-    if(m_iHandle != 0) glDeleteTextures(1, &m_iHandle);
 }
 
-GLuint KRTextureCube::getHandle(long &textureMemUsed, int max_dim, bool can_resize)
+bool KRTextureCube::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed)
 {
-    return 0;
-}
-
-void KRTextureCube::releaseHandle(long &textureMemUsed)
-{
+    m_current_lod_max_dim = 0;
+    GLDEBUG(glGenTextures(1, &m_iHandle));
+    if(m_iHandle == 0) {
+        return false;
+    }
     
-}
+    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, m_iHandle));
+    
+    bool bMipMaps = false;
 
-long KRTextureCube::getMemSize()
-{
-    return 0;
+    for(int i=0; i<6; i++) {
+        std::string faceName = m_name + SUFFIXES[i];
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        if(faceTexture) {
+            if(faceTexture->hasMipmaps()) bMipMaps = true;
+            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, textureMemUsed);
+        }
+    }
+    
+    if(bMipMaps) {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+    } else {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    }
+    return true;
 }

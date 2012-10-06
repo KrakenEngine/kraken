@@ -35,25 +35,33 @@
 #define KRTEXTURE_H
 
 #import "KREngine-common.h"
+#import "KRContextObject.h"
 
-class KRTextureManager;
+
 class KRDataBlock;
 
-class KRTexture {
+class KRTexture : public KRContextObject{
 public:
-    KRTexture(KRDataBlock *data, KRTextureManager *manager);
+    KRTexture(KRContext &context);
     virtual ~KRTexture();
 
-    virtual GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize) = 0;
+    GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
+    void releaseHandle(long &textureMemUsed);
+    long getMemSize();
 
-    virtual void releaseHandle(long &textureMemUsed) = 0;
-    virtual long getMemSize() = 0;
 
     
 protected:
+    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) = 0;
     
-    KRDataBlock *m_pData;
-    KRTextureManager *m_pManager;
+    
+    GLuint    m_iHandle;
+    uint32_t m_textureMemUsed;
+    
+    int m_current_lod_max_dim;
+    
+    uint32_t m_max_lod_max_dim;
+    uint32_t m_min_lod_max_dim;
 };
 
 

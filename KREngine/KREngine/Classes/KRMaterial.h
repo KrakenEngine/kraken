@@ -73,6 +73,7 @@ public:
     void setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setReflectionCube(std::string texture_name);
     void setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
     void setAmbient(const KRVector3 &c);
     void setDiffuse(const KRVector3 &c);    
@@ -102,11 +103,13 @@ private:
     KRTexture *m_pDiffuseMap; // mtl map_Kd value
     KRTexture *m_pSpecularMap; // mtl map_Ks value
     KRTexture *m_pReflectionMap; // mtl refl value
+    KRTexture *m_pReflectionCube;
     KRTexture *m_pNormalMap; // mtl map_Normal value
     std::string m_ambientMap;
     std::string m_diffuseMap;
     std::string m_specularMap;
     std::string m_reflectionMap;
+    std::string m_reflectionCube;
     std::string m_normalMap;
     
     KRVector2 m_ambientMapScale;

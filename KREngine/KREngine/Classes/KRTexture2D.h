@@ -43,23 +43,23 @@ using std::list;
 
 #include "KRTexture.h"
 
-class KRTextureManager;
-
 class KRTexture2D : public KRTexture {
 public:
-    KRTexture2D(KRDataBlock *data, KRTextureManager *manager);
+    KRTexture2D(KRContext &context, KRDataBlock *data);
     ~KRTexture2D();
     
+    bool hasMipmaps();
+    int getMaxMipMap();
+    int getMinMipMap();
     
-    virtual GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
-    virtual void releaseHandle(long &textureMemUsed);
-    virtual long getMemSize();
+    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, uint32_t &textureMemUsed);
     
 private:
+    KRDataBlock *m_pData;
     
-    bool createGLTexture(int lod_max_dim);
+    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed);
+
     
-    GLuint    m_iHandle;
     uint32_t  m_iWidth;
     uint32_t  m_iHeight;
     GLenum    m_internalFormat;
@@ -73,13 +73,7 @@ private:
     std::list<dataBlockStruct> m_blocks;
     
     bool load();
-    
-    int m_current_lod_max_dim;
-    
-    uint32_t m_max_lod_max_dim;
-    uint32_t m_min_lod_max_dim;
-    
-    uint32_t m_textureMemUsed;
+
 };
 
 #endif

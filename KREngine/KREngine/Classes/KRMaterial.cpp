@@ -6,7 +6,7 @@
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
-//  
+//
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
 //  
@@ -46,6 +46,7 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_pSpecularMap = NULL;
     m_pNormalMap = NULL;
     m_pReflectionMap = NULL;
+    m_pReflectionCube = NULL;
     m_ambientColor = KRVector3::Zero();
     m_diffuseColor = KRVector3::One();
     m_specularColor = KRVector3::One();
@@ -57,6 +58,7 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_specularMap = "";
     m_normalMap = "";
     m_reflectionMap = "";
+    m_reflectionCube = "";
     m_ambientMapOffset = KRVector2(0.0f, 0.0f);
     m_specularMapOffset = KRVector2(0.0f, 0.0f);
     m_diffuseMapOffset = KRVector2(0.0f, 0.0f);
@@ -105,6 +107,9 @@ bool KRMaterial::save(const std::string& path) {
         if(m_reflectionMap.size()) {
             fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
         }
+        if(m_reflectionCube.size()) {
+            fprintf(f, "map_ReflectionCube %s.pvr\n", m_reflectionCube.c_str());
+        }
         switch(m_alpha_mode) {
             case KRMATERIAL_ALPHA_MODE_OPAQUE:
                 fprintf(f, "alpha_mode opaque");
@@ -152,6 +157,10 @@ void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_sc
     m_reflectionMap = texture_name;
     m_reflectionMapScale = texture_scale;
     m_reflectionMapOffset = texture_offset;
+}
+
+void KRMaterial::setReflectionCube(std::string texture_name) {
+    m_reflectionCube = texture_name;
 }
 
 void KRMaterial::setAlphaMode(KRMaterial::alpha_mode_type alpha_mode) {
@@ -216,6 +225,9 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
     }
     if(!m_pReflectionMap && m_reflectionMap.size()) {
         m_pReflectionMap = pContext->getTextureManager()->getTexture(m_reflectionMap.c_str());
+    }
+    if(!m_pReflectionCube && m_reflectionCube.size()) {
+        m_pReflectionCube = pContext->getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
     
     if(!bSameMaterial) { 

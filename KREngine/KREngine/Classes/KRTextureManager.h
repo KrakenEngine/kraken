@@ -61,8 +61,7 @@ public:
     void selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim);
     
     KRTexture *loadTexture(const char *szName, KRDataBlock *data);
-    KRTexture *loadTextureCube(const char *szName, KRDataBlock *data);
-
+    KRTexture *getTextureCube(const char *szName);
     KRTexture *getTexture(const char *szFile);
     
     long getMemUsed();

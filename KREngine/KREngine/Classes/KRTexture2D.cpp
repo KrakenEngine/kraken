@@ -69,20 +69,27 @@ typedef struct _PVRTexHeader
 	uint32_t numSurfs;
 } PVRTexHeader;
 
-KRTexture2D::KRTexture2D(KRDataBlock *data, KRTextureManager *manager) : KRTexture(data, manager) {
-    m_iHandle = 0;
+KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data) : KRTexture(context) {
+    m_pData = data;
     m_current_lod_max_dim = 0;
-    m_textureMemUsed = 0;
     load();
 }
 
 KRTexture2D::~KRTexture2D() {
-    long textureMemFreed = 0;
-    releaseHandle(textureMemFreed);
     delete m_pData;
 }
 
+bool KRTexture2D::hasMipmaps() {
+    return m_blocks.size() > 1;
+}
 
+int KRTexture2D::getMaxMipMap() {
+    return m_max_lod_max_dim;
+}
+
+int KRTexture2D::getMinMipMap() {
+    return m_min_lod_max_dim;
+}
 
 bool KRTexture2D::load() {
 #if TARGET_OS_IPHONE
@@ -164,8 +171,31 @@ bool KRTexture2D::load() {
 
 
 
-bool KRTexture2D::createGLTexture(int lod_max_dim) {    
+bool KRTexture2D::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) {
     m_current_lod_max_dim = 0;
+    GLDEBUG(glGenTextures(1, &m_iHandle));
+    if(m_iHandle == 0) {
+        return false;
+    }
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
+	if (hasMipmaps()) {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+    } else {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    }
+    if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, textureMemUsed)) {
+        GLDEBUG(glDeleteTextures(1, &m_iHandle));
+        textureMemUsed = 0;
+        m_iHandle = 0;
+        m_current_lod_max_dim = 0;
+        return false;
+    }
+    
+    return true;
+}
+
+bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, uint32_t &textureMemUsed)
+{
 	int width = m_iWidth;
 	int height = m_iHeight;
 	GLenum err;
@@ -173,39 +203,25 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     if(m_blocks.size() == 0) {
         return false;
     }
-	
-    GLDEBUG(glGenTextures(1, &m_iHandle));
-    if(m_iHandle == 0) {
-        return false;
-    }
-    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
-	
-	if (m_blocks.size() > 1) {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    } else {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    }
+
     int i=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
         if(width <= lod_max_dim && height <= lod_max_dim) {
-            if(width > m_current_lod_max_dim) {
-                m_current_lod_max_dim = width;
+            if(width > current_lod_max_dim) {
+                current_lod_max_dim = width;
             }
-            if(height > m_current_lod_max_dim) {
-                m_current_lod_max_dim = height;
+            if(height > current_lod_max_dim) {
+                current_lod_max_dim = height;
             }
-            GLDEBUG(glCompressedTexImage2D(GL_TEXTURE_2D, i, m_internalFormat, width, height, 0, block.length, block.start));
+            GLDEBUG(glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start));
             
             err = glGetError();
             if (err != GL_NO_ERROR) {
-                GLDEBUG(glDeleteTextures(1, &m_iHandle));
-                m_textureMemUsed = 0;
-                m_iHandle = 0;
-                lod_max_dim = 0;
+                
                 return false;
             }
-            m_textureMemUsed += block.length;
+            textureMemUsed += block.length;
             i++;
         }
 		
@@ -220,38 +236,8 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
 	}
     
     return true;
+
 }
 
-GLuint KRTexture2D::getHandle(long &textureMemUsed, int max_dim, bool can_resize) {
-    // Constrain target LOD to be within mipmap levels of texture
-    int target_dim = max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-    if(target_dim > m_max_lod_max_dim) target_dim = m_max_lod_max_dim;
-    
-    if(can_resize && m_current_lod_max_dim != target_dim) {
-        releaseHandle(textureMemUsed);
-    }
-    if(m_iHandle == 0) {
-        if(createGLTexture(target_dim)) {
-            textureMemUsed += getMemSize();
-        } else {
-            assert(false);
-        }
-        
-        //createGLTexture();
-    }
-    return m_iHandle;
-}
 
-void KRTexture2D::releaseHandle(long &textureMemUsed) {
-    if(m_iHandle != 0) {
-        textureMemUsed -= getMemSize();
-        GLDEBUG(glDeleteTextures(1, &m_iHandle));
-        m_iHandle = 0;
-        m_textureMemUsed = 0;
-    }
-}
 
-long KRTexture2D::getMemSize() {
-    return m_textureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
-}

@@ -51,7 +51,7 @@ KRTextureManager::~KRTextureManager() {
 }
 
 KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) {
-    KRTexture *pTexture = new KRTexture2D(data, this);
+    KRTexture *pTexture = new KRTexture2D(getContext(), data);
     
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),
@@ -63,17 +63,20 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) 
     return pTexture;
 }
 
-KRTexture *KRTextureManager::loadTextureCube(const char *szName, KRDataBlock *data) {
-    KRTexture *pTexture = new KRTextureCube(data, this);
-    
+KRTexture *KRTextureManager::getTextureCube(const char *szName) {
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
-    
-    
-    m_textures[lowerName] = pTexture;
-    return pTexture;
+    map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
+    if(itr == m_textures.end()) {
+        KRTextureCube *pTexture = new KRTextureCube(getContext(), lowerName);
+        
+        m_textures[lowerName] = pTexture;
+        return pTexture;
+    } else {
+        return (*itr).second;
+    }
 }
 
 KRTexture *KRTextureManager::getTexture(const char *szName) {

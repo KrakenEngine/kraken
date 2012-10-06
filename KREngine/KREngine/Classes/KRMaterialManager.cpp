@@ -232,8 +232,9 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             pMaterial->setNormalMap(szSymbol[1], texture_scale, texture_offset);
                         } else if(strcmp(szSymbol[0], "map_Reflection") == 0) {
                             pMaterial->setReflectionMap(szSymbol[1], texture_scale, texture_offset);
+                        } else if(strcmp(szSymbol[0], "map_ReflectionCube") == 0) {
+                            pMaterial->setReflectionCube(szSymbol[1]);
                         }
-
                     }
                 }
             }
