@@ -77,7 +77,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
     std::string extension = KRResource::GetFileExtension(file_name);
     
-    //fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
+//    fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
     
     if(extension.compare("krbundle") == 0) {
         m_pBundleManager->loadBundle(name.c_str(), data);
@@ -87,8 +87,6 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pSceneManager->loadScene(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), data);
-    } else if(extension.compare("krcubemap") == 0) {
-        m_pTextureManager->loadTextureCube(name.c_str(), data);
     } else if(extension.compare("vsh") == 0) {
         m_pShaderManager->loadVertexShader(name.c_str(), data);
     } else if(extension.compare("fsh") == 0) {
@@ -108,6 +106,7 @@ void KRContext::loadResource(std::string path) {
     if(data->load(path)) {
         loadResource(path, data);
     } else {
+        fprintf(stderr, "KRContext::loadResource - Failed to open file: %s\n", path.c_str());
         delete data;
     }
 }
