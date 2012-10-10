@@ -39,15 +39,13 @@ public:
     KRTextureCube(KRContext &context, std::string name);
     virtual ~KRTextureCube();
     
+    virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize);
+    
 private:
-    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed);
+    virtual bool createGLTexture(int lod_max_dim);
     
     std::string m_name;
-    
-    GLuint m_iHandle;
-    
-    uint32_t m_textureMemUsed;
-    
+        
     const GLenum TARGETS[6] = {
         GL_TEXTURE_CUBE_MAP_POSITIVE_X,
         GL_TEXTURE_CUBE_MAP_NEGATIVE_X,

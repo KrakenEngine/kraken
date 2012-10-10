@@ -15,7 +15,6 @@
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
-#import "KRSkyBox.h"
 #import "KRAABB.h"
 
 
@@ -143,8 +142,6 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
             lod_min_coverage = 0.0f; //1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
         }
         new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"), lod_min_coverage);
-    } else if(strcmp(szElementName, "sky_box") == 0) {
-        new_node = new KRSkyBox(scene, szName);
     }
     
     if(new_node) {

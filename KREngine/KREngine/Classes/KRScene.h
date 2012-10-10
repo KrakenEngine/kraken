@@ -87,7 +87,8 @@ private:
     
     KROctree m_nodeTree;
     void updateOctree();
-
+    
+    std::string m_skyBoxName;
 };
 
 

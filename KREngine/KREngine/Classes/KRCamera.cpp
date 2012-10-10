@@ -101,6 +101,9 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRContextObj
     
     m_iFrame = 0;
     
+    m_skyBoxName = "";
+    m_pSkyBoxTexture = NULL;
+    
     createBuffers();
 }
 
@@ -368,7 +371,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         scene.render(this, frontToBackOrder, m_visibleBounds, m_pContext, viewMatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FORWARD_OPAQUE, newVisibleBounds);
     }
     
-    // ----====---- Transparent Geometry, Forward Rendering ----====----
+    // ----====---- Sky Box ----====----
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -384,6 +387,42 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     GLDEBUG(glEnable(GL_DEPTH_TEST));
     GLDEBUG(glDepthFunc(GL_LEQUAL));
     GLDEBUG(glDepthRangef(0.0, 1.0));
+    
+    if(!m_pSkyBoxTexture && m_skyBoxName.length()) {
+        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBoxName.c_str());
+    }
+    
+    if(m_pSkyBoxTexture) {
+        KRMat4 mvpMatrix = viewMatrix * getProjectionMatrix();
+        KRShader *pShader = getContext().getShaderManager()->getShader("sky_box", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        pShader->bind(this, viewMatrix, mvpMatrix, lightDirection, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        
+        getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 2048);
+        
+        // Render a full screen quad
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    }
+    
+    
+    // ----====---- Transparent Geometry, Forward Rendering ----====----
+
+//    Note: These parameters have already been set up by the skybox render above
+//
+//    // Set render target
+//    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+//    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+//    
+//    // Disable backface culling
+//    GLDEBUG(glDisable(GL_CULL_FACE));
+//    
+//    // Disable z-buffer write
+//    GLDEBUG(glDepthMask(GL_FALSE));
+//    
+//    // Enable z-buffer test
+//    GLDEBUG(glEnable(GL_DEPTH_TEST));
+//    GLDEBUG(glDepthFunc(GL_LEQUAL));
+//    GLDEBUG(glDepthRangef(0.0, 1.0));
     
     // Enable alpha blending
     GLDEBUG(glEnable(GL_BLEND));
@@ -778,4 +817,9 @@ void KRCamera::invalidateShadowBuffers() {
     for(int i=0; i < m_cShadowBuffers; i++) {
         shadowValid[i] = false;
     }
+}
+
+void KRCamera::setSkyBox(const std::string &skyBoxName) {
+    m_pSkyBoxTexture = NULL;
+    m_skyBoxName = skyBoxName;
 }

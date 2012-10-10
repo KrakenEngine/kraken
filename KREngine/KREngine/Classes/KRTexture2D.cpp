@@ -171,7 +171,7 @@ bool KRTexture2D::load() {
 
 
 
-bool KRTexture2D::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) {
+bool KRTexture2D::createGLTexture(int lod_max_dim) {
     m_current_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iHandle));
     if(m_iHandle == 0) {
@@ -183,9 +183,8 @@ bool KRTexture2D::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) {
     } else {
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     }
-    if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, textureMemUsed)) {
+    if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_textureMemUsed)) {
         GLDEBUG(glDeleteTextures(1, &m_iHandle));
-        textureMemUsed = 0;
         m_iHandle = 0;
         m_current_lod_max_dim = 0;
         return false;
@@ -194,7 +193,7 @@ bool KRTexture2D::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) {
     return true;
 }
 
-bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, uint32_t &textureMemUsed)
+bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed)
 {
 	int width = m_iWidth;
 	int height = m_iHeight;
@@ -214,11 +213,9 @@ bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod
             if(height > current_lod_max_dim) {
                 current_lod_max_dim = height;
             }
-            GLDEBUG(glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start));
-            
+            glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start);
             err = glGetError();
             if (err != GL_NO_ERROR) {
-                
                 return false;
             }
             textureMemUsed += block.length;
@@ -239,5 +236,15 @@ bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod
 
 }
 
-
+void KRTexture2D::bind(size_t &textureMemUsed, int max_dim, bool can_resize) {
+    textureMemUsed -= getMemSize();
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, getHandle(max_dim, can_resize)));
+    
+    // TODO - These texture parameters should be assigned by the material or texture parameters
+    GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
+    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    
+    textureMemUsed += getMemSize();
+}
 

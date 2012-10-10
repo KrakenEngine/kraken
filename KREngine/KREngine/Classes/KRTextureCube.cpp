@@ -54,7 +54,7 @@ KRTextureCube::~KRTextureCube()
 {
 }
 
-bool KRTextureCube::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed)
+bool KRTextureCube::createGLTexture(int lod_max_dim)
 {
     m_current_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iHandle));
@@ -71,7 +71,7 @@ bool KRTextureCube::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed)
         KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
         if(faceTexture) {
             if(faceTexture->hasMipmaps()) bMipMaps = true;
-            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, textureMemUsed);
+            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, m_textureMemUsed);
         }
     }
     
@@ -81,4 +81,16 @@ bool KRTextureCube::createGLTexture(int lod_max_dim, uint32_t &textureMemUsed)
         GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     }
     return true;
+}
+
+
+void KRTextureCube::bind(size_t &textureMemUsed, int max_dim, bool can_resize)
+{
+    textureMemUsed -= getMemSize();
+    
+    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, getHandle(max_dim, can_resize)));
+    GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    
+    textureMemUsed += getMemSize();
 }

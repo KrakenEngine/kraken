@@ -52,12 +52,13 @@ public:
     int getMaxMipMap();
     int getMinMipMap();
     
-    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, uint32_t &textureMemUsed);
+    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed);
+    virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize);
     
 private:
     KRDataBlock *m_pData;
     
-    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed);
+    virtual bool createGLTexture(int lod_max_dim);
 
     
     uint32_t  m_iWidth;

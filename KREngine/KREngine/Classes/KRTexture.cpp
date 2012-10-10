@@ -19,36 +19,36 @@ KRTexture::KRTexture(KRContext &context) : KRContextObject(context)
 
 KRTexture::~KRTexture()
 {
-    long textureMemFreed = 0;
+    size_t textureMemFreed = 0;
     releaseHandle(textureMemFreed);
 }
 
-void KRTexture::releaseHandle(long &textureMemUsed) {
+void KRTexture::releaseHandle(size_t &textureMemUsed) {
+    textureMemUsed -= getMemSize();
     if(m_iHandle != 0) {
-        textureMemUsed -= getMemSize();
         GLDEBUG(glDeleteTextures(1, &m_iHandle));
         m_iHandle = 0;
         m_textureMemUsed = 0;
     }
+    textureMemUsed += getMemSize();
 }
 
 long KRTexture::getMemSize() {
     return m_textureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }
 
-GLuint KRTexture::getHandle(long &textureMemUsed, int max_dim, bool can_resize) {
+GLuint KRTexture::getHandle(int max_dim, bool can_resize) {
     // Constrain target LOD to be within mipmap levels of texture
     int target_dim = max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
     if(target_dim > m_max_lod_max_dim) target_dim = m_max_lod_max_dim;
     
     if(can_resize && m_current_lod_max_dim != target_dim) {
-        releaseHandle(textureMemUsed);
+        size_t memFreed = 0;
+        releaseHandle(memFreed);
     }
     if(m_iHandle == 0) {
-        if(createGLTexture(target_dim, m_textureMemUsed)) {
-            textureMemUsed += getMemSize();
-        } else {
+        if(!createGLTexture(target_dim)) {
             assert(false);
         }
     }

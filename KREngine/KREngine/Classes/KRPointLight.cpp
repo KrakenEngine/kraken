@@ -126,12 +126,6 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
                 GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView2.getPointer()));
                 
                 
-                KRMat4 matInvProjection;
-                matInvProjection = pCamera->getProjectionMatrix();
-                matInvProjection.invert();
-                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_INVP], 1, GL_FALSE, matInvProjection.getPointer()));
-                
-                
                 if(bVisualize) {
                     // Enable additive blending
                     GLDEBUG(glEnable(GL_BLEND));

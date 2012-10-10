@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1000469D15E6EF550053B072 /* KRSkyBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1000469B15E6EF550053B072 /* KRSkyBox.cpp */; };
-		1000469E15E6EF550053B072 /* KRSkyBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 1000469C15E6EF550053B072 /* KRSkyBox.h */; };
 		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; };
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; };
 		E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
@@ -21,6 +19,8 @@
 		E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
 		E414BAEB14355E5500A668C4 /* KRBoundingVolume.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */; };
 		E414BAED14355EFF00A668C4 /* KRBoundingVolume.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */; };
+		E41B841E16260C5600C7A771 /* sky_box.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E41B841D16260C5600C7A771 /* sky_box.fsh */; };
+		E41B842116260C6500C7A771 /* sky_box.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E41B842016260C6500C7A771 /* sky_box.vsh */; };
 		E42CB1EC158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; };
 		E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; };
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
@@ -125,7 +125,6 @@
 		E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */; };
 		E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B915F7C7B200DDB4C8 /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4AFC6BA15F7C7C300DDB4C8 /* KRSkyBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1000469B15E6EF550053B072 /* KRSkyBox.cpp */; };
 		E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
 		E4AFC6BC15F7C95D00DDB4C8 /* KRSceneManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E46C214915364DDB009CABF3 /* KRSceneManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -192,8 +191,6 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		1000469B15E6EF550053B072 /* KRSkyBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSkyBox.cpp; path = Classes/KRSkyBox.cpp; sourceTree = "<group>"; };
-		1000469C15E6EF550053B072 /* KRSkyBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRSkyBox.h; path = Classes/KRSkyBox.h; sourceTree = "<group>"; };
 		E4030E4B160A3CF000592648 /* KRStockGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRStockGeometry.h; path = Classes/KRStockGeometry.h; sourceTree = "<group>"; };
 		E40BA45215EFF79500D7C3DD /* KRAABB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAABB.cpp; path = Classes/KRAABB.cpp; sourceTree = "<group>"; };
 		E40BA45315EFF79500D7C3DD /* KRAABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAABB.h; path = Classes/KRAABB.h; sourceTree = "<group>"; };
@@ -203,6 +200,8 @@
 		E414BAE81435585A00A668C4 /* KRScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRScene.cpp; path = Classes/KRScene.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E414BAEA14355E5500A668C4 /* KRBoundingVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRBoundingVolume.h; path = Classes/KRBoundingVolume.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E414BAEC14355EFF00A668C4 /* KRBoundingVolume.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRBoundingVolume.cpp; path = Classes/KRBoundingVolume.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E41B841D16260C5600C7A771 /* sky_box.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.fsh; path = Shaders/sky_box.fsh; sourceTree = "<group>"; };
+		E41B842016260C6500C7A771 /* sky_box.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.vsh; path = Shaders/sky_box.vsh; sourceTree = "<group>"; };
 		E42CB1EB158446940066E0D8 /* KRQuaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRQuaternion.h; path = Classes/KRQuaternion.h; sourceTree = "<group>"; };
 		E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRQuaternion.cpp; path = Classes/KRQuaternion.cpp; sourceTree = "<group>"; };
 		E430D08015F8882F0010558D /* occlusion_test.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.fsh; path = Shaders/occlusion_test.fsh; sourceTree = "<group>"; };
@@ -361,6 +360,8 @@
 				E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */,
 				E4CE184C15FF124600F80870 /* light_point_inside.fsh */,
 				E4CE184E15FF125700F80870 /* light_point_inside.vsh */,
+				E41B841D16260C5600C7A771 /* sky_box.fsh */,
+				E41B842016260C6500C7A771 /* sky_box.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -514,8 +515,6 @@
 				E461A171152E599E00F2044A /* Lights */,
 				E4F975311536220900FD60B2 /* KRNode.h */,
 				E4F975351536221C00FD60B2 /* KRNode.cpp */,
-				1000469C15E6EF550053B072 /* KRSkyBox.h */,
-				1000469B15E6EF550053B072 /* KRSkyBox.cpp */,
 			);
 			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
@@ -684,7 +683,6 @@
 				E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
 				E4924C2715EE95E800B965C6 /* KROctree.h in Headers */,
 				E4924C2C15EE96AB00B965C6 /* KROctreeNode.h in Headers */,
-				1000469E15E6EF550053B072 /* KRSkyBox.h in Headers */,
 				E40BA45615EFF79500D7C3DD /* KRAABB.h in Headers */,
 				E488399615F928CA00BD66D5 /* KRBundle.h in Headers */,
 				E488399E15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
@@ -857,7 +855,6 @@
 				E43B0AD615DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */,
 				E4924C2615EE95E800B965C6 /* KROctree.cpp in Sources */,
 				E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */,
-				1000469D15E6EF550053B072 /* KRSkyBox.cpp in Sources */,
 				E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */,
 				E430D08115F8882F0010558D /* occlusion_test.fsh in Sources */,
 				E430D08915F88AD10010558D /* occlusion_test.vsh in Sources */,
@@ -868,6 +865,8 @@
 				E4CE184F15FF125700F80870 /* light_point_inside.vsh in Sources */,
 				E4B175AC161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
 				E4B175B2161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
+				E41B841E16260C5600C7A771 /* sky_box.fsh in Sources */,
+				E41B842116260C6500C7A771 /* sky_box.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -904,7 +903,6 @@
 				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
 				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
 				E46F4A05155DF47C00CCF8B8 /* KRWorld.cpp in Sources */,
-				E4AFC6BA15F7C7C300DDB4C8 /* KRSkyBox.cpp in Sources */,
 				E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
 				E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
 				E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */,

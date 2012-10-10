@@ -45,18 +45,19 @@ public:
     KRTexture(KRContext &context);
     virtual ~KRTexture();
 
-    GLuint getHandle(long &textureMemUsed, int max_dim, bool can_resize);
-    void releaseHandle(long &textureMemUsed);
+    virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize) = 0;
+    void releaseHandle(size_t &textureMemUsed);
     long getMemSize();
 
 
     
 protected:
-    virtual bool createGLTexture(int lod_max_dim, uint32_t &textureMemUsed) = 0;
+    virtual bool createGLTexture(int lod_max_dim) = 0;
+    GLuint getHandle(int max_dim, bool can_resize);
     
     
-    GLuint    m_iHandle;
-    uint32_t m_textureMemUsed;
+    GLuint  m_iHandle;
+    size_t  m_textureMemUsed;
     
     int m_current_lod_max_dim;
     

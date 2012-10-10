@@ -106,18 +106,15 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, int 
                 bActive = false;
                 m_activeTextures.insert(pTexture);
             }
-            long textureMemChange = 0;
-            GLDEBUG(glBindTexture(GL_TEXTURE_2D, pTexture->getHandle(textureMemChange, lod_max_dim < m_lod_max_dim_cap ? lod_max_dim : m_lod_max_dim_cap, !bActive)));
+            size_t textureMemChange = 0;
+            pTexture->bind(textureMemChange, lod_max_dim < m_lod_max_dim_cap ? lod_max_dim : m_lod_max_dim_cap, !bActive);
             m_textureMemUsed += textureMemChange;
             if(bActive) {
                 m_activeTextureMemUsed += textureMemChange;
             } else {
                 m_activeTextureMemUsed += pTexture->getMemSize();
             }
-            // TODO - These texture parameters should be assigned by the material or texture parameters
-            GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
         } else {
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         }
@@ -130,20 +127,23 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, int 
             }
             // Keep texture size within limits
             KRTexture *droppedTexture = (*m_poolTextures.begin());
-            droppedTexture->releaseHandle(m_textureMemUsed);
-            m_poolTextures.erase(droppedTexture);
-            //fprintf(stderr, "Texture Swapping...\n");
+            if(droppedTexture == NULL) {
+                break;
+            } else {
+                droppedTexture->releaseHandle(m_textureMemUsed);
+                m_poolTextures.erase(droppedTexture);
+            }
         } 
     }
     
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
 }
 
-long KRTextureManager::getMemUsed() {
+size_t KRTextureManager::getMemUsed() {
     return m_textureMemUsed;
 }
 
-long KRTextureManager::getActiveMemUsed() {
+size_t KRTextureManager::getActiveMemUsed() {
     return m_activeTextureMemUsed;
 }
 

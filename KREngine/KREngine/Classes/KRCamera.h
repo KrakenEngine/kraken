@@ -39,6 +39,7 @@
 #import "KRAABB.h"
 #import "KRShader.h"
 #import "KRContextObject.h"
+#import "KRTexture.h"
 
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
@@ -111,6 +112,8 @@ public:
     int m_cShadowBuffers;
     
     std::string m_debug_text;
+    
+    void setSkyBox(const std::string &skyBoxName);
 
 private:
     KRVector3 m_position;
@@ -157,6 +160,9 @@ private:
     
     std::set<KRAABB> m_visibleBounds; // AABB's that output fragments in the last frame
     std::set<KRAABB> m_shadowVisibleBounds[KRENGINE_MAX_SHADOW_BUFFERS]; // AABB's that output fragments in the last frame for each shadow map
+    
+    std::string m_skyBoxName;
+    KRTexture *m_pSkyBoxTexture;
     
 };
 

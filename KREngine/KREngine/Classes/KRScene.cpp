@@ -48,6 +48,7 @@ KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, nam
     
     sun_yaw = 4.333; // TODO - Remove temporary testing code
     sun_pitch = 0.55;
+    m_skyBoxName = "";
 }
 KRScene::~KRScene() {
     delete m_pRootNode;
@@ -59,6 +60,7 @@ KRScene::~KRScene() {
 void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visibleBounds, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
     
     updateOctree();
+    pCamera->setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
     
     if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
     
@@ -309,8 +311,10 @@ KRNode *KRScene::getRootNode() {
 
 bool KRScene::save(const std::string& path) {
     tinyxml2::XMLDocument doc;
-    tinyxml2::XMLNode *scene_node = doc.InsertEndChild( doc.NewElement( "scene" ));
+    tinyxml2::XMLElement *scene_node =  doc.NewElement( "scene" );
+    doc.InsertEndChild(scene_node);
     m_pRootNode->saveXML(scene_node);
+    scene_node->SetAttribute("skybox", m_skyBoxName.c_str());  // This is temporary until the camera is moved into the scene graph
     doc.SaveFile(path.c_str());
     return true;
 }
@@ -339,7 +343,10 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
     doc.Parse((char *)data->getStart());
     KRScene *new_scene = new KRScene(context, name);
     
-    KRNode *n = KRNode::LoadXML(*new_scene, doc.RootElement()->FirstChildElement());
+    tinyxml2::XMLElement *scene_element = doc.RootElement();
+    new_scene->m_skyBoxName = scene_element->Attribute("skybox");  // This is temporary until the camera is moved into the scene graph
+    
+    KRNode *n = KRNode::LoadXML(*new_scene, scene_element->FirstChildElement());
     if(n) {
         new_scene->getRootNode()->addChild(n);
     }
