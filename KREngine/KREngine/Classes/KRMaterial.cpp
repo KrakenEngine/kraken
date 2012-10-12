@@ -70,9 +70,9 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
     
     
-    // FINDME - HACK - Test Code:
-    m_reflectionCube = "skycube";
-    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
+//    // FINDME - HACK - Test Code:
+//    m_reflectionCube = "skycube";
+//    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
     
 }
 
@@ -165,9 +165,9 @@ void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_sc
 
 void KRMaterial::setReflectionCube(std::string texture_name) {
     m_reflectionCube = texture_name;
-    // FINDME - HACK - Test Code:
-    m_reflectionCube = "skycube";
-    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
+//    // FINDME - HACK - Test Code:
+//    m_reflectionCube = "skycube";
+//    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
 }
 
 void KRMaterial::setAlphaMode(KRMaterial::alpha_mode_type alpha_mode) {
@@ -192,9 +192,9 @@ void KRMaterial::setSpecular(const KRVector3 &c) {
 
 void KRMaterial::setReflection(const KRVector3 &c) {
     m_reflectionColor = c;
-    // FINDME - HACK - Test Code:
-    m_reflectionCube = "skycube";
-    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
+//    // FINDME - HACK - Test Code:
+//    m_reflectionCube = "skycube";
+//    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
 }
 
 void KRMaterial::setTransparency(GLfloat a) {

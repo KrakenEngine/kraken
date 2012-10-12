@@ -89,6 +89,7 @@
         uniform lowp vec3       material_reflection;
         uniform samplerCube     reflectionCubeTexture;
         #if HAS_NORMAL_MAP == 1
+            varying highp mat3 tangent_to_world_matrix;
             varying mediump vec3 eyeVec;
             uniform highp mat4 model_matrix;
         #else
@@ -286,8 +287,9 @@ void main()
             // -------------------- Add reflected light --------------------
             #if HAS_NORMAL_MAP == 1
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
-                mediump vec3 normalizedEyeVec = normalize(eyeVec);
-                mediump vec3 reflectionVec = mat3(model_matrix) * (normalizedEyeVec - 2.0 * dot(normal, normalizedEyeVec) * normal);
+                mediump vec3 incidenceVec = -normalize(eyeVec);
+                highp vec3 world_space_normal = tangent_to_world_matrix * normal;
+                mediump vec3 reflectionVec = mat3(model_matrix) * (incidenceVec - 2.0 * dot(world_space_normal, incidenceVec) * world_space_normal);
             #endif
             #if HAS_REFLECTION_MAP == 1
                 gl_FragColor += vec4(material_reflection, 0.0) * texture2D(reflectionTexture, reflection_uv) * textureCube(reflectionCubeTexture, reflectionVec);

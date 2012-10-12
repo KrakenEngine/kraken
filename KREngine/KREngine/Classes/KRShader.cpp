@@ -133,6 +133,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] = glGetUniformLocation(m_iProgram, "inv_mvp_matrix_no_translate"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] = glGetUniformLocation(m_iProgram, "model_view_inverse_transpose_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE] = glGetUniformLocation(m_iProgram, "model_inverse_transpose_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_view_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_MATRIX] = glGetUniformLocation(m_iProgram, "model_matrix"));
             
@@ -223,6 +224,11 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
     
     GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, matModelViewInverseTranspose.getPointer()));
     
+    KRMat4 matModelInverseTranspose = matModel;
+    matModelInverseTranspose.transpose();
+    matModelInverseTranspose.invert();
+    
+    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE], 1, GL_FALSE, matModelInverseTranspose.getPointer()));
     
     KRMat4 matInvProjection;
     matInvProjection = pCamera->getProjectionMatrix();

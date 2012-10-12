@@ -125,7 +125,9 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
     #if HAS_REFLECTION_CUBE_MAP == 1
         #if HAS_NORMAL_MAP == 1
+            uniform highp mat4 model_inverse_transpose_matrix;
             varying mediump vec3 eyeVec;
+            varying highp mat3 tangent_to_world_matrix;
         #else
             uniform highp mat4 model_matrix;
             varying mediump vec3 reflectionVec;
@@ -208,7 +210,8 @@ void main()
             #else
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
                 mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
-                reflectionVec = mat3(model_matrix) * (eyeVec - 2.0 * dot(vertex_normal, eyeVec) * vertex_normal);
+                mediump vec3 incidenceVec = -eyeVec;
+                reflectionVec = mat3(model_matrix) * (incidenceVec - 2.0 * dot(vertex_normal, incidenceVec) * vertex_normal);
             #endif
         #endif
     
@@ -265,6 +268,10 @@ void main()
                 #if HAS_REFLECTION_CUBE_MAP == 0
                     // The cube map reflections also require an eyeVec as a varying attribute when normal mapping, so only re-calculate here when needed
                     mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
+                #else
+                    tangent_to_world_matrix[0] = vec3(model_inverse_transpose_matrix * vec4(vertex_tangent, 1.0));
+                    tangent_to_world_matrix[1] = vec3(model_inverse_transpose_matrix * vec4(a_bitangent, 1.0));
+                    tangent_to_world_matrix[2] = vec3(model_inverse_transpose_matrix * vec4(vertex_normal, 1.0));
                 #endif
     
                 lightVec = normalize(vec3(dot(light_direction, vertex_tangent), dot(light_direction, a_bitangent), dot(light_direction, vertex_normal)));
