@@ -229,7 +229,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                 if(bNeedOcclusionTest) {
                     pOctreeNode->beginOcclusionQuery();
                     
-                    KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                    KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
                     
                     KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
                     
@@ -253,8 +253,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    
-                    if(pVisShader->bind(pCamera, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(pVisShader->bind(pCamera, matModel, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     }
                     

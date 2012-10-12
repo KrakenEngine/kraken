@@ -290,3 +290,8 @@ bool KRVector3::operator <(const KRVector3& b) const
         return false;
     }
 }
+
+void KRVector3::setUniform(GLint location) const
+{
+    GLDEBUG(glUniform3f(location, x, y, z));
+}

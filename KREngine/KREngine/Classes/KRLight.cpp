@@ -143,8 +143,8 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix,
                 matModelToView.invert();
                 
                 // Render light flare on transparency pass
-                KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-                if(pShader->bind(pCamera, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+                KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                if(pShader->bind(pCamera, m_modelMatrix, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
                     GLDEBUG(glUniform1f(
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize

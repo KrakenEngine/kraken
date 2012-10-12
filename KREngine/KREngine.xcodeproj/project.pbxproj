@@ -211,11 +211,11 @@
 		E45772F113C9A13C0037BEEA /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ShadowShader.vsh; path = Shaders/ShadowShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F213C9A13C0037BEEA /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
 		E45772F313C9A13C0037BEEA /* PostShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.fsh; path = Shaders/PostShader.fsh; sourceTree = "<group>"; };
-		E45772F413C9A13C0037BEEA /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ObjectShader.fsh; path = Shaders/ObjectShader.fsh; sourceTree = "<group>"; };
+		E45772F413C9A13C0037BEEA /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.fsh; path = Shaders/ObjectShader.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F513C9A13C0037BEEA /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F613C9A13C0037BEEA /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = Shaders/PostShader.vsh; sourceTree = "<group>"; };
 		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLight.h; path = Classes/KRLight.h; sourceTree = "<group>"; };
-		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; };
+		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRPointLight.h; path = Classes/KRPointLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E461A158152E557E00F2044A /* KRPointLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRPointLight.cpp; path = Classes/KRPointLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A15B152E563000F2044A /* KRDirectionalLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRDirectionalLight.h; path = Classes/KRDirectionalLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -285,7 +285,7 @@
 		E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "KRResource+fbx.cpp"; path = "Classes/KRResource+fbx.cpp"; sourceTree = "<group>"; };
 		E497B95C151BF05F00D3DC67 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		E4A9DEBD154120C4009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = Shaders/light_point.fsh; sourceTree = "<group>"; };
+		E4A9DEBD154120C4009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_point.fsh; path = Shaders/light_point.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4A9DEC0154120E8009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = Shaders/light_point.vsh; sourceTree = "<group>"; };
 		E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexture.cpp; path = Classes/KRTexture.cpp; sourceTree = "<group>"; };
 		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; };
@@ -302,7 +302,7 @@
 		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		E4BBBB9A1512A48200F43B5B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = Shaders/font.pvr; sourceTree = "<group>"; };
-		E4CE184C15FF124600F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.fsh; path = Shaders/light_point_inside.fsh; sourceTree = "<group>"; };
+		E4CE184C15FF124600F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_point_inside.fsh; path = Shaders/light_point_inside.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4CE184E15FF125700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
 		E4D133B91538F7480070068C /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = Shaders/light_directional.fsh; sourceTree = "<group>"; };
 		E4D133BB1538F7560070068C /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = Shaders/light_directional.vsh; sourceTree = "<group>"; };
@@ -345,8 +345,8 @@
 				E45772F113C9A13C0037BEEA /* ShadowShader.vsh */,
 				E45772F213C9A13C0037BEEA /* ShadowShader.fsh */,
 				E45772F513C9A13C0037BEEA /* ObjectShader.vsh */,
-				E45772F313C9A13C0037BEEA /* PostShader.fsh */,
 				E45772F413C9A13C0037BEEA /* ObjectShader.fsh */,
+				E45772F313C9A13C0037BEEA /* PostShader.fsh */,
 				E45772F613C9A13C0037BEEA /* PostShader.vsh */,
 				E4D133B91538F7480070068C /* light_directional.fsh */,
 				E4D133BB1538F7560070068C /* light_directional.vsh */,

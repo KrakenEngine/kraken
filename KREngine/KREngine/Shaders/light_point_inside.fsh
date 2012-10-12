@@ -37,7 +37,7 @@ uniform mediump vec4 viewport;
 
 uniform highp mat4 inv_projection_matrix;
 
-uniform highp vec3 view_space_light_position;
+uniform highp vec3 view_space_model_origin;
 
 void main()
 {
@@ -58,9 +58,9 @@ void main()
     mediump vec4 view_space_vertex_position = inv_projection_matrix * clip_space_vertex_position;
     view_space_vertex_position.xyz /= view_space_vertex_position.w;
     
-    mediump float light_distance = max(0.0, distance(view_space_light_position.xyz, view_space_vertex_position.xyz) - light_decay_start);
+    mediump float light_distance = max(0.0, distance(view_space_model_origin.xyz, view_space_vertex_position.xyz) - light_decay_start);
     mediump float light_attenuation = (light_intensity / ((light_distance + 1.0) * (light_distance + 1.0)) - light_cutoff) / (1.0 - light_cutoff);
-    mediump vec3 light_vec = normalize(view_space_light_position.xyz - view_space_vertex_position.xyz);
+    mediump vec3 light_vec = normalize(view_space_model_origin.xyz - view_space_vertex_position.xyz);
     mediump float lamberFactor = dot(light_vec, gbuffer_normal) * 0.2;
     
     mediump float specularFactor = 0.0;

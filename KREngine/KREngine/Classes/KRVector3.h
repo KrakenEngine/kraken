@@ -91,6 +91,8 @@ public:
     static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
+    
+    void setUniform(GLint location) const;
 };
 
 #endif

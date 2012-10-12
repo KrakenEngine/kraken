@@ -86,10 +86,11 @@ double const PI = 3.141592653589793f;
             @"debug_enable_ambient" : @24,
             @"debug_enable_diffuse" : @25,
             @"debug_enable_specular" : @26,
-            @"debug_super_shiny" : @27,
-            @"debug_octree" : @28,
-            @"debug_deferred" : @29,
-            @"enable_deferred_lighting" : @30
+            @"debug_enable_reflection" : @27,
+            @"debug_super_shiny" : @28,
+            @"debug_octree" : @29,
+            @"debug_deferred" : @30,
+            @"enable_deferred_lighting" : @31
         } copy];
         [self loadShaders];
         
@@ -159,7 +160,7 @@ double const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[31] = {
+    NSString *parameter_labels[32] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -187,6 +188,7 @@ double const PI = 3.141592653589793f;
         @"Debug - Enable Ambient",
         @"Debug - Enable Diffuse",
         @"Debug - Enable Specular",
+        @"Debug - Enable Reflections",
         @"Debug - Super Shiny",
         @"Debug - Octree Visualize",
         @"Debug - Deferred Lights Visualize",
@@ -196,7 +198,7 @@ double const PI = 3.141592653589793f;
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[31] = {
+    KREngineParameterType types[32] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -228,13 +230,14 @@ double const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
+        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL
     };
     return types[i];
 }
 -(double)getParameterValueWithIndex: (int)i
 {
-    double values[31] = {
+    double values[32] = {
         _camera->perspective_fov,
         (double)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -262,6 +265,7 @@ double const PI = 3.141592653589793f;
         _camera->bEnableAmbient ? 1.0f : 0.0f,
         _camera->bEnableDiffuse ? 1.0f : 0.0f,
         _camera->bEnableSpecular ? 1.0f : 0.0f,
+        _camera->bEnableReflection ? 1.0f : 0.0f,
         _camera->bDebugSuperShiny ? 1.0f : 0.0f,
         _camera->bShowOctree ? 1.0f : 0.0f,
         _camera->bShowDeferred ? 1.0f : 0.0f,
@@ -386,21 +390,26 @@ double const PI = 3.141592653589793f;
             }
             break;
         case 27:
+            if(_camera->bEnableReflection != bNewBoolVal) {
+                _camera->bEnableReflection = bNewBoolVal;
+            }
+            break;
+        case 28:
             if(_camera->bDebugSuperShiny != bNewBoolVal) {
                 _camera->bDebugSuperShiny = bNewBoolVal;
             }
             break;
-        case 28:
+        case 29:
             if(_camera->bShowOctree != bNewBoolVal) {
                 _camera->bShowOctree = bNewBoolVal;
             }
             break;
-        case 29:
+        case 30:
             if(_camera->bShowDeferred != bNewBoolVal) {
                 _camera->bShowDeferred = bNewBoolVal;
             }
             break;
-        case 30:
+        case 31:
             if(_camera->bEnableDeferredLighting != bNewBoolVal) {
                 _camera->bEnableDeferredLighting = bNewBoolVal;
             }
@@ -410,11 +419,11 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMinWithIndex: (int)i
 {
-    double minValues[31] = {
+    double minValues[32] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f, 0.0f
     };
 
     return minValues[i];
@@ -422,11 +431,11 @@ double const PI = 3.141592653589793f;
 
 -(double)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[31] = {
+    double maxValues[32] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f
+        1.0f, 1.0f, 1.0f, 1.0f
     };
     
     return maxValues[i];

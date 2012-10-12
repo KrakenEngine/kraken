@@ -45,15 +45,11 @@ KRShaderManager::~KRShaderManager() {
 }
 
 
-KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
+KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, int iShadowQuality, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
 
     char szKey[256];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
     
-    
-    /*
-    const char *options = "#define HAS_DIFFUSE_MAP 1\n#define HAS_NORMAL_MAP 0\n#define HAS_SPEC_MAP 0\n#define ENABLE_PER_PIXEL 0\n#define DEBUG_PSSM 0\n#define SHADOW_QUALITY 0\n#define SUN_INTENSITY 1.5\n#define AMBIENT_INTENSITY_R 0.25\n#define AMBIENT_INTENSITY_G 0.25\n#define AMBIENT_INTENSITY_B 0.25\n";
-    */
     KRShader *pShader = m_shaders[szKey];
     
     if(pShader == NULL) {
@@ -69,17 +65,27 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
         stream.precision(std::numeric_limits<long double>::digits10);
         
         stream << "#define HAS_DIFFUSE_MAP " << (bDiffuseMap ? "1" : "0");
+        stream << "\n#define HAS_DIFFUSE_MAP_SCALE " << (bDiffuseMapScale ? "1" : "0");
+        stream << "\n#define HAS_DIFFUSE_MAP_OFFSET " << (bDiffuseMapOffset ? "1" : "0");
+        
+        stream << "\n#define HAS_SPEC_MAP " << (bSpecMap ? "1" : "0");
+        stream << "\n#define HAS_SPEC_MAP_SCALE " << (bSpecMapScale ? "1" : "0");
+        stream << "\n#define HAS_SPEC_MAP_OFFSET " << (bSpecMapOffset ? "1" : "0");
+        
+        stream << "\n#define HAS_NORMAL_MAP " << (bNormalMap ? "1" : "0");
+        stream << "\n#define HAS_NORMAL_MAP_SCALE " << (bNormalMapScale ? "1" : "0");
+        stream << "\n#define HAS_NORMAL_MAP_OFFSET " << (bNormalMapOffset ? "1" : "0");
+        
+        stream << "\n#define HAS_REFLECTION_MAP " << (bReflectionMap ? "1" : "0");
+        stream << "\n#define HAS_REFLECTION_MAP_SCALE " << (bReflectionMapScale ? "1" : "0");
+        stream << "\n#define HAS_REFLECTION_MAP_OFFSET " << (bReflectionMapOffset ? "1" : "0");
+        
+        stream << "\n#define HAS_LIGHT_MAP " << (bLightMap ? "1" : "0");
+        stream << "\n#define HAS_REFLECTION_CUBE_MAP " << (bReflectionCubeMap ? "1" : "0");
+        
         stream << "\n#define ALPHA_TEST " << (bAlphaTest ? "1" : "0");
         stream << "\n#define ALPHA_BLEND " << (bAlphaBlend ? "1" : "0");
-        stream << "\n#define HAS_NORMAL_MAP " << (bNormalMap ? "1" : "0");
-        stream << "\n#define HAS_SPEC_MAP " << (bSpecMap ? "1" : "0");
-        stream << "\n#define HAS_LIGHT_MAP " << (bLightMap ? "1" : "0");
-        stream << "\n#define HAS_NORMAL_MAP_SCALE " << (bNormalMapScale ? "1" : "0");
-        stream << "\n#define HAS_SPEC_MAP_SCALE " << (bSpecMapScale ? "1" : "0");
-        stream << "\n#define HAS_DIFFUSE_MAP_SCALE " << (bDiffuseMapScale ? "1" : "0");
-        stream << "\n#define HAS_NORMAL_MAP_OFFSET " << (bNormalMapOffset ? "1" : "0");
-        stream << "\n#define HAS_SPEC_MAP_OFFSET " << (bSpecMapOffset ? "1" : "0");
-        stream << "\n#define HAS_DIFFUSE_MAP_OFFSET " << (bDiffuseMapOffset ? "1" : "0");
+        
         stream << "\n#define ENABLE_PER_PIXEL " << (pCamera->bEnablePerPixel ? "1" : "0");
         stream << "\n#define DEBUG_PSSM " << (pCamera->bDebugPSSM ? "1" : "0");
         stream << "\n#define SHADOW_QUALITY " << iShadowQuality;

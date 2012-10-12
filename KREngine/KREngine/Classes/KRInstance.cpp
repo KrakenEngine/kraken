@@ -95,8 +95,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
             if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
                 projectionMatrix = pCamera->getProjectionMatrix();
             }
-            KRMat4 matVP = viewMatrix * projectionMatrix;
-            float lod_coverage = getBounds().coverage(matVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
+            KRMat4 matMVP = m_modelMatrix * viewMatrix * projectionMatrix;
+            float lod_coverage = getBounds().coverage(matMVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 
                 // ---===--- Select the best LOD model based on screen coverage ---===---
@@ -120,10 +120,6 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
                     m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 0);
                 }
                 
-                KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-                KRMat4 matModelToView = viewMatrix * m_modelMatrix;
-                matModelToView.transpose();
-                matModelToView.invert();
                 
                 
                 KRMat4 inverseViewMatrix = viewMatrix;
@@ -136,7 +132,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
                 KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
                 KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
                 
-                pModel->render(pCamera, pContext, viewMatrix, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                pModel->render(pCamera, pContext, m_modelMatrix, viewMatrix, matMVP, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }
     }

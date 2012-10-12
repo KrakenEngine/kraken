@@ -81,7 +81,6 @@ public:
     void setReflection(const KRVector3 &c);
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
-    void setReflectionFactor(GLfloat r);
     void setAlphaMode(alpha_mode_type blend_mode);
     alpha_mode_type getAlphaMode();
     
@@ -90,7 +89,7 @@ public:
     char *getName();
     
 #if TARGET_OS_IPHONE
-    bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
     
@@ -135,7 +134,6 @@ private:
     
     GLfloat m_tr; // Transparency
     GLfloat m_ns; // Shininess
-    GLfloat m_reflectionFactor; // Level of reflectivity
     
     alpha_mode_type m_alpha_mode;
 };

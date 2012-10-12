@@ -33,7 +33,7 @@
         varying mediump vec3 normal;
     #endif
 
-    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1
+    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
         varying highp vec2    texCoord;
     #endif
     #if HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1
@@ -57,7 +57,7 @@
     #if HAS_NORMAL_MAP == 1
         varying highp mat3 tangent_to_view_matrix;
     #else
-        uniform highp mat4 model_normal_to_view_matrix;
+        uniform highp mat4 model_view_inverse_transpose_matrix;
     #endif
 
     #if HAS_DIFFUSE_MAP == 1 && ALPHA_TEST == 1
@@ -72,6 +72,7 @@
     uniform lowp vec3   material_ambient, material_diffuse, material_specular;
     uniform lowp float  material_alpha;
 
+
     #if HAS_DIFFUSE_MAP == 1
         uniform sampler2D 		diffuseTexture;
     #endif
@@ -79,6 +80,22 @@
     #if HAS_SPEC_MAP == 1
         uniform sampler2D 		specularTexture;
     #endif
+
+    #if HAS_REFLECTION_MAP == 1
+        uniform sampler2D 		reflectionTexture;
+    #endif
+
+    #if HAS_REFLECTION_CUBE_MAP == 1
+        uniform lowp vec3       material_reflection;
+        uniform samplerCube     reflectionCubeTexture;
+        #if HAS_NORMAL_MAP == 1
+            varying mediump vec3 eyeVec;
+            uniform highp mat4 model_matrix;
+        #else
+            varying mediump vec3 reflectionVec;
+        #endif
+    #endif
+
 
     #if SHADOW_QUALITY >= 1
         uniform sampler2D   shadowTexture1;
@@ -114,6 +131,12 @@
         #define spec_uv texCoord
     #endif
 
+    #if (HAS_REFLECTION_MAP_OFFSET == 1|| HAS_REFLECTION_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+        varying mediump vec2 reflection_uv;
+    #else
+        #define reflection_uv texCoord
+    #endif
+
     #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
         varying highp vec2  diffuse_uv;
     #else
@@ -123,7 +146,7 @@
 #endif
 
 #if GBUFFER_PASS == 1 || GBUFFER_PASS == 3
-uniform mediump vec4 viewport;
+    uniform mediump vec4 viewport;
 #endif
 
 void main()
@@ -133,7 +156,7 @@ void main()
         if(diffuseMaterial.a < 0.5) discard;
     #endif
     
-    #if GBUFFER_PASS == 1 && ALPHA_TEST
+    #if GBUFFER_PASS == 1 && ALPHA_TEST == 1
         if(texture2D(diffuseTexture, diffuse_uv).a < 0.5) discard;
     #endif
     
@@ -153,12 +176,12 @@ void main()
             mediump vec3 normal = normalize(2.0 * texture2D(normalTexture,normal_uv).rgb - 1.0);
             mediump vec3 view_space_normal = tangent_to_view_matrix * normal;
         #else
-            mediump vec3 view_space_normal = vec3(model_normal_to_view_matrix * vec4(normal, 1.0));
+            mediump vec3 view_space_normal = vec3(model_view_inverse_transpose_matrix * vec4(normal, 1.0));
         #endif
         gl_FragColor = vec4(view_space_normal * 0.5 + 0.5, material_shininess / 100.0);
     #else
         #if HAS_DIFFUSE_MAP == 1
-            #if ALPHA_TEST
+            #if ALPHA_TEST == 1
                 diffuseMaterial.a = 1.0;
             #else
                 mediump vec4 diffuseMaterial = texture2D(diffuseTexture, diffuse_uv);
@@ -247,22 +270,34 @@ void main()
             #endif
         #endif
             
-        #if ENABLE_AMBIENT
+        #if ENABLE_AMBIENT == 1
             // -------------------- Add ambient light and alpha component --------------------
             gl_FragColor = vec4(vec3(diffuseMaterial) * material_ambient, 0.0);
         #else
             gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
         #endif
             
-        #if ENABLE_DIFFUSE
+        #if ENABLE_DIFFUSE == 1
             // -------------------- Add diffuse light --------------------
             gl_FragColor += diffuseMaterial * vec4(material_diffuse, 1.0) * vec4(vec3(lamberFactor), 1.0);
-            
-            //gl_FragColor += vec4(vec3(diffuseMaterial) * material_diffuse * lamberFactor, 0.0);
         #endif
-            
-        #if ENABLE_SPECULAR
-            
+    
+        #if HAS_REFLECTION_CUBE_MAP == 1
+            // -------------------- Add reflected light --------------------
+            #if HAS_NORMAL_MAP == 1
+                // Calculate reflection vector as I - 2.0 * dot(N, I) * N
+                mediump vec3 normalizedEyeVec = normalize(eyeVec);
+                mediump vec3 reflectionVec = mat3(model_matrix) * (normalizedEyeVec - 2.0 * dot(normal, normalizedEyeVec) * normal);
+            #endif
+            #if HAS_REFLECTION_MAP == 1
+                gl_FragColor += vec4(material_reflection, 0.0) * texture2D(reflectionTexture, reflection_uv) * textureCube(reflectionCubeTexture, reflectionVec);
+            #else
+                gl_FragColor += vec4(material_reflection, 0.0) * textureCube(reflectionCubeTexture, reflectionVec);
+            #endif
+        #endif
+    
+        #if ENABLE_SPECULAR == 1
+    
             // -------------------- Add specular light --------------------
             #if HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1
                 gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor, 0.0);
@@ -272,13 +307,13 @@ void main()
             
         #endif
 
-        #if ALPHA_BLEND
+        #if ALPHA_BLEND == 1
             gl_FragColor.a = gl_FragColor.a * material_alpha;
         #endif
 
             // -------------------- Multiply light map -------------------- 
             
-        #if HAS_LIGHT_MAP
+        #if HAS_LIGHT_MAP == 1
             mediump vec3 lightMapColor = vec3(texture2D(shadowTexture1, lightmap_uv));
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, gl_FragColor.a);
         #endif

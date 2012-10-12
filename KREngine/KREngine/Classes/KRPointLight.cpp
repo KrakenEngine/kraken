@@ -58,17 +58,6 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
         
         
         KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-        KRMat4 matModelToView = viewMatrix * m_modelMatrix;
-        matModelToView.transpose();
-        matModelToView.invert();
-
-        
-        KRMat4 matModelToView2 = KRMat4() * m_modelMatrix * viewMatrix;
-        
-        KRMat4 matViewToModel = m_modelMatrix * viewMatrix;
-        matViewToModel.invert();
-        
-        KRVector3 view_space_light_position = KRMat4::Dot(matModelToView2, KRVector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
         
         KRBoundingVolume influence_extents = KRBoundingVolume(KRVector3(-1.0), KRVector3(1.0), m_modelMatrix);
         
@@ -81,8 +70,10 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->perspective_nearz) * (influence_radius + pCamera->perspective_nearz);
             
-            KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-            if(pShader->bind(pCamera, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+            KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            if(pShader->bind(pCamera, m_modelMatrix, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+                
+                
                 
                 
                 GLDEBUG(glUniform3f(
@@ -114,16 +105,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
                             light_position.y,
                             light_position.z
                 ));
-                
-                GLDEBUG(glUniform3f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE],
-                            view_space_light_position.x,
-                            view_space_light_position.y,
-                            view_space_light_position.z
-                ));
-                
-                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_V2M], 1, GL_FALSE, matViewToModel.getPointer()));
-                GLDEBUG(glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView2.getPointer()));
+    
                 
                 
                 if(bVisualize) {

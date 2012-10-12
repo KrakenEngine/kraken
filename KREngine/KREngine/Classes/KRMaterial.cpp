@@ -50,7 +50,7 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_ambientColor = KRVector3::Zero();
     m_diffuseColor = KRVector3::One();
     m_specularColor = KRVector3::One();
-    m_reflectionColor = KRVector3::One();
+    m_reflectionColor = KRVector3::Zero();
     m_tr = (GLfloat)1.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";
@@ -67,8 +67,13 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_diffuseMapScale = KRVector2(1.0f, 1.0f);
     m_reflectionMapOffset = KRVector2(0.0f, 0.0f);
     m_reflectionMapScale = KRVector2(1.0f, 1.0f);
-    m_reflectionFactor = 0.0f;
     m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
+    
+    
+    // FINDME - HACK - Test Code:
+    m_reflectionCube = "skycube";
+    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
+    
 }
 
 KRMaterial::~KRMaterial() {
@@ -91,7 +96,6 @@ bool KRMaterial::save(const std::string& path) {
         fprintf(f, "kr %f %f %f\n", m_reflectionColor.x, m_reflectionColor.y, m_reflectionColor.z);
         fprintf(f, "Tr %f\n", m_tr);
         fprintf(f, "Ns %f\n", m_ns);
-        fprintf(f, "reflectionFactor %f\n", m_reflectionFactor);
         if(m_ambientMap.size()) {
             fprintf(f, "map_Ka %s.pvr -s %f %f -o %f %f\n", m_ambientMap.c_str(), m_ambientMapScale.x, m_ambientMapScale.y, m_ambientMapOffset.x, m_ambientMapOffset.y);
         }
@@ -161,6 +165,9 @@ void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_sc
 
 void KRMaterial::setReflectionCube(std::string texture_name) {
     m_reflectionCube = texture_name;
+    // FINDME - HACK - Test Code:
+    m_reflectionCube = "skycube";
+    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
 }
 
 void KRMaterial::setAlphaMode(KRMaterial::alpha_mode_type alpha_mode) {
@@ -185,6 +192,9 @@ void KRMaterial::setSpecular(const KRVector3 &c) {
 
 void KRMaterial::setReflection(const KRVector3 &c) {
     m_reflectionColor = c;
+    // FINDME - HACK - Test Code:
+    m_reflectionCube = "skycube";
+    m_reflectionColor = KRVector3(0.75, 0.75, 0.75);
 }
 
 void KRMaterial::setTransparency(GLfloat a) {
@@ -198,16 +208,12 @@ void KRMaterial::setShininess(GLfloat s) {
     m_ns = s;
 }
 
-void KRMaterial::setReflectionFactor(GLfloat r) {
-    m_reflectionFactor = r;
-}
-
 bool KRMaterial::isTransparent() {
     return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
 #if TARGET_OS_IPHONE
-bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;
     bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     
@@ -234,18 +240,21 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         KRVector2 default_scale = KRVector2(1.0f, 1.0f);
         KRVector2 default_offset = KRVector2(0.0f, 0.0f);
         
+        bool bHasReflection = m_reflectionColor != KRVector3(0.0f, 0.0f, 0.0f);
         bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;
         bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
         bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
-        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->bEnableReflectionMap;
+        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->bEnableReflectionMap && pCamera->bEnableReflection && bHasReflection;
+        bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->bEnableReflection && bHasReflection;
         bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
         bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
         
-        KRShader *pShader = pContext->getShaderManager()->getShader("ObjectShader", pCamera, bDiffuseMap, bNormalMap, bSpecMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
+        
+        KRShader *pShader = pContext->getShaderManager()->getShader("ObjectShader", pCamera, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
-            if(!pShader->bind(pCamera, matModelToView, mvpMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass)) {
+            if(!pShader->bind(pCamera, matModel, matView, mvpMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass)) {
                 return false;
             }
             
@@ -406,7 +415,6 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
-        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY], m_reflectionFactor));
         
         if(bDiffuseMap) {
             m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap, 2048);
@@ -418,6 +426,10 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
 
         if(bNormalMap) {
             m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, 2048);
+        }
+        
+        if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+            m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, 2048);
         }
         
         if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {

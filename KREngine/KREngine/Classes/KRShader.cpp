@@ -118,9 +118,8 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTION] = glGetUniformLocation(m_iProgram, "material_reflection"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY] = glGetUniformLocation(m_iProgram, "material_reflectivity"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_light_position"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_model_origin"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_COLOR] = glGetUniformLocation(m_iProgram, "light_color"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_INTENSITY] = glGetUniformLocation(m_iProgram, "light_intensity"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DECAY_START] = glGetUniformLocation(m_iProgram, "light_decay_start"));
@@ -128,13 +127,17 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FLARE_SIZE] = glGetUniformLocation(m_iProgram, "flare_size"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess"));
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVMVP] = glGetUniformLocation(m_iProgram, "inv_mvp_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVP] = glGetUniformLocation(m_iProgram, "inv_projection_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] = glGetUniformLocation(m_iProgram, "inv_mvp_matrix_no_translate"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MN2V] = glGetUniformLocation(m_iProgram, "model_normal_to_view_matrix"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_to_view_matrix"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_V2M] = glGetUniformLocation(m_iProgram, "view_to_model_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] = glGetUniformLocation(m_iProgram, "model_view_inverse_transpose_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_M2V] = glGetUniformLocation(m_iProgram, "model_view_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_MATRIX] = glGetUniformLocation(m_iProgram, "model_matrix"));
+            
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_V2M] = glGetUniformLocation(m_iProgram, "inv_model_view_matrix"));
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3"));
@@ -145,6 +148,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] = glGetUniformLocation(m_iProgram, "specularTexture"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE] = glGetUniformLocation(m_iProgram, "reflectionTexture"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE] = glGetUniformLocation(m_iProgram, "reflectionCubeTexture"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE] = glGetUniformLocation(m_iProgram, "normalTexture"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "diffuseTexture_Scale"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE] = glGetUniformLocation(m_iProgram, "specularTexture_Scale"));
@@ -197,12 +201,12 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     if(m_iProgram == 0) {
         return false;
     }
     
-    KRMat4 inverseViewMatrix = matModelToView;
+    KRMat4 inverseViewMatrix = matView;
     inverseViewMatrix.invert();
     KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
     
@@ -211,7 +215,13 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
 
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MVP], 1, GL_FALSE, mvpMatrix.getPointer()));
-    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MN2V], 1, GL_FALSE, matModelToView.getPointer()));
+    
+    
+    KRMat4 matModelViewInverseTranspose = matView * matModel;
+    matModelViewInverseTranspose.transpose();
+    matModelViewInverseTranspose.invert();
+    
+    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, matModelViewInverseTranspose.getPointer()));
     
     
     KRMat4 matInvProjection;
@@ -223,7 +233,7 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     matInvMVP.invert();
     GLDEBUG(glUniformMatrix4fv(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP], 1, GL_FALSE, matInvMVP.getPointer()));
     
-    KRMat4 matInvMVPNoTranslate = matModelToView;
+    KRMat4 matInvMVPNoTranslate = matModel * matView;
     // Remove the translation
     matInvMVPNoTranslate.getPointer()[3] = 0;
     matInvMVPNoTranslate.getPointer()[7] = 0;
@@ -236,7 +246,27 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     matInvMVPNoTranslate.invert();
     GLDEBUG(glUniformMatrix4fv(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE], 1, GL_FALSE, matInvMVPNoTranslate.getPointer()));
     
+    GLDEBUG(glUniformMatrix4fv(m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_MATRIX], 1, GL_FALSE, matModel.getPointer()));
+    
 
+    {
+        KRMat4 matModelToView2 = KRMat4() * matModel * matView;
+        GLDEBUG(glUniformMatrix4fv(m_uniforms[KRShader::KRENGINE_UNIFORM_M2V], 1, GL_FALSE, matModelToView2.getPointer()));
+        
+        KRVector3 view_space_model_origin = KRMat4::Dot(matModelToView2, KRVector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
+        GLDEBUG(glUniform3f(
+                            m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE],
+                            view_space_model_origin.x,
+                            view_space_model_origin.y,
+                            view_space_model_origin.z
+                            ));
+        
+        
+        KRMat4 matViewToModel = matModelToView2;
+        matViewToModel.invert();
+        GLDEBUG(glUniformMatrix4fv(m_uniforms[KRShader::KRENGINE_UNIFORM_V2M], 1, GL_FALSE, matViewToModel.getPointer()));
+    }
+    
 
     KRVector3 nLightDir = lightDirection;
     nLightDir.normalize();
@@ -283,6 +313,8 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1], 3));
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4));
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5));
+    
+    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE], 4));
     
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6));
     

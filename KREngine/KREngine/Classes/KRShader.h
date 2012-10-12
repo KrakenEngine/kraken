@@ -54,7 +54,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    bool bind(KRCamera *pCamera, KRMat4 &matModelToView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
+    bool bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
     
 #endif
     
@@ -74,7 +74,6 @@ public:
         KRENGINE_UNIFORM_MATERIAL_REFLECTION,
         KRENGINE_UNIFORM_MATERIAL_ALPHA,
         KRENGINE_UNIFORM_MATERIAL_SHININESS,
-        KRENGINE_UNIFORM_MATERIAL_REFLECTIVITY,
         
         KRENGINE_UNIFORM_LIGHT_POSITION,
         KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE,
@@ -91,14 +90,16 @@ public:
         KRENGINE_UNIFORM_INVP,
         KRENGINE_UNIFORM_INVMVP,
         KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE,
-        KRENGINE_UNIFORM_MN2V,
+        KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE,
         KRENGINE_UNIFORM_M2V,
         KRENGINE_UNIFORM_V2M,
+        KRENGINE_UNIFORM_MODEL_MATRIX,
         
         KRENGINE_UNIFORM_CAMERAPOS,
         KRENGINE_UNIFORM_VIEWPORT,
         KRENGINE_UNIFORM_DIFFUSETEXTURE,
         KRENGINE_UNIFORM_SPECULARTEXTURE,
+        KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE,
         KRENGINE_UNIFORM_REFLECTIONTEXTURE,
         KRENGINE_UNIFORM_NORMALTEXTURE,
         KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE,

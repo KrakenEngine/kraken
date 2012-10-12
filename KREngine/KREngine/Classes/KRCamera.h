@@ -75,6 +75,7 @@ public:
     bool bEnableNormalMap;
     bool bEnableSpecMap;
     bool bEnableReflectionMap;
+    bool bEnableReflection;
     bool bEnableLightMap;
     bool bDebugPSSM;
     bool bDebugSuperShiny;

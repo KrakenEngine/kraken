@@ -60,16 +60,16 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &
         KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
 
         KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-        KRMat4 matModelToView = viewMatrix * m_modelMatrix;
-        matModelToView.transpose();
-        matModelToView.invert();
+        KRMat4 matModelViewInverseTranspose = viewMatrix * m_modelMatrix;
+        matModelViewInverseTranspose.transpose();
+        matModelViewInverseTranspose.invert();
         
         KRVector3 light_direction_view_space = getWorldLightDirection();
-        light_direction_view_space = KRMat4::Dot(matModelToView, light_direction_view_space);
+        light_direction_view_space = KRMat4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, renderPass);
-        if(pShader->bind(pCamera, matModelToView, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+        KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+        if(pShader->bind(pCamera, m_modelMatrix, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
             
             
             GLDEBUG(glUniform3f(

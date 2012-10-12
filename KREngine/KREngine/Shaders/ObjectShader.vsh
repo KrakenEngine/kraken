@@ -23,7 +23,7 @@
 //  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  
+//
 //  The views and conclusions contained in the software and documentation are those of the
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
@@ -34,7 +34,7 @@ attribute mediump vec2	vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
-    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1
+    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
         varying highp vec2 texCoord;
     #endif
     #if HAS_NORMAL_MAP == 1
@@ -61,7 +61,7 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 #if GBUFFER_PASS == 1
     #if HAS_NORMAL_MAP == 1
-        uniform highp mat4 model_normal_to_view_matrix;
+        uniform highp mat4 model_view_inverse_transpose_matrix;
         varying highp mat3 tangent_to_view_matrix;
     #endif
 #else
@@ -90,6 +90,18 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
             uniform highp vec2    specularTexture_Offset;
         #endif
 
+        #if HAS_REFLECTION_MAP_OFFSET == 1 || HAS_REFLECTION_MAP_SCALE == 1
+            varying highp vec2 reflection_uv;
+        #endif
+
+        #if HAS_REFLECTION_MAP_SCALE == 1
+            uniform highp vec2    reflection_Scale;
+        #endif
+
+        #if HAS_REFLECTION_MAP_OFFSET == 1
+            uniform highp vec2    reflection_Offset;
+        #endif
+
         #if SHADOW_QUALITY >= 1
             uniform highp mat4  shadow_mvp1;
             varying highp vec4	shadowMapCoord1;
@@ -108,6 +120,16 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
     #else
         varying mediump float   lamberFactor;
         varying mediump float   specularFactor;
+    #endif
+
+
+    #if HAS_REFLECTION_CUBE_MAP == 1
+        #if HAS_NORMAL_MAP == 1
+            varying mediump vec3 eyeVec;
+        #else
+            uniform highp mat4 model_matrix;
+            varying mediump vec3 reflectionVec;
+        #endif
     #endif
 
     #if HAS_DIFFUSE_MAP_SCALE == 1
@@ -131,10 +153,12 @@ void main()
     // Transform position
     gl_Position = mvp_matrix * vec4(vertex_position,1.0);
     
-    #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1)
+    #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_REFLECTION_MAP == 1 && ENABLE_PER_PIXEL == 1)
         // Pass UV co-ordinates
         texCoord = vertex_uv.st;
     #endif
+    
+
     
 
     // Scaled and translated normal map UV's
@@ -170,13 +194,25 @@ void main()
     #if GBUFFER_PASS == 1
         #if HAS_NORMAL_MAP == 1
             mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
-            tangent_to_view_matrix[0] = vec3(model_normal_to_view_matrix * vec4(vertex_tangent, 1.0));
-            tangent_to_view_matrix[1] = vec3(model_normal_to_view_matrix * vec4(a_bitangent, 1.0));
-            tangent_to_view_matrix[2] = vec3(model_normal_to_view_matrix * vec4(vertex_normal, 1.0));
+            tangent_to_view_matrix[0] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_tangent, 1.0));
+            tangent_to_view_matrix[1] = vec3(model_view_inverse_transpose_matrix * vec4(a_bitangent, 1.0));
+            tangent_to_view_matrix[2] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_normal, 1.0));
         #else
             normal = vertex_normal;
         #endif
     #else
+
+        #if HAS_REFLECTION_CUBE_MAP == 1
+            #if HAS_NORMAL_MAP == 1
+                eyeVec = normalize(cameraPosition - vertex_position);
+            #else
+                // Calculate reflection vector as I - 2.0 * dot(N, I) * N
+                mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
+                reflectionVec = mat3(model_matrix) * (eyeVec - 2.0 * dot(vertex_normal, eyeVec) * vertex_normal);
+            #endif
+        #endif
+    
+    
         #if HAS_LIGHT_MAP == 1
             // Pass shadow UV co-ordinates
             lightmap_uv = vertex_lightmap_uv.st;
@@ -196,12 +232,24 @@ void main()
                     spec_uv *= specularTexture_Scale;
                 #endif
             #endif
-        
-        
+    
+            // Scaled and translated reflection map UV's
+            #if HAS_REFLECTION_MAP_OFFSET == 1 || HAS_REFLECTION_MAP_SCALE == 1
+                reflection_uv = texCoord;
+                #if HAS_REFLECTION_MAP_OFFSET == 1
+                    reflection_uv + reflectionTexture_Offset;
+                #endif
+                    
+                #if HAS_REFLECTION_MAP_SCALE == 1
+                    reflection_uv *= reflectionTexture_Scale;
+                #endif
+            #endif
+    
+    
             #if SHADOW_QUALITY >= 1
                 shadowMapCoord1 = shadow_mvp1 * vec4(vertex_position,1.0);
             #endif
-                
+    
             #if SHADOW_QUALITY >= 2
                 shadowMapCoord2 = shadow_mvp2 * vec4(vertex_position,1.0);
             #endif
@@ -214,8 +262,11 @@ void main()
             #if HAS_NORMAL_MAP == 1
                 // ----- Calculate per-pixel lighting in tangent space, for normal mapping ------
                 mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
-                mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
-                
+                #if HAS_REFLECTION_CUBE_MAP == 0
+                    // The cube map reflections also require an eyeVec as a varying attribute when normal mapping, so only re-calculate here when needed
+                    mediump vec3 eyeVec = normalize(cameraPosition - vertex_position);
+                #endif
+    
                 lightVec = normalize(vec3(dot(light_direction, vertex_tangent), dot(light_direction, a_bitangent), dot(light_direction, vertex_normal)));
                 halfVec = normalize(vec3(dot(eyeVec, vertex_tangent), dot(eyeVec, a_bitangent), dot(eyeVec, vertex_normal)));
                 halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2

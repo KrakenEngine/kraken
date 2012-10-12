@@ -58,6 +58,7 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRContextObj
     bEnableNormalMap = true;
     bEnableSpecMap = true;
     bEnableReflectionMap = true;
+    bEnableReflection = true;
     bDebugPSSM = false;
     bEnableAmbient = true;
     bEnableDiffuse = true;
@@ -394,8 +395,9 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
     
     if(m_pSkyBoxTexture) {
         KRMat4 mvpMatrix = viewMatrix * getProjectionMatrix();
-        KRShader *pShader = getContext().getShaderManager()->getShader("sky_box", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
-        pShader->bind(this, viewMatrix, mvpMatrix, lightDirection, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        KRMat4 matModel;
+        KRShader *pShader = getContext().getShaderManager()->getShader("sky_box", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        pShader->bind(this, matModel, viewMatrix, mvpMatrix, lightDirection, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE);
         
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 2048);
         
@@ -468,7 +470,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
         GLDEBUG(glEnable(GL_CULL_FACE));
         
         
-        KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
         KRMat4 projectionMatrix = getProjectionMatrix();
         
@@ -478,8 +480,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
             matModel.scale((*itr).size() / 2.0f);
             matModel.translate((*itr).center());
             KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
-            
-            if(pVisShader->bind(this, viewMatrix, mvpmatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+            if(pVisShader->bind(this, matModel, viewMatrix, mvpmatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -632,10 +633,11 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     GLDEBUG(glDisable(GL_BLEND));
     
     // Use shader program
-    KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     KRMat4 matIdentity; // Value not used by postshader
     KRVector3 vec4Temp; // Value not used by postshader
-    shadowShader->bind(this, matIdentity, matIdentity, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRMat4 matModel;
+    shadowShader->bind(this, matModel, matIdentity, matIdentity, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     GLDEBUG(glUniformMatrix4fv(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
@@ -703,10 +705,11 @@ void KRCamera::renderPost()
 
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
-    KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     KRMat4 matIdentity; // Value not used by postshader
     KRVector3 vec4Temp; // Value not used by postshader
-    postShader->bind(this, matIdentity, matIdentity, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRMat4 matModel;
+    postShader->bind(this, matModel, matIdentity, matIdentity, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
     GLDEBUG(glActiveTexture(GL_TEXTURE0));

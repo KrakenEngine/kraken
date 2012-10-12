@@ -463,11 +463,15 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
                 lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
                 double specular_factor = lKFbxDouble1.Get();
                 
+                // Reflection factor
+                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+                
                 // Reflection color
                 lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Reflection;
                 
-                // Reflection factor
-                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+                // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
+                new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
+                
             } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
                 // We found a Lambert material.
                 
