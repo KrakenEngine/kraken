@@ -105,6 +105,8 @@ public:
     static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
     static float DotW(const KRMat4 &m, const KRVector3 &v);
     static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
+    
+    static KRMat4 LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection);
 };
 
 #endif // KRMAT4_I

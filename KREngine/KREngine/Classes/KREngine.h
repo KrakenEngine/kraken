@@ -50,7 +50,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 @property(nonatomic, assign) KRCamera *camera;
 @property(nonatomic, retain) NSString *debug_text;
 
-- (id)initForWidth: (GLuint)width Height: (GLuint)height;
+- (id)init;
 - (BOOL)loadResource:(NSString *)path;
 
 // Parameter enumeration interface

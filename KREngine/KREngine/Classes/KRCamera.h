@@ -52,7 +52,7 @@ class KRContext;
 
 class KRCamera : public KRContextObject {
 public:
-    KRCamera(KRContext &context, GLint width, GLint height);
+    KRCamera(KRContext &context);
     virtual ~KRCamera();
     
     GLint backingWidth, backingHeight;
@@ -60,7 +60,7 @@ public:
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix);
     void renderShadowBuffer(KRScene &scene, int iShadow);
     void invalidateShadowBuffers();
-    void allocateShadowBuffers();
+    void allocateShadowBuffers(int cBuffers);
     void createBuffers();
     
     KRVector3 getPosition() const;

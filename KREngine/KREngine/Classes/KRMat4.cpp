@@ -303,3 +303,31 @@ KRVector3 KRMat4::DotWDiv(const KRMat4 &m, const KRVector3 &v) {
     r /= DotW(m, v);
     return r;
 }
+
+KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection)
+{
+    KRMat4 matLookat;
+    KRVector3 lookat_z_axis = lookAtPos - cameraPos;
+    lookat_z_axis.normalize();
+    KRVector3 lookat_x_axis = KRVector3::Cross(upDirection, lookat_z_axis);
+    lookat_x_axis.normalize();
+    KRVector3 lookat_y_axis = KRVector3::Cross(lookat_z_axis, lookat_x_axis);
+    
+    matLookat.getPointer()[0] = lookat_x_axis.x;
+    matLookat.getPointer()[1] = lookat_y_axis.x;
+    matLookat.getPointer()[2] = lookat_z_axis.x;
+    
+    matLookat.getPointer()[4] = lookat_x_axis.y;
+    matLookat.getPointer()[5] = lookat_y_axis.y;
+    matLookat.getPointer()[6] = lookat_z_axis.y;
+    
+    matLookat.getPointer()[8] = lookat_x_axis.z;
+    matLookat.getPointer()[9] = lookat_y_axis.z;
+    matLookat.getPointer()[10] = lookat_z_axis.z;
+    
+    matLookat.getPointer()[12] = -KRVector3::Dot(lookat_x_axis, cameraPos);
+    matLookat.getPointer()[13] = -KRVector3::Dot(lookat_y_axis, cameraPos);
+    matLookat.getPointer()[14] = -KRVector3::Dot(lookat_z_axis, cameraPos);
+    
+    return matLookat;
+}

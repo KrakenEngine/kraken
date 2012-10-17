@@ -42,9 +42,9 @@
 #import "KRBoundingVolume.h"
 #import "KRStockGeometry.h"
 
-KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRContextObject(context) {
-    backingWidth = width;
-    backingHeight = height;
+KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
+    backingWidth = 0;
+    backingHeight = 0;
     
     
     double const PI = 3.141592653589793f;
@@ -96,6 +96,12 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRContextObj
     
     
     m_cShadowBuffers = 0;
+    compositeDepthTexture = 0;
+    compositeColorTexture = 0;
+    lightAccumulationTexture = 0;
+    compositeFramebuffer = 0;
+    lightAccumulationBuffer = 0;
+    
     
     memset(shadowFramebuffer, sizeof(GLuint) * 3, 0);
     memset(shadowDepthTexture, sizeof(GLuint) * 3, 0);
@@ -104,8 +110,6 @@ KRCamera::KRCamera(KRContext &context, GLint width, GLint height) : KRContextObj
     
     m_skyBoxName = "";
     m_pSkyBoxTexture = NULL;
-    
-    createBuffers();
 }
 
 KRCamera::~KRCamera() {
@@ -139,6 +143,8 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
+    createBuffers();
+    
     m_pContext->rotateBuffers(true);
     KRMat4 invViewMatrix = viewMatrix;
     invViewMatrix.invert();
@@ -157,7 +163,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
     
     lightDirection.normalize();
     
-    allocateShadowBuffers();
+    allocateShadowBuffers(m_cShadowBuffers);
     int iOffset=m_iFrame % m_cShadowBuffers;
     for(int iShadow2=iOffset; iShadow2 < m_cShadowBuffers + iOffset; iShadow2++) {
         int iShadow = iShadow2 % m_cShadowBuffers;
@@ -202,6 +208,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 
 
 void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition) {
+    
     setViewportSize(KRVector2(backingWidth, backingHeight));
     
     
@@ -497,52 +504,63 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightD
 
 
 void KRCamera::createBuffers() {
-    // ===== Create offscreen compositing framebuffer object =====
-    GLDEBUG(glGenFramebuffers(1, &compositeFramebuffer));
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+    GLint renderBufferWidth = 0, renderBufferHeight = 0;
+    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
+    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
     
-    // ----- Create texture color buffer for compositeFramebuffer -----
-	GLDEBUG(glGenTextures(1, &compositeColorTexture));
-	GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
-    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0));
-    
-    // ----- Create Depth Texture for compositeFramebuffer -----
-    GLDEBUG(glGenTextures(1, &compositeDepthTexture));
-	GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
-    //GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
-    //GLDEBUG(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight));
-    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    
-    // ===== Create offscreen compositing framebuffer object =====
-    GLDEBUG(glGenFramebuffers(1, &lightAccumulationBuffer));
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
-    
-    // ----- Create texture color buffer for compositeFramebuffer -----
-	GLDEBUG(glGenTextures(1, &lightAccumulationTexture));
-	GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-	GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
-    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
-    
-    allocateShadowBuffers();
+    if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
+        backingWidth = renderBufferWidth;
+        backingHeight = renderBufferHeight;
+
+        destroyBuffers();
+        
+        // ===== Create offscreen compositing framebuffer object =====
+        GLDEBUG(glGenFramebuffers(1, &compositeFramebuffer));
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+        
+        // ----- Create texture color buffer for compositeFramebuffer -----
+        GLDEBUG(glGenTextures(1, &compositeColorTexture));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0));
+        
+        // ----- Create Depth Texture for compositeFramebuffer -----
+        GLDEBUG(glGenTextures(1, &compositeDepthTexture));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+        //GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+        //GLDEBUG(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+        
+        // ===== Create offscreen compositing framebuffer object =====
+        GLDEBUG(glGenFramebuffers(1, &lightAccumulationBuffer));
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
+        
+        // ----- Create texture color buffer for compositeFramebuffer -----
+        GLDEBUG(glGenTextures(1, &lightAccumulationTexture));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
+        
+        allocateShadowBuffers(m_cShadowBuffers);
+    }
 }
 
-void KRCamera::allocateShadowBuffers() {
+void KRCamera::allocateShadowBuffers(int cBuffers) {
     // First deallocate buffers no longer needed
-    for(int iShadow = m_cShadowBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
+    for(int iShadow = cBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
         if (shadowDepthTexture[iShadow]) {
             GLDEBUG(glDeleteTextures(1, shadowDepthTexture + iShadow));
             shadowDepthTexture[iShadow] = 0;
@@ -555,7 +573,7 @@ void KRCamera::allocateShadowBuffers() {
     }
     
     // Allocate newly required buffers
-    for(int iShadow = 0; iShadow < m_cShadowBuffers; iShadow++) {
+    for(int iShadow = 0; iShadow < cBuffers; iShadow++) {
         if(!shadowDepthTexture[iShadow]) {
             shadowValid[iShadow] = false;
             
@@ -580,8 +598,7 @@ void KRCamera::allocateShadowBuffers() {
 
 void KRCamera::destroyBuffers()
 {
-    m_cShadowBuffers = 0;
-    allocateShadowBuffers();
+    allocateShadowBuffers(0);
     
     if (compositeDepthTexture) {
         GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));

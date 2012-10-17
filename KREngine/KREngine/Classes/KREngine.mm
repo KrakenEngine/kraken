@@ -51,13 +51,13 @@ using namespace std;
 @synthesize debug_text = _debug_text;
 double const PI = 3.141592653589793f;
 
-- (id)initForWidth: (GLuint)width Height: (GLuint)height
+- (id)init
 {
     _camera = NULL;
     _context = NULL;
     if ((self = [super init])) {
         _context = new KRContext();
-        _camera = new KRCamera(*_context, width, height);
+        _camera = new KRCamera(*_context);
         _parameter_names = [@{
             @"camera_fov" : @0,
             @"shadow_quality" : @1,
