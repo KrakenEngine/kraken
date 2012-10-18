@@ -111,6 +111,8 @@ public:
     static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
     
     static KRMat4 LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection);
+    
+    void setUniform(GLint location) const;
 };
 
 #endif // KRMAT4_I

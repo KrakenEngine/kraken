@@ -351,3 +351,8 @@ KRMat4 KRMat4::Transpose(const KRMat4 &m)
     matTranspose.transpose();
     return matTranspose;
 }
+
+void KRMat4::setUniform(GLint location) const
+{
+    if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, m_mat));
+}

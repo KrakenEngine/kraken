@@ -78,6 +78,8 @@ public:
     static KRVector2 Zero();
     static KRVector2 One();
     
+    void setUniform(GLint location) const;
+    
 private:
     
     

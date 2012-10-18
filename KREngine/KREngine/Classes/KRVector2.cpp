@@ -164,3 +164,7 @@ float KRVector2::Dot(const KRVector2 &v1, const KRVector2 &v2) {
     return v1.x * v2.x + v1.y * v2.y;
 }
 
+void KRVector2::setUniform(GLint location) const
+{
+    if(location != -1) GLDEBUG(glUniform2f(location, x, y));
+}
