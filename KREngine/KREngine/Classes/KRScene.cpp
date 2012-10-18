@@ -343,7 +343,8 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
     KRScene *new_scene = new KRScene(context, name);
     
     tinyxml2::XMLElement *scene_element = doc.RootElement();
-    new_scene->m_skyBoxName = scene_element->Attribute("skybox");  // This is temporary until the camera is moved into the scene graph
+    const char *szSkyBoxName = scene_element->Attribute("skybox");
+    new_scene->m_skyBoxName = szSkyBoxName ? szSkyBoxName : "";  // This is temporary until the camera is moved into the scene graph
     
     KRNode *n = KRNode::LoadXML(*new_scene, scene_element->FirstChildElement());
     if(n) {
