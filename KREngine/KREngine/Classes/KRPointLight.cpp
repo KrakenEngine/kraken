@@ -75,13 +75,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
                 
                 
                 
-                
-                GLDEBUG(glUniform3f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
-                            m_color.x,
-                            m_color.y,
-                            m_color.z
-                ));
+                m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
                 
                 GLDEBUG(glUniform1f(
                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
@@ -98,15 +92,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
                             KRLIGHT_MIN_INFLUENCE
                 ));
                 
-                
-                GLDEBUG(glUniform3f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION],
-                            light_position.x,
-                            light_position.y,
-                            light_position.z
-                ));
-    
-                
+                light_position.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION]);
                 
                 if(bVisualize) {
                     // Enable additive blending

@@ -295,123 +295,61 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         if(!bSameAmbient) {
-            GLDEBUG(glUniform3f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT],
-                m_ambientColor.x + pCamera->dAmbientR,
-                m_ambientColor.y + pCamera->dAmbientG,
-                m_ambientColor.z + pCamera->dAmbientB
-            ));
+            (m_ambientColor + KRVector3(pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB)).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT]);
         }
         
         if(!bSameDiffuse) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-                    m_diffuseColor.x * pCamera->dSunR,
-                    m_diffuseColor.y * pCamera->dSunG,
-                    m_diffuseColor.z * pCamera->dSunB
-                ));
+                KRVector3(m_diffuseColor.x * pCamera->dSunR, m_diffuseColor.y * pCamera->dSunG, m_diffuseColor.z * pCamera->dSunB).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
             } else {
-                GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE],
-                    m_diffuseColor.x,
-                    m_diffuseColor.y,
-                    m_diffuseColor.z
-                ));
+                m_diffuseColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
             }
         }
         
         if(!bSameSpecular) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-                    m_specularColor.x * pCamera->dSunR,
-                    m_specularColor.y * pCamera->dSunG,
-                    m_specularColor.z * pCamera->dSunB
-                ));
+                KRVector3(m_specularColor.x * pCamera->dSunR, m_specularColor.y * pCamera->dSunG, m_specularColor.z * pCamera->dSunB).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
             } else {
-                GLDEBUG(glUniform3f(
-                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR],
-                    m_specularColor.x,
-                    m_specularColor.y,
-                    m_specularColor.z
-                ));
+                m_specularColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
             }
         }
         
         if(!bSameReflection) {
-            GLDEBUG(glUniform3f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION],
-                m_reflectionColor.x,
-                m_reflectionColor.y,
-                m_reflectionColor.z
-                ));
+            m_reflectionColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION]);
         }
         
         if(bDiffuseMap && !bSameDiffuseScale && m_diffuseMapScale != default_scale) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE],
-                m_diffuseMapScale.x,
-                m_diffuseMapScale.y
-            ));
+            m_diffuseMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE]);
         }
         
         if(bSpecMap && !bSameSpecularScale && m_specularMapScale != default_scale) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE],
-                m_specularMapScale.x,
-                m_specularMapScale.y
-            ));
+            m_specularMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE]);
         }
         
         if(bReflectionMap && !bSameReflectionScale && m_reflectionMapScale != default_scale) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE],
-                m_reflectionMapScale.x,
-                m_reflectionMapScale.y
-            ));
+            m_reflectionMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE]);
         }
         
         if(bNormalMap && !bSameNormalScale && m_normalMapScale != default_scale) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE],
-                m_normalMapScale.x,
-                m_normalMapScale.y
-            ));
+            m_normalMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE]);
         }
         
         if(bDiffuseMap && !bSameDiffuseOffset && m_diffuseMapOffset != default_offset) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET],
-                m_diffuseMapOffset.x,
-                m_diffuseMapOffset.y
-            ));
+            m_diffuseMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET]);
         }
         
         if(bSpecMap && !bSameSpecularOffset && m_specularMapOffset != default_offset) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET],
-                m_specularMapOffset.x,
-                m_specularMapOffset.y
-            ));
+            m_specularMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET]);
         }
         
         if(bReflectionMap && !bSameReflectionOffset && m_reflectionMapOffset != default_offset) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET],
-                m_reflectionMapOffset.x,
-                m_reflectionMapOffset.y
-            ));
+            m_reflectionMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET]);
         }
         
         if(bNormalMap && !bSameNormalOffset && m_normalMapOffset != default_offset) {
-            GLDEBUG(glUniform2f(
-                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET],
-                m_normalMapOffset.x,
-                m_normalMapOffset.y
-            ));
+            m_normalMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET]);
         }
         
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));

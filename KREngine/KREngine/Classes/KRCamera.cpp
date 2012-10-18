@@ -657,8 +657,7 @@ void KRCamera::renderShadowBuffer(KRScene &scene, int iShadow)
     shadowShader->bind(this, matModel, matIdentity, matIdentity, vec4Temp, NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    GLDEBUG(glUniformMatrix4fv(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1], 1, GL_FALSE, shadowmvpmatrix[iShadow].getPointer()));
-    
+    shadowmvpmatrix[iShadow].setUniform(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1]);
     
     // Calculate the bounding volume of the light map
     KRMat4 matInvShadow = shadowmvpmatrix[iShadow];

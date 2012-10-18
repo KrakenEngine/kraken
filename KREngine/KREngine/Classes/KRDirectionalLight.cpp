@@ -71,20 +71,8 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
         if(pShader->bind(pCamera, m_modelMatrix, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
             
-            
-            GLDEBUG(glUniform3f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE],
-                        light_direction_view_space.x,
-                        light_direction_view_space.y,
-                        light_direction_view_space.z
-            ));
-            
-            GLDEBUG(glUniform3f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR],
-                        m_color.x,
-                        m_color.y,
-                        m_color.z
-                        ));
+            light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
+            m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
             GLDEBUG(glUniform1f(
                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
