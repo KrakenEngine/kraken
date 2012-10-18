@@ -34,6 +34,7 @@
 #include <math.h>
 
 #include "KRMat4.h"
+#include "KRQuaternion.h"
 
 KRMat4::KRMat4() {
     // Default constructor - Initialize with an identity matrix
@@ -169,6 +170,11 @@ void KRMat4::rotate(GLfloat angle, AXIS axis) {
     newMatrix.m_mat[cos2[axis]] = newMatrix.m_mat[cos1[axis]];
     
     *this *= newMatrix;
+}
+
+void KRMat4::rotate(const KRQuaternion &q)
+{
+    *this *= q.rotationMatrix();
 }
 
 /* Scale matrix by separate x, y, and z amounts */
@@ -330,4 +336,18 @@ KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, co
     matLookat.getPointer()[14] = -KRVector3::Dot(lookat_z_axis, cameraPos);
     
     return matLookat;
+}
+
+KRMat4 KRMat4::Invert(const KRMat4 &m)
+{
+    KRMat4 matInvert = m;
+    matInvert.invert();
+    return matInvert;
+}
+
+KRMat4 KRMat4::Transpose(const KRMat4 &m)
+{
+    KRMat4 matTranspose = m;
+    matTranspose.transpose();
+    return matTranspose;
 }

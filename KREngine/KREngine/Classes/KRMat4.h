@@ -54,6 +54,7 @@ typedef enum {
     Z_AXIS
 } AXIS;
 
+class KRQuaternion;
 
 class KRMat4 {
     
@@ -98,10 +99,13 @@ public:
     void scale(const KRVector3 &v);
     void scale(GLfloat s);
     void rotate(GLfloat angle, AXIS axis);
+    void rotate(const KRQuaternion &q);
     void bias();
     bool invert();
     void transpose();
     
+    static KRMat4 Invert(const KRMat4 &m);
+    static KRMat4 Transpose(const KRMat4 &m);
     static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
     static float DotW(const KRMat4 &m, const KRVector3 &v);
     static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
