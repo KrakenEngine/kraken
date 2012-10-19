@@ -62,15 +62,15 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     bDebugPSSM = false;
     bEnableAmbient = true;
     bEnableDiffuse = true;
-    bEnableSpecular = false; // FINDME - Should be "true"
+    bEnableSpecular = true;
     bEnableLightMap = true;
     bDebugSuperShiny = false;
-    bEnableDeferredLighting = false; // FINDME - should be "true"
+    bEnableDeferredLighting = true;
     
     
-    dAmbientR = 0.25f; // FINDME - should be "0.0f"
-    dAmbientG = 0.25f; // FINDME - should be "0.0f"
-    dAmbientB = 0.25f; // FINDME - should be "0.0f"
+    dAmbientR = 0.0f;
+    dAmbientG = 0.0f;
+    dAmbientB = 0.0f;
     
     dSunR = 1.0f;
     dSunG = 1.0f;

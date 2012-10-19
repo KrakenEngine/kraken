@@ -51,7 +51,12 @@ KRMaterialManager::~KRMaterialManager() {
 
 
 KRMaterial *KRMaterialManager::getMaterial(const char *szName) {
-    map<std::string, KRMaterial *>::iterator itr = m_materials.find(szName);
+    std::string lowerName = szName;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    
+    map<std::string, KRMaterial *>::iterator itr = m_materials.find(lowerName);
     if(itr == m_materials.end()) {
         fprintf(stderr, "Material not found: %s\n", szName);
         // Not found

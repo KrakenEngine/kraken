@@ -176,14 +176,10 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
             
         float lod_coverage = pOctreeNode->getBounds().coverage(matVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
         if(lod_coverage > min_coverage) {
-            
-//      if(pOctreeNode->getBounds().visible(viewMatrix * projectionMatrix)) { // Only recurse deeper if within the view frustrum
-          
+
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;
                 bool bNeedOcclusionTest = true;
-          
-                //bVisible = true; // FINDME - Test Code
           
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.

@@ -51,6 +51,17 @@ using namespace std;
 @synthesize debug_text = _debug_text;
 double const PI = 3.141592653589793f;
 
+
++ (KREngine *)sharedInstance
+{
+    static KREngine *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[KREngine alloc] init];
+    });
+    return sharedInstance;
+}
+
 - (id)init
 {
     _camera = NULL;
@@ -150,7 +161,7 @@ double const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 31;
+    return 32;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
