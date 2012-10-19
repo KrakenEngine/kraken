@@ -87,7 +87,11 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                 
                 char *pDest = szSymbol[cSymbols++];
                 while(pScan < pEnd && *pScan != ' ' && *pScan != '\n' && *pScan != '\r') {
-                    *pDest++ = *pScan++;
+                    if(*pScan >= 'A' && *pScan <= 'Z') {
+                        *pDest++ = *pScan++ + 'a' - 'A'; // convert to lower case for case sensitve comparison later
+                    } else {
+                        *pDest++ = *pScan++;
+                    }
                 }
                 *pDest = '\0';
                 
@@ -117,7 +121,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                                 pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE);
                             }
                         }
-                    } else if(strcmp(szSymbol[0], "Ka") == 0) {
+                    } else if(strcmp(szSymbol[0], "ka") == 0) {
                         char *pScan2 = szSymbol[1];
                         double r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
@@ -129,7 +133,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             double b = strtof(pScan2, &pScan2);
                             pMaterial->setAmbient(KRVector3(r, g, b));
                         }
-                    } else if(strcmp(szSymbol[0], "Kd") == 0) {
+                    } else if(strcmp(szSymbol[0], "kd") == 0) {
                         char *pScan2 = szSymbol[1];
                         double r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
@@ -141,7 +145,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             double b = strtof(pScan2, &pScan2);
                             pMaterial->setDiffuse(KRVector3(r, g, b));
                         }
-                    } else if(strcmp(szSymbol[0], "Ks") == 0) {
+                    } else if(strcmp(szSymbol[0], "ks") == 0) {
                         char *pScan2 = szSymbol[1];
                         double r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
@@ -153,7 +157,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             double b = strtof(pScan2, &pScan2);
                             pMaterial->setSpecular(KRVector3(r, g, b));
                         }
-                    } else if(strcmp(szSymbol[0], "Kr") == 0) {
+                    } else if(strcmp(szSymbol[0], "kr") == 0) {
                         char *pScan2 = szSymbol[1];
                         double r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
@@ -165,11 +169,11 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             double b = strtof(pScan2, &pScan2);
                             pMaterial->setReflection(KRVector3(r, g, b));
                         }
-                    } else if(strcmp(szSymbol[0], "Tr") == 0) {
+                    } else if(strcmp(szSymbol[0], "tr") == 0) {
                         char *pScan2 = szSymbol[1];
                         double a = strtof(pScan2, &pScan2);
                         pMaterial->setTransparency(a);
-                    } else if(strcmp(szSymbol[0], "Ns") == 0) {
+                    } else if(strcmp(szSymbol[0], "ns") == 0) {
                         char *pScan2 = szSymbol[1];
                         double a = strtof(pScan2, &pScan2);
                         pMaterial->setShininess(a);
@@ -222,17 +226,17 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             iScanSymbol++;
                         }
 
-                        if(strcmp(szSymbol[0], "map_Ka") == 0) {
+                        if(strcmp(szSymbol[0], "map_ka") == 0) {
                             pMaterial->setAmbientMap(szSymbol[1], texture_scale, texture_offset);
-                        } else if(strcmp(szSymbol[0], "map_Kd") == 0) {
+                        } else if(strcmp(szSymbol[0], "map_kd") == 0) {
                             pMaterial->setDiffuseMap(szSymbol[1], texture_scale, texture_offset);
-                        } else if(strcmp(szSymbol[0], "map_Ks") == 0) {
+                        } else if(strcmp(szSymbol[0], "map_ks") == 0) {
                             pMaterial->setSpecularMap(szSymbol[1], texture_scale, texture_offset);
-                        } else if(strcmp(szSymbol[0], "map_Normal") == 0) {
+                        } else if(strcmp(szSymbol[0], "map_normal") == 0) {
                             pMaterial->setNormalMap(szSymbol[1], texture_scale, texture_offset);
-                        } else if(strcmp(szSymbol[0], "map_Reflection") == 0) {
+                        } else if(strcmp(szSymbol[0], "map_reflection") == 0) {
                             pMaterial->setReflectionMap(szSymbol[1], texture_scale, texture_offset);
-                        } else if(strcmp(szSymbol[0], "map_ReflectionCube") == 0) {
+                        } else if(strcmp(szSymbol[0], "map_reflectioncube") == 0) {
                             pMaterial->setReflectionCube(szSymbol[1]);
                         }
                     }
