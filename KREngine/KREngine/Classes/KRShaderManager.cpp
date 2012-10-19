@@ -53,7 +53,7 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
     KRShader *pShader = m_shaders[szKey];
     
     if(pShader == NULL) {
-        if(m_shaders.size() > KRENGINE_MAX_SHADER_HANDLES) {
+        if(m_shaders.size() > KRContext::KRENGINE_MAX_SHADER_HANDLES) {
             // Keep the size of the shader cache reasonable
             std::map<std::string, KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;

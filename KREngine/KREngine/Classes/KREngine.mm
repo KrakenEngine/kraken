@@ -29,6 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#import <UIKit/UIKit.h>
+
 #import "KREngine.h"
 #import "KRVector3.h"
 #import "KRScene.h"
@@ -64,6 +66,31 @@ double const PI = 3.141592653589793f;
 
 - (id)init
 {
+    BOOL isIpad = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
+    BOOL isRetina = [[UIScreen mainScreen] scale] >= 2.0;
+    
+    if(isIpad && isRetina) {
+        KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
+        KRContext::KRENGINE_MAX_VBO_MEM = 128000000 * 2;
+        KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+        KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
+        KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000 * 2;
+        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000 * 2;
+        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000 * 2;
+        KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
+        KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+    } else {
+        KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
+        KRContext::KRENGINE_MAX_VBO_MEM = 128000000;
+        KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+        KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
+        KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000;
+        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000;
+        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000;
+        KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
+        KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+    }
+    
     _camera = NULL;
     _context = NULL;
     if ((self = [super init])) {

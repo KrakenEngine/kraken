@@ -11,6 +11,16 @@
 #include "KRContext.h"
 #include "KRCamera.h"
 
+int KRContext::KRENGINE_MAX_VBO_HANDLES;
+int KRContext::KRENGINE_MAX_VBO_MEM;
+int KRContext::KRENGINE_MAX_SHADER_HANDLES;
+int KRContext::KRENGINE_MAX_TEXTURE_HANDLES;
+int KRContext::KRENGINE_MAX_TEXTURE_MEM;
+int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
+int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN;
+int KRContext::KRENGINE_MAX_TEXTURE_DIM;
+int KRContext::KRENGINE_MIN_TEXTURE_DIM;
+
 KRContext::KRContext() {
     m_pBundleManager = new KRBundleManager(*this);
     m_pShaderManager = new KRShaderManager(*this);

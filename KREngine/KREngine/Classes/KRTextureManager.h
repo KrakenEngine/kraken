@@ -29,14 +29,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-#define KRENGINE_MAX_TEXTURE_HANDLES 10000
-#define KRENGINE_MAX_TEXTURE_MEM 64000000
-#define KRENGINE_TARGET_TEXTURE_MEM_MAX 48000000
-#define KRENGINE_TARGET_TEXTURE_MEM_MIN 32000000
-#define KRENGINE_MAX_TEXTURE_DIM 2048
-#define KRENGINE_MIN_TEXTURE_DIM 64
-
 #ifndef KRTEXTUREMANAGER_H
 #define KRTEXTUREMANAGER_H
 
@@ -44,6 +36,7 @@
 #include "KRContextObject.h"
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
+#include "KRContext.h"
 
 #include <map>
 #include <set>

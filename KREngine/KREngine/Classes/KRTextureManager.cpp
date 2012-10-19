@@ -33,6 +33,7 @@
 #include "KRContext.h"
 #include "KRTexture2D.h"
 #include "KRTextureCube.h"
+#include "KRContext.h"
 #include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
@@ -119,7 +120,7 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, int 
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         }
         m_boundTextures[iTextureUnit] = pTexture;
-        while(m_activeTextures.size() + m_poolTextures.size() > KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRENGINE_MAX_TEXTURE_MEM) {
+        while(m_activeTextures.size() + m_poolTextures.size() > KRContext::KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRContext::KRContext::KRENGINE_MAX_TEXTURE_MEM) {
             if(m_poolTextures.empty()) {
                 fprintf(stderr, "Kraken - Texture swapping...\n");
                 decreaseLODCap();
@@ -150,10 +151,10 @@ size_t KRTextureManager::getActiveMemUsed() {
 
 void KRTextureManager::rotateBuffers(bool new_frame)
 {
-    if(new_frame && m_activeTextureMemUsed < KRENGINE_TARGET_TEXTURE_MEM_MIN && m_activeTextureMemUsed * 4 < KRENGINE_TARGET_TEXTURE_MEM_MAX) {
+    if(new_frame && m_activeTextureMemUsed < KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN && m_activeTextureMemUsed * 4 < KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX) {
         // Increasing the LOD level will generally increase active texture memory usage by 4 times, don't increase the texture level until we can ensure that the LOD won't immediately be dropped back to the current level
         increaseLODCap();
-    } else if(new_frame && m_activeTextureMemUsed > KRENGINE_TARGET_TEXTURE_MEM_MAX) {
+    } else if(new_frame && m_activeTextureMemUsed > KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX) {
         decreaseLODCap();
     }
     m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
@@ -174,14 +175,14 @@ void KRTextureManager::rotateBuffers(bool new_frame)
 
 void KRTextureManager::decreaseLODCap()
 {    
-    if(m_lod_max_dim_cap > KRENGINE_MIN_TEXTURE_DIM) {
+    if(m_lod_max_dim_cap > KRContext::KRENGINE_MIN_TEXTURE_DIM) {
         m_lod_max_dim_cap = m_lod_max_dim_cap >> 1;
     }
 }
 
 void KRTextureManager::increaseLODCap()
 {
-    if(m_lod_max_dim_cap < KRENGINE_MAX_TEXTURE_DIM) {
+    if(m_lod_max_dim_cap < KRContext::KRENGINE_MAX_TEXTURE_DIM) {
         m_lod_max_dim_cap = m_lod_max_dim_cap << 1;
     }
 }

@@ -9,14 +9,27 @@
 #ifndef KREngine_KRContext_h
 #define KREngine_KRContext_h
 
+#import "KREngine-common.h"
 #import "KRBundleManager.h"
 #import "KRSceneManager.h"
 #import "KRTextureManager.h"
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
 #import "KRModelManager.h"
+
 class KRContext {
 public:
+    static int KRENGINE_MAX_VBO_HANDLES;
+    static int KRENGINE_MAX_VBO_MEM;
+    static int KRENGINE_MAX_SHADER_HANDLES;
+    static int KRENGINE_MAX_TEXTURE_HANDLES;
+    static int KRENGINE_MAX_TEXTURE_MEM;
+    static int KRENGINE_TARGET_TEXTURE_MEM_MAX;
+    static int KRENGINE_TARGET_TEXTURE_MEM_MIN;
+    static int KRENGINE_MAX_TEXTURE_DIM;
+    static int KRENGINE_MIN_TEXTURE_DIM;
+    
+    
     KRContext();
     ~KRContext();
     

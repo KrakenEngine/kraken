@@ -35,6 +35,7 @@
 #import <string>
 #import "KRCamera.h"
 #import "KRDataBlock.h"
+#import "KRNode.h"
 
 using std::map;
 using std::vector;
@@ -44,7 +45,8 @@ using std::vector;
 #ifndef KRSHADERMANAGER_H
 #define KRSHADERMANAGER_H
 
-#define KRENGINE_MAX_SHADER_HANDLES 100
+class KRShader;
+class KRCamera;
 
 class KRShaderManager : public KRContextObject {
 public:

@@ -40,7 +40,7 @@
 #import "KRShader.h"
 #import "KRContextObject.h"
 #import "KRTexture.h"
-
+#import "KRContext.h"
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
 #define KRENGINE_SHADOW_MAP_WIDTH 2048
@@ -48,7 +48,6 @@
 
 class KRInstance;
 class KRScene;
-class KRContext;
 
 class KRCamera : public KRContextObject {
 public:

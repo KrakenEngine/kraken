@@ -32,9 +32,6 @@
 #ifndef KRMODELMANAGER_H
 #define KRMODELMANAGER_H
 
-#define KRENGINE_MAX_VBO_HANDLES 10000
-#define KRENGINE_MAX_VBO_MEM 128000000
-
 #import "KREngine-common.h"
 #import "KRContextObject.h"
 #import "KRDataBlock.h"

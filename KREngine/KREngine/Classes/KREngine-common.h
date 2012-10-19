@@ -11,6 +11,8 @@
 #ifndef KREngine_KREngine_common_h
 #define KREngine_KREngine_common_h
 
+#define KRENGINE_MAX_TEXTURE_UNITS 8
+
 #import <stdint.h>
 #import <vector>
 #import <string>

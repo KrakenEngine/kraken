@@ -54,6 +54,8 @@ using std::list;
 #import "KRCamera.h"
 
 class KRMaterial;
+class KRNode;
+
 
 class KRModel : public KRResource {
     
