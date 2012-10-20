@@ -60,17 +60,17 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 -(NSString *)getParameterNameWithIndex: (int)i;
 -(NSString *)getParameterLabelWithIndex: (int)i;
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i;
--(double)getParameterMinWithIndex: (int)i;
--(double)getParameterMaxWithIndex: (int)i;
--(double)getParameterValueWithIndex: (int)i;
--(void)setParameterValueWithIndex: (int)i Value: (double)v;
--(void)setParameterValueWithName: (NSString *)name Value: (double)v;
+-(float)getParameterMinWithIndex: (int)i;
+-(float)getParameterMaxWithIndex: (int)i;
+-(float)getParameterValueWithIndex: (int)i;
+-(void)setParameterValueWithIndex: (int)i Value: (float)v;
+-(void)setParameterValueWithName: (NSString *)name Value: (float)v;
 -(int)getParameterIndexWithName: (NSString *)name;
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix;
 - (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll;
-- (void)setNearZ: (double)dNearZ;
-- (void)setFarZ: (double)dFarZ;
+- (void)setNearZ: (float)dNearZ;
+- (void)setFarZ: (float)dFarZ;
 
 @end
 

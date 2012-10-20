@@ -81,28 +81,28 @@ public:
     bool bEnableDiffuse;
     bool bEnableSpecular;
     bool bEnableDeferredLighting;
-    double dSunR;
-    double dSunG;
-    double dSunB;
-    double dAmbientR;
-    double dAmbientG;
-    double dAmbientB;
-    double perspective_fov;
+    float dSunR;
+    float dSunG;
+    float dSunB;
+    float dAmbientR;
+    float dAmbientG;
+    float dAmbientB;
+    float perspective_fov;
 
     
     
     
     int dof_quality;
-    double dof_depth;
-    double dof_falloff;
+    float dof_depth;
+    float dof_falloff;
     bool bEnableFlash;
-    double flash_intensity;
-    double flash_depth;
-    double flash_falloff;
+    float flash_intensity;
+    float flash_depth;
+    float flash_falloff;
     
     bool bEnableVignette;
-    double vignette_radius;
-    double vignette_falloff;
+    float vignette_radius;
+    float vignette_falloff;
     
     KRVector2 m_viewportSize;
     

@@ -168,7 +168,7 @@ void KRPointLight::generateMesh() {
         std::vector<Facet3> f = std::vector<Facet3>(facet_count);
         
         int i,it;
-        double a;
+        float a;
         KRVector3 p[6] = {
             KRVector3(0,0,1),
             KRVector3(0,0,-1),

@@ -68,7 +68,7 @@ public:
     
 #endif
     
-    double sun_pitch, sun_yaw;
+    float sun_pitch, sun_yaw;
     
     
     void notify_sceneGraphCreate(KRNode *pNode);

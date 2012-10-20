@@ -128,59 +128,59 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                         }
                     } else if(strcmp(szSymbol[0], "ka") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double r = strtof(pScan2, &pScan2);
+                        float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
                             pMaterial->setAmbient(KRVector3(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
-                            double g = strtof(pScan2, &pScan2);
+                            float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
-                            double b = strtof(pScan2, &pScan2);
+                            float b = strtof(pScan2, &pScan2);
                             pMaterial->setAmbient(KRVector3(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "kd") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double r = strtof(pScan2, &pScan2);
+                        float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
                             pMaterial->setDiffuse(KRVector3(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
-                            double g = strtof(pScan2, &pScan2);
+                            float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
-                            double b = strtof(pScan2, &pScan2);
+                            float b = strtof(pScan2, &pScan2);
                             pMaterial->setDiffuse(KRVector3(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "ks") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double r = strtof(pScan2, &pScan2);
+                        float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
                             pMaterial->setSpecular(KRVector3(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
-                            double g = strtof(pScan2, &pScan2);
+                            float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
-                            double b = strtof(pScan2, &pScan2);
+                            float b = strtof(pScan2, &pScan2);
                             pMaterial->setSpecular(KRVector3(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "kr") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double r = strtof(pScan2, &pScan2);
+                        float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
                             pMaterial->setReflection(KRVector3(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
-                            double g = strtof(pScan2, &pScan2);
+                            float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
-                            double b = strtof(pScan2, &pScan2);
+                            float b = strtof(pScan2, &pScan2);
                             pMaterial->setReflection(KRVector3(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "tr") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double a = strtof(pScan2, &pScan2);
+                        float a = strtof(pScan2, &pScan2);
                         pMaterial->setTransparency(a);
                     } else if(strcmp(szSymbol[0], "ns") == 0) {
                         char *pScan2 = szSymbol[1];
-                        double a = strtof(pScan2, &pScan2);
+                        float a = strtof(pScan2, &pScan2);
                         pMaterial->setShininess(a);
                     } else if(strncmp(szSymbol[0], "map", 3) == 0) {
                         // Truncate file extension
@@ -213,7 +213,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                                 iScaleParam = -1;
                             } else {
                                 char *pScan3 = szSymbol[iScanSymbol];
-                                double v = strtof(pScan3, &pScan3);
+                                float v = strtof(pScan3, &pScan3);
                                 if(iScaleParam == 0) {
                                     texture_scale.x = v;
                                     iScaleParam++;

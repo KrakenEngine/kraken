@@ -51,7 +51,7 @@ using namespace std;
 
 @implementation KREngine
 @synthesize debug_text = _debug_text;
-double const PI = 3.141592653589793f;
+float const PI = 3.141592653589793f;
 
 
 + (KREngine *)sharedInstance
@@ -273,11 +273,11 @@ double const PI = 3.141592653589793f;
     };
     return types[i];
 }
--(double)getParameterValueWithIndex: (int)i
+-(float)getParameterValueWithIndex: (int)i
 {
-    double values[32] = {
+    float values[32] = {
         _camera->perspective_fov,
-        (double)_camera->m_cShadowBuffers,
+        (float)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
         _camera->bEnableDiffuseMap ? 1.0f : 0.0f,
         _camera->bEnableNormalMap ? 1.0f : 0.0f,
@@ -311,7 +311,7 @@ double const PI = 3.141592653589793f;
     };
     return values[i];
 }
--(void)setParameterValueWithIndex: (int)i Value: (double)v
+-(void)setParameterValueWithIndex: (int)i Value: (float)v
 {
     bool bNewBoolVal = v > 0.5;
     NSLog(@"Set Parameter: (%s, %f)", [[self getParameterNameWithIndex: i] UTF8String], v);
@@ -455,9 +455,9 @@ double const PI = 3.141592653589793f;
     }
 }
 
--(double)getParameterMinWithIndex: (int)i
+-(float)getParameterMinWithIndex: (int)i
 {
-    double minValues[32] = {
+    float minValues[32] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -467,9 +467,9 @@ double const PI = 3.141592653589793f;
     return minValues[i];
 }
 
--(double)getParameterMaxWithIndex: (int)i
+-(float)getParameterMaxWithIndex: (int)i
 {
-    double maxValues[32] = {
+    float maxValues[32] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -479,7 +479,7 @@ double const PI = 3.141592653589793f;
     return maxValues[i];
 }
 
--(void)setParameterValueWithName: (NSString *)name Value: (double)v
+-(void)setParameterValueWithName: (NSString *)name Value: (float)v
 {
     int cParameters = [self getParameterCount];
     for(int i=0; i < cParameters; i++) {
@@ -501,11 +501,11 @@ double const PI = 3.141592653589793f;
     return -1; // not found
 }
 
-- (void)setNearZ: (double)dNearZ
+- (void)setNearZ: (float)dNearZ
 {
     _camera->setPerspectiveNear(dNearZ);
 }
-- (void)setFarZ: (double)dFarZ
+- (void)setFarZ: (float)dFarZ
 {
     _camera->setPerpsectiveFarZ(dFarZ);
 }
@@ -521,35 +521,35 @@ double const PI = 3.141592653589793f;
 
 // ---===--- Sun Temperature and intensity ---===--- 
 
--(void) setSunTemperature:(double)t
+-(void) setSunTemperature:(float)t
 {
-    double i = [self getSunIntensity];
+    float i = [self getSunIntensity];
     
     _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
     _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
     _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
--(void) setSunIntensity:(double)i
+-(void) setSunIntensity:(float)i
 {
-    double t = [self getSunTemperature];
+    float t = [self getSunTemperature];
     
     _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
     _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
     _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
--(double) getSunIntensity
+-(float) getSunIntensity
 {
-    double i = _camera->dSunR;
+    float i = _camera->dSunR;
     if(_camera->dSunG > i) i = _camera->dSunG;
     if(_camera->dSunB > i) i = _camera->dSunB;
     return i;
 }
 
--(double) getSunTemperature
+-(float) getSunTemperature
 {
-    double i = [self getSunIntensity];
+    float i = [self getSunIntensity];
     if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
     if(_camera->dSunB == i) {
         // Cold side, t < 0.5
@@ -562,35 +562,35 @@ double const PI = 3.141592653589793f;
 
 // ---===--- Ambient Temperature and intensity ---===--- 
 
--(void) setAmbientTemperature:(double)t
+-(void) setAmbientTemperature:(float)t
 {
-    double i = [self getAmbientIntensity];
+    float i = [self getAmbientIntensity];
     
     _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
     _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
     _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
--(void) setAmbientIntensity:(double)i
+-(void) setAmbientIntensity:(float)i
 {
-    double t = [self getAmbientTemperature];
+    float t = [self getAmbientTemperature];
     
     _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
     _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
     _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
 }
 
--(double) getAmbientIntensity
+-(float) getAmbientIntensity
 {
-    double i = _camera->dAmbientR;
+    float i = _camera->dAmbientR;
     if(_camera->dAmbientG > i) i = _camera->dAmbientG;
     if(_camera->dAmbientB > i) i = _camera->dAmbientB;
     return i;
 }
 
--(double) getAmbientTemperature
+-(float) getAmbientTemperature
 {
-    double i = [self getAmbientIntensity];
+    float i = [self getAmbientIntensity];
     if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
     if(_camera->dAmbientB == i) {
         // Cold side, t < 0.5

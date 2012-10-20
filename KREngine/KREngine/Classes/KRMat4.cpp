@@ -223,7 +223,7 @@ void KRMat4::ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLf
 bool KRMat4::invert() {
     // Based on gluInvertMatrix implementation
     
-    double inv[16], det;
+    float inv[16], det;
     int i;
     
     inv[0] =   m_mat[5]*m_mat[10]*m_mat[15] - m_mat[5]*m_mat[11]*m_mat[14] - m_mat[9]*m_mat[6]*m_mat[15]

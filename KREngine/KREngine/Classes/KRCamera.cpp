@@ -47,8 +47,8 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     backingHeight = 0;
     
     
-    double const PI = 3.141592653589793f;
-    double const D2R = PI * 2 / 360;
+    float const PI = 3.141592653589793f;
+    float const D2R = PI * 2 / 360;
     
     bShowShadowBuffer = false;
     bShowOctree = false;
@@ -791,8 +791,8 @@ void KRCamera::renderPost()
         
         const char *pChar = szText;
         int iPos=0;
-        double dScale = 1.0 / 24.0;
-        double dTexScale = 1.0 / 16.0;
+        float dScale = 1.0 / 24.0;
+        float dTexScale = 1.0 / 16.0;
         while(*pChar) {
             int iChar = *pChar++ - '\0';
             int iCol = iChar % 16;
