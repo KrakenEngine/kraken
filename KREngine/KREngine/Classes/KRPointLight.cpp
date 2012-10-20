@@ -61,14 +61,14 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
         
         KRBoundingVolume influence_extents = KRBoundingVolume(KRVector3(-1.0), KRVector3(1.0), m_modelMatrix);
         
-        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->perspective_farz);
+        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->getPerspectiveFarZ());
         
         if(influence_extents.test_intersect(frustrumVolumeNoNearClip)) {
             // Cull out any lights not within the view frustrum
             
             KRVector3 view_light_position = KRMat4::Dot(viewMatrix, light_position);
             
-            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->perspective_nearz) * (influence_radius + pCamera->perspective_nearz);
+            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
             KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             if(pShader->bind(pCamera, m_modelMatrix, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {

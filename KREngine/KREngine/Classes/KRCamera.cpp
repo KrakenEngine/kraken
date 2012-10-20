@@ -146,10 +146,6 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
     createBuffers();
     
     m_pContext->rotateBuffers(true);
-    KRMat4 invViewMatrix = viewMatrix;
-    invViewMatrix.invert();
-    
-    KRVector3 cameraPosition = KRMat4::Dot(invViewMatrix, KRVector3(0.0,0.0,0.0));
     
     KRVector3 lightDirection(0.0, 0.0, 1.0);
     
@@ -197,7 +193,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
         }
     }
     
-    renderFrame(scene, viewMatrix, lightDirection, cameraPosition);
+    renderFrame(scene, viewMatrix, lightDirection);
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
@@ -207,7 +203,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 
 
 
-void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition) {
+void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection) {
     
     setViewportSize(KRVector2(backingWidth, backingHeight));
     
@@ -841,4 +837,27 @@ void KRCamera::invalidateShadowBuffers() {
 void KRCamera::setSkyBox(const std::string &skyBoxName) {
     m_pSkyBoxTexture = NULL;
     m_skyBoxName = skyBoxName;
+}
+
+float KRCamera::getPerspectiveNearZ()
+{
+    return perspective_nearz;
+}
+float KRCamera::getPerspectiveFarZ()
+{
+    return perspective_farz;
+}
+void KRCamera::setPerspectiveNear(float v)
+{
+    if(perspective_nearz != v) {
+        perspective_nearz = v;
+        invalidateShadowBuffers();
+    }
+}
+void KRCamera::setPerpsectiveFarZ(float v)
+{
+    if(perspective_farz != v) {
+        perspective_farz = v;
+        invalidateShadowBuffers();
+    }
 }

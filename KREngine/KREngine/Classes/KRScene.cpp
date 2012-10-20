@@ -187,7 +187,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                     KRMat4 invView = viewMatrix;
                     invView.invert();
                     KRVector3 cameraPos = KRMat4::Dot(invView, KRVector3::Zero());
-                    KRAABB cameraExtents = KRAABB(cameraPos - KRVector3(pCamera->perspective_nearz), cameraPos + KRVector3(pCamera->perspective_nearz));
+                    KRAABB cameraExtents = KRAABB(cameraPos - KRVector3(pCamera->getPerspectiveNearZ()), cameraPos + KRVector3(pCamera->getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         newVisibleBounds.insert(octreeBounds); // Record the actual tests that succeeded during this frame

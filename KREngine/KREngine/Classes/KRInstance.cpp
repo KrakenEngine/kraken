@@ -120,18 +120,6 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
                     m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 0);
                 }
                 
-                
-                
-                KRMat4 inverseViewMatrix = viewMatrix;
-                inverseViewMatrix.invert();
-                KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
-                
-                // Transform location of camera to object space for calculation of specular halfVec
-                KRMat4 inverseModelMatrix = m_modelMatrix;
-                inverseModelMatrix.invert();
-                KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
-                KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
-                
                 pModel->render(pCamera, pContext, m_modelMatrix, viewMatrix, matMVP, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }

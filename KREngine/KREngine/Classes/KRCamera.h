@@ -57,11 +57,7 @@ public:
     GLint backingWidth, backingHeight;
     
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix);
-    void renderShadowBuffer(KRScene &scene, int iShadow);
-    void invalidateShadowBuffers();
-    void allocateShadowBuffers(int cBuffers);
-    void createBuffers();
-    
+
     KRVector3 getPosition() const;
     void setPosition(const KRVector3 &position);
     
@@ -92,8 +88,9 @@ public:
     double dAmbientG;
     double dAmbientB;
     double perspective_fov;
-    double perspective_nearz;
-    double perspective_farz;
+
+    
+    
     
     int dof_quality;
     double dof_depth;
@@ -114,9 +111,22 @@ public:
     std::string m_debug_text;
     
     void setSkyBox(const std::string &skyBoxName);
+    
+    float getPerspectiveNearZ();
+    float getPerspectiveFarZ();
+    void setPerspectiveNear(float v);
+    void setPerpsectiveFarZ(float v);
 
 private:
     KRVector3 m_position;
+    
+    void renderShadowBuffer(KRScene &scene, int iShadow);
+    void invalidateShadowBuffers();
+    void allocateShadowBuffers(int cBuffers);
+    void createBuffers();
+    
+    float perspective_nearz;
+    float perspective_farz;
     
     int m_iFrame;
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
@@ -131,7 +141,7 @@ private:
         
     void destroyBuffers();
     
-    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRVector3 &cameraPosition);
+    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection);
     
     
     

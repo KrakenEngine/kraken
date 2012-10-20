@@ -503,17 +503,11 @@ double const PI = 3.141592653589793f;
 
 - (void)setNearZ: (double)dNearZ
 {
-    if(_camera->perspective_nearz != dNearZ) {
-        _camera->perspective_nearz = dNearZ;
-        _camera->invalidateShadowBuffers();
-    }
+    _camera->setPerspectiveNear(dNearZ);
 }
 - (void)setFarZ: (double)dFarZ
 {
-    if(_camera->perspective_farz != dFarZ) {
-        _camera->perspective_farz = dFarZ;
-        _camera->invalidateShadowBuffers();
-    }
+    _camera->setPerpsectiveFarZ(dFarZ);
 }
 
 - (void)setDebug_text:(NSString *)value
