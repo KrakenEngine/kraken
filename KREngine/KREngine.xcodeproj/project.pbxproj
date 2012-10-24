@@ -146,6 +146,14 @@
 		E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
 		E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
 		E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
+		E4CA10E51637BD0A005D9400 /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; };
+		E4CA10E61637BD0A005D9400 /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; };
+		E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */; };
+		E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */; };
+		E4CA10EC1637BD47005D9400 /* KRTextureTGA.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */; };
+		E4CA10ED1637BD47005D9400 /* KRTextureTGA.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */; };
+		E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */; };
+		E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */; };
 		E4CE184D15FF124600F80870 /* light_point_inside.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE184C15FF124600F80870 /* light_point_inside.fsh */; };
 		E4CE184F15FF125700F80870 /* light_point_inside.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E4CE184E15FF125700F80870 /* light_point_inside.vsh */; };
 		E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -301,6 +309,10 @@
 		E4BBBB961512A46700F43B5B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		E4BBBB9A1512A48200F43B5B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexturePVR.h; path = Classes/KRTexturePVR.h; sourceTree = "<group>"; };
+		E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexturePVR.cpp; path = Classes/KRTexturePVR.cpp; sourceTree = "<group>"; };
+		E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureTGA.h; path = Classes/KRTextureTGA.h; sourceTree = "<group>"; };
+		E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureTGA.cpp; path = Classes/KRTextureTGA.cpp; sourceTree = "<group>"; };
 		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = Shaders/font.pvr; sourceTree = "<group>"; };
 		E4CE184C15FF124600F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_point_inside.fsh; path = Shaders/light_point_inside.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4CE184E15FF125700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
@@ -470,6 +482,10 @@
 				E4B175AB161F5A1000B8FB80 /* KRTexture.h */,
 				E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */,
 				E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */,
+				E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */,
+				E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */,
+				E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */,
+				E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */,
 			);
 			name = Texture;
 			sourceTree = "<group>";
@@ -689,6 +705,8 @@
 				E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */,
 				E4B175AE161F5A1000B8FB80 /* KRTexture.h in Headers */,
 				E4B175B4161F5FAF00B8FB80 /* KRTextureCube.h in Headers */,
+				E4CA10E51637BD0A005D9400 /* KRTexturePVR.h in Headers */,
+				E4CA10EC1637BD47005D9400 /* KRTextureTGA.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -738,6 +756,8 @@
 				E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */,
 				E4B175AF161F5A1000B8FB80 /* KRTexture.h in Headers */,
 				E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */,
+				E4CA10E61637BD0A005D9400 /* KRTexturePVR.h in Headers */,
+				E4CA10ED1637BD47005D9400 /* KRTextureTGA.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -867,6 +887,8 @@
 				E4B175B2161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
 				E41B841E16260C5600C7A771 /* sky_box.fsh in Sources */,
 				E41B842116260C6500C7A771 /* sky_box.vsh in Sources */,
+				E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
+				E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -912,6 +934,8 @@
 				E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
 				E4B175AD161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
 				E4B175B3161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
+				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
+				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

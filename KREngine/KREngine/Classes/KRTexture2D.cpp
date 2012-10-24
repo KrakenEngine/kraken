@@ -41,135 +41,13 @@
 #import <stdint.h>
 #import <assert.h>
 
-
-#define PVR_TEXTURE_FLAG_TYPE_MASK	0xff
-
-static char gPVRTexIdentifier[5] = "PVR!";
-
-enum
-{
-	kPVRTextureFlagTypePVRTC_2 = 24,
-	kPVRTextureFlagTypePVRTC_4
-};
-
-typedef struct _PVRTexHeader
-{
-	uint32_t headerLength;
-	uint32_t height;
-	uint32_t width;
-	uint32_t numMipmaps;
-	uint32_t flags;
-	uint32_t dataLength;
-	uint32_t bpp;
-	uint32_t bitmaskRed;
-	uint32_t bitmaskGreen;
-	uint32_t bitmaskBlue;
-	uint32_t bitmaskAlpha;
-	uint32_t pvrTag;
-	uint32_t numSurfs;
-} PVRTexHeader;
-
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data) : KRTexture(context) {
     m_pData = data;
-    m_current_lod_max_dim = 0;
-    load();
 }
 
 KRTexture2D::~KRTexture2D() {
     delete m_pData;
 }
-
-bool KRTexture2D::hasMipmaps() {
-    return m_blocks.size() > 1;
-}
-
-int KRTexture2D::getMaxMipMap() {
-    return m_max_lod_max_dim;
-}
-
-int KRTexture2D::getMinMipMap() {
-    return m_min_lod_max_dim;
-}
-
-bool KRTexture2D::load() {
-#if TARGET_OS_IPHONE
-    PVRTexHeader *header = (PVRTexHeader *)m_pData->getStart();
-    uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
-    if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
-        m_internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-    } else if(formatFlags == kPVRTextureFlagTypePVRTC_2) {
-        m_internalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-    } else {
-        assert(false);
-    }
-    
-    uint32_t pvrTag = header->pvrTag;
-    if (gPVRTexIdentifier[0] != ((pvrTag >>  0) & 0xff) ||
-        gPVRTexIdentifier[1] != ((pvrTag >>  8) & 0xff) ||
-        gPVRTexIdentifier[2] != ((pvrTag >> 16) & 0xff) ||
-        gPVRTexIdentifier[3] != ((pvrTag >> 24) & 0xff))
-    {
-        return false;
-    }
-    
-    m_iWidth = header->width; // Note: call __builtin_bswap32 when needed to switch endianness
-    m_iHeight = header->height;
-    m_bHasAlpha = header->bitmaskAlpha;
-    
-    uint8_t *bytes = ((uint8_t *)m_pData->getStart()) + sizeof(PVRTexHeader);
-    uint32_t dataLength = header->dataLength, dataOffset = 0, dataSize = 0;
-    uint32_t width = m_iWidth, height = m_iHeight, bpp = 4;
-    uint32_t blockSize = 0, widthBlocks = 0, heightBlocks = 0;
-    
-    // Calculate the data size for each texture level and respect the minimum number of blocks
-    while(dataOffset < dataLength) {
-        if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
-            blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
-            widthBlocks = width / 4;
-            heightBlocks = height / 4;
-            bpp = 4;
-        } else {
-            blockSize = 8 * 4; // Pixel by pixel block size for 2bpp
-            widthBlocks = width / 8;
-            heightBlocks = height / 4;
-            bpp = 2;
-        }
-        
-        // Clamp to minimum number of blocks
-        if (widthBlocks < 2) {
-            widthBlocks = 2;
-        }
-        if (heightBlocks < 2) {
-            heightBlocks = 2;
-        }
-        dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
-        
-        dataBlockStruct newBlock;
-        newBlock.start = bytes+dataOffset;
-        newBlock.length = dataSize;
-        
-        m_blocks.push_back(newBlock);
-        
-        dataOffset += dataSize;
-        
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
-        }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-    }
-    
-    m_max_lod_max_dim = m_iWidth > m_iHeight ? m_iWidth : m_iHeight;
-    m_min_lod_max_dim = width >> height ? width : height;
-#endif
-    return true;
-
-}
-
-
 
 bool KRTexture2D::createGLTexture(int lod_max_dim) {
     m_current_lod_max_dim = 0;
@@ -193,49 +71,6 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     return true;
 }
 
-bool KRTexture2D::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed)
-{
-	int width = m_iWidth;
-	int height = m_iHeight;
-	GLenum err;
-    
-    if(m_blocks.size() == 0) {
-        return false;
-    }
-
-    int i=0;
-    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        dataBlockStruct block = *itr;
-        if(width <= lod_max_dim && height <= lod_max_dim) {
-            if(width > current_lod_max_dim) {
-                current_lod_max_dim = width;
-            }
-            if(height > current_lod_max_dim) {
-                current_lod_max_dim = height;
-            }
-            glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start);
-            err = glGetError();
-            if (err != GL_NO_ERROR) {
-                return false;
-            }
-            textureMemUsed += block.length;
-            i++;
-        }
-		
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
-        }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-	}
-    
-    return true;
-
-}
-
 void KRTexture2D::bind(size_t &textureMemUsed, int max_dim, bool can_resize) {
     textureMemUsed -= getMemSize();
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, getHandle(max_dim, can_resize)));
@@ -246,5 +81,17 @@ void KRTexture2D::bind(size_t &textureMemUsed, int max_dim, bool can_resize) {
     GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
     
     textureMemUsed += getMemSize();
+}
+
+int KRTexture2D::getMaxMipMap() {
+    return m_max_lod_max_dim;
+}
+
+int KRTexture2D::getMinMipMap() {
+    return m_min_lod_max_dim;
+}
+
+bool KRTexture2D::hasMipmaps() {
+    return m_max_lod_max_dim == m_min_lod_max_dim;
 }
 

@@ -32,6 +32,8 @@
 #include "KRTextureManager.h"
 #include "KRContext.h"
 #include "KRTexture2D.h"
+#include "KRTexturePVR.h"
+#include "KRTextureTGA.h"
 #include "KRTextureCube.h"
 #include "KRContext.h"
 #include <string.h>
@@ -52,7 +54,7 @@ KRTextureManager::~KRTextureManager() {
 }
 
 KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) {
-    KRTexture *pTexture = new KRTexture2D(getContext(), data);
+    KRTexture *pTexture = new KRTexturePVR(getContext(), data);
     
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),

@@ -46,35 +46,19 @@ using std::list;
 class KRTexture2D : public KRTexture {
 public:
     KRTexture2D(KRContext &context, KRDataBlock *data);
-    ~KRTexture2D();
+    virtual ~KRTexture2D();
     
     bool hasMipmaps();
     int getMaxMipMap();
     int getMinMipMap();
     
-    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed);
+    virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed) = 0;
     virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize);
     
-private:
+protected:
     KRDataBlock *m_pData;
     
     virtual bool createGLTexture(int lod_max_dim);
-
-    
-    uint32_t  m_iWidth;
-    uint32_t  m_iHeight;
-    GLenum    m_internalFormat;
-    bool      m_bHasAlpha;
-    
-    struct    dataBlockStruct {
-        void *start;
-        uint32_t length;
-    };
-    
-    std::list<dataBlockStruct> m_blocks;
-    
-    bool load();
-
 };
 
 #endif
