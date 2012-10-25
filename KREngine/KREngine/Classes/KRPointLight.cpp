@@ -114,6 +114,9 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
                     m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
+#if GL_OES_vertex_array_object
+                    GLDEBUG(glBindVertexArrayOES(0));
+#endif
                     m_pContext->getModelManager()->configureAttribs(true, false, false, false, false);
                     // Render sphere of light's influence
                     generateMesh();

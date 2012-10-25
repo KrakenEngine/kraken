@@ -52,7 +52,6 @@ public:
     
     KRModel *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRModel *> getModel(const char *szName);
-    KRModel *getFirstModel();
     
     std::vector<std::string> getModelNames();
     std::multimap<std::string, KRModel *> getModels();
@@ -68,7 +67,8 @@ private:
     std::multimap<std::string, KRModel *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
     typedef struct vbo_info {
-        GLuint handle;
+        GLuint vbo_handle;
+        GLuint vao_handle;
         GLsizeiptr size;
         GLvoid *data;
     } vbo_info_type;
@@ -78,14 +78,6 @@ private:
     
     std::map<GLvoid *, vbo_info_type> m_vbosActive;
     std::map<GLvoid *, vbo_info_type> m_vbosPool;
-    
-    bool m_bVBOAttribEnabled_Vertex;
-    bool m_bVBOAttribEnabled_Normal;
-    bool m_bVBOAttribEnabled_Tangent;
-    bool m_bVBOAttribEnabled_UVA;
-    bool m_bVBOAttribEnabled_UVB;
-    
-    
 };
 
 #endif

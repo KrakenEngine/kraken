@@ -753,7 +753,9 @@ void KRCamera::renderPost()
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
         // Update attribute values.
-        
+#if GL_OES_vertex_array_object
+        GLDEBUG(glBindVertexArrayOES(0));
+#endif
         m_pContext->getModelManager()->configureAttribs(true, false, false, true, false);
         GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, KRENGINE_VERTICES_2D_SQUARE_UV));
         
@@ -811,7 +813,9 @@ void KRCamera::renderPost()
                 dTexScale * iCol + dTexScale,     dTexScale * iRow + dTexScale,
                 dTexScale * iCol + dTexScale,     dTexScale * iRow
             };
-            
+#if GL_OES_vertex_array_object
+            GLDEBUG(glBindVertexArrayOES(0));
+#endif
             m_pContext->getModelManager()->configureAttribs(true, false, false, true, false);
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
             GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
