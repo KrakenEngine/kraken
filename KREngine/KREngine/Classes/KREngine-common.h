@@ -21,12 +21,14 @@
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
+#import <Accelerate/Accelerate.h>
 #endif
 
 #if TARGET_OS_IPHONE
 
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+
 
 #else
 

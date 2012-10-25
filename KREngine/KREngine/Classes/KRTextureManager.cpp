@@ -53,16 +53,27 @@ KRTextureManager::~KRTextureManager() {
     }
 }
 
-KRTexture *KRTextureManager::loadTexture(const char *szName, KRDataBlock *data) {
-    KRTexture *pTexture = new KRTexturePVR(getContext(), data);
+KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szExtension, KRDataBlock *data) {
+    KRTexture *pTexture = NULL; 
     
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
+    std::string lowerExtension = szExtension;
+    std::transform(lowerExtension.begin(), lowerExtension.end(),
+                   lowerExtension.begin(), ::tolower);
 
     
-    m_textures[lowerName] = pTexture;
+    if(strcmp(szExtension, "pvr") == 0) {
+        pTexture = new KRTexturePVR(getContext(), data);
+    } else if(strcmp(szExtension, "tga") == 0) {
+        pTexture = new KRTextureTGA(getContext(), data);
+    }
+    
+    if(pTexture) {
+        m_textures[lowerName] = pTexture;
+    }
     return pTexture;
 }
 

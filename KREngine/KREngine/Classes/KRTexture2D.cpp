@@ -42,6 +42,7 @@
 #import <assert.h>
 
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data) : KRTexture(context) {
+    m_current_lod_max_dim = 0;
     m_pData = data;
 }
 
@@ -92,6 +93,6 @@ int KRTexture2D::getMinMipMap() {
 }
 
 bool KRTexture2D::hasMipmaps() {
-    return m_max_lod_max_dim == m_min_lod_max_dim;
+    return m_max_lod_max_dim != m_min_lod_max_dim;
 }
 

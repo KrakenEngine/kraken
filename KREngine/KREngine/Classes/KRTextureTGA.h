@@ -13,7 +13,11 @@
 
 class KRTextureTGA : public KRTexture2D
 {
+public:
+    KRTextureTGA(KRContext &context, KRDataBlock *data);
+    virtual ~KRTextureTGA();
     
+    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed);
 };
 
 #endif

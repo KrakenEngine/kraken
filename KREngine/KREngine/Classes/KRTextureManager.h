@@ -53,7 +53,7 @@ public:
     
     void selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim);
     
-    KRTexture *loadTexture(const char *szName, KRDataBlock *data);
+    KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
     KRTexture *getTextureCube(const char *szName);
     KRTexture *getTexture(const char *szFile);
     
