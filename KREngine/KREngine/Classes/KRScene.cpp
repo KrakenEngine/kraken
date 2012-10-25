@@ -236,7 +236,9 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                     KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
                     
                     // Enable additive blending
-                    GLDEBUG(glEnable(GL_BLEND));
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+                        GLDEBUG(glEnable(GL_BLEND));
+                    }
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
                     
                     
@@ -262,9 +264,13 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                         GLDEBUG(glDepthMask(GL_TRUE));
                     }
                     
-                    GLDEBUG(glDisable(GL_BLEND));
-                    
                     pOctreeNode->endOcclusionQuery();
+                    
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+                        GLDEBUG(glDisable(GL_BLEND));
+                    } else {
+                        GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                    }
                     
                     
                     if(bVisible) {
