@@ -58,7 +58,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
 #endif
     
     KRMat4 &getModelMatrix();

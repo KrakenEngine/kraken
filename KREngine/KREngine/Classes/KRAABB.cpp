@@ -66,6 +66,7 @@ bool KRAABB::operator >(const KRAABB& b) const
 bool KRAABB::operator <(const KRAABB& b) const
 {
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    
     if(min < b.min) {
         return true;
     } else if(min > b.min) {

@@ -41,6 +41,7 @@
 #import "KRContextObject.h"
 #import "KRTexture.h"
 #import "KRContext.h"
+#import "KRViewport.h"
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
 #define KRENGINE_SHADOW_MAP_WIDTH 2048
@@ -48,6 +49,7 @@
 
 class KRInstance;
 class KRScene;
+class KRViewport;
 
 class KRCamera : public KRContextObject {
 public:
@@ -137,11 +139,13 @@ private:
     bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
     KRMat4 shadowmvpmatrix[KRENGINE_MAX_SHADOW_BUFFERS]; /* MVP Matrix for view from light source */
     
+    KRViewport m_shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
+    
     void renderPost();
         
     void destroyBuffers();
     
-    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, KRVector3 &lightDirection);
+    void renderFrame(KRScene &scene, KRVector3 &lightDirection);
     
     
     
@@ -174,6 +178,8 @@ private:
     std::string m_skyBoxName;
     KRTexture *m_pSkyBoxTexture;
     
+    
+    KRViewport m_viewport;
 };
 
 #endif

@@ -57,7 +57,7 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visibleBounds, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
+void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visibleBounds, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
     
     updateOctree();
     pCamera->setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
@@ -118,10 +118,10 @@ void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visi
         newRemainingOctrees.clear();
         newRemainingOctreesTestResults.clear();
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-            render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewMatrix, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+            render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewport, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
         }
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-            render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewMatrix, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
+            render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewport, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
         }
         remainingOctrees = newRemainingOctrees;
         remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -130,16 +130,16 @@ void KRScene::render(KRCamera *pCamera, int childOrder[], std::set<KRAABB> &visi
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-        render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewMatrix, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
+        render(childOrder, *octree_itr, visibleBounds, pCamera, pContext, viewport, forward_render_light_direction, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
     }
     
     std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
     for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
-        (*itr)->render(pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+        (*itr)->render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     }
 }
 
-void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -170,7 +170,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
       if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
           projectionMatrix = pCamera->getProjectionMatrix();
       }
-      KRMat4 matVP = viewMatrix * projectionMatrix;
+      KRMat4 matVP = viewport.getViewMatrix() * viewport.getProjectionMatrix();
             
             float min_coverage = 0.0f; // 1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
             
@@ -184,7 +184,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    KRMat4 invView = viewMatrix;
+                    KRMat4 invView = viewport.getViewMatrix();
                     invView.invert();
                     KRVector3 cameraPos = KRMat4::Dot(invView, KRVector3::Zero());
                     KRAABB cameraExtents = KRAABB(cameraPos - KRVector3(pCamera->getPerspectiveNearZ()), cameraPos + KRVector3(pCamera->getPerspectiveNearZ()));
@@ -233,7 +233,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                     KRMat4 matModel = KRMat4();
                     matModel.scale(octreeBounds.size() / 2.0f);
                     matModel.translate(octreeBounds.center());
-                    KRMat4 mvpmatrix = matModel * viewMatrix * projectionMatrix;
+                    KRMat4 mvpmatrix = matModel * viewport.getViewMatrix() * viewport.getProjectionMatrix();
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
@@ -251,7 +251,7 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(pVisShader->bind(pCamera, matModel, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(pVisShader->bind(viewport, matModel, lightDirection, pShadowMatrices, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     }
                     
@@ -286,11 +286,11 @@ void KRScene::render(int childOrder[], KROctreeNode *pOctreeNode, std::set<KRAAB
                     
                     for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
                         //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-                        (*itr)->render(pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+                        (*itr)->render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
                     }
                     
                     for(int i=0; i<8; i++) {
-                        render(childOrder, pOctreeNode->getChildren()[childOrder[i]], visibleBounds, pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+                        render(childOrder, pOctreeNode->getChildren()[childOrder[i]], visibleBounds, pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
                     }
                 }
             }

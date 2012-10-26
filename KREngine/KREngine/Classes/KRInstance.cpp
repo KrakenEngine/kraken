@@ -79,11 +79,11 @@ void KRInstance::loadModel() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
     calcModelMatrix();
     
-    KRNode::render(pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_FLARES) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
@@ -95,7 +95,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
             if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
                 projectionMatrix = pCamera->getProjectionMatrix();
             }
-            KRMat4 matMVP = m_modelMatrix * viewMatrix * projectionMatrix;
+            KRMat4 matMVP = m_modelMatrix * viewport.getViewMatrix() * viewport.getProjectionMatrix();
             float lod_coverage = getBounds().coverage(matMVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 
@@ -120,7 +120,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatr
                     m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 0);
                 }
                 
-                pModel->render(pCamera, pContext, m_modelMatrix, viewMatrix, matMVP, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                pModel->render(pCamera, pContext, viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }
     }

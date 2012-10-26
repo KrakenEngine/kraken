@@ -52,6 +52,7 @@ using std::list;
 
 #import "KRMaterialManager.h"
 #import "KRCamera.h"
+#import "KRViewport.h"
 
 class KRMaterial;
 class KRNode;
@@ -68,7 +69,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &matModel, KRMat4 &matView, KRMat4 &matMVP, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRMat4 &matModel, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
     

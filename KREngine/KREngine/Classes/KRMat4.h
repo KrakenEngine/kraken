@@ -87,7 +87,7 @@ public:
     
     // Overload multiply operator
     //KRMat4& operator*(const KRMat4 &m);
-    KRMat4 operator*(const KRMat4 &m);
+    KRMat4 operator*(const KRMat4 &m) const;
     
     GLfloat *getPointer();
     

@@ -11,6 +11,7 @@
 
 #import "KRResource.h"
 #import "KRVector3.h"
+#import "KRViewport.h"
 #import "tinyxml2.h"
 
 class KRCamera;
@@ -66,7 +67,7 @@ public:
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 
 #endif
     

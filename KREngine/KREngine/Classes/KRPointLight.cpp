@@ -38,9 +38,9 @@ std::string KRPointLight::getElementName() {
 
 #if TARGET_OS_IPHONE
 
-void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    KRLight::render(pCamera, pContext, viewMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRLight::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
     bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->bShowDeferred;
     
@@ -56,22 +56,19 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, KRMat4 &viewMa
         m_modelMatrix.scale(influence_radius);
         m_modelMatrix.translate(light_position.x, light_position.y, light_position.z);
         
-        
-        KRMat4 mvpmatrix = m_modelMatrix * viewMatrix * projectionMatrix;
-        
         KRBoundingVolume influence_extents = KRBoundingVolume(KRVector3(-1.0), KRVector3(1.0), m_modelMatrix);
         
-        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewMatrix, pCamera->perspective_fov,  pCamera->m_viewportSize.x / pCamera->m_viewportSize.y, 0.0, pCamera->getPerspectiveFarZ());
+        KRBoundingVolume frustrumVolumeNoNearClip = KRBoundingVolume(viewport.getViewMatrix(), pCamera->perspective_fov, viewport.getSize().x / viewport.getSize().y, 0.0, pCamera->getPerspectiveFarZ());
         
         if(influence_extents.test_intersect(frustrumVolumeNoNearClip)) {
             // Cull out any lights not within the view frustrum
             
-            KRVector3 view_light_position = KRMat4::Dot(viewMatrix, light_position);
+            KRVector3 view_light_position = KRMat4::Dot(viewport.getViewMatrix(), light_position);
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
             KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            if(pShader->bind(pCamera, m_modelMatrix, viewMatrix, mvpmatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+            if(pShader->bind(viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
                 
                 
                 

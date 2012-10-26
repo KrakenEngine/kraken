@@ -35,6 +35,7 @@
 
 #import "KREngine-common.h"
 
+
 using std::vector;
 
 #ifndef KRSHADER_H
@@ -44,6 +45,7 @@ using std::vector;
 #import "KRMat4.h"
 #import "KRCamera.h"
 #import "KRNode.h"
+#import "KRViewport.h"
 
 class KRShader {
 public:
@@ -54,7 +56,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    bool bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
+    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, const KRMat4 *pShadowMatrices, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass);
     
 #endif
     

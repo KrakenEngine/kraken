@@ -200,7 +200,7 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4 &mvpMatrix, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, const KRMat4 *pShadowMatrices, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -219,7 +219,7 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
         
         if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
             // Transform location of camera to object space for calculation of specular halfVec
-            KRMat4 inverseViewMatrix = matView;
+            KRMat4 inverseViewMatrix = viewport.getViewMatrix();
             inverseViewMatrix.invert();
             KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
             KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
@@ -227,11 +227,20 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
         }
     }
     
-    // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    mvpMatrix.setUniform(m_uniforms[KRENGINE_UNIFORM_MVP]);
+    if(m_uniforms[KRENGINE_UNIFORM_MVP] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
+        // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
+        KRMat4 mvpMatrix = matModel * viewport.getViewMatrix() * viewport.getProjectionMatrix();
+        mvpMatrix.setUniform(m_uniforms[KRENGINE_UNIFORM_MVP]);
+        
+        if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
+            KRMat4 matInvMVP = mvpMatrix;
+            matInvMVP.invert();
+            matInvMVP.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP]);
+        }
+    }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1) {
-        KRMat4 matModelView = matModel * matView;
+        KRMat4 matModelView = matModel * viewport.getViewMatrix();
         matModelView.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW]);
         
         
@@ -256,19 +265,13 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
     }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVP] != -1) {
-        KRMat4 matInvProjection = pCamera->getProjectionMatrix();
+        KRMat4 matInvProjection = viewport.getProjectionMatrix();
         matInvProjection.invert();
         matInvProjection.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVP]);
     }
     
-    if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
-        KRMat4 matInvMVP = mvpMatrix;
-        matInvMVP.invert();
-        matInvMVP.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP]);
-    }
-    
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] != -1) {
-        KRMat4 matInvMVPNoTranslate = matModel * matView;
+        KRMat4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
         // Remove the translation
         matInvMVPNoTranslate.getPointer()[3] = 0;
         matInvMVPNoTranslate.getPointer()[7] = 0;
@@ -277,7 +280,7 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
         matInvMVPNoTranslate.getPointer()[13] = 0;
         matInvMVPNoTranslate.getPointer()[14] = 0;
         matInvMVPNoTranslate.getPointer()[15] = 1.0;
-        matInvMVPNoTranslate = matInvMVPNoTranslate * pCamera->getProjectionMatrix();
+        matInvMVPNoTranslate = matInvMVPNoTranslate * viewport.getProjectionMatrix();
         matInvMVPNoTranslate.invert();
         matInvMVPNoTranslate.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE]);
     }
@@ -289,8 +292,8 @@ bool KRShader::bind(KRCamera *pCamera, KRMat4 &matModel, KRMat4 &matView, KRMat4
                     m_uniforms[KRENGINE_UNIFORM_VIEWPORT],
                     (GLfloat)0.0,
                     (GLfloat)0.0,
-                    (GLfloat)pCamera->getViewportSize().x,
-                    (GLfloat)pCamera->getViewportSize().y
+                    (GLfloat)viewport.getSize().x,
+                    (GLfloat)viewport.getSize().y
         ));
     }
     
