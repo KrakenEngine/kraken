@@ -95,7 +95,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
             if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
                 projectionMatrix = pCamera->getProjectionMatrix();
             }
-            KRMat4 matMVP = m_modelMatrix * viewport.getViewMatrix() * viewport.getProjectionMatrix();
+            KRMat4 matMVP = m_modelMatrix * viewport.getViewProjectionMatrix();
             float lod_coverage = getBounds().coverage(matMVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 

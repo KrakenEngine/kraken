@@ -138,37 +138,6 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
         }
     }
     
-//    for(int iCorner=0; iCorner<8; iCorner++) {
-//        KRVector3 sourceCornerVertex = KRVector3(
-//           (iCorner & 1) == 0 ? min.x : max.x,
-//           (iCorner & 2) == 0 ? min.y : max.y,
-//           (iCorner & 4) == 0 ? min.z : max.z);
-//        
-//        KRVector3 cornerVertex = KRMat4::Dot(matViewProjection, sourceCornerVertex);
-//        float cornerVertexW = KRMat4::DotW(matViewProjection, sourceCornerVertex);
-//        cornerVertex /= cornerVertexW;
-//        
-//        
-//        if(cornerVertex.x < -1.0) {
-//            outside_count[0]++;
-//        }
-//        if(cornerVertex.y < -1.0) {
-//            outside_count[1]++;
-//        }
-//        if(cornerVertex.z < -1.0) {
-//            outside_count[2]++;
-//        }
-//        if(cornerVertex.x > 1.0) {
-//            outside_count[3]++;
-//        }
-//        if(cornerVertex.y > 1.0) {
-//            outside_count[4]++;
-//        }
-//        if(cornerVertex.z > 1.0) {
-//            outside_count[5]++;
-//        }
-//    }
-    
     bool is_visible = true;
     for(int iFace=0; iFace < 6; iFace++) {
         if(outside_count[iFace] == 8) {

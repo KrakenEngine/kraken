@@ -219,23 +219,18 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KR
         
         if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
             // Transform location of camera to object space for calculation of specular halfVec
-            KRMat4 inverseViewMatrix = viewport.getViewMatrix();
-            inverseViewMatrix.invert();
-            KRVector3 cameraPosition = KRMat4::Dot(inverseViewMatrix, KRVector3::Zero());
-            KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, cameraPosition);
+            KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, viewport.getCameraPosition());
             cameraPosObject.setUniform(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]);
         }
     }
     
     if(m_uniforms[KRENGINE_UNIFORM_MVP] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
         // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-        KRMat4 mvpMatrix = matModel * viewport.getViewMatrix() * viewport.getProjectionMatrix();
+        KRMat4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
         mvpMatrix.setUniform(m_uniforms[KRENGINE_UNIFORM_MVP]);
         
         if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
-            KRMat4 matInvMVP = mvpMatrix;
-            matInvMVP.invert();
-            matInvMVP.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP]);
+            KRMat4::Invert(mvpMatrix).setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP]);
         }
     }
     
@@ -265,9 +260,7 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KR
     }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVP] != -1) {
-        KRMat4 matInvProjection = viewport.getProjectionMatrix();
-        matInvProjection.invert();
-        matInvProjection.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVP]);
+        viewport.getInverseProjectionMatrix().setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_INVP]);
     }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] != -1) {
