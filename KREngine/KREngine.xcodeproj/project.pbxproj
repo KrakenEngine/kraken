@@ -298,7 +298,7 @@
 		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; };
 		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureCube.cpp; path = Classes/KRTextureCube.cpp; sourceTree = "<group>"; };
 		E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureCube.h; path = Classes/KRTextureCube.h; sourceTree = "<group>"; };
-		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = krengine_osx.framework; path = ../Debug/krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4BBBB871512A40300F43B5B /* krengine_osx-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "krengine_osx-Info.plist"; sourceTree = "<group>"; };
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E4BBBB8B1512A40300F43B5B /* krengine_osx-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "krengine_osx-Prefix.pch"; sourceTree = "<group>"; };
@@ -971,7 +971,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -986,7 +986,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -1064,7 +1064,7 @@
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBXSDK20122/lib/gcc4/ub\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.7;
@@ -1103,7 +1103,7 @@
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBXSDK20122/lib/gcc4/ub\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.7;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";

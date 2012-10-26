@@ -62,7 +62,7 @@ std::vector<KRResource *> KRResource::Load(KRContext &context, const std::string
     std::string extension = GetFileExtension(path);
     if(extension.compare("obj") == 0) {
         return LoadObj(context, path);
-#if !defined(TARGET_OS_IPHONE)
+#if TARGET_OS_MAC
     } else if(extension.compare("fbx") == 0) {
         return LoadFbx(context, path);
     } else if(extension.compare("blend") == 0) {
