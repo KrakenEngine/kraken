@@ -43,7 +43,6 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
 void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 
-
 std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::string& path)
 {
     std::vector<KRResource *> resources;
@@ -660,4 +659,3 @@ void LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNo
     }
     
 }
-

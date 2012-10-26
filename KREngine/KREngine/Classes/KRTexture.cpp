@@ -40,6 +40,15 @@ long KRTexture::getMemSize() {
 GLuint KRTexture::getHandle(int max_dim, bool can_resize) {
     // Constrain target LOD to be within mipmap levels of texture
     int target_dim = max_dim;
+    
+    // ---- Start: incremental texture loading ----
+    if(m_current_lod_max_dim == 0) {
+        target_dim = m_min_lod_max_dim;
+    } else if((m_current_lod_max_dim << 1) < target_dim) {
+        target_dim = m_current_lod_max_dim << 1;
+    }
+    // ---- End: incremental texture loading ----
+    
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
     if(target_dim > m_max_lod_max_dim) target_dim = m_max_lod_max_dim;
     
