@@ -232,7 +232,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
                     // Enable additive blending
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_FLARES) {
                         GLDEBUG(glEnable(GL_BLEND));
                     }
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
@@ -262,10 +262,12 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     
                     pOctreeNode->endOcclusionQuery();
                     
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_FLARES) {
                         GLDEBUG(glDisable(GL_BLEND));
-                    } else {
+                    } else if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
                         GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                    } else {
+                        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
                     }
                     
                     

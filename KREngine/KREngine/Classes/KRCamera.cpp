@@ -426,6 +426,10 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection) {
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
         
+        // Enable additive blending
+        GLDEBUG(glEnable(GL_BLEND));
+        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+        
         
         KRShader *pVisShader = m_pContext->getShaderManager()->getShader("visualize_overlay", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     

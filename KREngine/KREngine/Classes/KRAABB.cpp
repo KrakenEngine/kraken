@@ -105,8 +105,6 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
     // test if bounding box would be within the visible range of the clip space transformed by matViewProjection
     // This is used for view frustrum culling
     
-    KRVector3 minCorner, maxCorner;
-    
     int outside_count[6] = {0, 0, 0, 0, 0, 0};
     
     for(int iCorner=0; iCorner<8; iCorner++) {
