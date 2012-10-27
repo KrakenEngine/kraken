@@ -43,7 +43,7 @@ void KROctree::add(KRNode *pNode)
                 if(nodeBounds.min.x < rootBounds.min.x || nodeBounds.min.y < rootBounds.min.y || nodeBounds.min.z < rootBounds.min.z) {
                     m_pRootNode = new KROctreeNode(KRAABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
                 } else if(nodeBounds.max.x > rootBounds.max.x || nodeBounds.max.y > rootBounds.max.y || nodeBounds.max.z > rootBounds.max.z) {
-                    m_pRootNode = new KROctreeNode(KRAABB(rootBounds.max, rootBounds.max + rootSize), 0, m_pRootNode);
+                    m_pRootNode = new KROctreeNode(KRAABB(rootBounds.min, rootBounds.max + rootSize), 0, m_pRootNode);
                 } else {
                     bInsideRoot = true;
                 }
