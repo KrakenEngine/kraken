@@ -117,7 +117,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
                 }
                 
                 if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
-                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 0);
+                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 2048);
                 }
                 
                 pModel->render(pCamera, pContext, viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
