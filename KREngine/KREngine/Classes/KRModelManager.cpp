@@ -56,7 +56,7 @@ KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
     
     
     KRModel *pModel = new KRModel(*m_pContext, lowerName, pData);
-    m_models.insert(std::pair<std::string, KRModel *>(pModel->getName(), pModel));
+    m_models.insert(std::pair<std::string, KRModel *>(pModel->getLODBaseName(), pModel));
 
     return pModel;
 }

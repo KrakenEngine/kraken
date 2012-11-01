@@ -130,7 +130,6 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
             
             if(m_pFlareTexture) {
                 
-                KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
                 KRVector3 light_position = getLocalTranslation();
                 
                 KRMat4 m_modelMatrix = KRMat4();

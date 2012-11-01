@@ -28,10 +28,8 @@
 #define SHADOW_BIAS 0.01
 
 
-attribute highp vec3	vertex_position;
-uniform highp mat4      shadow_mvp1; // Shadowmvpmatrix is the result of multiplying the model, view, and projection matrices 
-
-
+attribute highp vec4	vertex_position;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
 void main()
 {
@@ -39,7 +37,7 @@ void main()
     /*
     position = shadow_mvp1 * vec4(vertex_position,1.0);
      */
-    gl_Position = shadow_mvp1 * vec4(vertex_position,1.0);
+    gl_Position = mvp_matrix * vertex_position;
     gl_Position.z += SHADOW_BIAS;
     /*
     // Pass UV co-ordinates

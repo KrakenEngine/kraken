@@ -47,6 +47,14 @@ public:
     
     void rotateBuffers(bool new_frame);
     
+    enum {
+        KRENGINE_GL_EXT_texture_storage,
+        KRENGINE_NUM_EXTENSIONS
+    };
+    
+    static const char * extension_names[KRENGINE_NUM_EXTENSIONS];
+    static bool extension_available[KRENGINE_NUM_EXTENSIONS];
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
@@ -54,6 +62,9 @@ private:
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
     KRModelManager *m_pModelManager;
+    
+    void detectExtensions();
+    bool m_bDetectedExtensions;
 };
 
 #endif

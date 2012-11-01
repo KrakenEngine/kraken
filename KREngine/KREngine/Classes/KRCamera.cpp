@@ -169,14 +169,18 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
         
         
         KRMat4 newShadowMVP;
-        if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
-            KRBoundingVolume ext = KRBoundingVolume(-KRVector3::One(), KRVector3::One(), KRMat4()); // HACK - Temporary workaround to compile until this logic is updated to use information from the Octree
-            
-            newShadowMVP = ext.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
-        } else {
-            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-            newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
-        }
+//        if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
+//            KRBoundingVolume ext = KRBoundingVolume(-KRVector3::One(), KRVector3::One(), KRMat4()); // HACK - Temporary workaround to compile until this logic is updated to use information from the Octree
+//            
+//            newShadowMVP = ext.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
+//        } else {
+//            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
+//            newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
+//        }
+
+        KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
+        newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
+        
         
         if(!(shadowmvpmatrix[iShadow] == newShadowMVP)) {
             shadowValid[iShadow] = false;
@@ -694,34 +698,22 @@ void KRCamera::renderPost()
     
     
     if(bShowShadowBuffer) {
-        GLDEBUG(glDisable(GL_DEPTH_TEST));
-        
-        m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE0));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
-        
-        // Update attribute values.
-#if GL_OES_vertex_array_object
-        GLDEBUG(glBindVertexArrayOES(0));
-#endif
-        m_pContext->getModelManager()->configureAttribs(true, false, false, true, false);
-        GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, KRENGINE_VERTICES_2D_SQUARE_UV));
+        KRShader *blitShader = m_pContext->getShaderManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
         for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
+            KRMat4 viewMatrix = KRMat4();
+            viewMatrix.scale(0.20, 0.20, 0.20);
+            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
+            blitShader->bind(KRViewport(getViewportSize(), viewMatrix, KRMat4()), KRMat4(), KRVector3(), NULL, NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
             m_pContext->getTextureManager()->selectTexture(1, NULL, 0);
-            GLDEBUG(glActiveTexture(GL_TEXTURE1));
+            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+            GLDEBUG(glActiveTexture(GL_TEXTURE0));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
-            GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVerticesShadow[iShadow]));
-            
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
         
         m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
         GLDEBUG(glActiveTexture(GL_TEXTURE0));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
-        
-        m_pContext->getTextureManager()->selectTexture(1, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE1));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     }
     
@@ -729,15 +721,9 @@ void KRCamera::renderPost()
     
     const char *szText = m_debug_text.c_str();
     if(*szText) {
-        KRTexture *pFontTexture = m_pContext->getTextureManager()->getTexture("font");
-        
-        GLDEBUG(glDisable(GL_DEPTH_TEST));
-        
-        m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE0));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
-        
-        m_pContext->getTextureManager()->selectTexture(1, pFontTexture, 2048);
+        KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+
+        m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 2048);
         
         const char *pChar = szText;
         int iPos=0;

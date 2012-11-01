@@ -21,6 +21,10 @@ int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 
+const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
+    "GL_EXT_texture_storage"
+};
+
 KRContext::KRContext() {
     m_pBundleManager = new KRBundleManager(*this);
     m_pShaderManager = new KRShaderManager(*this);
@@ -28,6 +32,7 @@ KRContext::KRContext() {
     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
     m_pModelManager = new KRModelManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
+    m_bDetectedExtensions = false;
 }
 
 KRContext::~KRContext() {
@@ -129,4 +134,9 @@ void KRContext::rotateBuffers(bool new_frame) {
 
     m_pModelManager->rotateBuffers(new_frame);
     m_pTextureManager->rotateBuffers(new_frame);
+}
+
+void KRContext::detectExtensions() {
+    m_bDetectedExtensions = true;
+    
 }

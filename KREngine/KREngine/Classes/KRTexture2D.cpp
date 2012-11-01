@@ -56,6 +56,7 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     if(m_iHandle == 0) {
         return false;
     }
+    
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
 	if (hasMipmaps()) {
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));

@@ -52,7 +52,21 @@ KRModel::KRModel(KRContext &context, std::string name) : KRResource(context, nam
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pData = new KRDataBlock();
-    m_lodCoverage = 100; // Default to being the full detail mesh; not an LOD level
+    setName(name);
+}
+
+KRModel::KRModel(KRContext &context, std::string name, KRDataBlock *data) : KRResource(context, name) {
+    m_hasTransparency = false;
+    m_materials.clear();
+    m_uniqueMaterials.clear();
+    m_pData = new KRDataBlock();
+    setName(name);
+    
+    loadPack(data);
+}
+
+void KRModel::setName(const std::string name) {
+    m_lodCoverage = 100;
     m_lodBaseName = name;
     
     size_t last_underscore_pos = name.find_last_of('_');
@@ -62,22 +76,14 @@ KRModel::KRModel(KRContext &context, std::string name) : KRResource(context, nam
         if(suffix.find_first_of("lod") == 0) {
             std::string lod_level_string = suffix.substr(3);
             char *end = NULL;
-            int c = (int)strtol(suffix.c_str(), &end, 10);
-            if(m_lodCoverage < 0 || m_lodCoverage > 100 || *end != '\0') {
+            int c = (int)strtol(lod_level_string.c_str(), &end, 10);
+            if(c >= 0 && c <= 100 && *end == '\0') {
                 m_lodCoverage = c;
-                m_lodBaseName = name.substr(0, last_underscore_pos - 1);
+                m_lodBaseName = name.substr(0, last_underscore_pos);
             }
         }
     }
-}
 
-KRModel::KRModel(KRContext &context, std::string name, KRDataBlock *data) : KRResource(context, name) {
-    m_hasTransparency = false;
-    m_materials.clear();
-    m_uniqueMaterials.clear();
-    m_pData = new KRDataBlock();
-    m_lodCoverage = 100;
-    loadPack(data);
 }
 
 KRModel::~KRModel() {

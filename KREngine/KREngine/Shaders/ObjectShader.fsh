@@ -104,7 +104,7 @@
     #endif
 
     #if HAS_LIGHT_MAP == 1
-        uniform sampler2D     shadowTexture1;
+        uniform sampler2D     lightmapTexture;
         varying mediump vec2  lightmap_uv;
     #endif
 
@@ -316,7 +316,7 @@ void main()
             // -------------------- Multiply light map -------------------- 
             
         #if HAS_LIGHT_MAP == 1
-            mediump vec3 lightMapColor = vec3(texture2D(shadowTexture1, lightmap_uv));
+            mediump vec3 lightMapColor = vec3(texture2D(lightmapTexture, lightmap_uv));
             gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, gl_FragColor.a);
         #endif
     #endif

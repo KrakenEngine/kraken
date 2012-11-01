@@ -47,7 +47,6 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewpo
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
 
-        KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
         KRVector3 light_position = getLocalTranslation();
         
         float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;

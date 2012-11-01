@@ -162,7 +162,7 @@ float KRAABB::coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const
         KRVector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
-            KRVector3 screen_pos = KRMat4::Dot(matMVP, KRVector3(i & 1 ? min.x : max.x, i & 2 ? min.y : max.y, i & 4 ? min.z :max.z));
+            KRVector3 screen_pos = KRMat4::DotWDiv(matMVP, KRVector3(i & 1 ? min.x : max.x, i & 2 ? min.y : max.y, i & 4 ? min.z : max.z));
             if(i==0) {
                 screen_min.x = screen_pos.x;
                 screen_min.y = screen_pos.y;
@@ -176,6 +176,6 @@ float KRAABB::coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const
             }
         }
         
-        return (screen_max.x - screen_min.x) / viewportSize.x * (screen_max.y - screen_min.y) / viewportSize.y;
+        return (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
     }
 }

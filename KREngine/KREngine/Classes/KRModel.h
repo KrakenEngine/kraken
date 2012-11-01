@@ -153,6 +153,8 @@ private:
     
     void clearData();
     void clearBuffers();
+    
+    void setName(const std::string name);
 
 };
 

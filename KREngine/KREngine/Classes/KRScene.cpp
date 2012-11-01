@@ -164,16 +164,10 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                 pOctreeNode->m_occlusionQuery = 0;
             }
         } else {
-
-
-      KRMat4 projectionMatrix;
-      if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
-          projectionMatrix = pCamera->getProjectionMatrix();
-      }
             
             float min_coverage = 0.0f; // 1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
             
-        float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), pCamera->getViewportSize()); // This also checks the view frustrum culling
+        float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
         if(lod_coverage > min_coverage) {
 
                 // ----====---- Rendering and occlusion test pass ----====----
@@ -222,8 +216,6 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     pOctreeNode->beginOcclusionQuery();
                     
                     KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                    
-                    KRMat4 projectionMatrix = pCamera->getProjectionMatrix();
                     
                     m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
                     KRMat4 matModel = KRMat4();

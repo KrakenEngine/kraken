@@ -27,6 +27,14 @@
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; };
 		E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45AC0301641D66300DC3C3B /* simple_blit.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC02F1641D66300DC3C3B /* simple_blit.vsh */; };
+		E45AC0311641D66300DC3C3B /* simple_blit.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC02F1641D66300DC3C3B /* simple_blit.vsh */; };
+		E45AC0341641D67300DC3C3B /* simple_blit.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0331641D67300DC3C3B /* simple_blit.fsh */; };
+		E45AC0351641D67300DC3C3B /* simple_blit.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0331641D67300DC3C3B /* simple_blit.fsh */; };
+		E45AC03F1641DE5D00DC3C3B /* debug_font.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */; };
+		E45AC0401641DE5D00DC3C3B /* debug_font.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */; };
+		E45AC0421641DE6D00DC3C3B /* debug_font.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0411641DE6D00DC3C3B /* debug_font.fsh */; };
+		E45AC0431641DE6D00DC3C3B /* debug_font.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0411641DE6D00DC3C3B /* debug_font.fsh */; };
 		E461A152152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; };
 		E461A153152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A156152E54F800F2044A /* KRLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A155152E54F700F2044A /* KRLight.cpp */; };
@@ -221,6 +229,10 @@
 		E45772F413C9A13C0037BEEA /* ObjectShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.fsh; path = Shaders/ObjectShader.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F513C9A13C0037BEEA /* ObjectShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ObjectShader.vsh; path = Shaders/ObjectShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F613C9A13C0037BEEA /* PostShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.vsh; path = Shaders/PostShader.vsh; sourceTree = "<group>"; };
+		E45AC02F1641D66300DC3C3B /* simple_blit.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = simple_blit.vsh; path = Shaders/simple_blit.vsh; sourceTree = "<group>"; };
+		E45AC0331641D67300DC3C3B /* simple_blit.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = simple_blit.fsh; path = Shaders/simple_blit.fsh; sourceTree = "<group>"; };
+		E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = debug_font.vsh; path = Shaders/debug_font.vsh; sourceTree = "<group>"; };
+		E45AC0411641DE6D00DC3C3B /* debug_font.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = debug_font.fsh; path = Shaders/debug_font.fsh; sourceTree = "<group>"; };
 		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLight.h; path = Classes/KRLight.h; sourceTree = "<group>"; };
 		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRPointLight.h; path = Classes/KRPointLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -379,6 +391,10 @@
 				E4CE184E15FF125700F80870 /* light_point_inside.vsh */,
 				E41B841D16260C5600C7A771 /* sky_box.fsh */,
 				E41B842016260C6500C7A771 /* sky_box.vsh */,
+				E45AC02F1641D66300DC3C3B /* simple_blit.vsh */,
+				E45AC0331641D67300DC3C3B /* simple_blit.fsh */,
+				E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */,
+				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -894,6 +910,10 @@
 				E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11781639CC90005D9400 /* KRViewport.cpp in Sources */,
+				E45AC0301641D66300DC3C3B /* simple_blit.vsh in Sources */,
+				E45AC0341641D67300DC3C3B /* simple_blit.fsh in Sources */,
+				E45AC03F1641DE5D00DC3C3B /* debug_font.vsh in Sources */,
+				E45AC0421641DE6D00DC3C3B /* debug_font.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -942,6 +962,10 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
+				E45AC0311641D66300DC3C3B /* simple_blit.vsh in Sources */,
+				E45AC0351641D67300DC3C3B /* simple_blit.fsh in Sources */,
+				E45AC0401641DE5D00DC3C3B /* debug_font.vsh in Sources */,
+				E45AC0431641DE6D00DC3C3B /* debug_font.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

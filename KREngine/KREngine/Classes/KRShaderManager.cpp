@@ -128,7 +128,6 @@ KRShader *KRShaderManager::getShader(std::string shader_name, KRCamera *pCamera,
         
         stream << "\n";
         std::string options = stream.str();
-        //fprintf(stderr, "Shader Options:\n%s\n\n", options.c_str());
         
         pShader = new KRShader(szKey, options, m_vertShaderSource[shader_name], m_fragShaderSource[shader_name]);
 

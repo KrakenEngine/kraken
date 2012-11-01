@@ -91,12 +91,8 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
         loadModel();
         
         if(m_models.size() > 0) {
-            KRMat4 projectionMatrix;
-            if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
-                projectionMatrix = pCamera->getProjectionMatrix();
-            }
             KRMat4 matMVP = m_modelMatrix * viewport.getViewProjectionMatrix();
-            float lod_coverage = getBounds().coverage(matMVP, pCamera->getViewportSize()); // This also checks the view frustrum culling
+            float lod_coverage = getBounds().coverage(matMVP, viewport.getSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 
                 // ---===--- Select the best LOD model based on screen coverage ---===---
@@ -105,7 +101,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
                 
                 while(itr != m_models.end()) {
                     KRModel *pLODModel = *itr++;
-                    if((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage) {
+                    if((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage && pLODModel->getLODCoverage() < pModel->getLODCoverage()) {
                         pModel = pLODModel;
                     } else {
                         break;
@@ -117,7 +113,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
                 }
                 
                 if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
-                    m_pContext->getTextureManager()->selectTexture(3, m_pLightMap, 2048);
+                    m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, 2048);
                 }
                 
                 pModel->render(pCamera, pContext, viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
