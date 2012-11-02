@@ -58,7 +58,7 @@ public:
     
     GLint backingWidth, backingHeight;
     
-    void renderFrame(KRScene &scene, KRMat4 &viewMatrix);
+    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime);
 
     KRVector3 getPosition() const;
     void setPosition(const KRVector3 &position);
@@ -145,7 +145,7 @@ private:
         
     void destroyBuffers();
     
-    void renderFrame(KRScene &scene, KRVector3 &lightDirection);
+    void renderFrame(KRScene &scene, KRVector3 &lightDirection, float deltaTime);
     
     
     
@@ -180,6 +180,8 @@ private:
     
     
     KRViewport m_viewport;
+    
+    float m_particlesAbsoluteTime;
 };
 
 #endif

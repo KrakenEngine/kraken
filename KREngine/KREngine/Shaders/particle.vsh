@@ -1,19 +1,19 @@
 //
-//  KREngine.h
+//  particle.vsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
-//  
+//
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
-//  
+//
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
-//  
+//
 //  THIS SOFTWARE IS PROVIDED BY KEARWOOD GILBERT ''AS IS'' AND ANY EXPRESS OR IMPLIED
 //  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 //  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL KEARWOOD GILBERT OR
@@ -23,54 +23,21 @@
 //  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  
+//
 //  The views and conclusions contained in the software and documentation are those of the
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
 
-// #import "KRTextureManager.h"
-#import <map>
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRModel.h"
-#import "KRScene.h"
-#import "KRContext.h"
-#import "KRCamera.h"
+attribute mediump vec2	vertex_uv;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+uniform mediump vec4    viewport;
+uniform mediump float   flare_size;
+attribute vec4          vertex_position;
 
-#import "KREngine-common.h"
+varying mediump vec2 texCoord;
 
-typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL} KREngineParameterType;
-
-
-@interface KREngine : NSObject
-
-+ (KREngine *)sharedInstance;
-
-@property(nonatomic, readonly) NSDictionary *parameter_names;
-@property(nonatomic, assign) KRContext *context;
-@property(nonatomic, assign) KRCamera *camera;
-@property(nonatomic, retain) NSString *debug_text;
-
-- (id)init;
-- (BOOL)loadResource:(NSString *)path;
-
-// Parameter enumeration interface
--(int)getParameterCount;
--(NSString *)getParameterNameWithIndex: (int)i;
--(NSString *)getParameterLabelWithIndex: (int)i;
--(KREngineParameterType)getParameterTypeWithIndex: (int)i;
--(float)getParameterMinWithIndex: (int)i;
--(float)getParameterMaxWithIndex: (int)i;
--(float)getParameterValueWithIndex: (int)i;
--(void)setParameterValueWithIndex: (int)i Value: (float)v;
--(void)setParameterValueWithName: (NSString *)name Value: (float)v;
--(int)getParameterIndexWithName: (NSString *)name;
-
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix AndDeltaTime: (float)deltaTime;
-- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll AndDeltaTime: (float)deltaTime;
-- (void)setNearZ: (float)dNearZ;
-- (void)setFarZ: (float)dFarZ;
-
-@end
-
+void main() {
+    texCoord = vertex_uv;
+    gl_Position = mvp_matrix * vertex_position + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+}

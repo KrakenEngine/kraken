@@ -122,7 +122,7 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
 
     KRNode::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
-    if(renderPass == KRNode::RENDER_PASS_FLARES) {
+    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             if(!m_pFlareTexture && m_flareTexture.size()) {
                 m_pFlareTexture = pContext->getTextureManager()->getTexture(m_flareTexture.c_str());
@@ -134,6 +134,10 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
                 
                 KRMat4 m_modelMatrix = KRMat4();
                 m_modelMatrix.translate(light_position.x, light_position.y, light_position.z);
+                
+                // Disable z-buffer test
+                GLDEBUG(glDisable(GL_DEPTH_TEST));
+                GLDEBUG(glDepthRangef(0.0, 1.0));
                 
                 // Render light flare on transparency pass
                 KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);

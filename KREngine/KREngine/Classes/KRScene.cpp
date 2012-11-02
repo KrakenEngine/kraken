@@ -224,7 +224,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
                     // Enable additive blending
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_FLARES) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
                         GLDEBUG(glEnable(GL_BLEND));
                     }
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
@@ -254,7 +254,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                     
                     pOctreeNode->endOcclusionQuery();
                     
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_FLARES) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
                         GLDEBUG(glDisable(GL_BLEND));
                     } else if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
                         GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -279,7 +279,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds,
                         (*itr)->render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
                     }
                     
-                    const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_FLARES ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
+                    const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
                     
                     for(int i=0; i<8; i++) {
                         render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);

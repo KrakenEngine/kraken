@@ -63,6 +63,25 @@ public:
     
     void configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb);
     
+    
+    typedef struct {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+    } KRVector3D;
+    
+    typedef struct {
+        GLfloat u;
+        GLfloat v;
+    } TexCoord;
+    
+    typedef struct {
+        KRVector3D vertex;
+        TexCoord uva;
+    } RandomParticleVertexData;
+    
+    RandomParticleVertexData *getRandomParticles();
+    
 private:
     std::multimap<std::string, KRModel *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
@@ -78,6 +97,8 @@ private:
     
     std::map<GLvoid *, vbo_info_type> m_vbosActive;
     std::map<GLvoid *, vbo_info_type> m_vbosPool;
+    
+    RandomParticleVertexData *m_randomParticleVertexData;
 };
 
 #endif

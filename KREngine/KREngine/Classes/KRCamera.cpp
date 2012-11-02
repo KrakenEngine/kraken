@@ -41,6 +41,7 @@
 #import "KRStockGeometry.h"
 
 KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
+    m_particlesAbsoluteTime = 0.0f;
     backingWidth = 0;
     backingHeight = 0;
     
@@ -136,7 +137,7 @@ void KRCamera::setPosition(const KRVector3 &position) {
     m_position = position;
 }
 
-void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
+void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime)
 {
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
@@ -196,7 +197,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
         }
     }
     
-    renderFrame(scene, lightDirection);
+    renderFrame(scene, lightDirection, deltaTime);
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
@@ -206,7 +207,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix)
 
 
 
-void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection) {
+void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float deltaTime) {
     
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     
@@ -416,7 +417,8 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection) {
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
-    scene.render(this, m_visibleBounds, m_pContext, m_viewport, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_FLARES, newVisibleBounds);
+    scene.render(this, m_visibleBounds, m_pContext, m_viewport, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, newVisibleBounds);
+    
     
     // ----====---- Debug Overlay ----====----
     

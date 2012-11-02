@@ -39,6 +39,7 @@ KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.vao_handle = 0;
     m_currentVBO.data = NULL;
     m_vboMemUsed = 0;
+    m_randomParticleVertexData = NULL;
 }
 
 KRModelManager::~KRModelManager() {
@@ -46,6 +47,7 @@ KRModelManager::~KRModelManager() {
         delete (*itr).second;
     }
     m_models.empty();
+    if(m_randomParticleVertexData != NULL) delete m_randomParticleVertexData;
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
@@ -245,4 +247,37 @@ void KRModelManager::rotateBuffers(bool new_frame)
         m_vbosActive[m_currentVBO.data] = m_currentVBO;
     }
 
+}
+
+KRModelManager::RandomParticleVertexData *KRModelManager::getRandomParticles()
+{
+    const int MAX_PARTICLES=500000;
+    if(m_randomParticleVertexData == NULL) {
+        m_randomParticleVertexData = (RandomParticleVertexData *)malloc(sizeof(RandomParticleVertexData) * MAX_PARTICLES * 3);
+        
+        int iVertex=0;
+        for(int iParticle=0; iParticle < MAX_PARTICLES; iParticle++) {
+            m_randomParticleVertexData[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
+            m_randomParticleVertexData[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
+            m_randomParticleVertexData[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
+            m_randomParticleVertexData[iVertex].uva.u = 0.0f;
+            m_randomParticleVertexData[iVertex].uva.v = 0.0f;
+            iVertex++;
+            
+            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
+            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
+            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
+            m_randomParticleVertexData[iVertex].uva.u = 1.0f;
+            m_randomParticleVertexData[iVertex].uva.v = 0.0f;
+            iVertex++;
+            
+            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
+            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
+            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
+            m_randomParticleVertexData[iVertex].uva.u = 0.5f;
+            m_randomParticleVertexData[iVertex].uva.v = 1.0f;
+            iVertex++;
+        }
+    }
+    return m_randomParticleVertexData;
 }

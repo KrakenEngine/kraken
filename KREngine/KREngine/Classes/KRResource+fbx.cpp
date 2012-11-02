@@ -267,23 +267,6 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
 }
 
 void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
-    std::string light_map = pNode->GetName();
-    light_map.append("_lightmap");
-    
-    KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), light_map, 0.0f);
-    fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
-    fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
-    fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
-    /*
-    fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eDESTINATION_SET);
-    fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eDESTINATION_SET);
-    fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eDESTINATION_SET);
-     */
-    new_instance->setLocalRotation(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]));
-    new_instance->setLocalTranslation(KRVector3(local_translation[0], local_translation[1], local_translation[2]));
-    new_instance->setLocalScale(KRVector3(local_scale[0], local_scale[1], local_scale[2]));
-    parent_node->addChild(new_instance);
-    
     
     printf("Mesh: %s\n", pNode->GetName());
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
@@ -582,6 +565,26 @@ void LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxGeo
     KRModel *new_mesh = new KRModel(parent_node->getContext(), pNode->GetName());
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
     resources.push_back(new_mesh);
+    
+    if(new_mesh->getLODCoverage() == 100) {
+        // If this is the full detail model, add an instance of it to the scene file
+        std::string light_map = pNode->GetName();
+        light_map.append("_lightmap");
+        
+        KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), light_map, 0.0f);
+        fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSOURCE_SET);
+        fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSOURCE_SET);
+        /*
+         fbxDouble3 local_rotation = pNode->GetGeometricRotation(KFbxNode::eDESTINATION_SET);
+         fbxDouble3 local_translation = pNode->GetGeometricTranslation(KFbxNode::eDESTINATION_SET);
+         fbxDouble3 local_scale = pNode->GetGeometricScaling(KFbxNode::eDESTINATION_SET);
+         */
+        new_instance->setLocalRotation(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]));
+        new_instance->setLocalTranslation(KRVector3(local_translation[0], local_translation[1], local_translation[2]));
+        new_instance->setLocalScale(KRVector3(local_scale[0], local_scale[1], local_scale[2]));
+        parent_node->addChild(new_instance);
+    }
 
 }
 

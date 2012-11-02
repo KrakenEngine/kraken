@@ -15,6 +15,8 @@
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
+#import "KRParticleSystem.h"
+#import "KRParticleSystemBrownian.h"
 #import "KRAABB.h"
 
 
@@ -136,6 +138,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRDirectionalLight(scene, szName);
     } else if(strcmp(szElementName, "spot_light") == 0) {
         new_node = new KRSpotLight(scene, szName);
+    } else if(strcmp(szElementName, "brownian_particles") == 0) {
+        new_node = new KRParticleSystemBrownian(scene, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {

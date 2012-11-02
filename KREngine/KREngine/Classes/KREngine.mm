@@ -139,7 +139,7 @@ float const PI = 3.141592653589793f;
     return self;
 }
 
-- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll
+- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll AndDeltaTime: (float)deltaTime
 {
     KRMat4 viewMatrix;
     viewMatrix.translate(-position.x, -position.y, -position.z);
@@ -147,12 +147,12 @@ float const PI = 3.141592653589793f;
     viewMatrix.rotate(pitch, X_AXIS);
     viewMatrix.rotate(roll, Z_AXIS);
     
-    [self renderScene: pScene WithViewMatrix: viewMatrix];
+    [self renderScene: pScene WithViewMatrix: viewMatrix AndDeltaTime: deltaTime];
 }
 
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix
+- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix AndDeltaTime: (float)deltaTime
 {
-    _camera->renderFrame(*pScene, viewMatrix);
+    _camera->renderFrame(*pScene, viewMatrix, deltaTime);
 }
 
 - (BOOL)loadShaders

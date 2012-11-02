@@ -114,7 +114,7 @@ void KRModel::loadPack(KRDataBlock *data) {
 void KRModel::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRMat4 &matModel, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
-    if(renderPass != KRNode::RENDER_PASS_FLARES) {
+    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
     
         if(m_materials.size() == 0) {
             vector<KRModel::Submesh *> submeshes = getSubmeshes();
@@ -303,7 +303,7 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
         pack_material *pPackMaterial = pPackMaterials + iMaterial;
         pPackMaterial->start_vertex = submesh_starts[iMaterial];
         pPackMaterial->vertex_count = submesh_lengths[iMaterial];
-        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), 63);
+        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), 256);
     }
     
     bool bFirstVertex = true;

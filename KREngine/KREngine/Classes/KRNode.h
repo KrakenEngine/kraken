@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KREngine_KRNode_h
-#define KREngine_KRNode_h
+#ifndef KRNODE_H
+#define KRNODE_H
 
 #import "KRResource.h"
 #import "KRVector3.h"
@@ -33,7 +33,7 @@ public:
         RENDER_PASS_DEFERRED_LIGHTS,
         RENDER_PASS_DEFERRED_OPAQUE,
         RENDER_PASS_FORWARD_TRANSPARENT,
-        RENDER_PASS_FLARES,
+        RENDER_PASS_ADDITIVE_PARTICLES,
         RENDER_PASS_SHADOWMAP
     };
     
