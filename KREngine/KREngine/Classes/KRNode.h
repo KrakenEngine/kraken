@@ -63,6 +63,7 @@ public:
     const KRVector3 &getWorldRotation();
     
     virtual KRAABB getBounds();
+    const KRMat4 &getModelMatrix();
     
     KRScene &getScene();
 #if TARGET_OS_IPHONE
@@ -77,6 +78,9 @@ protected:
     KRVector3 m_localRotation;
     
 private:
+    void invalidateModelMatrix();
+    KRMat4 m_modelMatrix;
+    bool m_modelMatrixValid;
     
     std::string m_name;
     

@@ -20,6 +20,7 @@ public:
     virtual ~KRPointLight();
     
     virtual std::string getElementName();
+    virtual KRAABB getBounds();
     
 #if TARGET_OS_IPHONE
     
@@ -27,8 +28,6 @@ public:
 #endif
     
 private:
-    KRMat4 m_modelMatrix;
-    
     void generateMesh();
     
     GLfloat *m_sphereVertices;

@@ -61,17 +61,13 @@ public:
     virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
 #endif
     
-    KRMat4 &getModelMatrix();
-    
     bool hasTransparency();
     
     
     virtual KRAABB getBounds();
-    void calcModelMatrix();
     
 private:
     std::vector<KRModel *> m_models;
-    KRMat4 m_modelMatrix;
     KRTexture *m_pLightMap;
     std::string m_lightMap;
     std::string m_model_name;

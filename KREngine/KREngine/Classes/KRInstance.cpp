@@ -59,12 +59,6 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
     return e;
 }
 
-
-KRMat4 &KRInstance::getModelMatrix() {
-    calcModelMatrix();
-    return m_modelMatrix;
-}
-
 void KRInstance::loadModel() {
     if(m_models.size() == 0) {
         m_models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
@@ -81,7 +75,6 @@ void KRInstance::loadModel() {
 
 void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
-    calcModelMatrix();
     
     KRNode::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
     
@@ -91,8 +84,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
         loadModel();
         
         if(m_models.size() > 0) {
-            KRMat4 matMVP = m_modelMatrix * viewport.getViewProjectionMatrix();
-            float lod_coverage = getBounds().coverage(matMVP, viewport.getSize()); // This also checks the view frustrum culling
+            float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 
                 // ---===--- Select the best LOD model based on screen coverage ---===---
@@ -116,7 +108,7 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, 2048);
                 }
                 
-                pModel->render(pCamera, pContext, viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                pModel->render(pCamera, pContext, viewport, getModelMatrix(), lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
             }
         }
     }
@@ -133,62 +125,11 @@ bool KRInstance::hasTransparency() {
 }
 
 KRAABB KRInstance::getBounds() {
-    calcModelMatrix();
     loadModel();
-    
-    KRVector3 meshMin, meshMax;
     if(m_models.size() > 0) {
-        meshMin = m_models[0]->getMinPoint();
-        meshMax = m_models[0]->getMaxPoint();
+        return KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
     } else {
-        meshMin = -KRVector3::Max();
-        meshMax = KRVector3::Max();
+        return KRAABB::Infinite();
     }
-    
-    KRVector3 min, max;
-    for(int iCorner=0; iCorner < 8; iCorner++) {
-        KRVector3 cornerVertex = KRVector3(
-           (iCorner & 1) == 0 ? meshMin.x : meshMax.x,
-           (iCorner & 2) == 0 ? meshMin.y : meshMax.y,
-           (iCorner & 4) == 0 ? meshMin.z : meshMax.z);
-        
-        cornerVertex = KRMat4::Dot(m_modelMatrix, cornerVertex);
-        if(iCorner == 0) {
-            // Prime with first point
-            min = cornerVertex;
-            max = cornerVertex;
-        } else {
-            
-            if(cornerVertex.x < min.x) {
-                min.x = cornerVertex.x;
-            }
-            if(cornerVertex.y < min.y) {
-                min.y = cornerVertex.y;
-            }
-            if(cornerVertex.z < min.z) {
-                min.z = cornerVertex.z;
-            }
-            if(cornerVertex.x > max.x) {
-                max.x = cornerVertex.x;
-            }
-            if(cornerVertex.y > max.y) {
-                max.y = cornerVertex.y;
-            }
-            if(cornerVertex.z > max.z) {
-                max.z = cornerVertex.z;
-            }
-        }
-    }
-    
-    return KRAABB(min, max);
 }
 
-void KRInstance::calcModelMatrix()
-{
-    m_modelMatrix = KRMat4();
-//    m_modelMatrix.scale(m_localScale);
-//    m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
-//    m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
-//    m_modelMatrix.rotate(m_localRotation.z, Z_AXIS);
-//    m_modelMatrix.translate(m_localTranslation);
-}

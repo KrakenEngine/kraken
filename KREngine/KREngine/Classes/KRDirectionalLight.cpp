@@ -57,7 +57,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, const KR
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
 
-        KRMat4 matModelViewInverseTranspose = viewport.getViewMatrix() * m_modelMatrix;
+        KRMat4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
         matModelViewInverseTranspose.transpose();
         matModelViewInverseTranspose.invert();
         
@@ -66,7 +66,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, const KR
         light_direction_view_space.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(pShader->bind(viewport, m_modelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+        if(pShader->bind(viewport, getModelMatrix(), lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
             
             light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
             m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);

@@ -19,6 +19,7 @@ class KRVector2;
 class KRAABB {
 public:
     KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint);
+    KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix);
     ~KRAABB();
     
     KRVector3 center() const;
@@ -40,7 +41,7 @@ public:
     KRVector3 max;
     
     static KRAABB Infinite();
-    float coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const;
+    float coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const;
 };
 
 

@@ -16,6 +16,30 @@ KRAABB::KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint)
     min = minPoint;
     max = maxPoint;
 }
+
+KRAABB::KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix)
+{
+    for(int iCorner=0; iCorner<8; iCorner++) {
+        KRVector3 sourceCornerVertex = KRMat4::Dot(modelMatrix, KRVector3(
+                                                 (iCorner & 1) == 0 ? corner1.x : corner2.x,
+                                                 (iCorner & 2) == 0 ? corner1.y : corner2.y,
+                                                 (iCorner & 4) == 0 ? corner1.z : corner2.z));
+        
+        
+        if(iCorner == 0) {
+            min = sourceCornerVertex;
+            max = sourceCornerVertex;
+        } else {
+            if(sourceCornerVertex.x < min.x) min.x = sourceCornerVertex.x;
+            if(sourceCornerVertex.y < min.y) min.y = sourceCornerVertex.y;
+            if(sourceCornerVertex.z < min.z) min.z = sourceCornerVertex.z;
+            if(sourceCornerVertex.x > max.x) max.x = sourceCornerVertex.x;
+            if(sourceCornerVertex.y > max.y) max.y = sourceCornerVertex.y;
+            if(sourceCornerVertex.z > max.z) max.z = sourceCornerVertex.z;
+        }
+    }
+}
+
 KRAABB::~KRAABB()
 {
     
@@ -153,16 +177,16 @@ bool KRAABB::visible(const KRMat4 &matViewProjection) const
 }
 
 
-float KRAABB::coverage(const KRMat4 &matMVP, const KRVector2 viewportSize) const
+float KRAABB::coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const
 {
-    if(!visible(matMVP)) {
+    if(!visible(matVP)) {
         return 0.0f; // Culled out by view frustrum
     } else {
         KRVector2 screen_min;
         KRVector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
-            KRVector3 screen_pos = KRMat4::DotWDiv(matMVP, KRVector3(i & 1 ? min.x : max.x, i & 2 ? min.y : max.y, i & 4 ? min.z : max.z));
+            KRVector3 screen_pos = KRMat4::DotWDiv(matVP, KRVector3(i & 1 ? min.x : max.x, i & 2 ? min.y : max.y, i & 4 ? min.z : max.z));
             if(i==0) {
                 screen_min.x = screen_pos.x;
                 screen_min.y = screen_pos.y;

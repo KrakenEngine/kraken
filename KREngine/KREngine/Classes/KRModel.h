@@ -69,7 +69,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRMat4 &matModel, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
     

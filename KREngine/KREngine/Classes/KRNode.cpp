@@ -18,6 +18,7 @@
 #import "KRParticleSystem.h"
 #import "KRParticleSystemBrownian.h"
 #import "KRAABB.h"
+#import "KRQuaternion.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -29,6 +30,8 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_parentNode = NULL;
     m_pScene = &scene;
     getScene().notify_sceneGraphCreate(this);
+    m_modelMatrixValid = false;
+    m_modelMatrix = KRMat4();
 }
 
 KRNode::~KRNode() {
@@ -56,9 +59,9 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     e->SetAttribute("scale_x", m_localScale.x);
     e->SetAttribute("scale_y", m_localScale.y);
     e->SetAttribute("scale_z", m_localScale.z);
-    e->SetAttribute("rotate_x", m_localRotation.x);
-    e->SetAttribute("rotate_y", m_localRotation.y);
-    e->SetAttribute("rotate_z", m_localRotation.z);
+    e->SetAttribute("rotate_x", m_localRotation.x * 180 / M_PI);
+    e->SetAttribute("rotate_y", m_localRotation.y * 180 / M_PI);
+    e->SetAttribute("rotate_z", m_localRotation.z * 180 / M_PI);
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         child->saveXML(n);
@@ -82,7 +85,7 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     e->QueryFloatAttribute("rotate_x", &x);
     e->QueryFloatAttribute("rotate_y", &y);
     e->QueryFloatAttribute("rotate_z", &z);
-    m_localRotation = KRVector3(x,y,z);
+    m_localRotation = KRVector3(x,y,z) / 180.0 * M_PI; // Convert degrees to radians
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
         KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
@@ -94,12 +97,16 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
 
 void KRNode::setLocalTranslation(const KRVector3 &v) {
     m_localTranslation = v;
+    invalidateModelMatrix();
 }
 void KRNode::setLocalScale(const KRVector3 &v) {
     m_localScale = v;
+    invalidateModelMatrix();
 }
+
 void KRNode::setLocalRotation(const KRVector3 &v) {
     m_localRotation = v;
+    invalidateModelMatrix();
 }
 
 const KRVector3 &KRNode::getLocalTranslation() {
@@ -176,4 +183,31 @@ KRScene &KRNode::getScene() {
 
 KRAABB KRNode::getBounds() {
     return KRAABB::Infinite();
+}
+
+void KRNode::invalidateModelMatrix()
+{
+    m_modelMatrixValid = false;
+    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        KRNode *child = (*itr);
+        child->invalidateModelMatrix();
+    }
+}
+
+const KRMat4 &KRNode::getModelMatrix()
+{
+    
+    if(!m_modelMatrixValid) {
+        if(m_parentNode) {
+            m_modelMatrix = m_parentNode->getModelMatrix();
+        } else {
+            m_modelMatrix = KRMat4();
+        }
+        m_modelMatrix.scale(m_localScale);
+        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
+        m_modelMatrix.translate(m_localTranslation);
+        m_modelMatrixValid = true;
+        
+    }
+    return m_modelMatrix;
 }

@@ -201,7 +201,7 @@ bool KRMaterial::isTransparent() {
 }
 
 #if TARGET_OS_IPHONE
-bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, const KRViewport &viewport, KRMat4 &matModel, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, const KRCamera *pCamera, const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;
     bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     

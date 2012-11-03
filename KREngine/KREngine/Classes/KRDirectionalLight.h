@@ -28,8 +28,6 @@ public:
     virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
 #endif
     
-private:
-    KRMat4 m_modelMatrix;
 };
 
 
