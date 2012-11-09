@@ -233,10 +233,8 @@
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContextObject.h; path = Classes/KRContextObject.h; sourceTree = "<group>"; };
 		E443C5FD164B120900FC4FD8 /* KRVolumetricFog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRVolumetricFog.h; path = Classes/KRVolumetricFog.h; sourceTree = "<group>"; };
 		E443C601164B122C00FC4FD8 /* KRVolumetricFog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRVolumetricFog.cpp; path = Classes/KRVolumetricFog.cpp; sourceTree = "<group>"; };
-		E443C606164B27B400FC4FD8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.fsh; path = Shaders/volumetric_fog.fsh; sourceTree = "<group>"; };
-		E443C609164B27C500FC4FD8 /* volumetric_fog.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.vsh; path = Shaders/volumetric_fog.vsh; sourceTree = "<group>"; };
-		E443C612164B5BE500FC4FD8 /* volumetric_fog_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_inside.fsh; path = Shaders/volumetric_fog_inside.fsh; sourceTree = "<group>"; };
-		E443C615164B5BFB00FC4FD8 /* volumetric_fog_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_inside.vsh; path = Shaders/volumetric_fog_inside.vsh; sourceTree = "<group>"; };
+		E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.fsh; path = Shaders/volumetric_fog.fsh; sourceTree = "<group>"; };
+		E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.vsh; path = Shaders/volumetric_fog.vsh; sourceTree = "<group>"; };
 		E45772F113C9A13C0037BEEA /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ShadowShader.vsh; path = Shaders/ShadowShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F213C9A13C0037BEEA /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
 		E45772F313C9A13C0037BEEA /* PostShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.fsh; path = Shaders/PostShader.fsh; sourceTree = "<group>"; };
@@ -424,10 +422,8 @@
 				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
 				E45AC0461643451200DC3C3B /* particle.fsh */,
 				E45AC0491643452000DC3C3B /* particle.vsh */,
-				E443C606164B27B400FC4FD8 /* volumetric_fog.fsh */,
-				E443C609164B27C500FC4FD8 /* volumetric_fog.vsh */,
-				E443C612164B5BE500FC4FD8 /* volumetric_fog_inside.fsh */,
-				E443C615164B5BFB00FC4FD8 /* volumetric_fog_inside.vsh */,
+				E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */,
+				E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";

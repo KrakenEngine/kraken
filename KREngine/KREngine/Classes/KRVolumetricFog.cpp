@@ -101,53 +101,33 @@ void KRVolumetricFog::render(KRCamera *pCamera, KRContext *pContext, const KRVie
                 }
                 
                 
-                KRShader *pFogShader = m_pContext->getShaderManager()->getShader("volumetric_fog_inside", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                
-                if(pFogShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
-                    
-                    KRAABB viewSpaceBounds = KRAABB(bounds.min, bounds.max, viewport.getViewProjectionMatrix());
-                
-                    // Enable z-buffer test
-                    GLDEBUG(glEnable(GL_DEPTH_TEST));
-                    GLDEBUG(glDepthFunc(GL_LEQUAL));
-                    GLDEBUG(glDepthRangef(0.0, 1.0));
-                    
-                    // Enable backface culling
-                    GLDEBUG(glCullFace(GL_BACK));
-                    GLDEBUG(glEnable(GL_CULL_FACE));
-                    
-                    
-                    int slice_count = 50;
-                    
-                    float slice_near = -100.0;
-                    float slice_far = -1000.0;
-                    float slice_spacing = (slice_far - slice_near) / slice_count;
-                    
-                    KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
-                    
-                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), slice_count * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false);
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
-                    
-                    /*
-                    
-                    
-                    float slice_near = viewSpaceBounds.max.z;
-                    float slice_far = viewSpaceBounds.min.z;
-                    slice_near = -1.0;
-                    slice_far = 1.0;
-                    float slice_spacing = (slice_far - slice_near) / slice_count;
-                    //                    slice_spacing = 1.0f / slice_count;
-//                    slice_near = 0.0f;
-                    for(int slice=0; slice < slice_count; slice++) {
-                        KRVector2(slice_near + slice * slice_spacing, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
-                        int mesh_count = pModel->getSubmeshes().size();
-                        for(int iMesh=0; iMesh < mesh_count; iMesh++) {
-                            pModel->renderSubmesh(iMesh);
-                        }
-                    }
-                     */
-                    
-                }
+//                KRShader *pFogShader = m_pContext->getShaderManager()->getShader("volumetric_fog_inside", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+//                
+//                if(pFogShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
+//                    
+//                    KRAABB viewSpaceBounds = KRAABB(bounds.min, bounds.max, viewport.getViewProjectionMatrix());
+//                
+//                    // Enable z-buffer test
+//                    GLDEBUG(glEnable(GL_DEPTH_TEST));
+//                    GLDEBUG(glDepthFunc(GL_LEQUAL));
+//                    GLDEBUG(glDepthRangef(0.0, 1.0));
+//                    
+//                    // Enable backface culling
+//                    GLDEBUG(glCullFace(GL_BACK));
+//                    GLDEBUG(glEnable(GL_CULL_FACE));
+//                    
+//                    
+//                    int slice_count = 50;
+//                    
+//                    float slice_near = -100.0;
+//                    float slice_far = -1000.0;
+//                    float slice_spacing = (slice_far - slice_near) / slice_count;
+//                    
+//                    KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
+//                    
+//                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), slice_count * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false);
+//                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
+//                }
             }
         }
     }

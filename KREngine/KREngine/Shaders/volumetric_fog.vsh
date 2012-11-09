@@ -26,37 +26,25 @@
 //
 
 attribute highp vec4	vertex_position;
-uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
-//uniform highp mat4      model_view_matrix;
-//uniform highp mat4      projection_matrix;
-//uniform highp mat4      inv_projection_matrix;
+uniform highp mat4      inv_mvp_matrix;
 
 uniform highp vec2      slice_depth_scale; // First component is the depth for the nearest plane, in view space.  Second component is the distance between planes, in view space
 
+uniform highp mat4  shadow_mvp1;
+varying highp vec4	shadowMapCoord1;
+
+uniform highp mat4  projection_matrix;
+
 void main()
-{
-    // Transform position
-    /*
-     position = shadow_mvp1 * vec4(vertex_position,1.0);
-     */
-//    gl_Position = mvp_matrix * vertex_position;
-    /*
-     // Pass UV co-ordinates
-     texCoord = vertex_uv.st;
-     */
+{    
+    highp vec4 d = projection_matrix * vec4(0.0, 0.0, slice_depth_scale.x + vertex_position.z * slice_depth_scale.y, 1.0);
+    d /= d.w;
+    gl_Position = vec4(vertex_position.x, vertex_position.y, d.z, 1.0);
+
     
+    shadowMapCoord1 = inv_mvp_matrix * gl_Position;
+    shadowMapCoord1 /= shadowMapCoord1.w;
+    shadowMapCoord1.w = 1.0;
+    shadowMapCoord1 = shadow_mvp1 * shadowMapCoord1;
     
-//    highp vec4 p = model_view_matrix * vertex_position;
-//    p.z = slice_depth_scale.x;
-//    gl_Position = projection_matrix * p;
-    
-//    highp vec4 p = mvp_matrix * vertex_position;
-//    p = inv_projection_matrix * p;
-//    p = projection_matrix * p;
-//    gl_Position = p;
-    
-    
-    highp vec4 p = mvp_matrix * vertex_position;
-    p.z = slice_depth_scale.x * p.w;
-    gl_Position = p;
 }

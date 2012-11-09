@@ -27,7 +27,15 @@
 
 //varying mediump vec2	texCoord;
 
+#extension GL_EXT_shadow_samplers : require
+
+varying highp vec4	shadowMapCoord1;
+uniform sampler2DShadow   shadowTexture1;
+
 void main()
 {
-    gl_FragColor = vec4(0.0, 0.02, 0.02, 0.02);
+    gl_FragColor = vec4(0.04, 0.04, 0.04, 0.04);
+    
+    gl_FragColor *= shadow2DProjEXT(shadowTexture1, shadowMapCoord1);
+//    gl_FragColor = vec4(shadowMapCoord1.xyz, 1.0);
 }

@@ -118,6 +118,8 @@ public:
     float getPerspectiveFarZ();
     void setPerspectiveNear(float v);
     void setPerpsectiveFarZ(float v);
+    
+    int volumetric_light_downsample;
 
 private:
     KRVector3 m_position;
@@ -133,6 +135,9 @@ private:
     int m_iFrame;
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
     GLuint lightAccumulationBuffer, lightAccumulationTexture;
+    
+    
+    GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
     
     
     GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
