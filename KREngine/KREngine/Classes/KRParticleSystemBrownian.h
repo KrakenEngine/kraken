@@ -19,8 +19,20 @@ public:
     virtual std::string getElementName();
     virtual void loadXML(tinyxml2::XMLElement *e);
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-private:
     
+    
+    virtual KRAABB getBounds();
+    
+    
+#if TARGET_OS_IPHONE
+    
+    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
+#endif
+    
+    
+    virtual void physicsUpdate(float deltaTime);
+private:
+    float m_particlesAbsoluteTime;
 };
 
 #endif

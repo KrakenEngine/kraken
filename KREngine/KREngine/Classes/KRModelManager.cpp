@@ -40,6 +40,7 @@ KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.data = NULL;
     m_vboMemUsed = 0;
     m_randomParticleVertexData = NULL;
+    m_volumetricLightingVertexData = NULL;
 }
 
 KRModelManager::~KRModelManager() {
@@ -48,6 +49,7 @@ KRModelManager::~KRModelManager() {
     }
     m_models.empty();
     if(m_randomParticleVertexData != NULL) delete m_randomParticleVertexData;
+    if(m_volumetricLightingVertexData != NULL) delete m_volumetricLightingVertexData;
 }
 
 KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
@@ -247,6 +249,53 @@ void KRModelManager::rotateBuffers(bool new_frame)
         m_vbosActive[m_currentVBO.data] = m_currentVBO;
     }
 
+}
+
+KRModelManager::VolumetricLightingVertexData *KRModelManager::getVolumetricLightingVertexes()
+{
+    const int MAX_PLANES=500;
+    if(m_volumetricLightingVertexData == NULL) {
+        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * MAX_PLANES * 6);
+        int iVertex=0;
+        for(int iPlane=0; iPlane < MAX_PLANES; iPlane++) {
+            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+
+            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
+            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            iVertex++;
+            
+//            -1.0f, -1.0f,
+//            1.0f, -1.0f,
+//            -1.0f,  1.0f,
+//            1.0f,  1.0f,
+        }
+    }
+    return m_volumetricLightingVertexData;
 }
 
 KRModelManager::RandomParticleVertexData *KRModelManager::getRandomParticles()

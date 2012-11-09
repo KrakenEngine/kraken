@@ -68,9 +68,12 @@ public:
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
 
 #endif
+    
+    virtual void physicsUpdate(float deltaTime);
+    virtual bool hasPhysics();
     
 protected:
     KRVector3 m_localTranslation;

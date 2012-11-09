@@ -35,11 +35,13 @@
 #import "KRModel.h"
 #include <assert.h>
 
-KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage) : KRNode(scene, instance_name) {
+KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
     m_model_name = model_name;
     m_min_lod_coverage = lod_min_coverage;
+    m_receivesShadow = receives_shadow;
+    m_receivesShadow = true;
 }
 
 KRInstance::~KRInstance() {
@@ -56,6 +58,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("mesh_name", m_model_name.c_str());
     e->SetAttribute("light_map", m_lightMap.c_str());
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
+    e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
     return e;
 }
 
@@ -73,10 +76,10 @@ void KRInstance::loadModel() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
     
-    KRNode::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
@@ -104,11 +107,11 @@ void KRInstance::render(KRCamera *pCamera, KRContext *pContext, const KRViewport
                     m_pLightMap = pContext->getTextureManager()->getTexture(m_lightMap.c_str());
                 }
                 
-                if(cShadowBuffers == 0 && m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
+                if(m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP) {
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, 2048);
                 }
                 
-                pModel->render(pCamera, pContext, viewport, getModelMatrix(), lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, m_pLightMap, renderPass);
+                pModel->render(pCamera, pContext, viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, m_receivesShadow ? cShadowBuffers : 0, m_pLightMap, renderPass);
             }
         }
     }

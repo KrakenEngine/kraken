@@ -20,7 +20,7 @@ KRAABB::KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint)
 KRAABB::KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix)
 {
     for(int iCorner=0; iCorner<8; iCorner++) {
-        KRVector3 sourceCornerVertex = KRMat4::Dot(modelMatrix, KRVector3(
+        KRVector3 sourceCornerVertex = KRMat4::DotWDiv(modelMatrix, KRVector3(
                                                  (iCorner & 1) == 0 ? corner1.x : corner2.x,
                                                  (iCorner & 2) == 0 ? corner1.y : corner2.y,
                                                  (iCorner & 4) == 0 ? corner1.z : corner2.z));

@@ -19,6 +19,13 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     
+    virtual KRAABB getBounds() = 0;
+    
+#if TARGET_OS_IPHONE
+    
+    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) = 0;
+#endif
+    
 protected:
     KRParticleSystem(KRScene &scene, std::string name);
 private:

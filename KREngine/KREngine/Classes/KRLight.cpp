@@ -118,9 +118,9 @@ float KRLight::getDecayStart() {
 
 #if TARGET_OS_IPHONE
 
-void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
 
-    KRNode::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
@@ -135,7 +135,7 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
                 
                 // Render light flare on transparency pass
                 KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(pShader->bind(viewport, getModelMatrix(), lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+                if(pShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, 0, renderPass)) {
                     GLDEBUG(glUniform1f(
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize

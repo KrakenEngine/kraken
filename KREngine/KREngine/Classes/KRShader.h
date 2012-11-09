@@ -56,7 +56,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, const KRMat4 *pShadowMatrices, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass);
+    bool bind(const KRViewport &viewport, const KRViewport *pShadowViewports, const KRMat4 &matModel, const KRVector3 &lightDirection, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass);
     
 #endif
     
@@ -96,6 +96,7 @@ public:
         KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE,
         KRENGINE_UNIFORM_MODEL_VIEW,
         KRENGINE_UNIFORM_MODEL_MATRIX,
+        KRENGINE_UNIFORM_PROJECTION_MATRIX,
         
         KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE,
         KRENGINE_UNIFORM_VIEWPORT,
@@ -125,6 +126,8 @@ public:
         KRENGINE_UNIFORM_GBUFFER_DEPTH,
         KRENGINE_UNIFORM_DEPTH_FRAME,
         KRENGINE_UNIFORM_RENDER_FRAME,
+        
+        KRENGINE_UNIFORM_SLICE_DEPTH_SCALE,
         
         KRENGINE_NUM_UNIFORMS
     };

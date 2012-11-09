@@ -35,18 +35,10 @@
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; };
 		E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E45AC0301641D66300DC3C3B /* simple_blit.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC02F1641D66300DC3C3B /* simple_blit.vsh */; };
-		E45AC0311641D66300DC3C3B /* simple_blit.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC02F1641D66300DC3C3B /* simple_blit.vsh */; };
-		E45AC0341641D67300DC3C3B /* simple_blit.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0331641D67300DC3C3B /* simple_blit.fsh */; };
-		E45AC0351641D67300DC3C3B /* simple_blit.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0331641D67300DC3C3B /* simple_blit.fsh */; };
-		E45AC03F1641DE5D00DC3C3B /* debug_font.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */; };
-		E45AC0401641DE5D00DC3C3B /* debug_font.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */; };
-		E45AC0421641DE6D00DC3C3B /* debug_font.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0411641DE6D00DC3C3B /* debug_font.fsh */; };
-		E45AC0431641DE6D00DC3C3B /* debug_font.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0411641DE6D00DC3C3B /* debug_font.fsh */; };
-		E45AC0471643451300DC3C3B /* particle.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0461643451200DC3C3B /* particle.fsh */; };
-		E45AC0481643451300DC3C3B /* particle.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0461643451200DC3C3B /* particle.fsh */; };
-		E45AC04A1643452100DC3C3B /* particle.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0491643452000DC3C3B /* particle.vsh */; };
-		E45AC04B1643452100DC3C3B /* particle.vsh in Sources */ = {isa = PBXBuildFile; fileRef = E45AC0491643452000DC3C3B /* particle.vsh */; };
+		E443C5FE164B120A00FC4FD8 /* KRVolumetricFog.h in Headers */ = {isa = PBXBuildFile; fileRef = E443C5FD164B120900FC4FD8 /* KRVolumetricFog.h */; };
+		E443C5FF164B120A00FC4FD8 /* KRVolumetricFog.h in Headers */ = {isa = PBXBuildFile; fileRef = E443C5FD164B120900FC4FD8 /* KRVolumetricFog.h */; };
+		E443C602164B122C00FC4FD8 /* KRVolumetricFog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E443C601164B122C00FC4FD8 /* KRVolumetricFog.cpp */; };
+		E443C603164B122C00FC4FD8 /* KRVolumetricFog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E443C601164B122C00FC4FD8 /* KRVolumetricFog.cpp */; };
 		E461A152152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; };
 		E461A153152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A156152E54F800F2044A /* KRLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A155152E54F700F2044A /* KRLight.cpp */; };
@@ -239,6 +231,12 @@
 		E4324BAD16444E120043185B /* KRParticleSystemBrownian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRParticleSystemBrownian.cpp; path = Classes/KRParticleSystemBrownian.cpp; sourceTree = "<group>"; };
 		E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRContextObject.cpp; path = Classes/KRContextObject.cpp; sourceTree = "<group>"; };
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContextObject.h; path = Classes/KRContextObject.h; sourceTree = "<group>"; };
+		E443C5FD164B120900FC4FD8 /* KRVolumetricFog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRVolumetricFog.h; path = Classes/KRVolumetricFog.h; sourceTree = "<group>"; };
+		E443C601164B122C00FC4FD8 /* KRVolumetricFog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRVolumetricFog.cpp; path = Classes/KRVolumetricFog.cpp; sourceTree = "<group>"; };
+		E443C606164B27B400FC4FD8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.fsh; path = Shaders/volumetric_fog.fsh; sourceTree = "<group>"; };
+		E443C609164B27C500FC4FD8 /* volumetric_fog.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.vsh; path = Shaders/volumetric_fog.vsh; sourceTree = "<group>"; };
+		E443C612164B5BE500FC4FD8 /* volumetric_fog_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_inside.fsh; path = Shaders/volumetric_fog_inside.fsh; sourceTree = "<group>"; };
+		E443C615164B5BFB00FC4FD8 /* volumetric_fog_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_inside.vsh; path = Shaders/volumetric_fog_inside.vsh; sourceTree = "<group>"; };
 		E45772F113C9A13C0037BEEA /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ShadowShader.vsh; path = Shaders/ShadowShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F213C9A13C0037BEEA /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
 		E45772F313C9A13C0037BEEA /* PostShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.fsh; path = Shaders/PostShader.fsh; sourceTree = "<group>"; };
@@ -426,6 +424,10 @@
 				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
 				E45AC0461643451200DC3C3B /* particle.fsh */,
 				E45AC0491643452000DC3C3B /* particle.vsh */,
+				E443C606164B27B400FC4FD8 /* volumetric_fog.fsh */,
+				E443C609164B27C500FC4FD8 /* volumetric_fog.vsh */,
+				E443C612164B5BE500FC4FD8 /* volumetric_fog_inside.fsh */,
+				E443C615164B5BFB00FC4FD8 /* volumetric_fog_inside.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -584,6 +586,8 @@
 				E461A171152E599E00F2044A /* Lights */,
 				E4F975311536220900FD60B2 /* KRNode.h */,
 				E4F975351536221C00FD60B2 /* KRNode.cpp */,
+				E443C5FD164B120900FC4FD8 /* KRVolumetricFog.h */,
+				E443C601164B122C00FC4FD8 /* KRVolumetricFog.cpp */,
 			);
 			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
@@ -767,6 +771,7 @@
 				E4CA11741639CBD6005D9400 /* KRViewport.h in Headers */,
 				E4324BA416444C0D0043185B /* KRParticleSystem.h in Headers */,
 				E4324BAB16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */,
+				E443C5FE164B120A00FC4FD8 /* KRVolumetricFog.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -821,6 +826,7 @@
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */,
 				E4324BAC16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */,
+				E443C5FF164B120A00FC4FD8 /* KRVolumetricFog.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,14 +952,9 @@
 				E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11781639CC90005D9400 /* KRViewport.cpp in Sources */,
-				E45AC0301641D66300DC3C3B /* simple_blit.vsh in Sources */,
-				E45AC0341641D67300DC3C3B /* simple_blit.fsh in Sources */,
-				E45AC03F1641DE5D00DC3C3B /* debug_font.vsh in Sources */,
-				E45AC0421641DE6D00DC3C3B /* debug_font.fsh in Sources */,
-				E45AC0471643451300DC3C3B /* particle.fsh in Sources */,
-				E45AC04A1643452100DC3C3B /* particle.vsh in Sources */,
 				E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */,
 				E4324BAE16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */,
+				E443C602164B122C00FC4FD8 /* KRVolumetricFog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1002,14 +1003,9 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
-				E45AC0311641D66300DC3C3B /* simple_blit.vsh in Sources */,
-				E45AC0351641D67300DC3C3B /* simple_blit.fsh in Sources */,
-				E45AC0401641DE5D00DC3C3B /* debug_font.vsh in Sources */,
-				E45AC0431641DE6D00DC3C3B /* debug_font.fsh in Sources */,
-				E45AC0481643451300DC3C3B /* particle.fsh in Sources */,
-				E45AC04B1643452100DC3C3B /* particle.vsh in Sources */,
 				E4324BAF16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */,
 				E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */,
+				E443C603164B122C00FC4FD8 /* KRVolumetricFog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

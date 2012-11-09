@@ -62,9 +62,9 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, std::set<KRAABB> &visibleBounds, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
+    void render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
     
-    void render(KROctreeNode *pOctreeNode, std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+    void render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
 #endif
     
@@ -75,6 +75,8 @@ public:
     void notify_sceneGraphDelete(KRNode *pNode);
     void notify_sceneGraphModify(KRNode *pNode);
     
+    void physicsUpdate(float deltaTime);
+    
 private:
     KRContext *m_pContext;
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
@@ -84,6 +86,10 @@ private:
     
     std::set<KRNode *> m_newNodes;
     std::set<KRNode *> m_modifiedNodes;
+    
+    
+    
+    std::set<KRNode *> m_physicsNodes;
     
     KROctree m_nodeTree;
     void updateOctree();

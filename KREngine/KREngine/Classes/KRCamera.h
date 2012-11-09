@@ -137,7 +137,6 @@ private:
     
     GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
     bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
-    KRMat4 shadowmvpmatrix[KRENGINE_MAX_SHADOW_BUFFERS]; /* MVP Matrix for view from light source */
     
     KRViewport m_shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
     
@@ -171,9 +170,6 @@ private:
         KRInstance *m_pInstance;
         float m_distance;
     };
-    
-    std::set<KRAABB> m_visibleBounds; // AABB's that output fragments in the last frame
-    std::set<KRAABB> m_shadowVisibleBounds[KRENGINE_MAX_SHADOW_BUFFERS]; // AABB's that output fragments in the last frame for each shadow map
     
     std::string m_skyBoxName;
     KRTexture *m_pSkyBoxTexture;

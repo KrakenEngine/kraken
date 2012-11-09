@@ -80,7 +80,12 @@ public:
         TexCoord uva;
     } RandomParticleVertexData;
     
+    typedef struct {
+        KRVector3D vertex;
+    } VolumetricLightingVertexData;
+    
     RandomParticleVertexData *getRandomParticles();
+    VolumetricLightingVertexData *getVolumetricLightingVertexes();
     
 private:
     std::multimap<std::string, KRModel *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -99,6 +104,8 @@ private:
     std::map<GLvoid *, vbo_info_type> m_vbosPool;
     
     RandomParticleVertexData *m_randomParticleVertexData;
+    VolumetricLightingVertexData *m_volumetricLightingVertexData;
+    
 };
 
 #endif

@@ -50,9 +50,9 @@ KRVector3 KRDirectionalLight::getLocalLightDirection() {
 
 #if TARGET_OS_IPHONE
 
-void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    KRLight::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRLight::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
 
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
@@ -66,7 +66,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, KRContext *pContext, const KR
         light_direction_view_space.normalize();
         
         KRShader *pShader = pContext->getShaderManager()->getShader("light_directional", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(pShader->bind(viewport, getModelMatrix(), lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+        if(pShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, 0, renderPass)) {
             
             light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
             m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);

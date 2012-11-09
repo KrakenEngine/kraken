@@ -5,7 +5,7 @@
 //  
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
@@ -24,6 +24,8 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
+
+#extension GL_EXT_shadow_samplers : require
 
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
     uniform mediump float material_shininess;
@@ -99,7 +101,11 @@
 
 
     #if SHADOW_QUALITY >= 1
-        uniform sampler2D   shadowTexture1;
+        #ifdef GL_EXT_shadow_samplers
+            uniform sampler2DShadow   shadowTexture1;
+        #else
+            uniform sampler2D   shadowTexture1;
+        #endif
         varying highp vec4  shadowMapCoord1;
     #endif
 
@@ -212,62 +218,72 @@ void main()
                 #endif
             }
 
-            #if SHADOW_QUALITY == 1
-                highp float shadowMapDepth = 1.0;
-                highp float vertexShadowDepth = 1.0;
-                highp vec2 shadowMapPos = ((shadowMapCoord1 / shadowMapCoord1.w + 1.0) / 2.0).st;
-                
-                if(shadowMapCoord1.x >= -1.0 && shadowMapCoord1.x <= 1.0 && shadowMapCoord1.y >= -1.0 && shadowMapCoord1.y <= 1.0 && shadowMapCoord1.z >= 0.0 && shadowMapCoord1.z <= 1.0) {
-                #if DEBUG_PSSM == 1
-                        diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
+            #ifdef GL_EXT_shadow_samplers
+                #if SHADOW_QUALITY == 1
+                    lowp float shadow = shadow2DProjEXT(shadowTexture1, shadowMapCoord1);
+                    lamberFactor *= shadow;
+                    specularFactor *= shadow;
                 #endif
-                    shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
-                    vertexShadowDepth = ((shadowMapCoord1 / shadowMapCoord1.w + 1.0) / 2.0).z;
-                }
-            #endif
+            #else
+    
+                #if SHADOW_QUALITY == 1
 
-            #if SHADOW_QUALITY >= 2
-
-                highp float shadowMapDepth = 1.0;
-                highp float vertexShadowDepth = 1.0;
-                
-                if(shadowMapCoord1.x >= -1.0 && shadowMapCoord1.x <= 1.0 && shadowMapCoord1.y >= -1.0 && shadowMapCoord1.y <= 1.0 && shadowMapCoord1.z >= 0.0 && shadowMapCoord1.z <= 1.0) {
-                    #if DEBUG_PSSM == 1
-                        diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
-                    #endif
-                    highp vec2 shadowMapPos = ((shadowMapCoord1 / shadowMapCoord1.w + 1.0) / 2.0).st;
-                    shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
-                    vertexShadowDepth = ((shadowMapCoord1 / shadowMapCoord1.w + 1.0) / 2.0).z;
-                } else if(shadowMapCoord2.s >= -1.0 && shadowMapCoord2.s <= 1.0 && shadowMapCoord2.t >= -1.0 && shadowMapCoord2.t <= 1.0 && shadowMapCoord2.z >= 0.0 && shadowMapCoord2.z <= 1.0) {
-                    #if DEBUG_PSSM == 1
-                        diffuseMaterial = diffuseMaterial * vec4(0.75, 0.50, 0.75, 1.0) + vec4(0.0, 0.5, 0.0, 0.0);
-                    #endif
-                    highp vec2 shadowMapPos = ((shadowMapCoord2 / shadowMapCoord2.w + 1.0) / 2.0).st;
-                    shadowMapDepth =  texture2D(shadowTexture2, shadowMapPos).z;
-                    vertexShadowDepth = ((shadowMapCoord2 / shadowMapCoord2.w + 1.0) / 2.0).z;
-                }
-                #if SHADOW_QUALITY >= 3
-                    else if(shadowMapCoord3.s >= -1.0 && shadowMapCoord3.s <= 1.0 && shadowMapCoord3.t >= -1.0 && shadowMapCoord3.t <= 1.0 && shadowMapCoord3.z >= 0.0 && shadowMapCoord3.z <= 1.0) {
+                        highp float shadowMapDepth = 1.0;
+                        highp float vertexShadowDepth = 1.0;
+                        highp vec2 shadowMapPos = (shadowMapCoord1 / shadowMapCoord1.w).st;
+                        
+                        if(shadowMapCoord1.x >= -1.0 && shadowMapCoord1.x <= 1.0 && shadowMapCoord1.y >= -1.0 && shadowMapCoord1.y <= 1.0 && shadowMapCoord1.z >= 0.0 && shadowMapCoord1.z <= 1.0) {
                         #if DEBUG_PSSM == 1
-                            diffuseMaterial = diffuseMaterial * vec4(0.50, 0.75, 0.75, 1.0) + vec4(0.5, 0.0, 0.0, 0.0);
+                                diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
                         #endif
-                        highp vec2 shadowMapPos = ((shadowMapCoord3 / shadowMapCoord3.w + 1.0) / 2.0).st;
-                        shadowMapDepth =  texture2D(shadowTexture3, shadowMapPos).z;
-                        vertexShadowDepth = ((shadowMapCoord3 / shadowMapCoord3.w + 1.0) / 2.0).z;
-                    }
-
+                            shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
+                            vertexShadowDepth = (shadowMapCoord1 / shadowMapCoord1.w).z;
+                        }
                 #endif
-            #endif
+
+                #if SHADOW_QUALITY >= 2
+
+                    highp float shadowMapDepth = 1.0;
+                    highp float vertexShadowDepth = 1.0;
                     
-            #if SHADOW_QUALITY >= 1
-                if(vertexShadowDepth >= shadowMapDepth && shadowMapDepth < 1.0) {
-                    #if GBUFFER_PASS == 3
-                        lamberFactor = vec3(0.0);
-                    #else
-                        lamberFactor = 0.0;
+                    if(shadowMapCoord1.x >= -1.0 && shadowMapCoord1.x <= 1.0 && shadowMapCoord1.y >= -1.0 && shadowMapCoord1.y <= 1.0 && shadowMapCoord1.z >= 0.0 && shadowMapCoord1.z <= 1.0) {
+                        #if DEBUG_PSSM == 1
+                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
+                        #endif
+                        highp vec2 shadowMapPos = (shadowMapCoord1 / shadowMapCoord1.w).st;
+                        shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
+                        vertexShadowDepth = (shadowMapCoord1 / shadowMapCoord1.w).z;
+                    } else if(shadowMapCoord2.s >= -1.0 && shadowMapCoord2.s <= 1.0 && shadowMapCoord2.t >= -1.0 && shadowMapCoord2.t <= 1.0 && shadowMapCoord2.z >= 0.0 && shadowMapCoord2.z <= 1.0) {
+                        #if DEBUG_PSSM == 1
+                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.50, 0.75, 1.0) + vec4(0.0, 0.5, 0.0, 0.0);
+                        #endif
+                        highp vec2 shadowMapPos = (shadowMapCoord2 / shadowMapCoord2.w).st;
+                        shadowMapDepth =  texture2D(shadowTexture2, shadowMapPos).z;
+                        vertexShadowDepth = (shadowMapCoord2 / shadowMapCoord2.w).z;
+                    }
+                    #if SHADOW_QUALITY >= 3
+                        else if(shadowMapCoord3.s >= -1.0 && shadowMapCoord3.s <= 1.0 && shadowMapCoord3.t >= -1.0 && shadowMapCoord3.t <= 1.0 && shadowMapCoord3.z >= 0.0 && shadowMapCoord3.z <= 1.0) {
+                            #if DEBUG_PSSM == 1
+                                diffuseMaterial = diffuseMaterial * vec4(0.50, 0.75, 0.75, 1.0) + vec4(0.5, 0.0, 0.0, 0.0);
+                            #endif
+                            highp vec2 shadowMapPos = (shadowMapCoord3 / shadowMapCoord3.w).st;
+                            shadowMapDepth =  texture2D(shadowTexture3, shadowMapPos).z;
+                            vertexShadowDepth = (shadowMapCoord3 / shadowMapCoord3.w).z;
+                        }
+
                     #endif
-                    specularFactor = 0.0;
-                }
+                #endif
+                        
+                #if SHADOW_QUALITY >= 1
+                    if(vertexShadowDepth >= shadowMapDepth && shadowMapDepth < 1.0) {
+                        #if GBUFFER_PASS == 3
+                            lamberFactor = vec3(0.0);
+                        #else
+                            lamberFactor = 0.0;
+                        #endif
+                        specularFactor = 0.0;
+                    }
+                #endif
             #endif
         #endif
             

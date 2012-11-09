@@ -136,6 +136,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE] = glGetUniformLocation(m_iProgram, "model_inverse_transpose_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW] = glGetUniformLocation(m_iProgram, "model_view_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MODEL_MATRIX] = glGetUniformLocation(m_iProgram, "model_matrix"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(m_iProgram, "projection_matrix"));
             
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2"));
@@ -167,6 +168,7 @@ KRShader::KRShader(char *szKey, std::string options, std::string vertShaderSourc
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] = glGetUniformLocation(m_iProgram, "gbuffer_depth"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME] = glGetUniformLocation(m_iProgram, "depthFrame"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME] = glGetUniformLocation(m_iProgram, "renderFrame"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SLICE_DEPTH_SCALE] = glGetUniformLocation(m_iProgram, "slice_depth_scale"));
         }
         
     } catch(...) {
@@ -201,7 +203,7 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KRVector3 &lightDirection, const KRMat4 *pShadowMatrices, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass) {
+bool KRShader::bind(const KRViewport &viewport, const KRViewport *pShadowViewports, const KRMat4 &matModel, const KRVector3 &lightDirection, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -235,7 +237,7 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KR
         }
     }
     
-    if(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1) {
+    if(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW] != -1) {
         KRMat4 matModelView = matModel * viewport.getViewMatrix();
         matModelView.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW]);
         
@@ -280,6 +282,9 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KR
     }
     
     matModel.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_MATRIX]);
+    if(m_uniforms[KRENGINE_UNIFORM_PROJECTION_MATRIX] != -1) {
+        viewport.getProjectionMatrix().setUniform(m_uniforms[KRENGINE_UNIFORM_PROJECTION_MATRIX]);
+    }
     
     if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
         GLDEBUG(glUniform4f(
@@ -293,7 +298,10 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const KR
     
     // Bind the shadowmap space matrices
     for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
-        pShadowMatrices[iShadow].setUniform(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow]);
+        KRMat4 matBias;
+        matBias.translate(1.0, 1.0, 1.0);
+        matBias.scale(0.5);
+        (matModel * pShadowViewports[iShadow].getViewProjectionMatrix() * matBias).setUniform(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow]);
     }
     
     // Sets the diffuseTexture variable to the first texture unit

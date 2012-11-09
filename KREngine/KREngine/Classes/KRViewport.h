@@ -11,6 +11,7 @@
 
 #include "KRVector2.h"
 #include "KRMat4.h"
+#include "KRAABB.h"
 
 class KRViewport {
 public:
@@ -35,6 +36,9 @@ public:
     // Overload assignment operator
     KRViewport& operator=(const KRViewport &v);
     
+    const std::set<KRAABB> &getVisibleBounds();
+    void setVisibleBounds(const std::set<KRAABB> visibleBounds);
+    
 private:
     KRVector2 m_size;
     KRMat4 m_matView;
@@ -52,6 +56,8 @@ private:
     int m_backToFrontOrder[8];
     
     void calculateDerivedValues();
+    
+    std::set<KRAABB> m_visibleBounds; // AABB's that output fragments in the last frame
 };
 
 #endif

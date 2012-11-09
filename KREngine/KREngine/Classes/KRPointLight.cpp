@@ -43,9 +43,9 @@ KRAABB KRPointLight::getBounds() {
 
 #if TARGET_OS_IPHONE
 
-void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, KRVector3 &lightDirection, KRMat4 *pShadowMatrices, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
     
-    KRLight::render(pCamera, pContext, viewport, lightDirection, pShadowMatrices, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRLight::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
     
     bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->bShowDeferred;
     
@@ -69,7 +69,7 @@ void KRPointLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewpo
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
             KRShader *pShader = pContext->getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            if(pShader->bind(viewport, sphereModelMatrix, lightDirection, pShadowMatrices, shadowDepthTextures, 0, renderPass)) {
+            if(pShader->bind(viewport, pShadowViewports, sphereModelMatrix, lightDirection, shadowDepthTextures, 0, renderPass)) {
                 
                 
                 

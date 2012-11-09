@@ -151,3 +151,15 @@ void KRViewport::calculateDerivedValues()
         m_backToFrontOrder[i] = m_frontToBackOrder[7-i];
     }
 }
+
+
+const std::set<KRAABB> &KRViewport::getVisibleBounds()
+{
+    return m_visibleBounds;
+}
+
+void KRViewport::setVisibleBounds(const std::set<KRAABB> visibleBounds)
+{
+    m_visibleBounds = visibleBounds;
+}
+
