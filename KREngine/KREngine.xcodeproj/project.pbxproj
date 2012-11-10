@@ -23,6 +23,7 @@
 		E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
 		E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
+		E431C1B8164DB7B200BE1575 /* volumetric_fog_downsampled.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */; };
 		E4324BA416444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
 		E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
 		E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
@@ -225,6 +226,8 @@
 		E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRQuaternion.cpp; path = Classes/KRQuaternion.cpp; sourceTree = "<group>"; };
 		E430D08015F8882F0010558D /* occlusion_test.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.fsh; path = Shaders/occlusion_test.fsh; sourceTree = "<group>"; };
 		E430D08815F88AD10010558D /* occlusion_test.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.vsh; path = Shaders/occlusion_test.vsh; sourceTree = "<group>"; };
+		E431C1B6164DB79A00BE1575 /* volumetric_fog_downsampled.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_downsampled.vsh; path = Shaders/volumetric_fog_downsampled.vsh; sourceTree = "<group>"; };
+		E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_downsampled.fsh; path = Shaders/volumetric_fog_downsampled.fsh; sourceTree = "<group>"; };
 		E4324BA316444C0D0043185B /* KRParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRParticleSystem.h; path = Classes/KRParticleSystem.h; sourceTree = "<group>"; };
 		E4324BA716444C230043185B /* KRParticleSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRParticleSystem.cpp; path = Classes/KRParticleSystem.cpp; sourceTree = "<group>"; };
 		E4324BAA16444DEF0043185B /* KRParticleSystemBrownian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRParticleSystemBrownian.h; path = Classes/KRParticleSystemBrownian.h; sourceTree = "<group>"; };
@@ -346,7 +349,7 @@
 		E4CE184C15FF124600F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_point_inside.fsh; path = Shaders/light_point_inside.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4CE184E15FF125700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
 		E4D133B91538F7480070068C /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.fsh; path = Shaders/light_directional.fsh; sourceTree = "<group>"; };
-		E4D133BB1538F7560070068C /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_directional.vsh; path = Shaders/light_directional.vsh; sourceTree = "<group>"; };
+		E4D133BB1538F7560070068C /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_directional.vsh; path = Shaders/light_directional.vsh; sourceTree = "<group>"; };
 		E4F711A41512BB56007EE923 /* libfbxsdk-2012.2-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2012.2-static.a"; path = "../../../../../../../../Applications/Autodesk/FBXSDK20122/lib/gcc4/ub/libfbxsdk-2012.2-static.a"; sourceTree = "<group>"; };
 		E4F975311536220900FD60B2 /* KRNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRNode.h; path = Classes/KRNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4F975351536221C00FD60B2 /* KRNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRNode.cpp; path = Classes/KRNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -424,6 +427,8 @@
 				E45AC0491643452000DC3C3B /* particle.vsh */,
 				E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */,
 				E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */,
+				E431C1B6164DB79A00BE1575 /* volumetric_fog_downsampled.vsh */,
+				E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -951,6 +956,7 @@
 				E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */,
 				E4324BAE16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */,
 				E443C602164B122C00FC4FD8 /* KRVolumetricFog.cpp in Sources */,
+				E431C1B8164DB7B200BE1575 /* volumetric_fog_downsampled.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

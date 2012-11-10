@@ -58,7 +58,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, const KRCam
             std::map<std::string, KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;
             m_shaders.erase(itr);
-            //fprintf(stderr, "Swapping shaders...\n");
+            fprintf(stderr, "Swapping shaders...\n");
         }
         
         stringstream stream;

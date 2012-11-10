@@ -25,14 +25,26 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-//varying mediump vec2	texCoord;
+attribute highp vec4    vertex_position;
+uniform highp mat4      inv_mvp_matrix;
 
-#extension GL_EXT_shadow_samplers : require
+uniform highp vec2      slice_depth_scale; // First component is the depth for the nearest plane, in view space.  Second component is the distance between planes, in view space
 
+uniform highp mat4  shadow_mvp1;
 varying mediump vec4	shadowMapCoord1;
-uniform sampler2DShadow   shadowTexture1;
+
+uniform highp mat4  projection_matrix;
 
 void main()
-{
-    gl_FragColor = vec4(shadow2DProjEXT(shadowTexture1, shadowMapCoord1) * 0.02);
+{    
+    highp vec4 d = projection_matrix * vec4(0.0, 0.0, slice_depth_scale.x + vertex_position.z * slice_depth_scale.y, 1.0);
+    d /= d.w;
+    gl_Position = vec4(vertex_position.x, vertex_position.y, d.z, 1.0);
+
+    
+    shadowMapCoord1 = inv_mvp_matrix * gl_Position;
+    shadowMapCoord1 /= shadowMapCoord1.w;
+    shadowMapCoord1.w = 1.0;
+    shadowMapCoord1 = shadow_mvp1 * shadowMapCoord1;
+    
 }

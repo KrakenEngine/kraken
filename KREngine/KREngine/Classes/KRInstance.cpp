@@ -41,7 +41,7 @@ KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string mo
     m_model_name = model_name;
     m_min_lod_coverage = lod_min_coverage;
     m_receivesShadow = receives_shadow;
-    m_receivesShadow = true;
+    m_receivesShadow = false;
 }
 
 KRInstance::~KRInstance() {

@@ -106,15 +106,16 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     volumetricLightAccumulationTexture = 0;
     
     
-    memset(shadowFramebuffer, sizeof(GLuint) * 3, 0);
-    memset(shadowDepthTexture, sizeof(GLuint) * 3, 0);
+    memset(shadowFramebuffer, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+    memset(shadowDepthTexture, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
     
     m_iFrame = 0;
     
     m_skyBoxName = "";
     m_pSkyBoxTexture = NULL;
     
-    volumetric_light_downsample = 4;
+    volumetric_light_downsample = 8;
+    invalidateShadowBuffers();
 }
 
 KRCamera::~KRCamera() {
@@ -443,22 +444,32 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
     
     if(m_cShadowBuffers >= 1) {
         
-        // Set render target
-        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, volumetricLightAccumulationBuffer));
-        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-        GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
-        
-        KRShader *pFogShader = m_pContext->getShaderManager()->getShader("volumetric_fog", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-        
-        KRViewport volumetricLightingViewport = KRViewport(m_viewport.getSize() / volumetric_light_downsample, m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
-        
-        if(pFogShader->bind(volumetricLightingViewport, m_shadowViewports, KRMat4(), lightDirection, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
+        if(volumetric_light_downsample != 1) {
+            // Set render target
+            GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, volumetricLightAccumulationBuffer));
+            GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+            GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
             
+            // Disable z-buffer test
+            GLDEBUG(glDisable(GL_DEPTH_TEST));
+            
+            m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
+            GLDEBUG(glActiveTexture(GL_TEXTURE0));
+            GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
+        } else {
             // Enable z-buffer test
             GLDEBUG(glEnable(GL_DEPTH_TEST));
             GLDEBUG(glDepthFunc(GL_LEQUAL));
             GLDEBUG(glDepthRangef(0.0, 1.0));
+        }
+        
+        KRShader *pFogShader = m_pContext->getShaderManager()->getShader(volumetric_light_downsample != 1 ? "volumetric_fog_downsampled" : "volumetric_fog", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
+        
+        KRViewport volumetricLightingViewport = KRViewport(m_viewport.getSize() / volumetric_light_downsample, m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
+        glViewport(0, 0, volumetricLightingViewport.getSize().x, volumetricLightingViewport.getSize().y);
+        if(pFogShader->bind(volumetricLightingViewport, m_shadowViewports, KRMat4(), lightDirection, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
+            
+
             
             int slice_count = 50;
             
@@ -472,9 +483,13 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
             GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
         }
         
-        // Set render target
-        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
-        GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+        if(volumetric_light_downsample != 1) {
+            // Set render target
+            GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+            GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+            
+            glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y);
+        }
     }
 
     
@@ -661,8 +676,6 @@ void KRCamera::destroyBuffers()
         GLDEBUG(glDeleteFramebuffers(1, &lightAccumulationBuffer));
         lightAccumulationBuffer = 0;
     }
-    
-    
     
     if (volumetricLightAccumulationTexture) {
         GLDEBUG(glDeleteTextures(1, &volumetricLightAccumulationTexture));
