@@ -31,9 +31,6 @@
 #define PIXEL_SHIFT_3 0.003
 #define PIXEL_SHIFT_4 0.004
 
-#define ENABLE_VOLUMETRIC_LIGHTING 1
-
-
 varying mediump vec2 textureCoordinate;
 precision lowp float;
 
@@ -44,8 +41,8 @@ uniform lowp sampler2D videoFrame;
 uniform lowp sampler2D renderFrame;
 uniform lowp sampler2D depthFrame;
 
-#if ENABLE_VOLUMETRIC_LIGHTING
-uniform lowp sampler2D volumetricLightingFrame;
+#if ENABLE_VOLUMETRIC_ENVIRONMENT == 1
+uniform lowp sampler2D volumetricEnvironmentFrame;
 #endif
 
 void main()
@@ -165,8 +162,8 @@ void main()
     
     // ---- VIDEO_BG END ----
 
-#if ENABLE_VOLUMETRIC_LIGHTING
-    pixelColor += texture2D(volumetricLightingFrame, textureCoordinate);
+#if ENABLE_VOLUMETRIC_ENVIRONMENT == 1
+    pixelColor += texture2D(volumetricEnvironmentFrame, textureCoordinate);
 #endif
     
 

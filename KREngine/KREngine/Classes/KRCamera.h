@@ -44,8 +44,8 @@
 #import "KRViewport.h"
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 3
-#define KRENGINE_SHADOW_MAP_WIDTH 512
-#define KRENGINE_SHADOW_MAP_HEIGHT 512
+#define KRENGINE_SHADOW_MAP_WIDTH 4096
+#define KRENGINE_SHADOW_MAP_HEIGHT 4096
 
 class KRInstance;
 class KRScene;
@@ -57,6 +57,7 @@ public:
     virtual ~KRCamera();
     
     GLint backingWidth, backingHeight;
+    GLint volumetricBufferWidth, volumetricBufferHeight;
     
     void renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime);
 
@@ -119,7 +120,12 @@ public:
     void setPerspectiveNear(float v);
     void setPerpsectiveFarZ(float v);
     
-    int volumetric_light_downsample;
+    
+    bool volumetric_environment_enable;
+    int volumetric_environment_downsample;
+    float volumetric_environment_max_distance;
+    float volumetric_environment_quality;
+    float volumetric_environment_intensity;
 
 private:
     KRVector3 m_position;

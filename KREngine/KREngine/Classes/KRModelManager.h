@@ -45,6 +45,8 @@ using std::map;
 
 class KRModelManager : public KRContextObject {
 public:
+    static const int MAX_VOLUMETRIC_PLANES=500;
+    
     KRModelManager(KRContext &context);
     virtual ~KRModelManager();
     

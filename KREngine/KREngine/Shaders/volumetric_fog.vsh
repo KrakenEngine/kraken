@@ -35,6 +35,7 @@ varying mediump vec4	shadowMapCoord1;
 
 uniform highp mat4  projection_matrix;
 
+
 void main()
 {    
     highp vec4 d = projection_matrix * vec4(0.0, 0.0, slice_depth_scale.x + vertex_position.z * slice_depth_scale.y, 1.0);

@@ -130,7 +130,13 @@ float const PI = 3.141592653589793f;
             @"debug_deferred" : @30,
             @"enable_deferred_lighting" : @31,
             @"near_clip" : @32,
-            @"far_clip" : @33
+            @"far_clip" : @33,
+            @"volumetric_environment_enable" : @34,
+            @"volumetric_environment_downsample" : @35,
+            @"volumetric_environment_max_distance" : @36,
+            @"volumetric_environment_slices" : @37,
+            @"volumetric_environment_intensity" : @38
+                            
         } copy];
         [self loadShaders];
         
@@ -190,7 +196,7 @@ float const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 34;
+    return 39;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -200,7 +206,7 @@ float const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[34] = {
+    NSString *parameter_labels[39] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -233,14 +239,19 @@ float const PI = 3.141592653589793f;
         @"Debug - Octree Visualize",
         @"Debug - Deferred Lights Visualize",
         @"Enable Deferred Lighting",
-        @"Near Clip Plane",
-        @"Far Clip Plane"
+        @"Clip Plane - Near",
+        @"Clip Plane - Far",
+        @"Volumetric Env. - Enabled",
+        @"Volumetric Env. - Resolution",
+        @"Volumetric Env. - Maximum Distance",
+        @"Volumetric Env. - Quality",
+        @"Volumetric Env. - Intensity"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[34] = {
+    KREngineParameterType types[39] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -275,13 +286,18 @@ float const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_BOOL,
+        KRENGINE_PARAMETER_INT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[34] = {
+    float values[39] = {
         _camera->perspective_fov,
         (float)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -315,14 +331,19 @@ float const PI = 3.141592653589793f;
         _camera->bShowDeferred ? 1.0f : 0.0f,
         _camera->bEnableDeferredLighting ? 1.0f : 0.0f,
         _camera->getPerspectiveNearZ(),
-        _camera->getPerspectiveFarZ()
+        _camera->getPerspectiveFarZ(),
+        _camera->volumetric_environment_enable,
+        5 - _camera->volumetric_environment_downsample,
+        _camera->volumetric_environment_max_distance,
+        _camera->volumetric_environment_quality,
+        _camera->volumetric_environment_intensity
     };
     return values[i];
 }
 -(void)setParameterValueWithIndex: (int)i Value: (float)v
 {
     bool bNewBoolVal = v > 0.5;
-    NSLog(@"Set Parameter: (%s, %f)", [[self getParameterNameWithIndex: i] UTF8String], v);
+//    NSLog(@"Set Parameter: (%s, %f)", [[self getParameterNameWithIndex: i] UTF8String], v);
     switch(i) {
         case 0: // FOV
             _camera->perspective_fov = v;
@@ -466,16 +487,31 @@ float const PI = 3.141592653589793f;
         case 33:
             _camera->setPerpsectiveFarZ(v);
             break;
+        case 34:
+            _camera->volumetric_environment_enable = bNewBoolVal;
+            break;
+        case 35:
+            _camera->volumetric_environment_downsample = 5 - (int)v;
+            break;
+        case 36:
+            _camera->volumetric_environment_max_distance = v;
+            break;
+        case 37:
+            _camera->volumetric_environment_quality = v;
+            break;
+        case 38:
+            _camera->volumetric_environment_intensity = v;
+            break;
     }
 }
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[34] = {
+    float minValues[39] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 50.0f
+        0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
     return minValues[i];
@@ -483,11 +519,12 @@ float const PI = 3.141592653589793f;
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[34] = {
+    float maxValues[39] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f, 1000.0f, 50000.0f
+        1.0f, 1.0f, 1.0f, 1.0f, 1000.0f, 50000.0f,
+        1.0f, 5.0f, 50000.0f, 1.0f, 10.0f
     };
     
     return maxValues[i];

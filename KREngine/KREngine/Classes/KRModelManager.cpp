@@ -253,11 +253,10 @@ void KRModelManager::rotateBuffers(bool new_frame)
 
 KRModelManager::VolumetricLightingVertexData *KRModelManager::getVolumetricLightingVertexes()
 {
-    const int MAX_PLANES=500;
     if(m_volumetricLightingVertexData == NULL) {
-        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * MAX_PLANES * 6);
+        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * MAX_VOLUMETRIC_PLANES * 6);
         int iVertex=0;
-        for(int iPlane=0; iPlane < MAX_PLANES; iPlane++) {
+        for(int iPlane=0; iPlane < MAX_VOLUMETRIC_PLANES; iPlane++) {
             m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
             m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
             m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;

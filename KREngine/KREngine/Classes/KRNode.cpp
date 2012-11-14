@@ -17,7 +17,6 @@
 #import "KRInstance.h"
 #import "KRParticleSystem.h"
 #import "KRParticleSystemBrownian.h"
-#import "KRVolumetricFog.h"
 #import "KRAABB.h"
 #import "KRQuaternion.h"
 
@@ -148,12 +147,6 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "brownian_particles") == 0) {
         new_node = new KRParticleSystemBrownian(scene, szName);
-    } else if(strcmp(szElementName, "volumetric_fog") == 0) {
-        float lod_min_coverage = 0.0f;
-        if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {
-            lod_min_coverage = 0.0f; //1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
-        }
-        new_node = new KRVolumetricFog(scene, szName, szName, lod_min_coverage);
     } else if(strcmp(szElementName, "mesh") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {

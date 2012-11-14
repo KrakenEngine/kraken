@@ -140,7 +140,7 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
         }
         
         KRMaterial *pPrevBoundMaterial = NULL;
-        char szPrevShaderKey[128];
+        char szPrevShaderKey[256];
         szPrevShaderKey[0] = '\0';
         int cSubmeshes = getSubmeshes().size();
         if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {

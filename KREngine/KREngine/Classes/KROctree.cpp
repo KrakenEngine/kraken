@@ -33,7 +33,6 @@ void KROctree::add(KRNode *pNode)
             m_pRootNode = new KROctreeNode(nodeBounds);
             //m_pRootNode = new KROctreeNode(KRAABB(nodeBounds.min - nodeBounds.size() * 0.25f, nodeBounds.max + nodeBounds.size() * 0.25f));
             m_pRootNode->add(pNode);
-            fprintf(stderr, "First Octree Node: %s\n", pNode->getName().c_str());
         } else {
             // Keep encapsulating the root node until the new root contains the inserted node
             bool bInsideRoot = false;
