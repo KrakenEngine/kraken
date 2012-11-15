@@ -206,7 +206,7 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass) {
+bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass) const {
     if(m_iProgram == 0) {
         return false;
     }
@@ -395,10 +395,10 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
 
 #endif
 
-GLuint KRShader::getProgram() {
+GLuint KRShader::getProgram() const {
     return m_iProgram;
 }
 
-char *KRShader::getKey() {
+const char *KRShader::getKey() const {
     return m_szKey;
 }

@@ -168,7 +168,7 @@ void main()
     #endif
     
     #if GBUFFER_PASS == 2 || GBUFFER_PASS == 3
-        mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
+        mediump vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw); // FINDME, TODO - Dependent Texture Read adding latency, due to calculation of texture UV within fragment -- move to vertex shader?
     #endif
     
     #if GBUFFER_PASS == 3

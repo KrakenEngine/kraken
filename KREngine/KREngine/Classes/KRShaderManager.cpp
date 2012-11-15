@@ -37,7 +37,7 @@
 using namespace std;
 
 KRShaderManager::KRShaderManager(KRContext &context) : KRContextObject(context) {
-
+    m_szCurrentShaderKey[0] = '\0';
 }
 
 KRShaderManager::~KRShaderManager() {
@@ -51,7 +51,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, const KRCam
     
     
     char szKey[256];
-    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->volumetric_environment_enable, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
+    sprintf(szKey, "%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", pCamera->bEnablePerPixel, bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->volumetric_environment_enable && pCamera->volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
     
     KRShader *pShader = m_shaders[szKey];
     
@@ -114,7 +114,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, const KRCam
         stream << "\n#define DOF_QUALITY " << pCamera->dof_quality;
         stream << "\n#define ENABLE_FLASH " << (pCamera->bEnableFlash ? "1" : "0");
         stream << "\n#define ENABLE_VIGNETTE " << (pCamera->bEnableVignette ? "1" : "0");
-        stream << "\n#define ENABLE_VOLUMETRIC_ENVIRONMENT " << (pCamera->volumetric_environment_enable ? "1" : "0");
+        stream << "\n#define VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED " << (pCamera->volumetric_environment_enable && pCamera->volumetric_environment_downsample != 0 ? "1" : "0");
 
         
         
@@ -138,6 +138,27 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, const KRCam
         m_shaders[szKey] = pShader;
     }
     return pShader;
+}
+
+bool KRShaderManager::selectShader(const std::string &shader_name, const KRCamera *pCamera, const std::stack<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass)
+{
+    KRShader *pShader = getShader(shader_name, pCamera, lights, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bReflectionMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, bReflectionMapOffset, bAlphaTest, bAlphaBlend, renderPass);
+    return selectShader(pShader, viewport, matModel, lights, renderPass);
+}
+
+bool KRShaderManager::selectShader(const KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass)
+{
+    if(pShader) {
+        bool bSameShader = strcmp(pShader->getKey(), m_szCurrentShaderKey) == 0;
+        if(!bSameShader) {
+            strcpy(m_szCurrentShaderKey, pShader->getKey());
+            return pShader->bind(viewport, matModel, lights, renderPass);
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
 }
 
 void KRShaderManager::loadFragmentShader(const std::string &name, KRDataBlock *data) {

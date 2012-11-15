@@ -142,7 +142,7 @@ void KRLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRV
         KRShader *pFogShader = m_pContext->getShaderManager()->getShader(shader_name, pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
         
         
-        if(pFogShader->bind(viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
+        if(getContext().getShaderManager()->selectShader(pFogShader, viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
             int slice_count = (int)(pCamera->volumetric_environment_quality * 495.0) + 5;
             
             float slice_near = -pCamera->getPerspectiveNearZ();
@@ -171,7 +171,7 @@ void KRLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRV
                 
                 // Render light flare on transparency pass
                 KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(pShader->bind(viewport, getModelMatrix(), lights, renderPass)) {
+                if(getContext().getShaderManager()->selectShader(pShader, viewport, getModelMatrix(), lights, renderPass)) {
                     GLDEBUG(glUniform1f(
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize
@@ -277,38 +277,11 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
         // Use shader program
         KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        shadowShader->bind(m_shadowViewports[iShadow], KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
-        
-        //    // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-        //    shadowmvpmatrix[iShadow].setUniform(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1]);
-        
-        //    // Calculate the bounding volume of the light map
-        //    KRMat4 matInvShadow = shadowmvpmatrix[iShadow];
-        //    matInvShadow.invert();
-        //
-        //    KRVector3 vertices[8];
-        //    vertices[0] = KRVector3(-1.0, -1.0, 0.0);
-        //    vertices[1] = KRVector3(1.0,  -1.0, 0.0);
-        //    vertices[2] = KRVector3(1.0,   1.0, 0.0);
-        //    vertices[3] = KRVector3(-1.0,  1.0, 0.0);
-        //    vertices[4] = KRVector3(-1.0, -1.0, 1.0);
-        //    vertices[5] = KRVector3(1.0,  -1.0, 1.0);
-        //    vertices[6] = KRVector3(1.0,   1.0, 1.0);
-        //    vertices[7] = KRVector3(-1.0,  1.0, 1.0);
-        //
-        //    for(int iVertex=0; iVertex < 8; iVertex++) {
-        //        vertices[iVertex] = KRMat4::Dot(matInvShadow, vertices[iVertex]);
-        //    }
-        //
-        //    KRVector3 cameraPosition;
-        //    KRVector3 lightDirection;
-        //    KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
+        getContext().getShaderManager()->selectShader(shadowShader, m_shadowViewports[iShadow], KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
         
         
         std::set<KRAABB> newVisibleBounds;
-
         getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, newVisibleBounds);
-        
         m_shadowViewports[iShadow].setVisibleBounds(newVisibleBounds);
 
     }

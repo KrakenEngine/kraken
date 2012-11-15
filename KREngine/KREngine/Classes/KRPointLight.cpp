@@ -14,7 +14,6 @@
 #import "KRVector3.h"
 #import "KRCamera.h"
 #import "KRContext.h"
-#import "KRBoundingVolume.h"
 #import "KRStockGeometry.h"
 #import "assert.h"
 
@@ -70,7 +69,8 @@ void KRPointLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, cons
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
             KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            if(pShader->bind(viewport, sphereModelMatrix, lights, renderPass)) {
+            
+            if(getContext().getShaderManager()->selectShader(pShader, viewport, sphereModelMatrix, lights, renderPass)) {
                 
                 
                 

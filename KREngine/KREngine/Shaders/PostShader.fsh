@@ -41,7 +41,7 @@ uniform lowp sampler2D videoFrame;
 uniform lowp sampler2D renderFrame;
 uniform lowp sampler2D depthFrame;
 
-#if ENABLE_VOLUMETRIC_ENVIRONMENT == 1
+#if VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED == 1
 uniform lowp sampler2D volumetricEnvironmentFrame;
 #endif
 
@@ -162,7 +162,7 @@ void main()
     
     // ---- VIDEO_BG END ----
 
-#if ENABLE_VOLUMETRIC_ENVIRONMENT == 1
+#if VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED == 1
     pixelColor += texture2D(volumetricEnvironmentFrame, textureCoordinate);
 #endif
     

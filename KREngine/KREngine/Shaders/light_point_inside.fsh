@@ -42,7 +42,7 @@ uniform highp vec3 view_space_model_origin;
 void main()
 {
     
-    lowp vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);
+    lowp vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);  // FINDME, TODO - Dependent Texture Read adding latency, due to calculation of texture UV within fragment -- move to vertex shader?
     lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
     
     mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);

@@ -242,7 +242,7 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, con
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
-            if(!pShader->bind(viewport, matModel, lights, renderPass)) {
+            if(!getContext().getShaderManager()->selectShader(pShader, viewport, matModel, lights, renderPass)) {
                 return false;
             }
             

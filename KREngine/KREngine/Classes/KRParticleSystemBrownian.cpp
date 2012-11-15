@@ -69,11 +69,11 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, std::stack<KRLight *> &
             KRTexture *pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
             m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 2048);
             
-            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            
             int particle_count = 10000;
             
-            if(pParticleShader->bind(viewport, getModelMatrix(), lights, renderPass)) {
+            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            
+            if(getContext().getShaderManager()->selectShader(pParticleShader, viewport, getModelMatrix(), lights, renderPass)) {
                 GLDEBUG(glUniform1f(
                     pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                     1.0f
@@ -103,7 +103,7 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, std::stack<KRLight *> &
 //
 //                int particle_count = 10000;
 //
-//                if(pParticleShader->bind(m_viewport, particleModelMatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
+//                if(getContext().getShaderManager()->selectShader(pParticleShader, m_viewport, particleModelMatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
 //                    GLDEBUG(glUniform1f(
 //                                        pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
 //                                        1.0f

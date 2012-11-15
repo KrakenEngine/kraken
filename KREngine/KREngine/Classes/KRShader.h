@@ -52,12 +52,12 @@ class KRShader  : public KRContextObject {
 public:
     KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRShader();
-    GLuint getProgram();
-    char *getKey();
+    GLuint getProgram() const;
+    const char *getKey() const;
     
 #if TARGET_OS_IPHONE
     
-    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass);
+    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
     
 #endif
     

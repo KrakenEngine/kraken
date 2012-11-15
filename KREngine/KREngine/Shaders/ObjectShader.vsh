@@ -168,7 +168,7 @@ void main()
         normal_uv = texCoord;
         
         #if HAS_NORMAL_MAP_OFFSET == 1
-            normal_uv + normalTexture_Offset;
+            normal_uv += normalTexture_Offset;
         #endif
             
         #if HAS_NORMAL_MAP_SCALE == 1
@@ -183,7 +183,7 @@ void main()
             diffuse_uv = texCoord;
                 
             #if HAS_DIFFUSE_MAP_OFFSET == 1
-                diffuse_uv + diffuseTexture_Offset;
+                diffuse_uv += diffuseTexture_Offset;
             #endif
                 
             #if HAS_DIFFUSE_MAP_SCALE == 1
@@ -228,7 +228,7 @@ void main()
             #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
                 spec_uv = texCoord;
                 #if HAS_SPEC_MAP_OFFSET == 1
-                    spec_uv + specularTexture_Offset;
+                    spec_uv += specularTexture_Offset;
                 #endif
                     
                 #if HAS_SPEC_MAP_SCALE == 1
@@ -240,7 +240,7 @@ void main()
             #if HAS_REFLECTION_MAP_OFFSET == 1 || HAS_REFLECTION_MAP_SCALE == 1
                 reflection_uv = texCoord;
                 #if HAS_REFLECTION_MAP_OFFSET == 1
-                    reflection_uv + reflectionTexture_Offset;
+                    reflection_uv += reflectionTexture_Offset;
                 #endif
                     
                 #if HAS_REFLECTION_MAP_SCALE == 1

@@ -38,7 +38,6 @@
 
 #import "KRVector2.h"
 #import "KRCamera.h"
-#import "KRBoundingVolume.h"
 #import "KRStockGeometry.h"
 #import "KRDirectionalLight.h"
 
@@ -341,9 +340,8 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
     }
     
     if(m_pSkyBoxTexture) {
-        KRShader *pShader = getContext().getShaderManager()->getShader("sky_box", this, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
-        pShader->bind(m_viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_OPAQUE);
-        
+        getContext().getShaderManager()->selectShader("sky_box", this, std::stack<KRLight *>(), m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 2048);
         
         // Render a full screen quad
@@ -467,7 +465,8 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).size() / 2.0f);
             matModel.translate((*itr).center());
-            if(pVisShader->bind(m_viewport, matModel, std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+            
+            if(getContext().getShaderManager()->selectShader(pVisShader, m_viewport, matModel, std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -560,10 +559,9 @@ void KRCamera::createBuffers() {
     }
     int targetVolumetricBufferWidth = 0;
     int targetVolumetricBufferHeight = 0;
-    if(m_cShadowBuffers >= 1 && volumetric_environment_enable) {
+    if(volumetric_environment_enable && volumetric_environment_downsample != 0) {
         targetVolumetricBufferWidth = renderBufferWidth >> volumetric_environment_downsample;
         targetVolumetricBufferHeight = renderBufferHeight >> volumetric_environment_downsample;
-        
     }
     
     
@@ -665,7 +663,7 @@ void KRCamera::renderPost()
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
     KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    postShader->bind(m_viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    getContext().getShaderManager()->selectShader(postShader, m_viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
     GLDEBUG(glActiveTexture(GL_TEXTURE0));
@@ -675,7 +673,7 @@ void KRCamera::renderPost()
     GLDEBUG(glActiveTexture(GL_TEXTURE1));
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
     
-    if(m_cShadowBuffers >= 1 && volumetric_environment_enable) {
+    if(volumetric_environment_enable) {
         m_pContext->getTextureManager()->selectTexture(2, NULL, 0);
         GLDEBUG(glActiveTexture(GL_TEXTURE2));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, volumetricLightAccumulationTexture));
@@ -702,7 +700,7 @@ void KRCamera::renderPost()
 //            KRMat4 viewMatrix = KRMat4();
 //            viewMatrix.scale(0.20, 0.20, 0.20);
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
-//            blitShader->bind(KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+//            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL, 0);
 //            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
 //            GLDEBUG(glActiveTexture(GL_TEXTURE0));

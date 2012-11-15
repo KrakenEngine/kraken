@@ -184,13 +184,15 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                 if(bNeedOcclusionTest) {
                     pOctreeNode->beginOcclusionQuery();
                     
-                    KRShader *pVisShader = getContext().getShaderManager()->getShader("occlusion_test", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-                    
-                    getContext().getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
+
+
                     KRMat4 matModel = KRMat4();
                     matModel.scale(octreeBounds.size() / 2.0f);
                     matModel.translate(octreeBounds.center());
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
+                    
+
+                    getContext().getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -208,7 +210,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(pVisShader->bind(viewport, matModel, std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(getContext().getShaderManager()->selectShader("occlusion_test", pCamera, lights, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     }
                     
