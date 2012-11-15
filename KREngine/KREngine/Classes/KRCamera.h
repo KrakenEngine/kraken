@@ -43,10 +43,6 @@
 #import "KRContext.h"
 #import "KRViewport.h"
 
-#define KRENGINE_MAX_SHADOW_BUFFERS 3
-#define KRENGINE_SHADOW_MAP_WIDTH 4096
-#define KRENGINE_SHADOW_MAP_HEIGHT 4096
-
 class KRInstance;
 class KRScene;
 class KRViewport;
@@ -130,9 +126,6 @@ public:
 private:
     KRVector3 m_position;
     
-    void renderShadowBuffer(KRScene &scene, int iShadow);
-    void invalidateShadowBuffers();
-    void allocateShadowBuffers(int cBuffers);
     void createBuffers();
     
     float perspective_nearz;
@@ -144,12 +137,6 @@ private:
     
     
     GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
-    
-    
-    GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
-    bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
-    
-    KRViewport m_shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
     
     void renderPost();
         

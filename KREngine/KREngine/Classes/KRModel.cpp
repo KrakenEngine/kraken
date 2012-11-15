@@ -111,17 +111,17 @@ void KRModel::loadPack(KRDataBlock *data) {
 
 #if TARGET_OS_IPHONE
 
-void KRModel::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, const KRMat4 &matModel, const KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+void KRModel::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
-    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
     
         if(m_materials.size() == 0) {
             vector<KRModel::Submesh *> submeshes = getSubmeshes();
             
             for(std::vector<KRModel::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
                 const char *szMaterialName = (*itr)->szMaterialName;
-                KRMaterial *pMaterial = pContext->getMaterialManager()->getMaterial(szMaterialName);
+                KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
                 m_materials.push_back(pMaterial);
                 if(pMaterial) {
                     m_uniqueMaterials.insert(pMaterial);
@@ -164,7 +164,7 @@ void KRModel::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
                     
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, viewport, pShadowViewports, matModel, lightDirection, shadowDepthTextures, cShadowBuffers, pContext, pLightMap, renderPass)) {
+                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, lights, viewport, matModel, pLightMap, renderPass)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials

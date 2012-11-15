@@ -62,13 +62,11 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
+    void render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
     
-    void render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+    void render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::stack<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
 #endif
-    
-    float sun_pitch, sun_yaw;
     
     
     void notify_sceneGraphCreate(KRNode *pNode);
@@ -78,7 +76,6 @@ public:
     void physicsUpdate(float deltaTime);
     
 private:
-    KRContext *m_pContext;
     KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
     
     KRNode *m_pRootNode;

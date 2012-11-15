@@ -24,7 +24,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
 #endif
     
 private:

@@ -201,27 +201,27 @@ bool KRMaterial::isTransparent() {
 }
 
 #if TARGET_OS_IPHONE
-bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, const KRCamera *pCamera, const KRViewport &viewport, const KRViewport *pShadowViewports, const KRMat4 &matModel, const KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRContext *pContext, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, const KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;
     bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
-        m_pAmbientMap = pContext->getTextureManager()->getTexture(m_ambientMap.c_str());
+        m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap.c_str());
     }
     if(!m_pDiffuseMap && m_diffuseMap.size()) {
-        m_pDiffuseMap = pContext->getTextureManager()->getTexture(m_diffuseMap.c_str());
+        m_pDiffuseMap = getContext().getTextureManager()->getTexture(m_diffuseMap.c_str());
     }
     if(!m_pNormalMap && m_normalMap.size()) {
-        m_pNormalMap = pContext->getTextureManager()->getTexture(m_normalMap.c_str());
+        m_pNormalMap = getContext().getTextureManager()->getTexture(m_normalMap.c_str());
     }
     if(!m_pSpecularMap && m_specularMap.size()) {
-        m_pSpecularMap = pContext->getTextureManager()->getTexture(m_specularMap.c_str());
+        m_pSpecularMap = getContext().getTextureManager()->getTexture(m_specularMap.c_str());
     }
     if(!m_pReflectionMap && m_reflectionMap.size()) {
-        m_pReflectionMap = pContext->getTextureManager()->getTexture(m_reflectionMap.c_str());
+        m_pReflectionMap = getContext().getTextureManager()->getTexture(m_reflectionMap.c_str());
     }
     if(!m_pReflectionCube && m_reflectionCube.size()) {
-        m_pReflectionCube = pContext->getTextureManager()->getTextureCube(m_reflectionCube.c_str());
+        m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
     
     if(!bSameMaterial) { 
@@ -238,11 +238,11 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, con
         bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
         
         
-        KRShader *pShader = pContext->getShaderManager()->getShader("ObjectShader", pCamera, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, cShadowBuffers, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
+        KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, lights, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
-            if(!pShader->bind(viewport, pShadowViewports, matModel, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass)) {
+            if(!pShader->bind(viewport, matModel, lights, renderPass)) {
                 return false;
             }
             

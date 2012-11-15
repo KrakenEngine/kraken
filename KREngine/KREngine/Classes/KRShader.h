@@ -32,6 +32,7 @@
 #import <stdint.h>
 #import <vector>
 #import <string>
+#import <stack>
 
 #import "KREngine-common.h"
 
@@ -47,16 +48,16 @@ using std::vector;
 #import "KRNode.h"
 #import "KRViewport.h"
 
-class KRShader {
+class KRShader  : public KRContextObject {
 public:
-    KRShader(char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
-    ~KRShader();
+    KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
+    virtual ~KRShader();
     GLuint getProgram();
     char *getKey();
     
 #if TARGET_OS_IPHONE
     
-    bool bind(const KRViewport &viewport, const KRViewport *pShadowViewports, const KRMat4 &matModel, const KRVector3 &lightDirection, const GLuint *shadowDepthTextures, const int &cShadowBuffers, const KRNode::RenderPass &renderPass);
+    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass);
     
 #endif
     

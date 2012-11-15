@@ -42,12 +42,9 @@
 #import "KRStockGeometry.h"
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
-    m_pContext = &context;
     m_pFirstDirectionalLight = NULL;
     m_pRootNode = new KRNode(*this, "scene_root");
     
-    sun_yaw = 4.333; // TODO - Remove temporary testing code
-    sun_pitch = 0.55;
     m_skyBoxName = "";
 }
 KRScene::~KRScene() {
@@ -57,52 +54,29 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
+void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
+    
+    std::stack<KRLight *> lights;
     
     updateOctree();
     pCamera->setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
     
-    if(renderPass != KRNode::RENDER_PASS_SHADOWMAP) {
     
-        if(cShadowBuffers > 0) {
-            m_pContext->getTextureManager()->selectTexture(3, NULL, 0);
-            GLDEBUG(glActiveTexture(GL_TEXTURE3));
-            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-        }
-        
-        if(cShadowBuffers > 1) {
-            m_pContext->getTextureManager()->selectTexture(4, NULL, 0);
-            GLDEBUG(glActiveTexture(GL_TEXTURE4));
-            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-        }
-        
-        if(cShadowBuffers > 2) {
-            m_pContext->getTextureManager()->selectTexture(5, NULL, 0);
-            GLDEBUG(glActiveTexture(GL_TEXTURE5));
-            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
+    
+    // Get lights from outer nodes (directional lights, which have no bounds)
+    for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
+        KRNode *node = (*itr);
+        KRLight *light = dynamic_cast<KRLight *>(node);
+        if(light) {
+            lights.push(light);
         }
     }
-        
-    KRVector3 forward_render_light_direction = lightDirection;
-    KRDirectionalLight *directional_light = getFirstDirectionalLight();
-    if(directional_light) {
-        forward_render_light_direction = directional_light->getWorldLightDirection();
-        KRVector3 sun_color = directional_light->getColor() * (directional_light->getIntensity() / 100.0f);
-        pCamera->dSunR = sun_color.x;
-        pCamera->dSunG = sun_color.y;
-        pCamera->dSunB = sun_color.z;
+    
+    // Render outer nodes
+    for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
+        KRNode *node = (*itr);
+        node->render(pCamera, lights, viewport, renderPass);
     }
     
     std::vector<KROctreeNode *> remainingOctrees;
@@ -118,10 +92,10 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, K
         newRemainingOctrees.clear();
         newRemainingOctreesTestResults.clear();
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, pContext, viewport, pShadowViewports, forward_render_light_direction, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
         }
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, pContext, viewport, pShadowViewports, forward_render_light_direction, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
+            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
         }
         remainingOctrees = newRemainingOctrees;
         remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -130,16 +104,11 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, K
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-        render(*octree_itr, visibleBounds, pCamera, pContext, viewport, pShadowViewports, forward_render_light_direction, shadowDepthTextures, cShadowBuffers, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
-    }
-    
-    std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
-    for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
-        (*itr)->render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
+        render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::stack<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -215,16 +184,16 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                 if(bNeedOcclusionTest) {
                     pOctreeNode->beginOcclusionQuery();
                     
-                    KRShader *pVisShader = m_pContext->getShaderManager()->getShader("occlusion_test", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+                    KRShader *pVisShader = getContext().getShaderManager()->getShader("occlusion_test", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
                     
-                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
+                    getContext().getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
                     KRMat4 matModel = KRMat4();
                     matModel.scale(octreeBounds.size() / 2.0f);
                     matModel.translate(octreeBounds.center());
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
                     // Enable additive blending
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
                         GLDEBUG(glEnable(GL_BLEND));
                     }
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
@@ -239,7 +208,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(pVisShader->bind(viewport, pShadowViewports, matModel, lightDirection, shadowDepthTextures, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(pVisShader->bind(viewport, matModel, std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                     }
                     
@@ -254,12 +223,12 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                     
                     pOctreeNode->endOcclusionQuery();
                     
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
                         GLDEBUG(glDisable(GL_BLEND));
                     } else if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
                         GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
                     } else {
-                        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+                        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE)); // RENDER_PASS_FORWARD_TRANSPARENT and RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
                     }
                     
                     
@@ -274,15 +243,33 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                 
                 if(bVisible) {
                     
+                    // Add lights that influence this octree level and its children to the stack
+                    int light_count = 0;
                     for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-                        //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-                        (*itr)->render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
+                        KRNode *node = (*itr);
+                        KRLight *light = dynamic_cast<KRLight *>(node);
+                        if(light) {
+                            lights.push(light);
+                            light_count++;
+                        }
                     }
                     
-                    const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
+                    // Render objects that are at this octree level
+                    for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+                        //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
+                        (*itr)->render(pCamera, lights, viewport, renderPass);
+                    }
+                    
+                    // Render child octrees
+                    const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
                     
                     for(int i=0; i<8; i++) {
-                        render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+                        render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+                    }
+                    
+                    // Remove lights added at this octree level from the stack
+                    while(light_count--) {
+                        lights.pop();
                     }
                 }
             }

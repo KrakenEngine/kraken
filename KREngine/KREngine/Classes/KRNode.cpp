@@ -168,7 +168,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
 
 #if TARGET_OS_IPHONE
 
-void KRNode::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass) {
+void KRNode::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass)
+{
 }
 
 #endif

@@ -13,6 +13,7 @@
 #import "KRVector3.h"
 #import "KRViewport.h"
 #import "tinyxml2.h"
+#import <stack.h>
 
 class KRCamera;
 class KRShaderManager;
@@ -34,6 +35,8 @@ public:
         RENDER_PASS_DEFERRED_OPAQUE,
         RENDER_PASS_FORWARD_TRANSPARENT,
         RENDER_PASS_ADDITIVE_PARTICLES,
+        RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
+        RENDER_PASS_GENERATE_SHADOWMAPS,
         RENDER_PASS_SHADOWMAP
     };
     
@@ -68,7 +71,7 @@ public:
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass);
 
 #endif
     

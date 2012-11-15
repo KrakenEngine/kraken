@@ -11,6 +11,7 @@
 #include "KRVector2.h"
 #include "KRMat4.h"
 #include "KRViewport.h"
+#include "KRLight.h"
 
 
 KRViewport::KRViewport()
@@ -162,4 +163,5 @@ void KRViewport::setVisibleBounds(const std::set<KRAABB> visibleBounds)
 {
     m_visibleBounds = visibleBounds;
 }
+
 

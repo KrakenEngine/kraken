@@ -52,10 +52,10 @@ void KRParticleSystemBrownian::physicsUpdate(float deltaTime)
 
 #if TARGET_OS_IPHONE
 
-void KRParticleSystemBrownian::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRParticleSystemBrownian::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     
-    KRNode::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
@@ -69,11 +69,11 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, KRContext *pContext, co
             KRTexture *pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
             m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 2048);
             
-            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
+            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
             int particle_count = 10000;
             
-            if(pParticleShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
+            if(pParticleShader->bind(viewport, getModelMatrix(), lights, renderPass)) {
                 GLDEBUG(glUniform1f(
                     pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                     1.0f

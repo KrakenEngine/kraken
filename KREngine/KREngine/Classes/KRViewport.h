@@ -13,6 +13,8 @@
 #include "KRMat4.h"
 #include "KRAABB.h"
 
+class KRLight;
+
 class KRViewport {
 public:
     KRViewport();
@@ -38,6 +40,9 @@ public:
     
     const std::set<KRAABB> &getVisibleBounds();
     void setVisibleBounds(const std::set<KRAABB> visibleBounds);
+    
+    const std::set<KRLight *> &getVisibleLights();
+    void setVisibleLights(const std::set<KRLight *> visibleLights);
     
 private:
     KRVector2 m_size;

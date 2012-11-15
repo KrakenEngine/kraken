@@ -29,11 +29,17 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
     m_flareTexture = "";
     m_pFlareTexture = NULL;
     m_flareSize = 0.0;
+    
+    // Initialize shadow buffers
+    m_cShadowBuffers = 0;
+    memset(shadowFramebuffer, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+    memset(shadowDepthTexture, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+    memset(shadowValid, sizeof(bool) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
 }
 
 KRLight::~KRLight()
 {
-
+    allocateShadowBuffers(0);
 }
 
 tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
@@ -118,14 +124,44 @@ float KRLight::getDecayStart() {
 
 #if TARGET_OS_IPHONE
 
-void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &viewport, const KRViewport *pShadowViewports, KRVector3 &lightDirection, GLuint *shadowDepthTextures, int cShadowBuffers, KRNode::RenderPass renderPass) {
+void KRLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
-    KRNode::render(pCamera, pContext, viewport, pShadowViewports, lightDirection, shadowDepthTextures, cShadowBuffers, renderPass);
+    KRNode::render(pCamera, lights, viewport, renderPass);
+    
+    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
+        allocateShadowBuffers(configureShadowBufferViewports(viewport));
+        renderShadowBuffers(pCamera);
+    }
+    
+    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+        std::string shader_name = pCamera->volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
+        
+        std::stack<KRLight *> this_light;
+        this_light.push(this);
+        
+        KRShader *pFogShader = m_pContext->getShaderManager()->getShader(shader_name, pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
+        
+        
+        if(pFogShader->bind(viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
+            int slice_count = (int)(pCamera->volumetric_environment_quality * 495.0) + 5;
+            
+            float slice_near = -pCamera->getPerspectiveNearZ();
+            float slice_far = -pCamera->volumetric_environment_max_distance;
+            float slice_spacing = (slice_far - slice_near) / slice_count;
+            
+            KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
+            (KRVector3::One() * pCamera->volumetric_environment_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
+            
+            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRModelManager::MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false);
+            GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
+        }
+
+    }
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             if(!m_pFlareTexture && m_flareTexture.size()) {
-                m_pFlareTexture = pContext->getTextureManager()->getTexture(m_flareTexture.c_str());
+                m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture.c_str());
             }
             
             if(m_pFlareTexture) {
@@ -134,8 +170,8 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
                 GLDEBUG(glDepthRangef(0.0, 1.0));
                 
                 // Render light flare on transparency pass
-                KRShader *pShader = pContext->getShaderManager()->getShader("flare", pCamera, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(pShader->bind(viewport, pShadowViewports, getModelMatrix(), lightDirection, shadowDepthTextures, 0, renderPass)) {
+                KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                if(pShader->bind(viewport, getModelMatrix(), lights, renderPass)) {
                     GLDEBUG(glUniform1f(
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize
@@ -147,6 +183,134 @@ void KRLight::render(KRCamera *pCamera, KRContext *pContext, const KRViewport &v
             }
         }
         
+    }
+}
+
+
+void KRLight::allocateShadowBuffers(int cBuffers) {
+    // First deallocate buffers no longer needed
+    for(int iShadow = cBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
+        if (shadowDepthTexture[iShadow]) {
+            GLDEBUG(glDeleteTextures(1, shadowDepthTexture + iShadow));
+            shadowDepthTexture[iShadow] = 0;
+        }
+        
+        if (shadowFramebuffer[iShadow]) {
+            GLDEBUG(glDeleteFramebuffers(1, shadowFramebuffer + iShadow));
+            shadowFramebuffer[iShadow] = 0;
+        }
+    }
+    
+    // Allocate newly required buffers
+    for(int iShadow = 0; iShadow < cBuffers; iShadow++) {
+        KRVector2 viewportSize = m_shadowViewports[iShadow].getSize();
+        
+        if(!shadowDepthTexture[iShadow]) {
+            shadowValid[iShadow] = false;
+            
+            GLDEBUG(glGenFramebuffers(1, shadowFramebuffer + iShadow));
+            GLDEBUG(glGenTextures(1, shadowDepthTexture + iShadow));
+            // ===== Create offscreen shadow framebuffer object =====
+            
+            GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
+            
+            // ----- Create Depth Texture for shadowFramebuffer -----
+            GLDEBUG( glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+#if GL_EXT_shadow_samplers
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_EXT, GL_LEQUAL)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
+#endif
+            GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, viewportSize.x, viewportSize.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+            
+            GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
+        }
+    }
+    
+    m_cShadowBuffers = cBuffers;
+}
+
+
+void KRLight::deleteBuffers()
+{
+    // Called when this light wasn't used in the last frame, so we can free the resources for use by other lights
+    allocateShadowBuffers(0);
+}
+
+void KRLight::invalidateShadowBuffers()
+{
+    memset(shadowValid, sizeof(bool) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+}
+
+int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
+{
+    return 0;
+}
+
+void KRLight::renderShadowBuffers(KRCamera *pCamera)
+{
+    for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
+        glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y);
+        
+        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
+        GLDEBUG(glClearDepthf(1.0f));
+        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
+        
+        glViewport(1, 1, m_shadowViewports[iShadow].getSize().x - 2, m_shadowViewports[iShadow].getSize().y - 2);
+        
+        GLDEBUG(glDisable(GL_DITHER));
+        
+        GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
+        GLDEBUG(glEnable(GL_CULL_FACE));
+        
+        // Enable z-buffer test
+        GLDEBUG(glEnable(GL_DEPTH_TEST));
+        GLDEBUG(glDepthFunc(GL_LESS));
+        GLDEBUG(glDepthRangef(0.0, 1.0));
+        
+        // Disable alpha blending as we are using alpha channel for packed depth info
+        GLDEBUG(glDisable(GL_BLEND));
+        
+        // Use shader program
+        KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        
+        shadowShader->bind(m_shadowViewports[iShadow], KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
+        
+        //    // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
+        //    shadowmvpmatrix[iShadow].setUniform(shadowShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SHADOWMVP1]);
+        
+        //    // Calculate the bounding volume of the light map
+        //    KRMat4 matInvShadow = shadowmvpmatrix[iShadow];
+        //    matInvShadow.invert();
+        //
+        //    KRVector3 vertices[8];
+        //    vertices[0] = KRVector3(-1.0, -1.0, 0.0);
+        //    vertices[1] = KRVector3(1.0,  -1.0, 0.0);
+        //    vertices[2] = KRVector3(1.0,   1.0, 0.0);
+        //    vertices[3] = KRVector3(-1.0,  1.0, 0.0);
+        //    vertices[4] = KRVector3(-1.0, -1.0, 1.0);
+        //    vertices[5] = KRVector3(1.0,  -1.0, 1.0);
+        //    vertices[6] = KRVector3(1.0,   1.0, 1.0);
+        //    vertices[7] = KRVector3(-1.0,  1.0, 1.0);
+        //
+        //    for(int iVertex=0; iVertex < 8; iVertex++) {
+        //        vertices[iVertex] = KRMat4::Dot(matInvShadow, vertices[iVertex]);
+        //    }
+        //
+        //    KRVector3 cameraPosition;
+        //    KRVector3 lightDirection;
+        //    KRBoundingVolume shadowVolume = KRBoundingVolume(vertices);
+        
+        
+        std::set<KRAABB> newVisibleBounds;
+
+        getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, newVisibleBounds);
+        
+        m_shadowViewports[iShadow].setVisibleBounds(newVisibleBounds);
+
     }
 }
 
