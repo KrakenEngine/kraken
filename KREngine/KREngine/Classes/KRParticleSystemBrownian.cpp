@@ -52,7 +52,7 @@ void KRParticleSystemBrownian::physicsUpdate(float deltaTime)
 
 #if TARGET_OS_IPHONE
 
-void KRParticleSystemBrownian::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRParticleSystemBrownian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     
     KRNode::render(pCamera, lights, viewport, renderPass);

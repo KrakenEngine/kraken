@@ -52,12 +52,11 @@ class KRShader  : public KRContextObject {
 public:
     KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRShader();
-    GLuint getProgram() const;
     const char *getKey() const;
     
 #if TARGET_OS_IPHONE
     
-    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
+    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
     
 #endif
     
@@ -79,15 +78,16 @@ public:
         KRENGINE_UNIFORM_MATERIAL_SHININESS,
         
         KRENGINE_UNIFORM_LIGHT_POSITION,
-        KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE,
         KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE,
         KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE,
         KRENGINE_UNIFORM_LIGHT_COLOR,
         KRENGINE_UNIFORM_LIGHT_DECAY_START,
         KRENGINE_UNIFORM_LIGHT_CUTOFF,
         KRENGINE_UNIFORM_LIGHT_INTENSITY,
+        
         KRENGINE_UNIFORM_FLARE_SIZE,
         
+        KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN,
 
         KRENGINE_UNIFORM_MVP,
         KRENGINE_UNIFORM_INVP,

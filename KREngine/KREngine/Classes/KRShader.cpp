@@ -31,6 +31,10 @@
 
 #include "KRShader.h"
 #import "assert.h"
+#include "KRLight.h"
+#include "KRDirectionalLight.h"
+#include "KRSpotLight.h"
+#include "KRPointLight.h"
 
 KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
 {
@@ -115,19 +119,27 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         } else {
         
             // Get uniform locations
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_AMBIENT] = glGetUniformLocation(m_iProgram, "material_ambient"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_DIFFUSE] = glGetUniformLocation(m_iProgram, "material_diffuse"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SPECULAR] = glGetUniformLocation(m_iProgram, "material_specular"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_REFLECTION] = glGetUniformLocation(m_iProgram, "material_reflection"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess"));
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION] = glGetUniformLocation(m_iProgram, "light_position"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "view_space_model_origin"));
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_COLOR] = glGetUniformLocation(m_iProgram, "light_color"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_INTENSITY] = glGetUniformLocation(m_iProgram, "light_intensity"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DECAY_START] = glGetUniformLocation(m_iProgram, "light_decay_start"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_CUTOFF] = glGetUniformLocation(m_iProgram, "light_cutoff"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_model_space"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_view_space"));
+            
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FLARE_SIZE] = glGetUniformLocation(m_iProgram, "flare_size"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_ALPHA] = glGetUniformLocation(m_iProgram, "material_alpha"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MATERIAL_SHININESS] = glGetUniformLocation(m_iProgram, "material_shininess"));
+
+            
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] = glGetUniformLocation(m_iProgram, "view_space_model_origin"));
             
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_MVP] = glGetUniformLocation(m_iProgram, "mvp_matrix"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_INVMVP] = glGetUniformLocation(m_iProgram, "inv_mvp_matrix"));
@@ -142,8 +154,7 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1] = glGetUniformLocation(m_iProgram, "shadow_mvp1"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP2] = glGetUniformLocation(m_iProgram, "shadow_mvp2"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP3] = glGetUniformLocation(m_iProgram, "shadow_mvp3"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_model_space"));
-            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE] = glGetUniformLocation(m_iProgram, "light_direction_view_space"));
+
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] = glGetUniformLocation(m_iProgram, "camera_position_model_space"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] = glGetUniformLocation(m_iProgram, "viewport"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] = glGetUniformLocation(m_iProgram, "diffuseTexture"));
@@ -206,59 +217,90 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const std::stack<KRLight *> &lights, const KRNode::RenderPass &renderPass) const {
+bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const {
     if(m_iProgram == 0) {
         return false;
     }
     
     // FINDME - HACK - Temporary placeholder code
-    KRViewport *pShadowViewports = NULL;
-    KRVector3 lightDirection = KRVector3::Normalize(KRVector3(0.90, 0.70, 0.25));
-    GLuint *shadowDepthTextures = NULL;
-    int cShadowBuffers = 0;
-    
     GLDEBUG(glUseProgram(m_iProgram));
     
-    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-        m_pContext->getTextureManager()->selectTexture(3, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE3));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[0]));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    int light_directional_count = 0;
+    int light_point_count = 0;
+    int light_spot_count = 0;
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
+        for(std::vector<KRLight *>::const_iterator light_itr=lights.begin(); light_itr != lights.end(); light_itr++) {
+            KRLight *light = (*light_itr);
+            KRDirectionalLight *directional_light = dynamic_cast<KRDirectionalLight *>(light);
+            KRPointLight *point_light = dynamic_cast<KRPointLight *>(light);
+            KRSpotLight *spot_light = dynamic_cast<KRSpotLight *>(light);
+            if(directional_light) {
+                if(light_directional_count == 0) {
+                    int cShadowBuffers = directional_light->getShadowBufferCount();
+                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
+                        m_pContext->getTextureManager()->selectTexture(3, NULL, 0);
+                        GLDEBUG(glActiveTexture(GL_TEXTURE3));
+                        GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                    }
+                
+                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1) {
+                        m_pContext->getTextureManager()->selectTexture(4, NULL, 0);
+                        GLDEBUG(glActiveTexture(GL_TEXTURE4));
+                        GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                    }
+                
+                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2) {
+                        m_pContext->getTextureManager()->selectTexture(5, NULL, 0);
+                        GLDEBUG(glActiveTexture(GL_TEXTURE5));
+                        GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                    }
+                    
+                    KRMat4 matBias;
+                    matBias.translate(1.0, 1.0, 1.0);
+                    matBias.scale(0.5);
+                    for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
+                        (matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias).setUniform(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow]);
+                    }
+                    
+                    if(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
+                        KRMat4 inverseModelMatrix = matModel;
+                        inverseModelMatrix.invert();
+                        
+                        // Bind the light direction vector
+                        KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
+                        lightDirObject.normalize();
+                        lightDirObject.setUniform(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE]);
+                    }
+                }
+                
+                light_directional_count++;
+            }
+            if(point_light) {
+                light_point_count++;
+            }
+            if(spot_light) {
+                light_spot_count++;
+            }
+        }
     }
     
-    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1) {
-        m_pContext->getTextureManager()->selectTexture(4, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE4));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[1]));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    }
+
     
-    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2) {
-        m_pContext->getTextureManager()->selectTexture(5, NULL, 0);
-        GLDEBUG(glActiveTexture(GL_TEXTURE5));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTextures[2]));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    }
-    
-    if(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1 || m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
+    if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
         KRMat4 inverseModelMatrix = matModel;
         inverseModelMatrix.invert();
-        
-        if(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
-            // Bind the light direction vector
-            KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, lightDirection);
-            lightDirObject.normalize();
-            lightDirObject.setUniform(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE]);
-        }
         
         if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
             // Transform location of camera to object space for calculation of specular halfVec
@@ -277,14 +319,14 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
         }
     }
     
-    if(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW] != -1) {
+    if(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW] != -1) {
         KRMat4 matModelView = matModel * viewport.getViewMatrix();
         matModelView.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW]);
         
         
-        if(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE] != -1) {
+        if(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1) {
             KRVector3 view_space_model_origin = KRMat4::Dot(matModelView, KRVector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
-            view_space_model_origin.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION_VIEW_SPACE]);
+            view_space_model_origin.setUniform(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN]);
         }
         
         if(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1) {
@@ -336,13 +378,6 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
         ));
     }
     
-    // Bind the shadowmap space matrices
-    for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
-        KRMat4 matBias;
-        matBias.translate(1.0, 1.0, 1.0);
-        matBias.scale(0.5);
-        (matModel * pShadowViewports[iShadow].getViewProjectionMatrix() * matBias).setUniform(m_uniforms[KRENGINE_UNIFORM_SHADOWMVP1 + iShadow]);
-    }
     
     // Sets the diffuseTexture variable to the first texture unit
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0));
@@ -394,10 +429,6 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
 }
 
 #endif
-
-GLuint KRShader::getProgram() const {
-    return m_iProgram;
-}
 
 const char *KRShader::getKey() const {
     return m_szKey;

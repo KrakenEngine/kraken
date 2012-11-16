@@ -29,12 +29,16 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
     m_flareTexture = "";
     m_pFlareTexture = NULL;
     m_flareSize = 0.0;
+    m_casts_shadow = true;
+    m_light_shafts = true;
     
     // Initialize shadow buffers
     m_cShadowBuffers = 0;
-    memset(shadowFramebuffer, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
-    memset(shadowDepthTexture, sizeof(GLuint) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
-    memset(shadowValid, sizeof(bool) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+    for(int iBuffer=0; iBuffer < KRENGINE_MAX_SHADOW_BUFFERS; iBuffer++) {
+        shadowFramebuffer[iBuffer] = 0;
+        shadowDepthTexture[iBuffer] = 0;
+        shadowValid[iBuffer] = false;
+    }
 }
 
 KRLight::~KRLight()
@@ -52,6 +56,8 @@ tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("decay_start", m_decayStart);
     e->SetAttribute("flare_size", m_flareSize);
     e->SetAttribute("flare_texture", m_flareTexture.c_str());
+    e->SetAttribute("casts_shadow", m_casts_shadow ? "true" : "false");
+    e->SetAttribute("light_shafts", m_light_shafts ? "true" : "false");
     return e;
 }
 
@@ -79,6 +85,14 @@ void KRLight::loadXML(tinyxml2::XMLElement *e) {
     
     if(e->QueryFloatAttribute("flare_size", &m_flareSize) != tinyxml2::XML_SUCCESS) {
         m_flareSize = 0.0;
+    }
+    
+    if(e->QueryBoolAttribute("casts_shadow", &m_casts_shadow) != tinyxml2::XML_SUCCESS) {
+        m_casts_shadow = true;
+    }
+    
+    if(e->QueryBoolAttribute("light_shafts", &m_light_shafts) != tinyxml2::XML_SUCCESS) {
+        m_light_shafts = true;
     }
     
     const char *szFlareTexture = e->Attribute("flare_texture");
@@ -124,25 +138,25 @@ float KRLight::getDecayStart() {
 
 #if TARGET_OS_IPHONE
 
-void KRLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     KRNode::render(pCamera, lights, viewport, renderPass);
     
-    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
+    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->volumetric_environment_enable || (pCamera->m_cShadowBuffers > 0 && m_casts_shadow))) {
         allocateShadowBuffers(configureShadowBufferViewports(viewport));
         renderShadowBuffers(pCamera);
     }
     
-    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && pCamera->volumetric_environment_enable && m_light_shafts) {
         std::string shader_name = pCamera->volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
         
-        std::stack<KRLight *> this_light;
-        this_light.push(this);
+        std::vector<KRLight *> this_light;
+        this_light.push_back(this);
         
         KRShader *pFogShader = m_pContext->getShaderManager()->getShader(shader_name, pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
         
         
-        if(getContext().getShaderManager()->selectShader(pFogShader, viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
+        if(getContext().getShaderManager()->selectShader(pFogShader, viewport, KRMat4(), this_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
             int slice_count = (int)(pCamera->volumetric_environment_quality * 495.0) + 5;
             
             float slice_near = -pCamera->getPerspectiveNearZ();
@@ -275,9 +289,9 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
         GLDEBUG(glDisable(GL_BLEND));
         
         // Use shader program
-        KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        getContext().getShaderManager()->selectShader(shadowShader, m_shadowViewports[iShadow], KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
+        getContext().getShaderManager()->selectShader(shadowShader, m_shadowViewports[iShadow], KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
         
         
         std::set<KRAABB> newVisibleBounds;
@@ -288,3 +302,18 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
 }
 
 #endif
+
+int KRLight::getShadowBufferCount()
+{
+    return m_cShadowBuffers;
+}
+
+GLuint *KRLight::getShadowTextures()
+{
+    return shadowDepthTexture;
+}
+
+KRViewport *KRLight::getShadowViewports()
+{
+    return m_shadowViewports;
+}

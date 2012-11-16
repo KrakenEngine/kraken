@@ -50,7 +50,8 @@ KRVector3 KRDirectionalLight::getLocalLightDirection() {
 
 
 int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewport) {
-    for(int iShadow=0; iShadow < 1; iShadow++) {
+    int cShadows = 1;
+    for(int iShadow=0; iShadow < cShadows; iShadow++) {
         GLfloat shadowMinDepths[3][3] = {{0.0, 0.0, 0.0},{0.0, 0.0, 0.0},{0.0, 0.05, 0.3}};
         GLfloat shadowMaxDepths[3][3] = {{0.0, 0.0, 1.0},{0.1, 0.0, 0.0},{0.1, 0.3, 1.0}};
         
@@ -69,37 +70,7 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         matBias.bias();
         matShadowProjection *= matBias;
         
-        
-        
-        
-        //        KRAABB frustrumWorldBounds = KRAABB(KRVector3(-1.0, -1.0, 0.0), KRVector3(1.0, 1.0, 1.0), m_viewport.getInverseProjectionMatrix() * m_viewport.getInverseViewMatrix());
-        //        matShadowProjection.translate(KRVector3(0.0, 0.0, -frustrumWorldBounds.size().z));
-        //        matShadowProjection.scale(2.0 / frustrumWorldBounds.size().x, 2.0 / frustrumWorldBounds.size().y, 2.0 / frustrumWorldBounds.size().z);
-        //        matShadowView.translate(-m_viewport.getCameraPosition());
-        
-        //matShadowProjection *= matBias;
-        
-        m_shadowViewports[iShadow] = KRViewport(KRVector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);
-        
-        //        KRMat4 newShadowMVP;
-        //        if(shadowMaxDepths[m_cShadowBuffers - 1][iShadow] == 0.0) {
-        //            KRBoundingVolume ext = KRBoundingVolume(-KRVector3::One(), KRVector3::One(), KRMat4()); // HACK - Temporary workaround to compile until this logic is updated to use information from the Octree
-        //
-        //            newShadowMVP = ext.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
-        //        } else {
-        //            KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-        //            newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
-        //        }
-        
-        //        KRBoundingVolume frustrumSliceVolume = KRBoundingVolume(viewMatrix, perspective_fov, getViewportSize().x / getViewportSize().y, perspective_nearz + (perspective_farz - perspective_nearz) * shadowMinDepths[m_cShadowBuffers - 1][iShadow], perspective_nearz + (perspective_farz - perspective_nearz) * shadowMaxDepths[m_cShadowBuffers - 1][iShadow]);
-        //        newShadowMVP = frustrumSliceVolume.calcShadowProj(&scene, m_pContext, scene.sun_yaw, scene.sun_pitch);
-        //
-        //        m_shadowViewports[iShadow] = KRViewport(KRVector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), KRMat4(), newShadowMVP);
-        //
-        
-        
-//        renderShadowBuffer(scene, iShadow);
-        
+        m_shadowViewports[iShadow] = KRViewport(KRVector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);        
     }
 
     return 1;
@@ -107,12 +78,15 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
 
 #if TARGET_OS_IPHONE
 
-void KRDirectionalLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     KRLight::render(pCamera, lights, viewport, renderPass);
 
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
+        
+        std::vector<KRLight *> this_light;
+        this_light.push_back(this);
 
         KRMat4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
         matModelViewInverseTranspose.transpose();
@@ -122,8 +96,8 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights
         light_direction_view_space = KRMat4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getShaderManager()->selectShader(pShader, viewport, getModelMatrix(), lights, renderPass)) {
+        KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+        if(getContext().getShaderManager()->selectShader(pShader, viewport, getModelMatrix(), this_light, renderPass)) {
             
             light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
             m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);

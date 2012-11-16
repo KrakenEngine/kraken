@@ -142,7 +142,7 @@ private:
         
     void destroyBuffers();
     
-    void renderFrame(KRScene &scene, KRVector3 &lightDirection, float deltaTime);
+    void renderFrame(KRScene &scene, float deltaTime);
     
     
     

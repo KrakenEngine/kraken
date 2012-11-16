@@ -71,7 +71,7 @@ public:
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass);
 
 #endif
     

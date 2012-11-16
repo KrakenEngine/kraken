@@ -35,14 +35,18 @@
 #import "KRMat4.h"
 #import "tinyxml2.h"
 
-#import "KRDirectionalLight.h"
+#import "KRLight.h"
 
 #import "KRScene.h"
 #import "KRNode.h"
 #import "KRStockGeometry.h"
+#import "KRDirectionalLight.h"
+#import "KRSpotLight.h"
+#import "KRPointLight.h"
+#import "KRQuaternion.h"
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
-    m_pFirstDirectionalLight = NULL;
+    m_pFirstLight = NULL;
     m_pRootNode = new KRNode(*this, "scene_root");
     
     m_skyBoxName = "";
@@ -56,7 +60,7 @@ KRScene::~KRScene() {
 
 void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
     
-    std::stack<KRLight *> lights;
+    std::vector<KRLight *> lights;
     
     updateOctree();
     pCamera->setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
@@ -69,7 +73,7 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, c
         KRNode *node = (*itr);
         KRLight *light = dynamic_cast<KRLight *>(node);
         if(light) {
-            lights.push(light);
+            lights.push_back(light);
         }
     }
     
@@ -108,7 +112,7 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, c
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::stack<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -134,7 +138,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
             }
         } else {
             
-            float min_coverage = 0.0f; // 1.0f / 1024.0f / 768.0f; // FINDME - HACK - Need to dynamically select the absolute minimum based on the render buffer size
+            float min_coverage = 0.0f;
             
         float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
         if(lod_coverage > min_coverage) {
@@ -251,7 +255,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                         KRNode *node = (*itr);
                         KRLight *light = dynamic_cast<KRLight *>(node);
                         if(light) {
-                            lights.push(light);
+                            lights.push_back(light);
                             light_count++;
                         }
                     }
@@ -271,7 +275,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                     
                     // Remove lights added at this octree level from the stack
                     while(light_count--) {
-                        lights.pop();
+                        lights.pop_back();
                     }
                 }
             }
@@ -302,14 +306,14 @@ bool KRScene::save(const std::string& path) {
 }
 
 
-KRDirectionalLight *KRScene::findFirstDirectionalLight(KRNode &node) {
-    KRDirectionalLight *pLight = dynamic_cast<KRDirectionalLight *>(&node);
+KRLight *KRScene::findFirstLight(KRNode &node) {
+    KRLight *pLight = dynamic_cast<KRLight *>(&node);
     if(pLight) {
         return pLight;
     } else {
         const std::vector<KRNode *> children = node.getChildren();
         for(std::vector<KRNode *>::const_iterator itr=children.begin(); itr < children.end(); ++itr) {
-            pLight = findFirstDirectionalLight(*(*itr));
+            pLight = findFirstLight(*(*itr));
             if(pLight) {
                 return pLight;
             }
@@ -338,12 +342,12 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
     return new_scene;
 }
 
-KRDirectionalLight *KRScene::getFirstDirectionalLight()
+KRLight *KRScene::getFirstLight()
 {
-    if(m_pFirstDirectionalLight == NULL) {
-        m_pFirstDirectionalLight = findFirstDirectionalLight(*m_pRootNode);
+    if(m_pFirstLight == NULL) {
+        m_pFirstLight = findFirstLight(*m_pRootNode);
     }
-    return m_pFirstDirectionalLight;
+    return m_pFirstLight;
 }
 
 void KRScene::notify_sceneGraphCreate(KRNode *pNode)
@@ -391,6 +395,10 @@ void KRScene::physicsUpdate(float deltaTime)
     }
 }
 
-#if TARGET_OS_IPHONE
-
-#endif
+void KRScene::addDefaultLights()
+{
+    KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
+    
+    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.25, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.25))).euler());
+    m_pRootNode->addChild(light1);
+}

@@ -18,8 +18,8 @@ static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
 // KRENGINE_MAX_SHADOW_BUFFERS must be at least 6 to allow omni-directional lights to render cube maps
 
 #define KRENGINE_MAX_SHADOW_BUFFERS 6
-#define KRENGINE_SHADOW_MAP_WIDTH 4096
-#define KRENGINE_SHADOW_MAP_HEIGHT 4096
+#define KRENGINE_SHADOW_MAP_WIDTH 2048
+#define KRENGINE_SHADOW_MAP_HEIGHT 2048
 
 class KRLight : public KRNode {
 public:
@@ -43,9 +43,14 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    virtual void render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
 #endif
+    
+    int getShadowBufferCount();
+    GLuint *getShadowTextures();
+    KRViewport *getShadowViewports();
+    
     
 protected:
     KRLight(KRScene &scene, std::string name);
@@ -57,6 +62,9 @@ protected:
     std::string m_flareTexture;
     KRTexture *m_pFlareTexture;
     float m_flareSize;
+    
+    bool m_casts_shadow;
+    bool m_light_shafts;
     
     
     // Shadow Maps

@@ -43,7 +43,7 @@
 #import "KRNode.h"
 #import "KROctree.h"
 class KRInstance;
-class KRDirectionalLight;
+class KRLight;
 
 using std::vector;
 
@@ -58,13 +58,13 @@ public:
     static KRScene *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
     KRNode *getRootNode();
-    KRDirectionalLight *getFirstDirectionalLight();
+    KRLight *getFirstLight();
     
 #if TARGET_OS_IPHONE
     
     void render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds);
     
-    void render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::stack<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+    void render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
 #endif
     
@@ -74,12 +74,13 @@ public:
     void notify_sceneGraphModify(KRNode *pNode);
     
     void physicsUpdate(float deltaTime);
+    void addDefaultLights();
     
 private:
-    KRDirectionalLight *findFirstDirectionalLight(KRNode &node);
+    KRLight *findFirstLight(KRNode &node);
     
     KRNode *m_pRootNode;
-    KRDirectionalLight *m_pFirstDirectionalLight;
+    KRLight *m_pFirstLight;
     
     std::set<KRNode *> m_newNodes;
     std::set<KRNode *> m_modifiedNodes;

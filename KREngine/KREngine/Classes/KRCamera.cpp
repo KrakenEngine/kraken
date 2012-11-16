@@ -150,6 +150,12 @@ void KRCamera::setPosition(const KRVector3 &position) {
 
 void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime)
 {
+    if(m_iFrame == 0) {
+        if(scene.getFirstLight() == NULL) {
+            scene.addDefaultLights();
+        }
+    }
+    
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
@@ -160,13 +166,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime)
 
     m_pContext->rotateBuffers(true);
     
-    KRDirectionalLight *firstDirectionalLight = scene.getFirstDirectionalLight();
-    KRVector3 lightDirection = KRVector3::Normalize(KRVector3(0.90, 0.70, 0.25));
-    if(firstDirectionalLight) {
-        lightDirection = firstDirectionalLight->getWorldLightDirection();
-    }
-    
-    renderFrame(scene, lightDirection, deltaTime);
+    renderFrame(scene, deltaTime);
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
@@ -177,7 +177,7 @@ void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime)
 
 
 
-void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float deltaTime) {
+void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     
@@ -340,7 +340,7 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
     }
     
     if(m_pSkyBoxTexture) {
-        getContext().getShaderManager()->selectShader("sky_box", this, std::stack<KRLight *>(), m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        getContext().getShaderManager()->selectShader("sky_box", this, std::vector<KRLight *>(), m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 2048);
         
@@ -456,7 +456,7 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
         
         
-        KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
         KRMat4 projectionMatrix = getProjectionMatrix();
         
@@ -466,7 +466,7 @@ void KRCamera::renderFrame(KRScene &scene, KRVector3 &lightDirection, float delt
             matModel.scale((*itr).size() / 2.0f);
             matModel.translate((*itr).center());
             
-            if(getContext().getShaderManager()->selectShader(pVisShader, m_viewport, matModel, std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+            if(getContext().getShaderManager()->selectShader(pVisShader, m_viewport, matModel, std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -662,8 +662,8 @@ void KRCamera::renderPost()
 
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
-    KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    getContext().getShaderManager()->selectShader(postShader, m_viewport, KRMat4(), std::stack<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    getContext().getShaderManager()->selectShader(postShader, m_viewport, KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL, 0);
     GLDEBUG(glActiveTexture(GL_TEXTURE0));
@@ -723,7 +723,7 @@ void KRCamera::renderPost()
     
     const char *szText = m_debug_text.c_str();
     if(*szText) {
-        KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::stack<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 2048);
         

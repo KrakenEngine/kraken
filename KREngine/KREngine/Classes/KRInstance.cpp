@@ -75,7 +75,7 @@ void KRInstance::loadModel() {
 
 #if TARGET_OS_IPHONE
 
-void KRInstance::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRInstance::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     
     KRNode::render(pCamera, lights, viewport, renderPass);

@@ -42,7 +42,7 @@ KRAABB KRPointLight::getBounds() {
 
 #if TARGET_OS_IPHONE
 
-void KRPointLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
     KRLight::render(pCamera, lights, viewport, renderPass);
@@ -51,6 +51,9 @@ void KRPointLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, cons
     
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
+        
+        std::vector<KRLight *> this_light;
+        this_light.push_back(this);
 
         KRVector3 light_position = getLocalTranslation();
         
@@ -68,9 +71,9 @@ void KRPointLight::render(KRCamera *pCamera, std::stack<KRLight *> &lights, cons
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
-            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(pShader, viewport, sphereModelMatrix, lights, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(pShader, viewport, sphereModelMatrix, this_light, renderPass)) {
                 
                 
                 
