@@ -45,6 +45,8 @@
 #import "KRPointLight.h"
 #import "KRQuaternion.h"
 
+const long KRENGINE_OCCLUSION_TEST_EXPIRY = 60;
+
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
     m_pRootNode = new KRNode(*this, "scene_root");
@@ -58,7 +60,7 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, std::set<KRAABB> &newVisibleBounds) {
+void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     std::vector<KRLight *> lights;
     
@@ -96,10 +98,10 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, c
         newRemainingOctrees.clear();
         newRemainingOctreesTestResults.clear();
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
         }
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, false);
+            render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
         }
         remainingOctrees = newRemainingOctrees;
         remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -108,11 +110,23 @@ void KRScene::render(KRCamera *pCamera, const std::set<KRAABB> &visibleBounds, c
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-        render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, true, true);
+        render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+    }
+    
+    
+    // Expire cached occlusion test results
+    std::set<KRAABB> expired_visible_bounds;
+    for(std::map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
+        if((*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
+            expired_visible_bounds.insert((*visible_bounds_itr).first);
+        }
+    }
+    for(std::set<KRAABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
+        visibleBounds.erase(*expired_visible_bounds_itr);
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, std::set<KRAABB> &newVisibleBounds, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -124,8 +138,9 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                 GLuint params = 0;
                 GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
                 if(params) {
-                    newVisibleBounds.insert(octreeBounds); // Record the actual tests that succeeded during this frame
-//                    visibleBounds.insert(octreeBounds); // Update the list of tests that we won't repeat for subsequent passes during this frame
+                    // Record the frame number that the test has passed on
+                    visibleBounds[octreeBounds] = getContext().getCurrentFrame();
+
                     if(!bOcclusionTestResultsOnly) {
                         // Schedule a pass to perform the rendering
                         remainingOctrees.push_back(pOctreeNode);
@@ -140,8 +155,8 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
             
             float min_coverage = 0.0f;
             
-        float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
-        if(lod_coverage > min_coverage) {
+            float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // Cull against the view frustrum
+            if(lod_coverage > min_coverage) {
 
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;
@@ -153,25 +168,24 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                     KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->getPerspectiveNearZ()), viewport.getCameraPosition() + KRVector3(pCamera->getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
-                        newVisibleBounds.insert(octreeBounds); // Record the actual tests that succeeded during this frame
-//                        visibleBounds.insert(octreeBounds); // Update the list of tests that we won't repeat for subsequent passes during this frame
+                        // Record the frame number in which the camera was within the bounds
+                        visibleBounds[octreeBounds] = getContext().getCurrentFrame();
                         bNeedOcclusionTest = false;
                     }
                 }
                 
-                if(!bVisible) {
-                    // Check if an occlusion query from the prior pass has returned true
-                    bVisible = newVisibleBounds.find(octreeBounds) != newVisibleBounds.end();
-                    if(bVisible) {
-                        bNeedOcclusionTest = false;
-                    }
-                }
                 
                 if(!bVisible) {
-                    // Take advantage of temporal consistency of visible elements from frame to frame
+                    // Check if a previous occlusion query has returned true, taking advantage of temporal consistency of visible elements from frame to frame
                     // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
-                    bVisible = visibleBounds.find(octreeBounds) != visibleBounds.end();
-                    // We don't set bNeedOcclusionTest to false here, as we need to perform an occlusion test to record if this octree node was visible for the next frame
+                    std::map<KRAABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
+                    if(match_itr != visibleBounds.end()) {
+                        bVisible = true;
+                        
+                        // We set bNeedOcclusionTest to false only when the previous occlusion test is old and we need to perform an occlusion test to record if this octree node was visible for the next frame
+                        bNeedOcclusionTest = false;
+                    }
+                    
                 }
                 
                 if(!bVisible) {
@@ -270,7 +284,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, const std::set<KRAABB> &visibleB
                     const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
                     
                     for(int i=0; i<8; i++) {
-                        render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, newVisibleBounds, false, false);
+                        render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
                     }
                     
                     // Remove lights added at this octree level from the stack

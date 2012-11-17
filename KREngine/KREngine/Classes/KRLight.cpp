@@ -300,9 +300,7 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
         getContext().getShaderManager()->selectShader(shadowShader, m_shadowViewports[iShadow], KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
         
         
-        std::set<KRAABB> newVisibleBounds;
-        getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, newVisibleBounds);
-        m_shadowViewports[iShadow].setVisibleBounds(newVisibleBounds);
+        getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP);
 
     }
 }

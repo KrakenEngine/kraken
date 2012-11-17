@@ -12,6 +12,7 @@
 #include "KRVector2.h"
 #include "KRMat4.h"
 #include "KRAABB.h"
+#include <map.h>
 
 class KRLight;
 
@@ -38,8 +39,7 @@ public:
     // Overload assignment operator
     KRViewport& operator=(const KRViewport &v);
     
-    const std::set<KRAABB> &getVisibleBounds();
-    void setVisibleBounds(const std::set<KRAABB> visibleBounds);
+    std::map<KRAABB, int> &getVisibleBounds();
     
     const std::set<KRLight *> &getVisibleLights();
     void setVisibleLights(const std::set<KRLight *> visibleLights);
@@ -62,7 +62,7 @@ private:
     
     void calculateDerivedValues();
     
-    std::set<KRAABB> m_visibleBounds; // AABB's that output fragments in the last frame
+    std::map<KRAABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
 };
 
 #endif

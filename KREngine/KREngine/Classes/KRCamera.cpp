@@ -179,8 +179,6 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     
-    std::set<KRAABB> newVisibleBounds;
-    
 //    GLuint shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
 //    KRViewport shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
 //    int cShadows = 0;
@@ -209,10 +207,10 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
         
         // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
@@ -239,7 +237,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -270,8 +268,8 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         GLDEBUG(glDepthMask(GL_TRUE));
         
         // Render the geometry
-        std::set<KRAABB> emptyBoundsSet; // At this point, we only render octree nodes that produced fragments during the 1st pass into the GBuffer
-        scene.render(this, emptyBoundsSet, m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, newVisibleBounds);
+        // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(6, NULL);
@@ -282,7 +280,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     } else {
         // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         
         // ----====---- Opaque Geometry, Forward Rendering ----====----
@@ -313,7 +311,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE);
     }
     
     // ----====---- Sky Box ----====----
@@ -372,7 +370,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
     // Render all transparent geometry
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, newVisibleBounds);
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     
     // ----====---- Flares ----====----
@@ -396,7 +394,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, newVisibleBounds);
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
     
     // ----====---- Volumetric Lighting ----====----
     
@@ -424,7 +422,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
             GLDEBUG(glDepthRangef(0.0, 1.0));
         }
         
-        scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, newVisibleBounds);
+        scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
         
         if(volumetric_environment_downsample != 0) {
             // Set render target
@@ -459,18 +457,16 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         KRMat4 projectionMatrix = getProjectionMatrix();
         
         m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false);
-        for(std::set<KRAABB>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
+        for(std::map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
-            matModel.scale((*itr).size() / 2.0f);
-            matModel.translate((*itr).center());
+            matModel.scale((*itr).first.size() / 2.0f);
+            matModel.translate((*itr).first.center());
             
             if(getContext().getShaderManager()->selectShader(pVisShader, m_viewport, matModel, std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
     }
-    
-    m_viewport.setVisibleBounds(newVisibleBounds);
     
     // Re-enable z-buffer write
     GLDEBUG(glDepthMask(GL_TRUE));

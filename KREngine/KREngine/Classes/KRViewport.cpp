@@ -154,14 +154,7 @@ void KRViewport::calculateDerivedValues()
 }
 
 
-const std::set<KRAABB> &KRViewport::getVisibleBounds()
+std::map<KRAABB, int> &KRViewport::getVisibleBounds()
 {
     return m_visibleBounds;
 }
-
-void KRViewport::setVisibleBounds(const std::set<KRAABB> visibleBounds)
-{
-    m_visibleBounds = visibleBounds;
-}
-
-
