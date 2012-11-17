@@ -43,8 +43,10 @@ void KRTexture::resize(int max_dim)
     if(max_dim == 0) {
         releaseHandle();
     } else {
-        int requiredMemoryTransfer = getThroughputRequiredForResize(max_dim);
-        int requiredMemoryDelta = getMemRequiredForSize(max_dim) - getMemSize();
+        int target_dim = max_dim;
+        if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+        int requiredMemoryTransfer = getThroughputRequiredForResize(target_dim);
+        int requiredMemoryDelta = getMemRequiredForSize(target_dim) - getMemSize();
         
         if(requiredMemoryDelta) {
             // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
@@ -59,11 +61,11 @@ void KRTexture::resize(int max_dim)
                 return;
             }
             
-            if(m_current_lod_max_dim != max_dim || m_iHandle == 0) {
+            if(m_current_lod_max_dim != target_dim || m_iHandle == 0) {
                 releaseHandle();
             }
             if(m_iHandle == 0) {
-                if(!createGLTexture(max_dim)) {
+                if(!createGLTexture(target_dim)) {
                     assert(false);
                 }
             }
@@ -74,12 +76,16 @@ void KRTexture::resize(int max_dim)
 
 GLuint KRTexture::getHandle() {
     if(m_iHandle == 0) {
-        resize(getContext().KRENGINE_MIN_TEXTURE_DIM);
+        //resize(getContext().KRENGINE_MIN_TEXTURE_DIM);
+        resize(m_min_lod_max_dim);
     }
-    
-    m_last_frame_used = getContext().getCurrentFrame();
-    
+    resetPoolExpiry();
     return m_iHandle;
+}
+
+void KRTexture::resetPoolExpiry()
+{
+    m_last_frame_used = getContext().getCurrentFrame();
 }
 
 long KRTexture::getThroughputRequiredForResize(int max_dim)
@@ -87,17 +93,26 @@ long KRTexture::getThroughputRequiredForResize(int max_dim)
     // Calculate the throughput required for GPU texture upload if the texture is resized to max_dim.
     // This default behaviour assumes that the texture will need to be deleted and regenerated to change the maximum mip-map level.
     // If an OpenGL extension is present that allows a texture to be resized incrementally, then this method should be overridden
-    if(max_dim != m_current_lod_max_dim && max_dim != 0) {
-        int requiredMemory = getMemRequiredForSize(max_dim);
-        int requiredMemoryDelta = requiredMemory - getMemSize();
+    
+    if(max_dim == 0) {
+        return 0;
+    } else {    
+        int target_dim = max_dim;
+        if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
         
-        if(requiredMemoryDelta == 0) {
-            // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
+        
+        if(target_dim != m_current_lod_max_dim) {
+            int requiredMemory = getMemRequiredForSize(target_dim);
+            int requiredMemoryDelta = requiredMemory - getMemSize();
+            
+            if(requiredMemoryDelta == 0) {
+                // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
+                return 0;
+            }
+            return requiredMemory;
+        } else {
             return 0;
         }
-        return requiredMemory;
-    } else {
-        return 0;
     }
 }
 

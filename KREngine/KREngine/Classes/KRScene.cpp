@@ -60,7 +60,22 @@ KRScene::~KRScene() {
 
 #if TARGET_OS_IPHONE
 
-void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+    if(new_frame) {
+        // Expire cached occlusion test results.
+        // Cached "failed" results are expired on the next frame (marked with .second of -1)
+        // Cached "success" results are expired after KRENGINE_OCCLUSION_TEST_EXPIRY frames (marked with .second of the last frame
+        std::set<KRAABB> expired_visible_bounds;
+        for(std::map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
+            if((*visible_bounds_itr).second == -1 || (*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
+                expired_visible_bounds.insert((*visible_bounds_itr).first);
+            }
+        }
+        for(std::set<KRAABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
+            visibleBounds.erase(*expired_visible_bounds_itr);
+        }
+    }
+    
     
     std::vector<KRLight *> lights;
     
@@ -112,18 +127,6 @@ void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, co
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
         render(*octree_itr, visibleBounds, pCamera, lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
     }
-    
-    
-    // Expire cached occlusion test results
-    std::set<KRAABB> expired_visible_bounds;
-    for(std::map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
-        if((*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
-            expired_visible_bounds.insert((*visible_bounds_itr).first);
-        }
-    }
-    for(std::set<KRAABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
-        visibleBounds.erase(*expired_visible_bounds_itr);
-    }
 }
 
 void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
@@ -145,6 +148,9 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                         // Schedule a pass to perform the rendering
                         remainingOctrees.push_back(pOctreeNode);
                     }
+                } else {
+                    // Record -1 to indicate that the visibility test had failed
+                    visibleBounds[octreeBounds] = -1;
                 }
                 
                 GLDEBUG(glDeleteQueriesEXT(1, &pOctreeNode->m_occlusionQuery));
@@ -180,15 +186,20 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                     // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
                     std::map<KRAABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
                     if(match_itr != visibleBounds.end()) {
-                        bVisible = true;
-                        
-                        // We set bNeedOcclusionTest to false only when the previous occlusion test is old and we need to perform an occlusion test to record if this octree node was visible for the next frame
-                        bNeedOcclusionTest = false;
+                        if((*match_itr).second == -1) {
+                            // We have already tested these bounds with a negative result
+                            bNeedOcclusionTest = false;
+                        } else {
+                            bVisible = true;
+                            
+                            // We set bNeedOcclusionTest to false only when the previous occlusion test is old and we need to perform an occlusion test to record if this octree node was visible for the next frame
+                            bNeedOcclusionTest = false;
+                        }
                     }
                     
                 }
                 
-                if(!bVisible) {
+                if(!bVisible && bNeedOcclusionTest) {
                     // Optimization: If this is an empty octree node with only a single child node, then immediately try to render the child node without an occlusion test for this higher level, as it would be more expensive than the occlusion test for the child
                     if(pOctreeNode->getSceneNodes().empty()) {
                         int child_count = 0;

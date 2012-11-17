@@ -140,7 +140,11 @@ void KRTextureManager::startFrame()
 
 void KRTextureManager::endFrame()
 {
-
+    for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
+        if(m_boundTextures[iTexture]) {
+            m_boundTextures[iTexture]->resetPoolExpiry(); // Even if the same texture is bound, ensure that they don't expire from the texture pool while in use
+        }
+    }
 }
 
 void KRTextureManager::balanceTextureMemory()

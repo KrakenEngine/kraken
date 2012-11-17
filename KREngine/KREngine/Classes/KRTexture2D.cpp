@@ -75,7 +75,7 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     return true;
 }
 
-void KRTexture2D::bind() {
+void KRTexture2D::bind() {    
     GLuint handle = getHandle();
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, handle));

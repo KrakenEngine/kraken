@@ -207,10 +207,10 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, true);
         
         // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
@@ -237,7 +237,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -269,7 +269,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         // Render the geometry
         // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(6, NULL);
@@ -280,7 +280,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     } else {
         // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, true);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         
         // ----====---- Opaque Geometry, Forward Rendering ----====----
@@ -311,7 +311,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
     }
     
     // ----====---- Sky Box ----====----
@@ -370,7 +370,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
     // Render all transparent geometry
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
     
     // ----====---- Flares ----====----
@@ -394,7 +394,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
     // ----====---- Volumetric Lighting ----====----
     
@@ -422,7 +422,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
             GLDEBUG(glDepthRangef(0.0, 1.0));
         }
         
-        scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
+        scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
         
         if(volumetric_environment_downsample != 0) {
             // Set render target

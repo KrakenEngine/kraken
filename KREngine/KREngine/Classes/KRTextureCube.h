@@ -41,7 +41,7 @@ public:
     
     virtual void bind();
     virtual long getMemRequiredForSize(int max_dim);
-
+    virtual void resetPoolExpiry();
     
 private:
     virtual bool createGLTexture(int lod_max_dim);

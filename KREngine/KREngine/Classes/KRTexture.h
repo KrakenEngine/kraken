@@ -55,6 +55,8 @@ public:
     
     long getLastFrameUsed();
     
+    virtual void resetPoolExpiry();
+    
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;
     GLuint getHandle();

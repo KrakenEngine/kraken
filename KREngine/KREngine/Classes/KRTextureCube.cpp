@@ -88,17 +88,32 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
 
 long KRTextureCube::getMemRequiredForSize(int max_dim)
 {
+    int target_dim = max_dim;
+    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+    
     long memoryRequired = 0;
     for(int i=0; i<6; i++) {
         std::string faceName = m_name + SUFFIXES[i];
         KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
         if(faceTexture) {
-            memoryRequired += faceTexture->getMemRequiredForSize(max_dim);
+            memoryRequired += faceTexture->getMemRequiredForSize(target_dim);
         }
     }
     return memoryRequired;
 }
 
+
+void KRTextureCube::resetPoolExpiry()
+{
+    KRTexture::resetPoolExpiry();
+    for(int i=0; i<6; i++) {
+        std::string faceName = m_name + SUFFIXES[i];
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        if(faceTexture) {
+            faceTexture->resetPoolExpiry(); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
+        }
+    }
+}
 
 void KRTextureCube::bind()
 {

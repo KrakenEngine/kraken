@@ -152,6 +152,9 @@ KRTexturePVR::~KRTexturePVR() {
 
 long KRTexturePVR::getMemRequiredForSize(int max_dim)
 {
+    int target_dim = max_dim;
+    if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
+    
     // Determine how much memory will be consumed
 	int width = m_iWidth;
 	int height = m_iHeight;
@@ -159,7 +162,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
     
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
-        if(width <= max_dim && height <= max_dim) {
+        if(width <= target_dim && height <= target_dim) {
             memoryRequired += block.length;
         }
 		
@@ -177,8 +180,10 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
 }
 
 bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
-{
-
+{    
+    int target_dim = lod_max_dim;
+    if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
+    
 	GLenum err;
     
     if(m_blocks.size() == 0) {
@@ -195,7 +200,7 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     int i=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
-        if(width <= lod_max_dim && height <= lod_max_dim) {
+        if(width <= target_dim && height <= target_dim) {
             memoryRequired += block.length;
             if(width > current_lod_max_dim) {
                 current_lod_max_dim = width;
