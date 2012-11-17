@@ -107,7 +107,7 @@ void KRInstance::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const
                 }
                 
                 if(m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
-                    m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, 2048);
+                    m_pContext->getTextureManager()->selectTexture(5, m_pLightMap);
                 }
                 
                 pModel->render(pCamera, lights, viewport, getModelMatrix(), m_pLightMap, renderPass);

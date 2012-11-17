@@ -40,11 +40,10 @@
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
     m_textureMemUsed = 0;
-    m_activeTextureMemUsed = 0;
-    m_lod_max_dim_cap = 2048;
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         m_boundTextures[iTexture] = NULL;
     }
+    m_memoryTransferredThisFrame = 0;
 }
 
 KRTextureManager::~KRTextureManager() {
@@ -109,99 +108,144 @@ KRTexture *KRTextureManager::getTexture(const char *szName) {
 
 }
 
-void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim) {
+void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
 
     if(m_boundTextures[iTextureUnit] != pTexture) {
         GLDEBUG(glActiveTexture(GL_TEXTURE0 + iTextureUnit));
         if(pTexture != NULL) {
             m_poolTextures.erase(pTexture);
-            bool bActive = true;
             if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
-                bActive = false;
                 m_activeTextures.insert(pTexture);
             }
-            size_t textureMemChange = 0;
-            pTexture->bind(textureMemChange, lod_max_dim < m_lod_max_dim_cap ? lod_max_dim : m_lod_max_dim_cap, !bActive);
-            m_textureMemUsed += textureMemChange;
-            if(bActive) {
-                m_activeTextureMemUsed += textureMemChange;
-            } else {
-                m_activeTextureMemUsed += pTexture->getMemSize();
-            }
+            pTexture->bind();
 
         } else {
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         }
         m_boundTextures[iTextureUnit] = pTexture;
-        while(m_activeTextures.size() + m_poolTextures.size() > KRContext::KRENGINE_MAX_TEXTURE_HANDLES || m_textureMemUsed > KRContext::KRContext::KRENGINE_MAX_TEXTURE_MEM) {
-            if(m_poolTextures.empty()) {
-                fprintf(stderr, "Kraken - Texture swapping...\n");
-                decreaseLODCap();
-                m_pContext->rotateBuffers(false);
-            }
-            // Keep texture size within limits
-            KRTexture *droppedTexture = (*m_poolTextures.begin());
-            if(droppedTexture == NULL) {
-                break;
-            } else {
-                droppedTexture->releaseHandle(m_textureMemUsed);
-                m_poolTextures.erase(droppedTexture);
-            }
-        } 
     }
-    
-//    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i Kbyte\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024);
+
 }
 
-size_t KRTextureManager::getMemUsed() {
+long KRTextureManager::getMemUsed() {
     return m_textureMemUsed;
 }
 
-size_t KRTextureManager::getActiveMemUsed() {
-    return m_activeTextureMemUsed;
+void KRTextureManager::startFrame()
+{
+    m_memoryTransferredThisFrame = 0;
+    balanceTextureMemory();
+    rotateBuffers();
 }
 
-
-void KRTextureManager::rotateBuffers(bool new_frame)
+void KRTextureManager::endFrame()
 {
-    if(new_frame && m_activeTextureMemUsed < KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN && m_activeTextureMemUsed * 4 < KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX) {
-        // Increasing the LOD level will generally increase active texture memory usage by 4 times, don't increase the texture level until we can ensure that the LOD won't immediately be dropped back to the current level
-        increaseLODCap();
-    } else if(new_frame && m_activeTextureMemUsed > KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX) {
-        decreaseLODCap();
-    }
-    m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
-    m_activeTextures.clear();
-    m_activeTextureMemUsed = 0;
+
+}
+
+void KRTextureManager::balanceTextureMemory()
+{
+    // Balance texture memory by reducing and increasing the maximum mip-map level of both active and inactive textures
+    // Favour performance over maximum texture resolution when memory is insufficient for textures at full resolution.
     
-    for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
-        KRTexture *pBoundTexture = m_boundTextures[iTexture];
-        if(pBoundTexture != NULL) {
-            m_poolTextures.erase(pBoundTexture);
-            if(m_activeTextures.find(pBoundTexture) == m_activeTextures.end()) {
-                m_activeTextures.insert(pBoundTexture);
-                m_activeTextureMemUsed += pBoundTexture->getMemSize();
+    // Determine the additional amount of memory required in order to resize all active textures to the maximum size
+    long wantedTextureMem = 0;
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+        KRTexture *activeTexture = *itr;
+        
+        wantedTextureMem = activeTexture->getMemRequiredForSize(getContext().KRENGINE_MAX_TEXTURE_DIM) - activeTexture->getMemSize();
+    }
+    
+    // Determine how much memory we need to free up
+    long memoryDeficit = wantedTextureMem - (getContext().KRENGINE_MAX_TEXTURE_MEM - getMemUsed());
+    
+    
+    // Determine how many mip map levels we need to strip off of inactive textures to free the memory we need
+    long maxDimInactive = getContext().KRENGINE_MAX_TEXTURE_DIM;
+    long potentialMemorySaving = 0;
+    while(potentialMemorySaving < memoryDeficit && maxDimInactive > getContext().KRENGINE_MIN_TEXTURE_DIM) {
+        maxDimInactive = maxDimInactive >> 1;
+        potentialMemorySaving = 0;
+        
+        for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
+            KRTexture *poolTexture = *itr;
+            long potentialMemoryDelta = poolTexture->getMemRequiredForSize(maxDimInactive) - poolTexture->getMemSize();
+            if(potentialMemoryDelta < 0) {
+                potentialMemorySaving += -potentialMemoryDelta;
             }
         }
     }
-}
-
-void KRTextureManager::decreaseLODCap()
-{    
-    if(m_lod_max_dim_cap > KRContext::KRENGINE_MIN_TEXTURE_DIM) {
-        m_lod_max_dim_cap = m_lod_max_dim_cap >> 1;
+    
+    // Strip off mipmap levels of inactive textures to free up memory
+    long inactive_texture_mem_used_target = 0;
+    for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
+        KRTexture *poolTexture = *itr;
+        long potentialMemoryDelta = poolTexture->getMemRequiredForSize(maxDimInactive) - poolTexture->getMemSize();
+        if(potentialMemoryDelta < 0) {
+            poolTexture->resize(maxDimInactive);
+            inactive_texture_mem_used_target += poolTexture->getMemRequiredForSize(maxDimInactive);
+        } else {
+            inactive_texture_mem_used_target += poolTexture->getMemSize();
+        }
     }
-}
-
-void KRTextureManager::increaseLODCap()
-{
-    if(m_lod_max_dim_cap < KRContext::KRENGINE_MAX_TEXTURE_DIM) {
-        m_lod_max_dim_cap = m_lod_max_dim_cap << 1;
+    
+    // Determine the maximum mipmap level for the active textures we can achieve with the memory that is available
+    long memory_available = 0;
+    long maxDimActive = getContext().KRENGINE_MAX_TEXTURE_DIM;
+    while(memory_available <= 0 && maxDimActive >= getContext().KRENGINE_MIN_TEXTURE_DIM) {
+        memory_available = getContext().KRENGINE_MAX_TEXTURE_MEM - inactive_texture_mem_used_target;
+        for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end() && memory_available > 0; itr++) {
+            KRTexture *activeTexture = *itr;
+            memory_available -= activeTexture->getMemRequiredForSize(maxDimActive);
+        }
+        
+        if(memory_available <= 0) {
+            maxDimActive = maxDimActive >> 1; // Try the next smaller mipmap size
+        }
     }
+    
+    // Resize active textures to balance the memory usage and mipmap levels
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end() && memory_available > 0; itr++) {
+        KRTexture *activeTexture = *itr;
+        activeTexture->resize(maxDimActive);
+    }
+    
+    //fprintf(stderr, "Active mipmap size: %i    Inactive mapmap size: %i\n", (int)maxDimActive, (int)maxDimInactive);
 }
 
-int KRTextureManager::getLODDimCap()
+void KRTextureManager::rotateBuffers()
 {
-    return m_lod_max_dim_cap;
+    const long KRENGINE_TEXTURE_EXPIRY_FRAMES = 120;
+    
+    // ----====---- Expire textures that haven't been used in a long time ----====----
+    std::set<KRTexture *> expiredTextures;
+    for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
+        KRTexture *poolTexture = *itr;
+        if(poolTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
+            expiredTextures.insert(poolTexture);
+            poolTexture->releaseHandle();
+        }
+    }
+    for(std::set<KRTexture *>::iterator itr=expiredTextures.begin(); itr != expiredTextures.end(); itr++) {
+        m_poolTextures.erase(*itr);
+    }
+    
+    // ----====---- Swap the buffers ----====----
+    m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
+    m_activeTextures.clear();
 }
 
+long KRTextureManager::getMemoryTransferedThisFrame()
+{
+    return m_memoryTransferredThisFrame;
+}
+
+void KRTextureManager::addMemoryTransferredThisFrame(long memoryTransferred)
+{
+    m_memoryTransferredThisFrame += memoryTransferred;
+}
+
+void KRTextureManager::memoryChanged(long memoryDelta)
+{
+    m_textureMemUsed += memoryDelta;
+}

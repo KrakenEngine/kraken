@@ -49,22 +49,24 @@ public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
     
-    void rotateBuffers(bool new_frame);
-    
-    void selectTexture(int iTextureUnit, KRTexture *pTexture, int lod_max_dim);
+    void selectTexture(int iTextureUnit, KRTexture *pTexture);
     
     KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
     KRTexture *getTextureCube(const char *szName);
     KRTexture *getTexture(const char *szFile);
     
-    size_t getMemUsed();
-    size_t getActiveMemUsed();
+    long getMemUsed();
     
-    int getLODDimCap();
+    long getMemoryTransferedThisFrame();
+    void addMemoryTransferredThisFrame(long memoryTransferred);
+    
+    void memoryChanged(long memoryDelta);
+    
+    void startFrame();
+    void endFrame();
     
 private:
-    void decreaseLODCap();
-    void increaseLODCap();
+    long m_memoryTransferredThisFrame;
     
     std::map<std::string, KRTexture *> m_textures;
     
@@ -72,10 +74,11 @@ private:
     std::set<KRTexture *> m_activeTextures;
     std::set<KRTexture *> m_poolTextures;
     
-    size_t m_textureMemUsed;
-    size_t m_activeTextureMemUsed;
+    long m_textureMemUsed;
+
     
-    int m_lod_max_dim_cap;
+    void rotateBuffers();
+    void balanceTextureMemory();
 };
 
 #endif

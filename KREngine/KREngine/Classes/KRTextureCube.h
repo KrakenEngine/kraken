@@ -39,7 +39,9 @@ public:
     KRTextureCube(KRContext &context, std::string name);
     virtual ~KRTextureCube();
     
-    virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize);
+    virtual void bind();
+    virtual long getMemRequiredForSize(int max_dim);
+
     
 private:
     virtual bool createGLTexture(int lod_max_dim);

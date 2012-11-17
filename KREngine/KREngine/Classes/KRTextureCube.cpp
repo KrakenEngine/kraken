@@ -29,6 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#import <assert.h>
 #include "KRTextureCube.h"
 #include "KRTexture2D.h"
 #include "KRContext.h"
@@ -85,14 +86,27 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
     return true;
 }
 
-
-void KRTextureCube::bind(size_t &textureMemUsed, int max_dim, bool can_resize)
+long KRTextureCube::getMemRequiredForSize(int max_dim)
 {
-    textureMemUsed -= getMemSize();
-    
-    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, getHandle(max_dim, can_resize)));
-    GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    
-    textureMemUsed += getMemSize();
+    long memoryRequired = 0;
+    for(int i=0; i<6; i++) {
+        std::string faceName = m_name + SUFFIXES[i];
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        if(faceTexture) {
+            memoryRequired += faceTexture->getMemRequiredForSize(max_dim);
+        }
+    }
+    return memoryRequired;
 }
+
+
+void KRTextureCube::bind()
+{
+    GLuint handle = getHandle();
+    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, handle));
+    if(handle) {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    }
+}
+

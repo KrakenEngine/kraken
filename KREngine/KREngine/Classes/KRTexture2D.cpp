@@ -63,6 +63,7 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     } else {
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     }
+
     if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_textureMemUsed)) {
         GLDEBUG(glDeleteTextures(1, &m_iHandle));
         m_iHandle = 0;
@@ -70,19 +71,20 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
         return false;
     }
     
+    
     return true;
 }
 
-void KRTexture2D::bind(size_t &textureMemUsed, int max_dim, bool can_resize) {
-    textureMemUsed -= getMemSize();
-    GLDEBUG(glBindTexture(GL_TEXTURE_2D, getHandle(max_dim, can_resize)));
+void KRTexture2D::bind() {
+    GLuint handle = getHandle();
     
-    // TODO - These texture parameters should be assigned by the material or texture parameters
-    GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
-    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    
-    textureMemUsed += getMemSize();
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, handle));
+    if(handle) {
+        // TODO - These texture parameters should be assigned by the material or texture parameters
+        GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    }
 }
 
 int KRTexture2D::getMaxMipMap() {
@@ -96,4 +98,3 @@ int KRTexture2D::getMinMipMap() {
 bool KRTexture2D::hasMipmaps() {
     return m_max_lod_max_dim != m_min_lod_max_dim;
 }
-

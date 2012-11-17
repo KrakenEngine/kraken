@@ -67,7 +67,7 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, std::vector<KRLight *> 
             GLDEBUG(glDepthRangef(0.0, 1.0));
             
             KRTexture *pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
-            m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 2048);
+            m_pContext->getTextureManager()->selectTexture(0, pParticleTexture);
             
             int particle_count = 10000;
             

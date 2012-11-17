@@ -79,6 +79,7 @@ float const PI = 3.141592653589793f;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000 * 2;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+        KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     } else {
         KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
         KRContext::KRENGINE_MAX_VBO_MEM = 128000000;
@@ -89,6 +90,7 @@ float const PI = 3.141592653589793f;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+        KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     }
     
     _camera = NULL;
@@ -158,7 +160,9 @@ float const PI = 3.141592653589793f;
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix AndDeltaTime: (float)deltaTime
 {
+    _context->startFrame();
     _camera->renderFrame(*pScene, viewMatrix, deltaTime);
+    _context->endFrame();
 }
 
 - (BOOL)loadShaders

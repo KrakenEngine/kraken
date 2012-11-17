@@ -238,7 +238,7 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
                 if(light_directional_count == 0) {
                     int cShadowBuffers = directional_light->getShadowBufferCount();
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-                        m_pContext->getTextureManager()->selectTexture(3, NULL, 0);
+                        m_pContext->getTextureManager()->selectTexture(3, NULL);
                         GLDEBUG(glActiveTexture(GL_TEXTURE3));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -248,7 +248,7 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
                     }
                 
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1) {
-                        m_pContext->getTextureManager()->selectTexture(4, NULL, 0);
+                        m_pContext->getTextureManager()->selectTexture(4, NULL);
                         GLDEBUG(glActiveTexture(GL_TEXTURE4));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -258,7 +258,7 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
                     }
                 
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2) {
-                        m_pContext->getTextureManager()->selectTexture(5, NULL, 0);
+                        m_pContext->getTextureManager()->selectTexture(5, NULL);
                         GLDEBUG(glActiveTexture(GL_TEXTURE5));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

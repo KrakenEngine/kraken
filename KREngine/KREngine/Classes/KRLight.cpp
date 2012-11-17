@@ -190,7 +190,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                                         pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                                         m_flareSize
                                         ));
-                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 2048);
+                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
                     m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 }
@@ -270,6 +270,12 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
         glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y);
         
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
+        
+        GLDEBUG(glClearDepthf(0.0f));
+        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
+        
+        glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y);
+        
         GLDEBUG(glClearDepthf(1.0f));
         GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
         

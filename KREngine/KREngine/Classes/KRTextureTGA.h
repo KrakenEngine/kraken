@@ -17,7 +17,9 @@ public:
     KRTextureTGA(KRContext &context, KRDataBlock *data);
     virtual ~KRTextureTGA();
     
-    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed);
+    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed);
+    
+    virtual long getMemRequiredForSize(int max_dim);
 };
 
 #endif

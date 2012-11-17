@@ -20,6 +20,7 @@ int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
 int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
+int KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT;
 
 const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
     "GL_EXT_texture_storage"
@@ -33,6 +34,7 @@ KRContext::KRContext() {
     m_pModelManager = new KRModelManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_bDetectedExtensions = false;
+    m_current_frame = 0;
 }
 
 KRContext::~KRContext() {
@@ -130,13 +132,29 @@ void KRContext::loadResource(std::string path) {
 
 void KRContext::rotateBuffers(bool new_frame) {
     //fprintf(stderr, "Rotating Buffers...\n");
-    GLDEBUG(glFinish());
+    if(!new_frame) GLDEBUG(glFinish());
 
     m_pModelManager->rotateBuffers(new_frame);
-    m_pTextureManager->rotateBuffers(new_frame);
 }
 
 void KRContext::detectExtensions() {
     m_bDetectedExtensions = true;
     
+}
+
+void KRContext::startFrame()
+{
+    m_pTextureManager->startFrame();
+}
+
+void KRContext::endFrame()
+{
+    m_pTextureManager->endFrame();
+    rotateBuffers(true);
+    m_current_frame++;
+}
+
+long KRContext::getCurrentFrame()
+{
+    return m_current_frame;
 }

@@ -8,6 +8,7 @@
 
 #include "KRTextureTGA.h"
 #include "KREngine-common.h"
+#include "KRContext.h"
 
 typedef struct {
     char  idlength;
@@ -38,10 +39,10 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed)
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
 {
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
-    unsigned char *pData = (unsigned char *)pHeader + (size_t)pHeader->idlength + (size_t)pHeader->colourmaplength * (size_t)pHeader->colourmaptype + sizeof(TGA_HEADER);
+    unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 
     if(pHeader->colourmaptype != 0) {
         return false; // Mapped colors not supported
@@ -74,8 +75,13 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
                         delete converted_image;
                         err = glGetError();
-                        if (err != GL_NO_ERROR) return false;
-                        textureMemUsed += pHeader->width * pHeader->height * 4;
+                        if (err != GL_NO_ERROR) {
+                            return false;
+                        }
+                        int memAllocated = pHeader->width * pHeader->height * 4;
+                        textureMemUsed += memAllocated;
+                        getContext().getTextureManager()->memoryChanged(memAllocated);
+                        getContext().getTextureManager()->addMemoryTransferredThisFrame(memAllocated);
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
@@ -83,8 +89,13 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     {
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
                         err = glGetError();
-                        if (err != GL_NO_ERROR) return false;
-                        textureMemUsed += pHeader->width * pHeader->height * 4;
+                        if (err != GL_NO_ERROR) {
+                            return false;
+                        }
+                        int memAllocated = pHeader->width * pHeader->height * 4;
+                        textureMemUsed += memAllocated;
+                        getContext().getTextureManager()->memoryChanged(memAllocated);
+                        getContext().getTextureManager()->addMemoryTransferredThisFrame(memAllocated);
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
@@ -97,4 +108,27 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     }
 
     return true;
+}
+
+long KRTextureTGA::getMemRequiredForSize(int max_dim)
+{
+    TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
+    switch(pHeader->imagetype) {
+        case 2: // rgb
+            switch(pHeader->bitsperpixel) {
+                case 24:
+                {
+                     return pHeader->width * pHeader->height * 4;
+                }
+                break;
+                case 32:
+                {
+                    return pHeader->width * pHeader->height * 4;
+                }
+                break;
+            }
+            break;
+    }
+    
+    return 0;
 }

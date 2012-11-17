@@ -28,6 +28,7 @@ public:
     static int KRENGINE_TARGET_TEXTURE_MEM_MIN;
     static int KRENGINE_MAX_TEXTURE_DIM;
     static int KRENGINE_MIN_TEXTURE_DIM;
+    static int KRENGINE_MAX_TEXTURE_THROUGHPUT;
     
     
     KRContext();
@@ -55,6 +56,11 @@ public:
     static const char * extension_names[KRENGINE_NUM_EXTENSIONS];
     static bool extension_available[KRENGINE_NUM_EXTENSIONS];
     
+    void startFrame();
+    void endFrame();
+    
+    long getCurrentFrame();
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
@@ -65,6 +71,8 @@ private:
     
     void detectExtensions();
     bool m_bDetectedExtensions;
+    
+    long m_current_frame;
 };
 
 #endif

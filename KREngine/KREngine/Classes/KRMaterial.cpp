@@ -343,24 +343,24 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, con
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
         
         if(bDiffuseMap) {
-            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap, 2048);
+            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
         }
         
         if(bSpecMap) {
-            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap, 2048);
+            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
         }
 
         if(bNormalMap) {
-            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, 2048);
+            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
         }
         
         if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-            m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, 2048);
+            m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube);
         }
         
         if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
             // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, 2048);
+            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
         }
         
         *prevBoundMaterial = this;

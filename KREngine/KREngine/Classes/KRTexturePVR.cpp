@@ -150,20 +150,53 @@ KRTexturePVR::~KRTexturePVR() {
 
 }
 
-bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed)
+long KRTexturePVR::getMemRequiredForSize(int max_dim)
 {
+    // Determine how much memory will be consumed
 	int width = m_iWidth;
 	int height = m_iHeight;
+    long memoryRequired = 0;
+    
+    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        dataBlockStruct block = *itr;
+        if(width <= max_dim && height <= max_dim) {
+            memoryRequired += block.length;
+        }
+		
+        width = width >> 1;
+        if(width < 1) {
+            width = 1;
+        }
+        height = height >> 1;
+        if(height < 1) {
+            height = 1;
+        }
+	}
+    
+    return memoryRequired;
+}
+
+bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
+{
+
 	GLenum err;
     
     if(m_blocks.size() == 0) {
         return false;
     }
     
+    // Determine how much memory will be consumed
+	int width = m_iWidth;
+	int height = m_iHeight;
+    long memoryRequired = 0;
+    
+    
+    // Upload texture data
     int i=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         dataBlockStruct block = *itr;
         if(width <= lod_max_dim && height <= lod_max_dim) {
+            memoryRequired += block.length;
             if(width > current_lod_max_dim) {
                 current_lod_max_dim = width;
             }
@@ -173,9 +206,11 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start);
             err = glGetError();
             if (err != GL_NO_ERROR) {
+                assert(false);
                 return false;
             }
-            textureMemUsed += block.length;
+            
+            
             i++;
         }
 		
@@ -188,6 +223,10 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             height = 1;
         }
 	}
+    
+    textureMemUsed += memoryRequired;
+    getContext().getTextureManager()->memoryChanged(memoryRequired);
+    getContext().getTextureManager()->addMemoryTransferredThisFrame(memoryRequired);
     
     return true;
     

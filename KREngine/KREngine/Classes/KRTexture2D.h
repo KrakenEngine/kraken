@@ -52,8 +52,8 @@ public:
     int getMaxMipMap();
     int getMinMipMap();
     
-    virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, size_t &textureMemUsed) = 0;
-    virtual void bind(size_t &textureMemUsed, int max_dim, bool can_resize);
+    virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed) = 0;
+    virtual void bind();
     
 protected:
     KRDataBlock *m_pData;

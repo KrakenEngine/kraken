@@ -124,9 +124,9 @@ void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, 
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb);
 #endif
         } else {
-            m_vboMemUsed += size;
             
-            while(m_vbosPool.size() + m_vbosActive.size() >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed >= KRContext::KRENGINE_MAX_VBO_MEM) {
+            
+            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + size >= KRContext::KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
                     fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
                     m_pContext->rotateBuffers(false);
@@ -152,6 +152,7 @@ void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, 
 
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
             GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+            m_vboMemUsed += size;
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb);
             
             m_currentVBO.size = size;
