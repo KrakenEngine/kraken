@@ -73,7 +73,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
             
             KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(pShader, viewport, sphereModelMatrix, this_light, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, renderPass)) {
                 
                 
                 

@@ -73,7 +73,7 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, std::vector<KRLight *> 
             
             KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(pParticleShader, viewport, getModelMatrix(), lights, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), lights, renderPass)) {
                 GLDEBUG(glUniform1f(
                     pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                     1.0f

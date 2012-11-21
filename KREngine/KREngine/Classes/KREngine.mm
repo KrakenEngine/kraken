@@ -137,7 +137,14 @@ float const PI = 3.141592653589793f;
             @"volumetric_environment_downsample" : @35,
             @"volumetric_environment_max_distance" : @36,
             @"volumetric_environment_slices" : @37,
-            @"volumetric_environment_intensity" : @38
+            @"volumetric_environment_intensity" : @38,
+            @"fog_type": @39,
+            @"fog_near": @40,
+            @"fog_far": @41,
+            @"fog_density": @42,
+            @"fog_color_r": @43,
+            @"fog_color_g": @44,
+            @"fog_color_b": @45
                             
         } copy];
         [self loadShaders];
@@ -200,7 +207,7 @@ float const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 39;
+    return 46;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -210,7 +217,7 @@ float const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[39] = {
+    NSString *parameter_labels[46] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -249,13 +256,20 @@ float const PI = 3.141592653589793f;
         @"Volumetric Env. - Resolution",
         @"Volumetric Env. - Maximum Distance",
         @"Volumetric Env. - Quality",
-        @"Volumetric Env. - Intensity"
+        @"Volumetric Env. - Intensity",
+        @"Fog - Type",
+        @"Fog - Near",
+        @"Fog - Far",
+        @"Fog - Density",
+        @"Fog - Color R",
+        @"Fog - Color G",
+        @"fog - Color B"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[39] = {
+    KREngineParameterType types[46] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -295,13 +309,20 @@ float const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_INT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_INT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[39] = {
+    float values[46] = {
         _camera->perspective_fov,
         (float)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -340,7 +361,14 @@ float const PI = 3.141592653589793f;
         5 - _camera->volumetric_environment_downsample,
         _camera->volumetric_environment_max_distance,
         _camera->volumetric_environment_quality,
-        _camera->volumetric_environment_intensity
+        _camera->volumetric_environment_intensity,
+        _camera->fog_type,
+        _camera->fog_near,
+        _camera->fog_far,
+        _camera->fog_density,
+        _camera->fog_color.x,
+        _camera->fog_color.y,
+        _camera->fog_color.z
     };
     return values[i];
 }
@@ -506,16 +534,38 @@ float const PI = 3.141592653589793f;
         case 38:
             _camera->volumetric_environment_intensity = v;
             break;
+        case 39:
+            _camera->fog_type = v;
+            break;
+        case 40:
+            _camera->fog_near = v;
+            break;
+        case 41:
+            _camera->fog_far = v;
+            break;
+        case 42:
+            _camera->fog_density = v;
+            break;
+        case 43:
+            _camera->fog_color.x = v;
+            break;
+        case 44:
+            _camera->fog_color.y = v;
+            break;
+        case 45:
+            _camera->fog_color.z = v;
+            break;
     }
 }
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[39] = {
+    float minValues[46] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
     return minValues[i];
@@ -523,12 +573,13 @@ float const PI = 3.141592653589793f;
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[39] = {
+    float maxValues[46] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f, 1000.0f, 50000.0f,
-        1.0f, 5.0f, 50000.0f, 1.0f, 10.0f
+        1.0f, 1.0f, 1.0f, 1.0f, 1000.0f, 10000.0f,
+        1.0f, 5.0f, 10000.0f, 1.0f, 10.0f,
+        3.0f, 10000.0f, 10000.0f, 0.10f, 1.0f, 1.0f, 1.0f
     };
     
     return maxValues[i];

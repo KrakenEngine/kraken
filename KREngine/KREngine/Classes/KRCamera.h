@@ -123,6 +123,12 @@ public:
     float volumetric_environment_quality;
     float volumetric_environment_intensity;
 
+    float fog_near;
+    float fog_far;
+    float fog_density;
+    KRVector3 fog_color;
+    int fog_type; // 0 = no fog, 1 = linear, 2 = exponential, 3 = exponential squared
+    
 private:
     KRVector3 m_position;
     

@@ -120,6 +120,13 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     volumetric_environment_max_distance = 1000.0f;
     volumetric_environment_quality = (50 - 5.0) / 495.0f;
     volumetric_environment_intensity = 1.0f;
+    
+    
+    fog_near = 500.0f;
+    fog_far = 1000.0f;
+    fog_density = 0.01f;
+    fog_color = KRVector3(0.5, 0.5, 0.5);
+    fog_type = 0;
 }
 
 KRCamera::~KRCamera() {
@@ -336,7 +343,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     }
     
     if(m_pSkyBoxTexture) {
-        getContext().getShaderManager()->selectShader("sky_box", this, std::vector<KRLight *>(), m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRLight *>(), m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
         
@@ -462,7 +469,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
             matModel.scale((*itr).first.size() / 2.0f);
             matModel.translate((*itr).first.center());
             
-            if(getContext().getShaderManager()->selectShader(pVisShader, m_viewport, matModel, std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+            if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -657,7 +664,7 @@ void KRCamera::renderPost()
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
     KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    getContext().getShaderManager()->selectShader(postShader, m_viewport, KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
     GLDEBUG(glActiveTexture(GL_TEXTURE0));

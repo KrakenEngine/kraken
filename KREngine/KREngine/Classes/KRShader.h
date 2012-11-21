@@ -56,7 +56,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    bool bind(const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
+    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
     
 #endif
     
@@ -128,6 +128,15 @@ public:
         KRENGINE_UNIFORM_DEPTH_FRAME,
         KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME,
         KRENGINE_UNIFORM_RENDER_FRAME,
+        
+        KRENGINE_UNIFORM_FOG_NEAR,
+        KRENGINE_UNIFORM_FOG_FAR,
+        KRENGINE_UNIFORM_FOG_DENSITY,
+        KRENGINE_UNIFORM_FOG_COLOR,
+        
+        KRENGINE_UNIFORM_FOG_SCALE,
+        KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL,
+        KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED,
         
         KRENGINE_UNIFORM_SLICE_DEPTH_SCALE,
         

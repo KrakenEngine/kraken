@@ -183,6 +183,17 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SLICE_DEPTH_SCALE] = glGetUniformLocation(m_iProgram, "slice_depth_scale"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME] = glGetUniformLocation(m_iProgram, "volumetricEnvironmentFrame"));
             
+            
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR] = glGetUniformLocation(m_iProgram, "fog_near"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_FAR] = glGetUniformLocation(m_iProgram, "fog_far"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY] = glGetUniformLocation(m_iProgram, "fog_density"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR] = glGetUniformLocation(m_iProgram, "fog_color"));
+            
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] = glGetUniformLocation(m_iProgram, "fog_scale"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL] = glGetUniformLocation(m_iProgram, "fog_density_premultiplied_exponential"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED] = glGetUniformLocation(m_iProgram, "fog_density_premultiplied_squared"));
+
+            
         }
         
     } catch(...) {
@@ -217,17 +228,17 @@ KRShader::~KRShader() {
 
 #if TARGET_OS_IPHONE
 
-bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const {
     if(m_iProgram == 0) {
         return false;
     }
     
-    // FINDME - HACK - Temporary placeholder code
     GLDEBUG(glUseProgram(m_iProgram));
     
     int light_directional_count = 0;
     int light_point_count = 0;
     int light_spot_count = 0;
+    // TODO - Need to support multiple lights and more light types in forward rendering
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
         for(std::vector<KRLight *>::const_iterator light_itr=lights.begin(); light_itr != lights.end(); light_itr++) {
             KRLight *light = (*light_itr);
@@ -378,6 +389,22 @@ bool KRShader::bind(const KRViewport &viewport, const KRMat4 &matModel, const st
         ));
     }
     
+    // Fog parameters
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR], camera.fog_near));
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_FAR], camera.fog_far));
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY], camera.fog_density));
+    camera.fog_color.setUniform(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR]);
+    
+    
+    if(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE], 1.0f / (camera.fog_far - camera.fog_near)));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL], -camera.fog_density * 1.442695f)); // -fog_density / log(2)
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED],  -camera.fog_density * camera.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+    }
     
     // Sets the diffuseTexture variable to the first texture unit
     GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0));
