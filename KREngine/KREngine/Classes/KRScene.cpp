@@ -424,6 +424,15 @@ void KRScene::addDefaultLights()
 {
     KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
     
-    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.25, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.25))).euler());
+    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.15))).euler());
     m_pRootNode->addChild(light1);
+}
+
+KRAABB KRScene::getRootOctreeBounds()
+{
+    if(m_nodeTree.getRootNode()) {
+        return m_nodeTree.getRootNode()->getBounds();
+    } else {
+        return KRAABB(-KRVector3::One(), KRVector3::One());
+    }
 }

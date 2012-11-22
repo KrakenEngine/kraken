@@ -76,6 +76,8 @@ public:
     void physicsUpdate(float deltaTime);
     void addDefaultLights();
     
+    KRAABB getRootOctreeBounds();
+    
 private:
     KRLight *findFirstLight(KRNode &node);
     

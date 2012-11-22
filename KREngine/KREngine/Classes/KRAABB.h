@@ -22,6 +22,9 @@ public:
     KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix);
     ~KRAABB();
     
+    void scale(const KRVector3 &s);
+    void scale(float s);
+    
     KRVector3 center() const;
     KRVector3 size() const;
     bool intersects(const KRAABB& b) const;

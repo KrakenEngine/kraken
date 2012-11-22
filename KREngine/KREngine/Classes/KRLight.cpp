@@ -256,7 +256,9 @@ void KRLight::deleteBuffers()
 
 void KRLight::invalidateShadowBuffers()
 {
-    memset(shadowValid, sizeof(bool) * KRENGINE_MAX_SHADOW_BUFFERS, 0);
+    for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
+        shadowValid[iShadow] = false;
+    }
 }
 
 int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
@@ -265,43 +267,47 @@ int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
 }
 
 void KRLight::renderShadowBuffers(KRCamera *pCamera)
-{
+{  
     for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
-        glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y);
-        
-        GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
-        
-        GLDEBUG(glClearDepthf(0.0f));
-        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
-        
-        glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y);
-        
-        GLDEBUG(glClearDepthf(1.0f));
-        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
-        
-        glViewport(1, 1, m_shadowViewports[iShadow].getSize().x - 2, m_shadowViewports[iShadow].getSize().y - 2);
-        
-        GLDEBUG(glDisable(GL_DITHER));
-        
-        GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
-        GLDEBUG(glEnable(GL_CULL_FACE));
-        
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthFunc(GL_LESS));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
-        // Disable alpha blending as we are using alpha channel for packed depth info
-        GLDEBUG(glDisable(GL_BLEND));
-        
-        // Use shader program
-        KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-        
-        getContext().getShaderManager()->selectShader(*pCamera, shadowShader, m_shadowViewports[iShadow], KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
-        
-        
-        getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+        if(!shadowValid[iShadow]) {
+            shadowValid[iShadow] = true;
+            
+            GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
+            GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
+            
+            GLDEBUG(glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y));
+            
+            
+            GLDEBUG(glClearDepthf(0.0f));
+            GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
+            
+            GLDEBUG(glViewport(1, 1, m_shadowViewports[iShadow].getSize().x - 2, m_shadowViewports[iShadow].getSize().y - 2));
 
+            GLDEBUG(glClearDepthf(1.0f));
+             
+            GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
+            
+            GLDEBUG(glDisable(GL_DITHER));
+            
+            GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
+            GLDEBUG(glEnable(GL_CULL_FACE));
+            
+            // Enable z-buffer test
+            GLDEBUG(glEnable(GL_DEPTH_TEST));
+            GLDEBUG(glDepthFunc(GL_LESS));
+            GLDEBUG(glDepthRangef(0.0, 1.0));
+            
+            // Disable alpha blending as we are using alpha channel for packed depth info
+            GLDEBUG(glDisable(GL_BLEND));
+            
+            // Use shader program
+            KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::vector<KRLight *>(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+            
+            getContext().getShaderManager()->selectShader(*pCamera, shadowShader, m_shadowViewports[iShadow], KRMat4(), std::vector<KRLight *>(), KRNode::RENDER_PASS_SHADOWMAP);
+            
+            
+            getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+        }
     }
 }
 
@@ -309,7 +315,15 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
 
 int KRLight::getShadowBufferCount()
 {
-    return m_cShadowBuffers;
+    int cBuffers=0;
+    for(int iBuffer=0; iBuffer < m_cShadowBuffers; iBuffer++) {
+        if(shadowValid[iBuffer]) {
+            cBuffers++;
+        } else {
+            break;
+        }
+    }
+    return cBuffers;
 }
 
 GLuint *KRLight::getShadowTextures()

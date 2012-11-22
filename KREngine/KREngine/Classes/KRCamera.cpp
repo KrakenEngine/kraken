@@ -119,13 +119,13 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     volumetric_environment_downsample = 2;
     volumetric_environment_max_distance = 1000.0f;
     volumetric_environment_quality = (50 - 5.0) / 495.0f;
-    volumetric_environment_intensity = 1.0f;
+    volumetric_environment_intensity = 0.9f;
     
     
     fog_near = 500.0f;
-    fog_far = 1000.0f;
-    fog_density = 0.01f;
-    fog_color = KRVector3(0.5, 0.5, 0.5);
+    fog_far = 5000.0f;
+    fog_density = 0.0005f;
+    fog_color = KRVector3(0.45, 0.45, 0.5);
     fog_type = 0;
 }
 
@@ -244,7 +244,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
         // Set render target
@@ -288,13 +288,12 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     } else {
         // ----====---- Generate Shadowmaps for Lights ----====----
         scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, true);
-        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
-        
         // ----====---- Opaque Geometry, Forward Rendering ----====----
         
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         
         // Disable alpha blending
         GLDEBUG(glDisable(GL_BLEND));
@@ -421,7 +420,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
             GLDEBUG(glActiveTexture(GL_TEXTURE0));
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
             
-            glViewport(0, 0, volumetricLightingViewport.getSize().x, volumetricLightingViewport.getSize().y);
+            GLDEBUG(glViewport(0, 0, volumetricLightingViewport.getSize().x, volumetricLightingViewport.getSize().y));
         } else {
             // Enable z-buffer test
             GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -436,7 +435,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
             GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
             
-            glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y);
+            GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         }
     }
 

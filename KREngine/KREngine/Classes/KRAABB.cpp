@@ -73,6 +73,20 @@ KRVector3 KRAABB::size() const
     return max - min;
 }
 
+void KRAABB::scale(const KRVector3 &s)
+{
+    KRVector3 prev_center = center();
+    KRVector3 prev_size = size();
+    KRVector3 new_scale = KRVector3(prev_size.x * s.x, prev_size.y * s.y, prev_size.z * s.z) * 0.5f;
+    min = prev_center - new_scale;
+    max = prev_center + new_scale;
+}
+
+void KRAABB::scale(float s)
+{
+    scale(KRVector3(s));
+}
+
 bool KRAABB::operator >(const KRAABB& b) const
 {
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
