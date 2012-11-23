@@ -164,12 +164,12 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
 
     KRNode::render(pCamera, lights, viewport, renderPass);
     
-    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->volumetric_environment_enable || (pCamera->m_cShadowBuffers > 0 && m_casts_shadow))) {
+    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->volumetric_environment_enable || pCamera->dust_particle_enable || (pCamera->m_cShadowBuffers > 0 && m_casts_shadow))) {
         allocateShadowBuffers(configureShadowBufferViewports(viewport));
         renderShadowBuffers(pCamera);
     }
     
-    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->dust_particle_enable) {
         // Render brownian particles for dust floating in air
         if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
             float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling

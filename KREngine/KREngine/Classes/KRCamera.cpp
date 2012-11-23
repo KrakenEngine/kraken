@@ -129,6 +129,7 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     fog_type = 0;
     
     dust_particle_intensity = 0.25f;
+    dust_particle_enable = false;
 }
 
 KRCamera::~KRCamera() {

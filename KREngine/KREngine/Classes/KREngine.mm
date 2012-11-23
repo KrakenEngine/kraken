@@ -144,7 +144,9 @@ float const PI = 3.141592653589793f;
             @"fog_density": @42,
             @"fog_color_r": @43,
             @"fog_color_g": @44,
-            @"fog_color_b": @45
+            @"fog_color_b": @45,
+            @"dust_enable" : @46,
+            @"dust_intensity" : @47
                             
         } copy];
         [self loadShaders];
@@ -207,7 +209,7 @@ float const PI = 3.141592653589793f;
 
 -(int)getParameterCount
 {
-    return 46;
+    return 48;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -217,7 +219,7 @@ float const PI = 3.141592653589793f;
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[46] = {
+    NSString *parameter_labels[48] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -263,13 +265,15 @@ float const PI = 3.141592653589793f;
         @"Fog - Density",
         @"Fog - Color R",
         @"Fog - Color G",
-        @"fog - Color B"
+        @"Fog - Color B",
+        @"Dust - Enable",
+        @"Dust - Intensity"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[46] = {
+    KREngineParameterType types[48] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -316,13 +320,15 @@ float const PI = 3.141592653589793f;
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_FLOAT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[46] = {
+    float values[48] = {
         _camera->perspective_fov,
         (float)_camera->m_cShadowBuffers,
         _camera->bEnablePerPixel ? 1.0f : 0.0f,
@@ -368,7 +374,9 @@ float const PI = 3.141592653589793f;
         _camera->fog_density,
         _camera->fog_color.x,
         _camera->fog_color.y,
-        _camera->fog_color.z
+        _camera->fog_color.z,
+        _camera->dust_particle_enable,
+        _camera->dust_particle_intensity
     };
     return values[i];
 }
@@ -555,17 +563,24 @@ float const PI = 3.141592653589793f;
         case 45:
             _camera->fog_color.z = v;
             break;
+        case 46:
+            _camera->dust_particle_enable = bNewBoolVal;
+            break;
+        case 47:
+            _camera->dust_particle_intensity = bNewBoolVal;
+            break;
     }
 }
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[46] = {
+    float minValues[48] = {
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f
     };
 
     return minValues[i];
@@ -573,13 +588,14 @@ float const PI = 3.141592653589793f;
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[46] = {
+    float maxValues[48] = {
         PI,   3.0f, 1.0f, 1.0,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 10.0f,
         1.0f, 10.0f, 2.0f, 1.0f, 1.0f, 1.0f, 5.0f, 1.0f,
         0.5f, 1.0f, 2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f, 1000.0f, 10000.0f,
         1.0f, 5.0f, 10000.0f, 1.0f, 5.0f,
-        3.0f, 10000.0f, 10000.0f, 0.01f, 1.0f, 1.0f, 1.0f
+        3.0f, 10000.0f, 10000.0f, 0.01f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f
     };
     
     return maxValues[i];

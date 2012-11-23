@@ -130,6 +130,7 @@ public:
     int fog_type; // 0 = no fog, 1 = linear, 2 = exponential, 3 = exponential squared
     
     float dust_particle_intensity;
+    bool dust_particle_enable;
     
 private:
     KRVector3 m_position;
