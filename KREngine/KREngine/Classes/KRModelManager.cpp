@@ -255,9 +255,9 @@ void KRModelManager::rotateBuffers(bool new_frame)
 KRModelManager::VolumetricLightingVertexData *KRModelManager::getVolumetricLightingVertexes()
 {
     if(m_volumetricLightingVertexData == NULL) {
-        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * MAX_VOLUMETRIC_PLANES * 6);
+        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * KRENGINE_MAX_VOLUMETRIC_PLANES * 6);
         int iVertex=0;
-        for(int iPlane=0; iPlane < MAX_VOLUMETRIC_PLANES; iPlane++) {
+        for(int iPlane=0; iPlane < KRENGINE_MAX_VOLUMETRIC_PLANES; iPlane++) {
             m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
             m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
             m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
@@ -300,31 +300,35 @@ KRModelManager::VolumetricLightingVertexData *KRModelManager::getVolumetricLight
 
 KRModelManager::RandomParticleVertexData *KRModelManager::getRandomParticles()
 {
-    const int MAX_PARTICLES=500000;
     if(m_randomParticleVertexData == NULL) {
-        m_randomParticleVertexData = (RandomParticleVertexData *)malloc(sizeof(RandomParticleVertexData) * MAX_PARTICLES * 3);
+        m_randomParticleVertexData = (RandomParticleVertexData *)malloc(sizeof(RandomParticleVertexData) * KRENGINE_MAX_RANDOM_PARTICLES * 3);
+        
+        // Generate vertices for randomly placed equilateral triangles with a side length of 1 and an origin point centered so that an inscribed circle can be efficiently rendered without wasting fill
+        
+        float equilateral_triangle_height = sqrt(3.0f) / 2.0f;
+        float inscribed_circle_radius = 1.0f / (2.0f * sqrt(3.0f));
         
         int iVertex=0;
-        for(int iParticle=0; iParticle < MAX_PARTICLES; iParticle++) {
-            m_randomParticleVertexData[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
-            m_randomParticleVertexData[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
-            m_randomParticleVertexData[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1.0f;
-            m_randomParticleVertexData[iVertex].uva.u = 0.0f;
-            m_randomParticleVertexData[iVertex].uva.v = 0.0f;
-            iVertex++;
-            
-            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
-            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
-            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
-            m_randomParticleVertexData[iVertex].uva.u = 1.0f;
-            m_randomParticleVertexData[iVertex].uva.v = 0.0f;
+        for(int iParticle=0; iParticle < KRENGINE_MAX_RANDOM_PARTICLES; iParticle++) {
+            m_randomParticleVertexData[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            m_randomParticleVertexData[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            m_randomParticleVertexData[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            m_randomParticleVertexData[iVertex].uva.u = -0.5f;
+            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius;
             iVertex++;
             
             m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
             m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
             m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
             m_randomParticleVertexData[iVertex].uva.u = 0.5f;
-            m_randomParticleVertexData[iVertex].uva.v = 1.0f;
+            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius;
+            iVertex++;
+            
+            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
+            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
+            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
+            m_randomParticleVertexData[iVertex].uva.u = 0.0f;
+            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius + equilateral_triangle_height;
             iVertex++;
         }
     }

@@ -60,7 +60,7 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         float min_depth = 0.0f;
         float max_depth = 1.0f;
         
-        KRAABB worldSpacefrustrumSliceBounds = KRAABB(KRVector3(-1.0f, -max_depth, -1.0f), KRVector3(1.0f, -min_depth, 1.0f), KRMat4::Invert(viewport.getViewProjectionMatrix()));
+        KRAABB worldSpacefrustrumSliceBounds = KRAABB(KRVector3(-1.0f, -1.0f, -1.0f), KRVector3(1.0f, 1.0f, 1.0f), KRMat4::Invert(viewport.getViewProjectionMatrix()));
         worldSpacefrustrumSliceBounds.scale(KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
         
         KRVector3 shadowLook = -KRVector3::Normalize(getWorldLightDirection());

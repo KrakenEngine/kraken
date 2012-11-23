@@ -18,7 +18,7 @@ KRContextObject::~KRContextObject()
     
 }
 
-KRContext &KRContextObject::getContext()
+KRContext &KRContextObject::getContext() const
 {
     return *m_pContext;
 }

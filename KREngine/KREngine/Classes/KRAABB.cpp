@@ -73,6 +73,12 @@ KRVector3 KRAABB::size() const
     return max - min;
 }
 
+float KRAABB::volume() const
+{
+    KRVector3 s = size();
+    return s.x * s.y * s.z;
+}
+
 void KRAABB::scale(const KRVector3 &s)
 {
     KRVector3 prev_center = center();

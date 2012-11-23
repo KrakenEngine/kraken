@@ -34,10 +34,25 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 uniform mediump vec4    viewport;
 uniform mediump float   flare_size;
 attribute vec4          vertex_position;
+uniform highp vec3      particle_origin;
 
-varying mediump vec2 texCoord;
+uniform highp mat4      shadow_mvp1;
+varying mediump vec4	shadowMapCoord1;
+
+varying mediump vec2    texCoord;
+uniform highp float     time_absolute;
+varying lowp float      intensity_modulate;
 
 void main() {
-    texCoord = vertex_uv;
-    gl_Position = mvp_matrix * vertex_position + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+//    highp vec4 particle_center = mvp_matrix * (mod(vertex_position - vec4(particle_origin, 0.0), 2.0) - 1.0);
+    highp vec4 offset_center = vertex_position + vec4(particle_origin, 0.0);
+    offset_center.xyz += vec3(sin((time_absolute + vertex_position.x * 100.0) * 0.05), sin((time_absolute + vertex_position.y * 100.0) * 0.07), sin((time_absolute + vertex_position.z * 100.0) * 0.03)) * 0.05;
+    offset_center = vec4(mod(offset_center.x + 1.0, 2.0) - 1.0, mod(offset_center.y + 1.0, 2.0) - 1.0, mod(offset_center.z + 1.0, 2.0) - 1.0, 1.0);
+    highp vec4 particle_center = mvp_matrix * offset_center;
+    texCoord = vertex_uv * 3.46410161513775; // 3.46410161513775 = 2 * sqrt(3); 1 / (2 * sqrt(3)) is the radius of a circle encompased by a equilateral triangle with a side length of 1.
+    gl_Position = particle_center + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+    
+    shadowMapCoord1 = shadow_mvp1 * offset_center;
+    
+    intensity_modulate = sin(time_absolute + mod(vertex_position.x * 100.0, 6.28318530717959)) * 0.5 + 0.5;
 }

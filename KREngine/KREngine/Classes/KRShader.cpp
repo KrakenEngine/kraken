@@ -180,6 +180,7 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] = glGetUniformLocation(m_iProgram, "gbuffer_depth"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME] = glGetUniformLocation(m_iProgram, "depthFrame"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME] = glGetUniformLocation(m_iProgram, "renderFrame"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_ABSOLUTE_TIME] = glGetUniformLocation(m_iProgram, "time_absolute"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_SLICE_DEPTH_SCALE] = glGetUniformLocation(m_iProgram, "slice_depth_scale"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME] = glGetUniformLocation(m_iProgram, "volumetricEnvironmentFrame"));
             
@@ -192,6 +193,9 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] = glGetUniformLocation(m_iProgram, "fog_scale"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL] = glGetUniformLocation(m_iProgram, "fog_density_premultiplied_exponential"));
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED] = glGetUniformLocation(m_iProgram, "fog_density_premultiplied_squared"));
+            
+            
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_PARTICLE_ORIGIN] = glGetUniformLocation(m_iProgram, "particle_origin"));
 
             
         }
@@ -233,7 +237,11 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         return false;
     }
     
+    
+    
     GLDEBUG(glUseProgram(m_iProgram));
+    
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_ABSOLUTE_TIME], getContext().getAbsoluteTime()));
     
     int light_directional_count = 0;
     int light_point_count = 0;

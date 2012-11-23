@@ -27,6 +27,7 @@ public:
     
     KRVector3 center() const;
     KRVector3 size() const;
+    float volume() const;
     bool intersects(const KRAABB& b) const;
     bool contains(const KRAABB &b) const;
     bool contains(const KRVector3 &v) const;

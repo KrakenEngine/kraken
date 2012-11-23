@@ -169,7 +169,7 @@ float const PI = 3.141592653589793f;
 {
     _context->startFrame();
     _camera->renderFrame(*pScene, viewMatrix, deltaTime);
-    _context->endFrame();
+    _context->endFrame(deltaTime);
 }
 
 - (BOOL)loadShaders

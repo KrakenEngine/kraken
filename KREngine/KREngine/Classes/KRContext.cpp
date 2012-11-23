@@ -35,6 +35,7 @@ KRContext::KRContext() {
     m_pSceneManager = new KRSceneManager(*this);
     m_bDetectedExtensions = false;
     m_current_frame = 0;
+    m_absolute_time = 0.0f;
 }
 
 KRContext::~KRContext() {
@@ -147,14 +148,20 @@ void KRContext::startFrame()
     m_pTextureManager->startFrame();
 }
 
-void KRContext::endFrame()
+void KRContext::endFrame(float deltaTime)
 {
     m_pTextureManager->endFrame();
     rotateBuffers(true);
     m_current_frame++;
+    m_absolute_time += deltaTime;
 }
 
-long KRContext::getCurrentFrame()
+long KRContext::getCurrentFrame() const
 {
     return m_current_frame;
+}
+
+float KRContext::getAbsoluteTime() const
+{
+    return m_absolute_time;
 }

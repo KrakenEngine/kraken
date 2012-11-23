@@ -57,9 +57,10 @@ public:
     static bool extension_available[KRENGINE_NUM_EXTENSIONS];
     
     void startFrame();
-    void endFrame();
+    void endFrame(float deltaTime);
     
-    long getCurrentFrame();
+    long getCurrentFrame() const;
+    float getAbsoluteTime() const;
     
 private:
     KRBundleManager *m_pBundleManager;
@@ -73,6 +74,7 @@ private:
     bool m_bDetectedExtensions;
     
     long m_current_frame;
+    float m_absolute_time;
 };
 
 #endif

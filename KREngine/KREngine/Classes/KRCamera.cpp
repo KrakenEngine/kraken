@@ -127,6 +127,8 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     fog_density = 0.0005f;
     fog_color = KRVector3(0.45, 0.45, 0.5);
     fog_type = 0;
+    
+    dust_particle_intensity = 0.25f;
 }
 
 KRCamera::~KRCamera() {

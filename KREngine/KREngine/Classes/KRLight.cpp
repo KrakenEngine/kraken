@@ -26,11 +26,15 @@
 KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_intensity = 1.0f;
+    m_dust_particle_intensity = 1.0f;
+    m_color = KRVector3::One();
     m_flareTexture = "";
     m_pFlareTexture = NULL;
     m_flareSize = 0.0;
     m_casts_shadow = true;
     m_light_shafts = true;
+    m_dust_particle_density = 0.1f;
+    m_dust_particle_size = 1.0f;
     
     // Initialize shadow buffers
     m_cShadowBuffers = 0;
@@ -58,12 +62,15 @@ tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("flare_texture", m_flareTexture.c_str());
     e->SetAttribute("casts_shadow", m_casts_shadow ? "true" : "false");
     e->SetAttribute("light_shafts", m_light_shafts ? "true" : "false");
+    e->SetAttribute("dust_particle_density", m_dust_particle_density);
+    e->SetAttribute("dust_particle_size", m_dust_particle_size);
+    e->SetAttribute("dust_particle_intensity", m_dust_particle_intensity);
     return e;
 }
 
 void KRLight::loadXML(tinyxml2::XMLElement *e) {
     KRNode::loadXML(e);
-    float x,y,z;
+    float x=1.0f,y=1.0f,z=1.0f;
     if(e->QueryFloatAttribute("color_r", &x) != tinyxml2::XML_SUCCESS) {
         x = 1.0;
     }
@@ -93,6 +100,21 @@ void KRLight::loadXML(tinyxml2::XMLElement *e) {
     
     if(e->QueryBoolAttribute("light_shafts", &m_light_shafts) != tinyxml2::XML_SUCCESS) {
         m_light_shafts = true;
+    }
+    
+    m_dust_particle_density = 0.1f;
+    if(e->QueryFloatAttribute("dust_particle_density", &m_dust_particle_density) != tinyxml2::XML_SUCCESS) {
+        m_dust_particle_density = 0.1f;
+    }
+    
+    m_dust_particle_size = 1.0f;
+    if(e->QueryFloatAttribute("dust_particle_size", &m_dust_particle_size) != tinyxml2::XML_SUCCESS) {
+        m_dust_particle_size = 1.0f;
+    }
+    
+    m_dust_particle_intensity = 1.0f;
+    if(e->QueryFloatAttribute("dust_particle_intensity", &m_dust_particle_intensity) != tinyxml2::XML_SUCCESS) {
+        m_dust_particle_intensity = 1.0f;
     }
     
     const char *szFlareTexture = e->Attribute("flare_texture");
@@ -147,6 +169,46 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
         renderShadowBuffers(pCamera);
     }
     
+    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+        // Render brownian particles for dust floating in air
+        if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
+            float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
+            if(lod_coverage > 0.0f || true) {
+                
+                float particle_range = 600.0f;
+                
+                int particle_count = m_dust_particle_density * pow(particle_range, 3);
+                if(particle_count > KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES) particle_count = KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES;
+                
+                // Enable z-buffer test
+                GLDEBUG(glEnable(GL_DEPTH_TEST));
+                GLDEBUG(glDepthRangef(0.0, 1.0));
+
+                KRMat4 particleModelMatrix;
+                particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
+                particleModelMatrix.translate(viewport.getCameraPosition());
+                
+                std::vector<KRLight *> this_light;
+                this_light.push_back(this);
+                
+                KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                
+                if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, particleModelMatrix, this_light, renderPass)) {
+                    
+                    (m_color * pCamera->dust_particle_intensity * m_dust_particle_intensity * m_intensity).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
+                    
+                    KRMat4::DotWDiv(KRMat4::Invert(particleModelMatrix), KRVector3::Zero()).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_PARTICLE_ORIGIN]);
+                    
+                    GLDEBUG(glUniform1f(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE], m_dust_particle_size));
+                    
+                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRModelManager::RandomParticleVertexData), true, false, false, true, false);
+                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
+                }
+            }
+        }
+    }
+
+    
     if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && pCamera->volumetric_environment_enable && m_light_shafts) {
         std::string shader_name = pCamera->volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
         
@@ -164,9 +226,9 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
             float slice_spacing = (slice_far - slice_near) / slice_count;
             
             KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
-            (KRVector3::One() * pCamera->volumetric_environment_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
+            (m_color * pCamera->volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
-            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRModelManager::MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false);
+            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRModelManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false);
             GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
         }
 

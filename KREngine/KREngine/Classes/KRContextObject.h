@@ -17,7 +17,7 @@ public:
     KRContextObject(KRContext &context);
     ~KRContextObject();
     
-    KRContext &getContext();
+    KRContext &getContext() const;
 protected:
     KRContext *m_pContext;
 };
