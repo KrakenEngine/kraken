@@ -567,7 +567,7 @@ float const PI = 3.141592653589793f;
             _camera->dust_particle_enable = bNewBoolVal;
             break;
         case 47:
-            _camera->dust_particle_intensity = bNewBoolVal;
+            _camera->dust_particle_intensity = v;
             break;
     }
 }
