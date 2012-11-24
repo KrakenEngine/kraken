@@ -589,7 +589,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, KFbx
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-        KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), light_map, 0.0f);
+        KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), light_map, 0.0f, true);
         return new_instance;
     } else {
         return NULL;

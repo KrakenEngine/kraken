@@ -92,21 +92,33 @@ bool KRMaterial::save(const std::string& path) {
         fprintf(f, "Ns %f\n", m_ns);
         if(m_ambientMap.size()) {
             fprintf(f, "map_Ka %s.pvr -s %f %f -o %f %f\n", m_ambientMap.c_str(), m_ambientMapScale.x, m_ambientMapScale.y, m_ambientMapOffset.x, m_ambientMapOffset.y);
+        } else {
+            fprintf(f, "# map_Ka filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
         }
         if(m_diffuseMap.size()) {
             fprintf(f, "map_Kd %s.pvr -s %f %f -o %f %f\n", m_diffuseMap.c_str(), m_diffuseMapScale.x, m_diffuseMapScale.y, m_diffuseMapOffset.x, m_diffuseMapOffset.y);
+        } else {
+            fprintf(f, "# map_Kd filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
         }
         if(m_specularMap.size()) {
             fprintf(f, "map_Ks %s.pvr -s %f %f -o %f %f\n", m_specularMap.c_str(), m_specularMapScale.x, m_specularMapScale.y, m_specularMapOffset.x, m_specularMapOffset.y);
+        } else {
+            fprintf(f, "# map_Ks filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
         }
         if(m_normalMap.size()) {
             fprintf(f, "map_Normal %s.pvr -s %f %f -o %f %f\n", m_normalMap.c_str(), m_normalMapScale.x, m_normalMapScale.y, m_normalMapOffset.x, m_normalMapOffset.y);
+        } else {
+            fprintf(f, "# map_Normal filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
         }
         if(m_reflectionMap.size()) {
             fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
+        } else {
+            fprintf(f, "# map_Reflection filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
         }
         if(m_reflectionCube.size()) {
             fprintf(f, "map_ReflectionCube %s.pvr\n", m_reflectionCube.c_str());
+        } else {
+            fprintf(f, "# map_ReflectionCube cubemapname");
         }
         switch(m_alpha_mode) {
             case KRMATERIAL_ALPHA_MODE_OPAQUE:

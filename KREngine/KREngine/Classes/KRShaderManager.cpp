@@ -182,7 +182,11 @@ bool KRShaderManager::selectShader(KRCamera &camera, const KRShader *pShader, co
         bool bSameShader = strcmp(pShader->getKey(), m_szCurrentShaderKey) == 0;
         if(!bSameShader) {
             strcpy(m_szCurrentShaderKey, pShader->getKey());
+#if TARGET_OS_IPHONE
             return pShader->bind(camera, viewport, matModel, lights, renderPass);
+#else
+            return false;
+#endif
         } else {
             return true;
         }

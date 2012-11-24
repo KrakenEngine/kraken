@@ -262,8 +262,11 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     }
 }
 
+#endif
+
 
 void KRLight::allocateShadowBuffers(int cBuffers) {
+#if TARGET_OS_IPHONE
     // First deallocate buffers no longer needed
     for(int iShadow = cBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
         if (shadowDepthTexture[iShadow]) {
@@ -307,6 +310,7 @@ void KRLight::allocateShadowBuffers(int cBuffers) {
     }
     
     m_cShadowBuffers = cBuffers;
+#endif
 }
 
 
@@ -329,7 +333,8 @@ int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
 }
 
 void KRLight::renderShadowBuffers(KRCamera *pCamera)
-{  
+{
+#if TARGET_OS_IPHONE
     for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
         if(!shadowValid[iShadow]) {
             shadowValid[iShadow] = true;
@@ -371,9 +376,10 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
         }
     }
+#endif
 }
 
-#endif
+
 
 int KRLight::getShadowBufferCount()
 {
