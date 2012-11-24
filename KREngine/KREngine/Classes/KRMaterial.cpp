@@ -118,22 +118,23 @@ bool KRMaterial::save(const std::string& path) {
         if(m_reflectionCube.size()) {
             fprintf(f, "map_ReflectionCube %s.pvr\n", m_reflectionCube.c_str());
         } else {
-            fprintf(f, "# map_ReflectionCube cubemapname");
+            fprintf(f, "# map_ReflectionCube cubemapname\n");
         }
         switch(m_alpha_mode) {
             case KRMATERIAL_ALPHA_MODE_OPAQUE:
-                fprintf(f, "alpha_mode opaque");
+                fprintf(f, "alpha_mode opaque\n");
                 break;
             case KRMATERIAL_ALPHA_MODE_TEST:
-                fprintf(f, "alpha_mode test");
+                fprintf(f, "alpha_mode test\n");
                 break;
             case KRMATERIAL_ALPHA_MODE_BLENDONESIDE:
-                fprintf(f, "alpha_mode blendoneside");
+                fprintf(f, "alpha_mode blendoneside\n");
                 break;
             case KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE:
-                fprintf(f, "alpha_mode blendtwoside");
+                fprintf(f, "alpha_mode blendtwoside\n");
                 break;
         }
+        fprintf(f, "# alpha_mode opaque, test, blendoneside, or blendtwoside\n");
         fclose(f);
         return true;
     }
