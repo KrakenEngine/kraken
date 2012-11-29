@@ -65,6 +65,16 @@ KRQuaternion::KRQuaternion(const KRVector3 &euler) {
     setEuler(euler);
 }
 
+KRQuaternion::KRQuaternion(const KRVector3 &from_vector, const KRVector3 &to_vector) {
+    
+    KRVector3 a = KRVector3::Cross(from_vector, to_vector);
+    m_val[0] = a[0];
+    m_val[1] = a[1];
+    m_val[2] = a[2];
+    m_val[3] = sqrt(from_vector.sqrMagnitude() * to_vector.sqrMagnitude()) + KRVector3::Dot(from_vector, to_vector);
+    normalize();
+}
+
 KRQuaternion::~KRQuaternion() {
     
 }

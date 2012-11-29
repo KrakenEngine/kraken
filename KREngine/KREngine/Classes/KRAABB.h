@@ -46,6 +46,7 @@ public:
     
     static KRAABB Infinite();
     float coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const;
+    float longest_radius() const;
 };
 
 

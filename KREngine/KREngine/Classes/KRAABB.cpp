@@ -223,3 +223,10 @@ float KRAABB::coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const
         return (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
     }
 }
+
+float KRAABB::longest_radius() const
+{
+    float radius1 = (center() - min).magnitude();
+    float radius2 = (max - center()).magnitude();
+    return radius1 > radius2 ? radius1 : radius2;
+}

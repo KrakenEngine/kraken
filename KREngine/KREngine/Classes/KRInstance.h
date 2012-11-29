@@ -50,7 +50,7 @@
 class KRInstance : public KRNode {
     
 public:
-    KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow);
+    KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera);
     virtual ~KRInstance();
     
     virtual std::string getElementName();
@@ -77,6 +77,7 @@ private:
     void loadModel();
     
     bool m_receivesShadow;
+    bool m_faces_camera;
 };
 
 

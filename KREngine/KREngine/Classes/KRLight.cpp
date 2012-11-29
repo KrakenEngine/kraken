@@ -191,7 +191,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 std::vector<KRLight *> this_light;
                 this_light.push_back(this);
                 
-                KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
                 
                 if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, particleModelMatrix, this_light, renderPass)) {
                     

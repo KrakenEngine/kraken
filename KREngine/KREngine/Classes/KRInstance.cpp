@@ -33,14 +33,16 @@
 #import "KRInstance.h"
 #import "KRContext.h"
 #import "KRModel.h"
+#import "KRQuaternion.h"
 #include <assert.h>
 
-KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow) : KRNode(scene, instance_name) {
+KRInstance::KRInstance(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
     m_model_name = model_name;
     m_min_lod_coverage = lod_min_coverage;
     m_receivesShadow = receives_shadow;
+    m_faces_camera = faces_camera;
 }
 
 KRInstance::~KRInstance() {
@@ -58,6 +60,7 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("light_map", m_lightMap.c_str());
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
+    e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
     return e;
 }
 
@@ -67,9 +70,6 @@ void KRInstance::loadModel() {
         if(m_models.size() > 0) {
             getScene().notify_sceneGraphModify(this);
         }
-//        if(m_pModel == NULL) {
-//            fprintf(stderr, "KREngine - Model not found: %s\n", m_model_name.c_str());
-//        }
     }
 }
 
@@ -110,7 +110,14 @@ void KRInstance::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap);
                 }
                 
-                pModel->render(pCamera, lights, viewport, getModelMatrix(), m_pLightMap, renderPass);
+                KRMat4 matModel = getModelMatrix();
+                if(m_faces_camera) {
+                    KRVector3 model_center = KRMat4::Dot(matModel, KRVector3::Zero());
+                    KRVector3 camera_pos = viewport.getCameraPosition();
+                    matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
+                }
+                
+                pModel->render(pCamera, lights, viewport, matModel, m_pLightMap, renderPass);
             }
         }
     }
@@ -129,7 +136,13 @@ bool KRInstance::hasTransparency() {
 KRAABB KRInstance::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
-        return KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+        if(m_faces_camera) {
+            KRAABB normal_bounds = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            float max_dimension = normal_bounds.longest_radius();
+            return KRAABB(normal_bounds.center()-KRVector3(max_dimension), normal_bounds.center() + KRVector3(max_dimension));
+        } else {
+            return KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+        }
     } else {
         return KRAABB::Infinite();
     }

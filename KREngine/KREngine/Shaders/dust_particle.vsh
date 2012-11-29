@@ -1,5 +1,5 @@
 //
-//  particle.vsh
+//  dust_particle.vsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -44,7 +44,6 @@ uniform highp float     time_absolute;
 varying lowp float      intensity_modulate;
 
 void main() {
-//    highp vec4 particle_center = mvp_matrix * (mod(vertex_position - vec4(particle_origin, 0.0), 2.0) - 1.0);
     highp vec4 offset_center = vertex_position + vec4(particle_origin, 0.0);
     offset_center.xyz += vec3(sin((time_absolute + vertex_position.x * 100.0) * 0.05), sin((time_absolute + vertex_position.y * 100.0) * 0.07), sin((time_absolute + vertex_position.z * 100.0) * 0.03)) * 0.05;
     offset_center = vec4(mod(offset_center.x + 1.0, 2.0) - 1.0, mod(offset_center.y + 1.0, 2.0) - 1.0, mod(offset_center.z + 1.0, 2.0) - 1.0, 1.0);

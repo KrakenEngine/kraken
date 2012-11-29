@@ -1,49 +1,49 @@
 //
-//  KRParticleSystemBrownian.cpp
+//  KRParticleSystemNewtonian.cpp
 //  KREngine
 //
 //  Created by Kearwood Gilbert on 2012-11-02.
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include "KRParticleSystemBrownian.h"
+#include "KRParticleSystemNewtonian.h"
 #include "KRAABB.h"
 #include "KRTexture.h"
 #include "KRContext.h"
 
-KRParticleSystemBrownian::KRParticleSystemBrownian(KRScene &scene, std::string name) : KRParticleSystem(scene, name)
+KRParticleSystemNewtonian::KRParticleSystemNewtonian(KRScene &scene, std::string name) : KRParticleSystem(scene, name)
 {
     m_particlesAbsoluteTime = 0.0f;
 }
 
-KRParticleSystemBrownian::~KRParticleSystemBrownian()
+KRParticleSystemNewtonian::~KRParticleSystemNewtonian()
 {
     
 }
 
-std::string KRParticleSystemBrownian::getElementName()
+std::string KRParticleSystemNewtonian::getElementName()
 {
-    return "brownian_particles";
+    return "newtonian_particles";
 }
 
-void KRParticleSystemBrownian::loadXML(tinyxml2::XMLElement *e)
+void KRParticleSystemNewtonian::loadXML(tinyxml2::XMLElement *e)
 {
     KRParticleSystem::loadXML(e);
 }
 
-tinyxml2::XMLElement *KRParticleSystemBrownian::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement *KRParticleSystemNewtonian::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRParticleSystem::saveXML(parent);
     return e;
 }
 
 
-KRAABB KRParticleSystemBrownian::getBounds()
+KRAABB KRParticleSystemNewtonian::getBounds()
 {
     return KRAABB(-KRVector3::One(), KRVector3::One(), getModelMatrix());
 }
 
-void KRParticleSystemBrownian::physicsUpdate(float deltaTime)
+void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)
 {
     KRParticleSystem::physicsUpdate(deltaTime);
     m_particlesAbsoluteTime += deltaTime;
@@ -52,7 +52,7 @@ void KRParticleSystemBrownian::physicsUpdate(float deltaTime)
 
 #if TARGET_OS_IPHONE
 
-void KRParticleSystemBrownian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     
     KRNode::render(pCamera, lights, viewport, renderPass);
@@ -71,7 +71,7 @@ void KRParticleSystemBrownian::render(KRCamera *pCamera, std::vector<KRLight *> 
             
             int particle_count = 10000;
             
-            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
             if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), lights, renderPass)) {
                 GLDEBUG(glUniform1f(

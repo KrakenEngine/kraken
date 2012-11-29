@@ -44,6 +44,7 @@ public:
     KRQuaternion(float w, float x, float y, float z);
     KRQuaternion(const KRQuaternion& p);
     KRQuaternion(const KRVector3 &euler);
+    KRQuaternion(const KRVector3 &from_vector, const KRVector3 &to_vector);
     ~KRQuaternion();
     
     KRQuaternion& operator =( const KRQuaternion& p );

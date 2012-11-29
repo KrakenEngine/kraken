@@ -21,14 +21,13 @@
 		E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
 		E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
-		E431C1B8164DB7B200BE1575 /* volumetric_fog_downsampled.fsh in Sources */ = {isa = PBXBuildFile; fileRef = E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */; };
 		E4324BA416444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
 		E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
 		E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
-		E4324BAB16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemBrownian.h */; };
-		E4324BAC16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemBrownian.h */; };
-		E4324BAE16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemBrownian.cpp */; };
-		E4324BAF16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemBrownian.cpp */; };
+		E4324BAB16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; };
+		E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; };
+		E4324BAE16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
+		E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
 		E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
 		E43B0AD615DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
@@ -220,8 +219,8 @@
 		E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_downsampled.fsh; path = Shaders/volumetric_fog_downsampled.fsh; sourceTree = "<group>"; };
 		E4324BA316444C0D0043185B /* KRParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRParticleSystem.h; path = Classes/KRParticleSystem.h; sourceTree = "<group>"; };
 		E4324BA716444C230043185B /* KRParticleSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRParticleSystem.cpp; path = Classes/KRParticleSystem.cpp; sourceTree = "<group>"; };
-		E4324BAA16444DEF0043185B /* KRParticleSystemBrownian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRParticleSystemBrownian.h; path = Classes/KRParticleSystemBrownian.h; sourceTree = "<group>"; };
-		E4324BAD16444E120043185B /* KRParticleSystemBrownian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRParticleSystemBrownian.cpp; path = Classes/KRParticleSystemBrownian.cpp; sourceTree = "<group>"; };
+		E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRParticleSystemNewtonian.h; path = Classes/KRParticleSystemNewtonian.h; sourceTree = "<group>"; };
+		E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRParticleSystemNewtonian.cpp; path = Classes/KRParticleSystemNewtonian.cpp; sourceTree = "<group>"; };
 		E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRContextObject.cpp; path = Classes/KRContextObject.cpp; sourceTree = "<group>"; };
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContextObject.h; path = Classes/KRContextObject.h; sourceTree = "<group>"; };
 		E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.fsh; path = Shaders/volumetric_fog.fsh; sourceTree = "<group>"; };
@@ -236,8 +235,8 @@
 		E45AC0331641D67300DC3C3B /* simple_blit.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = simple_blit.fsh; path = Shaders/simple_blit.fsh; sourceTree = "<group>"; };
 		E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = debug_font.vsh; path = Shaders/debug_font.vsh; sourceTree = "<group>"; };
 		E45AC0411641DE6D00DC3C3B /* debug_font.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = debug_font.fsh; path = Shaders/debug_font.fsh; sourceTree = "<group>"; };
-		E45AC0461643451200DC3C3B /* particle.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = particle.fsh; path = Shaders/particle.fsh; sourceTree = "<group>"; };
-		E45AC0491643452000DC3C3B /* particle.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = particle.vsh; path = Shaders/particle.vsh; sourceTree = "<group>"; };
+		E45AC0461643451200DC3C3B /* dust_particle.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = dust_particle.fsh; path = Shaders/dust_particle.fsh; sourceTree = "<group>"; };
+		E45AC0491643452000DC3C3B /* dust_particle.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = dust_particle.vsh; path = Shaders/dust_particle.vsh; sourceTree = "<group>"; };
 		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLight.h; path = Classes/KRLight.h; sourceTree = "<group>"; };
 		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRPointLight.h; path = Classes/KRPointLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -378,8 +377,8 @@
 			children = (
 				E4324BA316444C0D0043185B /* KRParticleSystem.h */,
 				E4324BA716444C230043185B /* KRParticleSystem.cpp */,
-				E4324BAA16444DEF0043185B /* KRParticleSystemBrownian.h */,
-				E4324BAD16444E120043185B /* KRParticleSystemBrownian.cpp */,
+				E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */,
+				E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */,
 			);
 			name = "Particle Systems";
 			sourceTree = "<group>";
@@ -411,8 +410,8 @@
 				E45AC0331641D67300DC3C3B /* simple_blit.fsh */,
 				E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */,
 				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
-				E45AC0461643451200DC3C3B /* particle.fsh */,
-				E45AC0491643452000DC3C3B /* particle.vsh */,
+				E45AC0461643451200DC3C3B /* dust_particle.fsh */,
+				E45AC0491643452000DC3C3B /* dust_particle.vsh */,
 				E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */,
 				E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */,
 				E431C1B6164DB79A00BE1575 /* volumetric_fog_downsampled.vsh */,
@@ -754,7 +753,7 @@
 				E4CA10EC1637BD47005D9400 /* KRTextureTGA.h in Headers */,
 				E4CA11741639CBD6005D9400 /* KRViewport.h in Headers */,
 				E4324BA416444C0D0043185B /* KRParticleSystem.h in Headers */,
-				E4324BAB16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */,
+				E4324BAB16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -807,7 +806,7 @@
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
 				E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */,
-				E4324BAC16444DEF0043185B /* KRParticleSystemBrownian.h in Headers */,
+				E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -933,8 +932,7 @@
 				E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11781639CC90005D9400 /* KRViewport.cpp in Sources */,
 				E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */,
-				E4324BAE16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */,
-				E431C1B8164DB7B200BE1575 /* volumetric_fog_downsampled.fsh in Sources */,
+				E4324BAE16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -982,7 +980,7 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
-				E4324BAF16444E120043185B /* KRParticleSystemBrownian.cpp in Sources */,
+				E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,
 				E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

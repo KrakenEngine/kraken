@@ -16,7 +16,7 @@
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
 #import "KRParticleSystem.h"
-#import "KRParticleSystemBrownian.h"
+#import "KRParticleSystemNewtonian.h"
 #import "KRAABB.h"
 #import "KRQuaternion.h"
 
@@ -53,7 +53,7 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     tinyxml2::XMLElement *e = doc->NewElement(getElementName().c_str());
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
     e->SetAttribute("name", m_name.c_str());
-    e->SetAttribute("translate_x", m_localTranslation.x);
+    e->SetAttribute("translate_x", m_localTranslation.x); // TODO - Increase number of digits after the decimal in floating point format (6 -> 12?)
     e->SetAttribute("translate_y", m_localTranslation.y);
     e->SetAttribute("translate_z", m_localTranslation.z);
     e->SetAttribute("scale_x", m_localScale.x);
@@ -145,8 +145,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRDirectionalLight(scene, szName);
     } else if(strcmp(szElementName, "spot_light") == 0) {
         new_node = new KRSpotLight(scene, szName);
-    } else if(strcmp(szElementName, "brownian_particles") == 0) {
-        new_node = new KRParticleSystemBrownian(scene, szName);
+    } else if(strcmp(szElementName, "particles_newtonian") == 0) {
+        new_node = new KRParticleSystemNewtonian(scene, szName);
     } else if(strcmp(szElementName, "mesh") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {
@@ -156,7 +156,11 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         if(e->QueryBoolAttribute("receives_shadow", &receives_shadow) != tinyxml2::XML_SUCCESS) {
             receives_shadow = true;
         }
-        new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"), lod_min_coverage, receives_shadow);
+        bool faces_camera = false;
+        if(e->QueryBoolAttribute("faces_camera", &faces_camera) != tinyxml2::XML_SUCCESS) {
+            faces_camera = false;
+        }
+        new_node = new KRInstance(scene, szName, szName, e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
     }
     
     if(new_node) {
@@ -203,14 +207,24 @@ const KRMat4 &KRNode::getModelMatrix()
 {
     
     if(!m_modelMatrixValid) {
+        m_modelMatrix = KRMat4();
         if(m_parentNode) {
-            m_modelMatrix = m_parentNode->getModelMatrix();
-        } else {
-            m_modelMatrix = KRMat4();
+            m_modelMatrix *= m_parentNode->getModelMatrix();
         }
-        m_modelMatrix.scale(m_localScale);
-        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
         m_modelMatrix.translate(m_localTranslation);
+        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
+        m_modelMatrix.scale(m_localScale);
+
+//        m_modelMatrix = KRMat4();
+//
+//        m_modelMatrix.scale(m_localScale);
+//        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
+//        m_modelMatrix.translate(m_localTranslation);
+//        
+//        if(m_parentNode) {
+//            m_modelMatrix *= m_parentNode->getModelMatrix();
+//        }
+        
         m_modelMatrixValid = true;
         
     }

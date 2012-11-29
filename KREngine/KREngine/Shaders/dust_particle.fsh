@@ -1,5 +1,5 @@
 //
-//  particle.fsh
+//  dust_particle.fsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -39,10 +39,5 @@ uniform mediump vec3        light_color;
 varying lowp float          intensity_modulate;
 
 void main() {
-    //gl_FragColor = vec4(vec3(texture2D(diffuseTexture, texCoord)), 1.0);
-//    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     gl_FragColor = vec4(light_color, 1.0) * shadow2DProjEXT(shadowTexture1, shadowMapCoord1) * max(1.0 - texCoord.x*texCoord.x-texCoord.y*texCoord.y, 0.0) * intensity_modulate;
-//    gl_FragColor.rgb = shadowMapCoord1.xyz / shadowMapCoord1.w;
-//    gl_FragColor.a = 1.0;
-//    gl_FragColor.b = 1.0;
 }
