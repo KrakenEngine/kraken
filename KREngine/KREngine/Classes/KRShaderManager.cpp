@@ -180,7 +180,7 @@ bool KRShaderManager::selectShader(KRCamera &camera, const KRShader *pShader, co
 {
     if(pShader) {
         bool bSameShader = strcmp(pShader->getKey(), m_szCurrentShaderKey) == 0;
-        if(!bSameShader) {
+        if(!bSameShader || true) { // FINDME, HACK.  Need to update logic to detect appropriate times to bind a new shader
             strcpy(m_szCurrentShaderKey, pShader->getKey());
 #if TARGET_OS_IPHONE
             return pShader->bind(camera, viewport, matModel, lights, renderPass);

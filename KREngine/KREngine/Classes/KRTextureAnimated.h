@@ -1,5 +1,5 @@
 //
-//  KRTexture.h
+//  KRTextureAnimated.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,51 +29,35 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#ifndef KRTEXTUREANIMATED_H
+#define KRTEXTUREANIMATED_H
 
+#include "KRTexture.h"
+#include "KRTexture2D.h"
 
-#ifndef KRTEXTURE_H
-#define KRTEXTURE_H
-
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-
-
-class KRDataBlock;
-
-class KRTexture : public KRContextObject{
+class KRTextureAnimated : public KRTexture {
 public:
-    KRTexture(KRContext &context);
-    virtual ~KRTexture();
-
-    virtual void bind() = 0;
-    void releaseHandle();
-    long getMemSize();
+    KRTextureAnimated(KRContext &context, std::string name);
+    virtual ~KRTextureAnimated();
+    
+    virtual void bind();
+    virtual long getMemRequiredForSize(int max_dim);
+    virtual void resetPoolExpiry();
+    
     virtual long getReferencedMemSize();
     
-    virtual long getMemRequiredForSize(int max_dim) = 0;
-    virtual long getThroughputRequiredForResize(int max_dim);
-    virtual void resize(int max_dim);
-    
-    long getLastFrameUsed();
-    
-    virtual void resetPoolExpiry();
     virtual bool isAnimated();
     
-protected:
-    virtual bool createGLTexture(int lod_max_dim) = 0;
-    GLuint getHandle();
+private:
+    virtual bool createGLTexture(int lod_max_dim);
     
+    float m_frame_rate;
+    int m_frame_count;
     
-    GLuint  m_iHandle;
-    long  m_textureMemUsed;
-    
-    int m_current_lod_max_dim;
-    
-    uint32_t m_max_lod_max_dim;
-    uint32_t m_min_lod_max_dim;
-    
-    long m_last_frame_used;
+    std::string m_texture_base_name;
+    std::string textureNameForFrame(int frame);
+    KRTexture2D *textureForFrame(int frame);
 };
 
 
-#endif /* defined(KRTEXTURE_H) */
+#endif /* defined(KRTEXTURECUBE_H) */

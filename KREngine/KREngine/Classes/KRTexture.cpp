@@ -38,6 +38,11 @@ long KRTexture::getMemSize() {
     return m_textureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }
 
+long KRTexture::getReferencedMemSize() {
+    // Return the amount of memory used by other textures referenced by this texture (for cube maps and animated textures)
+    return 0;
+}
+
 void KRTexture::resize(int max_dim)
 {
     if(max_dim == 0) {
@@ -46,7 +51,7 @@ void KRTexture::resize(int max_dim)
         int target_dim = max_dim;
         if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
         int requiredMemoryTransfer = getThroughputRequiredForResize(target_dim);
-        int requiredMemoryDelta = getMemRequiredForSize(target_dim) - getMemSize();
+        int requiredMemoryDelta = getMemRequiredForSize(target_dim) - getMemSize() - getReferencedMemSize();
         
         if(requiredMemoryDelta) {
             // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
@@ -103,7 +108,7 @@ long KRTexture::getThroughputRequiredForResize(int max_dim)
         
         if(target_dim != m_current_lod_max_dim) {
             int requiredMemory = getMemRequiredForSize(target_dim);
-            int requiredMemoryDelta = requiredMemory - getMemSize();
+            int requiredMemoryDelta = requiredMemory - getMemSize() - getReferencedMemSize();
             
             if(requiredMemoryDelta == 0) {
                 // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
@@ -119,6 +124,11 @@ long KRTexture::getThroughputRequiredForResize(int max_dim)
 long KRTexture::getLastFrameUsed()
 {
     return m_last_frame_used;
+}
+
+bool KRTexture::isAnimated()
+{
+    return false;
 }
 
 

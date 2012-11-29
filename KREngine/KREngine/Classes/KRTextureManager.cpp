@@ -35,6 +35,7 @@
 #include "KRTexturePVR.h"
 #include "KRTextureTGA.h"
 #include "KRTextureCube.h"
+#include "KRTextureAnimated.h"
 #include "KRContext.h"
 #include <string.h>
 
@@ -99,18 +100,28 @@ KRTexture *KRTextureManager::getTexture(const char *szName) {
     
     map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
-        // Not found
-        //fprintf(stderr, "ERROR: Texture not found: %s\n", szName);
-        return NULL;
+        if(lowerName.substr(8).compare("animate:") == 0) {
+            // This is an animated texture, create KRTextureAnimated's on-demand
+            KRTextureAnimated *pTexture = new KRTextureAnimated(getContext(), lowerName);
+            m_textures[lowerName] = pTexture;
+            return pTexture;
+        } else {
+            // Not found
+            //fprintf(stderr, "ERROR: Texture not found: %s\n", szName);
+            return NULL;
+        }
     } else {
         return (*itr).second;
     }
-
 }
 
 void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
-
-    if(m_boundTextures[iTextureUnit] != pTexture) {
+    bool is_animated = false;
+    if(pTexture) {
+        if(pTexture->isAnimated()) is_animated = true;
+    }
+    
+    if(m_boundTextures[iTextureUnit] != pTexture || is_animated) {
         GLDEBUG(glActiveTexture(GL_TEXTURE0 + iTextureUnit));
         if(pTexture != NULL) {
             m_poolTextures.erase(pTexture);

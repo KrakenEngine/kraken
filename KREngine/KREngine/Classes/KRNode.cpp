@@ -87,12 +87,16 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     e->QueryFloatAttribute("rotate_z", &z);
     m_localRotation = KRVector3(x,y,z) / 180.0 * M_PI; // Convert degrees to radians
     
+    m_modelMatrixValid = false;
+    
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
         KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
         if(child_node) {
             addChild(child_node);
         }
     }
+    
+   
 }
 
 void KRNode::setLocalTranslation(const KRVector3 &v) {
@@ -224,7 +228,7 @@ const KRMat4 &KRNode::getModelMatrix()
 //        if(m_parentNode) {
 //            m_modelMatrix *= m_parentNode->getModelMatrix();
 //        }
-        
+//        
         m_modelMatrixValid = true;
         
     }
