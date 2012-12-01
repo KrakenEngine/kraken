@@ -33,6 +33,7 @@ KRContext::KRContext() {
     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
     m_pModelManager = new KRModelManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
+    m_pAnimationManager = new KRAnimationManager(*this);
     m_bDetectedExtensions = false;
     m_current_frame = 0;
     m_absolute_time = 0.0f;
@@ -65,6 +66,11 @@ KRContext::~KRContext() {
         m_pShaderManager = NULL;
     }
     
+    if(m_pAnimationManager) {
+        delete m_pAnimationManager;
+        m_pAnimationManager = NULL;
+    }
+    
     // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
     if(m_pBundleManager) {
         delete m_pBundleManager;
@@ -89,6 +95,9 @@ KRShaderManager *KRContext::getShaderManager() {
 }
 KRModelManager *KRContext::getModelManager() {
     return m_pModelManager;
+}
+KRAnimationManager *KRContext::getAnimationManager() {
+    return m_pAnimationManager;
 }
 
 void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
@@ -146,6 +155,7 @@ void KRContext::detectExtensions() {
 void KRContext::startFrame()
 {
     m_pTextureManager->startFrame();
+    m_pAnimationManager->startFrame();
 }
 
 void KRContext::endFrame(float deltaTime)

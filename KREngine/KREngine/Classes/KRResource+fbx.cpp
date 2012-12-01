@@ -40,8 +40,10 @@
 void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene);
 void DestroySdkObjects(KFbxSdkManager* pSdkManager);
 bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
+KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack);
+KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
 void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
-void BakeNode(KFbxNode* pNode);
+//void BakeNode(KFbxNode* pNode);
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 
@@ -53,8 +55,6 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     std::vector<KRResource *> resources;
     KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
     resources.push_back(pScene);
-    
-    
     
     KFbxSdkManager* lSdkManager = NULL;
     KFbxScene* pFbxScene = NULL;
@@ -70,18 +70,29 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     // Load the scene.
     lResult = LoadScene(lSdkManager, pFbxScene, path.c_str());
     
+    // ----====---- Bake pivots into transforms, as Kraken doesn't support them directly ----====----
     
-    // ----====---- Walk Through Scene ----====----
-    
-    int i;
+    printf("Baking pivots...\n");
     KFbxNode* pNode = pFbxScene->GetRootNode();
+    if(pNode) {
+        pNode->ResetPivotSetAndConvertAnimation();
+    }
     
+    // ----====---- Import Scene Graph Nodes ----====----
     if(pNode)
     {
-        for(i = 0; i < pNode->GetChildCount(); i++)
+        for(int i = 0; i < pNode->GetChildCount(); i++)
         {
             LoadNode(pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
         }
+    }
+    
+    // ----====---- Import Animations ----====----
+    
+    int animation_count = pFbxScene->GetSrcObjectCount(FBX_TYPE(FbxAnimStack));
+    for(int i = 0; i < animation_count; i++) {
+//        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
+        resources.push_back(LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i)));
     }
     
     DestroySdkObjects(lSdkManager);
@@ -137,7 +148,7 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     int lFileMajor, lFileMinor, lFileRevision;
     int lSDKMajor,  lSDKMinor,  lSDKRevision;
     //int lFileFormat = -1;
-    int i, lAnimStackCount;
+    int lAnimStackCount;
     bool lStatus;
     char lPassword[1024];
     
@@ -187,23 +198,6 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     printf("    Current Animation Stack: \"%s\"\n", lImporter->GetActiveAnimStackName().Buffer());
     printf("\n");
     
-    for(i = 0; i < lAnimStackCount; i++)
-    {
-        KFbxTakeInfo* lTakeInfo = lImporter->GetTakeInfo(i);
-        
-        printf("    Animation Stack %d\n", i);
-        printf("         Name: \"%s\"\n", lTakeInfo->mName.Buffer());
-        printf("         Description: \"%s\"\n", lTakeInfo->mDescription.Buffer());
-        
-        // Change the value of the import name if the animation stack should be imported 
-        // under a different name.
-        printf("         Import Name: \"%s\"\n", lTakeInfo->mImportName.Buffer());
-        
-        // Set the value of the import state to false if the animation stack should be not
-        // be imported. 
-        printf("         Import State: %s\n", lTakeInfo->mSelect ? "true" : "false");
-        printf("\n");
-    }
     
     // Set the import states. By default, the import states are always set to 
     // true. The code below shows how to change these states.
@@ -238,23 +232,34 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
         }
     }
     
-    // ----====---- Start: Bake pivots into transforms, as Kraken doesn't support them directly ----====----
-    
-    printf("Baking pivots...\n");
-    KFbxNode* pNode = ((KFbxScene*)pScene)->GetRootNode();
-//    BakeNode(pNode);
-    
-    for(i = 0; i < lAnimStackCount; i++)
-    {
-        KFbxTakeInfo* lTakeInfo = lImporter->GetTakeInfo(i);
-        
-        printf("   Animation: \"%s\"\n", lTakeInfo->mName.Buffer());
-//        pNode->ConvertPivotAnimationRecursive(lTakeInfo->mName.Buffer(), KFbxNode::eDestinationPivot, KRAKEN_FBX_ANIMATION_FRAMERATE);
-        pNode->ResetPivotSetAndConvertAnimation();
-        pNode->UpdatePropertiesFromPivotsAndLimits();
-    }
-    
-    // ----====---- End: Bake pivots into transforms, as Kraken doesn't support them directly ----====----
+//    // ----====---- Start: Bake pivots into transforms, as Kraken doesn't support them directly ----====----
+//    
+//    printf("Baking pivots...\n");
+//    KFbxNode* pNode = ((KFbxScene*)pScene)->GetRootNode();
+////    BakeNode(pNode);
+//    
+//    for(i = 0; i < lAnimStackCount; i++)
+//    {
+//        KFbxTakeInfo* lTakeInfo = lImporter->GetTakeInfo(i);
+//        
+//        printf("   Animation: \"%s\"\n", lTakeInfo->mName.Buffer());
+//        
+//        //pNode->ConvertPivotAnimationRecursive(lTakeInfo->mName.Buffer(), KFbxNode::eDestinationPivot, KRAKEN_FBX_ANIMATION_FRAMERATE);
+//        pNode->ResetPivotSetAndConvertAnimation();
+//        
+//    }
+////    pNode->ConvertPivotAnimationRecursive(NULL, KFbxNode::eDestinationPivot, KRAKEN_FBX_ANIMATION_FRAMERATE);
+////    pNode->UpdatePropertiesFromPivotsAndLimits();
+//    
+//    // ----====---- End: Bake pivots into transforms, as Kraken doesn't support them directly ----====----
+
+//    // ----====---- Bake pivots into transforms, as Kraken doesn't support them directly ----====----
+//    
+//    printf("Baking pivots...\n");
+//    KFbxNode* pNode = ((KFbxScene*)pScene)->GetRootNode();
+//    if(pNode) {
+//        pNode->ResetPivotSetAndConvertAnimation();
+//    }
     
     // Destroy the importer.
     lImporter->Destroy();
@@ -262,51 +267,180 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     return lStatus;
 }
 
-void BakeNode(KFbxNode *pNode) {
-    pNode->SetPivotState(KFbxNode::eSourcePivot, KFbxNode::ePivotActive);
-    pNode->SetPivotState(KFbxNode::eDestinationPivot, KFbxNode::ePivotActive);
+KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
+{
     
-    // Pass the current value to the source pivot.
-//    *     - Rotation offset (Roff)
-//    *     - Rotation pivot (Rp)
-//    *     - Pre-rotation (Rpre)
-//    *     - Post-rotation (Rpost)
-//    *     - Scaling offset (Soff)
-//    *     - Scaling pivot (Sp)
-//    *     - Geometric translation (Gt)
-//    *     - Geometric rotation (Gr)
-//    *     - Geometric scaling (Gs)
-    pNode->SetPostRotation(KFbxNode::eSourcePivot, pNode->PostRotation.Get());
-    pNode->SetPreRotation(KFbxNode::eSourcePivot, pNode->PreRotation.Get());
-    pNode->SetRotationOffset(KFbxNode::eSourcePivot, pNode->RotationOffset.Get());
-    pNode->SetScalingOffset(KFbxNode::eSourcePivot, pNode->ScalingOffset.Get());
-    pNode->SetRotationPivot(KFbxNode::eSourcePivot, pNode->RotationPivot.Get());
-    pNode->SetScalingPivot(KFbxNode::eSourcePivot, pNode->ScalingPivot.Get());
-    pNode->SetGeometricRotation(KFbxNode::eSourcePivot, pNode->GeometricRotation.Get());
-    pNode->SetGeometricTranslation(KFbxNode::eSourcePivot, pNode->GeometricTranslation.Get());
-    pNode->SetGeometricScaling(KFbxNode::eSourcePivot, pNode->GeometricScaling.Get());
-    pNode->SetRotationOrder(KFbxNode::eSourcePivot, pNode->RotationOrder.Get());
     
-    // We want to set all these to 0 and bake them into the transforms.
-    KFbxVector4 lZero(0, 0, 0);
-    KFbxVector4 lOne(1.0, 1.0, 1.0);
-    pNode->SetPostRotation(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetPreRotation(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetRotationOffset(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetScalingOffset(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetRotationPivot(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetScalingPivot(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetGeometricRotation(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetGeometricTranslation(KFbxNode::eDestinationPivot, lZero);
-    pNode->SetGeometricScaling(KFbxNode::eDestinationPivot, lOne);
-    pNode->SetRotationOrder(KFbxNode::eDestinationPivot, eEULER_XYZ);
-    
-    // Bake child nodes
-    for(int i = 0; i < pNode->GetChildCount(); i++)
-    {
-        BakeNode(pNode->GetChild(i));
+    printf("Loading animation: \"%s\"\n", pAnimStack->GetName());
+        
+    KRAnimation *new_animation = new KRAnimation(context, pAnimStack->GetName());
+    int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
+    for(int iLayer=0; iLayer < cLayers; iLayer++) {
+        new_animation->addLayer(LoadAnimationLayer(context, pAnimStack->GetMember<FbxAnimLayer>(iLayer)));
     }
+    return new_animation;
 }
+
+
+KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer)
+{
+    KRAnimationLayer *new_layer = new KRAnimationLayer(context);
+    new_layer->setName(pAnimLayer->GetName());
+    new_layer->setWeight(pAnimLayer->Weight.Get());
+    switch(pAnimLayer->BlendMode.Get()) {
+        case FbxAnimLayer::eBlendAdditive:
+            new_layer->setBlendMode(KRAnimationLayer::KRENGINE_ANIMATION_BLEND_MODE_ADDITIVE);
+            break;
+        case FbxAnimLayer::eBlendOverride:
+            new_layer->setBlendMode(KRAnimationLayer::KRENGINE_ANIMATION_BLEND_MODE_OVERRIDE);
+            break;
+        case FbxAnimLayer::eBlendOverridePassthrough:
+            new_layer->setBlendMode(KRAnimationLayer::KRENGINE_ANIMATION_BLEND_MODE_OVERRIDE_PASSTHROUGH);
+            break;
+    }
+    switch(pAnimLayer->RotationAccumulationMode.Get()) {
+        case FbxAnimLayer::eRotationByLayer:
+            new_layer->setRotationAccumulationMode(KRAnimationLayer::KRENGINE_ANIMATION_ROTATION_ACCUMULATION_BY_LAYER);
+            break;
+        case FbxAnimLayer::eRotationByChannel:
+            new_layer->setRotationAccumulationMode(KRAnimationLayer::KRENGINE_ANIMATION_ROTATION_ACCUMULATION_BY_CHANNEL);
+            break;
+    }
+    switch(pAnimLayer->ScaleAccumulationMode.Get()) {
+        case FbxAnimLayer::eScaleAdditive:
+            new_layer->setScaleAccumulationMode(KRAnimationLayer::KRENGINE_ANIMATION_SCALE_ACCUMULATION_ADDITIVE);
+            break;
+        case FbxAnimLayer::eScaleMultiply:
+            new_layer->setScaleAccumulationMode(KRAnimationLayer::KRENGINE_ANIMATION_SCALE_ACCUMULATION_MULTIPLY);
+            break;
+    }
+    return new_layer;
+}
+//
+//void BakeNode(KFbxNode *pNode) {
+//    
+//    pNode->SetPivotState(KFbxNode::eSourcePivot, KFbxNode::ePivotActive);
+//    pNode->SetPivotState(KFbxNode::eDestinationPivot, KFbxNode::ePivotActive);
+//    
+//    // Pass the current value to the source pivot.
+////    *     - Rotation offset (Roff)
+////    *     - Rotation pivot (Rp)
+////    *     - Pre-rotation (Rpre)
+////    *     - Post-rotation (Rpost)
+////    *     - Scaling offset (Soff)
+////    *     - Scaling pivot (Sp)
+////    *     - Geometric translation (Gt)
+////    *     - Geometric rotation (Gr)
+////    *     - Geometric scaling (Gs)
+//    /*
+//    pNode->SetPostRotation(KFbxNode::eSourcePivot, pNode->PostRotation.Get());
+//    pNode->SetPreRotation(KFbxNode::eSourcePivot, pNode->PreRotation.Get());
+//    pNode->SetRotationOffset(KFbxNode::eSourcePivot, pNode->RotationOffset.Get());
+//    pNode->SetScalingOffset(KFbxNode::eSourcePivot, pNode->ScalingOffset.Get());
+//    pNode->SetRotationPivot(KFbxNode::eSourcePivot, pNode->RotationPivot.Get());
+//    pNode->SetScalingPivot(KFbxNode::eSourcePivot, pNode->ScalingPivot.Get());
+//    pNode->SetGeometricRotation(KFbxNode::eSourcePivot, pNode->GeometricRotation.Get());
+//    pNode->SetGeometricTranslation(KFbxNode::eSourcePivot, pNode->GeometricTranslation.Get());
+//    pNode->SetGeometricScaling(KFbxNode::eSourcePivot, pNode->GeometricScaling.Get());
+//    pNode->SetRotationOrder(KFbxNode::eSourcePivot, pNode->RotationOrder.Get());
+//     */
+//    
+//    // We want to set all these to 0 and bake them into the transforms.
+//    KFbxVector4 lZero(0.0, 0.0, 0.0);
+//    KFbxVector4 lOne(1.0, 1.0, 1.0);
+//    pNode->SetPostRotation(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetPreRotation(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetRotationOffset(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetScalingOffset(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetRotationPivot(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetScalingPivot(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetGeometricRotation(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetGeometricTranslation(KFbxNode::eDestinationPivot, lZero);
+//    pNode->SetGeometricScaling(KFbxNode::eDestinationPivot, lOne);
+//    pNode->SetRotationOrder(KFbxNode::eDestinationPivot, eEULER_XYZ);
+//    
+//    
+//    /*
+//     FbxVector4 lZero(0,0,0);
+//     FbxVector4 lOne(1,1,1);
+//     pNode->SetPivotState(FbxNode::eSourcePivot, FbxNode::ePivotActive);
+//     pNode->SetPivotState(FbxNode::eDestinationPivot, FbxNode::ePivotActive);
+//    
+//     EFbxRotationOrder lRotationOrder;
+//     pNode->GetRotationOrder(FbxNode::eSourcePivot , lRotationOrder);
+//     pNode->SetRotationOrder(FbxNode::eDestinationPivot , lRotationOrder);
+//    
+//     //For cameras and lights (without targets) let's compensate the postrotation.
+//     if( pNode->GetCamera() || pNode->GetLight() )
+//         {
+//                if( !pNode->GetTarget() )
+//                    {
+//                            FbxVector4 lRV(90, 0, 0);
+//                            if( pNode->GetCamera() )
+//                                   lRV.Set(0, 90, 0);
+//                    
+//                            FbxVector4 prV = pNode->GetPostRotation(FbxNode::eSourcePivot);
+//                            FbxAMatrix lSourceR;
+//                            FbxAMatrix lR(lZero, lRV, lOne);
+//                            FbxVector4 res = prV;
+//                    
+//                            // Rotation order don't affect post rotation, so just use the default XYZ order
+//                            FbxRotationOrder rOrder;
+//                            rOrder.V2M(lSourceR, res);
+//                    
+//                            lR = lSourceR * lR;
+//                            rOrder.M2V(res, lR);
+//                            prV = res;
+//                            pNode->SetPostRotation(FbxNode::eSourcePivot, prV);
+//                            pNode->SetRotationActive(true);
+//                        }
+//            
+//                // Point light do not need to be adjusted (since they radiate in all the directions).
+//                if( pNode->GetLight() && pNode->GetLight()->LightType.Get() == FbxLight::ePoint )
+//                    {
+//                            pNode->SetPostRotation(FbxNode::eSourcePivot, FbxVector4(0,0,0,0));
+//                        }
+//             }
+//     // apply Pre rotations only on bones / end of chains
+//     if( pNode->GetNodeAttribute() && pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton
+//             || (pNode->GetMarker() && pNode->GetMarker()->GetType() == FbxMarker::eEffectorFK)
+//             || (pNode->GetMarker() && pNode->GetMarker()->GetType() == FbxMarker::eEffectorIK) )
+//         {
+//                if( pNode->GetRotationActive() )
+//                    {
+//                           pNode->SetPreRotation(FbxNode::eDestinationPivot, pNode->GetPreRotation(FbxNode::eSourcePivot));
+//                        }
+//            
+//                // No pivots on bones
+//                pNode->SetRotationPivot(FbxNode::eDestinationPivot, lZero);
+//                pNode->SetScalingPivot(FbxNode::eDestinationPivot, lZero);
+//                pNode->SetRotationOffset(FbxNode::eDestinationPivot,lZero);
+//                pNode->SetScalingOffset(FbxNode::eDestinationPivot, lZero);
+//             }
+//     else
+//         {
+//                // any other type: no pre-rotation support but...
+//                pNode->SetPreRotation(FbxNode::eDestinationPivot, lZero);
+//            
+//                // support for rotation and scaling pivots.
+//                pNode->SetRotationPivot(FbxNode::eDestinationPivot, pNode->GetRotationPivot(FbxNode::eSourcePivot));
+//                pNode->SetScalingPivot(FbxNode::eDestinationPivot, pNode->GetScalingPivot(FbxNode::eSourcePivot));
+//                // Rotation and scaling offset are supported
+//                pNode->SetRotationOffset(FbxNode::eDestinationPivot, pNode->GetRotationOffset(FbxNode::eSourcePivot));
+//                pNode->SetScalingOffset(FbxNode::eDestinationPivot, pNode->GetScalingOffset(FbxNode::eSourcePivot));
+//                //
+//             // If we don't "support" scaling pivots, we can simply do:
+//                // pNode->SetRotationPivot(FbxNode::eDestinationPivot, lZero);
+//                // pNode->SetScalingPivot(FbxNode::eDestinationPivot, lZero);
+//        }
+//    */
+//    
+//    // Bake child nodes
+//    for(int i = 0; i < pNode->GetChildCount(); i++)
+//    {
+//        BakeNode(pNode->GetChild(i));
+//    }
+//}
 
 void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     KFbxVector4 lTmpVector;
@@ -316,32 +450,48 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeom
     fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
     fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
     
-//    fbxDouble3 post_rotation = pNode->PostRotation.Get();
-//    fbxDouble3 pre_rotation = pNode->PreRotation.Get();
-//    fbxDouble3 rotation_offset = pNode->RotationOffset.Get();
-//    fbxDouble3 scaling_offset = pNode->ScalingOffset.Get();
-//    fbxDouble3 rotation_pivot = pNode->RotationPivot.Get();
-//    fbxDouble3 scaling_pivot = pNode->ScalingPivot.Get();
-//    fbxDouble3 geometric_rotation = pNode->GeometricRotation.Get();
-//    fbxDouble3 geometric_translation = pNode->GeometricTranslation.Get();
-//    fbxDouble3 geometric_scaling = pNode->GeometricScaling.Get();
-//    ERotationOrder rotation_order = pNode->RotationOrder.Get();
+    fbxDouble3 post_rotation = pNode->PostRotation.Get();
+    fbxDouble3 pre_rotation = pNode->PreRotation.Get();
+    fbxDouble3 rotation_offset = pNode->RotationOffset.Get();
+    fbxDouble3 scaling_offset = pNode->ScalingOffset.Get();
+    fbxDouble3 rotation_pivot = pNode->RotationPivot.Get();
+    fbxDouble3 scaling_pivot = pNode->ScalingPivot.Get();
+    fbxDouble3 geometric_rotation = pNode->GeometricRotation.Get();
+    fbxDouble3 geometric_translation = pNode->GeometricTranslation.Get();
+    fbxDouble3 geometric_scaling = pNode->GeometricScaling.Get();
+    ERotationOrder rotation_order = pNode->RotationOrder.Get();
+    
+    
+    KFbxVector4 lZero(0.0, 0.0, 0.0);
+    KFbxVector4 lOne(1.0, 1.0, 1.0);
+    
+    assert(post_rotation == lZero);
+    assert(pre_rotation == lZero);
+    assert(rotation_offset == lZero);
+    assert(scaling_offset == lZero);
+    assert(rotation_pivot == lZero);
+    assert(scaling_pivot == lZero);
+    assert(geometric_rotation == lZero);
+    assert(geometric_translation == lZero);
+    assert(geometric_scaling == lOne);
+    assert(rotation_order == eEulerXYZ);
 //    
 //    bool rotation_active = pNode->RotationActive.Get();
     
 //    KRVector3 node_translation = KRVector3(local_translation[0] + rotation_offset[0] + rotation_pivot[0], local_translation[1] + rotation_offset[1] + rotation_pivot[1], local_translation[2] + rotation_offset[2] + rotation_pivot[2]); // T * Roff * Rp
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
     
-    KRVector3 node_rotation = KRQuaternion(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI).euler(); // R
+//    KRVector3 node_rotation = KRQuaternion(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI).euler(); // R
+    KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
 //    if(rotation_active) {
 //        node_rotation = (KRQuaternion(KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI) * KRQuaternion(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI) * KRQuaternion(KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI)).euler(); // Rpre * R * Rpost
 //    }
     
     KRVector3 node_scale = KRVector3(local_scale[0], local_scale[1], local_scale[2]);
     
-    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
-    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
-    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
+//    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
+//    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
+//    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
     
     KRNode *new_node = NULL;
     
@@ -642,11 +792,12 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
                 printf("Warning! Layered textures not supported.\n");
             }
             
-            texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+            
+            texture_count = pProperty.GetSrcObjectCount<FbxTexture>();
             if(texture_count > 1) {
                 printf("Error! Multiple normal map textures not supported.\n");
             } else if(texture_count == 1) {
-                KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+                KFbxTexture* pTexture = pProperty.GetSrcObject<KFbxTexture>(0);
                 KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
                 if(pFileTexture) {
                     new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
@@ -654,7 +805,6 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
             }
             
             bool bFound = false;
-            vector<KRResource *>::iterator resource_itr = resources.begin();
             for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
                 KRResource *pResource = (*resource_itr);
                 if(pResource->getName() == new_material->getName() && pResource->getExtension() == new_material->getExtension()) {
@@ -735,6 +885,7 @@ KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFb
             new_light = l;
         }
             break;
+        case KFbxLight::eVolume:
         case KFbxLight::eArea:
             // Not supported yet
             break;

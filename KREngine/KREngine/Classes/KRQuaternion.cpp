@@ -80,6 +80,7 @@ KRQuaternion::~KRQuaternion() {
 }
 
 void KRQuaternion::setEuler(const KRVector3 &euler) {
+    // ZYX Order!
     m_val[0] = cos(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) + sin(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
     m_val[1] = sin(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) - cos(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
     m_val[2] = cos(euler[0] / 2.0) * sin(euler[1] / 2.0) * cos(euler[2] / 2.0) + sin(euler[0] / 2.0) * cos(euler[1] / 2.0) * sin(euler[2] / 2.0);

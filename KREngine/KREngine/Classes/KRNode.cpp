@@ -212,23 +212,27 @@ const KRMat4 &KRNode::getModelMatrix()
     
     if(!m_modelMatrixValid) {
         m_modelMatrix = KRMat4();
-        if(m_parentNode) {
-            m_modelMatrix *= m_parentNode->getModelMatrix();
-        }
-        m_modelMatrix.translate(m_localTranslation);
-        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
-        m_modelMatrix.scale(m_localScale);
-
-//        m_modelMatrix = KRMat4();
-//
-//        m_modelMatrix.scale(m_localScale);
-//        m_modelMatrix.rotate(KRQuaternion(m_localRotation));
-//        m_modelMatrix.translate(m_localTranslation);
-//        
+        
 //        if(m_parentNode) {
 //            m_modelMatrix *= m_parentNode->getModelMatrix();
 //        }
-//        
+//        m_modelMatrix.translate(m_localTranslation);
+//        m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
+//        m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
+//        m_modelMatrix.rotate(m_localRotation.z, Z_AXIS);
+//        m_modelMatrix.scale(m_localScale);
+
+        
+        m_modelMatrix.scale(m_localScale);
+        m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
+        m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
+        m_modelMatrix.rotate(m_localRotation.z, Z_AXIS);
+        m_modelMatrix.translate(m_localTranslation);
+        
+        if(m_parentNode) {
+            m_modelMatrix *= m_parentNode->getModelMatrix();
+        }
+        
         m_modelMatrixValid = true;
         
     }
