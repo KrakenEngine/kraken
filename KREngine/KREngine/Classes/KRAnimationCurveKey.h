@@ -1,5 +1,5 @@
 //
-//  KRAnimation.h
+//  KRAnimationCurveKey.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,32 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATION_H
-#define KRANIMATION_H
-
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
-#import "KRResource.h"
-#import "KRAnimationLayer.h"
-#import <map>
-
-class KRAnimation : public KRResource {
-    
-public:
-    KRAnimation(KRContext &context, std::string name);
-    virtual ~KRAnimation();
-    
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    
-    static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
-    
-    void addLayer(KRAnimationLayer *layer);
-    
-private:
-    std::map<std::string, KRAnimationLayer *> m_layers;
-};
+#ifndef KRANIMATIONCURVEKEY_H
+#define KRANIMATIONCURVEKEY_H
 
 
 

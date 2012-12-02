@@ -1,5 +1,5 @@
 //
-//  KRAnimation.h
+//  KRAnimationAttribute.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,33 +29,28 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATION_H
-#define KRANIMATION_H
-
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
-#import "KRResource.h"
-#import "KRAnimationLayer.h"
-#import <map>
-
-class KRAnimation : public KRResource {
-    
-public:
-    KRAnimation(KRContext &context, std::string name);
-    virtual ~KRAnimation();
-    
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    
-    static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
-    
-    void addLayer(KRAnimationLayer *layer);
-    
-private:
-    std::map<std::string, KRAnimationLayer *> m_layers;
-};
+#include "KRAnimationAttribute.h"
 
 
+KRAnimationAttribute::KRAnimationAttribute(KRContext &context) : KRContextObject(context)
+{
+    
+}
 
-#endif
+KRAnimationAttribute::~KRAnimationAttribute()
+{
+    
+}
+
+tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
+{
+    tinyxml2::XMLDocument *doc = parent->GetDocument();
+    tinyxml2::XMLElement *e = doc->NewElement("attribute");
+    tinyxml2::XMLNode *n = parent->InsertEndChild(e);
+    
+    return e;
+}
+
+void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
+{
+}

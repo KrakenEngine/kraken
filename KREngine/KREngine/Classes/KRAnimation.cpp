@@ -2,8 +2,31 @@
 //  KRAnimation.cpp
 //  KREngine
 //
-//  Created by Kearwood Gilbert on 2012-11-30.
-//  Copyright (c) 2012 Kearwood Software. All rights reserved.
+//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without modification, are
+//  permitted provided that the following conditions are met:
+//
+//  1. Redistributions of source code must retain the above copyright notice, this list of
+//  conditions and the following disclaimer.
+//
+//  2. Redistributions in binary form must reproduce the above copyright notice, this list
+//  of conditions and the following disclaimer in the documentation and/or other materials
+//  provided with the distribution.
+//
+//  THIS SOFTWARE IS PROVIDED BY KEARWOOD GILBERT ''AS IS'' AND ANY EXPRESS OR IMPLIED
+//  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+//  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL KEARWOOD GILBERT OR
+//  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+//  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+//  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+//  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//  The views and conclusions contained in the software and documentation are those of the
+//  authors and should not be interpreted as representing official policies, either expressed
+//  or implied, of Kearwood Gilbert.
 //
 
 #include "KRAnimation.h"
@@ -33,7 +56,6 @@ bool KRAnimation::save(const std::string& path) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *animation_node =  doc.NewElement( "animation" );
     doc.InsertEndChild(animation_node);
-//    m_pRootNode->saveXML(animation_node);
     
     for(std::map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         (*itr).second->saveXML(animation_node);
@@ -56,6 +78,7 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     for(tinyxml2::XMLElement *child_element=animation_node->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
         if(strcmp(child_element->Name(), "layer") == 0) {
             KRAnimationLayer *new_layer = new KRAnimationLayer(context);
+            new_layer->loadXML(child_element);
             new_animation->m_layers[new_layer->getName()] = new_layer;
         }
     }

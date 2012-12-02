@@ -78,6 +78,14 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         pNode->ResetPivotSetAndConvertAnimation();
     }
     
+    // ----====---- Import Animation Layers ----====----
+    
+    int animation_count = pFbxScene->GetSrcObjectCount(FBX_TYPE(FbxAnimStack));
+    for(int i = 0; i < animation_count; i++) {
+        //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
+        resources.push_back(LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i)));
+    }
+    
     // ----====---- Import Scene Graph Nodes ----====----
     if(pNode)
     {
@@ -87,13 +95,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         }
     }
     
-    // ----====---- Import Animations ----====----
-    
-    int animation_count = pFbxScene->GetSrcObjectCount(FBX_TYPE(FbxAnimStack));
-    for(int i = 0; i < animation_count; i++) {
-//        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
-        resources.push_back(LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i)));
-    }
+
     
     DestroySdkObjects(lSdkManager);
     
@@ -286,7 +288,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 {
     KRAnimationLayer *new_layer = new KRAnimationLayer(context);
     new_layer->setName(pAnimLayer->GetName());
-    new_layer->setWeight(pAnimLayer->Weight.Get());
+    new_layer->setWeight(pAnimLayer->Weight.Get() / 100.0f);
     switch(pAnimLayer->BlendMode.Get()) {
         case FbxAnimLayer::eBlendAdditive:
             new_layer->setBlendMode(KRAnimationLayer::KRENGINE_ANIMATION_BLEND_MODE_ADDITIVE);
@@ -314,6 +316,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
             new_layer->setScaleAccumulationMode(KRAnimationLayer::KRENGINE_ANIMATION_SCALE_ACCUMULATION_MULTIPLY);
             break;
     }
+    
     return new_layer;
 }
 //
@@ -446,6 +449,9 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeom
     KFbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
+    
+    
+    
     fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
     fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
     fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
