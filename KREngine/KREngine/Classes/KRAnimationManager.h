@@ -50,7 +50,8 @@ public:
     
     KRAnimation *loadAnimation(const char *szName, KRDataBlock *data);
     KRAnimation *getAnimation(const char *szName);
-    std::map<std::string, KRAnimation *> getAnimations();
+    void addAnimation(KRAnimation *new_animation);
+    std::map<std::string, KRAnimation *> &getAnimations();
     
     void startFrame();
     

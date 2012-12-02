@@ -44,11 +44,19 @@ public:
     tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     void loadXML(tinyxml2::XMLElement *e);
     
+    std::string getCurveName() const;
+    void setCurveName(const std::string &curve_name);
+    
     std::string getTargetName() const;
     void setTargetName(const std::string &target_name);
     
+    std::string getTargetAttributeName() const;
+    void setTargetAttributeName(const std::string &target_attribute_name);
+    
 private:
     std::string m_target_name;
+    std::string m_curve_name;
+    std::string m_target_attribute_name;
 };
 
 #endif

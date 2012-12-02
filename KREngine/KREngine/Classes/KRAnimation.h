@@ -51,6 +51,9 @@ public:
     static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
     void addLayer(KRAnimationLayer *layer);
+    std::map<std::string, KRAnimationLayer *> &getLayers();
+    KRAnimationLayer *getLayer(const char *szName);
+    
     
 private:
     std::map<std::string, KRAnimationLayer *> m_layers;

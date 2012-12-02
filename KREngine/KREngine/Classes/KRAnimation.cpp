@@ -89,3 +89,13 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     return new_animation;
 }
 
+
+std::map<std::string, KRAnimationLayer *> &KRAnimation::getLayers()
+{
+    return m_layers;
+}
+
+KRAnimationLayer *KRAnimation::getLayer(const char *szName)
+{
+    return m_layers[szName];
+}

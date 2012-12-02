@@ -42,7 +42,7 @@ void DestroySdkObjects(KFbxSdkManager* pSdkManager);
 bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack);
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
-void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
@@ -83,6 +83,8 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     int animation_count = pFbxScene->GetSrcObjectCount(FBX_TYPE(FbxAnimStack));
     for(int i = 0; i < animation_count; i++) {
         //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
+        KRAnimation *new_animation = LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i));
+        context.getAnimationManager()->addAnimation(new_animation);
         resources.push_back(LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i)));
     }
     
@@ -91,7 +93,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     {
         for(int i = 0; i < pNode->GetChildCount(); i++)
         {
-            LoadNode(pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
+            LoadNode(pFbxScene, pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
         }
     }
     
@@ -445,12 +447,104 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 //    }
 //}
 
-void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     KFbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
-    
+    // Import animated properties
+    int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
+    for(int i = 0; i < animation_count; i++) {
+        //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
+        FbxAnimStack* pAnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
+        KRAnimation *pAnimation = parent_node->getContext().getAnimationManager()->getAnimation(pAnimStack->GetName());
+        int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
+        for(int iLayer=0; iLayer < cLayers; iLayer++) {
+            FbxAnimLayer *pFbxAnimLayer = pAnimStack->GetMember<FbxAnimLayer>(iLayer);
+            KRAnimationLayer *pAnimationLayer = pAnimation->getLayer(pFbxAnimLayer->GetName());
+            
+            FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("rotate_x");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("rotate_y");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("rotate_z");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("translate_x");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("translate_y");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("translate_z");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("scale_x");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("scale_y");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+            
+            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+            if(pAnimCurve) {
+                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setTargetAttributeName("scale_z");
+                pAnimationLayer->addAttribute(new_attribute);
+            }
+        }
+    }
     
     fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
     fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
@@ -481,18 +575,9 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeom
     assert(geometric_translation == lZero);
     assert(geometric_scaling == lOne);
     assert(rotation_order == eEulerXYZ);
-//    
-//    bool rotation_active = pNode->RotationActive.Get();
-    
-//    KRVector3 node_translation = KRVector3(local_translation[0] + rotation_offset[0] + rotation_pivot[0], local_translation[1] + rotation_offset[1] + rotation_pivot[1], local_translation[2] + rotation_offset[2] + rotation_pivot[2]); // T * Roff * Rp
+
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
-    
-//    KRVector3 node_rotation = KRQuaternion(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI).euler(); // R
     KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
-//    if(rotation_active) {
-//        node_rotation = (KRQuaternion(KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI) * KRQuaternion(KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI) * KRQuaternion(KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI)).euler(); // Rpre * R * Rpost
-//    }
-    
     KRVector3 node_scale = KRVector3(local_scale[0], local_scale[1], local_scale[2]);
     
 //    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
@@ -529,7 +614,7 @@ void LoadNode(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeom
         // Load child nodes
         for(int i = 0; i < pNode->GetChildCount(); i++)
         {
-            LoadNode(new_node, resources, pGeometryConverter, pNode->GetChild(i));
+            LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
         }
     }
 }

@@ -47,10 +47,48 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
     tinyxml2::XMLDocument *doc = parent->GetDocument();
     tinyxml2::XMLElement *e = doc->NewElement("attribute");
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
-    
+    e->SetAttribute("curve", m_curve_name.c_str());
+    e->SetAttribute("target", m_target_name.c_str());
+    e->SetAttribute("attribute", m_target_attribute_name.c_str());
     return e;
 }
 
 void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
 {
+    m_curve_name = e->Attribute("curve");
+    m_target_name = e->Attribute("target");
+    m_target_attribute_name = e->Attribute("attribute");
 }
+
+std::string KRAnimationAttribute::getTargetName() const
+{
+    return m_target_name;
+}
+
+void KRAnimationAttribute::setTargetName(const std::string &target_name)
+{
+    m_target_name = target_name;
+}
+
+std::string KRAnimationAttribute::getTargetAttributeName() const
+{
+    return m_target_attribute_name;
+}
+
+void KRAnimationAttribute::setTargetAttributeName(const std::string &target_attribute_name)
+{
+    m_target_attribute_name = target_attribute_name;
+}
+
+
+std::string KRAnimationAttribute::getCurveName() const
+{
+    return m_curve_name;
+}
+
+void KRAnimationAttribute::setCurveName(const std::string &curve_name)
+{
+    m_curve_name = curve_name;
+}
+
+

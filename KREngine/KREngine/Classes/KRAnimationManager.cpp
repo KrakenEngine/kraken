@@ -59,7 +59,12 @@ KRAnimation *KRAnimationManager::getAnimation(const char *szName) {
     return m_animations[szName];
 }
 
-std::map<std::string, KRAnimation *> KRAnimationManager::getAnimations() {
+std::map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
     return m_animations;
+}
+
+void KRAnimationManager::addAnimation(KRAnimation *new_animation)
+{
+    m_animations[new_animation->getName()] = new_animation;
 }
 
