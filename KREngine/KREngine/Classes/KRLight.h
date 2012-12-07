@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KREngine_KRLight_h
-#define KREngine_KRLight_h
+#ifndef KRLIGHT_H
+#define KRLIGHT_H
 
 #import "KRResource.h"
 #import "KRNode.h"

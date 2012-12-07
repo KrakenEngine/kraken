@@ -121,11 +121,12 @@ void KRAnimationCurve::setFrameStart(int frame_number)
 
 float KRAnimationCurve::getValue(int frame_number)
 {
+    //printf("frame_number: %i\n", frame_number);
     int clamped_frame = frame_number;
     if(frame_number < 0) {
         clamped_frame = frame_number;
-    } else if(frame_number > getFrameCount()) {
-        clamped_frame = getFrameCount();
+    } else if(frame_number >= getFrameCount()) {
+        clamped_frame = getFrameCount()-1;
     }
     float *frame_data = (float *)((char *)m_pData->getStart() + sizeof(animation_curve_header));
     return frame_data[clamped_frame];

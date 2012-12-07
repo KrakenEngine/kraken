@@ -32,6 +32,7 @@
 #include "KRNode.h"
 #include "KRScene.h"
 #include "KRQuaternion.h"
+#include "KRBone.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -48,21 +49,20 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
 //void BakeNode(KFbxNode* pNode);
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
-std::string GetFbxObjectName(FbxObject *obj, char *prefix);
+KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
+std::string GetFbxObjectName(FbxObject *obj);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable
 
 
-std::string GetFbxObjectName(FbxObject *obj, char *prefix)
+std::string GetFbxObjectName(FbxObject *obj)
 {
-
     std::stringstream st;
-    st << prefix;
+    st << "fbx_";
     st << obj->GetUniqueID();
     if(strlen(obj->GetName()) != 0) {
-        st << " (";
+        st << "_";
         st << obj->GetName();
-        st << ")";
     }
     return st.str();
 }
@@ -325,7 +325,7 @@ KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
 
 KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve)
 {
-    std::string name = GetFbxObjectName(pAnimCurve, "fbx_curve");
+    std::string name = GetFbxObjectName(pAnimCurve);
     printf("Loading animation curve: \"%s\"\n", name.c_str());
     FbxTimeSpan time_span;
     if(!pAnimCurve->GetTimeInterval(time_span)) {
@@ -520,6 +520,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     KFbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
+    
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
     // Import animated properties
@@ -536,8 +537,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -545,8 +546,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -554,8 +555,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -563,8 +564,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -572,8 +573,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -581,8 +582,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -590,8 +591,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -599,8 +600,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -608,8 +609,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
-                new_attribute->setTargetName(pNode->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                new_attribute->setTargetName(GetFbxObjectName(pNode));
                 new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z);
                 pAnimationLayer->addAttribute(new_attribute);
             }
@@ -655,7 +656,6 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
 //    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
     
     KRNode *new_node = NULL;
-    
     KFbxNodeAttribute::EType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
     switch(attribute_type) {
         case KFbxNodeAttribute::eMesh:
@@ -664,11 +664,14 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
         case KFbxNodeAttribute::eLight:
             new_node = LoadLight(parent_node, resources, pNode);
             break;
+        case KFbxNodeAttribute::eSkeleton:
+            new_node = LoadSkeleton(parent_node, resources, pNode);
+            break;
         default:
             {
                 if(pNode->GetChildCount() > 0) {
                     // Create an empty node, for inheritence of transforms
-                    new_node = new KRNode(parent_node->getScene(), pNode->GetName());
+                    new_node = new KRNode(parent_node->getScene(), GetFbxObjectName(pNode));
                 }
             }
             break;
@@ -690,8 +693,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
 }
 
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
-    
-    printf("Mesh: %s\n", pNode->GetName());
+    std::string name = GetFbxObjectName(pNode);
+    printf("Mesh: %s\n", name.c_str());
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
@@ -994,12 +997,18 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-        KRInstance *new_instance = new KRInstance(parent_node->getScene(), pNode->GetName(), pNode->GetName(), light_map, 0.0f, true, false);
+        KRInstance *new_instance = new KRInstance(parent_node->getScene(), name, pNode->GetName(), light_map, 0.0f, true, false);
         return new_instance;
     } else {
         return NULL;
     }
     
+}
+
+KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+    std::string name = GetFbxObjectName(pNode);
+    KRBone *new_bone = new KRBone(parent_node->getScene(), name.c_str());
+    return new_bone;
 }
 
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
