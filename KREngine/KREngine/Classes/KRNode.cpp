@@ -77,16 +77,19 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     e->QueryFloatAttribute("translate_y", &y);
     e->QueryFloatAttribute("translate_z", &z);
     m_localTranslation = KRVector3(x,y,z);
+    m_originalLocalTranslation = m_localTranslation;
     
     e->QueryFloatAttribute("scale_x", &x);
     e->QueryFloatAttribute("scale_y", &y);
     e->QueryFloatAttribute("scale_z", &z);
     m_localScale = KRVector3(x,y,z);
+    m_originalLocalScale = m_localScale;
     
     e->QueryFloatAttribute("rotate_x", &x);
     e->QueryFloatAttribute("rotate_y", &y);
     e->QueryFloatAttribute("rotate_z", &z);
     m_localRotation = KRVector3(x,y,z) / 180.0 * M_PI; // Convert degrees to radians
+    m_originalLocalRotation = m_localRotation;
     
     m_modelMatrixValid = false;
     
@@ -100,17 +103,20 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
    
 }
 
-void KRNode::setLocalTranslation(const KRVector3 &v) {
+void KRNode::setLocalTranslation(const KRVector3 &v, bool set_original) {
     m_localTranslation = v;
+    if(set_original) m_originalLocalTranslation = v;
     invalidateModelMatrix();
 }
-void KRNode::setLocalScale(const KRVector3 &v) {
+void KRNode::setLocalScale(const KRVector3 &v, bool set_original) {
     m_localScale = v;
+    if(set_original) m_originalLocalScale = v;
     invalidateModelMatrix();
 }
 
-void KRNode::setLocalRotation(const KRVector3 &v) {
+void KRNode::setLocalRotation(const KRVector3 &v, bool set_original) {
     m_localRotation = v;
+    if(set_original) m_originalLocalRotation = v;
     invalidateModelMatrix();
 }
 
@@ -255,7 +261,7 @@ bool KRNode::hasPhysics()
 
 void KRNode::SetAttribute(node_attribute_type attrib, float v)
 {
-    const float DEGREES_TO_RAD = M_2_PI / 360.0f;
+    const float DEGREES_TO_RAD = M_PI / 180.0f;
     
     //printf("%s - ", m_name.c_str());
     switch(attrib) {

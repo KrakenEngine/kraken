@@ -55,9 +55,9 @@ public:
     
     KRNode *findChild(const std::string &name);
     
-    void setLocalTranslation(const KRVector3 &v);
-    void setLocalScale(const KRVector3 &v);
-    void setLocalRotation(const KRVector3 &v);
+    void setLocalTranslation(const KRVector3 &v, bool set_original = false);
+    void setLocalScale(const KRVector3 &v, bool set_original = false);
+    void setLocalRotation(const KRVector3 &v, bool set_original = false);
     
     const KRVector3 &getLocalTranslation();
     const KRVector3 &getLocalScale();
@@ -99,6 +99,10 @@ protected:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
     KRVector3 m_localRotation;
+    
+    KRVector3 m_originalLocalTranslation;
+    KRVector3 m_originalLocalScale;
+    KRVector3 m_originalLocalRotation;
     
 private:
     void invalidateModelMatrix();
