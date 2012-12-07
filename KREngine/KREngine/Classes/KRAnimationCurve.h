@@ -54,6 +54,7 @@ public:
     void setFrameStart(int frame_number);
     int getFrameCount();
     void setFrameCount(int frame_count);
+    float getValue(float local_time);
     float getValue(int frame_number);
     void setValue(int frame_number, float value);
     

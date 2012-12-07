@@ -32,6 +32,9 @@
 #include "KRAnimation.h"
 #include "KRAnimationManager.h"
 #include "KRContext.h"
+#include "KRNode.h"
+#include "KRAnimationCurve.h"
+
 #import "tinyxml2.h"
 
 KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(context, name)
@@ -130,8 +133,26 @@ void KRAnimation::update(float deltaTime)
     if(m_playing) {
         m_local_time += deltaTime;
     }
-    if(m_local_time > m_duration) {
+    while(m_local_time > m_duration) {
         m_local_time -= m_duration;
+    }
+    
+    for(std::map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            
+            
+            // TODO - Currently only a single layer supported per animation -- need to either implement combining of multiple layers or ask the FBX sdk to bake all layers into one
+            KRAnimationCurve *curve = attribute->getCurve();
+            KRNode *target = attribute->getTarget();
+            KRNode::node_attribute_type attribute_type = attribute->getTargetAttribute();
+            
+            if(curve != NULL && target != NULL) {
+                target->SetAttribute(attribute_type, curve->getValue(m_local_time));
+            }
+            
+        }
     }
 }
 

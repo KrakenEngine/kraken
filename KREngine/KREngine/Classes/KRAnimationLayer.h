@@ -77,6 +77,7 @@ public:
     void setScaleAccumulationMode(const scale_accumulation_mode_t &scale_accumulation_mode);
 
     void addAttribute(KRAnimationAttribute *attribute);
+    std::vector<KRAnimationAttribute *> &getAttributes();
     
 private:
     std::string m_name;

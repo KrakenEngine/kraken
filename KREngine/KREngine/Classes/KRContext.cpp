@@ -123,7 +123,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pSceneManager->loadScene(name.c_str(), data);
     } else if(extension.compare("kranimation") == 0) {
         m_pAnimationManager->loadAnimation(name.c_str(), data);
-    } else if(extension.compare("kranimatinocurve") == 0) {
+    } else if(extension.compare("kranimationcurve") == 0) {
         m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);

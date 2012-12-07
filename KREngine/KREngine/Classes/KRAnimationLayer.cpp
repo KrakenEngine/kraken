@@ -191,3 +191,8 @@ void KRAnimationLayer::addAttribute(KRAnimationAttribute *attribute)
 {
     m_attributes.push_back(attribute);
 }
+
+std::vector<KRAnimationAttribute *> &KRAnimationLayer::getAttributes()
+{
+    return m_attributes;
+}

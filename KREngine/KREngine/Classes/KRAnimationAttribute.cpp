@@ -30,11 +30,16 @@
 //
 
 #include "KRAnimationAttribute.h"
+#include "KRContext.h"
+#include "KRAnimationManager.h"
+#include "KRAnimationCurveManager.h"
 
 
 KRAnimationAttribute::KRAnimationAttribute(KRContext &context) : KRContextObject(context)
 {
     m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+    m_target = NULL;
+    m_curve = NULL;
 }
 
 KRAnimationAttribute::~KRAnimationAttribute()
@@ -89,34 +94,46 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
 
 void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
 {
+    m_target = NULL;
+    m_curve = NULL;
     m_curve_name = e->Attribute("curve");
     m_target_name = e->Attribute("target");
-    m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
     
     const char *szAttribute = e->Attribute("attribute");
     if(strcmp(szAttribute, "none") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
     } else if(strcmp(szAttribute, "translate_x") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X;
     } else if(strcmp(szAttribute, "translate_y") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y;
     } else if(strcmp(szAttribute, "translate_z") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z;
     } else if(strcmp(szAttribute, "rotate_x") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X;
     } else if(strcmp(szAttribute, "rotate_y") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y;
     } else if(strcmp(szAttribute, "rotate_z") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z;
     } else if(strcmp(szAttribute, "scale_x") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X;
     } else if(strcmp(szAttribute, "scale_y") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
     } else if(strcmp(szAttribute, "scale_z") == 0) {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
     } else {
-        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
     }
+}
+
+KRNode::node_attribute_type KRAnimationAttribute::getTargetAttribute() const
+{
+    return m_node_attribute;
+}
+
+void KRAnimationAttribute::setTargetAttribute(KRNode::node_attribute_type target_attribute)
+{
+    m_node_attribute = target_attribute;
 }
 
 std::string KRAnimationAttribute::getTargetName() const
@@ -127,18 +144,8 @@ std::string KRAnimationAttribute::getTargetName() const
 void KRAnimationAttribute::setTargetName(const std::string &target_name)
 {
     m_target_name = target_name;
+    m_target = NULL;
 }
-
-std::string KRAnimationAttribute::getTargetAttributeName() const
-{
-    return m_target_attribute_name;
-}
-
-void KRAnimationAttribute::setTargetAttributeName(const std::string &target_attribute_name)
-{
-    m_target_attribute_name = target_attribute_name;
-}
-
 
 std::string KRAnimationAttribute::getCurveName() const
 {
@@ -148,6 +155,23 @@ std::string KRAnimationAttribute::getCurveName() const
 void KRAnimationAttribute::setCurveName(const std::string &curve_name)
 {
     m_curve_name = curve_name;
+    m_curve = NULL;
+}
+
+KRNode *KRAnimationAttribute::getTarget()
+{
+    if(m_target == NULL) {
+        m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->findChild(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
+    }
+    return m_target;
+}
+
+KRAnimationCurve *KRAnimationAttribute::getCurve()
+{
+    if(m_curve == NULL) {
+        m_curve = getContext().getAnimationCurveManager()->getAnimationCurve(m_curve_name.c_str());
+    }
+    return m_curve;
 }
 
 

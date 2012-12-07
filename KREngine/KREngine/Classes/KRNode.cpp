@@ -272,13 +272,28 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
             setLocalScale(KRVector3(m_localScale.x, m_localScale.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
-            setLocalRotation(KRVector3(v, m_localRotation.y, m_localRotation.z));
+            setLocalRotation(KRVector3(v / M_PI_2, m_localRotation.y, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
-            setLocalRotation(KRVector3(m_localRotation.x, v, m_localRotation.z));
+            setLocalRotation(KRVector3(m_localRotation.x, v / M_PI_2, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
-            setLocalRotation(KRVector3(m_localRotation.x, m_localRotation.y, v));
+            setLocalRotation(KRVector3(m_localRotation.x, m_localRotation.y, v / M_PI_2));
             break;
     }
+}
+
+
+KRNode *KRNode::findChild(const std::string &name)
+{
+    if(m_name == name) {
+        return this;
+    } else {
+        for(std::vector<KRNode *>::iterator child_itr = m_childNodes.begin(); child_itr != m_childNodes.end(); child_itr++) {
+            KRNode *match = (*child_itr)->findChild(name);
+            if(match) return match;
+        }
+    }
+    
+    return NULL;
 }

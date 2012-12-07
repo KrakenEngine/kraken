@@ -139,3 +139,10 @@ void KRAnimationCurve::setValue(int frame_number, float value)
     }
 }
 
+float KRAnimationCurve::getValue(float local_time)
+{
+    // TODO - Need to add interpolation for time values between frames.
+    //        Must consider looping animations when determining which two frames to interpolate between.
+    return getValue((int)(local_time * getFrameRate()));
+}
+

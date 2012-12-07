@@ -59,7 +59,7 @@ void KRAnimationManager::endFrame(float deltaTime)
 
 KRAnimation *KRAnimationManager::loadAnimation(const char *szName, KRDataBlock *data) {
     KRAnimation *pAnimation = KRAnimation::Load(*m_pContext, szName, data);
-    m_animations[szName] = pAnimation;
+    addAnimation(pAnimation);
     return pAnimation;
 }
 

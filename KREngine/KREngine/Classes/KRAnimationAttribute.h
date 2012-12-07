@@ -36,6 +36,7 @@
 #import "KREngine-common.h"
 #import "tinyxml2.h"
 #import "KRNode.h"
+#import "KRAnimationCurve.h"
 
 class KRAnimationAttribute : public KRContextObject {
 public:
@@ -51,14 +52,19 @@ public:
     std::string getTargetName() const;
     void setTargetName(const std::string &target_name);
     
-    std::string getTargetAttributeName() const;
-    void setTargetAttributeName(const std::string &target_attribute_name);
+    KRNode::node_attribute_type getTargetAttribute() const;
+    void setTargetAttribute(KRNode::node_attribute_type target_attribute);
+    
+    KRNode *getTarget();
+    KRAnimationCurve *getCurve();
     
 private:
     std::string m_target_name;
     std::string m_curve_name;
     KRNode::node_attribute_type m_node_attribute;
-    std::string m_target_attribute_name;
+    
+    KRNode *m_target;
+    KRAnimationCurve *m_curve;
 };
 
 #endif
