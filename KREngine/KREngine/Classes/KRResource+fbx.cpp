@@ -57,6 +57,8 @@ const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be c
 
 std::string GetFbxObjectName(FbxObject *obj)
 {
+    // Object names from FBX files are now concatenated with the FBX numerical ID to ensure that they are unique
+    // TODO - This should be updated to only add a prefix or suffix if needed to make the name unique
     std::stringstream st;
     st << "fbx_";
     st << obj->GetUniqueID();
