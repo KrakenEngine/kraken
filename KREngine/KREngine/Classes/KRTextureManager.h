@@ -62,8 +62,8 @@ public:
     
     void memoryChanged(long memoryDelta);
     
-    void startFrame();
-    void endFrame();
+    void startFrame(float deltaTime);
+    void endFrame(float deltaTime);
     
 private:
     long m_memoryTransferredThisFrame;

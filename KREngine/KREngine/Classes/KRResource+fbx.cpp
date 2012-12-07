@@ -316,6 +316,7 @@ KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
         
     KRAnimation *new_animation = new KRAnimation(context, pAnimStack->GetName());
     int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
+    new_animation->setDuration(pAnimStack->LocalStop.Get().GetSecondDouble());
     for(int iLayer=0; iLayer < cLayers; iLayer++) {
         new_animation->addLayer(LoadAnimationLayer(context, pAnimStack->GetMember<FbxAnimLayer>(iLayer)));
     }

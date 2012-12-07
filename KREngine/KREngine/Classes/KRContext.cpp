@@ -121,6 +121,10 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pModelManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
         m_pSceneManager->loadScene(name.c_str(), data);
+    } else if(extension.compare("kranimation") == 0) {
+        m_pAnimationManager->loadAnimation(name.c_str(), data);
+    } else if(extension.compare("kranimatinocurve") == 0) {
+        m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
@@ -161,15 +165,16 @@ void KRContext::detectExtensions() {
     
 }
 
-void KRContext::startFrame()
+void KRContext::startFrame(float deltaTime)
 {
-    m_pTextureManager->startFrame();
-    m_pAnimationManager->startFrame();
+    m_pTextureManager->startFrame(deltaTime);
+    m_pAnimationManager->startFrame(deltaTime);
 }
 
 void KRContext::endFrame(float deltaTime)
 {
-    m_pTextureManager->endFrame();
+    m_pTextureManager->endFrame(deltaTime);
+    m_pAnimationManager->endFrame(deltaTime);
     rotateBuffers(true);
     m_current_frame++;
     m_absolute_time += deltaTime;

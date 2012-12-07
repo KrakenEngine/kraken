@@ -142,14 +142,14 @@ long KRTextureManager::getMemUsed() {
     return m_textureMemUsed;
 }
 
-void KRTextureManager::startFrame()
+void KRTextureManager::startFrame(float deltaTime)
 {
     m_memoryTransferredThisFrame = 0;
     balanceTextureMemory();
     rotateBuffers();
 }
 
-void KRTextureManager::endFrame()
+void KRTextureManager::endFrame(float deltaTime)
 {
     for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         if(m_boundTextures[iTexture]) {

@@ -39,9 +39,11 @@
 #include "KRDataBlock.h"
 
 #include <map>
+#include <set>
 #import <string>
 
 using std::map;
+using std::set;
 
 class KRAnimationManager : public KRContextObject {
 public:
@@ -53,10 +55,14 @@ public:
     void addAnimation(KRAnimation *new_animation);
     std::map<std::string, KRAnimation *> &getAnimations();
     
-    void startFrame();
+    void startFrame(float deltaTime);
+    void endFrame(float deltaTime);
+    
+    void updateActiveAnimations(KRAnimation *animation);
     
 private:
-    map<std::string, KRAnimation *> m_animations;    
+    map<std::string, KRAnimation *> m_animations;
+    set<KRAnimation *>m_activeAnimations;
 };
 
 

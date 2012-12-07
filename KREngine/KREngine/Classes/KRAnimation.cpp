@@ -30,12 +30,17 @@
 //
 
 #include "KRAnimation.h"
+#include "KRAnimationManager.h"
+#include "KRContext.h"
 #import "tinyxml2.h"
 
 KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(context, name)
 {
     m_auto_play = true;
     m_loop = true;
+    m_playing = true;
+    m_local_time = 0.0f;
+    m_duration = 0.0f;
 }
 KRAnimation::~KRAnimation()
 {
@@ -59,6 +64,7 @@ bool KRAnimation::save(const std::string& path) {
     doc.InsertEndChild(animation_node);
     animation_node->SetAttribute("loop", m_loop ? "true" : "false");
     animation_node->SetAttribute("auto_play", m_auto_play ? "true" : "false");
+    animation_node->SetAttribute("duration", m_duration);
     
     for(std::map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         (*itr).second->saveXML(animation_node);
@@ -78,6 +84,10 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     
     tinyxml2::XMLElement *animation_node = doc.RootElement();
     
+    if(animation_node->QueryFloatAttribute("duration", &new_animation->m_duration) != tinyxml2::XML_SUCCESS) {
+        new_animation->m_duration = 0.0f; // Default value
+    }
+    
     if(animation_node->QueryBoolAttribute("loop", &new_animation->m_loop) != tinyxml2::XML_SUCCESS) {
         new_animation->m_loop = true; // Default value
     }
@@ -92,6 +102,10 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
             new_layer->loadXML(child_element);
             new_animation->m_layers[new_layer->getName()] = new_layer;
         }
+    }
+    
+    if(new_animation->m_auto_play) {
+        new_animation->m_playing = true;
     }
     
 //    KRNode *n = KRNode::LoadXML(*new_scene, scene_element->FirstChildElement());
@@ -109,4 +123,51 @@ std::map<std::string, KRAnimationLayer *> &KRAnimation::getLayers()
 KRAnimationLayer *KRAnimation::getLayer(const char *szName)
 {
     return m_layers[szName];
+}
+
+void KRAnimation::update(float deltaTime)
+{
+    if(m_playing) {
+        m_local_time += deltaTime;
+    }
+    if(m_local_time > m_duration) {
+        m_local_time -= m_duration;
+    }
+}
+
+void KRAnimation::Play()
+{
+    m_local_time = 0.0f;
+    m_playing = true;
+    getContext().getAnimationManager()->updateActiveAnimations(this);
+}
+void KRAnimation::Stop()
+{
+    m_playing = false;
+    getContext().getAnimationManager()->updateActiveAnimations(this);
+}
+
+float KRAnimation::getTime()
+{
+    return m_local_time;
+}
+
+void KRAnimation::setTime(float time)
+{
+    m_local_time = time;
+}
+
+float KRAnimation::getDuration()
+{
+    return m_duration;
+}
+
+void KRAnimation::setDuration(float duration)
+{
+    m_duration = duration;
+}
+
+bool KRAnimation::isPlaying()
+{
+    return m_playing;
 }

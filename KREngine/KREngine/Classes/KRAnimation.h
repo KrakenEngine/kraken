@@ -53,14 +53,21 @@ public:
     void addLayer(KRAnimationLayer *layer);
     std::map<std::string, KRAnimationLayer *> &getLayers();
     KRAnimationLayer *getLayer(const char *szName);
-    void Start();
+    void Play();
     void Stop();
-    void Restart();
-    
+    void update(float deltaTime);
+    float getTime();
+    void setTime(float time);
+    float getDuration();
+    void setDuration(float duration);
+    bool isPlaying();
 private:
     std::map<std::string, KRAnimationLayer *> m_layers;
     bool m_auto_play;
     bool m_loop;
+    bool m_playing;
+    float m_local_time;
+    float m_duration;
 };
 
 
