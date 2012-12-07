@@ -34,6 +34,7 @@ KRContext::KRContext() {
     m_pModelManager = new KRModelManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
+    m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_bDetectedExtensions = false;
     m_current_frame = 0;
     m_absolute_time = 0.0f;
@@ -71,6 +72,11 @@ KRContext::~KRContext() {
         m_pAnimationManager = NULL;
     }
     
+    if(m_pAnimationCurveManager) {
+        delete m_pAnimationCurveManager;
+        m_pAnimationCurveManager = NULL;
+    }
+    
     // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
     if(m_pBundleManager) {
         delete m_pBundleManager;
@@ -98,6 +104,9 @@ KRModelManager *KRContext::getModelManager() {
 }
 KRAnimationManager *KRContext::getAnimationManager() {
     return m_pAnimationManager;
+}
+KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
+    return m_pAnimationCurveManager;
 }
 
 void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {

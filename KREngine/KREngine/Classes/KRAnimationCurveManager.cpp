@@ -1,5 +1,5 @@
 //
-//  KRAnimationCurveKey.cpp
+//  KRAnimationCurveManager.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,4 +29,36 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRAnimationCurveKey.h"
+#include "KRAnimationCurveManager.h"
+#include "KRAnimationCurve.h"
+
+KRAnimationCurveManager::KRAnimationCurveManager(KRContext &context) : KRContextObject(context)
+{
+    
+}
+
+KRAnimationCurveManager::~KRAnimationCurveManager() {
+    for(map<std::string, KRAnimationCurve *>::iterator itr = m_animationCurves.begin(); itr != m_animationCurves.end(); ++itr){
+        delete (*itr).second;
+    }
+}
+
+KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const char *szName, KRDataBlock *data) {
+    KRAnimationCurve *pAnimationCurve = KRAnimationCurve::Load(*m_pContext, szName, data);
+    m_animationCurves[szName] = pAnimationCurve;
+    return pAnimationCurve;
+}
+
+KRAnimationCurve *KRAnimationCurveManager::getAnimationCurve(const char *szName) {
+    return m_animationCurves[szName];
+}
+
+std::map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnimationCurves() {
+    return m_animationCurves;
+}
+
+void KRAnimationCurveManager::addAnimationCurve(KRAnimationCurve *new_animation_curve)
+{
+    m_animationCurves[new_animation_curve->getName()] = new_animation_curve;
+}
+

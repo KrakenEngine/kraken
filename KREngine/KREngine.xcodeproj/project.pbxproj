@@ -17,6 +17,10 @@
 		E414BAE51435558900A668C4 /* KRInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE41435558800A668C4 /* KRInstance.cpp */; };
 		E414BAE7143557D200A668C4 /* KRScene.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAE6143557D200A668C4 /* KRScene.h */; };
 		E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
+		E416AA9916713749000F6786 /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; };
+		E416AA9A16713749000F6786 /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
+		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E428C2F21669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; };
 		E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F51669611600A16EDF /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
@@ -37,10 +41,6 @@
 		E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C3151669A24B00A16EDF /* KRAnimationAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C3191669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C3181669A25D00A16EDF /* KRAnimationAttribute.cpp */; };
 		E428C31A1669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C3181669A25D00A16EDF /* KRAnimationAttribute.cpp */; };
-		E428C31C1669A77D00A16EDF /* KRAnimationCurveKey.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C31B1669A77D00A16EDF /* KRAnimationCurveKey.h */; };
-		E428C31D1669A77D00A16EDF /* KRAnimationCurveKey.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C31B1669A77D00A16EDF /* KRAnimationCurveKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E428C31F1669A78D00A16EDF /* KRAnimationCurveKey.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C31E1669A78C00A16EDF /* KRAnimationCurveKey.cpp */; };
-		E428C3201669A78D00A16EDF /* KRAnimationCurveKey.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C31E1669A78C00A16EDF /* KRAnimationCurveKey.cpp */; };
 		E42CB1EC158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; };
 		E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
@@ -236,6 +236,8 @@
 		E414BAE41435558800A668C4 /* KRInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRInstance.cpp; path = Classes/KRInstance.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E414BAE6143557D200A668C4 /* KRScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRScene.h; path = Classes/KRScene.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E414BAE81435585A00A668C4 /* KRScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRScene.cpp; path = Classes/KRScene.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E416AA9816713749000F6786 /* KRAnimationCurveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationCurveManager.h; path = Classes/KRAnimationCurveManager.h; sourceTree = "<group>"; };
+		E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationCurveManager.cpp; path = Classes/KRAnimationCurveManager.cpp; sourceTree = "<group>"; };
 		E41B841D16260C5600C7A771 /* sky_box.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.fsh; path = Shaders/sky_box.fsh; sourceTree = "<group>"; };
 		E41B842016260C6500C7A771 /* sky_box.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.vsh; path = Shaders/sky_box.vsh; sourceTree = "<group>"; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationManager.h; path = Classes/KRAnimationManager.h; sourceTree = "<group>"; };
@@ -248,8 +250,6 @@
 		E428C310166971FE00A16EDF /* KRAnimationLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationLayer.cpp; path = Classes/KRAnimationLayer.cpp; sourceTree = "<group>"; };
 		E428C3151669A24B00A16EDF /* KRAnimationAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationAttribute.h; path = Classes/KRAnimationAttribute.h; sourceTree = "<group>"; };
 		E428C3181669A25D00A16EDF /* KRAnimationAttribute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationAttribute.cpp; path = Classes/KRAnimationAttribute.cpp; sourceTree = "<group>"; };
-		E428C31B1669A77D00A16EDF /* KRAnimationCurveKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationCurveKey.h; path = Classes/KRAnimationCurveKey.h; sourceTree = "<group>"; };
-		E428C31E1669A78C00A16EDF /* KRAnimationCurveKey.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationCurveKey.cpp; path = Classes/KRAnimationCurveKey.cpp; sourceTree = "<group>"; };
 		E42CB1EB158446940066E0D8 /* KRQuaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRQuaternion.h; path = Classes/KRQuaternion.h; sourceTree = "<group>"; };
 		E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRQuaternion.cpp; path = Classes/KRQuaternion.cpp; sourceTree = "<group>"; };
 		E430D08015F8882F0010558D /* occlusion_test.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = occlusion_test.fsh; path = Shaders/occlusion_test.fsh; sourceTree = "<group>"; };
@@ -413,6 +413,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E416AA96167136FB000F6786 /* AnimationCurve */ = {
+			isa = PBXGroup;
+			children = (
+				E428C3031669627900A16EDF /* KRAnimationCurve.h */,
+				E428C3061669628A00A16EDF /* KRAnimationCurve.cpp */,
+				E416AA9816713749000F6786 /* KRAnimationCurveManager.h */,
+				E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */,
+			);
+			name = AnimationCurve;
+			sourceTree = "<group>";
+		};
 		E428C2EF166960ED00A16EDF /* Animation */ = {
 			isa = PBXGroup;
 			children = (
@@ -422,12 +433,8 @@
 				E428C2F41669611600A16EDF /* KRAnimationManager.cpp */,
 				E428C2F71669612500A16EDF /* KRAnimation.h */,
 				E428C2FA1669613200A16EDF /* KRAnimation.cpp */,
-				E428C3031669627900A16EDF /* KRAnimationCurve.h */,
-				E428C3061669628A00A16EDF /* KRAnimationCurve.cpp */,
 				E428C3151669A24B00A16EDF /* KRAnimationAttribute.h */,
 				E428C3181669A25D00A16EDF /* KRAnimationAttribute.cpp */,
-				E428C31B1669A77D00A16EDF /* KRAnimationCurveKey.h */,
-				E428C31E1669A78C00A16EDF /* KRAnimationCurveKey.cpp */,
 			);
 			name = Animation;
 			sourceTree = "<group>";
@@ -538,6 +545,7 @@
 		E488399915F92BA300BD66D5 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				E416AA96167136FB000F6786 /* AnimationCurve */,
 				E428C2EF166960ED00A16EDF /* Animation */,
 				E48839AB15F930E200BD66D5 /* Bundle */,
 				E48839AA15F9309E00BD66D5 /* Material */,
@@ -823,7 +831,7 @@
 				E428C3041669627900A16EDF /* KRAnimationCurve.h in Headers */,
 				E428C311166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E428C3161669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
-				E428C31C1669A77D00A16EDF /* KRAnimationCurveKey.h in Headers */,
+				E416AA9916713749000F6786 /* KRAnimationCurveManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,9 +877,9 @@
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
-				E428C31D1669A77D00A16EDF /* KRAnimationCurveKey.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
+				E416AA9A16713749000F6786 /* KRAnimationCurveManager.h in Headers */,
 				E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */,
 				E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */,
 				E4B175AF161F5A1000B8FB80 /* KRTexture.h in Headers */,
@@ -1015,7 +1023,7 @@
 				E428C3071669628A00A16EDF /* KRAnimationCurve.cpp in Sources */,
 				E428C313166971FF00A16EDF /* KRAnimationLayer.cpp in Sources */,
 				E428C3191669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */,
-				E428C31F1669A78D00A16EDF /* KRAnimationCurveKey.cpp in Sources */,
+				E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1071,7 +1079,7 @@
 				E428C3081669628A00A16EDF /* KRAnimationCurve.cpp in Sources */,
 				E428C314166971FF00A16EDF /* KRAnimationLayer.cpp in Sources */,
 				E428C31A1669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */,
-				E428C3201669A78D00A16EDF /* KRAnimationCurveKey.cpp in Sources */,
+				E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

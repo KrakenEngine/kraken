@@ -32,6 +32,46 @@
 #ifndef KRANIMATIONCURVE_H
 #define KRANIMATIONCURVE_H
 
+#import "KREngine-common.h"
+#import "KRContextObject.h"
+#import "KRDataBlock.h"
+#import "KRResource.h"
+#import <map>
+
+class KRAnimationCurve : public KRResource {
+    
+public:
+    KRAnimationCurve(KRContext &context, std::string name);
+    virtual ~KRAnimationCurve();
+    
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    virtual bool load(KRDataBlock *data);
+    
+    float getFrameRate();
+    void setFrameRate(float frame_rate);
+    int getFrameStart();
+    void setFrameStart(int frame_number);
+    int getFrameCount();
+    void setFrameCount(int frame_count);
+    float getValue(int frame_number);
+    void setValue(int frame_number, float value);
+    
+    
+    static KRAnimationCurve *Load(KRContext &context, const std::string &name, KRDataBlock *data);
+    
+    
+private:
+    KRDataBlock *m_pData;
+    
+    typedef struct {
+        char szTag[16];
+        float frame_rate;
+        int32_t frame_start;
+        int32_t frame_count;
+    } animation_curve_header;
+
+};
 
 
 #endif

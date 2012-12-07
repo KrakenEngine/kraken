@@ -249,3 +249,36 @@ bool KRNode::hasPhysics()
 {
     return false;
 }
+
+void KRNode::SetAttribute(node_attribute_type attrib, float v)
+{
+    switch(attrib) {
+        case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
+            setLocalTranslation(KRVector3(v, m_localTranslation.y, m_localTranslation.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
+            setLocalTranslation(KRVector3(m_localTranslation.x, v, m_localTranslation.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
+            setLocalTranslation(KRVector3(m_localTranslation.x, m_localTranslation.y, v));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_SCALE_X:
+            setLocalScale(KRVector3(v, m_localScale.y, m_localScale.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
+            setLocalScale(KRVector3(m_localScale.x, v, m_localScale.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
+            setLocalScale(KRVector3(m_localScale.x, m_localScale.y, v));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
+            setLocalRotation(KRVector3(v, m_localRotation.y, m_localRotation.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
+            setLocalRotation(KRVector3(m_localRotation.x, v, m_localRotation.z));
+            break;
+        case KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
+            setLocalRotation(KRVector3(m_localRotation.x, m_localRotation.y, v));
+            break;
+    }
+}

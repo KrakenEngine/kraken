@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <sstream>
 #include <assert.h>
 #include <vector.h>
 
@@ -41,13 +42,30 @@ void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene);
 void DestroySdkObjects(KFbxSdkManager* pSdkManager);
 bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack);
+KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve);
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
 void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
+std::string GetFbxObjectName(FbxObject *obj, char *prefix);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable
+
+
+std::string GetFbxObjectName(FbxObject *obj, char *prefix)
+{
+
+    std::stringstream st;
+    st << prefix;
+    st << obj->GetUniqueID();
+    if(strlen(obj->GetName()) != 0) {
+        st << " (";
+        st << obj->GetName();
+        st << ")";
+    }
+    return st.str();
+}
 
 std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::string& path)
 {
@@ -80,12 +98,20 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     
     // ----====---- Import Animation Layers ----====----
     
-    int animation_count = pFbxScene->GetSrcObjectCount(FBX_TYPE(FbxAnimStack));
+    int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
     for(int i = 0; i < animation_count; i++) {
         //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
         KRAnimation *new_animation = LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i));
         context.getAnimationManager()->addAnimation(new_animation);
-        resources.push_back(LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i)));
+        resources.push_back(new_animation);
+    }
+    
+    // ----====---- Import Animation Curves ----====----
+    int curve_count = pFbxScene->GetSrcObjectCount<FbxAnimCurve>();
+    for(int i=0; i < curve_count; i++) {
+        KRAnimationCurve *new_curve = LoadAnimationCurve(context, pFbxScene->GetSrcObject<FbxAnimCurve>(i));
+        context.getAnimationCurveManager()->addAnimationCurve(new_curve);
+        resources.push_back(new_curve);
     }
     
     // ----====---- Import Scene Graph Nodes ----====----
@@ -100,6 +126,19 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
 
     
     DestroySdkObjects(lSdkManager);
+    
+    
+    // FINDME - HACK - This logic removes the animations and animation curves from their manager objects so they don't get dealloced twice.  In the future, we should keep all objects in their manager objects while importing and just return a KRContext containing all the managers.
+    for(std::vector<KRResource *>::iterator resource_itr=resources.begin(); resource_itr != resources.end(); resource_itr++) {
+        KRAnimation *animation = dynamic_cast<KRAnimation *>(*resource_itr);
+        KRAnimationCurve *animation_curve = dynamic_cast<KRAnimationCurve *>(*resource_itr);
+        if(animation) {
+            context.getAnimationManager()->getAnimations().erase(animation->getName());
+        }
+        if(animation_curve) {
+            context.getAnimationCurveManager()->getAnimationCurves().erase(animation_curve->getName());
+        }
+    }
     
     return resources;
 }
@@ -273,8 +312,6 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
 
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
 {
-    
-    
     printf("Loading animation: \"%s\"\n", pAnimStack->GetName());
         
     KRAnimation *new_animation = new KRAnimation(context, pAnimStack->GetName());
@@ -285,6 +322,38 @@ KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
     return new_animation;
 }
 
+KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve)
+{
+    std::string name = GetFbxObjectName(pAnimCurve, "fbx_curve");
+    printf("Loading animation curve: \"%s\"\n", name.c_str());
+    FbxTimeSpan time_span;
+    if(!pAnimCurve->GetTimeInterval(time_span)) {
+        printf(" ERROR: Failed to get time interval.\n");
+        return NULL;
+    }
+    
+    float frame_rate = 30.0f; // FINDME, TODO - This needs to be dynamic
+    int frame_start = time_span.GetStart().GetSecondDouble() * frame_rate;
+    int frame_count = (time_span.GetStop().GetSecondDouble() * frame_rate) - frame_start;
+    
+    KRAnimationCurve *new_curve = new KRAnimationCurve(context, name);
+    new_curve->setFrameRate(frame_rate);
+    new_curve->setFrameStart(frame_start);
+    new_curve->setFrameCount(frame_count);
+    
+    // Resample animation curve
+    int last_frame = 0; // Used by FBX sdk for faster keyframe searches
+    for(int frame_number=0; frame_number < frame_count; frame_number++) {
+        float frame_seconds = (frame_start + frame_number) / frame_rate;
+        FbxTime frame_time;
+        frame_time.SetSecondDouble(frame_seconds);
+        float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
+        //printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
+        new_curve->setValue(frame_number, frame_value);
+    }
+
+    return new_curve;
+}
 
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer)
 {
@@ -466,7 +535,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("rotate_x");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -475,7 +544,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("rotate_y");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -484,7 +553,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("rotate_z");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -493,7 +562,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("translate_x");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -502,7 +571,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("translate_y");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -511,7 +580,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("translate_z");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -520,7 +589,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("scale_x");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -529,7 +598,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("scale_y");
                 pAnimationLayer->addAttribute(new_attribute);
@@ -538,7 +607,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
             if(pAnimCurve) {
                 KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(pAnimCurve->GetName());
+                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve, "fbx_curve"));
                 new_attribute->setTargetName(pNode->GetName());
                 new_attribute->setTargetAttributeName("scale_z");
                 pAnimationLayer->addAttribute(new_attribute);

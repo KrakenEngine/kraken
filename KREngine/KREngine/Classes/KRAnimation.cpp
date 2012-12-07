@@ -34,7 +34,8 @@
 
 KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(context, name)
 {
-
+    m_auto_play = true;
+    m_loop = true;
 }
 KRAnimation::~KRAnimation()
 {
@@ -56,6 +57,8 @@ bool KRAnimation::save(const std::string& path) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *animation_node =  doc.NewElement( "animation" );
     doc.InsertEndChild(animation_node);
+    animation_node->SetAttribute("loop", m_loop ? "true" : "false");
+    animation_node->SetAttribute("auto_play", m_auto_play ? "true" : "false");
     
     for(std::map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         (*itr).second->saveXML(animation_node);
@@ -74,6 +77,14 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     KRAnimation *new_animation = new KRAnimation(context, name);
     
     tinyxml2::XMLElement *animation_node = doc.RootElement();
+    
+    if(animation_node->QueryBoolAttribute("loop", &new_animation->m_loop) != tinyxml2::XML_SUCCESS) {
+        new_animation->m_loop = true; // Default value
+    }
+    
+    if(animation_node->QueryBoolAttribute("auto_play", &new_animation->m_auto_play) != tinyxml2::XML_SUCCESS) {
+        new_animation->m_auto_play = true; // Default value
+    }
 
     for(tinyxml2::XMLElement *child_element=animation_node->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
         if(strcmp(child_element->Name(), "layer") == 0) {

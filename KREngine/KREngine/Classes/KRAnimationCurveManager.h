@@ -1,5 +1,5 @@
 //
-//  KRAnimationCurveKey.h
+//  KRAnimationCurveManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,8 +29,33 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONCURVEKEY_H
-#define KRANIMATIONCURVEKEY_H
+#ifndef KRANIMATIONCURVEMANAGER_H
+#define KRANIMATIONCURVEMANAGER_H
+
+#import "KREngine-common.h"
+
+#include "KRAnimationCurve.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
+
+#include <map>
+#import <string>
+
+using std::map;
+
+class KRAnimationCurveManager : public KRContextObject {
+public:
+    KRAnimationCurveManager(KRContext &context);
+    virtual ~KRAnimationCurveManager();
+    
+    KRAnimationCurve *loadAnimationCurve(const char *szName, KRDataBlock *data);
+    KRAnimationCurve *getAnimationCurve(const char *szName);
+    void addAnimationCurve(KRAnimationCurve *new_animation_curve);
+    std::map<std::string, KRAnimationCurve *> &getAnimationCurves();
+    
+private:
+    map<std::string, KRAnimationCurve *> m_animationCurves;
+};
 
 
 

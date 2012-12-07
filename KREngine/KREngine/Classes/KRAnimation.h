@@ -53,10 +53,14 @@ public:
     void addLayer(KRAnimationLayer *layer);
     std::map<std::string, KRAnimationLayer *> &getLayers();
     KRAnimationLayer *getLayer(const char *szName);
-    
+    void Start();
+    void Stop();
+    void Restart();
     
 private:
     std::map<std::string, KRAnimationLayer *> m_layers;
+    bool m_auto_play;
+    bool m_loop;
 };
 
 

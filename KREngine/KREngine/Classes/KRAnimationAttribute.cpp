@@ -34,7 +34,7 @@
 
 KRAnimationAttribute::KRAnimationAttribute(KRContext &context) : KRContextObject(context)
 {
-    
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
 }
 
 KRAnimationAttribute::~KRAnimationAttribute()
@@ -49,7 +49,41 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
     e->SetAttribute("curve", m_curve_name.c_str());
     e->SetAttribute("target", m_target_name.c_str());
-    e->SetAttribute("attribute", m_target_attribute_name.c_str());
+    char *szAttribute = "none";
+    switch(m_node_attribute) {
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_NONE:
+            szAttribute = "none";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
+            szAttribute = "translate_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
+            szAttribute = "translate_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
+            szAttribute = "translate_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X:
+            szAttribute = "scale_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
+            szAttribute = "scale_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
+            szAttribute = "scale_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
+            szAttribute = "rotate_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
+            szAttribute = "rotate_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
+            szAttribute = "rotate_z";
+            break;
+    }
+    
+    e->SetAttribute("attribute", szAttribute);
     return e;
 }
 
@@ -57,7 +91,32 @@ void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
 {
     m_curve_name = e->Attribute("curve");
     m_target_name = e->Attribute("target");
-    m_target_attribute_name = e->Attribute("attribute");
+    m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+    
+    const char *szAttribute = e->Attribute("attribute");
+    if(strcmp(szAttribute, "none") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+    } else if(strcmp(szAttribute, "translate_x") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X;
+    } else if(strcmp(szAttribute, "translate_y") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y;
+    } else if(strcmp(szAttribute, "translate_z") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z;
+    } else if(strcmp(szAttribute, "rotate_x") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X;
+    } else if(strcmp(szAttribute, "rotate_y") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y;
+    } else if(strcmp(szAttribute, "rotate_z") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z;
+    } else if(strcmp(szAttribute, "scale_x") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X;
+    } else if(strcmp(szAttribute, "scale_y") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
+    } else if(strcmp(szAttribute, "scale_z") == 0) {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
+    } else {
+        m_target_attribute_name = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+    }
 }
 
 std::string KRAnimationAttribute::getTargetName() const

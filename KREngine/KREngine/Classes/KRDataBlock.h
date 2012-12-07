@@ -49,7 +49,7 @@ public:
     // Append data to the end of the block, increasing the size of the block and making it read-write.
     void append(void *data, size_t size);
     
-    // Expand the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
+    // Expand or shrink the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
     void expand(size_t size);
     
     // Unload a file, releasing any mmap'ed file handles or malloc'ed ram that was in use

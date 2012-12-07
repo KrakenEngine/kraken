@@ -68,6 +68,21 @@ public:
     virtual KRAABB getBounds();
     const KRMat4 &getModelMatrix();
     
+    enum node_attribute_type {
+        KRENGINE_NODE_ATTRIBUTE_NONE,
+        KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X,
+        KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y,
+        KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_X,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_Y,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_Z,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_X,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_Y,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_Z
+    };
+    
+    void SetAttribute(node_attribute_type attrib, float v);
+    
     KRScene &getScene();
 #if TARGET_OS_IPHONE
     
