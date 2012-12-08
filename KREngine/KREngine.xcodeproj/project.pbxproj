@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
+		104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */ = {isa = PBXBuildFile; fileRef = 104A335D1672D31C001C8BA6 /* KRCollider.h */; };
 		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; };
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
@@ -233,6 +235,8 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
+		104A335C1672D31B001C8BA6 /* KRCollider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRCollider.cpp; path = Classes/KRCollider.cpp; sourceTree = "<group>"; };
+		104A335D1672D31C001C8BA6 /* KRCollider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRCollider.h; path = Classes/KRCollider.h; sourceTree = "<group>"; };
 		E4030E4B160A3CF000592648 /* KRStockGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRStockGeometry.h; path = Classes/KRStockGeometry.h; sourceTree = "<group>"; };
 		E40BA45215EFF79500D7C3DD /* KRAABB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAABB.cpp; path = Classes/KRAABB.cpp; sourceTree = "<group>"; };
 		E40BA45315EFF79500D7C3DD /* KRAABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAABB.h; path = Classes/KRAABB.h; sourceTree = "<group>"; };
@@ -646,6 +650,8 @@
 				E4324BA916444DCB0043185B /* Particle Systems */,
 				E414BAE11435557300A668C4 /* KRInstance.h */,
 				E414BAE41435558800A668C4 /* KRInstance.cpp */,
+				104A335D1672D31C001C8BA6 /* KRCollider.h */,
+				104A335C1672D31B001C8BA6 /* KRCollider.cpp */,
 				E461A171152E599E00F2044A /* Lights */,
 				E4F975311536220900FD60B2 /* KRNode.h */,
 				E4F975351536221C00FD60B2 /* KRNode.cpp */,
@@ -841,6 +847,7 @@
 				E428C3161669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
 				E416AA9916713749000F6786 /* KRAnimationCurveManager.h in Headers */,
 				E480BE681671C641004EC8AD /* KRBone.h in Headers */,
+				104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1035,6 +1042,7 @@
 				E428C3191669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */,
 				E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */,
 				E480BE6C1671C653004EC8AD /* KRBone.cpp in Sources */,
+				104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

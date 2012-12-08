@@ -15,6 +15,7 @@
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
 #import "KRInstance.h"
+#import "KRCollider.h"
 #import "KRParticleSystem.h"
 #import "KRParticleSystemNewtonian.h"
 #import "KRAABB.h"
@@ -172,6 +173,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
             faces_camera = false;
         }
         new_node = new KRInstance(scene, szName, e->Attribute("mesh_name"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
+    } else if(strcmp(szElementName, "collider") == 0) {
+        new_node = new KRCollider(scene, szName, e->Attribute("collider_name"));
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
     }
