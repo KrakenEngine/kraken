@@ -48,6 +48,12 @@ KRVector3::KRVector3(const KRVector3 &v) {
     z = v.z;
 }
 
+KRVector3::KRVector3(float *v) {
+    x = v[0];
+    y = v[1];
+    z = v[2];
+}
+
 KRVector3 KRVector3::Min() {
     return KRVector3(-std::numeric_limits<float>::max());
 }

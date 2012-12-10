@@ -112,13 +112,13 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
                     GLDEBUG(glDisable(GL_DEPTH_TEST));
                     
                     // Render a full screen quad
-                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false, false, false);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
 #if GL_OES_vertex_array_object
                     GLDEBUG(glBindVertexArrayOES(0));
 #endif
-                    m_pContext->getModelManager()->configureAttribs(true, false, false, false, false);
+                    m_pContext->getModelManager()->configureAttribs(true, false, false, false, false, false, false);
                     // Render sphere of light's influence
                     generateMesh();
                 
@@ -127,7 +127,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
                     GLDEBUG(glDepthFunc(GL_LEQUAL));
                     GLDEBUG(glDepthRangef(0.0, 1.0));
                     
-                    GLDEBUG(glVertexAttribPointer(KRShader::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+                    GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
                 }
             }

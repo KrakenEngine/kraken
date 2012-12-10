@@ -700,6 +700,12 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
+    int skin_count = pMesh->GetDeformerCount(FbxDeformer::eSkin);
+    for(int skin_index=0; skin_index<skin_count; skin_index++) {
+        FbxSkin *skin = (FbxSkin *)pMesh->GetDeformer(skin_index, FbxDeformer::eSkin);
+        skin->GetControlPointBlendWeights()
+    }
+    
     KFbxVector4* control_points = pMesh->GetControlPoints(); 
     
     int polygon_count = pMesh->GetPolygonCount();

@@ -104,7 +104,8 @@ void KRModel::loadPack(KRDataBlock *data) {
     clearData();
     delete m_pData;
     m_pData = data;
-    pack_header *pHeader = (pack_header *)m_pData->getStart();
+    updateAttributeOffsets();
+    pack_header *pHeader = getHeader();
     m_minPoint = KRVector3(pHeader->minx, pHeader->miny, pHeader->minz);
     m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 }
@@ -232,7 +233,7 @@ vector<KRModel::Submesh *> KRModel::getSubmeshes() {
 }
 
 void KRModel::renderSubmesh(int iSubmesh) {
-    VertexData *pVertexData = getVertexData();
+    unsigned char *pVertexData = getVertexData();
     
     pack_header *pHeader = (pack_header *)m_pData->getStart();
     int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
@@ -246,7 +247,7 @@ void KRModel::renderSubmesh(int iSubmesh) {
     int cVertexes = pSubmesh->vertex_count;
     while(cVertexes > 0) {
         GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-        int vertex_size = sizeof(VertexData) ;
+        int vertex_size = m_vertex_size;
         assert(pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size >= m_pData->getStart());
         
         void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
@@ -254,7 +255,9 @@ void KRModel::renderSubmesh(int iSubmesh) {
         assert(vbo_end <= buffer_end);
         assert(cBufferVertexes <= 65535);
         
-        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, true, true, true, true, true);
+        
+        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES),
+                                               has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS));
         
         
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -274,27 +277,51 @@ void KRModel::renderSubmesh(int iSubmesh) {
     }
 }
 
-KRModel::VertexData *KRModel::getVertexData() {
+unsigned char *KRModel::getVertexData() const {
     pack_header *pHeader = (pack_header *)m_pData->getStart();
     pack_material *pPackMaterials = (pack_material *)(pHeader+1);
-    return (VertexData *)(pPackMaterials + pHeader->submesh_count);
+    return (unsigned char *)(pPackMaterials + pHeader->submesh_count);
 }
+
 
 void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names) {
     
     clearData();
     
+    bool calculate_normals = true;
+    bool calculate_tangents = true;
+    
+    
+    __int32_t vertex_attrib_flags = 0;
+    if(vertices.size()) {
+        vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX);
+    }
+    if(normals.size() || calculate_normals) {
+        vertex_attrib_flags += (1 << KRENGINE_ATTRIB_NORMAL);
+    }
+    if(tangents.size() || calculate_tangents) {
+        vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT);
+    }
+    if(uva.size()) {
+        vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVA);
+    }
+    if(uvb.size()) {
+        vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB);
+    }
+    size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
+    
     int submesh_count = submesh_lengths.size();
     int vertex_count = vertices.size();
-    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(VertexData) * vertex_count;
+    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + vertex_size * vertex_count;
     m_pData->expand(new_file_size);
     
     pack_header *pHeader = (pack_header *)m_pData->getStart();
     memset(pHeader, 0, sizeof(pack_header));
-    
+    pHeader->vertex_attrib_flags = vertex_attrib_flags;
     pHeader->submesh_count = submesh_lengths.size();
     pHeader->vertex_count = vertices.size();
-    strcpy(pHeader->szTag, "KROBJPACK1.0   ");
+    strcpy(pHeader->szTag, "KROBJPACK1.1   ");
+    updateAttributeOffsets();
     
     pack_material *pPackMaterials = (pack_material *)(pHeader+1);
     
@@ -307,14 +334,12 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
     
     bool bFirstVertex = true;
     
-    VertexData *pVertexData = (VertexData *)(pPackMaterials + pHeader->submesh_count);
-    VertexData *pVertex = pVertexData;
+//    VertexData *pVertexData = (VertexData *)(pPackMaterials + pHeader->submesh_count);
+//    VertexData *pVertex = pVertexData;
+    memset(getVertexData(), 0, m_vertex_size * vertices.size());
     for(int iVertex=0; iVertex < vertices.size(); iVertex++) {
-        memset(pVertex, 0, sizeof(VertexData));
         KRVector3 source_vertex = vertices[iVertex];
-        pVertex->vertex.x = source_vertex.x;
-        pVertex->vertex.y = source_vertex.y;
-        pVertex->vertex.z = source_vertex.z;
+        setVertexPosition(iVertex, source_vertex);
         if(bFirstVertex) {
             bFirstVertex = false;
             m_minPoint = source_vertex;
@@ -328,43 +353,25 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
             if(source_vertex.z > m_maxPoint.z) m_maxPoint.z = source_vertex.z;
         }
         if(uva.size() > iVertex) {
-            KRVector2 source_uva = uva[iVertex];
-            pVertex->uva.u = source_uva.x;
-            pVertex->uva.v = source_uva.y;
+            setVertexUVA(iVertex, uva[iVertex]);
         } else {
-            pVertex->uva.u = 0.0;
-            pVertex->uva.v = 0.0;
+            setVertexUVA(iVertex, KRVector2::Zero());
         }
         if(uvb.size() > iVertex) {
-            KRVector2 source_uvb = uvb[iVertex];
-            pVertex->uvb.u = source_uvb.x;
-            pVertex->uvb.v = source_uvb.y;
+            setVertexUVB(iVertex, uvb[iVertex]);
         } else {
-            pVertex->uvb.u = 0.0;
-            pVertex->uvb.v = 0.0;
+            setVertexUVB(iVertex, KRVector2::Zero());
         }
         if(normals.size() > iVertex) {
-            KRVector3 source_normal = normals[iVertex];
-            pVertex->normal.x = source_normal.x;
-            pVertex->normal.y = source_normal.y;
-            pVertex->normal.z = source_normal.z;
+            setVertexNormal(iVertex, normals[iVertex]);
         } else {
-            pVertex->normal.x = 0.0f;
-            pVertex->normal.y = 0.0f;
-            pVertex->normal.z = 0.0f;
+            setVertexNormal(iVertex, KRVector3::Zero());
         }
         if(tangents.size() > iVertex) {
-            KRVector3 source_tangent = tangents[iVertex];
-            pVertex->tangent.x = source_tangent.x;
-            pVertex->tangent.y = source_tangent.y;
-            pVertex->tangent.z = source_tangent.z;
+            setVertexTangent(iVertex, tangents[iVertex]);
         } else {
-            pVertex->tangent.x = 0.0f;
-            pVertex->tangent.y = 0.0f;
-            pVertex->tangent.z = 0.0f;
+            setVertexTangent(iVertex, KRVector3::Zero());
         }
-        
-        pVertex++;
     }
     
     pHeader->minx = m_minPoint.x;
@@ -377,67 +384,53 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
     
     // Calculate missing surface normals and tangents
     //cout << "  Calculate surface normals and tangents\n";
-    VertexData *pStart = pVertexData;
-    VertexData *pEnd = pStart + vertex_count;
     
-    for(VertexData *pVertex = pStart; pVertex < pEnd; pVertex+=3) {
-        KRVector3 p1(pVertex[0].vertex.x, pVertex[0].vertex.y, pVertex[0].vertex.z);
-        KRVector3 p2(pVertex[1].vertex.x, pVertex[1].vertex.y, pVertex[1].vertex.z);
-        KRVector3 p3(pVertex[2].vertex.x, pVertex[2].vertex.y, pVertex[2].vertex.z);
+    for(int iVertex=0; iVertex < vertices.size(); iVertex+= 3) {
+        KRVector3 p1 = getVertexPosition(iVertex);
+        KRVector3 p2 = getVertexPosition(iVertex+1);
+        KRVector3 p3 = getVertexPosition(iVertex+2);
         KRVector3 v1 = p2 - p1;
         KRVector3 v2 = p3 - p1;
         
-        // -- Calculate normal --
-        if(pVertex->normal.x == 0 && pVertex->normal.y == 0 && pVertex->normal.z == 0) {
-            
-            KRVector3 normal = KRVector3::Cross(v1, v2);
-            
-            normal.normalize();
-            
-            pVertex[0].normal.x = normal.x;
-            pVertex[0].normal.y = normal.y;
-            pVertex[0].normal.z = normal.z;
-            
-            pVertex[1].normal.x = normal.x;
-            pVertex[1].normal.y = normal.y;
-            pVertex[1].normal.z = normal.z;
-            
-            pVertex[2].normal.x = normal.x;
-            pVertex[2].normal.y = normal.y;
-            pVertex[2].normal.z = normal.z;
+        
+        // -- Calculate normal if missing --
+        if(calculate_normals) {
+            KRVector3 first_normal = getVertexNormal(iVertex);
+            if(first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
+                // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
+                KRVector3 normal = KRVector3::Cross(v1, v2);
+                
+                normal.normalize();
+                setVertexNormal(iVertex, normal);
+                setVertexNormal(iVertex+1, normal);
+                setVertexNormal(iVertex+2, normal);
+            }
         }
         
         // -- Calculate tangent vector for normal mapping --
-        if(pVertex->tangent.x == 0 && pVertex->tangent.y == 0 && pVertex->tangent.z == 0) {
-            TexCoord st1; // = pVertex[2].texcoord;
-            TexCoord st2; // = pVertex[1].texcoord;
-            st1.u = pVertex[1].uva.u - pVertex[0].uva.u;
-            st1.v = pVertex[1].uva.v - pVertex[0].uva.v;
-            st2.u = pVertex[2].uva.u - pVertex[0].uva.u;
-            st2.v = pVertex[2].uva.v - pVertex[0].uva.v;
-            double coef = 1/ (st1.u * st2.v - st2.u * st1.v);
-            
-            pVertex[0].tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));
-            pVertex[0].tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
-            pVertex[0].tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
-            
-            KRVector3 tangent(
-                              coef * ((v1.x * st2.v)  + (v2.x * -st1.v)),
-                              coef * ((v1.y * st2.v)  + (v2.y * -st1.v)),
-                              coef * ((v1.z * st2.v)  + (v2.z * -st1.v))
-                              );
-            
-            tangent.normalize();
-            
-            pVertex[0].tangent.x = tangent.x;
-            pVertex[0].tangent.y = tangent.y;
-            pVertex[0].tangent.z = tangent.z;
-            pVertex[1].tangent.x = tangent.x;
-            pVertex[1].tangent.y = tangent.y;
-            pVertex[1].tangent.z = tangent.z;
-            pVertex[2].tangent.x = tangent.x;
-            pVertex[2].tangent.y = tangent.y;
-            pVertex[2].tangent.z = tangent.z;
+        if(calculate_tangents) {
+            KRVector3 first_tangent = getVertexTangent(iVertex);
+            if(first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
+
+                KRVector2 uv0 = getVertexUVA(iVertex);
+                KRVector2 uv1 = getVertexUVA(iVertex + 1);
+                KRVector2 uv2 = getVertexUVA(iVertex + 2);
+                
+                KRVector2 st1 = KRVector2(uv1.x - uv0.x, uv1.y - uv0.y);
+                KRVector2 st2 = KRVector2(uv2.x - uv0.x, uv2.y - uv0.y);
+                double coef = 1/ (st1.x * st2.y - st2.x * st1.y);
+                
+                KRVector3 tangent(
+                                  coef * ((v1.x * st2.y)  + (v2.x * -st1.y)),
+                                  coef * ((v1.y * st2.y)  + (v2.y * -st1.y)),
+                                  coef * ((v1.z * st2.y)  + (v2.z * -st1.y))
+                                  );
+                
+                tangent.normalize();
+                setVertexTangent(iVertex, tangent);
+                setVertexTangent(iVertex+1, tangent);
+                setVertexTangent(iVertex+2, tangent);
+            }
         }
     }
 }
@@ -472,3 +465,158 @@ bool KRModel::lod_sort_predicate(const KRModel *m1, const KRModel *m2)
     return m1->m_lodCoverage > m2->m_lodCoverage;
 }
 
+bool KRModel::has_vertex_attribute(vertex_attrib_t attribute_type) const
+{
+    return (getHeader()->vertex_attrib_flags & (1 << attribute_type)) != 0;
+}
+
+KRModel::pack_header *KRModel::getHeader() const
+{
+    return (pack_header *)m_pData->getStart();
+}
+
+KRModel::pack_material *KRModel::getSubmesh(int mesh_index)
+{
+    return (pack_material *)(getHeader()+1) + mesh_index;
+}
+
+unsigned char *KRModel::getVertexData(int index) const
+{
+    return getVertexData() + m_vertex_size * index;
+}
+
+int KRModel::getSubmeshCount()
+{
+    pack_header *header = (pack_header *)m_pData->getStart();
+    return header->submesh_count;
+}
+
+int KRModel::getVertexCount(int submesh)
+{
+    return getSubmesh(submesh)->vertex_count;
+}
+
+KRVector3 KRModel::getVertexPosition(int index) const
+{
+    if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
+        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]));
+    } else {
+        return KRVector3::Zero();
+    }
+}
+
+KRVector3 KRModel::getVertexNormal(int index) const
+{
+    if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
+        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]));
+    } else {
+        return KRVector3::Zero();
+    }
+}
+
+KRVector3 KRModel::getVertexTangent(int index) const
+{
+    if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
+        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]));
+    } else {
+        return KRVector3::Zero();
+    }
+}
+
+KRVector2 KRModel::getVertexUVA(int index) const
+{
+    if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA)) {
+        return KRVector2((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA]));
+    } else {
+        return KRVector2::Zero();
+    }
+}
+
+KRVector2 KRModel::getVertexUVB(int index) const
+{
+    if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB)) {
+        return KRVector2((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB]));
+    } else {
+        return KRVector2::Zero();
+    }
+}
+
+void KRModel::setVertexPosition(int index, const KRVector3 &v)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]);
+    vert[0] = v.x;
+    vert[1] = v.y;
+    vert[2] = v.z;
+}
+
+void KRModel::setVertexNormal(int index, const KRVector3 &v)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]);
+    vert[0] = v.x;
+    vert[1] = v.y;
+    vert[2] = v.z;
+}
+
+void KRModel::setVertexTangent(int index, const KRVector3 & v)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]);
+    vert[0] = v.x;
+    vert[1] = v.y;
+    vert[2] = v.z;
+}
+
+void KRModel::setVertexUVA(int index, const KRVector2 &v)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA]);
+    vert[0] = v.x;
+    vert[1] = v.y;
+}
+
+void KRModel::setVertexUVB(int index, const KRVector2 &v)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB]);
+    vert[0] = v.x;
+    vert[1] = v.y;
+}
+
+size_t KRModel::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
+{
+    size_t data_size = 0;
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_VERTEX)) {
+        data_size += sizeof(float) * 3;
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_NORMAL)) {
+        data_size += sizeof(float) * 3;
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_TANGENT)) {
+        data_size += sizeof(float) * 3;
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_TEXUVA)) {
+        data_size += sizeof(float) * 2;
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_TEXUVB)) {
+        data_size += sizeof(float) * 2;
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_BONEINDEXES)) {
+        data_size += 4; // 4 bytes
+    }
+    if(vertex_attrib_flags & (1 << KRENGINE_ATTRIB_BONEWEIGHTS)) {
+        data_size += sizeof(float) * 4;
+    }
+    return data_size;
+}
+
+void KRModel::updateAttributeOffsets()
+{
+    pack_header *header = getHeader();
+    int mask = 0;
+    for(int i=0; i < KRENGINE_NUM_ATTRIBUTES; i++) {
+        if(has_vertex_attribute((vertex_attrib_t)i)) {
+            m_vertex_attribute_offset[i] = VertexSizeForAttributes(header->vertex_attrib_flags & mask);
+        } else {
+            m_vertex_attribute_offset[i] = -1;
+        }
+        mask = (mask << 1) & 1;
+    }
+    m_vertex_size = VertexSizeForAttributes(header->vertex_attrib_flags);
+}

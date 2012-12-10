@@ -79,7 +79,7 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *>
                     1.0f
                     ));
 
-                m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), particle_count * 3 * sizeof(KRModelManager::RandomParticleVertexData), true, false, false, true, false);
+                m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), particle_count * 3 * sizeof(KRModelManager::RandomParticleVertexData), true, false, false, true, false, false, false);
                 GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
             }
         }

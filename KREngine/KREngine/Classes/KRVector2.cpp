@@ -26,6 +26,11 @@ KRVector2::KRVector2(float v) {
     y = v;
 }
 
+KRVector2::KRVector2(float *v) {
+    x = v[0];
+    y = v[1];
+}
+
 KRVector2::KRVector2(const KRVector2 &v) {
     x = v.x;
     y = v.y;

@@ -42,6 +42,7 @@ public:
     KRVector2();
     KRVector2(float X, float Y);
     KRVector2(float v);
+    KRVector2(float *v);
     KRVector2(const KRVector2 &v);
     ~KRVector2();
     
