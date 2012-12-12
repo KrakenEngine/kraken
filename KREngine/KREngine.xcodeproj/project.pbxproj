@@ -23,6 +23,7 @@
 		E416AA9A16713749000F6786 /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
+		E41843921678704000DBD6CF /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		E428C2F21669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; };
 		E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F51669611600A16EDF /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
@@ -1091,6 +1092,7 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
+				E41843921678704000DBD6CF /* KRCollider.cpp in Sources */,
 				E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,
 				E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */,
 				E428C2F61669611600A16EDF /* KRAnimationManager.cpp in Sources */,

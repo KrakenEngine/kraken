@@ -398,7 +398,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 //    
 //    pNode->SetPivotState(KFbxNode::eSourcePivot, KFbxNode::ePivotActive);
 //    pNode->SetPivotState(KFbxNode::eDestinationPivot, KFbxNode::ePivotActive);
-//    
+//
 //    // Pass the current value to the source pivot.
 ////    *     - Rotation offset (Roff)
 ////    *     - Rotation pivot (Rp)
@@ -700,13 +700,86 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
-    int skin_count = pMesh->GetDeformerCount(FbxDeformer::eSkin);
-    for(int skin_index=0; skin_index<skin_count; skin_index++) {
-        FbxSkin *skin = (FbxSkin *)pMesh->GetDeformer(skin_index, FbxDeformer::eSkin);
-        skin->GetControlPointBlendWeights()
+    int control_point_count = pMesh->GetControlPointsCount();
+    KFbxVector4* control_points = pMesh->GetControlPoints();
+    
+    const int MAX_BONE_WEIGHTS = 4;
+    
+    struct control_point_weight_info {
+        float weights[MAX_BONE_WEIGHTS];
+        int bone_indexes[MAX_BONE_WEIGHTS];
+    };
+    
+    control_point_weight_info *control_point_weights = new control_point_weight_info[control_point_count];
+    for(int control_point=0; control_point < control_point_count; control_point++) {
+        for(int i=0; i<MAX_BONE_WEIGHTS; i++) {
+            control_point_weights[control_point].weights[i] = 0.0f;
+            control_point_weights[control_point].bone_indexes[i] = 0;
+        }
+
     }
     
-    KFbxVector4* control_points = pMesh->GetControlPoints(); 
+    std::list<std::string> bone_names;
+    bool too_many_bone_weights = false;
+    
+    // Collect the top 4 bone weights per vertex ...
+    int skin_count = pMesh->GetDeformerCount(FbxDeformer::eSkin);
+    int target_bone_index = 0;
+    for(int skin_index=0; skin_index<skin_count; skin_index++) {
+        FbxSkin *skin = (FbxSkin *)pMesh->GetDeformer(skin_index, FbxDeformer::eSkin);
+        int cluster_count = skin->GetClusterCount();
+        printf("  Found skin with %i clusters.\n", cluster_count);
+        for(int cluster_index=0; cluster_index < cluster_count; cluster_index++) {
+            FbxCluster *cluster = skin->GetCluster(cluster_index);
+            if(cluster->GetLinkMode() != FbxCluster::eNormalize) {
+                printf("    Warning!  link mode not supported.\n");
+            }
+            std::string bone_name = GetFbxObjectName(cluster->GetLink());
+            bone_names.push_back(bone_name);
+            
+            int cluster_control_point_count = cluster->GetControlPointIndicesCount();
+            for(int control_point=0; control_point<cluster_control_point_count; control_point++) {
+                control_point_weight_info &weight_info = control_point_weights[cluster->GetControlPointIndices()[control_point]];
+                float bone_weight = cluster->GetControlPointWeights()[control_point];
+                if(bone_weight > weight_info.weights[MAX_BONE_WEIGHTS - 1]) {
+                    if(weight_info.weights[MAX_BONE_WEIGHTS - 1] != 0.0f) {
+                        too_many_bone_weights = true;
+                    }
+                    weight_info.weights[MAX_BONE_WEIGHTS - 1] = bone_weight;
+                    weight_info.bone_indexes[MAX_BONE_WEIGHTS - 1] = target_bone_index;
+                    for(int bone_index=MAX_BONE_WEIGHTS - 1; bone_index >=0; bone_index--) {
+                        if(bone_weight > weight_info.weights[bone_index]) {
+                            weight_info.weights[bone_index+1] = weight_info.weights[bone_index];
+                            weight_info.bone_indexes[bone_index+1] = weight_info.bone_indexes[bone_index];
+                            weight_info.weights[bone_index] = bone_weight;
+                            weight_info.bone_indexes[bone_index] = target_bone_index;
+                        }
+                    }
+                } else {
+                    too_many_bone_weights = true;
+                }
+            }
+            target_bone_index++;
+        }
+    }
+    
+    if(too_many_bone_weights) {
+        printf("    WARNING! - Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).\n", MAX_BONE_WEIGHTS);
+    }
+    // Normalize bone weights
+    if(bone_names.size() > 0) {
+        for(int control_point_index=0; control_point_index < control_point_count; control_point_index++) {
+            control_point_weight_info &weight_info = control_point_weights[control_point_index];
+            float total_weights = 0.0f;
+            for(int i=0; i < MAX_BONE_WEIGHTS; i++) {
+                total_weights += weight_info.weights[i];
+            }
+            if(total_weights == 0.0f) total_weights = 1.0f; // Prevent any divisions by zero
+            for(int i=0; i < MAX_BONE_WEIGHTS; i++) {
+                weight_info.weights[i] = weight_info.weights[i] / total_weights;
+            }
+        }
+    }
     
     int polygon_count = pMesh->GetPolygonCount();
     int uv_count = pMesh->GetElementUVCount();
@@ -718,6 +791,9 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
         
     printf("  Polygon Count: %i (before triangulation: %i)\n", polygon_count, pSourceMesh->GetPolygonCount());
 
+    std::vector<std::vector<float> > bone_weights;
+    std::vector<std::vector<int> > bone_indexes;
+    
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
     std::vector<KRVector2> uvb;
@@ -762,6 +838,18 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
                         int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
                         KFbxVector4 v = control_points[lControlPointIndex];
                         vertices.push_back(KRVector3(v[0], v[1], v[2]));
+                        
+                        if(bone_names.size() > 0) {
+                            control_point_weight_info &weight_info = control_point_weights[lControlPointIndex];
+                            std::vector<int> vertex_bone_indexes;
+                            std::vector<float> vertex_bone_weights;
+                            for(int i=0; i<MAX_BONE_WEIGHTS; i++) {
+                                vertex_bone_indexes.push_back(weight_info.bone_indexes[i]);
+                                vertex_bone_weights.push_back(weight_info.weights[i]);
+                            }
+                            bone_indexes.push_back(vertex_bone_indexes);
+                            bone_weights.push_back(vertex_bone_weights);
+                        }
                         
                         KRVector2 new_uva = KRVector2(0.0, 0.0);
                         KRVector2 new_uvb = KRVector2(0.0, 0.0);
@@ -990,14 +1078,14 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
             }
         }
     }
-    
 
+    delete control_point_weights;
     
     
     // ----====---- Generate Output Mesh Object ----====----
 
     KRModel *new_mesh = new KRModel(parent_node->getContext(), pNode->GetName());
-    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
+    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights);
     resources.push_back(new_mesh);
     
     if(new_mesh->getLODCoverage() == 100) {

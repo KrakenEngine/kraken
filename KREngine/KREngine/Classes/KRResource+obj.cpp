@@ -333,7 +333,12 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
             delete pNewMaterial;
         }
         
-        new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names);
+        // TODO: Bones not yet supported for OBJ
+        std::list<std::string> bone_names;
+        std::vector<std::vector<int> > bone_indexes;
+        std::vector<std::vector<float> > bone_weights;
+        
+        new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights);
     }
     
     if(pFaces) {
