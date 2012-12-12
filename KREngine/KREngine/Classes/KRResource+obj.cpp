@@ -334,7 +334,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         }
         
         // TODO: Bones not yet supported for OBJ
-        std::list<std::string> bone_names;
+        std::vector<std::string> bone_names;
         std::vector<std::vector<int> > bone_indexes;
         std::vector<std::vector<float> > bone_weights;
         

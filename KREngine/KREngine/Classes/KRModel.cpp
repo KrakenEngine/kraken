@@ -213,7 +213,7 @@ bool KRModel::hasTransparency() {
 
 vector<KRModel::Submesh *> KRModel::getSubmeshes() {
     if(m_submeshes.size() == 0) {
-        pack_header *pHeader = (pack_header *)m_pData->getStart();
+        pack_header *pHeader = getHeader();
         pack_material *pPackMaterials = (pack_material *)(pHeader+1);
         m_submeshes.clear();
         for(int iMaterial=0; iMaterial < pHeader->submesh_count; iMaterial++) {
@@ -223,8 +223,8 @@ vector<KRModel::Submesh *> KRModel::getSubmeshes() {
             pSubmesh->start_vertex = pPackMaterial->start_vertex;
             pSubmesh->vertex_count = pPackMaterial->vertex_count;
             
-            strncpy(pSubmesh->szMaterialName, pPackMaterial->szName, 256);
-            pSubmesh->szMaterialName[255] = '\0';
+            strncpy(pSubmesh->szMaterialName, pPackMaterial->szName, KRENGINE_MAX_NAME_LENGTH);
+            pSubmesh->szMaterialName[KRENGINE_MAX_NAME_LENGTH-1] = '\0';
             //fprintf(stderr, "Submesh material: \"%s\"\n", pSubmesh->szMaterialName);
             m_submeshes.push_back(pSubmesh);
         }
@@ -235,7 +235,7 @@ vector<KRModel::Submesh *> KRModel::getSubmeshes() {
 void KRModel::renderSubmesh(int iSubmesh) {
     unsigned char *pVertexData = getVertexData();
     
-    pack_header *pHeader = (pack_header *)m_pData->getStart();
+    pack_header *pHeader = getHeader();
     int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
     
     vector<KRModel::Submesh *> submeshes = getSubmeshes();
@@ -248,7 +248,6 @@ void KRModel::renderSubmesh(int iSubmesh) {
     while(cVertexes > 0) {
         GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
         int vertex_size = m_vertex_size;
-        assert(pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size >= m_pData->getStart());
         
         void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
         void *buffer_end = m_pData->getEnd();
@@ -277,14 +276,7 @@ void KRModel::renderSubmesh(int iSubmesh) {
     }
 }
 
-unsigned char *KRModel::getVertexData() const {
-    pack_header *pHeader = (pack_header *)m_pData->getStart();
-    pack_material *pPackMaterials = (pack_material *)(pHeader+1);
-    return (unsigned char *)(pPackMaterials + pHeader->submesh_count);
-}
-
-
-void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::list<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights) {
+void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights) {
     
     clearData();
     
@@ -308,18 +300,23 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
     if(uvb.size()) {
         vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB);
     }
+    if(bone_names.size()) {
+        vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
+    }
     size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
     
-    int submesh_count = submesh_lengths.size();
-    int vertex_count = vertices.size();
-    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + vertex_size * vertex_count;
+    size_t submesh_count = submesh_lengths.size();
+    size_t vertex_count = vertices.size();
+    size_t bone_count = bone_names.size();
+    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + vertex_size * vertex_count;
     m_pData->expand(new_file_size);
     
-    pack_header *pHeader = (pack_header *)m_pData->getStart();
+    pack_header *pHeader = getHeader();
     memset(pHeader, 0, sizeof(pack_header));
     pHeader->vertex_attrib_flags = vertex_attrib_flags;
-    pHeader->submesh_count = submesh_lengths.size();
-    pHeader->vertex_count = vertices.size();
+    pHeader->submesh_count = (__int32_t)submesh_count;
+    pHeader->vertex_count = (__int32_t)vertex_count;
+    pHeader->bone_count = (__int32_t)bone_count;
     strcpy(pHeader->szTag, "KROBJPACK1.1   ");
     updateAttributeOffsets();
     
@@ -329,7 +326,14 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
         pack_material *pPackMaterial = pPackMaterials + iMaterial;
         pPackMaterial->start_vertex = submesh_starts[iMaterial];
         pPackMaterial->vertex_count = submesh_lengths[iMaterial];
-        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), 256);
+        memset(pPackMaterial->szName, 0, KRENGINE_MAX_NAME_LENGTH);
+        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), KRENGINE_MAX_NAME_LENGTH);
+    }
+    
+    for(int bone_index=0; bone_index < bone_count; bone_index++) {
+        pack_bone *bone = getBone(bone_index);
+        memset(bone->szName, 0, KRENGINE_MAX_NAME_LENGTH);
+        strncpy(bone->szName, bone_names[bone_index].c_str(), KRENGINE_MAX_NAME_LENGTH);
     }
     
     bool bFirstVertex = true;
@@ -340,6 +344,12 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
     for(int iVertex=0; iVertex < vertices.size(); iVertex++) {
         KRVector3 source_vertex = vertices[iVertex];
         setVertexPosition(iVertex, source_vertex);
+        if(bone_names.size()) {
+            for(int bone_weight_index=0; bone_weight_index<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; bone_weight_index++) {
+                setBoneIndex(iVertex, bone_weight_index, bone_indexes[iVertex][bone_weight_index]);
+                setBoneWeight(iVertex, bone_weight_index, bone_weights[iVertex][bone_weight_index]);
+            }
+        }
         if(bFirstVertex) {
             bFirstVertex = false;
             m_minPoint = source_vertex;
@@ -354,23 +364,15 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
         }
         if(uva.size() > iVertex) {
             setVertexUVA(iVertex, uva[iVertex]);
-        } else {
-            setVertexUVA(iVertex, KRVector2::Zero());
         }
         if(uvb.size() > iVertex) {
             setVertexUVB(iVertex, uvb[iVertex]);
-        } else {
-            setVertexUVB(iVertex, KRVector2::Zero());
         }
         if(normals.size() > iVertex) {
             setVertexNormal(iVertex, normals[iVertex]);
-        } else {
-            setVertexNormal(iVertex, KRVector3::Zero());
         }
         if(tangents.size() > iVertex) {
             setVertexTangent(iVertex, tangents[iVertex]);
-        } else {
-            setVertexTangent(iVertex, KRVector3::Zero());
         }
     }
     
@@ -475,9 +477,20 @@ KRModel::pack_header *KRModel::getHeader() const
     return (pack_header *)m_pData->getStart();
 }
 
+KRModel::pack_bone *KRModel::getBone(int index)
+{
+    pack_header *header = getHeader();
+    return (pack_bone *)((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * header->submesh_count;
+}
+
+unsigned char *KRModel::getVertexData() const {
+    pack_header *pHeader = getHeader();
+    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
+}
+
 KRModel::pack_material *KRModel::getSubmesh(int mesh_index)
 {
-    return (pack_material *)(getHeader()+1) + mesh_index;
+    return (pack_material *)((unsigned char *)m_pData->getStart() + sizeof(pack_header)) + mesh_index;
 }
 
 unsigned char *KRModel::getVertexData(int index) const
@@ -487,7 +500,7 @@ unsigned char *KRModel::getVertexData(int index) const
 
 int KRModel::getSubmeshCount()
 {
-    pack_header *header = (pack_header *)m_pData->getStart();
+    pack_header *header = getHeader();
     return header->submesh_count;
 }
 
@@ -579,6 +592,31 @@ void KRModel::setVertexUVB(int index, const KRVector2 &v)
     vert[1] = v.y;
 }
 
+
+int KRModel::getBoneIndex(int index, int weight_index) const
+{
+    unsigned char *vert = (unsigned char *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEINDEXES]);
+    return vert[weight_index];
+}
+
+void KRModel::setBoneIndex(int index, int weight_index, int bone_index)
+{
+    unsigned char *vert = (unsigned char *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEINDEXES]);
+    vert[weight_index] = bone_index;
+}
+
+float KRModel::getBoneWeight(int index, int weight_index) const
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEWEIGHTS]);
+    return vert[weight_index];
+}
+
+void KRModel::setBoneWeight(int index, int weight_index, float bone_weight)
+{
+    float *vert = (float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEWEIGHTS]);
+    vert[weight_index] = bone_weight;
+}
+
 size_t KRModel::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
 {
     size_t data_size = 0;
@@ -616,7 +654,18 @@ void KRModel::updateAttributeOffsets()
         } else {
             m_vertex_attribute_offset[i] = -1;
         }
-        mask = (mask << 1) & 1;
+        mask = (mask << 1) | 1;
     }
     m_vertex_size = VertexSizeForAttributes(header->vertex_attrib_flags);
+}
+
+size_t KRModel::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags)
+{
+    int mask = 0;
+    for(int i=0; i < vertex_attrib; i++) {
+        if(vertex_attrib_flags & (1 << i)) {
+            mask |= (1 << i);
+        }
+    }
+    return VertexSizeForAttributes(mask);
 }

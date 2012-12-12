@@ -165,99 +165,79 @@ void KRModelManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, 
 
 void KRModelManager::configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights)
 {
+    __int32_t attributes = 0;
+    
     if(enable_vertex) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_VERTEX);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_VERTEX));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_VERTEX));
     }
 
     if(enable_normal) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_NORMAL);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_NORMAL));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_NORMAL));
     }
 
     if(enable_tangent) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_TANGENT);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TANGENT));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TANGENT));
     }
 
     if(enable_uva) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_TEXUVA);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TEXUVA));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TEXUVA));
     }
 
     if(enable_uvb) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_TEXUVB);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TEXUVB));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_TEXUVB));
     }
     
     if(enable_bone_indexes) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_BONEINDEXES);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_BONEINDEXES));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_BONEINDEXES));
     }
     
     if(enable_bone_weights) {
+        attributes |= (1 << KRModel::KRENGINE_ATTRIB_BONEWEIGHTS);
         GLDEBUG(glEnableVertexAttribArray(KRModel::KRENGINE_ATTRIB_BONEWEIGHTS));
     } else {
         GLDEBUG(glDisableVertexAttribArray(KRModel::KRENGINE_ATTRIB_BONEWEIGHTS));
     }
-
-    int data_size = 0;
-    if(enable_vertex) {
-        data_size += sizeof(GLfloat) * 3;
-    }
-    if(enable_normal) {
-        data_size += sizeof(GLfloat) * 3;
-    }
-    if(enable_tangent) {
-        data_size += sizeof(GLfloat) * 3;
-    }
-    if(enable_uva) {
-        data_size += sizeof(GLfloat) * 2;
-    }
-    if(enable_uvb) {
-        data_size += sizeof(GLfloat) * 2;
-    }
-    if(enable_bone_indexes ) {
-        data_size += 4; // 4 bytes
-    }
-    if(enable_bone_weights) {
-        data_size += sizeof(GLfloat) * 4;
-    }
     
-    int offset = 0;
+    GLsizei data_size = (GLsizei)KRModel::VertexSizeForAttributes(attributes);
+    
     if(enable_vertex) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(KRModel::KRVector3D);
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_VERTEX, attributes))));
     }
     if(enable_normal) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(KRModel::KRVector3D);
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_NORMAL, attributes))));
     }
     if(enable_tangent) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(KRModel::KRVector3D);
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_TANGENT, attributes))));
     }
     if(enable_uva) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(KRModel::TexCoord);
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_TEXUVA, attributes))));
     }
     if(enable_uvb) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(KRModel::TexCoord);
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_TEXUVB, attributes))));
     }
     if(enable_bone_indexes ) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_BONEINDEXES, 1, GL_UNSIGNED_BYTE, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += 4; // 4 bytes
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_BONEINDEXES, 1, GL_UNSIGNED_BYTE, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_BONEINDEXES, attributes))));
     }
     if(enable_bone_weights) {
-        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_BONEWEIGHTS, 4, GL_FLOAT, 0, data_size, BUFFER_OFFSET(offset)));
-        offset += sizeof(GLfloat) * 4;
+        GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_BONEWEIGHTS, 4, GL_FLOAT, 0, data_size, BUFFER_OFFSET(KRModel::AttributeOffset(KRModel::KRENGINE_ATTRIB_BONEWEIGHTS, attributes))));
     }
 }
 

@@ -703,23 +703,21 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     int control_point_count = pMesh->GetControlPointsCount();
     KFbxVector4* control_points = pMesh->GetControlPoints();
     
-    const int MAX_BONE_WEIGHTS = 4;
-    
     struct control_point_weight_info {
-        float weights[MAX_BONE_WEIGHTS];
-        int bone_indexes[MAX_BONE_WEIGHTS];
+        float weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
+        int bone_indexes[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
     };
     
     control_point_weight_info *control_point_weights = new control_point_weight_info[control_point_count];
     for(int control_point=0; control_point < control_point_count; control_point++) {
-        for(int i=0; i<MAX_BONE_WEIGHTS; i++) {
+        for(int i=0; i<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
             control_point_weights[control_point].weights[i] = 0.0f;
             control_point_weights[control_point].bone_indexes[i] = 0;
         }
 
     }
     
-    std::list<std::string> bone_names;
+    std::vector<std::string> bone_names;
     bool too_many_bone_weights = false;
     
     // Collect the top 4 bone weights per vertex ...
@@ -741,13 +739,13 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
             for(int control_point=0; control_point<cluster_control_point_count; control_point++) {
                 control_point_weight_info &weight_info = control_point_weights[cluster->GetControlPointIndices()[control_point]];
                 float bone_weight = cluster->GetControlPointWeights()[control_point];
-                if(bone_weight > weight_info.weights[MAX_BONE_WEIGHTS - 1]) {
-                    if(weight_info.weights[MAX_BONE_WEIGHTS - 1] != 0.0f) {
+                if(bone_weight > weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1]) {
+                    if(weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] != 0.0f) {
                         too_many_bone_weights = true;
                     }
-                    weight_info.weights[MAX_BONE_WEIGHTS - 1] = bone_weight;
-                    weight_info.bone_indexes[MAX_BONE_WEIGHTS - 1] = target_bone_index;
-                    for(int bone_index=MAX_BONE_WEIGHTS - 1; bone_index >=0; bone_index--) {
+                    weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] = bone_weight;
+                    weight_info.bone_indexes[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] = target_bone_index;
+                    for(int bone_index=KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1; bone_index >=0; bone_index--) {
                         if(bone_weight > weight_info.weights[bone_index]) {
                             weight_info.weights[bone_index+1] = weight_info.weights[bone_index];
                             weight_info.bone_indexes[bone_index+1] = weight_info.bone_indexes[bone_index];
@@ -764,18 +762,18 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     }
     
     if(too_many_bone_weights) {
-        printf("    WARNING! - Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).\n", MAX_BONE_WEIGHTS);
+        printf("    WARNING! - Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).\n", KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX);
     }
     // Normalize bone weights
     if(bone_names.size() > 0) {
         for(int control_point_index=0; control_point_index < control_point_count; control_point_index++) {
             control_point_weight_info &weight_info = control_point_weights[control_point_index];
             float total_weights = 0.0f;
-            for(int i=0; i < MAX_BONE_WEIGHTS; i++) {
+            for(int i=0; i < KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
                 total_weights += weight_info.weights[i];
             }
             if(total_weights == 0.0f) total_weights = 1.0f; // Prevent any divisions by zero
-            for(int i=0; i < MAX_BONE_WEIGHTS; i++) {
+            for(int i=0; i < KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
                 weight_info.weights[i] = weight_info.weights[i] / total_weights;
             }
         }
@@ -843,7 +841,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
                             control_point_weight_info &weight_info = control_point_weights[lControlPointIndex];
                             std::vector<int> vertex_bone_indexes;
                             std::vector<float> vertex_bone_weights;
-                            for(int i=0; i<MAX_BONE_WEIGHTS; i++) {
+                            for(int i=0; i<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
                                 vertex_bone_indexes.push_back(weight_info.bone_indexes[i]);
                                 vertex_bone_weights.push_back(weight_info.weights[i]);
                             }
