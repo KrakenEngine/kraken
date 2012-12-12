@@ -66,9 +66,29 @@ tinyxml2::XMLElement *KRInstance::saveXML( tinyxml2::XMLNode *parent)
 
 void KRInstance::loadModel() {
     if(m_models.size() == 0) {
-        m_models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
-        if(m_models.size() > 0) {
-            getScene().notify_sceneGraphModify(this);
+        std::vector<KRModel *> models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
+        std::map<KRModel *, std::vector<KRBone *> > bones;
+        if(models.size() > 0) {
+            bool all_bones_found = true;
+            for(std::vector<KRModel *>::iterator model_itr = models.begin(); model_itr != models.end(); model_itr++) {
+                KRModel *model = *model_itr;
+                std::vector<KRBone *> model_bones;
+                int bone_count = model->getBoneCount();
+                for(int bone_index=0; bone_index < bone_count; bone_index++) {
+                    KRBone *matching_bone = dynamic_cast<KRBone *>(getScene().getRootNode()->findChild(model->getBoneName(bone_index)));
+                    if(matching_bone) {
+                        model_bones.push_back(matching_bone);
+                    } else {
+                        all_bones_found = false; // Reject when there are any missing bones or multiple matches
+                    }
+                }
+                bones[model] = model_bones;
+            }
+            if(all_bones_found) {
+                m_models = models;
+                m_bones = bones;
+                getScene().notify_sceneGraphModify(this);
+            }
         }
     }
 }
@@ -117,7 +137,7 @@ void KRInstance::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const
                     matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(pCamera, lights, viewport, matModel, m_pLightMap, renderPass);
+                pModel->render(pCamera, lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
             }
         }
     }

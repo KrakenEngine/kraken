@@ -46,6 +46,7 @@
 #import "KRContext.h"
 #import "KRModel.h"
 #import "KRTexture.h"
+#import "KRBone.h"
 
 class KRInstance : public KRNode {
     
@@ -68,6 +69,7 @@ public:
     
 private:
     std::vector<KRModel *> m_models;
+    std::map<KRModel *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
     KRTexture *m_pLightMap;
     std::string m_lightMap;
     std::string m_model_name;

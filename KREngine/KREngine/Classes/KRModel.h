@@ -34,6 +34,7 @@
 #import <string>
 #import "KRVector2.h"
 #import "KRContext.h"
+#import "KRBone.h"
 
 #import "KREngine-common.h"
 
@@ -71,7 +72,7 @@ public:
     
 #if TARGET_OS_IPHONE
     
-    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones);
     
 #endif
     
@@ -171,6 +172,9 @@ public:
     
     static size_t VertexSizeForAttributes(__int32_t vertex_attrib_flags);
     static size_t AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags);
+    
+    int getBoneCount();
+    char *getBoneName(int bone_index);
 
 private:
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)

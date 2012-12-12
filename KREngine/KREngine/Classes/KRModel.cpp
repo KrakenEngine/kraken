@@ -112,7 +112,7 @@ void KRModel::loadPack(KRDataBlock *data) {
 
 #if TARGET_OS_IPHONE
 
-void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -480,7 +480,7 @@ KRModel::pack_header *KRModel::getHeader() const
 KRModel::pack_bone *KRModel::getBone(int index)
 {
     pack_header *header = getHeader();
-    return (pack_bone *)((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * header->submesh_count;
+    return (pack_bone *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * header->submesh_count + sizeof(pack_bone) * index);
 }
 
 unsigned char *KRModel::getVertexData() const {
@@ -668,4 +668,15 @@ size_t KRModel::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib
         }
     }
     return VertexSizeForAttributes(mask);
+}
+
+int KRModel::getBoneCount()
+{
+    pack_header *header = getHeader();
+    return header->bone_count;
+}
+
+char *KRModel::getBoneName(int bone_index)
+{
+    return getBone(bone_index)->szName;
 }
