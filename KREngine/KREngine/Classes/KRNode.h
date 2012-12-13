@@ -108,6 +108,7 @@ protected:
     
 private:
     void invalidateModelMatrix();
+    void invalidateBindPoseMatrix();
     KRMat4 m_modelMatrix;
     KRMat4 m_bindPoseMatrix;
     KRMat4 m_inverseBindPoseMatrix;

@@ -35,7 +35,7 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 #if BONE_COUNT > 0
     attribute highp vec4 bone_weights;
-    attribute lowp vec4 bone_indexes;
+    attribute mediump vec4 bone_indexes;
     uniform highp mat4 bone_transforms[BONE_COUNT];
 #else
     #define vertex_position_skinned vertex_position
@@ -165,23 +165,24 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 void main()
 {
 #if BONE_COUNT > 0
+    mediump vec4 scaled_bone_indexes = bone_indexes;
     highp vec3 vertex_position_skinned =
-        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.x) +
-        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.y) +
-        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.z) +
-        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.w);
+        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.w);
 
     highp vec3 vertex_normal_skinned = normalize(
-        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.x) +
-        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.y) +
-        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.z) +
-        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.w));
+        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.w));
                                                  
     highp vec3 vertex_tangent_skinned = normalize(
-        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.x) +
-        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.y) +
-        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.z) +
-        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.w));
+        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.w));
 #endif
     
     

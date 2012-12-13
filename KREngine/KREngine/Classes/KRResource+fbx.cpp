@@ -534,6 +534,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
         int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
         for(int iLayer=0; iLayer < cLayers; iLayer++) {
             FbxAnimLayer *pFbxAnimLayer = pAnimStack->GetMember<FbxAnimLayer>(iLayer);
+            float weight = pFbxAnimLayer->Weight.Get();
             KRAnimationLayer *pAnimationLayer = pAnimation->getLayer(pFbxAnimLayer->GetName());
             
             FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
