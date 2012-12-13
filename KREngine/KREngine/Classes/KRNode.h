@@ -69,6 +69,8 @@ public:
     
     virtual KRAABB getBounds();
     const KRMat4 &getModelMatrix();
+    const KRMat4 &getBindPoseMatrix();
+    const KRMat4 &getInverseBindPoseMatrix();
     
     enum node_attribute_type {
         KRENGINE_NODE_ATTRIBUTE_NONE,
@@ -100,14 +102,18 @@ protected:
     KRVector3 m_localScale;
     KRVector3 m_localRotation;
     
-    KRVector3 m_originalLocalTranslation;
-    KRVector3 m_originalLocalScale;
-    KRVector3 m_originalLocalRotation;
+    KRVector3 m_initialLocalTranslation;
+    KRVector3 m_initialLocalScale;
+    KRVector3 m_initialLocalRotation;
     
 private:
     void invalidateModelMatrix();
     KRMat4 m_modelMatrix;
+    KRMat4 m_bindPoseMatrix;
+    KRMat4 m_inverseBindPoseMatrix;
     bool m_modelMatrixValid;
+    bool m_bindPoseMatrixValid;
+    bool m_inverseBindPoseMatrixValid;
     
     std::string m_name;
     

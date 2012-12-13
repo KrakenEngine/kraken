@@ -31,7 +31,19 @@
 
 attribute highp vec3	vertex_position, vertex_normal, vertex_tangent;
 attribute mediump vec2	vertex_uv;
-uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+
+#if BONE_COUNT > 0
+    attribute highp vec4 bone_weights;
+    attribute lowp vec4 bone_indexes;
+    uniform highp mat4 bone_transforms[BONE_COUNT];
+#else
+    #define vertex_position_skinned vertex_position
+    #define vertex_normal_skinned vertex_normal
+    #define vertex_tangent_skinned vertex_tangent
+#endif
+
+
 
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
     #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
@@ -152,8 +164,29 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 void main()
 {
+#if BONE_COUNT > 0
+    highp vec3 vertex_position_skinned =
+        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_position, 1.0)).xyz * bone_weights.w);
+
+    highp vec3 vertex_normal_skinned = normalize(
+        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_normal, 1.0)).xyz * bone_weights.w));
+                                                 
+    highp vec3 vertex_tangent_skinned = normalize(
+        ((bone_transforms[ int(bone_indexes.x) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.x) +
+        ((bone_transforms[ int(bone_indexes.y) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.y) +
+        ((bone_transforms[ int(bone_indexes.z) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.z) +
+        ((bone_transforms[ int(bone_indexes.w) ] * vec4(vertex_tangent, 1.0)).xyz * bone_weights.w));
+#endif
+    
+    
     // Transform position
-    gl_Position = mvp_matrix * vec4(vertex_position,1.0);
+    gl_Position = mvp_matrix * vec4(vertex_position_skinned,1.0);
     
     #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_REFLECTION_MAP == 1 && ENABLE_PER_PIXEL == 1)
         // Pass UV co-ordinates
@@ -195,23 +228,23 @@ void main()
     
     #if GBUFFER_PASS == 1
         #if HAS_NORMAL_MAP == 1
-            mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
-            tangent_to_view_matrix[0] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_tangent, 1.0));
+            mediump vec3 a_bitangent = cross(vertex_normal_skinned, vertex_tangent_skinned);
+            tangent_to_view_matrix[0] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_tangent_skinned, 1.0));
             tangent_to_view_matrix[1] = vec3(model_view_inverse_transpose_matrix * vec4(a_bitangent, 1.0));
-            tangent_to_view_matrix[2] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_normal, 1.0));
+            tangent_to_view_matrix[2] = vec3(model_view_inverse_transpose_matrix * vec4(vertex_normal_skinned, 1.0));
         #else
-            normal = vertex_normal;
+            normal = vertex_normal_skinned;
         #endif
     #else
 
         #if HAS_REFLECTION_CUBE_MAP == 1
             #if HAS_NORMAL_MAP == 1
-                eyeVec = normalize(camera_position_model_space - vertex_position);
+                eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
             #else
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
-                mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position);
+                mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
                 mediump vec3 incidenceVec = -eyeVec;
-                reflectionVec = mat3(model_matrix) * (incidenceVec - 2.0 * dot(vertex_normal, incidenceVec) * vertex_normal);
+                reflectionVec = mat3(model_matrix) * (incidenceVec - 2.0 * dot(vertex_normal_skinned, incidenceVec) * vertex_normal_skinned);
             #endif
         #endif
     
@@ -250,45 +283,45 @@ void main()
     
     
             #if SHADOW_QUALITY >= 1
-                shadowMapCoord1 = shadow_mvp1 * vec4(vertex_position,1.0);
+                shadowMapCoord1 = shadow_mvp1 * vec4(vertex_position_skinned,1.0);
             #endif
     
             #if SHADOW_QUALITY >= 2
-                shadowMapCoord2 = shadow_mvp2 * vec4(vertex_position,1.0);
+                shadowMapCoord2 = shadow_mvp2 * vec4(vertex_position_skinned,1.0);
             #endif
                 
             #if SHADOW_QUALITY >= 3
-                shadowMapCoord3 = shadow_mvp3 * vec4(vertex_position,1.0);
+                shadowMapCoord3 = shadow_mvp3 * vec4(vertex_position_skinned,1.0);
             #endif
 
             // ----------- Directional Light (Sun) -----------
             #if HAS_NORMAL_MAP == 1
                 // ----- Calculate per-pixel lighting in tangent space, for normal mapping ------
-                mediump vec3 a_bitangent = cross(vertex_normal, vertex_tangent);
+                mediump vec3 a_bitangent = cross(vertex_normal_skinned, vertex_tangent_skinned);
                 #if HAS_REFLECTION_CUBE_MAP == 0
                     // The cube map reflections also require an eyeVec as a varying attribute when normal mapping, so only re-calculate here when needed
-                    mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position);
+                    mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
                 #else
-                    tangent_to_world_matrix[0] = vec3(model_inverse_transpose_matrix * vec4(vertex_tangent, 1.0));
+                    tangent_to_world_matrix[0] = vec3(model_inverse_transpose_matrix * vec4(vertex_tangent_skinned, 1.0));
                     tangent_to_world_matrix[1] = vec3(model_inverse_transpose_matrix * vec4(a_bitangent, 1.0));
-                    tangent_to_world_matrix[2] = vec3(model_inverse_transpose_matrix * vec4(vertex_normal, 1.0));
+                    tangent_to_world_matrix[2] = vec3(model_inverse_transpose_matrix * vec4(vertex_normal_skinned, 1.0));
                 #endif
     
-                lightVec = normalize(vec3(dot(light_direction_model_space, vertex_tangent), dot(light_direction_model_space, a_bitangent), dot(light_direction_model_space, vertex_normal)));
-                halfVec = normalize(vec3(dot(eyeVec, vertex_tangent), dot(eyeVec, a_bitangent), dot(eyeVec, vertex_normal)));
+                lightVec = normalize(vec3(dot(light_direction_model_space, vertex_tangent_skinned), dot(light_direction_model_space, a_bitangent), dot(light_direction_model_space, vertex_normal_skinned)));
+                halfVec = normalize(vec3(dot(eyeVec, vertex_tangent_skinned), dot(eyeVec, a_bitangent), dot(eyeVec, vertex_normal_skinned)));
                 halfVec = normalize(halfVec + lightVec); // Normalizing anyways, no need to divide by 2
             #else
                 // ------ Calculate per-pixel lighting without normal mapping ------
-                normal = vertex_normal;
+                normal = vertex_normal_skinned;
                 lightVec = light_direction_model_space;
-                halfVec = normalize((normalize(camera_position_model_space - vertex_position) + lightVec)); // Normalizing anyways, no need to divide by 2
+                halfVec = normalize((normalize(camera_position_model_space - vertex_position_skinned) + lightVec)); // Normalizing anyways, no need to divide by 2
             #endif
         #else
     
             // ------ Calculate per-vertex lighting ------
-            mediump vec3 halfVec = normalize((normalize(camera_position_model_space - vertex_position) + light_direction_model_space)); // Normalizing anyways, no need to divide by 2
-            lamberFactor = max(0.0,dot(light_direction_model_space, vertex_normal));
-            specularFactor = max(0.0,pow(dot(halfVec,vertex_normal), material_shininess));
+            mediump vec3 halfVec = normalize((normalize(camera_position_model_space - vertex_position_skinned) + light_direction_model_space)); // Normalizing anyways, no need to divide by 2
+            lamberFactor = max(0.0,dot(light_direction_model_space, vertex_normal_skinned));
+            specularFactor = max(0.0,pow(dot(halfVec,vertex_normal_skinned), material_shininess));
         #endif
     #endif
 }

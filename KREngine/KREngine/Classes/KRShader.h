@@ -134,6 +134,8 @@ public:
         
         KRENGINE_UNIFORM_PARTICLE_ORIGIN,
         
+        KRENGINE_UNIFORM_BONE_TRANSFORMS,
+        
         KRENGINE_NUM_UNIFORMS
     };
     GLint m_uniforms[KRENGINE_NUM_UNIFORMS];

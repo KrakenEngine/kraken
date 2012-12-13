@@ -44,6 +44,7 @@ using std::list;
 #import "KRResource.h"
 #import "KRVector2.h"
 #import "KRScene.h"
+#import "KRBone.h"
 
 #ifndef KRMATERIAL_H
 #define KRMATERIAL_H
@@ -89,7 +90,7 @@ public:
     char *getName();
     
 #if TARGET_OS_IPHONE
-    bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 #endif
     

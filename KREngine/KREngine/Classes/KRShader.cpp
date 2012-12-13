@@ -197,6 +197,7 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
             
             
             GLDEBUG(m_uniforms[KRENGINE_UNIFORM_PARTICLE_ORIGIN] = glGetUniformLocation(m_iProgram, "particle_origin"));
+            GLDEBUG(m_uniforms[KRENGINE_UNIFORM_BONE_TRANSFORMS] = glGetUniformLocation(m_iProgram, "bone_transforms"));
 
             
         }

@@ -71,9 +71,9 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *>
             
             int particle_count = 10000;
             
-            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, lights, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), lights, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), lights, 0, renderPass)) {
                 GLDEBUG(glUniform1f(
                     pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
                     1.0f

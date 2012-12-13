@@ -214,7 +214,7 @@ bool KRMaterial::isTransparent() {
 }
 
 #if TARGET_OS_IPHONE
-bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
+bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;
     bool bLightMap = pLightMap && pCamera->bEnableLightMap;
     
@@ -251,17 +251,31 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
         
         
-        KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, lights, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
+        KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
 
         bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
         if(!bSameShader) {
-            if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, lights, renderPass)) {
+            if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, lights, 0, renderPass)) {
                 return false;
             }
             
             strcpy(szPrevShaderKey, pShader->getKey());
         }
         GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns ));
+        
+        // Bind bones
+        if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+            GLfloat bone_mats[256 * 16];
+            GLfloat *bone_mat_component = bone_mats;
+            for(int bone_index=0; bone_index < bones.size(); bone_index++) {
+                KRBone *bone = bones[bone_index];
+                KRMat4 t = bone->getInverseBindPoseMatrix() * bone->getModelMatrix();
+                for(int i=0; i < 16; i++) {
+                    *bone_mat_component++ = t[i];
+                }
+            }
+            glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
+        }
         
         bool bSameAmbient = false;
         bool bSameDiffuse = false;

@@ -165,7 +165,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, lights, viewport, matModel, pLightMap, renderPass)) {
+                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, lights, bones, viewport, matModel, pLightMap, renderPass)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials

@@ -33,7 +33,10 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_pScene = &scene;
     getScene().notify_sceneGraphCreate(this);
     m_modelMatrixValid = false;
+    m_bindPoseMatrixValid = false;
+    m_inverseBindPoseMatrixValid = false;
     m_modelMatrix = KRMat4();
+    m_bindPoseMatrix = KRMat4();
 }
 
 KRNode::~KRNode() {
@@ -78,20 +81,22 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     e->QueryFloatAttribute("translate_y", &y);
     e->QueryFloatAttribute("translate_z", &z);
     m_localTranslation = KRVector3(x,y,z);
-    m_originalLocalTranslation = m_localTranslation;
+    m_initialLocalTranslation = m_localTranslation;
     
     e->QueryFloatAttribute("scale_x", &x);
     e->QueryFloatAttribute("scale_y", &y);
     e->QueryFloatAttribute("scale_z", &z);
     m_localScale = KRVector3(x,y,z);
-    m_originalLocalScale = m_localScale;
+    m_initialLocalScale = m_localScale;
     
     e->QueryFloatAttribute("rotate_x", &x);
     e->QueryFloatAttribute("rotate_y", &y);
     e->QueryFloatAttribute("rotate_z", &z);
     m_localRotation = KRVector3(x,y,z) / 180.0 * M_PI; // Convert degrees to radians
-    m_originalLocalRotation = m_localRotation;
+    m_initialLocalRotation = m_localRotation;
     
+    m_bindPoseMatrixValid = false;
+    m_inverseBindPoseMatrixValid = false;
     m_modelMatrixValid = false;
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
@@ -106,18 +111,18 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
 
 void KRNode::setLocalTranslation(const KRVector3 &v, bool set_original) {
     m_localTranslation = v;
-    if(set_original) m_originalLocalTranslation = v;
+    if(set_original) m_initialLocalTranslation = v;
     invalidateModelMatrix();
 }
 void KRNode::setLocalScale(const KRVector3 &v, bool set_original) {
     m_localScale = v;
-    if(set_original) m_originalLocalScale = v;
+    if(set_original) m_initialLocalScale = v;
     invalidateModelMatrix();
 }
 
 void KRNode::setLocalRotation(const KRVector3 &v, bool set_original) {
     m_localRotation = v;
-    if(set_original) m_originalLocalRotation = v;
+    if(set_original) m_initialLocalRotation = v;
     invalidateModelMatrix();
 }
 
@@ -224,17 +229,7 @@ const KRMat4 &KRNode::getModelMatrix()
     
     if(!m_modelMatrixValid) {
         m_modelMatrix = KRMat4();
-        
-//        if(m_parentNode) {
-//            m_modelMatrix *= m_parentNode->getModelMatrix();
-//        }
-//        m_modelMatrix.translate(m_localTranslation);
-//        m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
-//        m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
-//        m_modelMatrix.rotate(m_localRotation.z, Z_AXIS);
-//        m_modelMatrix.scale(m_localScale);
 
-        
         m_modelMatrix.scale(m_localScale);
         m_modelMatrix.rotate(m_localRotation.x, X_AXIS);
         m_modelMatrix.rotate(m_localRotation.y, Y_AXIS);
@@ -251,6 +246,36 @@ const KRMat4 &KRNode::getModelMatrix()
     return m_modelMatrix;
 }
 
+const KRMat4 &KRNode::getBindPoseMatrix()
+{
+    if(!m_bindPoseMatrixValid) {
+        m_bindPoseMatrix = KRMat4();
+        
+        m_bindPoseMatrix.scale(m_initialLocalScale);
+        m_bindPoseMatrix.rotate(m_initialLocalRotation.x, X_AXIS);
+        m_bindPoseMatrix.rotate(m_initialLocalRotation.y, Y_AXIS);
+        m_bindPoseMatrix.rotate(m_initialLocalRotation.z, Z_AXIS);
+        m_bindPoseMatrix.translate(m_initialLocalTranslation);
+        
+        KRBone *parentBone = dynamic_cast<KRBone *>(m_parentNode);
+        
+        if(parentBone) {
+            m_bindPoseMatrix *= parentBone->getBindPoseMatrix();
+        }
+        
+        m_bindPoseMatrixValid = true;
+    }
+    return m_bindPoseMatrix;
+}
+
+const KRMat4 &KRNode::getInverseBindPoseMatrix()
+{
+    if(!m_inverseBindPoseMatrixValid ) {
+        m_inverseBindPoseMatrix = KRMat4::Invert(getBindPoseMatrix());
+        m_inverseBindPoseMatrixValid = true;
+    }
+    return m_inverseBindPoseMatrix;
+}
 
 void KRNode::physicsUpdate(float deltaTime)
 {

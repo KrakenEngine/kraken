@@ -71,9 +71,9 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
             
-            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, 0, renderPass)) {
                 
                 
                 
