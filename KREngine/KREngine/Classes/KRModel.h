@@ -70,28 +70,6 @@ public:
     
     bool hasTransparency();
     
-#if TARGET_OS_IPHONE
-    
-    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones);
-    
-#endif
-    
-    std::string m_lodBaseName;
-    
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    
-    void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights);
-    void loadPack(KRDataBlock *data);
-    
-    
-    void renderSubmesh(int iSubmesh);
-    
-    GLfloat getMaxDimension();
-    
-    KRVector3 getMinPoint() const;
-    KRVector3 getMaxPoint() const;
-    
     typedef enum {
         KRENGINE_ATTRIB_VERTEX = 0,
         KRENGINE_ATTRIB_NORMAL,
@@ -104,9 +82,35 @@ public:
     } vertex_attrib_t;
     
     typedef enum {
-        KRENGINE_MODEL_FORMAT_TRIANGLES = 1,
-        KRENGINE_MODEL_FORMAT_INDEXED
+        KRENGINE_MODEL_FORMAT_TRIANGLES = 0,
+        KRENGINE_MODEL_FORMAT_STRIP,
+        KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES,
+        KRENGINE_MODEL_FORMAT_INDEXED_STRIP
     } model_format_t;
+    
+#if TARGET_OS_IPHONE
+    
+    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones);
+    
+#endif
+    
+    std::string m_lodBaseName;
+    
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    
+    void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format);
+    void loadPack(KRDataBlock *data);
+    
+    
+    void renderSubmesh(int iSubmesh);
+    
+    GLfloat getMaxDimension();
+    
+    KRVector3 getMinPoint() const;
+    KRVector3 getMaxPoint() const;
+    
+
     
     typedef struct {
         GLint start_vertex;
@@ -176,7 +180,11 @@ public:
     int getBoneCount();
     char *getBoneName(int bone_index);
 
+    
+    model_format_t getModelFormat();
 private:
+    
+    
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;
     set<KRMaterial *> m_uniqueMaterials;
@@ -188,9 +196,11 @@ private:
     
     KRDataBlock *m_pData;
     
+
+    
     typedef struct {
         char szTag[16];
-        int32_t format_type; // 0 == Triangle list, 1 == Indexed triangle list, 2 == Indexed triangle strips, rest are reserved (model_format_t enum)
+        int32_t model_format; // 0 == Triangle list, 1 == Triangle strips, 2 == Indexed triangle list, 3 == Indexed triangle strips, rest are reserved (model_format_t enum)
         int32_t vertex_attrib_flags;
         int32_t vertex_count;
         int32_t submesh_count;
@@ -209,6 +219,7 @@ private:
     void clearBuffers();
     
     void setName(const std::string name);
+    void optimize();
     
     
     

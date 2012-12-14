@@ -63,6 +63,10 @@ public:
     const KRVector3 &getLocalScale();
     const KRVector3 &getLocalRotation();
     
+    const KRVector3 &getInitialLocalTranslation();
+    const KRVector3 &getInitialLocalScale();
+    const KRVector3 &getInitialLocalRotation();
+    
     const KRVector3 &getWorldTranslation();
     const KRVector3 &getWorldScale();
     const KRVector3 &getWorldRotation();

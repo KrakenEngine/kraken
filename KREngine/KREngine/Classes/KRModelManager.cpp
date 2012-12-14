@@ -33,6 +33,8 @@
 #include <assert.h>
 
 #import "KRModel.h"
+#import "KRModelCube.h"
+#import "KRModelSphere.h"
 
 KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.vbo_handle = 0;
@@ -41,6 +43,9 @@ KRModelManager::KRModelManager(KRContext &context) : KRContextObject(context) {
     m_vboMemUsed = 0;
     m_randomParticleVertexData = NULL;
     m_volumetricLightingVertexData = NULL;
+    
+    addModel(new KRModelCube(context));
+    addModel(new KRModelSphere(context));
 }
 
 KRModelManager::~KRModelManager() {
@@ -60,9 +65,12 @@ KRModel *KRModelManager::loadModel(const char *szName, KRDataBlock *pData) {
     
     
     KRModel *pModel = new KRModel(*m_pContext, lowerName, pData);
-    m_models.insert(std::pair<std::string, KRModel *>(pModel->getLODBaseName(), pModel));
-
+    addModel(pModel);
     return pModel;
+}
+
+void KRModelManager::addModel(KRModel *model) {
+    m_models.insert(std::pair<std::string, KRModel *>(model->getLODBaseName(), model));
 }
 
 std::vector<KRModel *> KRModelManager::getModel(const char *szName) {
@@ -80,7 +88,7 @@ std::vector<KRModel *> KRModelManager::getModel(const char *szName) {
     
     std::sort(matching_models.begin(), matching_models.end(), KRModel::lod_sort_predicate);
     
-    if(matching_models.size() == 0) {
+    if(matching_models.size() == 0) {        
         fprintf(stderr, "ERROR: Model not found: %s\n", lowerName.c_str());
     }
     

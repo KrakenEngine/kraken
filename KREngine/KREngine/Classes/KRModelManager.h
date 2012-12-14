@@ -55,6 +55,7 @@ public:
     
     KRModel *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRModel *> getModel(const char *szName);
+    void addModel(KRModel *model);
     
     std::vector<std::string> getModelNames();
     std::multimap<std::string, KRModel *> getModels();

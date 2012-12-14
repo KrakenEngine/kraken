@@ -20,8 +20,13 @@ public:
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
+#if TARGET_OS_IPHONE
     
-protected:
+    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+        
+#endif
+    
+private:
     
 };
 

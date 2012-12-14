@@ -261,7 +261,16 @@ void KRModel::renderSubmesh(int iSubmesh) {
         
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {
             assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
-            GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+            switch (getModelFormat()) {
+                case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                    break;
+                case KRENGINE_MODEL_FORMAT_STRIP:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                    break;
+                default:
+                    break;
+            }
             
             cVertexes -= (MAX_VBO_SIZE - iVertex);
             iVertex = 0;
@@ -269,14 +278,24 @@ void KRModel::renderSubmesh(int iSubmesh) {
         } else {
             assert(iVertex + cVertexes <= cBufferVertexes);
             
-            GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
+            switch (getModelFormat()) {
+                case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
+                    break;
+                case KRENGINE_MODEL_FORMAT_STRIP:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, cVertexes));
+                    break;
+                default:
+                    break;
+            }
+            
             cVertexes = 0;
         }
         
     }
 }
 
-void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights) {
+void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, KRModel::model_format_t model_format) {
     
     clearData();
     
@@ -317,6 +336,7 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
     pHeader->submesh_count = (__int32_t)submesh_count;
     pHeader->vertex_count = (__int32_t)vertex_count;
     pHeader->bone_count = (__int32_t)bone_count;
+    pHeader->model_format = model_format;
     strcpy(pHeader->szTag, "KROBJPACK1.1   ");
     updateAttributeOffsets();
     
@@ -435,6 +455,8 @@ void KRModel::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> u
             }
         }
     }
+    
+    optimize();
 }
 
 KRVector3 KRModel::getMinPoint() const {
@@ -679,4 +701,14 @@ int KRModel::getBoneCount()
 char *KRModel::getBoneName(int bone_index)
 {
     return getBone(bone_index)->szName;
+}
+
+void KRModel::optimize()
+{
+    // TODO - Add algorithm to convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
+}
+
+KRModel::model_format_t KRModel::getModelFormat()
+{
+    return (model_format_t)getHeader()->model_format;
 }

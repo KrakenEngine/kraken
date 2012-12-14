@@ -269,6 +269,18 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             GLfloat *bone_mat_component = bone_mats;
             for(int bone_index=0; bone_index < bones.size(); bone_index++) {
                 KRBone *bone = bones[bone_index];
+                
+//                KRVector3 initialRotation = bone->getInitialLocalRotation();
+//                KRVector3 rotation = bone->getLocalRotation();
+//                KRVector3 initialTranslation = bone->getInitialLocalTranslation();
+//                KRVector3 translation = bone->getLocalTranslation();
+//                KRVector3 initialScale = bone->getInitialLocalScale();
+//                KRVector3 scale = bone->getLocalScale();
+//                
+                //printf("%s - delta rotation: %.4f %.4f %.4f\n", bone->getName().c_str(), (rotation.x - initialRotation.x) * 180.0 / M_PI, (rotation.y - initialRotation.y) * 180.0 / M_PI, (rotation.z - initialRotation.z) * 180.0 / M_PI);
+                //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
+//                printf("%s - delta scale: %.4f %.4f %.4f\n", bone->getName().c_str(), scale.x - initialScale.x, scale.y - initialScale.y, scale.z - initialScale.z);
+                
                 KRMat4 t = bone->getInverseBindPoseMatrix() * bone->getModelMatrix();
                 for(int i=0; i < 16; i++) {
                     *bone_mat_component++ = t[i];

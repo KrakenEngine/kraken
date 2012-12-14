@@ -145,6 +145,16 @@ const KRVector3 &KRNode::getLocalRotation() {
     return m_localRotation;
 }
 
+const KRVector3 &KRNode::getInitialLocalTranslation() {
+    return m_initialLocalTranslation;
+}
+const KRVector3 &KRNode::getInitialLocalScale() {
+    return m_initialLocalScale;
+}
+const KRVector3 &KRNode::getInitialLocalRotation() {
+    return m_initialLocalRotation;
+}
+
 const KRVector3 &KRNode::getWorldTranslation() {
     return m_localTranslation;
 }
@@ -311,42 +321,42 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
 {
     const float DEGREES_TO_RAD = M_PI / 180.0f;
     
-    printf("%s - ", m_name.c_str());
+    //printf("%s - ", m_name.c_str());
     switch(attrib) {
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
-            printf("translate_x: %f\n", v);
+            //printf("translate_x: %f\n", v);
             setLocalTranslation(KRVector3(v, m_localTranslation.y, m_localTranslation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
-            printf("translate_y: %f\n", v);
+            //printf("translate_y: %f\n", v);
             setLocalTranslation(KRVector3(m_localTranslation.x, v, m_localTranslation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
-            printf("translate_z: %f\n", v);
+            //printf("translate_z: %f\n", v);
             setLocalTranslation(KRVector3(m_localTranslation.x, m_localTranslation.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_X:
-            printf("scale_x: %f\n", v);
+            //printf("scale_x: %f\n", v);
             setLocalScale(KRVector3(v, m_localScale.y, m_localScale.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
-            printf("scale_y: %f\n", v);
+            //printf("scale_y: %f\n", v);
             setLocalScale(KRVector3(m_localScale.x, v, m_localScale.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
-            printf("scale_z: %f\n", v);
+            //printf("scale_z: %f\n", v);
             setLocalScale(KRVector3(m_localScale.x, m_localScale.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
-            printf("rotate_x: %f\n", v);
+            //printf("rotate_x: %f\n", v);
             setLocalRotation(KRVector3(v * DEGREES_TO_RAD, m_localRotation.y, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
-            printf("rotate_y: %f\n", v);
+            //printf("rotate_y: %f\n", v);
             setLocalRotation(KRVector3(m_localRotation.x, v * DEGREES_TO_RAD, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
-            printf("rotate_z: %f\n", v);
+            //printf("rotate_z: %f\n", v);
             setLocalRotation(KRVector3(m_localRotation.x, m_localRotation.y, v * DEGREES_TO_RAD));
             break;
     }
