@@ -33,6 +33,7 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_pScene = &scene;
     getScene().notify_sceneGraphCreate(this);
     m_modelMatrixValid = false;
+    m_inverseModelMatrixValid = false;
     m_bindPoseMatrixValid = false;
     m_inverseBindPoseMatrixValid = false;
     m_modelMatrix = KRMat4();
@@ -98,6 +99,7 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_bindPoseMatrixValid = false;
     m_inverseBindPoseMatrixValid = false;
     m_modelMatrixValid = false;
+    m_inverseModelMatrixValid = false;
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
         KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
@@ -237,6 +239,7 @@ KRAABB KRNode::getBounds() {
 void KRNode::invalidateModelMatrix()
 {
     m_modelMatrixValid = false;
+    m_inverseModelMatrixValid = false;
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         child->invalidateModelMatrix();
@@ -273,6 +276,14 @@ const KRMat4 &KRNode::getModelMatrix()
         
     }
     return m_modelMatrix;
+}
+
+const KRMat4 &KRNode::getInverseModelMatrix()
+{
+    if(!m_inverseModelMatrixValid) {
+        m_inverseModelMatrix = KRMat4::Invert(getModelMatrix());
+    }
+    return m_inverseModelMatrix;
 }
 
 const KRMat4 &KRNode::getBindPoseMatrix()

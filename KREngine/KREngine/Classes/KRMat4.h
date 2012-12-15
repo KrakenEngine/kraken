@@ -104,6 +104,7 @@ public:
     bool invert();
     void transpose();
     
+    static KRVector3 DotNoTranslate(const KRMat4 &m, const KRVector3 &v); // Dot product without including translation; useful for transforming normals and tangents
     static KRMat4 Invert(const KRMat4 &m);
     static KRMat4 Transpose(const KRMat4 &m);
     static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);

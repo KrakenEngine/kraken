@@ -774,8 +774,14 @@ bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const 
         // Update the hitinfo object if this hit is closer than the prior hit
         
         // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
-        KRVector3 distances = KRVector3::Normalize(KRVector3((tri_v0 - hit_point).magnitude(), (tri_v1 - hit_point).magnitude(), (tri_v2 - hit_point).magnitude()));
-        KRVector3 normal = tri_n0 * (1.0 - distances[0]) + tri_n1 * (1.0 - distances[1]) + tri_n2 * (1.0 - distances[3]);
+        float distance_v0 = (tri_v0 - hit_point).magnitude();
+        float distance_v1 = (tri_v1 - hit_point).magnitude();
+        float distance_v2 = (tri_v2 - hit_point).magnitude();
+        float distance_total = distance_v0 + distance_v1 + distance_v2;
+        distance_v0 /= distance_total;
+        distance_v1 /= distance_total;
+        distance_v2 /= distance_total;
+        KRVector3 normal = tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2);
         
         hitinfo = KRHitInfo(hit_point, KRVector3());
     }

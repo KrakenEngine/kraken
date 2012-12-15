@@ -293,6 +293,16 @@ KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
     );
 }
 
+// Dot product without including translation; useful for transforming normals and tangents
+KRVector3 DotNoTranslate(const KRMat4 &m, const KRVector3 &v)
+{
+    return KRVector3(
+                     v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0],
+                     v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1],
+                     v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2]
+    );
+}
+
 /* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
 float KRMat4::DotW(const KRMat4 &m, const KRVector3 &v) {
     return v.x * (float)m[0*4 + 3] + v.y * (float)m[1*4 + 3] + v.z * (float)m[2*4 + 3] + (float)m[3*4 + 3];

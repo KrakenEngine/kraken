@@ -55,6 +55,9 @@ public:
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual KRAABB getBounds();
     
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    
 private:
     std::vector<KRModel *> m_models;
     std::string m_model_name;

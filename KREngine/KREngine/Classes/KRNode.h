@@ -73,6 +73,7 @@ public:
     
     virtual KRAABB getBounds();
     const KRMat4 &getModelMatrix();
+    const KRMat4 &getInverseModelMatrix();
     const KRMat4 &getBindPoseMatrix();
     const KRMat4 &getInverseBindPoseMatrix();
     
@@ -114,9 +115,11 @@ private:
     void invalidateModelMatrix();
     void invalidateBindPoseMatrix();
     KRMat4 m_modelMatrix;
+    KRMat4 m_inverseModelMatrix;
     KRMat4 m_bindPoseMatrix;
     KRMat4 m_inverseBindPoseMatrix;
     bool m_modelMatrixValid;
+    bool m_inverseModelMatrixValid;
     bool m_bindPoseMatrixValid;
     bool m_inverseBindPoseMatrixValid;
     
