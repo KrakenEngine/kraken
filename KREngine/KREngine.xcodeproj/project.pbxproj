@@ -49,10 +49,10 @@
 		E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
 		E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
 		E4324BA416444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
-		E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; };
+		E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
 		E4324BAB16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; };
-		E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; };
+		E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4324BAE16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
 		E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
 		E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
@@ -183,15 +183,15 @@
 		E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB941512A45500F43B5B /* Cocoa.framework */; };
 		E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
 		E4C454AC167BB8EC003586CD /* KRModelCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454AB167BB8EC003586CD /* KRModelCube.h */; };
-		E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454AB167BB8EC003586CD /* KRModelCube.h */; };
+		E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454AB167BB8EC003586CD /* KRModelCube.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4C454AF167BB8FC003586CD /* KRModelCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454AE167BB8FC003586CD /* KRModelCube.cpp */; };
 		E4C454B0167BB8FC003586CD /* KRModelCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454AE167BB8FC003586CD /* KRModelCube.cpp */; };
 		E4C454B2167BC04C003586CD /* KRModelSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B1167BC04B003586CD /* KRModelSphere.h */; };
-		E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B1167BC04B003586CD /* KRModelSphere.h */; };
+		E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B1167BC04B003586CD /* KRModelSphere.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4C454B5167BC05C003586CD /* KRModelSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454B4167BC05C003586CD /* KRModelSphere.cpp */; };
 		E4C454B6167BC05C003586CD /* KRModelSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454B4167BC05C003586CD /* KRModelSphere.cpp */; };
 		E4C454B8167BD236003586CD /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; };
-		E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; };
+		E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4C454BB167BD248003586CD /* KRHitInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454BA167BD248003586CD /* KRHitInfo.cpp */; };
 		E4C454BC167BD248003586CD /* KRHitInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454BA167BD248003586CD /* KRHitInfo.cpp */; };
 		E4CA10E51637BD0A005D9400 /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; };
@@ -299,7 +299,7 @@
 		E45AC0491643452000DC3C3B /* dust_particle.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = dust_particle.vsh; path = Shaders/dust_particle.vsh; sourceTree = "<group>"; };
 		E460292516681CFE00261BB9 /* KRTextureAnimated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureAnimated.h; path = Classes/KRTextureAnimated.h; sourceTree = "<group>"; };
 		E460292716681D1000261BB9 /* KRTextureAnimated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureAnimated.cpp; path = Classes/KRTextureAnimated.cpp; sourceTree = "<group>"; };
-		E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "../../../../../../../../../Applications/Autodesk/FBX SDK/2013.3/lib/gcc4/ub/libfbxsdk-2013.3-static.a"; sourceTree = "<group>"; };
+		E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "lib/gcc4/ub/libfbxsdk-2013.3-static.a"; sourceTree = FBXSDK; };
 		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRLight.h; path = Classes/KRLight.h; sourceTree = "<group>"; };
 		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRLight.cpp; path = Classes/KRLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRPointLight.h; path = Classes/KRPointLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -934,11 +934,11 @@
 				E4CA11751639CBD6005D9400 /* KRViewport.h in Headers */,
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
+				E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */,
 				E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */,
 				E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
 				E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */,
-				E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

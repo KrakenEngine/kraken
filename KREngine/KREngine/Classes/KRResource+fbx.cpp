@@ -1084,7 +1084,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     // ----====---- Generate Output Mesh Object ----====----
 
     KRModel *new_mesh = new KRModel(parent_node->getContext(), pNode->GetName());
-    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights);
+    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRModel::KRENGINE_MODEL_FORMAT_TRIANGLES);
     resources.push_back(new_mesh);
     
     if(new_mesh->getLODCoverage() == 100) {
