@@ -56,6 +56,7 @@ using std::list;
 #import "KRMaterialManager.h"
 #import "KRCamera.h"
 #import "KRViewport.h"
+#import "KRHitInfo.h"
 
 class KRMaterial;
 class KRNode;
@@ -156,8 +157,8 @@ public:
     static bool lod_sort_predicate(const KRModel *m1, const KRModel *m2);
     bool has_vertex_attribute(vertex_attrib_t attribute_type) const;
     
-    int getSubmeshCount();
-    int getVertexCount(int submesh);
+    int getSubmeshCount() const;
+    int getVertexCount(int submesh) const;
     KRVector3 getVertexPosition(int index) const;
     KRVector3 getVertexNormal(int index) const;
     KRVector3 getVertexTangent(int index) const;
@@ -181,9 +182,13 @@ public:
     char *getBoneName(int bone_index);
 
     
-    model_format_t getModelFormat();
-private:
+    model_format_t getModelFormat() const;
     
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
+private:
+    bool rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const;
+    static bool rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;
@@ -223,7 +228,7 @@ private:
     
     
     
-    pack_material *getSubmesh(int mesh_index);
+    pack_material *getSubmesh(int mesh_index) const;
     unsigned char *getVertexData() const;
     unsigned char *getVertexData(int index) const;
     pack_header *getHeader() const;

@@ -190,6 +190,10 @@
 		E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B1167BC04B003586CD /* KRModelSphere.h */; };
 		E4C454B5167BC05C003586CD /* KRModelSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454B4167BC05C003586CD /* KRModelSphere.cpp */; };
 		E4C454B6167BC05C003586CD /* KRModelSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454B4167BC05C003586CD /* KRModelSphere.cpp */; };
+		E4C454B8167BD236003586CD /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; };
+		E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; };
+		E4C454BB167BD248003586CD /* KRHitInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454BA167BD248003586CD /* KRHitInfo.cpp */; };
+		E4C454BC167BD248003586CD /* KRHitInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454BA167BD248003586CD /* KRHitInfo.cpp */; };
 		E4CA10E51637BD0A005D9400 /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; };
 		E4CA10E61637BD0A005D9400 /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */; };
@@ -389,6 +393,8 @@
 		E4C454AE167BB8FC003586CD /* KRModelCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRModelCube.cpp; path = Classes/KRModelCube.cpp; sourceTree = "<group>"; };
 		E4C454B1167BC04B003586CD /* KRModelSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRModelSphere.h; path = Classes/KRModelSphere.h; sourceTree = "<group>"; };
 		E4C454B4167BC05C003586CD /* KRModelSphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRModelSphere.cpp; path = Classes/KRModelSphere.cpp; sourceTree = "<group>"; };
+		E4C454B7167BD235003586CD /* KRHitInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRHitInfo.h; path = Classes/KRHitInfo.h; sourceTree = "<group>"; };
+		E4C454BA167BD248003586CD /* KRHitInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRHitInfo.cpp; path = Classes/KRHitInfo.cpp; sourceTree = "<group>"; };
 		E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexturePVR.h; path = Classes/KRTexturePVR.h; sourceTree = "<group>"; };
 		E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexturePVR.cpp; path = Classes/KRTexturePVR.cpp; sourceTree = "<group>"; };
 		E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureTGA.h; path = Classes/KRTextureTGA.h; sourceTree = "<group>"; };
@@ -753,6 +759,8 @@
 				E4030E4B160A3CF000592648 /* KRStockGeometry.h */,
 				E4CA11731639CBD1005D9400 /* KRViewport.h */,
 				E4CA11771639CC8E005D9400 /* KRViewport.cpp */,
+				E4C454B7167BD235003586CD /* KRHitInfo.h */,
+				E4C454BA167BD248003586CD /* KRHitInfo.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -867,6 +875,7 @@
 				104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */,
 				E4C454AC167BB8EC003586CD /* KRModelCube.h in Headers */,
 				E4C454B2167BC04C003586CD /* KRModelSphere.h in Headers */,
+				E4C454B8167BD236003586CD /* KRHitInfo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -929,6 +938,7 @@
 				E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
 				E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */,
+				E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1066,6 +1076,7 @@
 				104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */,
 				E4C454AF167BB8FC003586CD /* KRModelCube.cpp in Sources */,
 				E4C454B5167BC05C003586CD /* KRModelSphere.cpp in Sources */,
+				E4C454BB167BD248003586CD /* KRHitInfo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1126,6 +1137,7 @@
 				E480BE6D1671C653004EC8AD /* KRBone.cpp in Sources */,
 				E4C454B0167BB8FC003586CD /* KRModelCube.cpp in Sources */,
 				E4C454B6167BC05C003586CD /* KRModelSphere.cpp in Sources */,
+				E4C454BC167BD248003586CD /* KRHitInfo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

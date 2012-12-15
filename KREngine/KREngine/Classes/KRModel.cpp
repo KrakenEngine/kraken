@@ -510,7 +510,7 @@ unsigned char *KRModel::getVertexData() const {
     return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
 }
 
-KRModel::pack_material *KRModel::getSubmesh(int mesh_index)
+KRModel::pack_material *KRModel::getSubmesh(int mesh_index) const
 {
     return (pack_material *)((unsigned char *)m_pData->getStart() + sizeof(pack_header)) + mesh_index;
 }
@@ -520,13 +520,13 @@ unsigned char *KRModel::getVertexData(int index) const
     return getVertexData() + m_vertex_size * index;
 }
 
-int KRModel::getSubmeshCount()
+int KRModel::getSubmeshCount() const
 {
     pack_header *header = getHeader();
     return header->submesh_count;
 }
 
-int KRModel::getVertexCount(int submesh)
+int KRModel::getVertexCount(int submesh) const
 {
     return getSubmesh(submesh)->vertex_count;
 }
@@ -708,7 +708,118 @@ void KRModel::optimize()
     // TODO - Add algorithm to convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
 }
 
-KRModel::model_format_t KRModel::getModelFormat()
+KRModel::model_format_t KRModel::getModelFormat() const
 {
     return (model_format_t)getHeader()->model_format;
+}
+
+bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+{
+    // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
+    const float SMALL_NUM = 0.00000001; // anything that avoids division overflow
+    KRVector3   u, v, n;              // triangle vectors
+    KRVector3   dir, w0, w;           // ray vectors
+    float       r, a, b;              // params to calc ray-plane intersect
+    
+    // get triangle edge vectors and plane normal
+    u = tri_v1 - tri_v0;
+    v = tri_v2 - tri_v0;
+    n = KRVector3::Cross(u, v); // cross product
+    if (n == KRVector3::Zero())             // triangle is degenerate
+        return false;                  // do not deal with this case
+    
+    dir = line_v1 - line_v0;              // ray direction vector
+    w0 = line_v0 - tri_v0;
+    a = -KRVector3::Dot(n, w0);
+    b = KRVector3::Dot(n,dir);
+    if (fabs(b) < SMALL_NUM) {     // ray is  parallel to triangle plane
+        if (a == 0)                 
+            return false; // ray lies in triangle plane
+        else {
+            return false; // ray disjoint from plane
+        }
+    }
+    
+    // get intersect point of ray with triangle plane
+    r = a / b;
+    if (r < 0.0)                    // ray goes away from triangle
+        return false;                   // => no intersect
+    // for a segment, also test if (r > 1.0) => no intersect
+    
+    
+    KRVector3 hit_point = line_v0 + dir * r;            // intersect point of ray and plane
+    
+    // is hit_point inside triangle?
+    float    uu, uv, vv, wu, wv, D;
+    uu = KRVector3::Dot(u,u);
+    uv = KRVector3::Dot(u,v);
+    vv = KRVector3::Dot(v,v);
+    w = hit_point - tri_v0;
+    wu = KRVector3::Dot(w,u);
+    wv = KRVector3::Dot(w,v);
+    D = uv * uv - uu * vv;
+    
+    // get and test parametric coords
+    float s, t;
+    s = (uv * wv - vv * wu) / D;
+    if (s < 0.0 || s > 1.0)         // hit_point is outside triangle
+        return false;
+    t = (uv * wu - uu * wv) / D;
+    if (t < 0.0 || (s + t) > 1.0)  // hit_point is outside triangle
+        return false;
+    
+    float new_hit_distance_sqr = (hit_point - line_v0).sqrMagnitude();
+    float prev_hit_distance_sqr = (hitinfo.getPosition() - line_v0).sqrMagnitude();
+    if(new_hit_distance_sqr < prev_hit_distance_sqr) {
+        // Update the hitinfo object if this hit is closer than the prior hit
+        
+        // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
+        KRVector3 distances = KRVector3::Normalize(KRVector3((tri_v0 - hit_point).magnitude(), (tri_v1 - hit_point).magnitude(), (tri_v2 - hit_point).magnitude()));
+        KRVector3 normal = tri_n0 * (1.0 - distances[0]) + tri_n1 * (1.0 - distances[1]) + tri_n2 * (1.0 - distances[3]);
+        
+        hitinfo = KRHitInfo(hit_point, KRVector3());
+    }
+    
+    return true; // hit_point is in triangle
+}
+
+bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
+{
+    return rayCast(line_v0, line_v1, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
+}
+
+bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
+{
+    bool hit_found = false;
+    for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
+        int vertex_count = getVertexCount(submesh_index);
+        switch(getModelFormat()) {
+            case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
+                    hit_found |= rayCast(v0, v1, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo);
+                }
+                break;
+            case KRENGINE_MODEL_FORMAT_STRIP:
+                for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
+                    hit_found |= rayCast(v0, v1, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return hit_found;
+}
+
+bool KRModel::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
+{
+    KRHitInfo new_hitinfo;
+    if(rayCast(v0, v1, new_hitinfo)) {
+        if((new_hitinfo.getPosition() - v0).sqrMagnitude() <= (v1 - v0).sqrMagnitude()) {
+            // The hit was between v1 and v2
+            hitinfo = new_hitinfo;
+            return true;
+        }
+    }
+    return false; // Either no hit, or the hit was beyond v1
 }
