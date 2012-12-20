@@ -741,12 +741,12 @@ KRModel::model_format_t KRModel::getModelFormat() const
     return (model_format_t)getHeader()->model_format;
 }
 
-bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
 {
     // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
     const float SMALL_NUM = 0.00000001; // anything that avoids division overflow
     KRVector3   u, v, n;              // triangle vectors
-    KRVector3   dir, w0, w;           // ray vectors
+    KRVector3   w0, w;           // ray vectors
     float       r, a, b;              // params to calc ray-plane intersect
     
     // get triangle edge vectors and plane normal
@@ -756,7 +756,6 @@ bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const 
     if (n == KRVector3::Zero())             // triangle is degenerate
         return false;                  // do not deal with this case
     
-    dir = line_v1 - line_v0;              // ray direction vector
     w0 = line_v0 - tri_v0;
     a = -KRVector3::Dot(n, w0);
     b = KRVector3::Dot(n,dir);
@@ -817,12 +816,12 @@ bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const 
     return true; // hit_point is in triangle
 }
 
-bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
+bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
 {
-    return rayCast(line_v0, line_v1, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
+    return rayCast(line_v0, dir, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
 }
 
-bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
+bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const
 {
     bool hit_found = false;
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
@@ -830,12 +829,12 @@ bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
         switch(getModelFormat()) {
             case KRENGINE_MODEL_FORMAT_TRIANGLES:
                 for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
-                    if(rayCast(v0, v1, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo)) hit_found = true;
+                    if(rayCast(v0, dir, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo)) hit_found = true;
                 }
                 break;
             case KRENGINE_MODEL_FORMAT_STRIP:
                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
-                    if(rayCast(v0, v1, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo)) hit_found = true;
+                    if(rayCast(v0, dir, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo)) hit_found = true;
                 }
                 break;
             default:
@@ -848,7 +847,8 @@ bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
 bool KRModel::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
 {
     KRHitInfo new_hitinfo;
-    if(rayCast(v0, v1, new_hitinfo)) {
+    KRVector3 dir = KRVector3::Normalize(v1 - v0);
+    if(rayCast(v0, dir, new_hitinfo)) {
         if((new_hitinfo.getPosition() - v0).sqrMagnitude() <= (v1 - v0).sqrMagnitude()) {
             // The hit was between v1 and v2
             hitinfo = new_hitinfo;

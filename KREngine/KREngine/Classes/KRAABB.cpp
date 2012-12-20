@@ -234,37 +234,48 @@ float KRAABB::longest_radius() const
 
 bool KRAABB::intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const
 {
-    // http://www.3dkingdoms.com/weekly/bbox.h
+    KRVector3 dir = KRVector3::Normalize(v2 - v1);
+    float length = (v2 - v1).magnitude();
     
-    /*
-	// Put line in box space
-	KRMat4 MInv = m_M.InvertSimple();
-	KRVector3 LB1 = MInv * L1;
-	KRVector3 LB2 = MInv * L2;
+    // EZ cases: if the ray starts inside the box, or ends inside
+    // the box, then it definitely hits the box.
+    // I'm using this code for ray tracing with an octree,
+    // so I needed rays that start and end within an
+    // octree node to COUNT as hits.
+    // You could modify this test to (ray starts inside and ends outside)
+    // to qualify as a hit if you wanted to NOT count totally internal rays
+    if( contains( v1 ) || contains( v2 ) )
+        return true ;
     
-	// Get line midpoint and extent
-	KRVector3 LMid = (LB1 + LB2) * 0.5f;
-	KRVector3 L = (LB1 - LMid);
-	KRVector3 LExt = KRVector3( fabs(L.x), fabs(L.y), fabs(L.z) );
+    // the algorithm says, find 3 t's,
+    KRVector3 t ;
     
-	// Use Separating Axis Test
-	// Separation vector from box center to line center is LMid, since the line is in box space
-	if ( fabs( LMid.x ) > m_Extent.x + LExt.x ) return false;
-	if ( fabs( LMid.y ) > m_Extent.y + LExt.y ) return false;
-	if ( fabs( LMid.z ) > m_Extent.z + LExt.z ) return false;
-	// Crossproducts of line and each axis
-	if ( fabs( LMid.y * L.z - LMid.z * L.y)  >  (m_Extent.y * LExt.z + m_Extent.z * LExt.y) ) return false;
-	if ( fabs( LMid.x * L.z - LMid.z * L.x)  >  (m_Extent.x * LExt.z + m_Extent.z * LExt.x) ) return false;
-	if ( fabs( LMid.x * L.y - LMid.y * L.x)  >  (m_Extent.x * LExt.y + m_Extent.y * LExt.x) ) return false;
-	// No separating axis, the line intersects
-	return true;
+    // LARGEST t is the only one we need to test if it's on the face.
+    for(int i = 0 ; i < 3 ; i++) {
+        if( dir[i] > 0 ) { // CULL BACK FACE
+            t[i] = ( min[i] - v1[i] ) / dir[i];
+        } else {
+            t[i] = ( max[i] - v1[i] ) / dir[i];
+        }
+    }
     
-    */
-    return false;
+    int mi = 0;
+    if(t[1] > t[mi]) mi = 1;
+    if(t[2] > t[mi]) mi = 2;
+    if(t[mi] >= 0 && t[mi] <= length) {
+        KRVector3 pt = v1 + dir * t[mi];
+        
+        // check it's in the box in other 2 dimensions
+        int o1 = ( mi + 1 ) % 3 ; // i=0: o1=1, o2=2, i=1: o1=2,o2=0 etc.
+        int o2 = ( mi + 2 ) % 3 ;
+        
+        return pt[o1] >= min[o1] && pt[o1] <= max[o1] && pt[o2] >= min[o2] && pt[o2] <= max[o2];
+    }
+    
+    return false ; // the ray did not hit the box.
 }
 
-bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &v2) const
+bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 {
-    // TODO - Implementation needed
     return true;
 }

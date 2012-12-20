@@ -29,7 +29,7 @@ public:
     std::set<KRNode *> &getOuterSceneNodes();
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
-    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
 
 private:
     KROctreeNode *m_pRootNode;

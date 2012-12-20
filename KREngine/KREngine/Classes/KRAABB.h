@@ -33,7 +33,7 @@ public:
     bool contains(const KRVector3 &v) const;
     bool visible(const KRMat4 &matViewProjection) const;
     bool intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const;
-    bool intersectsRay(const KRVector3 &v1, const KRVector3 &v2) const;
+    bool intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const;
     
     KRAABB& operator =(const KRAABB& b);
     bool operator ==(const KRAABB& b) const;

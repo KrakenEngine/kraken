@@ -61,7 +61,7 @@ public:
     KRLight *getFirstLight();
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
-    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
     
 #if TARGET_OS_IPHONE
     

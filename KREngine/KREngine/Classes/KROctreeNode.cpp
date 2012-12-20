@@ -205,24 +205,24 @@ bool KROctreeNode::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo 
     return hit_found;
 }
 
-bool KROctreeNode::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+bool KROctreeNode::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo)
 {
     bool hit_found = false;
     if(hitinfo.didHit()) {
         // Optimization: If we already have a hit, only search for hits that are closer
         hit_found = lineCast(v0, hitinfo.getPosition(), hitinfo); // Note: This is purposefully lineCast as opposed to RayCast
     } else {
-        if(getBounds().intersectsRay(v0, v1)) {
+        if(getBounds().intersectsRay(v0, dir)) {
             for(std::set<KRNode *>::iterator nodes_itr=m_sceneNodes.begin(); nodes_itr != m_sceneNodes.end(); nodes_itr++) {
                 KRCollider *collider = dynamic_cast<KRCollider *>(*nodes_itr);
                 if(collider) {
-                    if(collider->rayCast(v0, v1, hitinfo)) hit_found = true;
+                    if(collider->rayCast(v0, dir, hitinfo)) hit_found = true;
                 }
             }
             
             for(int i=0; i<8; i++) {
                 if(m_children[i]) {
-                    if(m_children[i]->rayCast(v0, v1, hitinfo)) {
+                    if(m_children[i]->rayCast(v0, dir, hitinfo)) {
                         hit_found = true;
                     }
                 }
