@@ -58,9 +58,24 @@ KRScene::~KRScene() {
     m_pRootNode = NULL;
 }
 
+
+
 #if TARGET_OS_IPHONE
 
+void KRScene::renderFrame(float deltaTime) {
+    getContext().startFrame(deltaTime);
+    KRCamera *camera = find<KRCamera>();
+    if(camera == NULL) {
+        
+    }
+    camera->renderFrame(deltaTime);
+    getContext().endFrame(deltaTime);
+}
+
 void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+    
+    
+    
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
@@ -76,11 +91,14 @@ void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, co
         }
     }
     
+    if(getFirstLight() == NULL) {
+        addDefaultLights();
+    }
     
     std::vector<KRLight *> lights;
     
     updateOctree();
-    pCamera->setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
+    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
     
     
     std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
@@ -171,7 +189,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->getPerspectiveNearZ()), viewport.getCameraPosition() + KRVector3(pCamera->getPerspectiveNearZ()));
+                    KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + KRVector3(pCamera->settings.getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         // Record the frame number in which the camera was within the bounds
@@ -334,23 +352,6 @@ bool KRScene::save(KRDataBlock &data) {
     return true;
 }
 
-
-KRLight *KRScene::findFirstLight(KRNode &node) {
-    KRLight *pLight = dynamic_cast<KRLight *>(&node);
-    if(pLight) {
-        return pLight;
-    } else {
-        const std::vector<KRNode *> children = node.getChildren();
-        for(std::vector<KRNode *>::const_iterator itr=children.begin(); itr < children.end(); ++itr) {
-            pLight = findFirstLight(*(*itr));
-            if(pLight) {
-                return pLight;
-            }
-        }
-    }
-    return NULL;
-}
-
 KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
     data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
@@ -371,10 +372,12 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
     return new_scene;
 }
 
+
+
 KRLight *KRScene::getFirstLight()
 {
     if(m_pFirstLight == NULL) {
-        m_pFirstLight = findFirstLight(*m_pRootNode);
+        m_pFirstLight = find<KRLight>();
     }
     return m_pFirstLight;
 }

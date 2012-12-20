@@ -44,15 +44,15 @@ using namespace std;
 
 
 
-@interface KREngine (PrivateMethods)
+@interface KREngine() {
+    KRRenderSettings _settings;
+}
 - (BOOL)loadShaders;
 - (BOOL)loadResource:(NSString *)path;
 @end
 
 @implementation KREngine
 @synthesize debug_text = _debug_text;
-float const PI = 3.141592653589793f;
-
 
 + (KREngine *)sharedInstance
 {
@@ -93,11 +93,9 @@ float const PI = 3.141592653589793f;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     }
     
-    _camera = NULL;
     _context = NULL;
     if ((self = [super init])) {
         _context = new KRContext();
-        _camera = new KRCamera(*_context);
         _parameter_names = [@{
             @"camera_fov" : @0,
             @"shadow_quality" : @1,
@@ -169,9 +167,14 @@ float const PI = 3.141592653589793f;
 
 - (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix AndDeltaTime: (float)deltaTime
 {
-    _context->startFrame(deltaTime);
-    _camera->renderFrame(*pScene, viewMatrix, deltaTime);
-    _context->endFrame(deltaTime);
+    KRCamera *camera = pScene->find<KRCamera>();
+    if(camera) {
+        camera->settings = _settings;
+        KRMat4 invView = KRMat4::Invert(viewMatrix);
+        camera->setLocalRotation(KRMat4::DotNoTranslate(invView, KRVector3::Forward()));
+        camera->setLocalTranslation(KRMat4::Dot(invView, KRVector3::Zero()));
+    }
+    pScene->renderFrame(deltaTime);
 }
 
 - (BOOL)loadShaders
@@ -198,9 +201,6 @@ float const PI = 3.141592653589793f;
 - (void)dealloc
 {
     [_parameter_names release]; _parameter_names = nil;
-    if(_camera) {
-        delete _camera; _camera = NULL;
-    }
     if(_context) {
         delete _context; _context = NULL;
     }
@@ -329,54 +329,54 @@ float const PI = 3.141592653589793f;
 -(float)getParameterValueWithIndex: (int)i
 {
     float values[48] = {
-        _camera->perspective_fov,
-        (float)_camera->m_cShadowBuffers,
-        _camera->bEnablePerPixel ? 1.0f : 0.0f,
-        _camera->bEnableDiffuseMap ? 1.0f : 0.0f,
-        _camera->bEnableNormalMap ? 1.0f : 0.0f,
-        _camera->bEnableSpecMap ? 1.0f : 0.0f,
-        _camera->bEnableReflectionMap ? 1.0f : 0.0f,
-        _camera->bEnableLightMap ? 1.0f : 0.0f,
+        _settings.perspective_fov,
+        (float)_settings.m_cShadowBuffers,
+        _settings.bEnablePerPixel ? 1.0f : 0.0f,
+        _settings.bEnableDiffuseMap ? 1.0f : 0.0f,
+        _settings.bEnableNormalMap ? 1.0f : 0.0f,
+        _settings.bEnableSpecMap ? 1.0f : 0.0f,
+        _settings.bEnableReflectionMap ? 1.0f : 0.0f,
+        _settings.bEnableLightMap ? 1.0f : 0.0f,
         [self getAmbientTemperature],
         [self getAmbientIntensity],
         [self getSunTemperature],
         [self getSunIntensity],
-        _camera->dof_quality,
-        _camera->dof_depth,
-        _camera->dof_falloff,
-        _camera->bEnableFlash ? 1.0f : 0.0f,
-        _camera->flash_intensity,
-        _camera->flash_depth,
-        _camera->flash_falloff,
-        _camera->bEnableVignette ? 1.0f : 0.0f,
-        _camera->vignette_radius,
-        _camera->vignette_falloff,
-        _camera->bShowShadowBuffer ? 1.0f : 0.0f,
-        _camera->bDebugPSSM ? 1.0f : 0.0f,
-        _camera->bEnableAmbient ? 1.0f : 0.0f,
-        _camera->bEnableDiffuse ? 1.0f : 0.0f,
-        _camera->bEnableSpecular ? 1.0f : 0.0f,
-        _camera->bEnableReflection ? 1.0f : 0.0f,
-        _camera->bDebugSuperShiny ? 1.0f : 0.0f,
-        _camera->bShowOctree ? 1.0f : 0.0f,
-        _camera->bShowDeferred ? 1.0f : 0.0f,
-        _camera->bEnableDeferredLighting ? 1.0f : 0.0f,
-        _camera->getPerspectiveNearZ(),
-        _camera->getPerspectiveFarZ(),
-        _camera->volumetric_environment_enable,
-        5 - _camera->volumetric_environment_downsample,
-        _camera->volumetric_environment_max_distance,
-        _camera->volumetric_environment_quality,
-        _camera->volumetric_environment_intensity,
-        _camera->fog_type,
-        _camera->fog_near,
-        _camera->fog_far,
-        _camera->fog_density,
-        _camera->fog_color.x,
-        _camera->fog_color.y,
-        _camera->fog_color.z,
-        _camera->dust_particle_enable,
-        _camera->dust_particle_intensity
+        _settings.dof_quality,
+        _settings.dof_depth,
+        _settings.dof_falloff,
+        _settings.bEnableFlash ? 1.0f : 0.0f,
+        _settings.flash_intensity,
+        _settings.flash_depth,
+        _settings.flash_falloff,
+        _settings.bEnableVignette ? 1.0f : 0.0f,
+        _settings.vignette_radius,
+        _settings.vignette_falloff,
+        _settings.bShowShadowBuffer ? 1.0f : 0.0f,
+        _settings.bDebugPSSM ? 1.0f : 0.0f,
+        _settings.bEnableAmbient ? 1.0f : 0.0f,
+        _settings.bEnableDiffuse ? 1.0f : 0.0f,
+        _settings.bEnableSpecular ? 1.0f : 0.0f,
+        _settings.bEnableReflection ? 1.0f : 0.0f,
+        _settings.bDebugSuperShiny ? 1.0f : 0.0f,
+        _settings.bShowOctree ? 1.0f : 0.0f,
+        _settings.bShowDeferred ? 1.0f : 0.0f,
+        _settings.bEnableDeferredLighting ? 1.0f : 0.0f,
+        _settings.getPerspectiveNearZ(),
+        _settings.getPerspectiveFarZ(),
+        _settings.volumetric_environment_enable,
+        5 - _settings.volumetric_environment_downsample,
+        _settings.volumetric_environment_max_distance,
+        _settings.volumetric_environment_quality,
+        _settings.volumetric_environment_intensity,
+        _settings.fog_type,
+        _settings.fog_near,
+        _settings.fog_far,
+        _settings.fog_density,
+        _settings.fog_color.x,
+        _settings.fog_color.y,
+        _settings.fog_color.z,
+        _settings.dust_particle_enable,
+        _settings.dust_particle_intensity
     };
     return values[i];
 }
@@ -386,28 +386,28 @@ float const PI = 3.141592653589793f;
 //    NSLog(@"Set Parameter: (%s, %f)", [[self getParameterNameWithIndex: i] UTF8String], v);
     switch(i) {
         case 0: // FOV
-            _camera->perspective_fov = v;
+            _settings.perspective_fov = v;
             break;
         case 1: // Shadow Quality
-            _camera->m_cShadowBuffers = (int)v;
+            _settings.m_cShadowBuffers = (int)v;
             break;
         case 2:
-            _camera->bEnablePerPixel = bNewBoolVal;
+            _settings.bEnablePerPixel = bNewBoolVal;
             break;
         case 3:
-            _camera->bEnableDiffuseMap = bNewBoolVal;
+            _settings.bEnableDiffuseMap = bNewBoolVal;
             break;
         case 4:
-            _camera->bEnableNormalMap = bNewBoolVal;
+            _settings.bEnableNormalMap = bNewBoolVal;
             break;
         case 5:
-            _camera->bEnableSpecMap = bNewBoolVal;
+            _settings.bEnableSpecMap = bNewBoolVal;
             break;
         case 6:
-            _camera->bEnableReflectionMap = bNewBoolVal;
+            _settings.bEnableReflectionMap = bNewBoolVal;
             break;
         case 7:
-            _camera->bEnableLightMap = bNewBoolVal;
+            _settings.bEnableLightMap = bNewBoolVal;
             break;
         case 8:
             [self setAmbientTemperature:v];
@@ -422,152 +422,152 @@ float const PI = 3.141592653589793f;
             [self setSunIntensity:v];
             break;
         case 12:
-            if(_camera->dof_quality != (int)v) {
-                _camera->dof_quality = (int)v;
+            if(_settings.dof_quality != (int)v) {
+                _settings.dof_quality = (int)v;
             }
             break;
         case 13:
-            if(_camera->dof_depth != v) {
-                _camera->dof_depth = v;
+            if(_settings.dof_depth != v) {
+                _settings.dof_depth = v;
             }
             break;
         case 14:
-            if(_camera->dof_falloff != v) {
-                _camera->dof_falloff = v;
+            if(_settings.dof_falloff != v) {
+                _settings.dof_falloff = v;
             }
             break;
         case 15:
-            if(_camera->bEnableFlash != bNewBoolVal) {
-                _camera->bEnableFlash = bNewBoolVal;
+            if(_settings.bEnableFlash != bNewBoolVal) {
+                _settings.bEnableFlash = bNewBoolVal;
             }
             break;
         case 16:
-            if(_camera->flash_intensity != v) {
-                _camera->flash_intensity = v;
+            if(_settings.flash_intensity != v) {
+                _settings.flash_intensity = v;
             }
             break;
         case 17:
-            if(_camera->flash_depth != v) {
-                _camera->flash_depth = v;
+            if(_settings.flash_depth != v) {
+                _settings.flash_depth = v;
             }
             break;
         case 18:
-            if(_camera->flash_falloff != v) {
-                _camera->flash_falloff = v;
+            if(_settings.flash_falloff != v) {
+                _settings.flash_falloff = v;
             }
             break;
         case 19:
-            if(_camera->bEnableVignette != bNewBoolVal) {
-                _camera->bEnableVignette = bNewBoolVal;
+            if(_settings.bEnableVignette != bNewBoolVal) {
+                _settings.bEnableVignette = bNewBoolVal;
             }
             break;
         case 20:
-            if(_camera->vignette_radius != v) {
-                _camera->vignette_radius = v;
+            if(_settings.vignette_radius != v) {
+                _settings.vignette_radius = v;
             }
             break;
         case 21:
-            if(_camera->vignette_falloff != v) {
-                _camera->vignette_falloff = v;
+            if(_settings.vignette_falloff != v) {
+                _settings.vignette_falloff = v;
             }
             break;
         case 22:
-            if(_camera->bShowShadowBuffer != bNewBoolVal) {
-                _camera->bShowShadowBuffer = bNewBoolVal;
+            if(_settings.bShowShadowBuffer != bNewBoolVal) {
+                _settings.bShowShadowBuffer = bNewBoolVal;
             }
             break;
         case 23:
-            if(_camera->bDebugPSSM != bNewBoolVal) {
-                _camera->bDebugPSSM = bNewBoolVal;
+            if(_settings.bDebugPSSM != bNewBoolVal) {
+                _settings.bDebugPSSM = bNewBoolVal;
             }
             break;
         case 24:
-            if(_camera->bEnableAmbient != bNewBoolVal) {
-                _camera->bEnableAmbient = bNewBoolVal;
+            if(_settings.bEnableAmbient != bNewBoolVal) {
+                _settings.bEnableAmbient = bNewBoolVal;
             }
             break;
         case 25:
-            if(_camera->bEnableDiffuse != bNewBoolVal) {
-                _camera->bEnableDiffuse = bNewBoolVal;
+            if(_settings.bEnableDiffuse != bNewBoolVal) {
+                _settings.bEnableDiffuse = bNewBoolVal;
             }
             break;
         case 26:
-            if(_camera->bEnableSpecular != bNewBoolVal) {
-                _camera->bEnableSpecular = bNewBoolVal;
+            if(_settings.bEnableSpecular != bNewBoolVal) {
+                _settings.bEnableSpecular = bNewBoolVal;
             }
             break;
         case 27:
-            if(_camera->bEnableReflection != bNewBoolVal) {
-                _camera->bEnableReflection = bNewBoolVal;
+            if(_settings.bEnableReflection != bNewBoolVal) {
+                _settings.bEnableReflection = bNewBoolVal;
             }
             break;
         case 28:
-            if(_camera->bDebugSuperShiny != bNewBoolVal) {
-                _camera->bDebugSuperShiny = bNewBoolVal;
+            if(_settings.bDebugSuperShiny != bNewBoolVal) {
+                _settings.bDebugSuperShiny = bNewBoolVal;
             }
             break;
         case 29:
-            if(_camera->bShowOctree != bNewBoolVal) {
-                _camera->bShowOctree = bNewBoolVal;
+            if(_settings.bShowOctree != bNewBoolVal) {
+                _settings.bShowOctree = bNewBoolVal;
             }
             break;
         case 30:
-            if(_camera->bShowDeferred != bNewBoolVal) {
-                _camera->bShowDeferred = bNewBoolVal;
+            if(_settings.bShowDeferred != bNewBoolVal) {
+                _settings.bShowDeferred = bNewBoolVal;
             }
             break;
         case 31:
-            if(_camera->bEnableDeferredLighting != bNewBoolVal) {
-                _camera->bEnableDeferredLighting = bNewBoolVal;
+            if(_settings.bEnableDeferredLighting != bNewBoolVal) {
+                _settings.bEnableDeferredLighting = bNewBoolVal;
             }
             break;
         case 32:
-            _camera->setPerspectiveNear(v);
+            _settings.setPerspectiveNear(v);
             break;
         case 33:
-            _camera->setPerpsectiveFarZ(v);
+            _settings.setPerpsectiveFarZ(v);
             break;
         case 34:
-            _camera->volumetric_environment_enable = bNewBoolVal;
+            _settings.volumetric_environment_enable = bNewBoolVal;
             break;
         case 35:
-            _camera->volumetric_environment_downsample = 5 - (int)v;
+            _settings.volumetric_environment_downsample = 5 - (int)v;
             break;
         case 36:
-            _camera->volumetric_environment_max_distance = v;
+            _settings.volumetric_environment_max_distance = v;
             break;
         case 37:
-            _camera->volumetric_environment_quality = v;
+            _settings.volumetric_environment_quality = v;
             break;
         case 38:
-            _camera->volumetric_environment_intensity = v;
+            _settings.volumetric_environment_intensity = v;
             break;
         case 39:
-            _camera->fog_type = v;
+            _settings.fog_type = v;
             break;
         case 40:
-            _camera->fog_near = v;
+            _settings.fog_near = v;
             break;
         case 41:
-            _camera->fog_far = v;
+            _settings.fog_far = v;
             break;
         case 42:
-            _camera->fog_density = v;
+            _settings.fog_density = v;
             break;
         case 43:
-            _camera->fog_color.x = v;
+            _settings.fog_color.x = v;
             break;
         case 44:
-            _camera->fog_color.y = v;
+            _settings.fog_color.y = v;
             break;
         case 45:
-            _camera->fog_color.z = v;
+            _settings.fog_color.z = v;
             break;
         case 46:
-            _camera->dust_particle_enable = bNewBoolVal;
+            _settings.dust_particle_enable = bNewBoolVal;
             break;
         case 47:
-            _camera->dust_particle_intensity = v;
+            _settings.dust_particle_intensity = v;
             break;
     }
 }
@@ -625,11 +625,11 @@ float const PI = 3.141592653589793f;
 
 - (void)setNearZ: (float)dNearZ
 {
-    _camera->setPerspectiveNear(dNearZ);
+    _settings.setPerspectiveNear(dNearZ);
 }
 - (void)setFarZ: (float)dFarZ
 {
-    _camera->setPerpsectiveFarZ(dFarZ);
+    _settings.setPerpsectiveFarZ(dFarZ);
 }
 
 - (void)setDebug_text:(NSString *)value
@@ -638,7 +638,7 @@ float const PI = 3.141592653589793f;
     _debug_text = value;
     [_debug_text retain];
     
-    _camera->m_debug_text = value.UTF8String;
+    _settings.m_debug_text = value.UTF8String;
 }
 
 // ---===--- Sun Temperature and intensity ---===--- 
@@ -646,26 +646,28 @@ float const PI = 3.141592653589793f;
 -(void) setSunTemperature:(float)t
 {
     float i = [self getSunIntensity];
-    
-    _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
-    _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
-    _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
+    _settings.light_intensity = KRVector3(
+        (t < 0.5f ? t * 2.0f : 1.0f) * i,
+        (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
+        (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
+    );
 }
 
 -(void) setSunIntensity:(float)i
 {
     float t = [self getSunTemperature];
-    
-    _camera->dSunR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
-    _camera->dSunG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
-    _camera->dSunB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
+    _settings.light_intensity = KRVector3(
+        (t < 0.5f ? t * 2.0f : 1.0f) * i,
+        (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
+        (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
+    );
 }
 
 -(float) getSunIntensity
 {
-    float i = _camera->dSunR;
-    if(_camera->dSunG > i) i = _camera->dSunG;
-    if(_camera->dSunB > i) i = _camera->dSunB;
+    float i = _settings.light_intensity[0];
+    if(_settings.light_intensity[1] > i) i = _settings.light_intensity[1];
+    if(_settings.light_intensity[2] > i) i = _settings.light_intensity[2];
     return i;
 }
 
@@ -673,12 +675,12 @@ float const PI = 3.141592653589793f;
 {
     float i = [self getSunIntensity];
     if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
-    if(_camera->dSunB == i) {
+    if(_settings.light_intensity[2] == i) {
         // Cold side, t < 0.5
-        return _camera->dSunR / i * 0.5f;
+        return _settings.light_intensity[0] / i * 0.5f;
     } else {
         // Warm side, t > 0.5
-        return 1.0f - (_camera->dSunB / i) * 0.5f;
+        return 1.0f - (_settings.light_intensity[2] / i) * 0.5f;
     }
 }
 
@@ -687,26 +689,28 @@ float const PI = 3.141592653589793f;
 -(void) setAmbientTemperature:(float)t
 {
     float i = [self getAmbientIntensity];
-    
-    _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
-    _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
-    _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
+    _settings.ambient_intensity = KRVector3(
+        (t < 0.5f ? t * 2.0f : 1.0f) * i,
+        (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
+        (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
+    );
 }
 
 -(void) setAmbientIntensity:(float)i
 {
     float t = [self getAmbientTemperature];
-    
-    _camera->dAmbientR = (t < 0.5f ? t * 2.0f : 1.0f) * i;
-    _camera->dAmbientG = (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i;
-    _camera->dAmbientB = (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i;
+    _settings.ambient_intensity = KRVector3(
+        (t < 0.5f ? t * 2.0f : 1.0f) * i,
+        (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
+        (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
+    );
 }
 
 -(float) getAmbientIntensity
 {
-    float i = _camera->dAmbientR;
-    if(_camera->dAmbientG > i) i = _camera->dAmbientG;
-    if(_camera->dAmbientB > i) i = _camera->dAmbientB;
+    float i = _settings.ambient_intensity[0];
+    if(_settings.ambient_intensity[1] > i) i = _settings.ambient_intensity[1];
+    if(_settings.ambient_intensity[2] > i) i = _settings.ambient_intensity[2];
     return i;
 }
 
@@ -714,12 +718,12 @@ float const PI = 3.141592653589793f;
 {
     float i = [self getAmbientIntensity];
     if(i == 0.0f) return 0.5f; // Avoid division by zero; assume black has a colour temperature of 0.5
-    if(_camera->dAmbientB == i) {
+    if(_settings.ambient_intensity[2] == i) {
         // Cold side, t < 0.5
-        return _camera->dAmbientR / i * 0.5f;
+        return _settings.ambient_intensity[0] / i * 0.5f;
     } else {
         // Warm side, t > 0.5
-        return 1.0f - (_camera->dAmbientB / i) * 0.5f;
+        return 1.0f - (_settings.ambient_intensity[2] / i) * 0.5f;
     }
 }
 

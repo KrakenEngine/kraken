@@ -73,12 +73,12 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         }
     }
     
-    if(iShadowQuality > pCamera->m_cShadowBuffers) {
-        iShadowQuality = pCamera->m_cShadowBuffers;
+    if(iShadowQuality > pCamera->settings.m_cShadowBuffers) {
+        iShadowQuality = pCamera->settings.m_cShadowBuffers;
     }
     
     char szKey[256];
-    sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->fog_type, pCamera->bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->bDebugPSSM, iShadowQuality, pCamera->bEnableAmbient, pCamera->bEnableDiffuse, pCamera->bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->volumetric_environment_enable && pCamera->volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->dof_quality,pCamera->bEnableFlash,pCamera->bEnableVignette,pCamera->dof_depth,pCamera->dof_falloff,pCamera->flash_depth,pCamera->flash_falloff,pCamera->flash_intensity,pCamera->vignette_radius,pCamera->vignette_falloff);
+    sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
     
     KRShader *pShader = m_shaders[szKey];
     
@@ -120,13 +120,13 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stream << "\n#define ALPHA_TEST " << (bAlphaTest ? "1" : "0");
         stream << "\n#define ALPHA_BLEND " << (bAlphaBlend ? "1" : "0");
         
-        stream << "\n#define ENABLE_PER_PIXEL " << (pCamera->bEnablePerPixel ? "1" : "0");
-        stream << "\n#define DEBUG_PSSM " << (pCamera->bDebugPSSM ? "1" : "0");
+        stream << "\n#define ENABLE_PER_PIXEL " << (pCamera->settings.bEnablePerPixel ? "1" : "0");
+        stream << "\n#define DEBUG_PSSM " << (pCamera->settings.bDebugPSSM ? "1" : "0");
         stream << "\n#define SHADOW_QUALITY " << iShadowQuality;
-        stream << "\n#define ENABLE_AMBIENT " << (pCamera->bEnableAmbient ? "1" : "0");
-        stream << "\n#define ENABLE_DIFFUSE " << (pCamera->bEnableDiffuse ? "1" : "0");
-        stream << "\n#define ENABLE_SPECULAR " << (pCamera->bEnableSpecular ? "1" : "0");
-        stream << "\n#define FOG_TYPE " << pCamera->fog_type;
+        stream << "\n#define ENABLE_AMBIENT " << (pCamera->settings.bEnableAmbient ? "1" : "0");
+        stream << "\n#define ENABLE_DIFFUSE " << (pCamera->settings.bEnableDiffuse ? "1" : "0");
+        stream << "\n#define ENABLE_SPECULAR " << (pCamera->settings.bEnableSpecular ? "1" : "0");
+        stream << "\n#define FOG_TYPE " << pCamera->settings.fog_type;
         switch(renderPass) {
             case KRNode::RENDER_PASS_DEFERRED_GBUFFER:
                 stream << "\n#define GBUFFER_PASS " << 1;
@@ -142,10 +142,10 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
                 break;
         }
 
-        stream << "\n#define DOF_QUALITY " << pCamera->dof_quality;
-        stream << "\n#define ENABLE_FLASH " << (pCamera->bEnableFlash ? "1" : "0");
-        stream << "\n#define ENABLE_VIGNETTE " << (pCamera->bEnableVignette ? "1" : "0");
-        stream << "\n#define VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED " << (pCamera->volumetric_environment_enable && pCamera->volumetric_environment_downsample != 0 ? "1" : "0");
+        stream << "\n#define DOF_QUALITY " << pCamera->settings.dof_quality;
+        stream << "\n#define ENABLE_FLASH " << (pCamera->settings.bEnableFlash ? "1" : "0");
+        stream << "\n#define ENABLE_VIGNETTE " << (pCamera->settings.bEnableVignette ? "1" : "0");
+        stream << "\n#define VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED " << (pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0 ? "1" : "0");
 
         
         
@@ -153,13 +153,13 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         
         stream.precision(std::numeric_limits<long double>::digits10);
         
-        stream << "\n#define DOF_DEPTH " << pCamera->dof_depth;
-        stream << "\n#define DOF_FALLOFF " << pCamera->dof_falloff;
-        stream << "\n#define FLASH_DEPTH " << pCamera->flash_depth;
-        stream << "\n#define FLASH_FALLOFF " << pCamera->flash_falloff;
-        stream << "\n#define FLASH_INTENSITY " << pCamera->flash_intensity;
-        stream << "\n#define VIGNETTE_RADIUS " << pCamera->vignette_radius;
-        stream << "\n#define VIGNETTE_FALLOFF " << pCamera->vignette_falloff;
+        stream << "\n#define DOF_DEPTH " << pCamera->settings.dof_depth;
+        stream << "\n#define DOF_FALLOFF " << pCamera->settings.dof_falloff;
+        stream << "\n#define FLASH_DEPTH " << pCamera->settings.flash_depth;
+        stream << "\n#define FLASH_FALLOFF " << pCamera->settings.flash_falloff;
+        stream << "\n#define FLASH_INTENSITY " << pCamera->settings.flash_intensity;
+        stream << "\n#define VIGNETTE_RADIUS " << pCamera->settings.vignette_radius;
+        stream << "\n#define VIGNETTE_FALLOFF " << pCamera->settings.vignette_falloff;
         
         stream << "\n";
         std::string options = stream.str();

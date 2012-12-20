@@ -47,7 +47,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
     
     KRLight::render(pCamera, lights, viewport, renderPass);
     
-    bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->bShowDeferred;
+    bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.bShowDeferred;
     
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
@@ -69,7 +69,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
 
             KRVector3 view_light_position = KRMat4::Dot(viewport.getViewMatrix(), light_position);
             
-            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->getPerspectiveNearZ()) * (influence_radius + pCamera->getPerspectiveNearZ());
+            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
             KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             

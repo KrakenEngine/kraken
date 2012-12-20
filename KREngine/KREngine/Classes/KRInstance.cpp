@@ -75,7 +75,7 @@ void KRInstance::loadModel() {
                 std::vector<KRBone *> model_bones;
                 int bone_count = model->getBoneCount();
                 for(int bone_index=0; bone_index < bone_count; bone_index++) {
-                    KRBone *matching_bone = dynamic_cast<KRBone *>(getScene().getRootNode()->findChild(model->getBoneName(bone_index)));
+                    KRBone *matching_bone = dynamic_cast<KRBone *>(getScene().getRootNode()->find<KRNode>(model->getBoneName(bone_index)));
                     if(matching_bone) {
                         model_bones.push_back(matching_bone);
                     } else {
@@ -126,7 +126,7 @@ void KRInstance::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const
                     m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap.c_str());
                 }
                 
-                if(m_pLightMap && pCamera->bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
+                if(m_pLightMap && pCamera->settings.bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap);
                 }
                 

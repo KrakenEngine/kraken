@@ -731,6 +731,9 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
         case KFbxNodeAttribute::eSkeleton:
             new_node = LoadSkeleton(parent_node, resources, pNode);
             break;
+        case KFbxNodeAttribute::eCamera:
+            new_node = LoadCamera(parent_node, resources, pNode);
+            break;
         default:
             {
                 if(pNode->GetChildCount() > 0) {
@@ -1172,6 +1175,14 @@ KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, 
     std::string name = GetFbxObjectName(pNode);
     KRBone *new_bone = new KRBone(parent_node->getScene(), name.c_str());
     return new_bone;
+}
+
+KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+    FbxCamera *camera = (FbxCamera *)pNode->GetNodeAttribute();
+    const char *szName = pNode->GetName();
+    
+    KRCamera *new_camera = new KRCamera(parent_node->getScene(), szName);
+    return new_camera;
 }
 
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {

@@ -220,7 +220,7 @@ bool KRMaterial::isTransparent() {
 #if TARGET_OS_IPHONE
 bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bSameMaterial = *prevBoundMaterial == this;
-    bool bLightMap = pLightMap && pCamera->bEnableLightMap;
+    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
         m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap.c_str());
@@ -246,11 +246,11 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         KRVector2 default_offset = KRVector2(0.0f, 0.0f);
         
         bool bHasReflection = m_reflectionColor != KRVector3(0.0f, 0.0f, 0.0f);
-        bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->bEnableDiffuseMap;
-        bool bNormalMap = m_pNormalMap != NULL && pCamera->bEnableNormalMap;
-        bool bSpecMap = m_pSpecularMap != NULL && pCamera->bEnableSpecMap;
-        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->bEnableReflectionMap && pCamera->bEnableReflection && bHasReflection;
-        bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->bEnableReflection && bHasReflection;
+        bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
+        bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
+        bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
+        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->settings.bEnableReflectionMap && pCamera->settings.bEnableReflection && bHasReflection;
+        bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->settings.bEnableReflection && bHasReflection;
         bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
         bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
         
@@ -265,7 +265,7 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             
             strcpy(szPrevShaderKey, pShader->getKey());
         }
-        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->bDebugSuperShiny ? 20.0 : m_ns ));
+        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->settings.bDebugSuperShiny ? 20.0 : m_ns ));
         
         // Bind bones
         if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
@@ -326,13 +326,13 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         if(!bSameAmbient) {
-            (m_ambientColor + KRVector3(pCamera->dAmbientR, pCamera->dAmbientG, pCamera->dAmbientB)).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT]);
+            (m_ambientColor + pCamera->settings.ambient_intensity).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT]);
         }
         
         if(!bSameDiffuse) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                KRVector3(m_diffuseColor.x * pCamera->dSunR, m_diffuseColor.y * pCamera->dSunG, m_diffuseColor.z * pCamera->dSunB).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
+                KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
             } else {
                 m_diffuseColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
             }
@@ -341,7 +341,7 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         if(!bSameSpecular) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                KRVector3(m_specularColor.x * pCamera->dSunR, m_specularColor.y * pCamera->dSunG, m_specularColor.z * pCamera->dSunB).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
+                KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
             } else {
                 m_specularColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
             }

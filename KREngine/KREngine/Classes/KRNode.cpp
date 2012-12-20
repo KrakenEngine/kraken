@@ -373,17 +373,3 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
     }
 }
 
-
-KRNode *KRNode::findChild(const std::string &name)
-{
-    if(m_name == name) {
-        return this;
-    } else {
-        for(std::vector<KRNode *>::iterator child_itr = m_childNodes.begin(); child_itr != m_childNodes.end(); child_itr++) {
-            KRNode *match = (*child_itr)->findChild(name);
-            if(match) return match;
-        }
-    }
-    
-    return NULL;
-}

@@ -259,7 +259,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
                     }
                 
-                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.m_cShadowBuffers > 1) {
+                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
                         m_pContext->getTextureManager()->selectTexture(4, NULL);
                         GLDEBUG(glActiveTexture(GL_TEXTURE4));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
@@ -269,7 +269,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
                     }
                 
-                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.m_cShadowBuffers > 2) {
+                    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
                         m_pContext->getTextureManager()->selectTexture(5, NULL);
                         GLDEBUG(glActiveTexture(GL_TEXTURE5));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
@@ -391,20 +391,20 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     // Fog parameters
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR], camera.fog_near));
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_FAR], camera.fog_far));
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY], camera.fog_density));
-    camera.fog_color.setUniform(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR]);
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR], camera.settings.fog_near));
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_FAR], camera.settings.fog_far));
+    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY], camera.settings.fog_density));
+    camera.settings.fog_color.setUniform(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR]);
     
     
     if(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] != -1) {
-        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE], 1.0f / (camera.fog_far - camera.fog_near)));
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE], 1.0f / (camera.settings.fog_far - camera.settings.fog_near)));
     }
     if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL] != -1) {
-        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL], -camera.fog_density * 1.442695f)); // -fog_density / log(2)
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL], -camera.settings.fog_density * 1.442695f)); // -fog_density / log(2)
     }
     if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED] != -1) {
-        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED],  -camera.fog_density * camera.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED],  -camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
     }
     
     // Sets the diffuseTexture variable to the first texture unit

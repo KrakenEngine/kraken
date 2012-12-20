@@ -161,7 +161,7 @@ void KRAnimationAttribute::setCurveName(const std::string &curve_name)
 KRNode *KRAnimationAttribute::getTarget()
 {
     if(m_target == NULL) {
-        m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->findChild(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
+        m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->find<KRNode>(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
     }
     return m_target;
 }

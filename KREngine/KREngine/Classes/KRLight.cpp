@@ -164,12 +164,12 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
 
     KRNode::render(pCamera, lights, viewport, renderPass);
     
-    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->volumetric_environment_enable || pCamera->dust_particle_enable || (pCamera->m_cShadowBuffers > 0 && m_casts_shadow))) {
+    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->settings.volumetric_environment_enable || pCamera->settings.dust_particle_enable || (pCamera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
         allocateShadowBuffers(configureShadowBufferViewports(viewport));
         renderShadowBuffers(pCamera);
     }
     
-    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->dust_particle_enable) {
+    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->settings.dust_particle_enable) {
         // Render brownian particles for dust floating in air
         if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
             float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
@@ -195,7 +195,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 
                 if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, particleModelMatrix, this_light, 0, renderPass)) {
                     
-                    (m_color * pCamera->dust_particle_intensity * m_dust_particle_intensity * m_intensity).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
+                    (m_color * pCamera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
                     
                     KRMat4::DotWDiv(KRMat4::Invert(particleModelMatrix), KRVector3::Zero()).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_PARTICLE_ORIGIN]);
                     
@@ -209,8 +209,8 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     }
 
     
-    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && pCamera->volumetric_environment_enable && m_light_shafts) {
-        std::string shader_name = pCamera->volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
+    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && pCamera->settings.volumetric_environment_enable && m_light_shafts) {
+        std::string shader_name = pCamera->settings.volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
         
         std::vector<KRLight *> this_light;
         this_light.push_back(this);
@@ -219,14 +219,14 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
         
         
         if(getContext().getShaderManager()->selectShader(*pCamera, pFogShader, viewport, KRMat4(), this_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE)) {
-            int slice_count = (int)(pCamera->volumetric_environment_quality * 495.0) + 5;
+            int slice_count = (int)(pCamera->settings.volumetric_environment_quality * 495.0) + 5;
             
-            float slice_near = -pCamera->getPerspectiveNearZ();
-            float slice_far = -pCamera->volumetric_environment_max_distance;
+            float slice_near = -pCamera->settings.getPerspectiveNearZ();
+            float slice_far = -pCamera->settings.volumetric_environment_max_distance;
             float slice_spacing = (slice_far - slice_near) / slice_count;
             
             KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
-            (m_color * pCamera->volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
+            (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
             m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRModelManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false, false, false);
             GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));

@@ -52,6 +52,8 @@ public:
     KRScene(KRContext &context, std::string name);
     virtual ~KRScene();
     
+    
+    
     virtual std::string getExtension();
     virtual bool save(KRDataBlock &data);
     
@@ -64,7 +66,7 @@ public:
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
     
 #if TARGET_OS_IPHONE
-    
+    void renderFrame(float deltaTime);
     void render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame);
     
     void render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
@@ -82,8 +84,7 @@ public:
     KRAABB getRootOctreeBounds();
     
 private:
-    KRLight *findFirstLight(KRNode &node);
-    
+
     KRNode *m_pRootNode;
     KRLight *m_pFirstLight;
     
@@ -98,6 +99,20 @@ private:
     void updateOctree();
     
     std::string m_skyBoxName;
+    
+public:
+    
+    template <class T> T *find()
+    {
+        if(m_pRootNode) return m_pRootNode->find<T>();
+        return NULL;
+    }
+    
+    template <class T> T *find(const std::string &name)
+    {
+        if(m_pRootNode) return m_pRootNode->find<T>(name);
+        return NULL;
+    }
 };
 
 

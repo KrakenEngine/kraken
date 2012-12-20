@@ -8,10 +8,13 @@
 
 
 
-#ifndef KREngine_KREngine_common_h
-#define KREngine_KREngine_common_h
+#ifndef KRENGINE_COMMON_H
+#define KRENGINE_COMMON_H
 
 #define KRENGINE_MAX_TEXTURE_UNITS 8
+
+float const PI = 3.141592653589793f;
+float const D2R = PI * 2 / 360;
 
 #import <stdint.h>
 #import <vector>
@@ -50,3 +53,7 @@ while( (e=glGetError()) != GL_NO_ERROR) \
 fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
 } \
 }
+
+
+#include "KRVector3.h"
+#include "KRVector2.h"

@@ -42,105 +42,27 @@
 #import "KRTexture.h"
 #import "KRContext.h"
 #import "KRViewport.h"
+#import "KRRenderSettings.h"
 
 class KRInstance;
 class KRScene;
 class KRViewport;
 
-class KRCamera : public KRContextObject {
+class KRCamera : public KRNode {
 public:
-    KRCamera(KRContext &context);
+    KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
+
+    void renderFrame(float deltaTime); 
+    
+    KRRenderSettings settings;
+        
+private:    
+    void createBuffers();
     
     GLint backingWidth, backingHeight;
     GLint volumetricBufferWidth, volumetricBufferHeight;
     
-    void renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime);
-
-    KRVector3 getPosition() const;
-    void setPosition(const KRVector3 &position);
-    
-    KRMat4 getProjectionMatrix();
-    const KRVector2 &getViewportSize();
-    void setViewportSize(const KRVector2 &size);
-    
-    bool bEnablePerPixel;
-    bool bEnableDiffuseMap;
-    bool bEnableNormalMap;
-    bool bEnableSpecMap;
-    bool bEnableReflectionMap;
-    bool bEnableReflection;
-    bool bEnableLightMap;
-    bool bDebugPSSM;
-    bool bDebugSuperShiny;
-    bool bShowShadowBuffer;
-    bool bShowOctree;
-    bool bShowDeferred;
-    bool bEnableAmbient;
-    bool bEnableDiffuse;
-    bool bEnableSpecular;
-    bool bEnableDeferredLighting;
-    float dSunR;
-    float dSunG;
-    float dSunB;
-    float dAmbientR;
-    float dAmbientG;
-    float dAmbientB;
-    float perspective_fov;
-
-    
-    
-    
-    int dof_quality;
-    float dof_depth;
-    float dof_falloff;
-    bool bEnableFlash;
-    float flash_intensity;
-    float flash_depth;
-    float flash_falloff;
-    
-    bool bEnableVignette;
-    float vignette_radius;
-    float vignette_falloff;
-    
-    KRVector2 m_viewportSize;
-    
-    int m_cShadowBuffers;
-    
-    std::string m_debug_text;
-    
-    void setSkyBox(const std::string &skyBoxName);
-    
-    float getPerspectiveNearZ();
-    float getPerspectiveFarZ();
-    void setPerspectiveNear(float v);
-    void setPerpsectiveFarZ(float v);
-    
-    
-    bool volumetric_environment_enable;
-    int volumetric_environment_downsample;
-    float volumetric_environment_max_distance;
-    float volumetric_environment_quality;
-    float volumetric_environment_intensity;
-
-    float fog_near;
-    float fog_far;
-    float fog_density;
-    KRVector3 fog_color;
-    int fog_type; // 0 = no fog, 1 = linear, 2 = exponential, 3 = exponential squared
-    
-    float dust_particle_intensity;
-    bool dust_particle_enable;
-    
-private:
-    KRVector3 m_position;
-    
-    void createBuffers();
-    
-    float perspective_nearz;
-    float perspective_farz;
-    
-    int m_iFrame;
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
     GLuint lightAccumulationBuffer, lightAccumulationTexture;
     
@@ -153,10 +75,7 @@ private:
     
     void renderFrame(KRScene &scene, float deltaTime);
     
-    std::string m_skyBoxName;
     KRTexture *m_pSkyBoxTexture;
-    
-    
     KRViewport m_viewport;
     
     float m_particlesAbsoluteTime;

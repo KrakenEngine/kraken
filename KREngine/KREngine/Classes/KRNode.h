@@ -53,8 +53,6 @@ public:
     void addChild(KRNode *child);
     const std::vector<KRNode *> &getChildren();
     
-    KRNode *findChild(const std::string &name);
-    
     void setLocalTranslation(const KRVector3 &v, bool set_original = false);
     void setLocalScale(const KRVector3 &v, bool set_original = false);
     void setLocalRotation(const KRVector3 &v, bool set_original = false);
@@ -130,6 +128,43 @@ private:
     
     KRScene *m_pScene;
     
+public:
+    
+    template <class T> T *find()
+    {
+        T *match = dynamic_cast<T *>(this);
+        if(match) {
+            return match;
+        }
+        
+        for(std::vector<KRNode *>::const_iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+            match = (*itr)->find<T>();
+            if(match) {
+                return match;
+            }
+        }
+        
+        return NULL;
+    }
+    
+    template <class T> T *find(const std::string &name)
+    {
+        T *match = dynamic_cast<T *>(this);
+        if(match) {
+            if(name.compare(match->getName())) {
+                return match;
+            }
+        }
+        
+        for(std::vector<KRNode *>::const_iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+            match = (*itr)->find<T>();
+            if(match) {
+                return match;
+            }
+        }
+        
+        return NULL;
+    }
 };
 
 

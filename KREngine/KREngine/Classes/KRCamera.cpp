@@ -1,5 +1,5 @@
 //
-//  KRSettings.cpp
+//  KRCamera.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -41,62 +41,14 @@
 #import "KRStockGeometry.h"
 #import "KRDirectionalLight.h"
 
-KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
+KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_particlesAbsoluteTime = 0.0f;
     backingWidth = 0;
     backingHeight = 0;
     volumetricBufferWidth = 0;
     volumetricBufferHeight = 0;
+    m_pSkyBoxTexture = NULL;
     
-    float const PI = 3.141592653589793f;
-    float const D2R = PI * 2 / 360;
-    
-    bShowShadowBuffer = false;
-    bShowOctree = false;
-    bShowDeferred = false;
-    bEnablePerPixel = true;
-    bEnableDiffuseMap = true;
-    bEnableNormalMap = true;
-    bEnableSpecMap = true;
-    bEnableReflectionMap = true;
-    bEnableReflection = true;
-    bDebugPSSM = false;
-    bEnableAmbient = true;
-    bEnableDiffuse = true;
-    bEnableSpecular = true;
-    bEnableLightMap = true;
-    bDebugSuperShiny = false;
-    bEnableDeferredLighting = true;
-    
-    
-    dAmbientR = 0.0f;
-    dAmbientG = 0.0f;
-    dAmbientB = 0.0f;
-    
-    dSunR = 1.0f;
-    dSunG = 1.0f;
-    dSunB = 1.0f;
-    
-    perspective_fov = 45.0 * D2R;
-    perspective_nearz = 5.0f;
-    perspective_farz = 100.0f;
-    
-    dof_quality = 0;
-    dof_depth = 0.05f;
-    dof_falloff = 0.05f;
-    
-    bEnableFlash = false;
-    flash_intensity = 1.0f;
-    flash_depth = 0.7f;
-    flash_falloff = 0.5f;
-    
-    
-    bEnableVignette = false;
-    vignette_radius = 0.4f;
-    vignette_falloff = 1.0f;
-    
-    
-    m_cShadowBuffers = 0;
     compositeDepthTexture = 0;
     compositeColorTexture = 0;
     lightAccumulationTexture = 0;
@@ -105,85 +57,31 @@ KRCamera::KRCamera(KRContext &context) : KRContextObject(context) {
     
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
-    
-    
-
-    
-    m_iFrame = 0;
-    
-    m_skyBoxName = "";
-    m_pSkyBoxTexture = NULL;
-    
-    
-    volumetric_environment_enable = false;
-    volumetric_environment_downsample = 2;
-    volumetric_environment_max_distance = 1000.0f;
-    volumetric_environment_quality = (50 - 5.0) / 495.0f;
-    volumetric_environment_intensity = 0.9f;
-    
-    
-    fog_near = 500.0f;
-    fog_far = 5000.0f;
-    fog_density = 0.0005f;
-    fog_color = KRVector3(0.45, 0.45, 0.5);
-    fog_type = 0;
-    
-    dust_particle_intensity = 0.25f;
-    dust_particle_enable = false;
 }
 
 KRCamera::~KRCamera() {
     destroyBuffers();
 }
 
-KRMat4 KRCamera::getProjectionMatrix() {
-    KRMat4 projectionMatrix;
-    projectionMatrix.perspective(perspective_fov, m_viewportSize.x / m_viewportSize.y, perspective_nearz, perspective_farz);
-    return projectionMatrix;
-}
-
-const KRVector2 &KRCamera::getViewportSize() {
-    return m_viewportSize;
-}
-
-void KRCamera::setViewportSize(const KRVector2 &size) {
-    m_viewportSize = size;
-}
-
-KRVector3 KRCamera::getPosition() const {
-    return m_position;
-}
-
-void KRCamera::setPosition(const KRVector3 &position) {
-    m_position = position;
-}
-
-void KRCamera::renderFrame(KRScene &scene, KRMat4 &viewMatrix, float deltaTime)
+void KRCamera::renderFrame(float deltaTime)
 {
-    if(m_iFrame == 0) {
-        if(scene.getFirstLight() == NULL) {
-            scene.addDefaultLights();
-        }
-    }
+    KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
     createBuffers();
     
-    setViewportSize(KRVector2(backingWidth, backingHeight));
-    m_viewport = KRViewport(getViewportSize(), viewMatrix, getProjectionMatrix());
+    settings.setViewportSize(KRVector2(backingWidth, backingHeight));
+    KRMat4 projectionMatrix;
+    projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
+    m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
     
-    renderFrame(scene, deltaTime);
+    renderFrame(getScene(), deltaTime);
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
-    
-    m_iFrame++;
 }
-
-
-
 
 void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
@@ -193,7 +91,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
 //    KRViewport shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
 //    int cShadows = 0;
     
-    if(bEnableDeferredLighting) {
+    if(settings.bEnableDeferredLighting) {
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
         
         // Set render target
@@ -340,8 +238,8 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     GLDEBUG(glDepthFunc(GL_LEQUAL));
     GLDEBUG(glDepthRangef(0.0, 1.0));
     
-    if(!m_pSkyBoxTexture && m_skyBoxName.length()) {
-        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBoxName.c_str());
+    if(!m_pSkyBoxTexture && settings.m_skyBoxName.length()) {
+        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(settings.m_skyBoxName.c_str());
     }
     
     if(m_pSkyBoxTexture) {
@@ -407,10 +305,10 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
     // ----====---- Volumetric Lighting ----====----
     
-    if(volumetric_environment_enable) {
+    if(settings.volumetric_environment_enable) {
         KRViewport volumetricLightingViewport = KRViewport(KRVector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
         
-        if(volumetric_environment_downsample != 0) {
+        if(settings.volumetric_environment_downsample != 0) {
             // Set render target
             GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, volumetricLightAccumulationBuffer));
             GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
@@ -433,7 +331,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
         
-        if(volumetric_environment_downsample != 0) {
+        if(settings.volumetric_environment_downsample != 0) {
             // Set render target
             GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
@@ -446,7 +344,7 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
     // ----====---- Debug Overlay ----====----
     
-    if(bShowOctree) {
+    if(settings.bShowOctree) {
         // Enable z-buffer test
         GLDEBUG(glEnable(GL_DEPTH_TEST));
         GLDEBUG(glDepthRangef(0.0, 1.0));
@@ -462,8 +360,6 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
         
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    
-        KRMat4 projectionMatrix = getProjectionMatrix();
         
         m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false, false, false);
         for(std::map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
@@ -562,9 +458,9 @@ void KRCamera::createBuffers() {
     }
     int targetVolumetricBufferWidth = 0;
     int targetVolumetricBufferHeight = 0;
-    if(volumetric_environment_enable && volumetric_environment_downsample != 0) {
-        targetVolumetricBufferWidth = renderBufferWidth >> volumetric_environment_downsample;
-        targetVolumetricBufferHeight = renderBufferHeight >> volumetric_environment_downsample;
+    if(settings.volumetric_environment_enable && settings.volumetric_environment_downsample != 0) {
+        targetVolumetricBufferWidth = renderBufferWidth >> settings.volumetric_environment_downsample;
+        targetVolumetricBufferHeight = renderBufferHeight >> settings.volumetric_environment_downsample;
     }
     
     
@@ -676,7 +572,7 @@ void KRCamera::renderPost()
     GLDEBUG(glActiveTexture(GL_TEXTURE1));
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
     
-    if(volumetric_environment_enable) {
+    if(settings.volumetric_environment_enable) {
         m_pContext->getTextureManager()->selectTexture(2, NULL);
         GLDEBUG(glActiveTexture(GL_TEXTURE2));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, volumetricLightAccumulationTexture));
@@ -724,7 +620,7 @@ void KRCamera::renderPost()
     
     
     
-    const char *szText = m_debug_text.c_str();
+    const char *szText = settings.m_debug_text.c_str();
     if(*szText) {
         KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 
@@ -771,28 +667,3 @@ void KRCamera::renderPost()
     
 }
 
-void KRCamera::setSkyBox(const std::string &skyBoxName) {
-    m_pSkyBoxTexture = NULL;
-    m_skyBoxName = skyBoxName;
-}
-
-float KRCamera::getPerspectiveNearZ()
-{
-    return perspective_nearz;
-}
-float KRCamera::getPerspectiveFarZ()
-{
-    return perspective_farz;
-}
-void KRCamera::setPerspectiveNear(float v)
-{
-    if(perspective_nearz != v) {
-        perspective_nearz = v;
-    }
-}
-void KRCamera::setPerpsectiveFarZ(float v)
-{
-    if(perspective_farz != v) {
-        perspective_farz = v;
-    }
-}
