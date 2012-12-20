@@ -31,8 +31,8 @@
 
 #import "KREngine-common.h"
 
-#ifndef __KREngine__KRCollider__
-#define __KREngine__KRCollider__
+#ifndef KRCOLLIDER_H
+#define KRCOLLIDER_H
 
 #import "KRModel.h"
 #import "KRMat4.h"
@@ -65,4 +65,4 @@ private:
     void loadModel();
 };
 
-#endif /* defined(__KREngine__KRCollider__) */
+#endif /* defined(KRCOLLIDER_H) */

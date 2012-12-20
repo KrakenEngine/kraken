@@ -60,6 +60,15 @@
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; };
 		E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E44F37FE1682702400399B5D /* libPVRTexLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E44F37FD1682702400399B5D /* libPVRTexLib.a */; };
+		E44F38011682733900399B5D /* PVRTexLib.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38001682733900399B5D /* PVRTexLib.h */; };
+		E44F38091682734C00399B5D /* CPVRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38021682734C00399B5D /* CPVRTexture.h */; };
+		E44F380A1682734C00399B5D /* CPVRTextureData.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38031682734C00399B5D /* CPVRTextureData.h */; };
+		E44F380B1682734C00399B5D /* CPVRTextureHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38041682734C00399B5D /* CPVRTextureHeader.h */; };
+		E44F380C1682734C00399B5D /* Pixel.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38051682734C00399B5D /* Pixel.h */; };
+		E44F380D1682734C00399B5D /* PVRException.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38061682734C00399B5D /* PVRException.h */; };
+		E44F380E1682734C00399B5D /* PVRTexLibGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38071682734C00399B5D /* PVRTexLibGlobals.h */; };
+		E44F380F1682734C00399B5D /* PVRTGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38081682734C00399B5D /* PVRTGlobal.h */; };
 		E460292616681CFF00261BB9 /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; };
 		E460292816681D1000261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
 		E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */; };
@@ -92,11 +101,6 @@
 		E46DBE7F1512AF0200D59F86 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E46DBE7D1512AD4900D59F86 /* OpenGL.framework */; };
 		E46DBE801512AF4600D59F86 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491016413C99B9E0098455B /* Foundation.framework */; };
 		E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */ = {isa = PBXBuildFile; fileRef = E46DBE841512B9E200D59F86 /* KREngine-common.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E46F4A00155DF46700CCF8B8 /* KRWorld.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F49FF155DF46700CCF8B8 /* KRWorld.h */; };
-		E46F4A01155DF46700CCF8B8 /* KRWorld.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F49FF155DF46700CCF8B8 /* KRWorld.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E46F4A04155DF47C00CCF8B8 /* KRWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */; };
-		E46F4A05155DF47C00CCF8B8 /* KRWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */; };
-		E46F4A09155DF6E400CCF8B8 /* KRWorld.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46F4A0B155E002100CCF8B8 /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; };
 		E46F4A0C155E002100CCF8B8 /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
@@ -285,6 +289,15 @@
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRContextObject.h; path = Classes/KRContextObject.h; sourceTree = "<group>"; };
 		E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.fsh; path = Shaders/volumetric_fog.fsh; sourceTree = "<group>"; };
 		E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = volumetric_fog.vsh; path = Shaders/volumetric_fog.vsh; sourceTree = "<group>"; };
+		E44F37FD1682702400399B5D /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = Utilities/PVRTexLib/MacOS/libPVRTexLib.a; sourceTree = PVRSDK; };
+		E44F38001682733900399B5D /* PVRTexLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PVRTexLib.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/PVRTexLib.h"; sourceTree = "<group>"; };
+		E44F38021682734C00399B5D /* CPVRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CPVRTexture.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/CPVRTexture.h"; sourceTree = "<group>"; };
+		E44F38031682734C00399B5D /* CPVRTextureData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CPVRTextureData.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/CPVRTextureData.h"; sourceTree = "<group>"; };
+		E44F38041682734C00399B5D /* CPVRTextureHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CPVRTextureHeader.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/CPVRTextureHeader.h"; sourceTree = "<group>"; };
+		E44F38051682734C00399B5D /* Pixel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pixel.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/Pixel.h"; sourceTree = "<group>"; };
+		E44F38061682734C00399B5D /* PVRException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PVRException.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/PVRException.h"; sourceTree = "<group>"; };
+		E44F38071682734C00399B5D /* PVRTexLibGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PVRTexLibGlobals.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/PVRTexLibGlobals.h"; sourceTree = "<group>"; };
+		E44F38081682734C00399B5D /* PVRTGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PVRTGlobal.h; path = "../../../../../../../../../Applications/PVR SDK Package/Utilities/PVRTexLib/PVRTGlobal.h"; sourceTree = "<group>"; };
 		E45772F113C9A13C0037BEEA /* ShadowShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = ShadowShader.vsh; path = Shaders/ShadowShader.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E45772F213C9A13C0037BEEA /* ShadowShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ShadowShader.fsh; path = Shaders/ShadowShader.fsh; sourceTree = "<group>"; };
 		E45772F313C9A13C0037BEEA /* PostShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = PostShader.fsh; path = Shaders/PostShader.fsh; sourceTree = "<group>"; };
@@ -317,8 +330,6 @@
 		E46C214A15364DEC009CABF3 /* KRSceneManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSceneManager.cpp; path = Classes/KRSceneManager.cpp; sourceTree = "<group>"; };
 		E46DBE7D1512AD4900D59F86 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E46DBE841512B9E200D59F86 /* KREngine-common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "KREngine-common.h"; path = "Classes/KREngine-common.h"; sourceTree = "<group>"; };
-		E46F49FF155DF46700CCF8B8 /* KRWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRWorld.h; path = Classes/KRWorld.h; sourceTree = "<group>"; };
-		E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRWorld.cpp; path = Classes/KRWorld.cpp; sourceTree = "<group>"; };
 		E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRDataBlock.h; path = Classes/KRDataBlock.h; sourceTree = "<group>"; };
 		E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRDataBlock.cpp; path = Classes/KRDataBlock.cpp; sourceTree = "<group>"; };
 		E4769DEC158A78B6004B83AC /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = flare.fsh; path = Shaders/flare.fsh; sourceTree = "<group>"; };
@@ -435,6 +446,7 @@
 				E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */,
 				E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */,
 				E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */,
+				E44F37FE1682702400399B5D /* libPVRTexLib.a in Frameworks */,
 				E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -477,6 +489,22 @@
 				E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */,
 			);
 			name = "Particle Systems";
+			sourceTree = "<group>";
+		};
+		E44F37FF1682731700399B5D /* PVRTexLib */ = {
+			isa = PBXGroup;
+			children = (
+				E44F38021682734C00399B5D /* CPVRTexture.h */,
+				E44F38031682734C00399B5D /* CPVRTextureData.h */,
+				E44F38041682734C00399B5D /* CPVRTextureHeader.h */,
+				E44F38051682734C00399B5D /* Pixel.h */,
+				E44F38061682734C00399B5D /* PVRException.h */,
+				E44F38071682734C00399B5D /* PVRTexLibGlobals.h */,
+				E44F38081682734C00399B5D /* PVRTGlobal.h */,
+				E44F38001682733900399B5D /* PVRTexLib.h */,
+				E44F37FD1682702400399B5D /* libPVRTexLib.a */,
+			);
+			name = PVRTexLib;
 			sourceTree = "<group>";
 		};
 		E45772E313C99F160037BEEA /* Shaders */ = {
@@ -754,8 +782,6 @@
 				E46DBE841512B9E200D59F86 /* KREngine-common.h */,
 				E491017213C99BDC0098455B /* KREngine.h */,
 				E491016F13C99BDC0098455B /* KREngine.mm */,
-				E46F4A03155DF47C00CCF8B8 /* KRWorld.cpp */,
-				E46F49FF155DF46700CCF8B8 /* KRWorld.h */,
 				E4030E4B160A3CF000592648 /* KRStockGeometry.h */,
 				E4CA11731639CBD1005D9400 /* KRViewport.h */,
 				E4CA11771639CC8E005D9400 /* KRViewport.cpp */,
@@ -788,6 +814,7 @@
 		E4BBBB931512A41500F43B5B /* OSX Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E44F37FF1682731700399B5D /* PVRTexLib */,
 				E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */,
 				E4CA10F71638BCBB005D9400 /* Accelerate.framework */,
 				E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */,
@@ -847,7 +874,6 @@
 				E4F975321536220900FD60B2 /* KRNode.h in Headers */,
 				E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */,
 				E48C696F15374F5B00232E28 /* KRContext.h in Headers */,
-				E46F4A00155DF46700CCF8B8 /* KRWorld.h in Headers */,
 				E46F4A0B155E002100CCF8B8 /* KRDataBlock.h in Headers */,
 				E42CB1EC158446940066E0D8 /* KRQuaternion.h in Headers */,
 				E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
@@ -908,10 +934,8 @@
 				E4F97552153633EF00FD60B2 /* KRMaterialManager.h in Headers */,
 				E428C2F91669612500A16EDF /* KRAnimation.h in Headers */,
 				E461A176152E5C5600F2044A /* KRPointLight.h in Headers */,
-				E46F4A09155DF6E400CCF8B8 /* KRWorld.cpp in Headers */,
 				E4F975541536340400FD60B2 /* KRTexture2D.h in Headers */,
 				E428C3051669627900A16EDF /* KRAnimationCurve.h in Headers */,
-				E46F4A01155DF46700CCF8B8 /* KRWorld.h in Headers */,
 				E48C697015374F5B00232E28 /* KRContext.h in Headers */,
 				E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */,
 				E46C214815364BC8009CABF3 /* tinyxml2.h in Headers */,
@@ -939,6 +963,14 @@
 				E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
 				E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */,
+				E44F38011682733900399B5D /* PVRTexLib.h in Headers */,
+				E44F38091682734C00399B5D /* CPVRTexture.h in Headers */,
+				E44F380A1682734C00399B5D /* CPVRTextureData.h in Headers */,
+				E44F380B1682734C00399B5D /* CPVRTextureHeader.h in Headers */,
+				E44F380C1682734C00399B5D /* Pixel.h in Headers */,
+				E44F380D1682734C00399B5D /* PVRException.h in Headers */,
+				E44F380E1682734C00399B5D /* PVRTexLibGlobals.h in Headers */,
+				E44F380F1682734C00399B5D /* PVRTGlobal.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1049,7 +1081,6 @@
 				E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */,
 				E46C214B15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
 				E48C697215374F7E00232E28 /* KRContext.cpp in Sources */,
-				E46F4A04155DF47C00CCF8B8 /* KRWorld.cpp in Sources */,
 				E46F4A0E155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
 				E42CB1F0158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
 				E43B0AD615DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */,
@@ -1112,7 +1143,6 @@
 				E46C214C15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
 				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
 				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
-				E46F4A05155DF47C00CCF8B8 /* KRWorld.cpp in Sources */,
 				E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
 				E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
 				E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */,
@@ -1269,6 +1299,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/PVR SDK Package/Utilities/PVRTexLib/MacOS\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1310,6 +1341,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/PVR SDK Package/Utilities/PVRTexLib/MacOS\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";

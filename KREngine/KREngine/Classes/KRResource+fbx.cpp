@@ -34,6 +34,8 @@
 #include "KRQuaternion.h"
 #include "KRBone.h"
 #include "KRBundle.h"
+#include "KRInstance.h"
+#include "KRCollider.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -1152,8 +1154,14 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-        KRInstance *new_instance = new KRInstance(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
-        return new_instance;
+        const char *collider_prefix = "collider_";
+        const char *node_name = pNode->GetName();
+        if(strncmp(node_name, collider_prefix, strlen(collider_prefix)) == 0) {
+            // FINDME, HACK - Until we have a GUI, we're using prefixes to select correct object type
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName());
+        } else {
+            return new KRInstance(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
+        }
     } else {
         return NULL;
     }
