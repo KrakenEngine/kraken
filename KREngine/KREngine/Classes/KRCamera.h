@@ -153,31 +153,6 @@ private:
     
     void renderFrame(KRScene &scene, float deltaTime);
     
-    
-    
-
-    
-    
-    class KRInstanceDistance {
-    public:
-        KRInstanceDistance(KRInstance *pInstance, float distance) : m_pInstance(pInstance), m_distance(distance) {};
-        ~KRInstanceDistance() {};
-        
-        // a predicate implemented as a class:
-        class InstanceEqualsPredicate
-        {
-        public:
-            InstanceEqualsPredicate(KRInstance *pInstance) : m_pInstance(pInstance) {};
-            bool operator() (const KRInstanceDistance& value) {return value.m_pInstance == m_pInstance; }
-            
-        private:
-            KRInstance *m_pInstance;
-        };
-                           
-        KRInstance *m_pInstance;
-        float m_distance;
-    };
-    
     std::string m_skyBoxName;
     KRTexture *m_pSkyBoxTexture;
     
