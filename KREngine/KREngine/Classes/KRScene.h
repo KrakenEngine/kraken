@@ -53,12 +53,15 @@ public:
     virtual ~KRScene();
     
     virtual std::string getExtension();
-    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     static KRScene *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
     KRNode *getRootNode();
     KRLight *getFirstLight();
+    
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
     
 #if TARGET_OS_IPHONE
     

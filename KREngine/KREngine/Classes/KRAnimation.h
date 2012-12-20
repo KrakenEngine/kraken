@@ -46,7 +46,7 @@ public:
     virtual ~KRAnimation();
     
     virtual std::string getExtension();
-    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     

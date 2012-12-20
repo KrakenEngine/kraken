@@ -45,8 +45,10 @@ using std::list;
 
 class KRTexture2D : public KRTexture {
 public:
-    KRTexture2D(KRContext &context, KRDataBlock *data);
+    KRTexture2D(KRContext &context, KRDataBlock *data, std::string name);
     virtual ~KRTexture2D();
+    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     bool hasMipmaps();
     int getMaxMipMap();

@@ -12,9 +12,8 @@
 #include "KRContext.h"
 #include "KRTextureManager.h"
 
-KRTexture::KRTexture(KRContext &context) : KRContextObject(context)
+KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context, name)
 {
-    
     m_iHandle = 0;
     m_textureMemUsed = 0;
     m_last_frame_used = 0;
@@ -131,4 +130,8 @@ bool KRTexture::isAnimated()
     return false;
 }
 
+KRTexture *KRTexture::compress()
+{
+    return NULL;
+}
 

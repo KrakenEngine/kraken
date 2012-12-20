@@ -61,7 +61,7 @@ void KRAnimation::addLayer(KRAnimationLayer *layer)
     m_layers[layer->getName()] = layer;
 }
 
-bool KRAnimation::save(const std::string& path) {
+bool KRAnimation::save(KRDataBlock &data) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *animation_node =  doc.NewElement( "animation" );
     doc.InsertEndChild(animation_node);
@@ -73,10 +73,12 @@ bool KRAnimation::save(const std::string& path) {
         (*itr).second->saveXML(animation_node);
     }
     
-    doc.SaveFile(path.c_str());
+    tinyxml2::XMLPrinter p;
+    doc.Print(&p);
+    data.append((void *)p.CStr(), strlen(p.CStr())+1);
+    
     return true;
 }
-
 
 KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {

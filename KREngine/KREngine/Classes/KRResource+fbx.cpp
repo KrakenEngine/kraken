@@ -33,6 +33,7 @@
 #include "KRScene.h"
 #include "KRQuaternion.h"
 #include "KRBone.h"
+#include "KRBundle.h"
 
 #ifdef IOS_REF
 #undef  IOS_REF
@@ -47,6 +48,8 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
 void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
+void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxSurfaceMaterial *pMaterial);
+void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
@@ -98,25 +101,8 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         pNode->ResetPivotSetAndConvertAnimation();
     }
     
-    // ----====---- Import Animation Layers ----====----
-    
-    int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
-    for(int i = 0; i < animation_count; i++) {
-        //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
-        KRAnimation *new_animation = LoadAnimation(context, pFbxScene->GetSrcObject<FbxAnimStack>(i));
-        context.getAnimationManager()->addAnimation(new_animation);
-        resources.push_back(new_animation);
-    }
-    
-    // ----====---- Import Animation Curves ----====----
-    int curve_count = pFbxScene->GetSrcObjectCount<FbxAnimCurve>();
-    for(int i=0; i < curve_count; i++) {
-        KRAnimationCurve *new_curve = LoadAnimationCurve(context, pFbxScene->GetSrcObject<FbxAnimCurve>(i));
-        context.getAnimationCurveManager()->addAnimationCurve(new_curve);
-        resources.push_back(new_curve);
-    }
-    
     // ----====---- Import Scene Graph Nodes ----====----
+    printf("\nLoading scene graph...\n");
     if(pNode)
     {
         for(int i = 0; i < pNode->GetChildCount(); i++)
@@ -125,24 +111,97 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         }
     }
     
-
+    // ----====---- Import Animation Layers ----====----
+    printf("\nLoading animations...\n");
+    int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
+    for(int i = 0; i < animation_count; i++) {
+        FbxAnimStack *animation = pFbxScene->GetSrcObject<FbxAnimStack>(i);
+        printf("  Animation %i of %i: %s\n", i+1, animation_count, animation->GetName());
+        KRAnimation *new_animation = LoadAnimation(context, animation);
+        context.getAnimationManager()->addAnimation(new_animation);
+        resources.push_back(new_animation);
+    }
+    
+    // ----====---- Import Animation Curves ----====----
+    printf("\nLoading animation curves...\n");
+    int curve_count = pFbxScene->GetSrcObjectCount<FbxAnimCurve>();
+    for(int i=0; i < curve_count; i++) {
+        FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
+        printf("  Animation Curve %i of %i: %s\n", i+1, curve_count, curve->GetName());
+        KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
+        context.getAnimationCurveManager()->addAnimationCurve(new_curve);
+        resources.push_back(new_curve);
+    }
+    
+    // ----====---- Import Meshes ----====----
+    int mesh_count = pFbxScene->GetSrcObjectCount<FbxMesh>();
+    printf("\nLoading meshes...\n");
+    for(int i=0; i < mesh_count; i++) {
+        FbxMesh *mesh = pFbxScene->GetSrcObject<FbxMesh>(i);
+        
+        printf("  Mesh %i of %i: %s\n", i+1, mesh_count, mesh->GetNode()->GetName());
+        LoadMesh(context, resources, pGeometryConverter, mesh);
+    }
+    
+    // ----====---- Import Materials ----====----
+    int material_count = pFbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
+    printf("\nLoading materials...\n");
+    for(int i=0; i < material_count; i++) {
+        FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
+        printf("  Material %i of %i: %s\n", i+1, material_count, material->GetName());
+        LoadMaterial(context, resources, material);
+    }
+    
+    // ----====---- Import Textures ----====----
+    int texture_count = pFbxScene->GetSrcObjectCount<FbxFileTexture>();
+    
+    printf("\nLoading textures...\n");
+    for(int i=0; i < texture_count; i++) {
+        FbxFileTexture *texture = pFbxScene->GetSrcObject<FbxFileTexture>(i);
+        const char *file_name = texture->GetFileName();
+        printf("  Texture %i of %i: %s\n", i+1, texture_count, (KRResource::GetFileBase(file_name) + "." + KRResource::GetFileExtension(file_name)).c_str());
+        context.loadResource(file_name);
+    }
+    
+    for(std::map<std::string, KRTexture *>::iterator texture_itr = context.getTextureManager()->getTextures().begin(); texture_itr != context.getTextureManager()->getTextures().end(); texture_itr++) {
+        resources.push_back((*texture_itr).second);
+    }
     
     DestroySdkObjects(lSdkManager);
     
+    // Compress textures to PVR format
+    context.getTextureManager()->compress(); // TODO, HACK, FINDME - This should be configurable and exposed through the World Builder GUI
     
-    // FINDME - HACK - This logic removes the animations and animation curves from their manager objects so they don't get dealloced twice.  In the future, we should keep all objects in their manager objects while importing and just return a KRContext containing all the managers.
+    std::string base_name = KRResource::GetFileBase(path);
+    KRBundle *main_bundle = new KRBundle(context, base_name);
+    KRBundle texture_bundle(context, base_name + "_textures");
+    KRBundle animation_bundle(context, base_name + "_animations");
+//    KRBundle material_bundle(context, base_name + "_materials");
+    KRBundle meshes_bundle(context, base_name + "_meshes");
+    
     for(std::vector<KRResource *>::iterator resource_itr=resources.begin(); resource_itr != resources.end(); resource_itr++) {
-        KRAnimation *animation = dynamic_cast<KRAnimation *>(*resource_itr);
-        KRAnimationCurve *animation_curve = dynamic_cast<KRAnimationCurve *>(*resource_itr);
-        if(animation) {
-            context.getAnimationManager()->getAnimations().erase(animation->getName());
-        }
-        if(animation_curve) {
-            context.getAnimationCurveManager()->getAnimationCurves().erase(animation_curve->getName());
+        KRResource *resource = *resource_itr;
+        if(dynamic_cast<KRTexture *>(resource) != NULL) {
+            texture_bundle.append(*resource);
+        } else if(dynamic_cast<KRAnimation *>(resource) != NULL) {
+            animation_bundle.append(*resource);
+//        } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
+//            material_bundle.append(*resource);
+        } else if(dynamic_cast<KRModel *>(resource) != NULL) {
+            meshes_bundle.append(*resource);
+        } else {
+            main_bundle->append(*resource);
         }
     }
     
-    return resources;
+    main_bundle->append(texture_bundle);
+    main_bundle->append(animation_bundle);
+//    main_bundle->append(material_bundle);
+    main_bundle->append(meshes_bundle);
+    
+    std::vector<KRResource *> output_resources;
+    output_resources.push_back(main_bundle);
+    return output_resources;
 }
 
 
@@ -695,10 +754,158 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
     }
 }
 
-KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
-    std::string name = GetFbxObjectName(pNode);
-    printf("Mesh: %s\n", name.c_str());
-    KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
+void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxSurfaceMaterial *pMaterial) {
+    //printf("  %s: %i - %i\n", pMaterial->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
+    
+    // ----====---- Output Material File ----====----
+    KRMaterial *new_material = new KRMaterial(context, pMaterial->GetName());
+    
+    FbxPropertyT<FbxDouble3> lKFbxDouble3;
+    FbxPropertyT<FbxDouble> lKFbxDouble1;
+    
+    if (pMaterial->GetClassId().Is(KFbxSurfacePhong::ClassId)) {
+        // We found a Phong material.
+        
+        // Ambient Color
+        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Ambient;
+        new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        
+        // Diffuse Color
+        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Diffuse;
+        new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        
+        // Specular Color (unique to Phong materials)
+        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Specular;
+        new_material->setSpecular(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        
+        // Emissive Color
+        //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
+        
+        // Transparency
+        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->TransparencyFactor;
+        new_material->setTransparency(lKFbxDouble1.Get());
+        
+        // Shininess
+        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
+        new_material->setShininess(lKFbxDouble1.Get());
+        
+        // Specular Factor
+        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
+        double specular_factor = lKFbxDouble1.Get();
+        
+        // Reflection factor
+        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+        
+        // Reflection color
+        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Reflection;
+        
+        // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
+        new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
+        
+    } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
+        // We found a Lambert material.
+        
+        // Ambient Color
+        lKFbxDouble3=((KFbxSurfaceLambert *)pMaterial)->Ambient;
+        new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        
+        // Diffuse Color
+        lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Diffuse;
+        new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        
+        // Emissive
+        //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
+        
+        // Opacity
+        lKFbxDouble1 =((KFbxSurfaceLambert *)pMaterial)->TransparencyFactor;
+        new_material->setTransparency(lKFbxDouble1.Get());
+    } else {
+        printf("Error! Unable to convert material: %s", pMaterial->GetName());
+    }
+    
+    
+    
+    KFbxProperty pProperty;
+    
+    // Diffuse Map Texture
+    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
+    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+        printf("Warning! Layered textures not supported.\n");
+    }
+    
+    int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+    if(texture_count > 1) {
+        printf("Error! Multiple diffuse textures not supported.\n");
+    } else if(texture_count == 1) {
+        KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+        assert(!pTexture->GetSwapUV());
+        assert(pTexture->GetCroppingTop() == 0);
+        assert(pTexture->GetCroppingLeft() == 0);
+        assert(pTexture->GetCroppingRight() == 0);
+        assert(pTexture->GetCroppingBottom() == 0);
+        assert(pTexture->GetWrapModeU() == KFbxTexture::eRepeat);
+        assert(pTexture->GetWrapModeV() == KFbxTexture::eRepeat);
+        assert(pTexture->GetRotationU() == 0.0f);
+        assert(pTexture->GetRotationV() == 0.0f);
+        assert(pTexture->GetRotationW() == 0.0f);
+        
+        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        if(pFileTexture) {
+            new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+        }
+    }
+    
+    
+    // Specular Map Texture
+    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
+    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+        printf("Warning! Layered textures not supported.\n");
+    }
+    texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+    if(texture_count > 1) {
+        printf("Error! Multiple specular textures not supported.\n");
+    } else if(texture_count == 1) {
+        KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        if(pFileTexture) {
+            new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+        }
+    }
+    
+    // Normal Map Texture
+    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
+    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+        printf("Warning! Layered textures not supported.\n");
+    }
+    
+    
+    texture_count = pProperty.GetSrcObjectCount<FbxTexture>();
+    if(texture_count > 1) {
+        printf("Error! Multiple normal map textures not supported.\n");
+    } else if(texture_count == 1) {
+        KFbxTexture* pTexture = pProperty.GetSrcObject<KFbxTexture>(0);
+        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        if(pFileTexture) {
+            new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+        }
+    }
+    
+    bool bFound = false;
+    for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
+        KRResource *pResource = (*resource_itr);
+        if(pResource->getName() == new_material->getName() && pResource->getExtension() == new_material->getExtension()) {
+            bFound = true;
+        }
+    }
+    if(bFound) {
+        delete new_material;
+    } else {
+        resources.push_back(new_material);
+    }
+
+}
+
+void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
     int control_point_count = pMesh->GetControlPointsCount();
@@ -715,7 +922,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
             control_point_weights[control_point].weights[i] = 0.0f;
             control_point_weights[control_point].bone_indexes[i] = 0;
         }
-
+        
     }
     
     std::vector<std::string> bone_names;
@@ -785,11 +992,8 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     int normal_count = pMesh->GetElementNormalCount();
     int tangent_count = pMesh->GetElementTangentCount();
     int elementmaterial_count = pMesh->GetElementMaterialCount();
-    int material_count = pNode->GetMaterialCount();
+    int material_count = pSourceMesh->GetNode()->GetMaterialCount(); // FINDME, TODO - To support instancing, material names should be stored in the instance rather than the mesh
     
-        
-    printf("  Polygon Count: %i (before triangulation: %i)\n", polygon_count, pSourceMesh->GetPolygonCount());
-
     std::vector<std::vector<float> > bone_weights;
     std::vector<std::vector<int> > bone_indexes;
     
@@ -803,9 +1007,9 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     std::vector<std::string> material_names;
     
     int dest_vertex_id = 0;
-
+    
     for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
-        KFbxSurfaceMaterial *pMaterial = pNode->GetMaterial(iMaterial);
+        KFbxSurfaceMaterial *pMaterial = pSourceMesh->GetNode()->GetMaterial(iMaterial);
         int source_vertex_id = 0;
         int mat_vertex_count = 0;
         int mat_vertex_start = dest_vertex_id;
@@ -874,7 +1078,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
                                 new_uvb = KRVector2(uv[0], uv[1]);
                             }
                             uvb.push_back(new_uvb);
-                        }                
+                        }
                         
                         // ----====---- Read Normals ----====----
                         
@@ -910,9 +1114,9 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
                             }
                             
                         }
-
                         
-
+                        
+                        
                         
                         source_vertex_id++;
                         dest_vertex_id++;
@@ -928,171 +1132,27 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
             submesh_starts.push_back(mat_vertex_start);
             submesh_lengths.push_back(mat_vertex_count);
             material_names.push_back(pMaterial->GetName());
-            printf("  %s: %i - %i\n", pMaterial->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
-            
-            // ----====---- Output Material File ----====----
-            KRMaterial *new_material = new KRMaterial(parent_node->getContext(), pMaterial->GetName());
-            
-            FbxPropertyT<FbxDouble3> lKFbxDouble3;
-            FbxPropertyT<FbxDouble> lKFbxDouble1;
-            
-            if (pMaterial->GetClassId().Is(KFbxSurfacePhong::ClassId)) {
-                // We found a Phong material.
-                
-                // Ambient Color
-                lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Ambient;
-                new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
-                
-                // Diffuse Color
-                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Diffuse;
-                new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
-                
-                // Specular Color (unique to Phong materials)
-                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Specular;
-                new_material->setSpecular(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
-                
-                // Emissive Color
-                //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
-                
-                // Transparency
-                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->TransparencyFactor;
-                new_material->setTransparency(lKFbxDouble1.Get());
-                
-                // Shininess
-                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
-                new_material->setShininess(lKFbxDouble1.Get());
-                		
-                // Specular Factor
-                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
-                double specular_factor = lKFbxDouble1.Get();
-                
-                // Reflection factor
-                lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
-                
-                // Reflection color
-                lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Reflection;
-                
-                // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
-                new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
-                
-            } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
-                // We found a Lambert material.
-                
-                // Ambient Color
-                lKFbxDouble3=((KFbxSurfaceLambert *)pMaterial)->Ambient;
-                new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
-                
-                // Diffuse Color
-                lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Diffuse;
-                new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
-                
-                // Emissive
-                //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
-                
-                // Opacity
-                lKFbxDouble1 =((KFbxSurfaceLambert *)pMaterial)->TransparencyFactor;
-                new_material->setTransparency(lKFbxDouble1.Get());
-            } else {
-                printf("Error! Unable to convert material: %s", pMaterial->GetName());
-            }
-            
-            
-            
-            KFbxProperty pProperty;
-            
-            // Diffuse Map Texture
-            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
-            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Warning! Layered textures not supported.\n");
-            }
-            
-            int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
-            if(texture_count > 1) {
-                printf("Error! Multiple diffuse textures not supported.\n");
-            } else if(texture_count == 1) {
-                KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-                assert(!pTexture->GetSwapUV());
-                assert(pTexture->GetCroppingTop() == 0);
-                assert(pTexture->GetCroppingLeft() == 0);
-                assert(pTexture->GetCroppingRight() == 0);
-                assert(pTexture->GetCroppingBottom() == 0);
-                assert(pTexture->GetWrapModeU() == KFbxTexture::eRepeat);
-                assert(pTexture->GetWrapModeV() == KFbxTexture::eRepeat);
-                assert(pTexture->GetRotationU() == 0.0f);
-                assert(pTexture->GetRotationV() == 0.0f);
-                assert(pTexture->GetRotationW() == 0.0f);
-                
-                KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
-                if(pFileTexture) {
-                    new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                }
-            }
-
-            
-            // Specular Map Texture
-            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
-            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Warning! Layered textures not supported.\n");
-            }
-            texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
-            if(texture_count > 1) {
-                printf("Error! Multiple specular textures not supported.\n");
-            } else if(texture_count == 1) {
-                KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-                KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
-                if(pFileTexture) {
-                    new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                }
-            }
-            
-            // Normal Map Texture
-            pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
-            if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
-                printf("Warning! Layered textures not supported.\n");
-            }
-            
-            
-            texture_count = pProperty.GetSrcObjectCount<FbxTexture>();
-            if(texture_count > 1) {
-                printf("Error! Multiple normal map textures not supported.\n");
-            } else if(texture_count == 1) {
-                KFbxTexture* pTexture = pProperty.GetSrcObject<KFbxTexture>(0);
-                KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
-                if(pFileTexture) {
-                    new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
-                }
-            }
-            
-            bool bFound = false;
-            for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
-                KRResource *pResource = (*resource_itr);
-                if(pResource->getName() == new_material->getName() && pResource->getExtension() == new_material->getExtension()) {
-                    bFound = true;
-                }
-            }
-            if(bFound) {
-                delete new_material;
-            } else {
-                resources.push_back(new_material);
-            }
         }
     }
-
+    
     delete control_point_weights;
     
-    
-    // ----====---- Generate Output Mesh Object ----====----
-
-    KRModel *new_mesh = new KRModel(parent_node->getContext(), pNode->GetName());
+    KRModel *new_mesh = new KRModel(context, pSourceMesh->GetNode()->GetName());
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRModel::KRENGINE_MODEL_FORMAT_TRIANGLES);
     resources.push_back(new_mesh);
+}
+
+KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+    std::string name = GetFbxObjectName(pNode);
     
-    if(new_mesh->getLODCoverage() == 100) {
+    KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
+
+    if(KRModel::GetLODCoverage(pNode->GetName()) == 100) {
         // If this is the full detail model, add an instance of it to the scene file
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-        KRInstance *new_instance = new KRInstance(parent_node->getScene(), name, pNode->GetName(), light_map, 0.0f, true, false);
+        KRInstance *new_instance = new KRInstance(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
         return new_instance;
     } else {
         return NULL;

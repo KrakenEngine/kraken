@@ -39,6 +39,9 @@ class KRTextureAnimated : public KRTexture {
 public:
     KRTextureAnimated(KRContext &context, std::string name);
     virtual ~KRTextureAnimated();
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     virtual void bind();
     virtual long getMemRequiredForSize(int max_dim);

@@ -12,6 +12,7 @@
 #import "KREngine-common.h"
 #include "KROctreeNode.h"
 #include "KRMat4.h"
+#include "KRHitInfo.h"
 
 class KRNode;
 
@@ -26,10 +27,13 @@ public:
     
     KROctreeNode *getRootNode();
     std::set<KRNode *> &getOuterSceneNodes();
+    
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
 
 private:
     KROctreeNode *m_pRootNode;
-    std::set<KRNode *>m_outerSceneNodes;
+    std::set<KRNode *> m_outerSceneNodes;
     //std::set<KRMat4> visibleMVPs;
     
     void shrink();

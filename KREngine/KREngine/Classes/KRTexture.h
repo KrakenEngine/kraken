@@ -36,13 +36,14 @@
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
+#import "KRResource.h"
 
 
 class KRDataBlock;
 
-class KRTexture : public KRContextObject{
+class KRTexture : public KRResource {
 public:
-    KRTexture(KRContext &context);
+    KRTexture(KRContext &context, std::string name);
     virtual ~KRTexture();
 
     virtual void bind() = 0;
@@ -58,6 +59,8 @@ public:
     
     virtual void resetPoolExpiry();
     virtual bool isAnimated();
+    
+    KRTexture *compress();
     
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;

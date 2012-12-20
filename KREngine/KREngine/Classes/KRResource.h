@@ -13,6 +13,7 @@
 #import <string>
 #import "KREngine-common.h"
 #import "KRContextObject.h"
+#import "KRDataBlock.h"
 
 #ifndef KREngine_KRResource_h
 #define KREngine_KRResource_h
@@ -22,7 +23,8 @@ class KRResource : public KRContextObject
 public:
     std::string getName();
     virtual std::string getExtension() = 0;
-    virtual bool save(const std::string& path) = 0;
+    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data) = 0;
     
     static std::string GetFileExtension(const std::string& name);
     static std::string GetFileBase(const std::string& name);

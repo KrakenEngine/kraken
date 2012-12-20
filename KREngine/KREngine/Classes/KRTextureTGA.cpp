@@ -26,7 +26,7 @@ typedef struct {
 } __attribute__((packed)) TGA_HEADER;
 
 
-KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data) : KRTexture2D(context, data)
+KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name)
 {
     TGA_HEADER *pHeader = (TGA_HEADER *)data->getStart();
     
@@ -131,4 +131,9 @@ long KRTextureTGA::getMemRequiredForSize(int max_dim)
     }
     
     return 0;
+}
+
+std::string KRTextureTGA::getExtension()
+{
+    return "tga";
 }

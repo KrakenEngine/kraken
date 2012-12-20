@@ -66,9 +66,9 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szExten
 
     
     if(strcmp(szExtension, "pvr") == 0) {
-        pTexture = new KRTexturePVR(getContext(), data);
+        pTexture = new KRTexturePVR(getContext(), data, szName);
     } else if(strcmp(szExtension, "tga") == 0) {
-        pTexture = new KRTextureTGA(getContext(), data);
+        pTexture = new KRTextureTGA(getContext(), data, szName);
     }
     
     if(pTexture) {
@@ -263,4 +263,41 @@ void KRTextureManager::addMemoryTransferredThisFrame(long memoryTransferred)
 void KRTextureManager::memoryChanged(long memoryDelta)
 {
     m_textureMemUsed += memoryDelta;
+}
+
+std::map<std::string, KRTexture *> &KRTextureManager::getTextures()
+{
+    return m_textures;
+}
+
+void KRTextureManager::compress()
+{
+    std::vector<KRTexture *> textures_to_remove;
+    std::vector<KRTexture *> textures_to_add;
+    
+    for(std::map<std::string, KRTexture *>::iterator itr=m_textures.begin(); itr != m_textures.end(); itr++) {
+        KRTexture *texture = (*itr).second;
+        KRTexture *compressed_texture = texture->compress();
+        if(compressed_texture) {
+            textures_to_remove.push_back(texture);
+            textures_to_add.push_back(compressed_texture);
+        }
+    }
+    
+    for(std::vector<KRTexture *>::iterator itr = textures_to_remove.begin(); itr != textures_to_remove.end(); itr++) {
+        KRTexture *texture = *itr;
+        std::string lowerName = texture->getName();
+        std::transform(lowerName.begin(), lowerName.end(),
+                       lowerName.begin(), ::tolower);
+        m_textures.erase(lowerName);
+        delete texture;
+    }
+    
+    for(std::vector<KRTexture *>::iterator itr = textures_to_add.begin(); itr != textures_to_add.end(); itr++) {
+        KRTexture *texture = *itr;
+        std::string lowerName = texture->getName();
+        std::transform(lowerName.begin(), lowerName.end(),
+                       lowerName.begin(), ::tolower);
+        m_textures[lowerName] = texture;
+    }
 }

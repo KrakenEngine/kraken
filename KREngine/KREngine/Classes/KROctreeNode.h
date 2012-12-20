@@ -12,6 +12,7 @@
 #import "KREngine-common.h"
 #include "KRVector3.h"
 #include "KRAABB.h"
+#include "KRHitInfo.h"
 
 class KRNode;
 
@@ -45,6 +46,9 @@ public:
     GLuint m_occlusionQuery;
     bool m_occlusionTested;
     bool m_activeQuery;
+    
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
 private:
     
     KRAABB m_bounds;

@@ -34,7 +34,7 @@
 #include "KRTexture2D.h"
 #include "KRContext.h"
 
-KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRTexture(context)
+KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRTexture(context, name)
 {
     // Format of name:
     //   animate:texturebasename,xx,yy
@@ -136,5 +136,20 @@ long KRTextureAnimated::getReferencedMemSize()
 bool KRTextureAnimated::isAnimated()
 {
     return true;
+}
+
+std::string KRTextureAnimated::getExtension()
+{
+    return ""; // Animated textures are just references; there are no files to output
+}
+
+bool KRTextureAnimated::save(const std::string &path)
+{
+    return true; // Animated textures are just references; there are no files to output
+}
+
+bool KRTextureAnimated::save(KRDataBlock &data)
+{
+    return true; // Animated textures are just references; there are no files to output
 }
 

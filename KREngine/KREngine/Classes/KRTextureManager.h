@@ -65,6 +65,10 @@ public:
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
     
+    std::map<std::string, KRTexture *> &getTextures();
+    
+    void compress();
+    
 private:
     long m_memoryTransferredThisFrame;
     

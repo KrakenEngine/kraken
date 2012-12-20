@@ -14,8 +14,9 @@
 class KRTexturePVR : public KRTexture2D
 {
 public:
-    KRTexturePVR(KRContext &context, KRDataBlock *data);
+    KRTexturePVR(KRContext &context, KRDataBlock *data, std::string name);
     virtual ~KRTexturePVR();
+    virtual std::string getExtension();
     
     bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed);
     

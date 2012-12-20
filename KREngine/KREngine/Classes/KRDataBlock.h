@@ -49,6 +49,12 @@ public:
     // Append data to the end of the block, increasing the size of the block and making it read-write.
     void append(void *data, size_t size);
     
+    // Append data to the end of the block, increasing the size of the block and making it read-write.
+    void append(KRDataBlock &data);
+    
+    // Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
+    void append(const std::string &s);
+    
     // Expand or shrink the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
     void expand(size_t size);
     

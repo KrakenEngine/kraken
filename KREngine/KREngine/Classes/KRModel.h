@@ -99,6 +99,7 @@ public:
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format);
     void loadPack(KRDataBlock *data);
@@ -186,6 +187,8 @@ public:
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
     bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
+    
+    static int GetLODCoverage(const std::string &name);
 private:
     bool rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const;
     static bool rayCast(const KRVector3 &line_v0, const KRVector3 &line_v1, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);

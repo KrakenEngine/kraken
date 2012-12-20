@@ -38,6 +38,9 @@ class KRTextureCube : public KRTexture {
 public:
     KRTextureCube(KRContext &context, std::string name);
     virtual ~KRTextureCube();
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     virtual void bind();
     virtual long getMemRequiredForSize(int max_dim);
@@ -45,8 +48,6 @@ public:
     
 private:
     virtual bool createGLTexture(int lod_max_dim);
-    
-    std::string m_name;
         
     const GLenum TARGETS[6] = {
         GL_TEXTURE_CUBE_MAP_POSITIVE_X,

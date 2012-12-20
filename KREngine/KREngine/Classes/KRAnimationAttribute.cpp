@@ -51,10 +51,10 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLDocument *doc = parent->GetDocument();
     tinyxml2::XMLElement *e = doc->NewElement("attribute");
-    tinyxml2::XMLNode *n = parent->InsertEndChild(e);
+    parent->InsertEndChild(e);
     e->SetAttribute("curve", m_curve_name.c_str());
     e->SetAttribute("target", m_target_name.c_str());
-    char *szAttribute = "none";
+    const char *szAttribute = "none";
     switch(m_node_attribute) {
         case KRNode::KRENGINE_NODE_ATTRIBUTE_NONE:
             szAttribute = "none";

@@ -153,6 +153,18 @@ void KRDataBlock::append(void *data, size_t size) {
     memcpy((unsigned char *)m_data + m_data_size - size, data, size);
 }
 
+// Append data to the end of the block, increasing the size of the block and making it read-write.
+void KRDataBlock::append(KRDataBlock &data) {
+    append(data.getStart(), data.getSize());
+}
+
+// Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
+void KRDataBlock::append(const std::string &s)
+{
+    const char *szText = s.c_str();
+    append((void *)szText, strlen(szText)+1);
+}
+
 // Save the data to a file, and switch to read-only mode.  The data pointer will be replaced with a mmap'ed address of the file; the malloc'ed data will be freed
 bool KRDataBlock::save(const std::string& path) {
     int fdNewFile = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);

@@ -86,6 +86,28 @@ void KRModel::setName(const std::string name) {
 
 }
 
+int KRModel::GetLODCoverage(const std::string &name)
+{
+    int lod_coverage = 100;
+    size_t last_underscore_pos = name.find_last_of('_');
+    if(last_underscore_pos != std::string::npos) {
+        // Found an underscore
+        std::string suffix = name.substr(last_underscore_pos + 1);
+        if(suffix.find_first_of("lod") == 0) {
+            std::string lod_level_string = suffix.substr(3);
+            char *end = NULL;
+            int c = (int)strtol(lod_level_string.c_str(), &end, 10);
+            if(c >= 0 && c <= 100 && *end == '\0') {
+                lod_coverage = c;
+                //m_lodBaseName = name.substr(0, last_underscore_pos);
+            }
+        }
+    }
+    return lod_coverage;
+}
+
+
+
 KRModel::~KRModel() {
     clearData();
     if(m_pData) delete m_pData;
@@ -98,6 +120,12 @@ std::string KRModel::getExtension() {
 bool KRModel::save(const std::string& path) {
     clearBuffers();
     return m_pData->save(path);
+}
+
+bool KRModel::save(KRDataBlock &data) {
+    clearBuffers();
+    data.append(*m_pData);
+    return true;
 }
 
 void KRModel::loadPack(KRDataBlock *data) {
@@ -802,12 +830,12 @@ bool KRModel::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
         switch(getModelFormat()) {
             case KRENGINE_MODEL_FORMAT_TRIANGLES:
                 for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
-                    hit_found |= rayCast(v0, v1, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo);
+                    if(rayCast(v0, v1, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo)) hit_found = true;
                 }
                 break;
             case KRENGINE_MODEL_FORMAT_STRIP:
                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
-                    hit_found |= rayCast(v0, v1, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo);
+                    if(rayCast(v0, v1, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo)) hit_found = true;
                 }
                 break;
             default:

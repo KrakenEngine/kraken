@@ -320,13 +320,17 @@ KRNode *KRScene::getRootNode() {
     return m_pRootNode;
 }
 
-bool KRScene::save(const std::string& path) {
+bool KRScene::save(KRDataBlock &data) {
     tinyxml2::XMLDocument doc;
     tinyxml2::XMLElement *scene_node =  doc.NewElement( "scene" );
     doc.InsertEndChild(scene_node);
     m_pRootNode->saveXML(scene_node);
     scene_node->SetAttribute("skybox", m_skyBoxName.c_str());  // This is temporary until the camera is moved into the scene graph
-    doc.SaveFile(path.c_str());
+    
+    tinyxml2::XMLPrinter p;
+    doc.Print(&p);
+    data.append((void *)p.CStr(), strlen(p.CStr())+1);
+    
     return true;
 }
 
@@ -435,4 +439,15 @@ KRAABB KRScene::getRootOctreeBounds()
     } else {
         return KRAABB(-KRVector3::One(), KRVector3::One());
     }
+}
+
+
+bool KRScene::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+{
+    return m_nodeTree.lineCast(v0, v1, hitinfo);
+}
+
+bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+{
+    return m_nodeTree.rayCast(v0, v1, hitinfo);
 }

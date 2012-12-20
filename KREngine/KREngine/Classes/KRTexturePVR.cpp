@@ -70,7 +70,7 @@ typedef struct _PVRTexHeader
 	uint32_t numSurfs;
 } PVRTexHeader;
 
-KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data) : KRTexture2D(context, data) {
+KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name) {
 #if TARGET_OS_IPHONE
     PVRTexHeader *header = (PVRTexHeader *)m_pData->getStart();
     uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
@@ -236,3 +236,9 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     return true;
     
 }
+
+std::string KRTexturePVR::getExtension()
+{
+    return "pvr";
+}
+

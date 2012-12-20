@@ -8,6 +8,7 @@
 
 #include "KROctreeNode.h"
 #include "KRNode.h"
+#include "KRCollider.h"
 
 KROctreeNode::KROctreeNode(const KRAABB &bounds) : m_bounds(bounds)
 {
@@ -172,4 +173,62 @@ KROctreeNode **KROctreeNode::getChildren()
 std::set<KRNode *> &KROctreeNode::getSceneNodes()
 {
     return m_sceneNodes;
+}
+
+
+bool KROctreeNode::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+{
+    bool hit_found = false;
+    if(hitinfo.didHit() && v1 != hitinfo.getPosition()) {
+        // Optimization: If we already have a hit, only search for hits that are closer
+        hit_found = lineCast(v0, hitinfo.getPosition(), hitinfo);
+    } else {
+        bool hit_found = false;
+        if(getBounds().intersectsLine(v0, v1)) {
+            for(std::set<KRNode *>::iterator nodes_itr=m_sceneNodes.begin(); nodes_itr != m_sceneNodes.end(); nodes_itr++) {
+                KRCollider *collider = dynamic_cast<KRCollider *>(*nodes_itr);
+                if(collider) {
+                    if(collider->lineCast(v0, v1, hitinfo)) hit_found = true;
+                }
+            }
+            
+            for(int i=0; i<8; i++) {
+                if(m_children[i]) {
+                    if(m_children[i]->lineCast(v0, v1, hitinfo)) {
+                        hit_found = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return hit_found;
+}
+
+bool KROctreeNode::rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+{
+    bool hit_found = false;
+    if(hitinfo.didHit()) {
+        // Optimization: If we already have a hit, only search for hits that are closer
+        hit_found = lineCast(v0, hitinfo.getPosition(), hitinfo); // Note: This is purposefully lineCast as opposed to RayCast
+    } else {
+        if(getBounds().intersectsRay(v0, v1)) {
+            for(std::set<KRNode *>::iterator nodes_itr=m_sceneNodes.begin(); nodes_itr != m_sceneNodes.end(); nodes_itr++) {
+                KRCollider *collider = dynamic_cast<KRCollider *>(*nodes_itr);
+                if(collider) {
+                    if(collider->rayCast(v0, v1, hitinfo)) hit_found = true;
+                }
+            }
+            
+            for(int i=0; i<8; i++) {
+                if(m_children[i]) {
+                    if(m_children[i]->rayCast(v0, v1, hitinfo)) {
+                        hit_found = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return hit_found;
 }

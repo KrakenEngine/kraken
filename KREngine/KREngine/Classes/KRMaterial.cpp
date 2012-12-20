@@ -34,6 +34,8 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <iostream>
+#include <sstream>
 #include <fcntl.h>
 #include <stdio.h>
 
@@ -77,67 +79,69 @@ KRMaterial::~KRMaterial() {
 std::string KRMaterial::getExtension() {
     return "mtl";
 }
-bool KRMaterial::save(const std::string& path) {
-    FILE *f = fopen(path.c_str(), "w+");
-    if(f == NULL) {
-        return false;
-    } else {
 
-        fprintf(f, "newmtl %s\n", m_szName);
-        fprintf(f, "ka %f %f %f\n", m_ambientColor.x, m_ambientColor.y, m_ambientColor.z);
-        fprintf(f, "kd %f %f %f\n", m_diffuseColor.x, m_diffuseColor.y, m_diffuseColor.z);
-        fprintf(f, "ks %f %f %f\n", m_specularColor.x, m_specularColor.y, m_specularColor.z);
-        fprintf(f, "kr %f %f %f\n", m_reflectionColor.x, m_reflectionColor.y, m_reflectionColor.z);
-        fprintf(f, "Tr %f\n", m_tr);
-        fprintf(f, "Ns %f\n", m_ns);
-        if(m_ambientMap.size()) {
-            fprintf(f, "map_Ka %s.pvr -s %f %f -o %f %f\n", m_ambientMap.c_str(), m_ambientMapScale.x, m_ambientMapScale.y, m_ambientMapOffset.x, m_ambientMapOffset.y);
-        } else {
-            fprintf(f, "# map_Ka filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
-        }
-        if(m_diffuseMap.size()) {
-            fprintf(f, "map_Kd %s.pvr -s %f %f -o %f %f\n", m_diffuseMap.c_str(), m_diffuseMapScale.x, m_diffuseMapScale.y, m_diffuseMapOffset.x, m_diffuseMapOffset.y);
-        } else {
-            fprintf(f, "# map_Kd filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
-        }
-        if(m_specularMap.size()) {
-            fprintf(f, "map_Ks %s.pvr -s %f %f -o %f %f\n", m_specularMap.c_str(), m_specularMapScale.x, m_specularMapScale.y, m_specularMapOffset.x, m_specularMapOffset.y);
-        } else {
-            fprintf(f, "# map_Ks filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
-        }
-        if(m_normalMap.size()) {
-            fprintf(f, "map_Normal %s.pvr -s %f %f -o %f %f\n", m_normalMap.c_str(), m_normalMapScale.x, m_normalMapScale.y, m_normalMapOffset.x, m_normalMapOffset.y);
-        } else {
-            fprintf(f, "# map_Normal filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
-        }
-        if(m_reflectionMap.size()) {
-            fprintf(f, "map_Reflection %s.pvr -s %f %f -o %f %f\n", m_reflectionMap.c_str(), m_reflectionMapScale.x, m_reflectionMapScale.y, m_reflectionMapOffset.x, m_reflectionMapOffset.y);
-        } else {
-            fprintf(f, "# map_Reflection filename.pvr -s 1.0 1.0 -o 0.0 0.0\n");
-        }
-        if(m_reflectionCube.size()) {
-            fprintf(f, "map_ReflectionCube %s.pvr\n", m_reflectionCube.c_str());
-        } else {
-            fprintf(f, "# map_ReflectionCube cubemapname\n");
-        }
-        switch(m_alpha_mode) {
-            case KRMATERIAL_ALPHA_MODE_OPAQUE:
-                fprintf(f, "alpha_mode opaque\n");
-                break;
-            case KRMATERIAL_ALPHA_MODE_TEST:
-                fprintf(f, "alpha_mode test\n");
-                break;
-            case KRMATERIAL_ALPHA_MODE_BLENDONESIDE:
-                fprintf(f, "alpha_mode blendoneside\n");
-                break;
-            case KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE:
-                fprintf(f, "alpha_mode blendtwoside\n");
-                break;
-        }
-        fprintf(f, "# alpha_mode opaque, test, blendoneside, or blendtwoside\n");
-        fclose(f);
-        return true;
+bool KRMaterial::save(KRDataBlock &data) {
+    std::stringstream stream;
+    stream.precision(std::numeric_limits<long double>::digits10);
+    stream.setf(ios::fixed,ios::floatfield);
+    
+    stream << "newmtl " << m_szName;
+    stream << "\nka " << m_ambientColor.x << " " << m_ambientColor.y << " " << m_ambientColor.z;
+    stream << "\nkd " << m_diffuseColor.x << " " << m_diffuseColor.y << " " << m_diffuseColor.z;
+    stream << "\nks " << m_specularColor.x << " " << m_specularColor.y << " " << m_specularColor.z;
+    stream << "\nkr " << m_reflectionColor.x << " " << m_reflectionColor.y << " " << m_reflectionColor.z;
+    stream << "\nTr " << m_tr;
+    stream << "\nNs " << m_ns;
+    if(m_ambientMap.size()) {
+        stream << "\nmap_Ka " << m_ambientMap << ".pvr -s " << m_ambientMapScale.x << " " << m_ambientMapScale.y << " -o " << m_ambientMapOffset.x << " " << m_ambientMapOffset.y;
+    } else {
+        stream << "\n# map_Ka filename.pvr -s 1.0 1.0 -o 0.0 0.0";
     }
+    if(m_diffuseMap.size()) {
+        stream << "\nmap_Kd " << m_diffuseMap << ".pvr -s " << m_diffuseMapScale.x << " " << m_diffuseMapScale.y << " -o " << m_diffuseMapOffset.x << " " << m_diffuseMapOffset.y;
+    } else {
+        stream << "\n# map_Kd filename.pvr -s 1.0 1.0 -o 0.0 0.0";
+    }
+    if(m_specularMap.size()) {
+        stream << "\nmap_Ks " << m_specularMap << ".pvr -s " << m_specularMapScale.x << " " << m_specularMapScale.y << " -o " << m_specularMapOffset.x << " " << m_specularMapOffset.y << "\n";
+    } else {
+        stream << "\n# map_Ks filename.pvr -s 1.0 1.0 -o 0.0 0.0";
+    }
+    if(m_normalMap.size()) {
+        stream << "\nmap_Normal " << m_normalMap << ".pvr -s " << m_normalMapScale.x << " " << m_normalMapScale.y << " -o " << m_normalMapOffset.x << " " << m_normalMapOffset.y;
+    } else {
+        stream << "\n# map_Normal filename.pvr -s 1.0 1.0 -o 0.0 0.0";
+    }
+    if(m_reflectionMap.size()) {
+        stream << "\nmap_Reflection " << m_reflectionMap << ".pvr -s " << m_reflectionMapScale.x << " " << m_reflectionMapScale.y << " -o " << m_reflectionMapOffset.x << " " << m_reflectionMapOffset.y;
+    } else {
+        stream << "\n# map_Reflection filename.pvr -s 1.0 1.0 -o 0.0 0.0";
+    }
+    if(m_reflectionCube.size()) {
+        stream << "map_ReflectionCube " << m_reflectionCube << ".pvr";
+    } else {
+        stream << "\n# map_ReflectionCube cubemapname";
+    }
+    switch(m_alpha_mode) {
+        case KRMATERIAL_ALPHA_MODE_OPAQUE:
+            stream << "\nalpha_mode opaque";
+            break;
+        case KRMATERIAL_ALPHA_MODE_TEST:
+            stream << "\nalpha_mode test";
+            break;
+        case KRMATERIAL_ALPHA_MODE_BLENDONESIDE:
+            stream << "\nalpha_mode blendoneside";
+            break;
+        case KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE:
+            stream << "\nalpha_mode blendtwoside";
+            break;
+    }
+    stream << "\n# alpha_mode opaque, test, blendoneside, or blendtwoside";
+    
+    stream << "\n";
+    data.append(stream.str());
+
+    return true;
 }
 
 void KRMaterial::setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {

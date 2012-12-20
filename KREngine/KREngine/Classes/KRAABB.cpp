@@ -230,3 +230,41 @@ float KRAABB::longest_radius() const
     float radius2 = (max - center()).magnitude();
     return radius1 > radius2 ? radius1 : radius2;
 }
+
+
+bool KRAABB::intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const
+{
+    // http://www.3dkingdoms.com/weekly/bbox.h
+    
+    /*
+	// Put line in box space
+	KRMat4 MInv = m_M.InvertSimple();
+	KRVector3 LB1 = MInv * L1;
+	KRVector3 LB2 = MInv * L2;
+    
+	// Get line midpoint and extent
+	KRVector3 LMid = (LB1 + LB2) * 0.5f;
+	KRVector3 L = (LB1 - LMid);
+	KRVector3 LExt = KRVector3( fabs(L.x), fabs(L.y), fabs(L.z) );
+    
+	// Use Separating Axis Test
+	// Separation vector from box center to line center is LMid, since the line is in box space
+	if ( fabs( LMid.x ) > m_Extent.x + LExt.x ) return false;
+	if ( fabs( LMid.y ) > m_Extent.y + LExt.y ) return false;
+	if ( fabs( LMid.z ) > m_Extent.z + LExt.z ) return false;
+	// Crossproducts of line and each axis
+	if ( fabs( LMid.y * L.z - LMid.z * L.y)  >  (m_Extent.y * LExt.z + m_Extent.z * LExt.y) ) return false;
+	if ( fabs( LMid.x * L.z - LMid.z * L.x)  >  (m_Extent.x * LExt.z + m_Extent.z * LExt.x) ) return false;
+	if ( fabs( LMid.x * L.y - LMid.y * L.x)  >  (m_Extent.x * LExt.y + m_Extent.y * LExt.x) ) return false;
+	// No separating axis, the line intersects
+	return true;
+    
+    */
+    return false;
+}
+
+bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &v2) const
+{
+    // TODO - Implementation needed
+    return true;
+}

@@ -67,7 +67,7 @@ public:
     virtual ~KRMaterial();
     
     virtual std::string getExtension();
-    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     
     
     void setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);

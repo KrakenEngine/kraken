@@ -30,6 +30,7 @@
 //
 
 #include "KRAnimationCurve.h"
+#include "KRDataBlock.h"
 
 KRAnimationCurve::KRAnimationCurve(KRContext &context, std::string name) : KRResource(context, name)
 {
@@ -64,6 +65,10 @@ bool KRAnimationCurve::save(const std::string& path) {
     return m_pData->save(path);
 }
 
+bool KRAnimationCurve::save(KRDataBlock &data) {
+    data.append(*m_pData);
+    return true;
+}
 
 KRAnimationCurve *KRAnimationCurve::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {

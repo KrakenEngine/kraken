@@ -32,6 +32,9 @@
 #include "KRBundle.h"
 #include "KRContext.h"
 #include <assert.h>
+#include <time.h>
+
+const int KRENGINE_KRBUNDLE_HEADER_SIZE = 512;
 
 typedef struct _tar_header
 {
@@ -47,7 +50,7 @@ typedef struct _tar_header
     
 } tar_header_type;
 
-KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : KRContextObject(context)
+KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : KRResource(context, name)
 {
     m_pData = pData;
     
@@ -69,6 +72,7 @@ KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : K
         }
         
          // Advance past the end of the file
+        /*
         if((file_size & 0x01ff) == 0) {
             // file size is a multiple of 512 bytes, we can just add it
             pFile += file_size;
@@ -76,11 +80,97 @@ KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : K
             // We would not be on a 512 byte boundary, round up to the next one
             pFile += (file_size + 0x0200) - (file_size & 0x1ff);
         }
+         */
+        pFile += RoundUpSize(file_size);
         
     }
+}
+
+KRBundle::KRBundle(KRContext &context, std::string name) : KRResource(context, name)
+{
+    // Create an empty krbundle (tar) file, initialized with two zero-ed out file headers, which terminate it.
+    m_pData = new KRDataBlock();
+    m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE * 2);
+    memset(m_pData->getStart(), 0, m_pData->getSize());
+}
+
+size_t KRBundle::RoundUpSize(size_t s)
+{
+    // Get amount of padding needed to increase s to a 512 byte alignment
+    if((s & 0x01ff) == 0) {
+        // file size is a multiple of 512 bytes, we can just add it
+        return s;
+    } else {
+        // We would not be on a 512 byte boundary, round up to the next one
+        return (s + 0x0200) - (s & 0x1ff);
+    }
+
 }
 
 KRBundle::~KRBundle()
 {
     delete m_pData;
+}
+
+std::string KRBundle::getExtension()
+{
+    return "krbundle";
+}
+
+bool KRBundle::save(const std::string& path)
+{
+    return m_pData->save(path);
+}
+
+bool KRBundle::save(KRDataBlock &data) {
+    if(m_pData->getSize() > KRENGINE_KRBUNDLE_HEADER_SIZE * 2) {
+        // Only output krbundles that contain files
+        data.append(*m_pData);
+    }
+    return true;
+}
+
+void KRBundle::append(KRResource &resource)
+{
+    // Serialize resource to binary representation
+    KRDataBlock resource_data;
+    resource.save(resource_data);
+    
+    std::string file_name = resource.getName() + "." + resource.getExtension();
+    
+    // Padding is added at the end of file to align next header to a 512 byte boundary.  Padding at the end of the archive includes an additional 1024 bytes -- two zero-ed out file headers that mark the end of the archive
+    size_t padding_size = RoundUpSize(resource_data.getSize()) - resource_data.getSize() + KRENGINE_KRBUNDLE_HEADER_SIZE * 2;
+    
+    m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE + resource_data.getSize() + padding_size - KRENGINE_KRBUNDLE_HEADER_SIZE * 2); // We will overwrite the existing zero-ed out file headers that marked the end of the archive, so we don't have to include their size here
+    
+    // Get location of file header
+    tar_header_type *file_header = (tar_header_type *)((unsigned char *)m_pData->getEnd() - padding_size - resource_data.getSize() - KRENGINE_KRBUNDLE_HEADER_SIZE);
+    
+    // Zero out new file header
+    memset(file_header, 0, KRENGINE_KRBUNDLE_HEADER_SIZE);
+    
+    // Copy resource data
+    memcpy((unsigned char *)m_pData->getEnd() - padding_size - resource_data.getSize(), resource_data.getStart(), resource_data.getSize());
+    
+    // Zero out alignment padding and terminating set of file header blocks
+    memset((unsigned char *)m_pData->getEnd() - padding_size, 0, padding_size);
+    
+    // Populate new file header fields
+    strncpy(file_header->file_name, file_name.c_str(), 100);
+    strcpy(file_header->file_mode, "000644 ");
+    strcpy(file_header->owner_id, "000000 ");
+    strcpy(file_header->group_id, "000000 ");
+    sprintf(file_header->file_size, "%011o", (int)resource_data.getSize());
+    file_header->file_size[11] = ' '; // Terminate with space rather than '\0'
+    sprintf(file_header->mod_time, "%011o", (int)time(NULL));
+    file_header->mod_time[11] = ' '; // Terminate with space rather than '\0'
+    
+    // Calculate and write checksum for header
+    memset(file_header->checksum, ' ', 8); // Must be filled with spaces and no null terminator during checksum calculation
+    int check_sum = 0;
+    for(int i=0; i < KRENGINE_KRBUNDLE_HEADER_SIZE; i++) {
+        unsigned char *byte_ptr = (unsigned char *)file_header;
+        check_sum += byte_ptr[i];
+    }
+    sprintf(file_header->checksum, "%07o", check_sum);
 }

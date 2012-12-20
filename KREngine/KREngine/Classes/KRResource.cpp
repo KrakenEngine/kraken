@@ -72,3 +72,13 @@ std::vector<KRResource *> KRResource::Load(KRContext &context, const std::string
     
     return resources;
 }
+
+bool KRResource::save(const std::string& path)
+{
+    KRDataBlock data;
+    if(save(data)) {
+        return data.save(path);
+    } else {
+        return false;
+    }
+}

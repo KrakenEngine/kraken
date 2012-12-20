@@ -35,13 +35,20 @@
 #import "KRResource.h"
 #import "KRDataBlock.h"
 
-class KRBundle : public KRContextObject {
+class KRBundle : public KRResource {
 public:
     KRBundle(KRContext &context, std::string name, KRDataBlock *pData);
+    KRBundle(KRContext &context, std::string name);
     virtual ~KRBundle();
+    virtual std::string getExtension();
+    virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
+    
+    void append(KRResource &resource);
     
 private:
     KRDataBlock *m_pData;
+    static size_t RoundUpSize(size_t s);
 };
 
 #endif /* defined(KRBUNDLE_H) */

@@ -46,6 +46,7 @@ public:
     
     virtual std::string getExtension();
     virtual bool save(const std::string& path);
+    virtual bool save(KRDataBlock &data);
     virtual bool load(KRDataBlock *data);
     
     float getFrameRate();
