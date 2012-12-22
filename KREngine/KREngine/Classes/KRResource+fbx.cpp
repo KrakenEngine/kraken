@@ -55,6 +55,7 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
+KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 std::string GetFbxObjectName(FbxObject *obj);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable

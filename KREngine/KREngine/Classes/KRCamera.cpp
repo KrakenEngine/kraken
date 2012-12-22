@@ -60,11 +60,16 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
 }
 
 KRCamera::~KRCamera() {
+#if TARGET_OS_IPHONE
     destroyBuffers();
+#endif
 }
 
 void KRCamera::renderFrame(float deltaTime)
 {
+    
+#if TARGET_OS_IPHONE
+
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
     GLint defaultFBO;
@@ -81,10 +86,14 @@ void KRCamera::renderFrame(float deltaTime)
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
+#endif
+
 }
 
 void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
-    
+
+#if TARGET_OS_IPHONE
+
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     
 //    GLuint shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
@@ -378,10 +387,15 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
+#endif
+
 }
 
 
 void KRCamera::createBuffers() {
+    
+#if TARGET_OS_IPHONE
+
     GLint renderBufferWidth = 0, renderBufferHeight = 0;
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
@@ -494,10 +508,15 @@ void KRCamera::createBuffers() {
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, volumetricLightAccumulationTexture, 0));
         }
     }
+    
+#endif
+
 }
 
 void KRCamera::destroyBuffers()
 {
+#if TARGET_OS_IPHONE
+
     if (compositeDepthTexture) {
         GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));
         compositeDepthTexture = 0;
@@ -532,10 +551,15 @@ void KRCamera::destroyBuffers()
         GLDEBUG(glDeleteFramebuffers(1, &volumetricLightAccumulationBuffer));
         volumetricLightAccumulationBuffer = 0;
     }
+    
+#endif
+
 }
 
 void KRCamera::renderPost()
 {
+#if TARGET_OS_IPHONE
+
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
     
@@ -664,6 +688,7 @@ void KRCamera::renderPost()
         
         m_pContext->getTextureManager()->selectTexture(1, NULL);
     }
-    
+#endif
+
 }
 
