@@ -40,8 +40,6 @@ KRAABB KRPointLight::getBounds() {
     return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
 }
 
-#if TARGET_OS_IPHONE
-
 void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
@@ -242,5 +240,3 @@ void KRPointLight::generateMesh() {
         }
     }
 }
-
-#endif

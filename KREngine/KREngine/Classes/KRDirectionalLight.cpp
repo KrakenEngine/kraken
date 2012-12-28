@@ -97,8 +97,6 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
     return 1;
 }
 
-#if TARGET_OS_IPHONE
-
 void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     KRLight::render(pCamera, lights, viewport, renderPass);
@@ -140,5 +138,3 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &light
         }
     }
 }
-
-#endif

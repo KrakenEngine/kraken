@@ -35,8 +35,19 @@ float const D2R = PI * 2 / 360;
 
 #else
 
-#import <OpenGL/gl.h>
-#import <OpenGL/glext.h>
+#import <OpenGL/gl3.h>
+#import <OpenGL/gl3ext.h>
+
+// OpenGL ES 2.0 mapping to OpenGL 3.2 mappings
+#define glDepthRangef glDepthRange
+#define glClearDepthf glClearDepth
+#define glDeleteQueriesEXT glDeleteQueries
+#define glGenQueriesEXT glGenQueries
+#define glBeginQueryEXT glBeginQuery
+#define glEndQueryEXT glEndQuery
+#define glGetQueryObjectuivEXT glGetQueryObjectuiv
+#define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
+#define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
 
 #endif
 

@@ -59,10 +59,6 @@ KRScene::~KRScene() {
     m_pRootNode = NULL;
 }
 
-
-
-#if TARGET_OS_IPHONE
-
 void KRScene::renderFrame(float deltaTime) {
     getContext().startFrame(deltaTime);
     KRCamera *camera = find<KRCamera>();
@@ -161,6 +157,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
             if(pOctreeNode->m_occlusionTested) {
                 GLuint params = 0;
                 GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
+
                 if(params) {
                     // Record the frame number that the test has passed on
                     visibleBounds[octreeBounds] = getContext().getCurrentFrame();
@@ -173,7 +170,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                     // Record -1 to indicate that the visibility test had failed
                     visibleBounds[octreeBounds] = -1;
                 }
-                
+
                 GLDEBUG(glDeleteQueriesEXT(1, &pOctreeNode->m_occlusionQuery));
                 pOctreeNode->m_occlusionTested = false;
                 pOctreeNode->m_occlusionQuery = 0;
@@ -330,8 +327,6 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
     }
 //  fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
 }
-
-#endif
 
 std::string KRScene::getExtension() {
     return "krscene";

@@ -212,13 +212,9 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     return new_node;
 }
 
-#if TARGET_OS_IPHONE
-
 void KRNode::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass)
 {
 }
-
-#endif
 
 const std::vector<KRNode *> &KRNode::getChildren() {
     return m_childNodes;

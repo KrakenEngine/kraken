@@ -91,11 +91,8 @@ public:
     void SetAttribute(node_attribute_type attrib, float v);
     
     KRScene &getScene();
-#if TARGET_OS_IPHONE
     
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass);
-
-#endif
     
     virtual void physicsUpdate(float deltaTime);
     virtual bool hasPhysics();

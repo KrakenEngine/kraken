@@ -21,11 +21,8 @@ public:
     
     virtual std::string getElementName();
     virtual KRAABB getBounds();
-    
-#if TARGET_OS_IPHONE
-    
+
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
-#endif
     
 private:
     void generateMesh();

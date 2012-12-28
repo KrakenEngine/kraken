@@ -54,11 +54,7 @@ public:
     virtual ~KRShader();
     const char *getKey() const;
     
-#if TARGET_OS_IPHONE
-    
     bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
-    
-#endif
     
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,

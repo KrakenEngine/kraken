@@ -138,8 +138,6 @@ void KRModel::loadPack(KRDataBlock *data) {
     m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 }
 
-#if TARGET_OS_IPHONE
-
 void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
@@ -223,8 +221,6 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
         }
     }
 }
-
-#endif
 
 GLfloat KRModel::getMaxDimension() {
     GLfloat m = 0.0;

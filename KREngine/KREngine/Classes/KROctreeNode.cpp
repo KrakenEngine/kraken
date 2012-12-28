@@ -37,14 +37,13 @@ KROctreeNode::~KROctreeNode()
             delete m_children[i];
         }
     }
-#if TARGET_OS_IPHONE
+
     if(m_occlusionTested) {
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
     }
-#endif
 }
 
-#if TARGET_OS_IPHONE
+
 void KROctreeNode::beginOcclusionQuery()
 {
     if(!m_occlusionTested){
@@ -62,8 +61,6 @@ void KROctreeNode::endOcclusionQuery()
         GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
     }
 }
-
-#endif
 
 
 KRAABB KROctreeNode::getBounds()

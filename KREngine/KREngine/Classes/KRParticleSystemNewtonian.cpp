@@ -49,9 +49,6 @@ void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)
     m_particlesAbsoluteTime += deltaTime;
 }
 
-
-#if TARGET_OS_IPHONE
-
 void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     
@@ -85,8 +82,6 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *>
         }
     }
 }
-
-#endif
 
 //
 

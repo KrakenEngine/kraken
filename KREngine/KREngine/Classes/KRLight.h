@@ -40,12 +40,8 @@ public:
     void setFlareTexture(std::string flare_texture);
     void setFlareSize(float flare_size);
     void deleteBuffers();
-    
-#if TARGET_OS_IPHONE
-    
+
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
-    
-#endif
     
     int getShadowBufferCount();
     GLuint *getShadowTextures();

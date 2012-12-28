@@ -60,9 +60,7 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
 }
 
 KRCamera::~KRCamera() {
-#if TARGET_OS_IPHONE
     destroyBuffers();
-#endif
 }
 
 void KRCamera::renderFrame(float deltaTime)
@@ -71,9 +69,6 @@ void KRCamera::renderFrame(float deltaTime)
     createBuffers();
     
     KRScene &scene = getScene();
-
-    
-#if TARGET_OS_IPHONE
 
 
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
@@ -378,14 +373,11 @@ void KRCamera::renderFrame(float deltaTime)
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
-#endif
 
 }
 
 
 void KRCamera::createBuffers() {
-    
-#if TARGET_OS_IPHONE
 
     GLint renderBufferWidth = 0, renderBufferHeight = 0;
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
@@ -499,15 +491,10 @@ void KRCamera::createBuffers() {
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, volumetricLightAccumulationTexture, 0));
         }
     }
-    
-#endif
-
 }
 
 void KRCamera::destroyBuffers()
 {
-#if TARGET_OS_IPHONE
-
     if (compositeDepthTexture) {
         GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));
         compositeDepthTexture = 0;
@@ -542,15 +529,10 @@ void KRCamera::destroyBuffers()
         GLDEBUG(glDeleteFramebuffers(1, &volumetricLightAccumulationBuffer));
         volumetricLightAccumulationBuffer = 0;
     }
-    
-#endif
-
 }
 
 void KRCamera::renderPost()
 {
-#if TARGET_OS_IPHONE
-
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
     
@@ -665,6 +647,7 @@ void KRCamera::renderPost()
             };
 #if GL_OES_vertex_array_object
             GLDEBUG(glBindVertexArrayOES(0));
+#elif GL_vertex_array_object
 #endif
             m_pContext->getModelManager()->configureAttribs(true, false, false, true, false, false, false);
             GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
@@ -679,7 +662,5 @@ void KRCamera::renderPost()
         
         m_pContext->getTextureManager()->selectTexture(1, NULL);
     }
-#endif
-
 }
 

@@ -22,11 +22,8 @@ public:
     virtual std::string getElementName();
     KRVector3 getLocalLightDirection();
     KRVector3 getWorldLightDirection();
-    
-#if TARGET_OS_IPHONE
-    
+
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
-#endif
     
 protected:
     

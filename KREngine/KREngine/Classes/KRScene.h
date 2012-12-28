@@ -65,13 +65,10 @@ public:
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
     
-#if TARGET_OS_IPHONE
     void renderFrame(float deltaTime);
     void render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame);
     
     void render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
-    
-#endif
     
     
     void notify_sceneGraphCreate(KRNode *pNode);

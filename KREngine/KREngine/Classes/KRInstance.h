@@ -56,11 +56,8 @@ public:
     
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    
-#if TARGET_OS_IPHONE
-    
+
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
-#endif
     
     bool hasTransparency();
     

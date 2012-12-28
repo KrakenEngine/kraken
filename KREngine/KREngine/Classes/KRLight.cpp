@@ -158,8 +158,6 @@ float KRLight::getDecayStart() {
     return m_decayStart;
 }
 
-#if TARGET_OS_IPHONE
-
 void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     KRNode::render(pCamera, lights, viewport, renderPass);
@@ -262,11 +260,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     }
 }
 
-#endif
-
-
 void KRLight::allocateShadowBuffers(int cBuffers) {
-#if TARGET_OS_IPHONE
     // First deallocate buffers no longer needed
     for(int iShadow = cBuffers; iShadow < KRENGINE_MAX_SHADOW_BUFFERS; iShadow++) {
         if (shadowDepthTexture[iShadow]) {
@@ -310,7 +304,6 @@ void KRLight::allocateShadowBuffers(int cBuffers) {
     }
     
     m_cShadowBuffers = cBuffers;
-#endif
 }
 
 
@@ -334,7 +327,6 @@ int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
 
 void KRLight::renderShadowBuffers(KRCamera *pCamera)
 {
-#if TARGET_OS_IPHONE
     for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
         if(!shadowValid[iShadow]) {
             shadowValid[iShadow] = true;
@@ -344,14 +336,13 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             
             GLDEBUG(glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y));
             
-            
             GLDEBUG(glClearDepthf(0.0f));
             GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
             
             GLDEBUG(glViewport(1, 1, m_shadowViewports[iShadow].getSize().x - 2, m_shadowViewports[iShadow].getSize().y - 2));
 
             GLDEBUG(glClearDepthf(1.0f));
-             
+            
             GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
             
             GLDEBUG(glDisable(GL_DITHER));
@@ -376,7 +367,6 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
         }
     }
-#endif
 }
 
 

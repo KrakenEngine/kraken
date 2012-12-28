@@ -21,10 +21,7 @@ public:
     
     virtual KRAABB getBounds() = 0;
     
-#if TARGET_OS_IPHONE
-    
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) = 0;
-#endif
     
 protected:
     KRParticleSystem(KRScene &scene, std::string name);
