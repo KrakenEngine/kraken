@@ -154,25 +154,11 @@ using namespace std;
     return self;
 }
 
-- (void)renderScene: (KRScene *)pScene WithPosition: (KRVector3)position Yaw: (GLfloat)yaw Pitch: (GLfloat)pitch Roll: (GLfloat)roll AndDeltaTime: (float)deltaTime
-{
-    KRMat4 viewMatrix;
-    viewMatrix.translate(-position.x, -position.y, -position.z);
-    viewMatrix.rotate(yaw, Y_AXIS);
-    viewMatrix.rotate(pitch, X_AXIS);
-    viewMatrix.rotate(roll, Z_AXIS);
-    
-    [self renderScene: pScene WithViewMatrix: viewMatrix AndDeltaTime: deltaTime];
-}
-
-- (void)renderScene: (KRScene *)pScene WithViewMatrix: (KRMat4)viewMatrix AndDeltaTime: (float)deltaTime
+- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime
 {
     KRCamera *camera = pScene->find<KRCamera>();
     if(camera) {
         camera->settings = _settings;
-        KRMat4 invView = KRMat4::Invert(viewMatrix);
-        camera->setLocalRotation(KRMat4::DotNoTranslate(invView, KRVector3::Forward()));
-        camera->setLocalTranslation(KRMat4::Dot(invView, KRVector3::Zero()));
     }
     pScene->renderFrame(deltaTime);
 }

@@ -73,8 +73,6 @@ private:
         
     void destroyBuffers();
     
-    void renderFrame(KRScene &scene, float deltaTime);
-    
     KRTexture *m_pSkyBoxTexture;
     KRViewport m_viewport;
     

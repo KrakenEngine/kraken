@@ -62,7 +62,7 @@ KRQuaternion& KRQuaternion::operator =( const KRQuaternion& p ) {
 }
 
 KRQuaternion::KRQuaternion(const KRVector3 &euler) {
-    setEuler(euler);
+    setEulerZYX(euler);
 }
 
 KRQuaternion::KRQuaternion(const KRVector3 &from_vector, const KRVector3 &to_vector) {
@@ -79,7 +79,7 @@ KRQuaternion::~KRQuaternion() {
     
 }
 
-void KRQuaternion::setEuler(const KRVector3 &euler) {
+void KRQuaternion::setEulerZYX(const KRVector3 &euler) {
     // ZYX Order!
     m_val[0] = cos(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) + sin(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
     m_val[1] = sin(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) - cos(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
@@ -95,13 +95,29 @@ float &KRQuaternion::operator [](unsigned i) {
     return m_val[i];
 }
 
-KRVector3 KRQuaternion::euler() const {
-    KRVector3 euler;
-    euler[0] = atan2(2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]), 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]));
-    euler[1] = asin(2.0 * (m_val[0] * m_val[2] - m_val[3] * m_val[1]));
-    euler[2] = atan2(2.0 * (m_val[0] * m_val[3] + m_val[1] * m_val[2]), 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]));
+KRVector3 KRQuaternion::eulerXYZ() const {
+    double a2 = 2 * (m_val[0] * m_val[2] - m_val[1] * m_val[3]);
+    if(a2 <= -0.99999) {
+        return KRVector3(
+           2.0 * atan2(m_val[1], m_val[0]),
+           -PI / 2.0,
+           0
+        );
+    } else if(a2 >= 0.99999) {
+        return KRVector3(
+           2.0 * atan2(m_val[1], m_val[0]),
+           PI / 2.0,
+           0
+        );
+    } else {
+        return KRVector3(
+             atan2(2 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]), (1 - 2 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]))),
+             asin(a2),
+             atan2(2 * (m_val[0] * m_val[3] + m_val[1] * m_val[2]), (1 - 2 * (m_val[2] * m_val[2] + m_val[3] * m_val[3])))
+         );
+    }
     
-    return euler;
+
 }
 
 bool operator ==(KRQuaternion &v1, KRQuaternion &v2) {

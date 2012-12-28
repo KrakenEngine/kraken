@@ -67,38 +67,26 @@ KRCamera::~KRCamera() {
 
 void KRCamera::renderFrame(float deltaTime)
 {
+
+    createBuffers();
+    
+    KRScene &scene = getScene();
+
     
 #if TARGET_OS_IPHONE
+
 
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
-    createBuffers();
-    
     settings.setViewportSize(KRVector2(backingWidth, backingHeight));
     KRMat4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
-    
-    renderFrame(getScene(), deltaTime);
-    
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
-    renderPost();
-#endif
-
-}
-
-void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
-
-#if TARGET_OS_IPHONE
 
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
-    
-//    GLuint shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
-//    KRViewport shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
-//    int cShadows = 0;
     
     if(settings.bEnableDeferredLighting) {
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
@@ -387,6 +375,9 @@ void KRCamera::renderFrame(KRScene &scene, float deltaTime) {
     
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
+    
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
+    renderPost();
 #endif
 
 }

@@ -75,13 +75,14 @@ KRAABB KRCollider::getBounds() {
 
 bool KRCollider::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
 {
+    loadModel();
     if(m_models.size()) {
         if(getBounds().intersectsLine(v0, v1)) {
             KRHitInfo hitinfo_model_space = KRHitInfo(KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition()), KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), hitinfo.getNode());
-            KRVector3 v0_model_space = KRMat4::Dot(getModelMatrix(), v0);
-            KRVector3 v1_model_space = KRMat4::Dot(getModelMatrix(), v1);
+            KRVector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
+            KRVector3 v1_model_space = KRMat4::Dot(getInverseModelMatrix(), v1);
             if(m_models[0]->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
-                hitinfo = KRHitInfo(KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition()), KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal()), this);
+                hitinfo = KRHitInfo(KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition()), KRVector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), this);
                 return true;
             }
         }
@@ -91,13 +92,14 @@ bool KRCollider::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &h
 
 bool KRCollider::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo)
 {
+    loadModel();
     if(m_models.size()) {
         if(getBounds().intersectsRay(v0, dir)) {
-            KRHitInfo hitinfo_model_space = KRHitInfo(KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition()), KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), hitinfo.getNode());
-            KRVector3 v0_model_space = KRMat4::Dot(getModelMatrix(), v0);
-            KRVector3 dir_model_space = KRMat4::DotNoTranslate(getModelMatrix(), dir);
+            KRHitInfo hitinfo_model_space = KRHitInfo(KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition()), KRVector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), hitinfo.getNode());
+            KRVector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
+            KRVector3 dir_model_space = KRMat4::DotNoTranslate(getInverseModelMatrix(), dir);
             if(m_models[0]->rayCast(v0_model_space, dir, hitinfo_model_space)) {
-                hitinfo = KRHitInfo(KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition()), KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal()), this);
+                hitinfo = KRHitInfo(KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition()), KRVector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), this);
                 return true;
             }
         }

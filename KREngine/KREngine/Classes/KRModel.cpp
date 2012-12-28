@@ -808,9 +808,9 @@ bool KRModel::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVe
         distance_v0 /= distance_total;
         distance_v1 /= distance_total;
         distance_v2 /= distance_total;
-        KRVector3 normal = tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2);
+        KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
         
-        hitinfo = KRHitInfo(hit_point, KRVector3());
+        hitinfo = KRHitInfo(hit_point, normal);
     }
     
     return true; // hit_point is in triangle

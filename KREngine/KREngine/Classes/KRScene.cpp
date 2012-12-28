@@ -53,6 +53,7 @@ KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, nam
     
     m_skyBoxName = "";
 }
+
 KRScene::~KRScene() {
     delete m_pRootNode;
     m_pRootNode = NULL;
@@ -66,7 +67,9 @@ void KRScene::renderFrame(float deltaTime) {
     getContext().startFrame(deltaTime);
     KRCamera *camera = find<KRCamera>();
     if(camera == NULL) {
-        
+        // Add a default camera if none are present
+        camera = new KRCamera(*this, "default_camera");
+        m_pRootNode->addChild(camera);
     }
     camera->renderFrame(deltaTime);
     getContext().endFrame(deltaTime);
@@ -431,7 +434,7 @@ void KRScene::addDefaultLights()
 {
     KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
     
-    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.15))).euler());
+    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
     m_pRootNode->addChild(light1);
 }
 

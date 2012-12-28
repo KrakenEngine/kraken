@@ -69,8 +69,8 @@ public:
     float operator [](unsigned i) const;
     
     
-    void setEuler(const KRVector3 &euler);
-    KRVector3 euler() const;
+    void setEulerZYX(const KRVector3 &euler);
+    KRVector3 eulerXYZ() const;
     KRMat4 rotationMatrix() const;
     
     void normalize();

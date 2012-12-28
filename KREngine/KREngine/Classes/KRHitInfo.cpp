@@ -59,7 +59,7 @@ KRHitInfo::~KRHitInfo()
 
 bool KRHitInfo::didHit() const
 {
-    return m_normal == KRVector3::Zero();
+    return m_normal != KRVector3::Zero();
 }
 
 KRVector3 KRHitInfo::getPosition() const
