@@ -42,7 +42,7 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRV
         
         KRNode::render(pCamera, lights, viewport, renderPass);
         
-        bool bVisualize = true;
+        bool bVisualize = false;
         
         if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
             KRMat4 sphereModelMatrix = getModelMatrix();
