@@ -21,6 +21,14 @@
 		E414BAE51435558900A668C4 /* KRInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE41435558800A668C4 /* KRInstance.cpp */; };
 		E414BAE7143557D200A668C4 /* KRScene.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAE6143557D200A668C4 /* KRScene.h */; };
 		E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
+		E414F9A61694D977000B3D58 /* KRUnknownManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */; };
+		E414F9A71694D977000B3D58 /* KRUnknownManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */; };
+		E414F9A81694D977000B3D58 /* KRUnknownManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9A51694D977000B3D58 /* KRUnknownManager.h */; };
+		E414F9A91694D977000B3D58 /* KRUnknownManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9A51694D977000B3D58 /* KRUnknownManager.h */; };
+		E414F9AC1694DA37000B3D58 /* KRUnknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */; };
+		E414F9AD1694DA37000B3D58 /* KRUnknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */; };
+		E414F9AE1694DA37000B3D58 /* KRUnknown.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9AB1694DA37000B3D58 /* KRUnknown.h */; };
+		E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9AB1694DA37000B3D58 /* KRUnknown.h */; };
 		E416AA9916713749000F6786 /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; };
 		E416AA9A16713749000F6786 /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
@@ -259,6 +267,10 @@
 		E414BAE41435558800A668C4 /* KRInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRInstance.cpp; path = Classes/KRInstance.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E414BAE6143557D200A668C4 /* KRScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRScene.h; path = Classes/KRScene.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E414BAE81435585A00A668C4 /* KRScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRScene.cpp; path = Classes/KRScene.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRUnknownManager.cpp; path = Classes/KRUnknownManager.cpp; sourceTree = "<group>"; };
+		E414F9A51694D977000B3D58 /* KRUnknownManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRUnknownManager.h; path = Classes/KRUnknownManager.h; sourceTree = "<group>"; };
+		E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRUnknown.cpp; path = Classes/KRUnknown.cpp; sourceTree = "<group>"; };
+		E414F9AB1694DA37000B3D58 /* KRUnknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRUnknown.h; path = Classes/KRUnknown.h; sourceTree = "<group>"; };
 		E416AA9816713749000F6786 /* KRAnimationCurveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationCurveManager.h; path = Classes/KRAnimationCurveManager.h; sourceTree = "<group>"; };
 		E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationCurveManager.cpp; path = Classes/KRAnimationCurveManager.cpp; sourceTree = "<group>"; };
 		E41B841D16260C5600C7A771 /* sky_box.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.fsh; path = Shaders/sky_box.fsh; sourceTree = "<group>"; };
@@ -445,6 +457,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E414F9A21694D949000B3D58 /* UnknownManager */ = {
+			isa = PBXGroup;
+			children = (
+				E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */,
+				E414F9A51694D977000B3D58 /* KRUnknownManager.h */,
+				E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */,
+				E414F9AB1694DA37000B3D58 /* KRUnknown.h */,
+			);
+			name = UnknownManager;
+			sourceTree = "<group>";
+		};
 		E416AA96167136FB000F6786 /* AnimationCurve */ = {
 			isa = PBXGroup;
 			children = (
@@ -585,6 +608,7 @@
 		E488399915F92BA300BD66D5 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				E414F9A21694D949000B3D58 /* UnknownManager */,
 				E416AA96167136FB000F6786 /* AnimationCurve */,
 				E428C2EF166960ED00A16EDF /* Animation */,
 				E48839AB15F930E200BD66D5 /* Bundle */,
@@ -888,6 +912,8 @@
 				E4C454B2167BC04C003586CD /* KRModelSphere.h in Headers */,
 				E4C454B8167BD236003586CD /* KRHitInfo.h in Headers */,
 				E44F38241683B23000399B5D /* KRRenderSettings.h in Headers */,
+				E414F9A81694D977000B3D58 /* KRUnknownManager.h in Headers */,
+				E414F9AE1694DA37000B3D58 /* KRUnknown.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +976,8 @@
 				E4C454AD167BB8EC003586CD /* KRModelCube.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRModelSphere.h in Headers */,
 				E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */,
+				E414F9A91694D977000B3D58 /* KRUnknownManager.h in Headers */,
+				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1088,6 +1116,8 @@
 				E4C454B5167BC05C003586CD /* KRModelSphere.cpp in Sources */,
 				E4C454BB167BD248003586CD /* KRHitInfo.cpp in Sources */,
 				E44F38281683B24800399B5D /* KRRenderSettings.cpp in Sources */,
+				E414F9A61694D977000B3D58 /* KRUnknownManager.cpp in Sources */,
+				E414F9AC1694DA37000B3D58 /* KRUnknown.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1150,6 +1180,8 @@
 				E4C454B6167BC05C003586CD /* KRModelSphere.cpp in Sources */,
 				E4C454BC167BD248003586CD /* KRHitInfo.cpp in Sources */,
 				E44F38291683B24800399B5D /* KRRenderSettings.cpp in Sources */,
+				E414F9A71694D977000B3D58 /* KRUnknownManager.cpp in Sources */,
+				E414F9AD1694DA37000B3D58 /* KRUnknown.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

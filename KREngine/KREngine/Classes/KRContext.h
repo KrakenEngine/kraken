@@ -18,6 +18,7 @@
 #import "KRModelManager.h"
 #import "KRAnimationManager.h"
 #import "KRAnimationCurveManager.h"
+#import "KRUnknownManager.h"
 
 class KRContext {
 public:
@@ -47,6 +48,7 @@ public:
     KRModelManager *getModelManager();
     KRAnimationManager *getAnimationManager();
     KRAnimationCurveManager *getAnimationCurveManager();
+    KRUnknownManager *getUnknownManager();
     
     KRCamera *createCamera(int width, int height);
     
@@ -74,6 +76,7 @@ private:
     KRModelManager *m_pModelManager;
     KRAnimationManager *m_pAnimationManager;
     KRAnimationCurveManager *m_pAnimationCurveManager;
+    KRUnknownManager *m_pUnknownManager;
     
     void detectExtensions();
     bool m_bDetectedExtensions;

@@ -35,6 +35,7 @@ KRContext::KRContext() {
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
+    m_pUnknownManager = new KRUnknownManager(*this);
     m_bDetectedExtensions = false;
     m_current_frame = 0;
     m_absolute_time = 0.0f;
@@ -76,6 +77,11 @@ KRContext::~KRContext() {
         delete m_pAnimationCurveManager;
         m_pAnimationCurveManager = NULL;
     }
+
+    if(m_pUnknownManager) {
+        delete m_pUnknownManager;
+        m_pUnknownManager = NULL;
+    }
     
     // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
     if(m_pBundleManager) {
@@ -108,6 +114,9 @@ KRAnimationManager *KRContext::getAnimationManager() {
 KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
     return m_pAnimationCurveManager;
 }
+KRUnknownManager *KRContext::getUnknownManager() {
+    return m_pUnknownManager;
+}
 
 void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
@@ -136,7 +145,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     } else if(extension.compare("mtl") == 0) {
         m_pMaterialManager->load(name.c_str(), data);
     } else {
-        fprintf(stderr, "KRContext::loadResource - Unknown resource file type: %s\n", file_name.c_str());
+        m_pUnknownManager->load(name, extension, data);
         delete data;
     }
     
