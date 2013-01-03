@@ -69,6 +69,10 @@ public:
     const KRVector3 getWorldScale();
     const KRVector3 getWorldRotation();
     
+    void setWorldTranslation(const KRVector3 &v);
+    void setWorldScale(const KRVector3 &v);
+    void setWorldRotation(const KRVector3 &v);
+    
     virtual KRAABB getBounds();
     const KRMat4 &getModelMatrix();
     const KRMat4 &getInverseModelMatrix();

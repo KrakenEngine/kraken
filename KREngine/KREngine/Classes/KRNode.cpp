@@ -119,6 +119,36 @@ void KRNode::setLocalTranslation(const KRVector3 &v, bool set_original) {
     }
     invalidateModelMatrix();
 }
+
+void KRNode::setWorldTranslation(const KRVector3 &v)
+{
+    if(m_parentNode) {
+        setLocalTranslation(KRMat4::Dot(m_parentNode->getInverseModelMatrix(), v));
+    } else {
+        setLocalTranslation(v);
+    }
+}
+
+
+void KRNode::setWorldRotation(const KRVector3 &v)
+{
+    if(m_parentNode) {
+        setLocalRotation(KRMat4::DotNoTranslate(m_parentNode->getInverseModelMatrix(), v));
+    } else {
+        setLocalRotation(v);
+    }
+}
+
+
+void KRNode::setWorldScale(const KRVector3 &v)
+{
+    if(m_parentNode) {
+        setLocalScale(KRMat4::DotNoTranslate(m_parentNode->getInverseModelMatrix(), v));
+    } else {
+        setLocalScale(v);
+    }
+}
+
 void KRNode::setLocalScale(const KRVector3 &v, bool set_original) {
     m_localScale = v;
     if(set_original) {
