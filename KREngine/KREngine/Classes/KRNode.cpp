@@ -157,14 +157,15 @@ const KRVector3 &KRNode::getInitialLocalRotation() {
     return m_initialLocalRotation;
 }
 
-const KRVector3 &KRNode::getWorldTranslation() {
-    return m_localTranslation;
+const KRVector3 KRNode::getWorldTranslation() {
+    return KRMat4::Dot(getModelMatrix(), KRVector3::Zero());
 }
-const KRVector3 &KRNode::getWorldScale() {
-    return m_localScale;
+
+const KRVector3 KRNode::getWorldScale() {
+    return KRMat4::DotNoTranslate(getModelMatrix(), m_localScale);
 }
-const KRVector3 &KRNode::getWorldRotation() {
-    return m_localRotation;
+const KRVector3 KRNode::getWorldRotation() {
+    return KRMat4::DotNoTranslate(getModelMatrix(), m_localRotation);
 }
 
 std::string KRNode::getElementName() {

@@ -65,9 +65,9 @@ public:
     const KRVector3 &getInitialLocalScale();
     const KRVector3 &getInitialLocalRotation();
     
-    const KRVector3 &getWorldTranslation();
-    const KRVector3 &getWorldScale();
-    const KRVector3 &getWorldRotation();
+    const KRVector3 getWorldTranslation();
+    const KRVector3 getWorldScale();
+    const KRVector3 getWorldRotation();
     
     virtual KRAABB getBounds();
     const KRMat4 &getModelMatrix();
