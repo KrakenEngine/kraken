@@ -199,3 +199,12 @@ bool KRDataBlock::save(const std::string& path) {
         return true;
     }
 }
+
+// Get contents as a string
+std::string KRDataBlock::getString()
+{
+    KRDataBlock b;
+    b.append(*this);
+    b.append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
+    return std::string((char *)b.getStart());
+}

@@ -69,6 +69,9 @@ public:
     
     // Return the size of the data block.  Use append() or expand() to make the data block larger
     size_t getSize() const;
+    
+    // Get the contents as a string
+    std::string getString();
 private:
     void *m_data;
     size_t m_data_size;
