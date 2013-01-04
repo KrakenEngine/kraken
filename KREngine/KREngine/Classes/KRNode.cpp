@@ -21,6 +21,7 @@
 #import "KRAABB.h"
 #import "KRQuaternion.h"
 #import "KRBone.h"
+#import "KRAudioSource.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -234,6 +235,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRCollider(scene, szName, e->Attribute("collider_name"));
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
+    } else if(strcmp(szElementName, "audio_source") == 0) {
+        new_node = new KRAudioSource(scene, szName);
     }
     
     if(new_node) {
