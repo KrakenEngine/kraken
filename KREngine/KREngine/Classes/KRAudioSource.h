@@ -68,6 +68,25 @@ public:
     bool getLooping();
     void setLooping(bool looping);
     
+    bool getIs3D();
+    void setIs3D(bool is3D);
+    
+    // 3d only properties:
+    float getReverb();
+    void setReverb(float reverb);
+    
+    float getReferenceDistance();
+    void setReferenceDistance(float reference_distance);
+    
+    float getRolloffFactor();
+    void setRolloffFactor(float rolloff_factor);
+    
+    bool getEnableOcclusion();
+    void setEnableOcclusion(bool enable_occlusion);
+    
+    bool getEnableObstruction();
+    void setEnableObstruction(bool enable_obstruction);
+    
 private:
     std::string m_audio_sample_name;
     
@@ -84,6 +103,15 @@ private:
     
     void prime();
     void queueBuffer();
+    
+    // 3d only properties:
+    float m_referenceDistance;
+    float m_reverb; // type ALfloat	0.0 (dry) - 1.0 (wet) (0-100% dry/wet mix, 0.0 default)
+    float m_rolloffFactor;
+    bool m_enable_occlusion;
+    bool m_enable_obstruction;
+    
+    void updatePosition();
 };
 
 #endif /* defined(KRAUDIOSOURCE_H) */

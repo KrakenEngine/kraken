@@ -35,6 +35,8 @@
 #include "KRAudioSample.h"
 #include "KRAudioBuffer.h"
 
+OSStatus alcASASetSourceProc(const ALuint property, ALuint source, ALvoid *data, ALuint dataSize);
+
 KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_playing = false;
@@ -45,6 +47,12 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
     m_gain = 1.0f;
     m_pitch = 1.0f;
     m_looping = false;
+    
+    m_referenceDistance = 20.0f;
+    m_reverb = 0.0f;
+    m_rolloffFactor = 2.0f;
+    m_enable_occlusion = true;
+    m_enable_obstruction = true;
 }
 
 KRAudioSource::~KRAudioSource()
@@ -71,6 +79,12 @@ tinyxml2::XMLElement *KRAudioSource::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("gain", m_gain);
     e->SetAttribute("pitch", m_pitch);
     e->SetAttribute("looping", m_looping ? "true" : "false");
+    e->SetAttribute("is3d", m_is3d ? "true" : "false");
+    e->SetAttribute("reference_distance", &m_referenceDistance);
+    e->SetAttribute("reverb", &m_reverb);
+    e->SetAttribute("rolloff_factor", &m_rolloffFactor);
+    e->SetAttribute("enable_occlusion", m_enable_occlusion ? "true" : "false");
+    e->SetAttribute("enable_obstruction", m_enable_obstruction ? "true" : "false");
     return e;
 }
 
@@ -95,6 +109,40 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement *e)
         looping = false;
     }
     setLooping(looping);
+    
+    bool is3d = true;
+    if(e->QueryBoolAttribute("is3d", &is3d) != tinyxml2::XML_SUCCESS) {
+        is3d = true;
+    }
+    setIs3D(is3d);
+    
+    float reference_distance = 20.0f;
+    if(e->QueryFloatAttribute("reference_distance", &reference_distance) != tinyxml2::XML_SUCCESS) {
+        reference_distance = 20.0f;
+    }
+    setReferenceDistance(reference_distance);
+    
+    float reverb = 0.0f;
+    if(e->QueryFloatAttribute("reverb", &reverb) != tinyxml2::XML_SUCCESS) {
+        reverb = 0.0f;
+    }
+    setReverb(reverb);
+    
+    float rolloff_factor = 2.0f;
+    if(e->QueryFloatAttribute("rolloff_factor", &rolloff_factor) != tinyxml2::XML_SUCCESS) {
+        rolloff_factor = 2.0f;
+    }
+    setRolloffFactor(rolloff_factor);
+    
+    m_enable_obstruction = true;
+    if(e->QueryBoolAttribute("enable_obstruction", &m_enable_obstruction) != tinyxml2::XML_SUCCESS) {
+        m_enable_obstruction = true;
+    }
+
+    m_enable_occlusion = true;
+    if(e->QueryBoolAttribute("enable_occlusion", &m_enable_occlusion) != tinyxml2::XML_SUCCESS) {
+        m_enable_occlusion = true;
+    }
     
     KRNode::loadXML(e);
 }
@@ -203,6 +251,49 @@ void KRAudioSource::setPitch(float pitch)
     }
 }
 
+
+float KRAudioSource::getReferenceDistance()
+{
+    return m_referenceDistance;
+}
+void KRAudioSource::setReferenceDistance(float reference_distance)
+{
+    m_referenceDistance = reference_distance;
+    if(m_isPrimed && m_is3d) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
+    }
+}
+
+float KRAudioSource::getReverb()
+{
+    return m_reverb;
+}
+
+void KRAudioSource::setReverb(float reverb)
+{
+    m_reverb = reverb;
+    if(m_isPrimed && m_is3d) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+    }
+}
+
+
+float KRAudioSource::getRolloffFactor()
+{
+    return m_rolloffFactor;
+}
+
+void KRAudioSource::setRolloffFactor(float rolloff_factor)
+{
+    m_rolloffFactor = rolloff_factor;
+    if(m_isPrimed && m_is3d) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor);
+    }
+}
+
 void KRAudioSource::setLooping(bool looping)
 {
     m_looping = looping;
@@ -214,6 +305,36 @@ bool KRAudioSource::getLooping()
     return m_looping;
 }
 
+bool KRAudioSource::getEnableOcclusion()
+{
+    return m_enable_occlusion;
+}
+
+void KRAudioSource::setEnableOcclusion(bool enable_occlusion)
+{
+    m_enable_occlusion = enable_occlusion;
+}
+
+bool KRAudioSource::getEnableObstruction()
+{
+    return m_enable_obstruction;
+}
+
+void KRAudioSource::setEnableObstruction(bool enable_obstruction)
+{
+    m_enable_obstruction = enable_obstruction;
+}
+
+bool KRAudioSource::getIs3D()
+{
+    return m_is3d;
+}
+void KRAudioSource::setIs3D(bool is3D)
+{
+    // Audio source must be stopped and re-started for mode change to take effect
+    m_is3d = is3D;
+}
+
 bool KRAudioSource::hasPhysics()
 {
     return true;
@@ -223,6 +344,7 @@ void KRAudioSource::physicsUpdate(float deltaTime)
 {
     if(m_isPrimed && m_playing) {
         getContext().getAudioManager()->makeCurrentContext();
+        updatePosition();
         ALint processed_count = 0;
         alGetSourcei(m_sourceID, AL_BUFFERS_PROCESSED, &processed_count);
         while(processed_count-- > 0) {
@@ -243,8 +365,19 @@ void KRAudioSource::physicsUpdate(float deltaTime)
 void KRAudioSource::play()
 {
     prime();
+    updatePosition();
     getContext().getAudioManager()->makeCurrentContext();
 
+    if(m_is3d) {
+        alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
+        alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor);
+        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
+        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+    } else {
+        alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE);
+        alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0);
+    }
     alSourcePlay(m_sourceID);
     m_playing = true;
 }
@@ -269,3 +402,34 @@ std::string KRAudioSource::getSample()
 {
     return m_audio_sample_name;
 }
+
+void KRAudioSource::updatePosition()
+{
+    if(m_is3d) {
+        ALfloat occlusion = 0.0f; // type ALfloat	-100.0 db (most occlusion) - 0.0 db (no occlusion, 0.0 default)
+        ALfloat obstruction = 0.0f; // type ALfloat	-100.0 db (most obstruction) - 0.0 db (no obstruction, 0.0 default)
+        
+        KRVector3 worldPosition = getWorldTranslation();
+        alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z);
+        
+        alcASASetSourceProc(ALC_ASA_OCCLUSION, m_sourceID, &occlusion, sizeof(occlusion));
+        alcASASetSourceProc(ALC_ASA_OBSTRUCTION, m_sourceID, &obstruction, sizeof(obstruction));
+        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+    }
+}
+
+
+OSStatus alcASASetSourceProc(const ALuint property, ALuint source, ALvoid *data, ALuint dataSize)
+{
+    OSStatus	err = noErr;
+	static	alcASASetSourceProcPtr	proc = NULL;
+    
+    if (proc == NULL) {
+        proc = (alcASASetSourceProcPtr) alcGetProcAddress(NULL, (const ALCchar*) "alcASASetSource");
+    }
+    
+    if (proc)
+        err = proc(property, source, data, dataSize);
+    return (err);
+}
+
