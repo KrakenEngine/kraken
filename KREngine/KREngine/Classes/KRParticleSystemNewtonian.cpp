@@ -49,6 +49,11 @@ void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)
     m_particlesAbsoluteTime += deltaTime;
 }
 
+bool KRParticleSystemNewtonian::hasPhysics()
+{
+    return true;
+}
+
 void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     

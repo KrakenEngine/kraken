@@ -1,5 +1,5 @@
 //
-//  KRAudioSource.h
+//  FileManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,61 +29,53 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAUDIOSOURCE_H
-#define KRAUDIOSOURCE_H
+#ifndef KRAUDIO_MANAGER_H
+#define KRAUDIO_MANAGER_H
 
-#import "KRResource.h"
-#import "KRNode.h"
-#import "KRTexture.h"
+#import "KREngine-common.h"
 
-#include <queue>
+#include "KRAudioSample.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
+#include "KRmat4.h"
 
-class KRAudioSample;
-class KRAudioBuffer;
+#include <map>
+#include <set>
+#include <string>
 
-class KRAudioSource : public KRNode {
+using std::map;
+using std::set;
+
+const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
+const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
+const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
+
+class KRAudioManager : public KRContextObject {
 public:
-    KRAudioSource(KRScene &scene, std::string name);
-    virtual ~KRAudioSource();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    virtual bool hasPhysics();
-    virtual void physicsUpdate(float deltaTime);
+    KRAudioManager(KRContext &context);
+    virtual ~KRAudioManager();
     
-    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
-    void play();
-    void stop();
-    bool isPlaying();
+    void add(KRAudioSample *Sound);
     
-    void setSample(const std::string &sound_name);
-    std::string getSample();
+    KRAudioSample *load(const std::string &name, const std::string &extension, KRDataBlock *data);
+    KRAudioSample *get(const std::string &name);
     
-    float getGain();
-    void setGain(float gain);
+    void setViewMatrix(const KRMat4 &viewMatrix);
     
-    float getPitch();
-    void setPitch(float pitch);
+
+    void makeCurrentContext();
     
-    bool getLooping();
-    void setLooping(bool looping);
+    KRDataBlock *getBufferData(int size);
+    void recycleBufferData(KRDataBlock *data);
     
 private:
-    std::string m_audio_sample_name;
+    map<std::string, KRAudioSample *> m_sounds;
     
-    KRAudioSample *m_audioFile;
-    unsigned int m_sourceID;
-    float m_gain;
-    float m_pitch;
-    bool m_looping;
-    std::queue<KRAudioBuffer *> m_audioBuffers;
-    int m_nextBufferIndex;
-    bool m_playing;
-    bool m_is3d;
-    bool m_isPrimed;
+    std::vector<KRDataBlock *> m_bufferPoolIdle;
     
-    void prime();
-    void queueBuffer();
+    ALCcontext* m_alContext;
+    ALCdevice* m_alDevice;
+
 };
 
-#endif /* defined(KRAUDIOSOURCE_H) */
+#endif /* defined(KRAUDIO_MANAGER_H) */

@@ -51,6 +51,12 @@ float const D2R = PI * 2 / 360;
 
 #endif
 
+#import <AudioToolbox/AudioToolbox.h>
+#import <AudioToolbox/AudioFile.h>
+#import <AudioToolbox/ExtendedAudioFile.h>
+#import <OpenAL/al.h>
+#import <OpenAL/alc.h>
+#import <OpenAL/oalMacOSX_OALExtensions.h>
 
 #endif
 
@@ -65,6 +71,8 @@ fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i f
 } \
 }
 
+#define KRMIN(x,y) ((x) < (y) ? (x) : (y))
+#define KRMAX(x,y) ((x) > (y) ? (x) : (y))
 
 #include "KRVector3.h"
 #include "KRVector2.h"

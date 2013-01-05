@@ -1,5 +1,5 @@
 //
-//  KRUnknown.h
+//  KRAudioSample.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRUNKNOWN_H
-#define KRUNKNOWN_H
+#ifndef KRAUDIOSAMPLE_H
+#define KRAUDIOSAMPLE_H
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
@@ -38,23 +38,66 @@
 #import "KRResource.h"
 #import <map>
 
-class KRUnknown : public KRResource {
+class KRAudioBuffer;
+
+class KRAudioSample : public KRResource {
     
 public:
-    KRUnknown(KRContext &context, std::string name, std::string extension);
-    KRUnknown(KRContext &context, std::string name, std::string extension, KRDataBlock *data);
-    virtual ~KRUnknown();
+    KRAudioSample(KRContext &context, std::string name, std::string extension);
+    KRAudioSample(KRContext &context, std::string name, std::string extension, KRDataBlock *data);
+    virtual ~KRAudioSample();
     
     virtual std::string getExtension();
     
     virtual bool save(KRDataBlock &data);
     
-    KRDataBlock *getData();
-
+    float getDuration();
+    KRAudioBuffer *getBuffer(int index);
+    int getBufferCount();
+    
 private:
     
     std::string m_extension;
     KRDataBlock *m_pData;
+    
+    AudioFileID m_audio_file_id;
+    ExtAudioFileRef m_fileRef;
+    
+    int m_bufferCount;
+    
+    SInt64 m_totalFrames;
+    int m_frameRate;
+    int m_bytesPerFrame;
+    int m_channelsPerFrame;
+    ALenum m_dataFormat;
+    
+    void openFile();
+    void closeFile();
+    
+    static OSStatus ReadProc( // AudioFile_ReadProc
+        void *		inClientData,
+        SInt64		inPosition,
+        UInt32	requestCount,
+        void *		buffer,
+        UInt32 *	actualCount);
+    
+    static OSStatus WriteProc( // AudioFile_WriteProc
+        void * 		inClientData,
+        SInt64		inPosition,
+        UInt32		requestCount,
+        const void *buffer,
+        UInt32    * actualCount);
+    
+    static SInt64 GetSizeProc( // AudioFile_GetSizeProc
+        void * 		inClientData);
+    
+    
+    static OSStatus SetSizeProc( // AudioFile_SetSizeProc
+        void *		inClientData,
+        SInt64		inSize);
+    
+    
+    static void PopulateBuffer(KRAudioSample *sound, int index, void *data);
 };
 
-#endif /* defined(KRUNKNOWN_H) */
+#endif /* defined(KRAUDIOSAMPLE_H) */

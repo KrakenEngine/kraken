@@ -31,14 +31,33 @@
 
 #include "KRAudioSource.h"
 #include "KRContext.h"
+#include "KRAudioManager.h"
+#include "KRAudioSample.h"
+#include "KRAudioBuffer.h"
 
 KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, name)
 {
-    
+    m_playing = false;
+    m_is3d = true;
+    m_isPrimed = false;
+    m_audioFile = NULL;
+    m_sourceID = 0;
+    m_gain = 1.0f;
+    m_pitch = 1.0f;
+    m_looping = false;
 }
 
 KRAudioSource::~KRAudioSource()
 {
+    if(m_sourceID) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alDeleteSources(1, &m_sourceID);
+        m_sourceID = 0;
+    }
+    while(m_audioBuffers.size()) {
+        delete m_audioBuffers.front();
+        m_audioBuffers.pop();
+    }
 }
 
 std::string KRAudioSource::getElementName() {
@@ -48,16 +67,77 @@ std::string KRAudioSource::getElementName() {
 tinyxml2::XMLElement *KRAudioSource::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("sound", m_sound.c_str());
+    e->SetAttribute("sample", m_audio_sample_name.c_str());
+    e->SetAttribute("gain", m_gain);
+    e->SetAttribute("pitch", m_pitch);
+    e->SetAttribute("looping", m_looping ? "true" : "false");
     return e;
 }
 
 void KRAudioSource::loadXML(tinyxml2::XMLElement *e)
 {
-    m_sound = e->Attribute("sound");
+    m_audio_sample_name = e->Attribute("sample");
+    
+    float gain = 1.0f;
+    if(e->QueryFloatAttribute("gain", &gain)  != tinyxml2::XML_SUCCESS) {
+        gain = 1.0f;
+    }
+    setGain(gain);
+    
+    float pitch = 1.0f;
+    if(e->QueryFloatAttribute("pitch", &pitch) != tinyxml2::XML_SUCCESS) {
+        pitch = 1.0f;
+    }
+    setPitch(m_pitch);
+    
+    bool looping = false;
+    if(e->QueryBoolAttribute("looping", &looping) != tinyxml2::XML_SUCCESS) {
+        looping = false;
+    }
+    setLooping(looping);
+    
     KRNode::loadXML(e);
 }
 
+void KRAudioSource::prime()
+{
+    if(!m_isPrimed) {
+        if(m_audioFile == NULL && m_audio_sample_name.size() != 0) {
+            m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
+        }
+        if(m_audioFile) {
+            getContext().getAudioManager()->makeCurrentContext();
+            
+            // Initialize audio source
+            m_sourceID = 0;
+            alGenSources(1, &m_sourceID);
+            
+            // Prime the buffer queue
+            m_nextBufferIndex = 0;
+            for(int i=0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
+                queueBuffer();
+            }
+            
+            //alSourcei(_sourceID, AL_BUFFER, firstBuffer.bufferID);
+            alSourcef(m_sourceID, AL_PITCH, m_pitch);
+            alSourcei(m_sourceID, AL_LOOPING, m_looping && m_audioFile->getBufferCount() == 1);
+            alSourcef(m_sourceID, AL_GAIN, m_gain);
+            
+            m_isPrimed = true;
+        }
+    }
+}
+
+void KRAudioSource::queueBuffer()
+{
+    KRAudioBuffer *buffer = m_audioFile->getBuffer(m_nextBufferIndex);
+    m_audioBuffers.push(buffer);
+    ALuint buffer_ids[1];
+    buffer_ids[0] = buffer->getBufferID();
+    alSourceQueueBuffers(m_sourceID, 1, buffer_ids);
+    
+    m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
+}
 
 void KRAudioSource::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
@@ -99,9 +179,74 @@ void KRAudioSource::render(KRCamera *pCamera, std::vector<KRLight *> &lights, co
     }
 }
 
+void KRAudioSource::setGain(float gain)
+{
+    m_gain = gain;
+    if(m_isPrimed) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alSourcef(m_sourceID, AL_GAIN, m_gain);
+    }
+}
+
+float KRAudioSource::getGain()
+{
+    return m_gain;
+}
+
+void KRAudioSource::setPitch(float pitch)
+{
+    m_pitch = pitch;
+    if(m_isPrimed ) {
+        getContext().getAudioManager()->makeCurrentContext();
+        alSourcef(m_sourceID, AL_PITCH, m_pitch);
+        
+    }
+}
+
+void KRAudioSource::setLooping(bool looping)
+{
+    m_looping = looping;
+    // Audio source must be stopped and re-started for loop mode changes to take effect
+}
+
+bool KRAudioSource::getLooping()
+{
+    return m_looping;
+}
+
+bool KRAudioSource::hasPhysics()
+{
+    return true;
+}
+
+void KRAudioSource::physicsUpdate(float deltaTime)
+{
+    if(m_isPrimed && m_playing) {
+        getContext().getAudioManager()->makeCurrentContext();
+        ALint processed_count = 0;
+        alGetSourcei(m_sourceID, AL_BUFFERS_PROCESSED, &processed_count);
+        while(processed_count-- > 0) {
+            ALuint finished_buffer = 0;
+            alSourceUnqueueBuffers(m_sourceID, 1, &finished_buffer);
+            delete m_audioBuffers.front();
+            m_audioBuffers.pop();
+            queueBuffer();
+        }
+        
+        ALint val;
+        // Make sure the source is still playing, and restart it if needed.
+        alGetSourcei(m_sourceID, AL_SOURCE_STATE, &val);
+        if(val != AL_PLAYING) alSourcePlay(m_sourceID);
+    }
+}
+
 void KRAudioSource::play()
 {
-    
+    prime();
+    getContext().getAudioManager()->makeCurrentContext();
+
+    alSourcePlay(m_sourceID);
+    m_playing = true;
 }
 
 void KRAudioSource::stop()
@@ -111,16 +256,16 @@ void KRAudioSource::stop()
 
 bool KRAudioSource::isPlaying()
 {
-    return false;
+    return m_playing;
 }
 
 
-void KRAudioSource::setSound(const std::string &sound_name)
+void KRAudioSource::setSample(const std::string &sound_name)
 {
-    m_sound = sound_name;
+    m_audio_sample_name = sound_name;
 }
 
-std::string KRAudioSource::getSound()
+std::string KRAudioSource::getSample()
 {
-    return m_sound;
+    return m_audio_sample_name;
 }

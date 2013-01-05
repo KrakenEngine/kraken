@@ -27,6 +27,7 @@ public:
     
     
     virtual void physicsUpdate(float deltaTime);
+    virtual bool hasPhysics();
 private:
     float m_particlesAbsoluteTime;
 };

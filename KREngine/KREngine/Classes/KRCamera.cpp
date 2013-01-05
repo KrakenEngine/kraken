@@ -72,6 +72,7 @@ void KRCamera::renderFrame(float deltaTime)
 
 
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
+    getContext().getAudioManager()->setViewMatrix(viewMatrix); // FINDME, TODO - Should we support de-coupling the audio listener location from the camera?
     
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));

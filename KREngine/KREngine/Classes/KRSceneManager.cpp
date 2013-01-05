@@ -53,8 +53,12 @@ KRScene *KRSceneManager::getScene(const char *szName) {
 }
 
 KRScene *KRSceneManager::getFirstScene() {
-    static std::map<std::string, KRScene *>::iterator Scene_itr = m_scenes.begin();
-    return (*Scene_itr).second;
+    static std::map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
+    if(scene_itr == m_scenes.end()) {
+        return NULL;
+    } else {
+        return (*scene_itr).second;
+    }
 }
 
 std::map<std::string, KRScene *> KRSceneManager::getScenes() {

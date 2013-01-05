@@ -35,6 +35,7 @@ KRContext::KRContext() {
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
+    m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
     m_bDetectedExtensions = false;
     m_current_frame = 0;
@@ -77,6 +78,11 @@ KRContext::~KRContext() {
         delete m_pAnimationCurveManager;
         m_pAnimationCurveManager = NULL;
     }
+    
+    if(m_pSoundManager) {
+        delete m_pSoundManager;
+        m_pSoundManager = NULL;
+    }
 
     if(m_pUnknownManager) {
         delete m_pUnknownManager;
@@ -114,6 +120,9 @@ KRAnimationManager *KRContext::getAnimationManager() {
 KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
     return m_pAnimationCurveManager;
 }
+KRAudioManager *KRContext::getAudioManager() {
+    return m_pSoundManager;
+}
 KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
 }
@@ -144,12 +153,16 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pShaderManager->loadFragmentShader(name.c_str(), data);
     } else if(extension.compare("mtl") == 0) {
         m_pMaterialManager->load(name.c_str(), data);
+    } else if(extension.compare("mp3") == 0) {
+        m_pSoundManager->load(name.c_str(), extension, data);
+    } else if(extension.compare("wav") == 0) {
+        m_pSoundManager->load(name.c_str(), extension, data);
+    } else if(extension.compare("aac") == 0) {
+        m_pSoundManager->load(name.c_str(), extension, data);
     } else {
         m_pUnknownManager->load(name, extension, data);
         delete data;
     }
-    
-    
 }
 
 void KRContext::loadResource(std::string path) {
