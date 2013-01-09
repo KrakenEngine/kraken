@@ -1,5 +1,5 @@
 //
-//  KRModelCube.h
+//  KRMeshSphere.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,15 +29,15 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMODELCUBE_H
-#define KRMODELCUBE_H
+#ifndef KRMESHSPHERE_H
+#define KRMESHSPHERE_H
 
-#include "KRModel.h"
+#include "KRMesh.h"
 
-class KRModelCube : public KRModel {
+class KRMeshSphere : public KRMesh {
 public:
-    KRModelCube(KRContext &context);
-    virtual ~KRModelCube();
+    KRMeshSphere(KRContext &context);
+    virtual ~KRMeshSphere();
 private:
 };
 

@@ -95,7 +95,7 @@ std::set<KRNode *> &KROctree::getOuterSceneNodes()
 }
 
 
-bool KROctree::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+bool KROctree::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     std::vector<KRCollider *> outer_colliders;
@@ -107,26 +107,26 @@ bool KROctree::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hit
         }
     }
     for(std::vector<KRCollider *>::iterator itr=outer_colliders.begin(); itr != outer_colliders.end(); itr++) {
-        if((*itr)->lineCast(v0, v1, hitinfo)) hit_found = true;
+        if((*itr)->lineCast(v0, v1, hitinfo, layer_mask)) hit_found = true;
     }
     
     if(m_pRootNode) {
-        if(m_pRootNode->lineCast(v0, v1, hitinfo)) hit_found = true;
+        if(m_pRootNode->lineCast(v0, v1, hitinfo, layer_mask)) hit_found = true;
     }
     return hit_found;
 }
 
-bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo)
+bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     for(std::set<KRNode *>::iterator outer_nodes_itr=m_outerSceneNodes.begin(); outer_nodes_itr != m_outerSceneNodes.end(); outer_nodes_itr++) {
         KRCollider *collider = dynamic_cast<KRCollider *>(*outer_nodes_itr);
         if(collider) {
-            if(collider->rayCast(v0, dir, hitinfo)) hit_found = true;
+            if(collider->rayCast(v0, dir, hitinfo, layer_mask)) hit_found = true;
         }
     }
     if(m_pRootNode) {
-        if(m_pRootNode->lineCast(v0, dir, hitinfo)) hit_found = true;
+        if(m_pRootNode->lineCast(v0, dir, hitinfo, layer_mask)) hit_found = true;
     }
     return hit_found;
 }

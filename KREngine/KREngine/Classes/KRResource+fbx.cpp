@@ -23,7 +23,7 @@
 
 
 #include "KRResource.h"
-#include "KRModel.h"
+#include "KRMesh.h"
 #include "KRMaterial.h"
 #include "KRLight.h"
 #include "KRPointLight.h"
@@ -34,7 +34,7 @@
 #include "KRQuaternion.h"
 #include "KRBone.h"
 #include "KRBundle.h"
-#include "KRInstance.h"
+#include "KRModel.h"
 #include "KRCollider.h"
 
 #ifdef IOS_REF
@@ -190,7 +190,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
             animation_bundle.append(*resource);
 //        } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
 //            material_bundle.append(*resource);
-        } else if(dynamic_cast<KRModel *>(resource) != NULL) {
+        } else if(dynamic_cast<KRMesh *>(resource) != NULL) {
             meshes_bundle.append(*resource);
         } else {
             main_bundle->append(*resource);
@@ -1143,8 +1143,8 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     
     delete control_point_weights;
     
-    KRModel *new_mesh = new KRModel(context, pSourceMesh->GetNode()->GetName());
-    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRModel::KRENGINE_MODEL_FORMAT_TRIANGLES);
+    KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
+    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES);
     resources.push_back(new_mesh);
 }
 
@@ -1153,18 +1153,22 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
 
-    if(KRModel::GetLODCoverage(pNode->GetName()) == 100) {
+    if(KRMesh::GetLODCoverage(pNode->GetName()) == 100) {
         // If this is the full detail model, add an instance of it to the scene file
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-        const char *collider_prefix = "collider_";
+        // FINDME, HACK - Until we have a GUI, we're using prefixes to select correct object type
         const char *node_name = pNode->GetName();
-        if(strncmp(node_name, collider_prefix, strlen(collider_prefix)) == 0) {
-            // FINDME, HACK - Until we have a GUI, we're using prefixes to select correct object type
-            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName());
+        if(strncmp(node_name, "physics_collider_", strlen("physics_collider_")) == 0) {
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS, 0.0f);
+        } else if(strncmp(node_name, "audio_collider_", strlen("audio_collider_")) == 0) {
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_AUDIO, 1.0f);
+        } else if(strncmp(node_name, "collider_", strlen("collider_")) == 0) {
+            
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO, 1.0f);
         } else {
-            return new KRInstance(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
+            return new KRModel(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
         }
     } else {
         return NULL;

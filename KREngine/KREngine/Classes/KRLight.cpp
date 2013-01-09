@@ -176,7 +176,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 float particle_range = 600.0f;
                 
                 int particle_count = m_dust_particle_density * pow(particle_range, 3);
-                if(particle_count > KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES) particle_count = KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES;
+                if(particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
                 
                 // Enable z-buffer test
                 GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -199,7 +199,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     
                     GLDEBUG(glUniform1f(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE], m_dust_particle_size));
                     
-                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRModelManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRModelManager::RandomParticleVertexData), true, false, false, true, false, false, false);
+                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRMeshManager::RandomParticleVertexData), true, false, false, true, false, false, false);
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
                 }
             }
@@ -226,7 +226,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
             KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
             (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
-            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRModelManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRModelManager::VolumetricLightingVertexData), true, false, false, false, false, false, false);
+            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRMeshManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRMeshManager::VolumetricLightingVertexData), true, false, false, false, false, false, false);
             GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
         }
 

@@ -35,14 +35,14 @@
 #import "KREngine-common.h"
 
 #import <vector>
-#import "KRInstance.h"
-#import "KRMat4.h"
 #import "KRModel.h"
+#import "KRMat4.h"
+#import "KRMesh.h"
 #import "KRCamera.h"
-#import "KRModelManager.h"
+#import "KRMeshManager.h"
 #import "KRNode.h"
 #import "KROctree.h"
-class KRInstance;
+class KRModel;
 class KRLight;
 
 using std::vector;
@@ -62,8 +62,8 @@ public:
     KRNode *getRootNode();
     KRLight *getFirstLight();
     
-    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
-    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask);
     
     void renderFrame(float deltaTime);
     void render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame);

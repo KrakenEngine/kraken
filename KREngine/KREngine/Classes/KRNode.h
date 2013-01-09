@@ -17,7 +17,7 @@
 
 class KRCamera;
 class KRShaderManager;
-class KRModelManager;
+class KRMeshManager;
 class KRMaterialManager;
 class KRMat4;
 class KRTextureManager;

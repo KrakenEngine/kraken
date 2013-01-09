@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRQUATERNION
-#define KRQUATERNION
+#ifndef KRQUATERNION_H
+#define KRQUATERNION_H
 #include <math.h>
 
 #import "KREngine-common.h"

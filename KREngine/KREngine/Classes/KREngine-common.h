@@ -56,7 +56,11 @@ float const D2R = PI * 2 / 360;
 #import <AudioToolbox/ExtendedAudioFile.h>
 #import <OpenAL/al.h>
 #import <OpenAL/alc.h>
+#if TARGET_OS_IPHONE
 #import <OpenAL/oalMacOSX_OALExtensions.h>
+#else
+#import <OpenAL/MacOSX_OALExtensions.h>
+#endif
 
 #endif
 

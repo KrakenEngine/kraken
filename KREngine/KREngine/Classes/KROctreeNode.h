@@ -47,8 +47,8 @@ public:
     bool m_occlusionTested;
     bool m_activeQuery;
     
-    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
-    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo);
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask);
 private:
     
     KRAABB m_bounds;

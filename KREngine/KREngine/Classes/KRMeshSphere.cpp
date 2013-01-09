@@ -1,5 +1,5 @@
 //
-//  KRModelSphere.cpp
+//  KRMeshSphere.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,10 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRModelSphere.h"
+#include "KRMeshSphere.h"
 
 
-KRModelSphere::KRModelSphere(KRContext &context) : KRModel(context, "__sphere")
+KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
 {
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
@@ -137,7 +137,7 @@ KRModelSphere::KRModelSphere(KRContext &context) : KRModel(context, "__sphere")
     LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_TRIANGLES);
 }
 
-KRModelSphere::~KRModelSphere()
+KRMeshSphere::~KRMeshSphere()
 {
     
 }

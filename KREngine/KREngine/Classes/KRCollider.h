@@ -34,33 +34,46 @@
 #ifndef KRCOLLIDER_H
 #define KRCOLLIDER_H
 
-#import "KRModel.h"
+#define KRAKEN_COLLIDER_PHYSICS 1
+#define KRAKEN_COLLIDER_AUDIO 2
+
+#import "KRMesh.h"
 #import "KRMat4.h"
 #import "KRVector3.h"
-#import "KRInstance.h"
+#import "KRModel.h"
 #import "KRCamera.h"
-#import "KRModelManager.h"
+#import "KRMeshManager.h"
 #import "KRNode.h"
 #import "KRContext.h"
-#import "KRModel.h"
+#import "KRMesh.h"
 #import "KRTexture.h"
 
 class KRCollider : public KRNode {
     
 public:
-    KRCollider(KRScene &scene, std::string collider_name, std::string model_name);
+    KRCollider(KRScene &scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion);
     virtual ~KRCollider();
     
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    virtual void loadXML(tinyxml2::XMLElement *e);
     virtual KRAABB getBounds();
     
-    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
-    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo);
+    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
+    bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
+    
+    unsigned int getLayerMask();
+    void setLayerMask(unsigned int layer_mask);
+    
+    float getAudioOcclusion();
+    void setAudioOcclusion(float audio_occlusion);
     
 private:
-    std::vector<KRModel *> m_models;
+    std::vector<KRMesh *> m_models;
     std::string m_model_name;
+    
+    unsigned int m_layer_mask;
+    float m_audio_occlusion;
     
     void loadModel();
 };

@@ -443,12 +443,12 @@ KRAABB KRScene::getRootOctreeBounds()
 }
 
 
-bool KRScene::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo)
+bool KRScene::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
-    return m_nodeTree.lineCast(v0, v1, hitinfo);
+    return m_nodeTree.lineCast(v0, v1, hitinfo, layer_mask);
 }
 
-bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo)
+bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
-    return m_nodeTree.rayCast(v0, dir, hitinfo);
+    return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }

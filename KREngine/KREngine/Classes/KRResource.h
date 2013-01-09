@@ -15,8 +15,8 @@
 #import "KRContextObject.h"
 #import "KRDataBlock.h"
 
-#ifndef KREngine_KRResource_h
-#define KREngine_KRResource_h
+#ifndef KRRESOURCE_H
+#define KRRESOURCE_H
 
 class KRResource : public KRContextObject
 {

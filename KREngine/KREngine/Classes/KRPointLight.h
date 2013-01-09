@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KREngine_KRPointLight_h
-#define KREngine_KRPointLight_h
+#ifndef KRPOINTLIGHT_H
+#define KRPOINTLIGHT_H
 
 #import "KRLight.h"
 #import "KRMat4.h"

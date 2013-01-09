@@ -651,8 +651,8 @@ void KRCamera::renderPost()
 #elif GL_vertex_array_object
 #endif
             m_pContext->getModelManager()->configureAttribs(true, false, false, true, false, false, false);
-            GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
-            GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
+            GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
+            GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
             
             iPos++;

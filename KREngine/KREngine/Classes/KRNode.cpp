@@ -14,7 +14,7 @@
 #import "KRPointLight.h"
 #import "KRSpotLight.h"
 #import "KRDirectionalLight.h"
-#import "KRInstance.h"
+#import "KRModel.h"
 #import "KRCollider.h"
 #import "KRParticleSystem.h"
 #import "KRParticleSystemNewtonian.h"
@@ -22,6 +22,7 @@
 #import "KRQuaternion.h"
 #import "KRBone.h"
 #import "KRAudioSource.h"
+#import "KRReverbZone.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -217,7 +218,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "particles_newtonian") == 0) {
         new_node = new KRParticleSystemNewtonian(scene, szName);
-    } else if(strcmp(szElementName, "mesh") == 0) {
+    } else if(strcmp(szElementName, "model") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {
             lod_min_coverage = 0.0f;
@@ -230,13 +231,15 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         if(e->QueryBoolAttribute("faces_camera", &faces_camera) != tinyxml2::XML_SUCCESS) {
             faces_camera = false;
         }
-        new_node = new KRInstance(scene, szName, e->Attribute("mesh_name"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
+        new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
     } else if(strcmp(szElementName, "collider") == 0) {
-        new_node = new KRCollider(scene, szName, e->Attribute("collider_name"));
+        new_node = new KRCollider(scene, szName, e->Attribute("collider_name"), 65535, 1.0f);
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
     } else if(strcmp(szElementName, "audio_source") == 0) {
         new_node = new KRAudioSource(scene, szName);
+    } else if(strcmp(szElementName, "reverb_zone") == 0) {
+        new_node = new KRReverbZone(scene, szName);
     }
     
     if(new_node) {

@@ -33,7 +33,7 @@
 #import <map>
 #import "KRMat4.h"
 #import "KRVector3.h"
-#import "KRModel.h"
+#import "KRMesh.h"
 #import "KRScene.h"
 #import "KRContext.h"
 #import "KRCamera.h"

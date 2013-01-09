@@ -45,7 +45,12 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     
     // ----- Configure listener -----
     alDistanceModel(AL_EXPONENT_DISTANCE);
+
+#if TARGET_OS_IPHONE
     alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES);
+#else
+    alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH);
+#endif
     UInt32 setting = 1;
     alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting));
     ALfloat global_reverb_level = -5.0f;

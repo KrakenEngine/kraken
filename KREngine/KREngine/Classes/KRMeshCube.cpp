@@ -1,5 +1,5 @@
 //
-//  KRModelCube.cpp
+//  KRMeshCube.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,10 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRModelCube.h"
+#include "KRMeshCube.h"
 
 
-KRModelCube::KRModelCube(KRContext &context) : KRModel(context, "__cube")
+KRMeshCube::KRMeshCube(KRContext &context) : KRMesh(context, "__cube")
 {
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
@@ -70,7 +70,7 @@ KRModelCube::KRModelCube(KRContext &context) : KRModel(context, "__cube")
     LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_STRIP);
 }
 
-KRModelCube::~KRModelCube()
+KRMeshCube::~KRMeshCube()
 {
     
 }

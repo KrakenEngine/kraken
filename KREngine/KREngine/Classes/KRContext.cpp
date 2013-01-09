@@ -31,7 +31,7 @@ KRContext::KRContext() {
     m_pShaderManager = new KRShaderManager(*this);
     m_pTextureManager = new KRTextureManager(*this);
     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
-    m_pModelManager = new KRModelManager(*this);
+    m_pModelManager = new KRMeshManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
@@ -111,7 +111,7 @@ KRMaterialManager *KRContext::getMaterialManager() {
 KRShaderManager *KRContext::getShaderManager() {
     return m_pShaderManager;
 }
-KRModelManager *KRContext::getModelManager() {
+KRMeshManager *KRContext::getModelManager() {
     return m_pModelManager;
 }
 KRAnimationManager *KRContext::getAnimationManager() {
@@ -135,7 +135,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     
     if(extension.compare("krbundle") == 0) {
         m_pBundleManager->loadBundle(name.c_str(), data);
-    } else if(extension.compare("krobject") == 0) {
+    } else if(extension.compare("krmesh") == 0) {
         m_pModelManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
         m_pSceneManager->loadScene(name.c_str(), data);

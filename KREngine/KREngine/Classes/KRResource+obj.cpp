@@ -17,13 +17,13 @@
 #include <assert.h>
 
 #include "KRResource.h"
-#include "KRModel.h"
+#include "KRMesh.h"
 
 std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::string& path)
 {
     std::vector<KRResource *> resources;
     
-    KRModel *new_mesh = new KRModel(context, KRResource::GetFileBase(path));
+    KRMesh *new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
     resources.push_back(new_mesh);
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
@@ -42,7 +42,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
     
     int *pFaces = NULL;
     
-    vector<KRModel::pack_material *> m_materials;
+    vector<KRMesh::pack_material *> m_materials;
     
     if(data.load(path)) {
         //  -----=====----- Get counts -----=====----- 
@@ -246,7 +246,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         
         
         std::vector<std::string>::iterator material_itr = material_names_t.begin();
-        KRModel::pack_material *pMaterial = new KRModel::pack_material();
+        KRMesh::pack_material *pMaterial = new KRMesh::pack_material();
         pMaterial->start_vertex = iVertex;
         pMaterial->vertex_count = 0;
         memset(pMaterial->szName, 256, 0);
@@ -311,7 +311,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
             }
             pMaterial->vertex_count = iVertex - pMaterial->start_vertex;
             if(*pFace != 0) {
-                pMaterial = new KRModel::pack_material();
+                pMaterial = new KRMesh::pack_material();
                 pMaterial->start_vertex = iVertex;
                 pMaterial->vertex_count = 0;
                 memset(pMaterial->szName, 256, 0);
@@ -324,7 +324,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         }
         
         for(int iMaterial=0; iMaterial < m_materials.size(); iMaterial++) {
-            KRModel::pack_material *pNewMaterial = m_materials[iMaterial];
+            KRMesh::pack_material *pNewMaterial = m_materials[iMaterial];
             if(pNewMaterial->vertex_count > 0) {
                 material_names.push_back(std::string(pNewMaterial->szName));
                 submesh_starts.push_back(pNewMaterial->start_vertex);
@@ -338,7 +338,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         std::vector<std::vector<int> > bone_indexes;
         std::vector<std::vector<float> > bone_weights;
         
-        new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRModel::KRENGINE_MODEL_FORMAT_TRIANGLES);
+        new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES);
     }
     
     if(pFaces) {

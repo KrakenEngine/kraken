@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#ifndef KREngine_KRResource_blend_h
-#define KREngine_KRResource_blend_h
+#ifndef KRRESOURCE_BLEND_H
+#define KRRESOURCE_BLEND_H
 
 class KRBlendFile {
 public:

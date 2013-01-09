@@ -156,13 +156,13 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         
         // Bind attribute locations.
         // This needs to be done prior to linking.
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_BONEINDEXES, "bone_indexes"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRModel::KRENGINE_ATTRIB_BONEWEIGHTS, "bone_weights"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEINDEXES, "bone_indexes"));
+        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, "bone_weights"));
         
         // Link program.
         GLDEBUG(glLinkProgram(m_iProgram));

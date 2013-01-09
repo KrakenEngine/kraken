@@ -44,7 +44,7 @@
 #import "KRViewport.h"
 #import "KRRenderSettings.h"
 
-class KRInstance;
+class KRModel;
 class KRScene;
 class KRViewport;
 

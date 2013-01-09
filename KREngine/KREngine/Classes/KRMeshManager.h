@@ -1,5 +1,5 @@
 //
-//  KRModelManager.h
+//  KRMeshManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,36 +29,36 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMODELMANAGER_H
-#define KRMODELMANAGER_H
+#ifndef KRMESHMANAGER_H
+#define KRMESHMANAGER_H
 
 #import "KREngine-common.h"
 #import "KRContextObject.h"
 #import "KRDataBlock.h"
 
 class KRContext;
-class KRModel;
+class KRMesh;
 
 #include <map>
 #import <string>
 using std::map;
 
-class KRModelManager : public KRContextObject {
+class KRMeshManager : public KRContextObject {
 public:
     static const int KRENGINE_MAX_VOLUMETRIC_PLANES=500;
     static const int KRENGINE_MAX_RANDOM_PARTICLES=150000;
     
-    KRModelManager(KRContext &context);
-    virtual ~KRModelManager();
+    KRMeshManager(KRContext &context);
+    virtual ~KRMeshManager();
     
     void rotateBuffers(bool new_frame);
     
-    KRModel *loadModel(const char *szName, KRDataBlock *pData);
-    std::vector<KRModel *> getModel(const char *szName);
-    void addModel(KRModel *model);
+    KRMesh *loadModel(const char *szName, KRDataBlock *pData);
+    std::vector<KRMesh *> getModel(const char *szName);
+    void addModel(KRMesh *model);
     
     std::vector<std::string> getModelNames();
-    std::multimap<std::string, KRModel *> getModels();
+    std::multimap<std::string, KRMesh *> getModels();
     
     
     void bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights);
@@ -92,7 +92,7 @@ public:
     VolumetricLightingVertexData *getVolumetricLightingVertexes();
     
 private:
-    std::multimap<std::string, KRModel *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
+    std::multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
     typedef struct vbo_info {
         GLuint vbo_handle;

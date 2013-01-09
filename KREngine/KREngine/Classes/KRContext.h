@@ -15,7 +15,7 @@
 #import "KRTextureManager.h"
 #import "KRMaterialManager.h"
 #import "KRShaderManager.h"
-#import "KRModelManager.h"
+#import "KRMeshManager.h"
 #import "KRAnimationManager.h"
 #import "KRAnimationCurveManager.h"
 #import "KRAudioManager.h"
@@ -46,7 +46,7 @@ public:
     KRTextureManager *getTextureManager();
     KRMaterialManager *getMaterialManager();
     KRShaderManager *getShaderManager();
-    KRModelManager *getModelManager();
+    KRMeshManager *getModelManager();
     KRAnimationManager *getAnimationManager();
     KRAnimationCurveManager *getAnimationCurveManager();
     KRAudioManager *getAudioManager();
@@ -75,7 +75,7 @@ private:
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
-    KRModelManager *m_pModelManager;
+    KRMeshManager *m_pModelManager;
     KRAnimationManager *m_pAnimationManager;
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;

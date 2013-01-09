@@ -125,7 +125,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
                     GLDEBUG(glDepthFunc(GL_LEQUAL));
                     GLDEBUG(glDepthRangef(0.0, 1.0));
                     
-                    GLDEBUG(glVertexAttribPointer(KRModel::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+                    GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
                 }
             }
