@@ -593,91 +593,93 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
         //        FbxAnimStack* pAnimStack = FbxCast<FbxAnimStack>(pFbxScene->GetSrcObject(FBX_TYPE(FbxAnimStack), i));
         FbxAnimStack* pAnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
         KRAnimation *pAnimation = parent_node->getContext().getAnimationManager()->getAnimation(pAnimStack->GetName());
-        int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
-        for(int iLayer=0; iLayer < cLayers; iLayer++) {
-            FbxAnimLayer *pFbxAnimLayer = pAnimStack->GetMember<FbxAnimLayer>(iLayer);
-            float weight = pFbxAnimLayer->Weight.Get();
-            KRAnimationLayer *pAnimationLayer = pAnimation->getLayer(pFbxAnimLayer->GetName());
-            
-            FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y);
-                pAnimationLayer->addAttribute(new_attribute);
-            }
-            
-            pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
-            if(pAnimCurve) {
-                KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
-                new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
-                new_attribute->setTargetName(GetFbxObjectName(pNode));
-                new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z);
-                pAnimationLayer->addAttribute(new_attribute);
+        if(pAnimation) {
+            int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
+            for(int iLayer=0; iLayer < cLayers; iLayer++) {
+                FbxAnimLayer *pFbxAnimLayer = pAnimStack->GetMember<FbxAnimLayer>(iLayer);
+//                float weight = pFbxAnimLayer->Weight.Get();
+                KRAnimationLayer *pAnimationLayer = pAnimation->getLayer(pFbxAnimLayer->GetName());
+                
+                FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->LclScaling.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
             }
         }
     }
