@@ -29,7 +29,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
 #include "KREngine-common.h"
 
 #include "KREngine.h"

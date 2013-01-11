@@ -85,7 +85,6 @@ using std::queue;
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #if TARGET_OS_IPHONE
-#include <UIKit/UIKit.h>
 #include <OpenAL/oalMacOSX_OALExtensions.h>
 #else
 #include <OpenAL/MacOSX_OALExtensions.h>

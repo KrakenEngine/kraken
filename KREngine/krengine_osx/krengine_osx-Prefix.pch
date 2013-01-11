@@ -5,5 +5,3 @@
 #ifdef __OBJC__
     #include <Cocoa/Cocoa.h>
 #endif
-
-#include "KREngine-common.h"
