@@ -6,8 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-#include <math.h>
+#include "KREngine-common.h"
 
 #include "KRVector2.h"
 

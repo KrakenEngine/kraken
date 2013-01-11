@@ -29,10 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
 #include "KRVector3.h"
-
-#include <math.h>
-#include <limits.h>
 
 //default constructor
 KRVector3::KRVector3()

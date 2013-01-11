@@ -29,11 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRShaderManager.h"
-#include <iostream>
-#include <sstream>
-#include <fstream>
+#include "KREngine-common.h"
 
+#include "KRShaderManager.h"
 #include "KRLight.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"

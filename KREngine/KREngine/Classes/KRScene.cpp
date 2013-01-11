@@ -29,21 +29,20 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include <iostream>
+#include "KREngine-common.h"
+#include "KRVector3.h"
+#include "KRMat4.h"
+#include "tinyxml2.h"
 
-#import "KRVector3.h"
-#import "KRMat4.h"
-#import "tinyxml2.h"
+#include "KRLight.h"
 
-#import "KRLight.h"
-
-#import "KRScene.h"
-#import "KRNode.h"
-#import "KRStockGeometry.h"
-#import "KRDirectionalLight.h"
-#import "KRSpotLight.h"
-#import "KRPointLight.h"
-#import "KRQuaternion.h"
+#include "KRScene.h"
+#include "KRNode.h"
+#include "KRStockGeometry.h"
+#include "KRDirectionalLight.h"
+#include "KRSpotLight.h"
+#include "KRPointLight.h"
+#include "KRQuaternion.h"
 
 const long KRENGINE_OCCLUSION_TEST_EXPIRY = 60;
 

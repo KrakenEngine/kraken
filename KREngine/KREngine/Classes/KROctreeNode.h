@@ -9,7 +9,7 @@
 #ifndef KROCTREENODE_H
 #define KROCTREENODE_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 #include "KRVector3.h"
 #include "KRAABB.h"
 #include "KRHitInfo.h"

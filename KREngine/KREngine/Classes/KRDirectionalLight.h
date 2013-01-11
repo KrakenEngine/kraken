@@ -9,8 +9,8 @@
 #ifndef KREngine_KRDirectionalLight_h
 #define KREngine_KRDirectionalLight_h
 
-#import "KRLight.h"
-#import "KRMat4.h"
+#include "KRLight.h"
+#include "KRMat4.h"
 
 class KRDirectionalLight : public KRLight {
     

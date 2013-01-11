@@ -29,24 +29,17 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <stdint.h>
-#import <vector>
-#import <string>
-#import <stack>
 
-#import "KREngine-common.h"
-
-
-using std::vector;
 
 #ifndef KRSHADER_H
 #define KRSHADER_H
 
-#import "KRShader.h"
-#import "KRMat4.h"
-#import "KRCamera.h"
-#import "KRNode.h"
-#import "KRViewport.h"
+#include "KREngine-common.h"
+#include "KRShader.h"
+#include "KRMat4.h"
+#include "KRCamera.h"
+#include "KRNode.h"
+#include "KRViewport.h"
 
 class KRShader  : public KRContextObject {
 public:

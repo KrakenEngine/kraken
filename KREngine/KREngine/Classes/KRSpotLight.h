@@ -9,7 +9,7 @@
 #ifndef KREngine_KRSpotLight_h
 #define KREngine_KRSpotLight_h
 
-#import "KRLight.h"
+#include "KRLight.h"
 
 class KRSpotLight : public KRLight {
 public:

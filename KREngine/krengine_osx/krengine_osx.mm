@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#import "krengine_osx.h"
+#include "krengine_osx.h"
 
 @implementation krengine_osx
 

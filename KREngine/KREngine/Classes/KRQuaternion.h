@@ -31,10 +31,9 @@
 
 #ifndef KRQUATERNION_H
 #define KRQUATERNION_H
-#include <math.h>
 
-#import "KREngine-common.h"
-#import "KRMat4.h"
+#include "KREngine-common.h"
+#include "KRMat4.h"
 
 class KRVector3;
 

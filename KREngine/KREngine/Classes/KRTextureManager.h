@@ -32,17 +32,13 @@
 #ifndef KRTEXTUREMANAGER_H
 #define KRTEXTUREMANAGER_H
 
+#include "KREngine-common.h"
+
 #include "KRTexture.h"
 #include "KRContextObject.h"
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
-
-#include <map>
-#include <set>
-#import <string>
-
-using std::map;
 
 class KRTextureManager : public KRContextObject {
 public:

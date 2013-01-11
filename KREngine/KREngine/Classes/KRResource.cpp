@@ -6,9 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-
-#import "KRResource.h"
+#include "KREngine-common.h"
+#include "KRResource.h"
 
 KRResource::KRResource(KRContext &context, std::string name) : KRContextObject(context) {
     m_name = name;

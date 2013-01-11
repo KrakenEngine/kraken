@@ -9,7 +9,7 @@
 #ifndef KRPARTICLESYSTEMNEWTONIAN_H
 #define KRPARTICLESYSTEMNEWTONIAN_H
 
-#import "KRParticleSystem.h"
+#include "KRParticleSystem.h"
 
 class KRParticleSystemNewtonian : public KRParticleSystem {
 public:

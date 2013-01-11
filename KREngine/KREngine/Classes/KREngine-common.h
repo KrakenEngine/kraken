@@ -16,27 +16,55 @@
 float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
 
-#import <stdint.h>
-#import <vector>
-#import <string>
-#import <set>
-#import <list>
+#include <stdint.h>
+#include <vector>
+#include <string>
+#include <set>
+#include <list>
+#include <map>
+#include <stack>
+#include <queue>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <stdint.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <time.h>
+#include <limits>
+#include <unistd.h>
+#include <iostream>
+#include <math.h>
+
+
+
+using std::vector;
+using std::string;
+using std::set;
+using std::list;
+using std::map;
+using std::stack;
+using std::queue;
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
-#import <Accelerate/Accelerate.h>
+#include <Accelerate/Accelerate.h>
 #endif
 
 #if TARGET_OS_IPHONE
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 
 
 #else
 
-#import <OpenGL/gl3.h>
-#import <OpenGL/gl3ext.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
 
 // OpenGL ES 2.0 mapping to OpenGL 3.2 mappings
 #define glDepthRangef glDepthRange
@@ -51,15 +79,16 @@ float const D2R = PI * 2 / 360;
 
 #endif
 
-#import <AudioToolbox/AudioToolbox.h>
-#import <AudioToolbox/AudioFile.h>
-#import <AudioToolbox/ExtendedAudioFile.h>
-#import <OpenAL/al.h>
-#import <OpenAL/alc.h>
+#include <AudioToolbox/AudioToolbox.h>
+#include <AudioToolbox/AudioFile.h>
+#include <AudioToolbox/ExtendedAudioFile.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #if TARGET_OS_IPHONE
-#import <OpenAL/oalMacOSX_OALExtensions.h>
+#include <UIKit/UIKit.h>
+#include <OpenAL/oalMacOSX_OALExtensions.h>
 #else
-#import <OpenAL/MacOSX_OALExtensions.h>
+#include <OpenAL/MacOSX_OALExtensions.h>
 #endif
 
 #endif

@@ -32,16 +32,15 @@
 #ifndef KRSCENE_H
 #define KRSCENE_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
-#import <vector>
-#import "KRModel.h"
-#import "KRMat4.h"
-#import "KRMesh.h"
-#import "KRCamera.h"
-#import "KRMeshManager.h"
-#import "KRNode.h"
-#import "KROctree.h"
+#include "KRModel.h"
+#include "KRMat4.h"
+#include "KRMesh.h"
+#include "KRCamera.h"
+#include "KRMeshManager.h"
+#include "KRNode.h"
+#include "KROctree.h"
 class KRModel;
 class KRLight;
 

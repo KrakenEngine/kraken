@@ -9,17 +9,17 @@
 #ifndef KREngine_KRContext_h
 #define KREngine_KRContext_h
 
-#import "KREngine-common.h"
-#import "KRBundleManager.h"
-#import "KRSceneManager.h"
-#import "KRTextureManager.h"
-#import "KRMaterialManager.h"
-#import "KRShaderManager.h"
-#import "KRMeshManager.h"
-#import "KRAnimationManager.h"
-#import "KRAnimationCurveManager.h"
-#import "KRAudioManager.h"
-#import "KRUnknownManager.h"
+#include "KREngine-common.h"
+#include "KRBundleManager.h"
+#include "KRSceneManager.h"
+#include "KRTextureManager.h"
+#include "KRMaterialManager.h"
+#include "KRShaderManager.h"
+#include "KRMeshManager.h"
+#include "KRAnimationManager.h"
+#include "KRAnimationCurveManager.h"
+#include "KRAudioManager.h"
+#include "KRUnknownManager.h"
 
 class KRContext {
 public:

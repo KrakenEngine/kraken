@@ -29,6 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
 #include "KRTextureManager.h"
 #include "KRContext.h"
 #include "KRTexture2D.h"
@@ -37,7 +38,6 @@
 #include "KRTextureCube.h"
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
-#include <string.h>
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
     m_textureMemUsed = 0;

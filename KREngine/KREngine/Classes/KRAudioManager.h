@@ -32,19 +32,12 @@
 #ifndef KRAUDIO_MANAGER_H
 #define KRAUDIO_MANAGER_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #include "KRAudioSample.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
-#include "KRmat4.h"
-
-#include <map>
-#include <set>
-#include <string>
-
-using std::map;
-using std::set;
+#include "KRMat4.h"
 
 const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;

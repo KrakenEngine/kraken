@@ -29,16 +29,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <UIKit/UIKit.h>
 
-#import "KREngine.h"
-#import "KRVector3.h"
-#import "KRScene.h"
-#import "KRSceneManager.h"
-#import "KRNode.h"
+#include "KREngine-common.h"
 
-#import <string>
-#import <sstream> 
+#include "KREngine.h"
+#include "KRVector3.h"
+#include "KRScene.h"
+#include "KRSceneManager.h"
+#include "KRNode.h"
 
 using namespace std;
 

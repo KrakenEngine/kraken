@@ -32,18 +32,13 @@
 #ifndef KRANIMATIONMANAGER_H
 #define KRANIMATIONMANAGER_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #include "KRAnimation.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-#include <map>
-#include <set>
-#import <string>
 
-using std::map;
-using std::set;
 
 class KRAnimationManager : public KRContextObject {
 public:

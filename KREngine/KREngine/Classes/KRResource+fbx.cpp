@@ -6,18 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <sstream>
-#include <assert.h>
-#include <vector.h>
+#include "KREngine-common.h"
 
 #include <fbxsdk.h>
 
@@ -121,8 +110,10 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         FbxAnimStack *animation = pFbxScene->GetSrcObject<FbxAnimStack>(i);
         printf("  Animation %i of %i: %s\n", i+1, animation_count, animation->GetName());
         KRAnimation *new_animation = LoadAnimation(context, animation);
-        context.getAnimationManager()->addAnimation(new_animation);
-        resources.push_back(new_animation);
+        if(new_animation) {
+            context.getAnimationManager()->addAnimation(new_animation);
+            resources.push_back(new_animation);
+        }
     }
     
     // ----====---- Import Animation Curves ----====----
@@ -132,8 +123,10 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
         printf("  Animation Curve %i of %i: %s\n", i+1, curve_count, curve->GetName());
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
-        context.getAnimationCurveManager()->addAnimationCurve(new_curve);
-        resources.push_back(new_curve);
+        if(new_curve) {
+            context.getAnimationCurveManager()->addAnimationCurve(new_curve);
+            resources.push_back(new_curve);
+        }
     }
     
     // ----====---- Import Meshes ----====----
@@ -179,7 +172,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     KRBundle *main_bundle = new KRBundle(context, base_name);
     KRBundle texture_bundle(context, base_name + "_textures");
     KRBundle animation_bundle(context, base_name + "_animations");
-//    KRBundle material_bundle(context, base_name + "_materials");
+    KRBundle material_bundle(context, base_name + "_materials");
     KRBundle meshes_bundle(context, base_name + "_meshes");
     
     for(std::vector<KRResource *>::iterator resource_itr=resources.begin(); resource_itr != resources.end(); resource_itr++) {
@@ -188,8 +181,10 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
             texture_bundle.append(*resource);
         } else if(dynamic_cast<KRAnimation *>(resource) != NULL) {
             animation_bundle.append(*resource);
-//        } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
-//            material_bundle.append(*resource);
+        } else if(dynamic_cast<KRAnimationCurve *>(resource) != NULL) {
+            animation_bundle.append(*resource);
+        } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
+            material_bundle.append(*resource);
         } else if(dynamic_cast<KRMesh *>(resource) != NULL) {
             meshes_bundle.append(*resource);
         } else {
@@ -199,7 +194,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     
     main_bundle->append(texture_bundle);
     main_bundle->append(animation_bundle);
-//    main_bundle->append(material_bundle);
+    main_bundle->append(material_bundle);
     main_bundle->append(meshes_bundle);
     
     std::vector<KRResource *> output_resources;

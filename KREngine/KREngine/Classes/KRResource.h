@@ -6,14 +6,9 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#import <stdint.h>
-#import <vector>
-#import <set>
-#import <list>
-#import <string>
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
 
 #ifndef KRRESOURCE_H
 #define KRRESOURCE_H

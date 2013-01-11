@@ -29,12 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include <iostream>
-#import "KRModel.h"
-#import "KRContext.h"
-#import "KRMesh.h"
-#import "KRQuaternion.h"
-#include <assert.h>
+#include "KREngine-common.h"
+
+#include "KRModel.h"
+#include "KRContext.h"
+#include "KRMesh.h"
+#include "KRQuaternion.h"
 
 KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera) : KRNode(scene, instance_name) {
     m_lightMap = light_map;

@@ -31,7 +31,7 @@
 
 #include "KRBundleManager.h"
 
-#import "KRBundle.h"
+#include "KRBundle.h"
 
 KRBundleManager::KRBundleManager(KRContext &context) : KRContextObject(context) {
     

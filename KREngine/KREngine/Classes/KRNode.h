@@ -9,11 +9,10 @@
 #ifndef KRNODE_H
 #define KRNODE_H
 
-#import "KRResource.h"
-#import "KRVector3.h"
-#import "KRViewport.h"
-#import "tinyxml2.h"
-#import <stack.h>
+#include "KRResource.h"
+#include "KRVector3.h"
+#include "KRViewport.h"
+#include "tinyxml2.h"
 
 class KRCamera;
 class KRShaderManager;

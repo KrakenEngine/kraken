@@ -6,14 +6,14 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
+#include "KREngine-common.h"
 
-#import "KRDirectionalLight.h"
-#import "KRShader.h"
-#import "KRContext.h"
-#import "KRMat4.h"
-#import "assert.h"
-#import "KRStockGeometry.h"
+#include "KRDirectionalLight.h"
+#include "KRShader.h"
+#include "KRContext.h"
+#include "KRMat4.h"
+#include "assert.h"
+#include "KRStockGeometry.h"
 
 KRDirectionalLight::KRDirectionalLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {

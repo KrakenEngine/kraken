@@ -34,9 +34,9 @@
 #ifndef KRTEXTURE_H
 #define KRTEXTURE_H
 
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRResource.h"
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRResource.h"
 
 
 class KRDataBlock;

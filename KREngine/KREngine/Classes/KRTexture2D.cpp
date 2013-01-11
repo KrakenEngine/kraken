@@ -29,17 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
 #include "KRTexture2D.h"
 #include "KRTextureManager.h"
-
-#import <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#import <stdint.h>
-#import <assert.h>
 
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data, std::string name) : KRTexture(context, name) {
     m_current_lod_max_dim = 0;

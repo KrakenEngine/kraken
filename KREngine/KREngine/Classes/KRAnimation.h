@@ -32,12 +32,12 @@
 #ifndef KRANIMATION_H
 #define KRANIMATION_H
 
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
-#import "KRResource.h"
-#import "KRAnimationLayer.h"
-#import <map>
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
+#include "KRResource.h"
+#include "KRAnimationLayer.h"
+
 
 class KRAnimation : public KRResource {
     

@@ -29,14 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
 #include "KRMaterialManager.h"
-
-#import <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 
 KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager) : KRContextObject(context)

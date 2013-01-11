@@ -32,18 +32,11 @@
 #ifndef KRUNKNOWN_MANAGER_H
 #define KRUNKNOWN_MANAGER_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #include "KRUnknown.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
-
-#include <map>
-#include <set>
-#include <string>
-
-using std::map;
-using std::set;
 
 class KRUnknownManager : public KRContextObject {
 public:

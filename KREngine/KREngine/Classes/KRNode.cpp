@@ -6,23 +6,21 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-#include <assert.h>
-#include <limits>
+#include "KREngine-common.h"
 
-#import "KRNode.h"
-#import "KRPointLight.h"
-#import "KRSpotLight.h"
-#import "KRDirectionalLight.h"
-#import "KRModel.h"
-#import "KRCollider.h"
-#import "KRParticleSystem.h"
-#import "KRParticleSystemNewtonian.h"
-#import "KRAABB.h"
-#import "KRQuaternion.h"
-#import "KRBone.h"
-#import "KRAudioSource.h"
-#import "KRReverbZone.h"
+#include "KRNode.h"
+#include "KRPointLight.h"
+#include "KRSpotLight.h"
+#include "KRDirectionalLight.h"
+#include "KRModel.h"
+#include "KRCollider.h"
+#include "KRParticleSystem.h"
+#include "KRParticleSystemNewtonian.h"
+#include "KRAABB.h"
+#include "KRQuaternion.h"
+#include "KRBone.h"
+#include "KRAudioSource.h"
+#include "KRReverbZone.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -233,7 +231,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         }
         new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
     } else if(strcmp(szElementName, "collider") == 0) {
-        new_node = new KRCollider(scene, szName, e->Attribute("collider_name"), 65535, 1.0f);
+        new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
     } else if(strcmp(szElementName, "audio_source") == 0) {

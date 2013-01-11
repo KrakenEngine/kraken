@@ -29,13 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <stdint.h>
-#import <vector>
-#import <map>
-#import <string>
-#import "KRCamera.h"
-#import "KRDataBlock.h"
-#import "KRNode.h"
+
+#include "KREngine-common.h"
+
+#include "KRCamera.h"
+#include "KRDataBlock.h"
+#include "KRNode.h"
 
 using std::map;
 using std::vector;

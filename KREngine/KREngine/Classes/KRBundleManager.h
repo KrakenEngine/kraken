@@ -33,16 +33,12 @@
 #ifndef KRBUNDLEMANAGER_H
 #define KRBUNDLEMANAGER_H
 
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
 
 class KRContext;
 class KRBundle;
-
-#include <map>
-#import <string>
-using std::map;
 
 class KRBundleManager : public KRContextObject {
 public:

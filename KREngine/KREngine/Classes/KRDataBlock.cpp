@@ -29,15 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include <iostream>
-
 #include "KRDataBlock.h"
-#include <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <assert.h>
 
 KRDataBlock::KRDataBlock() {
     m_data = NULL;

@@ -30,9 +30,9 @@
 //
 
 
-#import "KRVector3.h"
+#include "KRVector3.h"
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #ifndef KRMAT4_I
 #define KRMAT4_I

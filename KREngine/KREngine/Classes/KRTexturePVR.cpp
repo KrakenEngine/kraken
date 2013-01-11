@@ -32,15 +32,7 @@
 #include "KRTexturePVR.h"
 #include "KRTextureManager.h"
 
-#import <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#import <stdint.h>
-#import <assert.h>
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 
 #define PVR_TEXTURE_FLAG_TYPE_MASK	0xff

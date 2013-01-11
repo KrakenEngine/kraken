@@ -9,10 +9,10 @@
 #ifndef KRENGINE_KRVIEWPORT_H
 #define KRENGINE_KRVIEWPORT_H
 
+#include "KREngine-common.h"
 #include "KRVector2.h"
 #include "KRMat4.h"
 #include "KRAABB.h"
-#include <map.h>
 
 class KRLight;
 

@@ -29,7 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #ifndef KRCOLLIDER_H
 #define KRCOLLIDER_H
@@ -37,16 +37,16 @@
 #define KRAKEN_COLLIDER_PHYSICS 1
 #define KRAKEN_COLLIDER_AUDIO 2
 
-#import "KRMesh.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRModel.h"
-#import "KRCamera.h"
-#import "KRMeshManager.h"
-#import "KRNode.h"
-#import "KRContext.h"
-#import "KRMesh.h"
-#import "KRTexture.h"
+#include "KRMesh.h"
+#include "KRMat4.h"
+#include "KRVector3.h"
+#include "KRModel.h"
+#include "KRCamera.h"
+#include "KRMeshManager.h"
+#include "KRNode.h"
+#include "KRContext.h"
+#include "KRMesh.h"
+#include "KRTexture.h"
 
 class KRCollider : public KRNode {
     

@@ -29,12 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include <iostream>
+#include "KREngine-common.h"
 #include "KRCollider.h"
-#import "KRContext.h"
-#import "KRMesh.h"
-#import "KRQuaternion.h"
-#include <assert.h>
+#include "KRContext.h"
+#include "KRMesh.h"
+#include "KRQuaternion.h"
+
 
 KRCollider::KRCollider(KRScene &scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion) : KRNode(scene, collider_name) {
     m_model_name = model_name;

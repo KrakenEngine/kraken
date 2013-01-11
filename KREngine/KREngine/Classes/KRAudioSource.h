@@ -32,11 +32,10 @@
 #ifndef KRAUDIOSOURCE_H
 #define KRAUDIOSOURCE_H
 
-#import "KRResource.h"
-#import "KRNode.h"
-#import "KRTexture.h"
-
-#include <queue>
+#include "KREngine-common.h"
+#include "KRResource.h"
+#include "KRNode.h"
+#include "KRTexture.h"
 
 class KRAudioSample;
 class KRAudioBuffer;

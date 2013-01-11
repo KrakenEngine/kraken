@@ -29,17 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
+
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <iostream>
-#include <sstream>
-#include <fcntl.h>
-#include <stdio.h>
 
-#import "KRcontext.h"
+#include "KRcontext.h"
 
 KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(context, szName) {
     strcpy(m_szName, szName);
@@ -83,7 +78,7 @@ std::string KRMaterial::getExtension() {
 bool KRMaterial::save(KRDataBlock &data) {
     std::stringstream stream;
     stream.precision(std::numeric_limits<long double>::digits10);
-    stream.setf(ios::fixed,ios::floatfield);
+    stream.setf(std::ios::fixed,std::ios::floatfield);
     
     stream << "newmtl " << m_szName;
     stream << "\nka " << m_ambientColor.x << " " << m_ambientColor.y << " " << m_ambientColor.z;

@@ -193,7 +193,7 @@
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
-		E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* krengine_osx.m */; };
+		E4BBBB8E1512A40300F43B5B /* krengine_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* krengine_osx.mm */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
 		E4BBBB9D1512A4AC00F43B5B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB981512A47500F43B5B /* CoreData.framework */; };
 		E4BBBB9E1512A4AE00F43B5B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB961512A46700F43B5B /* AppKit.framework */; };
@@ -292,9 +292,9 @@
 		E414BAE6143557D200A668C4 /* KRScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRScene.h; path = Classes/KRScene.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E414BAE81435585A00A668C4 /* KRScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRScene.cpp; path = Classes/KRScene.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRUnknownManager.cpp; path = Classes/KRUnknownManager.cpp; sourceTree = "<group>"; };
-		E414F9A51694D977000B3D58 /* KRUnknownManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRUnknownManager.h; path = Classes/KRUnknownManager.h; sourceTree = "<group>"; };
+		E414F9A51694D977000B3D58 /* KRUnknownManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRUnknownManager.h; path = Classes/KRUnknownManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRUnknown.cpp; path = Classes/KRUnknown.cpp; sourceTree = "<group>"; };
-		E414F9AB1694DA37000B3D58 /* KRUnknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRUnknown.h; path = Classes/KRUnknown.h; sourceTree = "<group>"; };
+		E414F9AB1694DA37000B3D58 /* KRUnknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRUnknown.h; path = Classes/KRUnknown.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E416AA9816713749000F6786 /* KRAnimationCurveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationCurveManager.h; path = Classes/KRAnimationCurveManager.h; sourceTree = "<group>"; };
 		E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationCurveManager.cpp; path = Classes/KRAnimationCurveManager.cpp; sourceTree = "<group>"; };
 		E41B841D16260C5600C7A771 /* sky_box.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.fsh; path = Shaders/sky_box.fsh; sourceTree = "<group>"; };
@@ -347,7 +347,7 @@
 		E461A15B152E563000F2044A /* KRDirectionalLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRDirectionalLight.h; path = Classes/KRDirectionalLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E461A15E152E565700F2044A /* KRDirectionalLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRDirectionalLight.cpp; path = Classes/KRDirectionalLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A164152E56C000F2044A /* KRSpotLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRSpotLight.cpp; path = Classes/KRSpotLight.cpp; sourceTree = "<group>"; };
-		E461A167152E570500F2044A /* KRSpotLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRSpotLight.h; path = Classes/KRSpotLight.h; sourceTree = "<group>"; };
+		E461A167152E570500F2044A /* KRSpotLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRSpotLight.h; path = Classes/KRSpotLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "KRResource+blend.cpp"; path = "Classes/KRResource+blend.cpp"; sourceTree = "<group>"; };
 		E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "KRResource+blend.h"; path = "Classes/KRResource+blend.h"; sourceTree = "<group>"; };
 		E46C214115364BC8009CABF3 /* tinyxml2_readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = tinyxml2_readme.txt; path = KREngine/Classes/tinyxml2_readme.txt; sourceTree = "<group>"; };
@@ -407,7 +407,7 @@
 		E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KROctreeNode.h; path = Classes/KROctreeNode.h; sourceTree = "<group>"; };
 		E494322F169E08D200BCB891 /* KRReverbZone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRReverbZone.cpp; path = Classes/KRReverbZone.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E4943230169E08D200BCB891 /* KRReverbZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRReverbZone.h; path = Classes/KRReverbZone.h; sourceTree = "<group>"; };
-		E497B943151BA93400D3DC67 /* KRVector2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KRVector2.h; path = Classes/KRVector2.h; sourceTree = "<group>"; };
+		E497B943151BA93400D3DC67 /* KRVector2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRVector2.h; path = Classes/KRVector2.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E497B945151BA99400D3DC67 /* KRVector2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRVector2.cpp; path = Classes/KRVector2.cpp; sourceTree = "<group>"; };
 		E497B949151BCEE900D3DC67 /* KRResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRResource.h; path = Classes/KRResource.h; sourceTree = "<group>"; };
 		E497B94C151BCF2500D3DC67 /* KRResource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRResource.cpp; path = Classes/KRResource.cpp; sourceTree = "<group>"; };
@@ -418,7 +418,7 @@
 		E4A9DEBD154120C4009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; name = light_point.fsh; path = Shaders/light_point.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4A9DEC0154120E8009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = Shaders/light_point.vsh; sourceTree = "<group>"; };
 		E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexture.cpp; path = Classes/KRTexture.cpp; sourceTree = "<group>"; };
-		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; };
+		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRTexture.h; path = Classes/KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureCube.cpp; path = Classes/KRTextureCube.cpp; sourceTree = "<group>"; };
 		E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureCube.h; path = Classes/KRTextureCube.h; sourceTree = "<group>"; };
 		E4BBBB7E1512A40300F43B5B /* krengine_osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = krengine_osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -426,7 +426,7 @@
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E4BBBB8B1512A40300F43B5B /* krengine_osx-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "krengine_osx-Prefix.pch"; sourceTree = "<group>"; };
 		E4BBBB8C1512A40300F43B5B /* krengine_osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = krengine_osx.h; sourceTree = "<group>"; };
-		E4BBBB8D1512A40300F43B5B /* krengine_osx.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = krengine_osx.m; sourceTree = "<group>"; };
+		E4BBBB8D1512A40300F43B5B /* krengine_osx.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = krengine_osx.mm; sourceTree = "<group>"; };
 		E4BBBB941512A45500F43B5B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E4BBBB961512A46700F43B5B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		E4BBBB981512A47500F43B5B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -438,7 +438,7 @@
 		E4C454B7167BD235003586CD /* KRHitInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRHitInfo.h; path = Classes/KRHitInfo.h; sourceTree = "<group>"; };
 		E4C454BA167BD248003586CD /* KRHitInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRHitInfo.cpp; path = Classes/KRHitInfo.cpp; sourceTree = "<group>"; };
 		E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTexturePVR.h; path = Classes/KRTexturePVR.h; sourceTree = "<group>"; };
-		E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTexturePVR.cpp; path = Classes/KRTexturePVR.cpp; sourceTree = "<group>"; };
+		E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRTexturePVR.cpp; path = Classes/KRTexturePVR.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRTextureTGA.h; path = Classes/KRTextureTGA.h; sourceTree = "<group>"; };
 		E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRTextureTGA.cpp; path = Classes/KRTextureTGA.cpp; sourceTree = "<group>"; };
 		E4CA10F51638BCAE005D9400 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -882,7 +882,7 @@
 			isa = PBXGroup;
 			children = (
 				E4BBBB8C1512A40300F43B5B /* krengine_osx.h */,
-				E4BBBB8D1512A40300F43B5B /* krengine_osx.m */,
+				E4BBBB8D1512A40300F43B5B /* krengine_osx.mm */,
 				E4BBBB861512A40300F43B5B /* Supporting Files */,
 			);
 			path = krengine_osx;
@@ -1226,7 +1226,7 @@
 				E461A175152E5C4800F2044A /* KRLight.cpp in Sources */,
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
 				E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */,
-				E4BBBB8E1512A40300F43B5B /* krengine_osx.m in Sources */,
+				E4BBBB8E1512A40300F43B5B /* krengine_osx.mm in Sources */,
 				E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */,
 				E497B94E151BCF2500D3DC67 /* KRResource.cpp in Sources */,
 				E497B951151BD2CE00D3DC67 /* KRResource+obj.cpp in Sources */,

@@ -29,16 +29,15 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-// #import "KRTextureManager.h"
-#import <map>
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRMesh.h"
-#import "KRScene.h"
-#import "KRContext.h"
-#import "KRCamera.h"
+// #include "KRTextureManager.h"
+#include "KRMat4.h"
+#include "KRVector3.h"
+#include "KRMesh.h"
+#include "KRScene.h"
+#include "KRContext.h"
+#include "KRCamera.h"
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL} KREngineParameterType;
 

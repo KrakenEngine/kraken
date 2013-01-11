@@ -29,12 +29,13 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRMeshManager.h"
-#include <assert.h>
+#include "KREngine-common.h"
 
-#import "KRMesh.h"
-#import "KRMeshCube.h"
-#import "KRMeshSphere.h"
+#include "KRMeshManager.h"
+
+#include "KRMesh.h"
+#include "KRMeshCube.h"
+#include "KRMeshSphere.h"
 
 KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.vbo_handle = 0;

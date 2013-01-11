@@ -31,8 +31,7 @@
 
 #include "KRBundle.h"
 #include "KRContext.h"
-#include <assert.h>
-#include <time.h>
+#include "KREngine-common.h"
 
 const int KRENGINE_KRBUNDLE_HEADER_SIZE = 512;
 

@@ -9,7 +9,7 @@
 #ifndef KROCTREE_H
 #define KROCTREE_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 #include "KROctreeNode.h"
 #include "KRMat4.h"
 #include "KRHitInfo.h"

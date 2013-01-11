@@ -35,15 +35,12 @@
 
 
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
-
 #include "KRMaterialManager.h"
 
-#include <map>
-#import <string>
 
 using std::map;
 

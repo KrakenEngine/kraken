@@ -9,7 +9,7 @@
 #ifndef KRPARTICLESYSTEM_H
 #define KRPARTICLESYSTEM_H
 
-#import "KRNode.h"
+#include "KRNode.h"
 
 class KRParticleSystem : public KRNode {
 public:

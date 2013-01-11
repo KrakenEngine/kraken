@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
+#include "KREngine-common.h"
 
 #include "KRContext.h"
 #include "KRCamera.h"

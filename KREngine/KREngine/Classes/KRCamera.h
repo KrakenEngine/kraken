@@ -32,17 +32,17 @@
 #ifndef KRCAMERA_H
 #define KRCAMERA_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
-#import "KRMat4.h"
-#import "KRVector2.h"
-#import "KRAABB.h"
-#import "KRShader.h"
-#import "KRContextObject.h"
-#import "KRTexture.h"
-#import "KRContext.h"
-#import "KRViewport.h"
-#import "KRRenderSettings.h"
+#include "KRMat4.h"
+#include "KRVector2.h"
+#include "KRAABB.h"
+#include "KRShader.h"
+#include "KRContextObject.h"
+#include "KRTexture.h"
+#include "KRContext.h"
+#include "KRViewport.h"
+#include "KRRenderSettings.h"
 
 class KRModel;
 class KRScene;

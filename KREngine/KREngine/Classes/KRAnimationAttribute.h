@@ -32,11 +32,11 @@
 #ifndef KRANIMATIONATTRIBUTE_H
 #define KRANIMATIONATTRIBUTE_H
 
-#import "KRContextObject.h"
-#import "KREngine-common.h"
-#import "tinyxml2.h"
-#import "KRNode.h"
-#import "KRAnimationCurve.h"
+#include "KRContextObject.h"
+#include "KREngine-common.h"
+#include "tinyxml2.h"
+#include "KRNode.h"
+#include "KRAnimationCurve.h"
 
 class KRAnimationAttribute : public KRContextObject {
 public:

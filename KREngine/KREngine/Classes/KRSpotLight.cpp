@@ -6,9 +6,8 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-
-#import "KRSpotLight.h"
+#include "KREngine-common.h"
+#include "KRSpotLight.h"
 
 KRSpotLight::KRSpotLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {

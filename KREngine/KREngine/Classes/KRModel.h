@@ -31,22 +31,22 @@
 
 
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #ifndef KRMODEL_H
 #define KRMODEL_H
 
-#import "KRMesh.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRModel.h"
-#import "KRCamera.h"
-#import "KRMeshManager.h"
-#import "KRNode.h"
-#import "KRContext.h"
-#import "KRMesh.h"
-#import "KRTexture.h"
-#import "KRBone.h"
+#include "KRMesh.h"
+#include "KRMat4.h"
+#include "KRVector3.h"
+#include "KRModel.h"
+#include "KRCamera.h"
+#include "KRMeshManager.h"
+#include "KRNode.h"
+#include "KRContext.h"
+#include "KRMesh.h"
+#include "KRTexture.h"
+#include "KRBone.h"
 
 class KRModel : public KRNode {
     

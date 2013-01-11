@@ -29,9 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include "KREngine-common.h"
 
 #include "KRMat4.h"
 #include "KRQuaternion.h"

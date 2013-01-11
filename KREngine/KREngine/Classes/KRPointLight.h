@@ -9,8 +9,8 @@
 #ifndef KRPOINTLIGHT_H
 #define KRPOINTLIGHT_H
 
-#import "KRLight.h"
-#import "KRMat4.h"
+#include "KRLight.h"
+#include "KRMat4.h"
 
 class KRPointLight : public KRLight {
     

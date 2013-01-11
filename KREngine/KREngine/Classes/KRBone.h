@@ -9,9 +9,9 @@
 #ifndef KRBONE_H
 #define KRBONE_H
 
-#import "KRResource.h"
-#import "KRNode.h"
-#import "KRTexture.h"
+#include "KRResource.h"
+#include "KRNode.h"
+#include "KRTexture.h"
 
 class KRBone : public KRNode {
 public:

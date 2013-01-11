@@ -32,16 +32,12 @@
 #ifndef KRMESHMANAGER_H
 #define KRMESHMANAGER_H
 
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
 
 class KRContext;
 class KRMesh;
-
-#include <map>
-#import <string>
-using std::map;
 
 class KRMeshManager : public KRContextObject {
 public:

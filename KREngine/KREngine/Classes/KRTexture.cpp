@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <assert.h>
+#include "KREngine-common.h"
 #include "KRTexture.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"

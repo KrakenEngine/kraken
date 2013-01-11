@@ -6,16 +6,14 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
-#include <math.h>
+#include "KREngine-common.h"
 
-#import "KRPointLight.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRCamera.h"
-#import "KRContext.h"
-#import "KRStockGeometry.h"
-#import "assert.h"
+#include "KRPointLight.h"
+#include "KRMat4.h"
+#include "KRVector3.h"
+#include "KRCamera.h"
+#include "KRContext.h"
+#include "KRStockGeometry.h"
 
 KRPointLight::KRPointLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {

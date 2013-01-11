@@ -29,7 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <assert.h>
+#include "KREngine-common.h"
 #include "KRTextureAnimated.h"
 #include "KRTexture2D.h"
 #include "KRContext.h"

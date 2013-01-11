@@ -32,6 +32,8 @@
 #ifndef KREngine_KRDataBlock_h
 #define KREngine_KRDataBlock_h
 
+#include "KREngine-common.h"
+
 class KRDataBlock {
 public:
     KRDataBlock();

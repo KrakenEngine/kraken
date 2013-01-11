@@ -28,20 +28,13 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#import <stdint.h>
-#import <vector>
-#import <set>
-#import <string>
-#import "KRVector2.h"
-#import "KRContext.h"
-#import "KRBone.h"
+#include "KREngine-common.h"
 
-#import "KREngine-common.h"
+#include "KRVector2.h"
+#include "KRContext.h"
+#include "KRBone.h"
 
-using std::vector;
-using std::set;
-using std::list;
-
+#include "KREngine-common.h"
 
 #define MAX_VBO_SIZE 65535
 #define KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX 4
@@ -53,10 +46,10 @@ using std::list;
 #ifndef KRMesh_I
 #define KRMesh_I
 
-#import "KRMaterialManager.h"
-#import "KRCamera.h"
-#import "KRViewport.h"
-#import "KRHitInfo.h"
+#include "KRMaterialManager.h"
+#include "KRCamera.h"
+#include "KRViewport.h"
+#include "KRHitInfo.h"
 
 class KRMaterial;
 class KRNode;

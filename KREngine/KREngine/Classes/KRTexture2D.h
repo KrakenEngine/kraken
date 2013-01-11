@@ -29,12 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <stdint.h>
-#import <list>
-#import <string>
-
-#import "KREngine-common.h"
-#import "KRDataBlock.h"
+#include "KREngine-common.h"
+#include "KRDataBlock.h"
 
 using std::list;
 

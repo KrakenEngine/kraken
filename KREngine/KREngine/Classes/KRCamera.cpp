@@ -29,17 +29,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <string>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#import <assert.h>
-#include <stack.h>
-
-#import "KRVector2.h"
-#import "KRCamera.h"
-#import "KRStockGeometry.h"
-#import "KRDirectionalLight.h"
+#include "KREngine-common.h"
+#include "KRVector2.h"
+#include "KRCamera.h"
+#include "KRStockGeometry.h"
+#include "KRDirectionalLight.h"
 
 KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_particlesAbsoluteTime = 0.0f;

@@ -32,8 +32,8 @@
 #ifndef KRHITINFO_H
 #define KRHITINFO_H
 
-#import "KRVector3.h"
-#import "KRNode.h"
+#include "KRVector3.h"
+#include "KRNode.h"
 
 class KRHitInfo {
 public:

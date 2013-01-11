@@ -30,7 +30,7 @@
 //
 
 #include "KRShader.h"
-#import "assert.h"
+#include "assert.h"
 #include "KRLight.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"

@@ -29,22 +29,15 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <stdint.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <assert.h>
 
+#include "KREngine-common.h"
 
 #include "KRMesh.h"
 
 #include "KRVector3.h"
-#import "KRShader.h"
-#import "KRShaderManager.h"
-#import "KRContext.h"
+#include "KRShader.h"
+#include "KRShaderManager.h"
+#include "KRContext.h"
 
 
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)  {

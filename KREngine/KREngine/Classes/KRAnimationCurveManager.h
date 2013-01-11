@@ -32,14 +32,11 @@
 #ifndef KRANIMATIONCURVEMANAGER_H
 #define KRANIMATIONCURVEMANAGER_H
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 #include "KRAnimationCurve.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
-
-#include <map>
-#import <string>
 
 using std::map;
 

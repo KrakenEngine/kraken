@@ -6,22 +6,20 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include <iostream>
 
+#include "KREngine-common.h"
+#include "KRLight.h"
 
+#include "KRNode.h"
+#include "KRMat4.h"
+#include "KRVector3.h"
+#include "KRCamera.h"
+#include "KRContext.h"
 
-#import "KRLight.h"
+#include "KRShaderManager.h"
+#include "KRShader.h"
+#include "KRStockGeometry.h"
 
-#import "KRNode.h"
-#import "KRMat4.h"
-#import "KRVector3.h"
-#import "KRCamera.h"
-#import "KRContext.h"
-
-#import "KRShaderManager.h"
-#import "KRShader.h"
-#import "KRStockGeometry.h"
-#import "assert.h"
 
 KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
 {

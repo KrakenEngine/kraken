@@ -32,10 +32,10 @@
 #ifndef KRANIMATIONLAYER_H
 #define KRANIMATIONLAYER_H
 
-#import "KRContextObject.h"
-#import "KREngine-common.h"
-#import "tinyxml2.h"
-#import "KRAnimationAttribute.h"
+#include "KRContextObject.h"
+#include "KREngine-common.h"
+#include "tinyxml2.h"
+#include "KRAnimationAttribute.h"
 
 class KRAnimationLayer : public KRContextObject {
 public:

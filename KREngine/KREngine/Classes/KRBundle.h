@@ -31,9 +31,9 @@
 #ifndef KRBUNDLE_H
 #define KRBUNDLE_H
 
-#import "KREngine-common.h"
-#import "KRResource.h"
-#import "KRDataBlock.h"
+#include "KREngine-common.h"
+#include "KRResource.h"
+#include "KRDataBlock.h"
 
 class KRBundle : public KRResource {
 public:

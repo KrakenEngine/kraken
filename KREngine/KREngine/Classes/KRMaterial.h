@@ -29,22 +29,16 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#import <stdint.h>
-#import <list>
-#import <string>
+#include "KREngine-common.h"
 
-#import "KREngine-common.h"
-
-using std::list;
-
-#import "KRTexture.h"
-#import "KRShaderManager.h"
-#import "KRShader.h"
-#import "KRCamera.h"
-#import "KRResource.h"
-#import "KRVector2.h"
-#import "KRScene.h"
-#import "KRBone.h"
+#include "KRTexture.h"
+#include "KRShaderManager.h"
+#include "KRShader.h"
+#include "KRCamera.h"
+#include "KRResource.h"
+#include "KRVector2.h"
+#include "KRScene.h"
+#include "KRBone.h"
 
 #ifndef KRMATERIAL_H
 #define KRMATERIAL_H

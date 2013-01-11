@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#include <Foundation/Foundation.h>
 
 @interface krengine_osx : NSObject
 

@@ -32,11 +32,10 @@
 #ifndef KRUNKNOWN_H
 #define KRUNKNOWN_H
 
-#import "KREngine-common.h"
-#import "KRContextObject.h"
-#import "KRDataBlock.h"
-#import "KRResource.h"
-#import <map>
+#include "KREngine-common.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
+#include "KRResource.h"
 
 class KRUnknown : public KRResource {
     

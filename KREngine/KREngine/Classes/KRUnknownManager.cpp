@@ -55,7 +55,7 @@ void KRUnknownManager::add(KRUnknown *unknown)
     
     map<std::string, map<std::string, KRUnknown *> >::iterator extension_itr = m_unknowns.find(lower_extension);
     if(extension_itr == m_unknowns.end()) {
-        m_unknowns[lower_name] = map<std::string, KRUnknown *>();
+        m_unknowns[lower_extension] = map<std::string, KRUnknown *>();
         extension_itr = m_unknowns.find(lower_extension);
     }
     
@@ -64,7 +64,7 @@ void KRUnknownManager::add(KRUnknown *unknown)
         delete (*name_itr).second;
         (*name_itr).second = unknown;
     } else {
-        (*extension_itr).second[lower_extension] = unknown;
+        (*extension_itr).second[lower_name] = unknown;
     }
 }
 

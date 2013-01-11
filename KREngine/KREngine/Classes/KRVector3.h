@@ -32,7 +32,7 @@
 #ifndef KRVECTOR3
 #define KRVECTOR3
 
-#import "KREngine-common.h"
+#include "KREngine-common.h"
 
 class KRVector3 {
 
