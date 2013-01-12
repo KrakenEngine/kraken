@@ -161,7 +161,6 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pSoundManager->load(name.c_str(), extension, data);
     } else {
         m_pUnknownManager->load(name, extension, data);
-        delete data;
     }
 }
 
