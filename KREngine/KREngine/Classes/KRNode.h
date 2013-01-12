@@ -151,13 +151,13 @@ public:
     {
         T *match = dynamic_cast<T *>(this);
         if(match) {
-            if(name.compare(match->getName())) {
+            if(name.compare(match->getName()) == 0) {
                 return match;
             }
         }
         
         for(std::vector<KRNode *>::const_iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
-            match = (*itr)->find<T>();
+            match = (*itr)->find<T>(name);
             if(match) {
                 return match;
             }
