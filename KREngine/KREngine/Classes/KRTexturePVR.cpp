@@ -174,7 +174,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
 bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
 {    
     int target_dim = lod_max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
+    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
     
 	GLenum err;
     
