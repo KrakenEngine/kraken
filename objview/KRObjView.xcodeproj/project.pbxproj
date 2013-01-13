@@ -39,6 +39,8 @@
 		E49EB29C13806C5D00A4E727 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */; };
 		E4A9DEC715412923009DF363 /* light_point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC2154128F0009DF363 /* light_point.fsh */; };
 		E4A9DEC815412923009DF363 /* light_point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4A9DEC515412906009DF363 /* light_point.vsh */; };
+		E4BDF96A1614D7D500E24C10 /* Storyboard-ipad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4BDF9691614D7D500E24C10 /* Storyboard-ipad.storyboard */; };
+		E4BDF96C1614D7EB00E24C10 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4BDF96B1614D7EB00E24C10 /* Storyboard.storyboard */; };
 		E4CE184A15FEEE8500F80870 /* font.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E4CE184915FEEE8500F80870 /* font.pvr */; };
 		E4CE185415FF12B700F80870 /* light_point_inside.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4CE185015FF12A700F80870 /* light_point_inside.fsh */; };
 		E4CE185515FF12B700F80870 /* light_point_inside.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4CE185115FF12A700F80870 /* light_point_inside.vsh */; };
@@ -86,6 +88,8 @@
 		E49EB29B13806C5D00A4E727 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		E4A9DEC2154128F0009DF363 /* light_point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.fsh; path = ../KREngine/KREngine/Shaders/light_point.fsh; sourceTree = "<group>"; };
 		E4A9DEC515412906009DF363 /* light_point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point.vsh; path = ../KREngine/KREngine/Shaders/light_point.vsh; sourceTree = "<group>"; };
+		E4BDF9691614D7D500E24C10 /* Storyboard-ipad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "Storyboard-ipad.storyboard"; path = "iPad/Storyboard-ipad.storyboard"; sourceTree = "<group>"; };
+		E4BDF96B1614D7EB00E24C10 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Storyboard.storyboard; path = Assets/Storyboard.storyboard; sourceTree = "<group>"; };
 		E4CE184915FEEE8500F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.pvr; path = ../KREngine/KREngine/Shaders/font.pvr; sourceTree = "<group>"; };
 		E4CE185015FF12A700F80870 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.fsh; path = ../KREngine/KREngine/Shaders/light_point_inside.fsh; sourceTree = "<group>"; };
 		E4CE185115FF12A700F80870 /* light_point_inside.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = light_point_inside.vsh; path = ../KREngine/KREngine/Shaders/light_point_inside.vsh; sourceTree = "<group>"; };
@@ -166,6 +170,8 @@
 				E400687C1373AB6400B3D28B /* Assets */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* KRObjView-Info.plist */,
+				E4BDF9691614D7D500E24C10 /* Storyboard-ipad.storyboard */,
+				E4BDF96B1614D7EB00E24C10 /* Storyboard.storyboard */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -321,6 +327,8 @@
 				E4CE184A15FEEE8500F80870 /* font.pvr in Resources */,
 				E48BB5F9160AEF16008477A6 /* README.md in Resources */,
 				E48BB5FA160AEF16008477A6 /* release_notes.md in Resources */,
+				E4BDF96A1614D7D500E24C10 /* Storyboard-ipad.storyboard in Resources */,
+				E4BDF96C1614D7EB00E24C10 /* Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

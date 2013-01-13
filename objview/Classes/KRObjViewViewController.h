@@ -36,8 +36,6 @@
 #import <KRScene.h>
 
 @interface KRObjViewViewController : UIViewController {
-
-	CALayer *overlayLayer;
 	
 	KRObjViewGLView *glView;
     
@@ -70,7 +68,6 @@
 
 }
 
-@property (nonatomic, retain) IBOutlet CALayer *overlayLayer;
 @property (readonly) KRObjViewGLView *glView;
 
 // OpenGL ES 2.0 setup methods

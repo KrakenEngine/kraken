@@ -37,7 +37,6 @@
 
 @implementation KRObjViewViewController
 
-@synthesize overlayLayer;
 @synthesize glView;
 
 // Handle Touch Events

@@ -78,7 +78,7 @@
 		}
         
         // Initialize KREngine
-        _engine = [[KREngine alloc] initForWidth: backingWidth Height: backingHeight];
+        _engine = [[KREngine alloc] init];
         [self loadObjects];
     }
     return self;
