@@ -8,14 +8,13 @@
 
 #import "KRWBDocument.h"
 
+#import <KREngine_osx/KRContext.h>
 #import <KREngine_osx/KRVector2.h>
 #import <KREngine_osx/KRVector3.h>
-#import <KREngine_osx/KRMesh.h>
-#import <KREngine_osx/KRWorld.h>
 #import "KRWBFileSystemItem.h"
 
 @interface KRWBDocument() {
-    KRWorld *_world;
+    KRContext *_world;
     NSOutlineView *_outlineView;
 }
 
@@ -25,7 +24,7 @@
 
 @synthesize outlineView = _outlineView;
 
-- (KRWorld *)world
+- (KRContext *)world
 {
     return _world;
 }
@@ -37,7 +36,7 @@
     if (self) {
         // Add your subclass-specific initialization here.
         // If an error occurs here, return nil.
-        _world = new KRWorld();
+        _world = new KRContext();
     }
     return self;
 }
@@ -87,6 +86,9 @@
     NSException *exception = [NSException exceptionWithName:@"UnimplementedMethod" reason:[NSString stringWithFormat:@"%@ is unimplemented", NSStringFromSelector(_cmd)] userInfo:nil];
     @throw exception;
      */
+    if(_world) delete _world;
+    _world = new KRContext();
+    
     
     return YES;
 }

@@ -9,7 +9,8 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>krworld</string>
+				<string>fbx</string>
+				<string>krbundle</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string></string>
