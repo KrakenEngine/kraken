@@ -266,6 +266,29 @@ void KRCamera::renderFrame(float deltaTime)
     // Render all transparent geometry
     scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
+    // ----====---- Particle Occlusion Tests ----====----
+    
+    // Set render target
+    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+    
+    // Disable backface culling
+    GLDEBUG(glDisable(GL_CULL_FACE));
+    
+    // Disable z-buffer write
+    GLDEBUG(glDepthMask(GL_FALSE));
+    
+    // Enable z-buffer test
+    GLDEBUG(glEnable(GL_DEPTH_TEST));
+    GLDEBUG(glDepthFunc(GL_LEQUAL));
+    GLDEBUG(glDepthRangef(0.0, 1.0));
+    
+    // Enable additive blending
+    GLDEBUG(glEnable(GL_BLEND));
+    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+    
+    // ----====---- Perform Occlusion Tests ----====----
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
     // ----====---- Flares ----====----
     

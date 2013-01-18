@@ -134,7 +134,7 @@ void KRMesh::loadPack(KRDataBlock *data) {
 void KRMesh::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
-    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
     
         if(m_materials.size() == 0) {
             vector<KRMesh::Submesh *> submeshes = getSubmeshes();

@@ -39,6 +39,7 @@ public:
     
     void setFlareTexture(std::string flare_texture);
     void setFlareSize(float flare_size);
+    void setOcclusionSize(float occlusion_size);
     void deleteBuffers();
 
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
@@ -58,12 +59,15 @@ protected:
     std::string m_flareTexture;
     KRTexture *m_pFlareTexture;
     float m_flareSize;
+    float m_flareOcclusionSize;
     
     bool m_casts_shadow;
     bool m_light_shafts;
     float m_dust_particle_density;
     float m_dust_particle_size;
     float m_dust_particle_intensity;
+    
+    GLuint m_occlusionQuery; // Occlusion query for attenuating occluded flares
     
     
     // Shadow Maps

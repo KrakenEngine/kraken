@@ -33,6 +33,7 @@ public:
         RENDER_PASS_DEFERRED_LIGHTS,
         RENDER_PASS_DEFERRED_OPAQUE,
         RENDER_PASS_FORWARD_TRANSPARENT,
+        RENDER_PASS_PARTICLE_OCCLUSION,
         RENDER_PASS_ADDITIVE_PARTICLES,
         RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
         RENDER_PASS_GENERATE_SHADOWMAPS,
@@ -109,6 +110,8 @@ protected:
     KRVector3 m_initialLocalScale;
     KRVector3 m_initialLocalRotation;
     
+    KRNode *m_parentNode;
+    
 private:
     void invalidateModelMatrix();
     void invalidateBindPoseMatrix();
@@ -124,7 +127,6 @@ private:
     std::string m_name;
     
     std::vector<KRNode *> m_childNodes;
-    KRNode *m_parentNode;
     
     KRScene *m_pScene;
     

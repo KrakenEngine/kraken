@@ -29,10 +29,12 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
     m_flareTexture = "";
     m_pFlareTexture = NULL;
     m_flareSize = 0.0;
+    m_flareOcclusionSize = 0.05;
     m_casts_shadow = true;
     m_light_shafts = true;
     m_dust_particle_density = 0.1f;
     m_dust_particle_size = 1.0f;
+    m_occlusionQuery = 0;
     
     // Initialize shadow buffers
     m_cShadowBuffers = 0;
@@ -45,6 +47,10 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
 
 KRLight::~KRLight()
 {
+    if(m_occlusionQuery) {
+        GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
+        m_occlusionQuery = 0;
+    }
     allocateShadowBuffers(0);
 }
 
@@ -57,6 +63,7 @@ tinyxml2::XMLElement *KRLight::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("color_b", m_color.z);
     e->SetAttribute("decay_start", m_decayStart);
     e->SetAttribute("flare_size", m_flareSize);
+    e->SetAttribute("flare_occlusion_size", m_flareOcclusionSize);
     e->SetAttribute("flare_texture", m_flareTexture.c_str());
     e->SetAttribute("casts_shadow", m_casts_shadow ? "true" : "false");
     e->SetAttribute("light_shafts", m_light_shafts ? "true" : "false");
@@ -90,6 +97,10 @@ void KRLight::loadXML(tinyxml2::XMLElement *e) {
     
     if(e->QueryFloatAttribute("flare_size", &m_flareSize) != tinyxml2::XML_SUCCESS) {
         m_flareSize = 0.0;
+    }
+    
+    if(e->QueryFloatAttribute("flare_occlusion_size", &m_flareOcclusionSize) != tinyxml2::XML_SUCCESS) {
+        m_flareOcclusionSize = 0.05;
     }
     
     if(e->QueryBoolAttribute("casts_shadow", &m_casts_shadow) != tinyxml2::XML_SUCCESS) {
@@ -131,6 +142,10 @@ void KRLight::setFlareTexture(std::string flare_texture) {
 
 void KRLight::setFlareSize(float flare_size) {
     m_flareSize = flare_size;
+}
+
+void KRLight::setOcclusionSize(float occlusion_size) {
+    m_flareOcclusionSize;
 }
 
 void KRLight::setIntensity(float intensity) {
@@ -230,27 +245,66 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
 
     }
     
+    if(renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
+        if(m_flareTexture.size() && m_flareSize > 0.0f) {
+            
+            
+            KRMat4 occlusion_test_sphere_matrix = KRMat4();
+            occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
+            occlusion_test_sphere_matrix.translate(m_localTranslation);
+            if(m_parentNode) {
+                occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
+            }
+
+            if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, lights, 0, viewport, occlusion_test_sphere_matrix, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass)) {
+
+                GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+                GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
+
+                std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
+                if(sphereModels.size()) {
+                    for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
+                        sphereModels[0]->renderSubmesh(i);
+                    }
+                }
+
+                GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
+
+            }
+        }
+    }
+    
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
-            if(!m_pFlareTexture && m_flareTexture.size()) {
-                m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture.c_str());
-            }
             
-            if(m_pFlareTexture) {
-                // Disable z-buffer test
-                GLDEBUG(glDisable(GL_DEPTH_TEST));
-                GLDEBUG(glDepthRangef(0.0, 1.0));
+            if(m_occlusionQuery) {
+                GLuint params = 0;
+                GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
+                GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
                 
-                // Render light flare on transparency pass
-                KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), lights, 0, renderPass)) {
-                    GLDEBUG(glUniform1f(
-                                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
-                                        m_flareSize
-                                        ));
-                    m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
-                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false, false, false);
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                if(params) {
+                    
+                    if(!m_pFlareTexture && m_flareTexture.size()) {
+                        m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture.c_str());
+                    }
+                    
+                    if(m_pFlareTexture) {
+                        // Disable z-buffer test
+                        GLDEBUG(glDisable(GL_DEPTH_TEST));
+                        GLDEBUG(glDepthRangef(0.0, 1.0));
+                        
+                        // Render light flare on transparency pass
+                        KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), lights, 0, renderPass)) {
+                            GLDEBUG(glUniform1f(
+                                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
+                                                m_flareSize
+                                                ));
+                            m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
+                            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false, false, false);
+                            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                        }
+                    }
                 }
             }
         }
