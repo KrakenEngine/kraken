@@ -31,7 +31,6 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_localTranslation = KRVector3::Zero();
     m_parentNode = NULL;
     m_pScene = &scene;
-    getScene().notify_sceneGraphCreate(this);
     m_modelMatrixValid = false;
     m_inverseModelMatrixValid = false;
     m_bindPoseMatrixValid = false;
@@ -52,6 +51,7 @@ void KRNode::addChild(KRNode *child) {
     assert(child->m_parentNode == NULL);
     child->m_parentNode = this;
     m_childNodes.push_back(child);
+    getScene().notify_sceneGraphCreate(child);
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {

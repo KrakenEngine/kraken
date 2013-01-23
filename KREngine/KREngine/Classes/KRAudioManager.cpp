@@ -39,35 +39,35 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
     // ----- Initialize OpenAL -----
-    m_alDevice = alcOpenDevice(NULL);
-    m_alContext=alcCreateContext(m_alDevice,NULL);
-    alcMakeContextCurrent(m_alContext);
+    ALDEBUG(m_alDevice = alcOpenDevice(NULL));
+    ALDEBUG(m_alContext=alcCreateContext(m_alDevice,NULL));
+    ALDEBUG(alcMakeContextCurrent(m_alContext));
     
     // ----- Configure listener -----
-    alDistanceModel(AL_EXPONENT_DISTANCE);
+    ALDEBUG(alDistanceModel(AL_EXPONENT_DISTANCE));
 
 #if TARGET_OS_IPHONE
-    alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES);
+    ALDEBUG(alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES));
 #else
-    alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH);
+    ALDEBUG(alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH));
 #endif
     UInt32 setting = 1;
-    alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting)));
     ALfloat global_reverb_level = -5.0f;
-    alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level)));
     
     setting = ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
-    alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting)));
     
     
     ALfloat global_reverb_eq_gain = 0.0f;
-    alcASASetListenerProc(ALC_ASA_REVERB_EQ_GAIN, &global_reverb_eq_gain, sizeof(global_reverb_eq_gain));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_GAIN, &global_reverb_eq_gain, sizeof(global_reverb_eq_gain)));
     
     ALfloat global_reverb_eq_bandwidth = 0.0f;
-    alcASASetListenerProc(ALC_ASA_REVERB_EQ_BANDWITH, &global_reverb_eq_bandwidth, sizeof(global_reverb_eq_bandwidth));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_BANDWITH, &global_reverb_eq_bandwidth, sizeof(global_reverb_eq_bandwidth)));
     
     ALfloat global_reverb_eq_freq = 0.0f;
-    alcASASetListenerProc(ALC_ASA_REVERB_EQ_FREQ, &global_reverb_eq_freq, sizeof(global_reverb_eq_freq));
+    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_FREQ, &global_reverb_eq_freq, sizeof(global_reverb_eq_freq)));
 }
 
 KRAudioManager::~KRAudioManager()
@@ -77,11 +77,11 @@ KRAudioManager::~KRAudioManager()
     }
     
     if(m_alContext) {
-        alcDestroyContext(m_alContext);
+        ALDEBUG(alcDestroyContext(m_alContext));
         m_alContext = 0;
     }
     if(m_alDevice) {
-        alcCloseDevice(m_alDevice);
+        ALDEBUG(alcCloseDevice(m_alDevice));
         m_alDevice = 0;
     }
     
@@ -92,12 +92,11 @@ KRAudioManager::~KRAudioManager()
 
 void KRAudioManager::makeCurrentContext()
 {
-    alcMakeContextCurrent(m_alContext);
+    ALDEBUG(alcMakeContextCurrent(m_alContext));
 }
 
 void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
 {
-    makeCurrentContext();
     KRMat4 invView = viewMatrix;
     invView.invert();
     
@@ -107,10 +106,11 @@ void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
     
     vectorUp.normalize();
     vectorForward.normalize();
-    alcMakeContextCurrent(m_alContext);
-    alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z);
+    
+    makeCurrentContext();
+    ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
     ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
-    alListenerfv(AL_ORIENTATION, orientation);
+    ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
 }
 
 void KRAudioManager::add(KRAudioSample *sound)

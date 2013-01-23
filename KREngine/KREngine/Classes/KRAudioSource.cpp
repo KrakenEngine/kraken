@@ -48,7 +48,7 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
     m_pitch = 1.0f;
     m_looping = false;
     
-    m_referenceDistance = 20.0f;
+    m_referenceDistance = 1.0f;
     m_reverb = 0.0f;
     m_rolloffFactor = 2.0f;
     m_enable_occlusion = true;
@@ -59,7 +59,7 @@ KRAudioSource::~KRAudioSource()
 {
     if(m_sourceID) {
         getContext().getAudioManager()->makeCurrentContext();
-        alDeleteSources(1, &m_sourceID);
+        ALDEBUG(alDeleteSources(1, &m_sourceID));
         m_sourceID = 0;
     }
     while(m_audioBuffers.size()) {
@@ -116,9 +116,9 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement *e)
     }
     setIs3D(is3d);
     
-    float reference_distance = 20.0f;
+    float reference_distance = 1.0f;
     if(e->QueryFloatAttribute("reference_distance", &reference_distance) != tinyxml2::XML_SUCCESS) {
-        reference_distance = 20.0f;
+        reference_distance = 1.0f;
     }
     setReferenceDistance(reference_distance);
     
@@ -158,7 +158,7 @@ void KRAudioSource::prime()
             
             // Initialize audio source
             m_sourceID = 0;
-            alGenSources(1, &m_sourceID);
+            ALDEBUG(alGenSources(1, &m_sourceID));
             
             // Prime the buffer queue
             m_nextBufferIndex = 0;
@@ -167,9 +167,9 @@ void KRAudioSource::prime()
             }
             
             //alSourcei(_sourceID, AL_BUFFER, firstBuffer.bufferID);
-            alSourcef(m_sourceID, AL_PITCH, m_pitch);
-            alSourcei(m_sourceID, AL_LOOPING, m_looping && m_audioFile->getBufferCount() == 1);
-            alSourcef(m_sourceID, AL_GAIN, m_gain);
+            ALDEBUG(alSourcef(m_sourceID, AL_PITCH, m_pitch));
+            ALDEBUG(alSourcei(m_sourceID, AL_LOOPING, m_looping && m_audioFile->getBufferCount() == 1));
+            ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
             
             m_isPrimed = true;
         }
@@ -182,7 +182,7 @@ void KRAudioSource::queueBuffer()
     m_audioBuffers.push(buffer);
     ALuint buffer_ids[1];
     buffer_ids[0] = buffer->getBufferID();
-    alSourceQueueBuffers(m_sourceID, 1, buffer_ids);
+    ALDEBUG(alSourceQueueBuffers(m_sourceID, 1, buffer_ids));
     
     m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
 }
@@ -261,7 +261,7 @@ void KRAudioSource::setReferenceDistance(float reference_distance)
     m_referenceDistance = reference_distance;
     if(m_isPrimed && m_is3d) {
         getContext().getAudioManager()->makeCurrentContext();
-        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
+        ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
     }
 }
 
@@ -275,7 +275,7 @@ void KRAudioSource::setReverb(float reverb)
     m_reverb = reverb;
     if(m_isPrimed && m_is3d) {
         getContext().getAudioManager()->makeCurrentContext();
-        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+        ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
     }
 }
 
@@ -290,7 +290,7 @@ void KRAudioSource::setRolloffFactor(float rolloff_factor)
     m_rolloffFactor = rolloff_factor;
     if(m_isPrimed && m_is3d) {
         getContext().getAudioManager()->makeCurrentContext();
-        alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor);
+        ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
     }
 }
 
@@ -346,10 +346,10 @@ void KRAudioSource::physicsUpdate(float deltaTime)
         getContext().getAudioManager()->makeCurrentContext();
         updatePosition();
         ALint processed_count = 0;
-        alGetSourcei(m_sourceID, AL_BUFFERS_PROCESSED, &processed_count);
+        ALDEBUG(alGetSourcei(m_sourceID, AL_BUFFERS_PROCESSED, &processed_count));
         while(processed_count-- > 0) {
             ALuint finished_buffer = 0;
-            alSourceUnqueueBuffers(m_sourceID, 1, &finished_buffer);
+            ALDEBUG(alSourceUnqueueBuffers(m_sourceID, 1, &finished_buffer));
             delete m_audioBuffers.front();
             m_audioBuffers.pop();
             queueBuffer();
@@ -357,28 +357,28 @@ void KRAudioSource::physicsUpdate(float deltaTime)
         
         ALint val;
         // Make sure the source is still playing, and restart it if needed.
-        alGetSourcei(m_sourceID, AL_SOURCE_STATE, &val);
-        if(val != AL_PLAYING) alSourcePlay(m_sourceID);
+        ALDEBUG(alGetSourcei(m_sourceID, AL_SOURCE_STATE, &val));
+        ALDEBUG(if(val != AL_PLAYING) alSourcePlay(m_sourceID));
     }
 }
 
 void KRAudioSource::play()
 {
+    getContext().getAudioManager()->makeCurrentContext();
     prime();
     updatePosition();
-    getContext().getAudioManager()->makeCurrentContext();
 
     if(m_is3d) {
-        alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
-        alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor);
-        alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance);
-        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+        ALDEBUG(alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
+        ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
+        ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
+        ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
+        ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
     } else {
-        alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE);
-        alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0);
+        ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE));
+        ALDEBUG(alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0));
     }
-    alSourcePlay(m_sourceID);
+    ALDEBUG(alSourcePlay(m_sourceID));
     m_playing = true;
 }
 
@@ -410,11 +410,11 @@ void KRAudioSource::updatePosition()
         ALfloat obstruction = 0.0f; // type ALfloat	-100.0 db (most obstruction) - 0.0 db (no obstruction, 0.0 default)
         
         KRVector3 worldPosition = getWorldTranslation();
-        alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z);
+        ALDEBUG(alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z));
         
-        alcASASetSourceProc(ALC_ASA_OCCLUSION, m_sourceID, &occlusion, sizeof(occlusion));
-        alcASASetSourceProc(ALC_ASA_OBSTRUCTION, m_sourceID, &obstruction, sizeof(obstruction));
-        alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb));
+        ALDEBUG(alcASASetSourceProc(ALC_ASA_OCCLUSION, m_sourceID, &occlusion, sizeof(occlusion)));
+        ALDEBUG(alcASASetSourceProc(ALC_ASA_OBSTRUCTION, m_sourceID, &obstruction, sizeof(obstruction)));
+        ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
     }
 }
 

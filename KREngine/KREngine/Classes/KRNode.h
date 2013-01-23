@@ -23,6 +23,7 @@ class KRTextureManager;
 class KRContext;
 class KRScene;
 class KRAABB;
+class KRNode;
 
 class KRNode : public KRContextObject
 {

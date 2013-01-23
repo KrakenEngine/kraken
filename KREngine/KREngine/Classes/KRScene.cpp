@@ -49,8 +49,9 @@ const long KRENGINE_OCCLUSION_TEST_EXPIRY = 60;
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
     m_pRootNode = new KRNode(*this, "scene_root");
+    notify_sceneGraphCreate(m_pRootNode);
     
-    m_skyBoxName = "";
+    m_skyBoxName = name + "_skybox";
 }
 
 KRScene::~KRScene() {
@@ -68,6 +69,7 @@ void KRScene::renderFrame(float deltaTime) {
     }
     camera->renderFrame(deltaTime);
     getContext().endFrame(deltaTime);
+    physicsUpdate(deltaTime);
 }
 
 void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
@@ -383,7 +385,7 @@ void KRScene::notify_sceneGraphCreate(KRNode *pNode)
 {
     m_nodeTree.add(pNode);
     if(pNode->hasPhysics()) {
-        m_physicsNodes.erase(pNode);
+        m_physicsNodes.insert(pNode);
     }
 //    m_newNodes.insert(pNode);
 }

@@ -219,7 +219,11 @@ KRAudioBuffer *KRAudioSample::getBuffer(int index)
 {
     openFile();
 
-    KRAudioBuffer *buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, m_dataFormat, m_totalFrames, m_frameRate, m_bytesPerFrame, PopulateBuffer);
+    int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
+    int startFrame = index * maxFramesPerBuffer;
+    UInt32 frameCount = KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
+    
+    KRAudioBuffer *buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, m_dataFormat, frameCount, m_frameRate, m_bytesPerFrame, PopulateBuffer);
         
     if(m_bufferCount == 1) {
 //        [self closeFile]; // We don't need to hold on to a file handle if not streaming

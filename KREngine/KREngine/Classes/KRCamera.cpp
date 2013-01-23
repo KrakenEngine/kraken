@@ -401,6 +401,11 @@ void KRCamera::createBuffers() {
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
     
+    if(renderBufferWidth == 0 || renderBufferHeight == 0) {
+        renderBufferWidth = 1024; // FINDME - HACK for OSX
+        renderBufferHeight = 768;
+    }
+    
     if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
         backingWidth = renderBufferWidth;
         backingHeight = renderBufferHeight;

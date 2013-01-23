@@ -763,6 +763,22 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
     // ----====---- Output Material File ----====----
     KRMaterial *new_material = new KRMaterial(context, pMaterial->GetName());
     
+    std::string name = pMaterial->GetName();
+    if(boost:starts_with(name, "ab_reflect_")) {
+        new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
+        int underscore_pos = name.find('_', 11);
+        new_material->setReflectionCube(name.substr(11, underscore_pos - 11));
+    } else if(boost::starts_with(name, "reflect_")) {
+        int underscore_pos = name.find('_', 8);
+        new_material->setReflectionCube(name.substr(8, underscore_pos - 8));
+    } else if(boost::starts_with(name, "at_")) {
+        new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_TEST);
+    } else if(boost::starts_with(name, "ab_")) {
+        new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
+    } else if(boost::starts_with(name, "ab2_")) {
+        new_material->setAlphaMode(KRMAterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
+    }
+
     FbxPropertyT<FbxDouble3> lKFbxDouble3;
     FbxPropertyT<FbxDouble> lKFbxDouble1;
     

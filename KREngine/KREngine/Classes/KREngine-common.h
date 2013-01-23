@@ -103,6 +103,17 @@ fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i f
 } \
 }
 
+#define ALDEBUG(x) \
+x; \
+{ \
+GLenum e; \
+while( (e=alGetError()) != AL_NO_ERROR) \
+{ \
+fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
+} \
+}
+
+
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))
 

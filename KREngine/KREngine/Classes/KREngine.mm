@@ -63,8 +63,13 @@ using namespace std;
 
 - (id)init
 {
+#if TARGET_OS_IPHONE
     BOOL isIpad = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
     BOOL isRetina = [[UIScreen mainScreen] scale] >= 2.0;
+#else
+    BOOL isIpad = false;
+    BOOL isRetina = false;
+#endif
     
     if(isIpad && isRetina) {
         KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
