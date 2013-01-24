@@ -44,6 +44,29 @@ KRMaterialManager::~KRMaterialManager() {
 }
 
 
+void KRMaterialManager::configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable) {
+	if(blend_enable) {
+		GLDEBUG(glEnable(GL_BLEND));
+		GLDEBUG(glBlendFunc(blend_src, blend_dest));
+	} else {
+		GLDEBUG(glDisable(GL_BLEND));
+	}
+    
+	if(depth_test_enable) {
+		GLDEBUG(glEnable(GL_DEPTH_TEST));
+		GLDEBUG(glDepthFunc(depth_func));
+    } else {
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
+    }
+    
+    if(depth_write_enable) {
+        GLDEBUG(glDepthMask(GL_TRUE));
+    } else {
+        GLDEBUG(glDepthMask(GL_FALSE));
+    }
+}
+                
+
 KRMaterial *KRMaterialManager::getMaterial(const char *szName) {
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),

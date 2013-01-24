@@ -306,6 +306,37 @@
 		E414F9AB1694DA37000B3D58 /* KRUnknown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRUnknown.h; path = Classes/KRUnknown.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E416AA9816713749000F6786 /* KRAnimationCurveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationCurveManager.h; path = Classes/KRAnimationCurveManager.h; sourceTree = "<group>"; };
 		E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KRAnimationCurveManager.cpp; path = Classes/KRAnimationCurveManager.cpp; sourceTree = "<group>"; };
+		E41AE1DD16B124CA00980428 /* font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; name = font.tga; path = Shaders/font.tga; sourceTree = "<group>"; };
+		E41AE1E116B1265500980428 /* sky_box_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = sky_box_osx.fsh; path = Shaders/sky_box_osx.fsh; sourceTree = "<group>"; };
+		E41AE1E216B1265500980428 /* debug_font_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = debug_font_osx.fsh; path = Shaders/debug_font_osx.fsh; sourceTree = "<group>"; };
+		E41AE1E316B1265500980428 /* debug_font_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = debug_font_osx.vsh; path = Shaders/debug_font_osx.vsh; sourceTree = "<group>"; };
+		E41AE1E416B1265500980428 /* dust_particle_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = dust_particle_osx.fsh; path = Shaders/dust_particle_osx.fsh; sourceTree = "<group>"; };
+		E41AE1E516B1265500980428 /* dust_particle_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = dust_particle_osx.vsh; path = Shaders/dust_particle_osx.vsh; sourceTree = "<group>"; };
+		E41AE1E616B1265500980428 /* flare_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare_osx.fsh; path = Shaders/flare_osx.fsh; sourceTree = "<group>"; };
+		E41AE1E716B1265500980428 /* flare_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = flare_osx.vsh; path = Shaders/flare_osx.vsh; sourceTree = "<group>"; };
+		E41AE1E816B1265500980428 /* light_directional_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_directional_osx.fsh; path = Shaders/light_directional_osx.fsh; sourceTree = "<group>"; };
+		E41AE1E916B1265500980428 /* light_directional_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_directional_osx.vsh; path = Shaders/light_directional_osx.vsh; sourceTree = "<group>"; };
+		E41AE1EA16B1265500980428 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_point_inside_osx.fsh; path = Shaders/light_point_inside_osx.fsh; sourceTree = "<group>"; };
+		E41AE1EB16B1265500980428 /* light_point_inside_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_point_inside_osx.vsh; path = Shaders/light_point_inside_osx.vsh; sourceTree = "<group>"; };
+		E41AE1EC16B1265500980428 /* light_point_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_point_osx.fsh; path = Shaders/light_point_osx.fsh; sourceTree = "<group>"; };
+		E41AE1ED16B1265500980428 /* light_point_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = light_point_osx.vsh; path = Shaders/light_point_osx.vsh; sourceTree = "<group>"; };
+		E41AE1EE16B1265500980428 /* ObjectShader_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = ObjectShader_osx.fsh; path = Shaders/ObjectShader_osx.fsh; sourceTree = "<group>"; };
+		E41AE1EF16B1265500980428 /* ObjectShader_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = ObjectShader_osx.vsh; path = Shaders/ObjectShader_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F016B1265500980428 /* occlusion_test_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = occlusion_test_osx.fsh; path = Shaders/occlusion_test_osx.fsh; sourceTree = "<group>"; };
+		E41AE1F116B1265500980428 /* occlusion_test_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = occlusion_test_osx.vsh; path = Shaders/occlusion_test_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F216B1265500980428 /* PostShader_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = PostShader_osx.fsh; path = Shaders/PostShader_osx.fsh; sourceTree = "<group>"; };
+		E41AE1F316B1265500980428 /* PostShader_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = PostShader_osx.vsh; path = Shaders/PostShader_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F416B1265500980428 /* ShadowShader_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = ShadowShader_osx.fsh; path = Shaders/ShadowShader_osx.fsh; sourceTree = "<group>"; };
+		E41AE1F516B1265500980428 /* ShadowShader_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = ShadowShader_osx.vsh; path = Shaders/ShadowShader_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F616B1265500980428 /* simple_blit_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = simple_blit_osx.fsh; path = Shaders/simple_blit_osx.fsh; sourceTree = "<group>"; };
+		E41AE1F716B1265500980428 /* simple_blit_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = simple_blit_osx.vsh; path = Shaders/simple_blit_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F816B1265500980428 /* sky_box_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = sky_box_osx.vsh; path = Shaders/sky_box_osx.vsh; sourceTree = "<group>"; };
+		E41AE1F916B1265500980428 /* visualize_overlay_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = visualize_overlay_osx.fsh; path = Shaders/visualize_overlay_osx.fsh; sourceTree = "<group>"; };
+		E41AE1FA16B1265500980428 /* visualize_overlay_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = visualize_overlay_osx.vsh; path = Shaders/visualize_overlay_osx.vsh; sourceTree = "<group>"; };
+		E41AE1FB16B1265500980428 /* volumetric_fog_downsampled_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_downsampled_osx.fsh; path = Shaders/volumetric_fog_downsampled_osx.fsh; sourceTree = "<group>"; };
+		E41AE1FC16B1265500980428 /* volumetric_fog_downsampled_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_downsampled_osx.vsh; path = Shaders/volumetric_fog_downsampled_osx.vsh; sourceTree = "<group>"; };
+		E41AE1FD16B1265500980428 /* volumetric_fog_osx.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_osx.fsh; path = Shaders/volumetric_fog_osx.fsh; sourceTree = "<group>"; };
+		E41AE1FE16B1265500980428 /* volumetric_fog_osx.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = volumetric_fog_osx.vsh; path = Shaders/volumetric_fog_osx.vsh; sourceTree = "<group>"; };
 		E41B841D16260C5600C7A771 /* sky_box.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.fsh; path = Shaders/sky_box.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E41B842016260C6500C7A771 /* sky_box.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = sky_box.vsh; path = Shaders/sky_box.vsh; sourceTree = "<group>"; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KRAnimationManager.h; path = Classes/KRAnimationManager.h; sourceTree = "<group>"; };
@@ -530,6 +561,80 @@
 			name = AnimationCurve;
 			sourceTree = "<group>";
 		};
+		E41AE1DF16B125EC00980428 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				E45772F113C9A13C0037BEEA /* ShadowShader.vsh */,
+				E45772F213C9A13C0037BEEA /* ShadowShader.fsh */,
+				E45772F513C9A13C0037BEEA /* ObjectShader.vsh */,
+				E45772F413C9A13C0037BEEA /* ObjectShader.fsh */,
+				E45772F313C9A13C0037BEEA /* PostShader.fsh */,
+				E45772F613C9A13C0037BEEA /* PostShader.vsh */,
+				E4D133B91538F7480070068C /* light_directional.fsh */,
+				E4D133BB1538F7560070068C /* light_directional.vsh */,
+				E4A9DEBD154120C4009DF363 /* light_point.fsh */,
+				E4A9DEC0154120E8009DF363 /* light_point.vsh */,
+				E4769DEC158A78B6004B83AC /* flare.fsh */,
+				E4769DEF158A78C6004B83AC /* flare.vsh */,
+				E48278AE15F03010001C9431 /* visualize_overlay.vsh */,
+				E430D08015F8882F0010558D /* occlusion_test.fsh */,
+				E430D08815F88AD10010558D /* occlusion_test.vsh */,
+				E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */,
+				E4CE184C15FF124600F80870 /* light_point_inside.fsh */,
+				E4CE184E15FF125700F80870 /* light_point_inside.vsh */,
+				E41B841D16260C5600C7A771 /* sky_box.fsh */,
+				E41B842016260C6500C7A771 /* sky_box.vsh */,
+				E45AC02F1641D66300DC3C3B /* simple_blit.vsh */,
+				E45AC0331641D67300DC3C3B /* simple_blit.fsh */,
+				E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */,
+				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
+				E45AC0461643451200DC3C3B /* dust_particle.fsh */,
+				E45AC0491643452000DC3C3B /* dust_particle.vsh */,
+				E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */,
+				E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */,
+				E431C1B6164DB79A00BE1575 /* volumetric_fog_downsampled.vsh */,
+				E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */,
+			);
+			name = ios;
+			sourceTree = "<group>";
+		};
+		E41AE1E016B1261B00980428 /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				E41AE1E116B1265500980428 /* sky_box_osx.fsh */,
+				E41AE1E216B1265500980428 /* debug_font_osx.fsh */,
+				E41AE1E316B1265500980428 /* debug_font_osx.vsh */,
+				E41AE1E416B1265500980428 /* dust_particle_osx.fsh */,
+				E41AE1E516B1265500980428 /* dust_particle_osx.vsh */,
+				E41AE1E616B1265500980428 /* flare_osx.fsh */,
+				E41AE1E716B1265500980428 /* flare_osx.vsh */,
+				E41AE1E816B1265500980428 /* light_directional_osx.fsh */,
+				E41AE1E916B1265500980428 /* light_directional_osx.vsh */,
+				E41AE1EA16B1265500980428 /* light_point_inside_osx.fsh */,
+				E41AE1EB16B1265500980428 /* light_point_inside_osx.vsh */,
+				E41AE1EC16B1265500980428 /* light_point_osx.fsh */,
+				E41AE1ED16B1265500980428 /* light_point_osx.vsh */,
+				E41AE1EE16B1265500980428 /* ObjectShader_osx.fsh */,
+				E41AE1EF16B1265500980428 /* ObjectShader_osx.vsh */,
+				E41AE1F016B1265500980428 /* occlusion_test_osx.fsh */,
+				E41AE1F116B1265500980428 /* occlusion_test_osx.vsh */,
+				E41AE1F216B1265500980428 /* PostShader_osx.fsh */,
+				E41AE1F316B1265500980428 /* PostShader_osx.vsh */,
+				E41AE1F416B1265500980428 /* ShadowShader_osx.fsh */,
+				E41AE1F516B1265500980428 /* ShadowShader_osx.vsh */,
+				E41AE1F616B1265500980428 /* simple_blit_osx.fsh */,
+				E41AE1F716B1265500980428 /* simple_blit_osx.vsh */,
+				E41AE1F816B1265500980428 /* sky_box_osx.vsh */,
+				E41AE1F916B1265500980428 /* visualize_overlay_osx.fsh */,
+				E41AE1FA16B1265500980428 /* visualize_overlay_osx.vsh */,
+				E41AE1FB16B1265500980428 /* volumetric_fog_downsampled_osx.fsh */,
+				E41AE1FC16B1265500980428 /* volumetric_fog_downsampled_osx.vsh */,
+				E41AE1FD16B1265500980428 /* volumetric_fog_osx.fsh */,
+				E41AE1FE16B1265500980428 /* volumetric_fog_osx.vsh */,
+			);
+			name = osx;
+			sourceTree = "<group>";
+		};
 		E428C2EF166960ED00A16EDF /* Animation */ = {
 			isa = PBXGroup;
 			children = (
@@ -567,36 +672,8 @@
 		E45772E313C99F160037BEEA /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				E45772F113C9A13C0037BEEA /* ShadowShader.vsh */,
-				E45772F213C9A13C0037BEEA /* ShadowShader.fsh */,
-				E45772F513C9A13C0037BEEA /* ObjectShader.vsh */,
-				E45772F413C9A13C0037BEEA /* ObjectShader.fsh */,
-				E45772F313C9A13C0037BEEA /* PostShader.fsh */,
-				E45772F613C9A13C0037BEEA /* PostShader.vsh */,
-				E4D133B91538F7480070068C /* light_directional.fsh */,
-				E4D133BB1538F7560070068C /* light_directional.vsh */,
-				E4A9DEBD154120C4009DF363 /* light_point.fsh */,
-				E4A9DEC0154120E8009DF363 /* light_point.vsh */,
-				E4769DEC158A78B6004B83AC /* flare.fsh */,
-				E4769DEF158A78C6004B83AC /* flare.vsh */,
-				E48278AE15F03010001C9431 /* visualize_overlay.vsh */,
-				E430D08015F8882F0010558D /* occlusion_test.fsh */,
-				E430D08815F88AD10010558D /* occlusion_test.vsh */,
-				E48839A015F92C2800BD66D5 /* visualize_overlay.fsh */,
-				E4CE184C15FF124600F80870 /* light_point_inside.fsh */,
-				E4CE184E15FF125700F80870 /* light_point_inside.vsh */,
-				E41B841D16260C5600C7A771 /* sky_box.fsh */,
-				E41B842016260C6500C7A771 /* sky_box.vsh */,
-				E45AC02F1641D66300DC3C3B /* simple_blit.vsh */,
-				E45AC0331641D67300DC3C3B /* simple_blit.fsh */,
-				E45AC03E1641DE5D00DC3C3B /* debug_font.vsh */,
-				E45AC0411641DE6D00DC3C3B /* debug_font.fsh */,
-				E45AC0461643451200DC3C3B /* dust_particle.fsh */,
-				E45AC0491643452000DC3C3B /* dust_particle.vsh */,
-				E443C612164B5BE500FC4FD8 /* volumetric_fog.fsh */,
-				E443C615164B5BFB00FC4FD8 /* volumetric_fog.vsh */,
-				E431C1B6164DB79A00BE1575 /* volumetric_fog_downsampled.vsh */,
-				E431C1B7164DB7B200BE1575 /* volumetric_fog_downsampled.fsh */,
+				E41AE1E016B1261B00980428 /* osx */,
+				E41AE1DF16B125EC00980428 /* ios */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -929,6 +1006,7 @@
 		E4CE184615FEED6800F80870 /* Standard Assets */ = {
 			isa = PBXGroup;
 			children = (
+				E41AE1DD16B124CA00980428 /* font.tga */,
 				E4CE184815FEEDA200F80870 /* font.pvr */,
 				E45772E313C99F160037BEEA /* Shaders */,
 			);
@@ -1328,6 +1406,7 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1343,6 +1422,7 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1353,7 +1433,7 @@
 		E491016C13C99B9E0098455B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				DSTROOT = /tmp/KREngine.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1376,7 +1456,7 @@
 		E491016D13C99B9E0098455B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				DSTROOT = /tmp/KREngine.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1399,7 +1479,7 @@
 		E4BBBB8F1512A40300F43B5B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -1424,6 +1504,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (
 					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
+					/usr/local/include,
 				);
 				INFOPLIST_FILE = "krengine_osx/krengine_osx-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";
@@ -1444,7 +1525,7 @@
 		E4BBBB901512A40300F43B5B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
@@ -1465,6 +1546,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (
 					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
+					/usr/local/include,
 				);
 				INFOPLIST_FILE = "krengine_osx/krengine_osx-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";

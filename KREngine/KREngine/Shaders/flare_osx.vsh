@@ -1,5 +1,5 @@
 //
-//  KRMaterialManager.h
+//  flare.vsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,37 +29,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+attribute mediump vec2	vertex_uv;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+uniform mediump vec4    viewport;
+uniform mediump float   flare_size;
 
+varying mediump vec2 texCoord;
 
-
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
-    virtual ~KRMaterialManager();
-    
-    bool load(const char *szName, KRDataBlock *data);
-    KRMaterial *getMaterial(const char *szName);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-private:
-    map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRShaderManager *m_pShaderManager;
-
-};
-
-#endif
-
+void main() {
+    texCoord = vertex_uv;
+    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+}

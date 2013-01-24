@@ -1,7 +1,3 @@
-//
-//  KRMaterialManager.h
-//  KREngine
-//
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
@@ -29,37 +25,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+attribute vec4 vertex_position;
+uniform highp mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
-
-
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
-    virtual ~KRMaterialManager();
-    
-    bool load(const char *szName, KRDataBlock *data);
-    KRMaterial *getMaterial(const char *szName);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-private:
-    map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRShaderManager *m_pShaderManager;
-
-};
-
-#endif
-
+void main()
+{
+	gl_Position = mvp_matrix * vertex_position;
+    gl_Position.z = max(gl_Position.z / gl_Position.w, 0.00) * gl_Position.w;
+}

@@ -169,36 +169,43 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     context.getTextureManager()->compress(); // TODO, HACK, FINDME - This should be configurable and exposed through the World Builder GUI
     
     std::string base_name = KRResource::GetFileBase(path);
-    KRBundle *main_bundle = new KRBundle(context, base_name);
-    KRBundle texture_bundle(context, base_name + "_textures");
-    KRBundle animation_bundle(context, base_name + "_animations");
-    KRBundle material_bundle(context, base_name + "_materials");
-    KRBundle meshes_bundle(context, base_name + "_meshes");
+    std::vector<KRResource *> output_resources;
+    
+//    KRBundle *main_bundle = new KRBundle(context, base_name);
+    KRBundle *texture_bundle = new KRBundle(context, base_name + "_textures");
+    KRBundle *animation_bundle = new KRBundle(context, base_name + "_animations");
+    KRBundle *material_bundle = new KRBundle(context, base_name + "_materials");
+    KRBundle *meshes_bundle = new KRBundle(context, base_name + "_meshes");
     
     for(std::vector<KRResource *>::iterator resource_itr=resources.begin(); resource_itr != resources.end(); resource_itr++) {
         KRResource *resource = *resource_itr;
         if(dynamic_cast<KRTexture *>(resource) != NULL) {
-            texture_bundle.append(*resource);
+            texture_bundle->append(*resource);
         } else if(dynamic_cast<KRAnimation *>(resource) != NULL) {
-            animation_bundle.append(*resource);
+            animation_bundle->append(*resource);
         } else if(dynamic_cast<KRAnimationCurve *>(resource) != NULL) {
-            animation_bundle.append(*resource);
+            animation_bundle->append(*resource);
         } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
-            material_bundle.append(*resource);
+            material_bundle->append(*resource);
         } else if(dynamic_cast<KRMesh *>(resource) != NULL) {
-            meshes_bundle.append(*resource);
+            meshes_bundle->append(*resource);
         } else {
-            main_bundle->append(*resource);
+            output_resources.push_back(resource);
+//            main_bundle->append(*resource);
         }
     }
     
-    main_bundle->append(texture_bundle);
-    main_bundle->append(animation_bundle);
-    main_bundle->append(material_bundle);
-    main_bundle->append(meshes_bundle);
+    output_resources.push_back(texture_bundle);
+    output_resources.push_back(animation_bundle);
+    output_resources.push_back(material_bundle);
+    output_resources.push_back(meshes_bundle);
     
-    std::vector<KRResource *> output_resources;
-    output_resources.push_back(main_bundle);
+//    main_bundle->append(texture_bundle);
+//    main_bundle->append(animation_bundle);
+//    main_bundle->append(material_bundle);
+//    main_bundle->append(meshes_bundle);
+//    output_resources.push_back(main_bundle);
+    
     return output_resources;
 }
 
@@ -764,19 +771,19 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
     KRMaterial *new_material = new KRMaterial(context, pMaterial->GetName());
     
     std::string name = pMaterial->GetName();
-    if(boost:starts_with(name, "ab_reflect_")) {
+    if(boost::starts_with(name, "ab_reflect_")) {
         new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
-        int underscore_pos = name.find('_', 11);
+        size_t underscore_pos = name.find('_', 11);
         new_material->setReflectionCube(name.substr(11, underscore_pos - 11));
     } else if(boost::starts_with(name, "reflect_")) {
-        int underscore_pos = name.find('_', 8);
+        size_t underscore_pos = name.find('_', 8);
         new_material->setReflectionCube(name.substr(8, underscore_pos - 8));
     } else if(boost::starts_with(name, "at_")) {
         new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_TEST);
     } else if(boost::starts_with(name, "ab_")) {
         new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
     } else if(boost::starts_with(name, "ab2_")) {
-        new_material->setAlphaMode(KRMAterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
+        new_material->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
     }
 
     FbxPropertyT<FbxDouble3> lKFbxDouble3;

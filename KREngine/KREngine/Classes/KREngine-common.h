@@ -40,6 +40,9 @@ float const D2R = PI * 2 / 360;
 #include <iostream>
 #include <math.h>
 
+#include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
 
 
 using std::vector;

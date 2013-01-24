@@ -1,5 +1,5 @@
 //
-//  KRMaterialManager.h
+//  flare.fsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,37 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+varying mediump vec2 texCoord;
+uniform sampler2D diffuseTexture;
 
-
-
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
-    virtual ~KRMaterialManager();
-    
-    bool load(const char *szName, KRDataBlock *data);
-    KRMaterial *getMaterial(const char *szName);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-private:
-    map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRShaderManager *m_pShaderManager;
-
-};
-
-#endif
-
+void main() {
+    gl_FragColor = vec4(vec3(texture2D(diffuseTexture, texCoord)), 1.0);
+}

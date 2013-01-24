@@ -201,7 +201,7 @@ void KRAudioSample::PopulateBuffer(KRAudioSample *sound, int index, void *data)
 {
     int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / sound->m_bytesPerFrame;
     int startFrame = index * maxFramesPerBuffer;
-    UInt32 frameCount = KRMIN(sound->m_totalFrames - startFrame, maxFramesPerBuffer);
+    UInt32 frameCount = (UInt32)KRMIN(sound->m_totalFrames - startFrame, maxFramesPerBuffer);
     
     
     AudioBufferList outputBufferInfo;
@@ -221,7 +221,7 @@ KRAudioBuffer *KRAudioSample::getBuffer(int index)
 
     int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
     int startFrame = index * maxFramesPerBuffer;
-    UInt32 frameCount = KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
+    UInt32 frameCount = (UInt32)KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
     
     KRAudioBuffer *buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, m_dataFormat, frameCount, m_frameRate, m_bytesPerFrame, PopulateBuffer);
         

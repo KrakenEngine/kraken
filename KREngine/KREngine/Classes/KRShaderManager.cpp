@@ -50,6 +50,13 @@ KRShaderManager::~KRShaderManager() {
 
 KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *pCamera, const std::vector<KRLight *> &lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
 
+    std::string platform_shader_name = shader_name;
+#if TARGET_OS_MAC
+    platform_shader_name = shader_name + "_osx";
+#else
+    platform_shader_name = shader_name;
+#endif
+    
     int iShadowQuality = 0; // FINDME - HACK - Placeholder code, need to iterate through lights and dynamically build shader
 
     
@@ -76,7 +83,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     }
     
     char szKey[256];
-    sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
+    sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, platform_shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
     
     KRShader *pShader = m_shaders[szKey];
     
@@ -91,6 +98,14 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         
         stringstream stream;
         stream.precision(std::numeric_limits<long double>::digits10);
+
+#if TARGET_OS_MAC
+        stream << "\n#version 120";
+        stream << "\n#define lowp";
+        stream << "\n#define mediump";
+        stream << "\n#define highp";
+#endif
+        
         stream << "\n#define LIGHT_DIRECTIONAL_COUNT " << light_directional_count;
         stream << "\n#define LIGHT_POINT_COUNT " << light_point_count;
         stream << "\n#define LIGHT_SPOT_COUNT " << light_spot_count;
@@ -162,7 +177,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stream << "\n";
         std::string options = stream.str();
         
-        pShader = new KRShader(getContext(), szKey, options, m_vertShaderSource[shader_name], m_fragShaderSource[shader_name]);
+        pShader = new KRShader(getContext(), szKey, options, m_vertShaderSource[platform_shader_name], m_fragShaderSource[platform_shader_name]);
 
         m_shaders[szKey] = pShader;
     }
