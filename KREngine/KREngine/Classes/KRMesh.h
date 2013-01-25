@@ -94,6 +94,8 @@ public:
     void LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format);
     void loadPack(KRDataBlock *data);
     
+    void convert(model_format_t model_format);
+    void optimize();
     
     void renderSubmesh(int iSubmesh);
     
@@ -204,7 +206,8 @@ private:
         int32_t submesh_count;
         int32_t bone_count;
         float minx, miny, minz, maxx, maxy, maxz; // Axis aligned bounding box, in model's coordinate space
-        unsigned char reserved[452]; // Pad out to 512 bytes
+        int32_t index_count;
+        unsigned char reserved[448]; // Pad out to 512 bytes
     } pack_header;
     
     vector<Submesh *> m_submeshes;
@@ -217,13 +220,13 @@ private:
     void clearBuffers();
     
     void setName(const std::string name);
-    void optimize();
     
     
     
     pack_material *getSubmesh(int mesh_index) const;
     unsigned char *getVertexData() const;
     unsigned char *getVertexData(int index) const;
+    __uint16_t *getIndexData() const;
     pack_header *getHeader() const;
     pack_bone *getBone(int index);
 };

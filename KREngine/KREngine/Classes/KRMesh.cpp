@@ -346,11 +346,11 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
     }
     size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
-    
+    size_t index_count = 0;
     size_t submesh_count = submesh_lengths.size();
     size_t vertex_count = vertices.size();
     size_t bone_count = bone_names.size();
-    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + vertex_size * vertex_count;
+    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + vertex_size * vertex_count;
     m_pData->expand(new_file_size);
     
     pack_header *pHeader = getHeader();
@@ -359,6 +359,7 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
     pHeader->submesh_count = (__int32_t)submesh_count;
     pHeader->vertex_count = (__int32_t)vertex_count;
     pHeader->bone_count = (__int32_t)bone_count;
+    pHeader->index_count = (__int32_t)index_count;
     pHeader->model_format = model_format;
     strcpy(pHeader->szTag, "KROBJPACK1.1   ");
     updateAttributeOffsets();
@@ -530,8 +531,14 @@ KRMesh::pack_bone *KRMesh::getBone(int index)
 
 unsigned char *KRMesh::getVertexData() const {
     pack_header *pHeader = getHeader();
-    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
+    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count);
 }
+
+__uint16_t *KRMesh::getIndexData() const {
+    pack_header *pHeader = getHeader();
+    return (__uint16_t *)((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
+}
+
 
 KRMesh::pack_material *KRMesh::getSubmesh(int mesh_index) const
 {
@@ -726,11 +733,6 @@ char *KRMesh::getBoneName(int bone_index)
     return getBone(bone_index)->szName;
 }
 
-void KRMesh::optimize()
-{
-    // TODO - Add algorithm to convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
-}
-
 KRMesh::model_format_t KRMesh::getModelFormat() const
 {
     return (model_format_t)getHeader()->model_format;
@@ -852,3 +854,15 @@ bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
     }
     return false; // Either no hit, or the hit was beyond v1
 }
+
+void KRMesh::convert(model_format_t model_format)
+{
+    
+}
+
+void KRMesh::optimize()
+{
+    convert(KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES);
+    // TODO - Add algorithm to convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
+}
+

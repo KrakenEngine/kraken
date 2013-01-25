@@ -119,6 +119,7 @@ fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i f
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))
+#define KRALIGN(x) ((x + 3) & ~0x03)
 
 #include "KRVector3.h"
 #include "KRVector2.h"
