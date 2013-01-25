@@ -272,7 +272,7 @@ void KRMesh::renderSubmesh(int iSubmesh) {
         assert(cBufferVertexes <= 65535);
         
         
-        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES),
+        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES),
                                                has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS));
         
         
@@ -283,6 +283,12 @@ void KRMesh::renderSubmesh(int iSubmesh) {
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
                     break;
                 case KRENGINE_MODEL_FORMAT_STRIP:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                    break;
+                case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                    break;
+                case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
                     break;
                 default:

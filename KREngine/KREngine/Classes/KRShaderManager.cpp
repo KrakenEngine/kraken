@@ -51,10 +51,10 @@ KRShaderManager::~KRShaderManager() {
 KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *pCamera, const std::vector<KRLight *> &lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
 
     std::string platform_shader_name = shader_name;
-#if TARGET_OS_MAC
-    platform_shader_name = shader_name + "_osx";
-#else
+#if TARGET_OS_IPHONE
     platform_shader_name = shader_name;
+#else
+    platform_shader_name = shader_name + "_osx";
 #endif
     
     int iShadowQuality = 0; // FINDME - HACK - Placeholder code, need to iterate through lights and dynamically build shader
@@ -99,7 +99,8 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stringstream stream;
         stream.precision(std::numeric_limits<long double>::digits10);
 
-#if TARGET_OS_MAC
+#if TARGET_OS_IPHONE
+#else
         stream << "\n#version 120";
         stream << "\n#define lowp";
         stream << "\n#define mediump";

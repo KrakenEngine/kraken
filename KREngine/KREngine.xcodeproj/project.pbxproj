@@ -275,6 +275,9 @@
 		E4F97552153633EF00FD60B2 /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975531536340000FD60B2 /* KRTexture2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture2D.cpp */; };
 		E4F975541536340400FD60B2 /* KRTexture2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E4FE6AA716B21D660058B8CE /* forsyth.h */; };
+		E4FE6AA916B21D660058B8CE /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E4FE6AA716B21D660058B8CE /* forsyth.h */; };
+		E4FE6AAB16B21D7E0058B8CE /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4FE6AAA16B21D7E0058B8CE /* forsyth.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -502,6 +505,8 @@
 		E4F027F91698116000D4427D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		E4F975311536220900FD60B2 /* KRNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = KRNode.h; path = Classes/KRNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4F975351536221C00FD60B2 /* KRNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = KRNode.cpp; path = Classes/KRNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E4FE6AA716B21D660058B8CE /* forsyth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = forsyth.h; path = KREngine/Classes/forsyth.h; sourceTree = "<group>"; };
+		E4FE6AAA16B21D7E0058B8CE /* forsyth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = forsyth.cpp; path = KREngine/Classes/forsyth.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1016,10 +1021,20 @@
 		E4F9753815362A5200FD60B2 /* 3rdparty */ = {
 			isa = PBXGroup;
 			children = (
+				E4FE6AA516B21D330058B8CE /* forsyth */,
 				E46C214015364BB8009CABF3 /* tinyxml2 */,
 			);
 			name = 3rdparty;
 			path = ..;
+			sourceTree = "<group>";
+		};
+		E4FE6AA516B21D330058B8CE /* forsyth */ = {
+			isa = PBXGroup;
+			children = (
+				E4FE6AA716B21D660058B8CE /* forsyth.h */,
+				E4FE6AAA16B21D7E0058B8CE /* forsyth.cpp */,
+			);
+			name = forsyth;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1090,6 +1105,7 @@
 				E499BF1E16AE751E007FCDBE /* KRSceneManager.h in Headers */,
 				E499BF2016AE755B007FCDBE /* KRPointLight.h in Headers */,
 				E499BF2116AE75A7007FCDBE /* KREngine-common.h in Headers */,
+				E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1163,6 +1179,7 @@
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2216AE760F007FCDBE /* krengine_osx.h in Headers */,
 				E499BF2316AE7636007FCDBE /* krengine_osx-Prefix.pch in Headers */,
+				E4FE6AA916B21D660058B8CE /* forsyth.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1308,6 +1325,7 @@
 				E4F027CE16979CE200D4427D /* KRAudioSample.cpp in Sources */,
 				E4F027DE1697BFFF00D4427D /* KRAudioBuffer.cpp in Sources */,
 				E4943231169E08D200BCB891 /* KRReverbZone.cpp in Sources */,
+				E4FE6AAB16B21D7E0058B8CE /* forsyth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

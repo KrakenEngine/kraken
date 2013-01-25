@@ -235,7 +235,7 @@ void KRCamera::renderFrame(float deltaTime)
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
         
         // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false, false, false);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -371,7 +371,7 @@ void KRCamera::renderFrame(float deltaTime)
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, true, false, false, false, false, false, false);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, true, false, false, false, false, false, false);
         for(std::map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() / 2.0f);
@@ -599,7 +599,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false, false, false);
+    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -621,7 +621,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, true, false, false, true, false);
+//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false);
 //            GLDEBUG(glActiveTexture(GL_TEXTURE0));
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers

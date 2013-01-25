@@ -57,7 +57,7 @@ public:
     std::multimap<std::string, KRMesh *> getModels();
     
     
-    void bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights);
+    void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights);
     void unbindVBO();
     long getMemUsed();
     
@@ -92,6 +92,7 @@ private:
     
     typedef struct vbo_info {
         GLuint vbo_handle;
+        GLuint vbo_handle_indexes;
         GLuint vao_handle;
         GLsizeiptr size;
         GLvoid *data;

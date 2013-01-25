@@ -38,8 +38,9 @@
 #include "KRMeshSphere.h"
 
 KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
-    m_currentVBO.vbo_handle = 0;
-    m_currentVBO.vao_handle = 0;
+    m_currentVBO.vbo_handle = -1;
+    m_currentVBO.vbo_handle_indexes = -1;
+    m_currentVBO.vao_handle = -1;
     m_currentVBO.data = NULL;
     m_vboMemUsed = 0;
     m_randomParticleVertexData = NULL;
@@ -103,14 +104,16 @@ std::multimap<std::string, KRMesh *> KRMeshManager::getModels() {
 void KRMeshManager::unbindVBO() {
     if(m_currentVBO.data != NULL) {
         GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         m_currentVBO.size = 0;
         m_currentVBO.data = NULL;
         m_currentVBO.vbo_handle = -1;
+        m_currentVBO.vbo_handle_indexes = -1;
         m_currentVBO.vao_handle = -1;
     }
 }
 
-void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights) {
+void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights) {
     
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
@@ -146,6 +149,9 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, b
                 GLDEBUG(glDeleteVertexArraysOES(1, &firstVBO.vao_handle));
 #endif
                 GLDEBUG(glDeleteBuffers(1, &firstVBO.vbo_handle));
+                if(firstVBO.vbo_handle_indexes != -1) {
+                    GLDEBUG(glDeleteBuffers(1, &firstVBO.vbo_handle_indexes));
+                }
                 m_vboMemUsed -= firstVBO.size;
                 m_vbosPool.erase(first_itr);
                 fprintf(stderr, "VBO Swapping...\n");
@@ -153,6 +159,7 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, bool enable_vertex, b
             
             m_currentVBO.vao_handle = -1;
             m_currentVBO.vbo_handle = -1;
+            m_currentVBO.vbo_handle_indexes = -1;
             GLDEBUG(glGenBuffers(1, &m_currentVBO.vbo_handle));
 #if GL_OES_vertex_array_object
             GLDEBUG(glGenVertexArraysOES(1, &m_currentVBO.vao_handle));
