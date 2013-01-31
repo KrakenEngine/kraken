@@ -44,6 +44,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     ALDEBUG(alcMakeContextCurrent(m_alContext));
     
     // ----- Configure listener -----
+    ALDEBUG(alSpeedOfSound(1116.43701f)); // 1116.43701 feet per second
     ALDEBUG(alDistanceModel(AL_EXPONENT_DISTANCE));
 
 #if TARGET_OS_IPHONE
@@ -56,7 +57,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     ALfloat global_reverb_level = -5.0f;
     ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level)));
     
-    setting = ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
+    setting = ALC_ASA_REVERB_ROOM_TYPE_SmallRoom; // ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
     ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting)));
     
     
@@ -108,6 +109,7 @@ void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
     vectorForward.normalize();
     
     makeCurrentContext();
+    player_position = KRVector3(1.0, 0.0, 0.0); // FINDME - HACK - TEST CODE
     ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
     ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
     ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));

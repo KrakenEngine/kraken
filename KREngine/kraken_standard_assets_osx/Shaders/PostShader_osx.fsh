@@ -25,10 +25,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#version 120
-#define lowp
-#define mediump
-#define highp
+/*
+void main()
+{
+    gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+}
+ */
 
 #define ENABLE_VIDEO_BG 0
 #define PIXEL_SHIFT_1 0.001
@@ -37,7 +39,7 @@
 #define PIXEL_SHIFT_4 0.004
 
 varying mediump vec2 textureCoordinate;
-precision lowp float;
+//precision lowp float;
 
 #if ENABLE_VIDEO_BG == 0
 uniform lowp sampler2D videoFrame;
@@ -157,13 +159,6 @@ void main()
     
     // ---- VIDEO_BG START ----
     
-    /*
-    // Overlay video background
-    if(depth == 1.0) {
-        //FILTER COLOR BY CALCULATING PER PIXEL DOT PRODUCT
-        pixelColor = vec4(dot(vec3(texture2D(videoFrame, textureCoordinate)), vec3(.222, .707, .071)));
-    }
-     */
     
     // ---- VIDEO_BG END ----
 
@@ -190,3 +185,4 @@ void main()
     //gl_FragColor = vec4(vec3(blurAmount), 1.0);
      
 }
+

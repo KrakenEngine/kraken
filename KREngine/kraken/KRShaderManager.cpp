@@ -178,9 +178,19 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stream << "\n";
         std::string options = stream.str();
         
-        pShader = new KRShader(getContext(), szKey, options, m_vertShaderSource[platform_shader_name], m_fragShaderSource[platform_shader_name]);
+        std::string vertShaderSource = m_vertShaderSource[platform_shader_name];
+        std::string fragShaderSource = m_fragShaderSource[platform_shader_name];
+        
+        if(vertShaderSource.length() == 0) {
+            fprintf(stderr, "ERROR: Vertex Shader Missing: %s\n", platform_shader_name.c_str());
+        }
+        if(fragShaderSource.length() == 0) {
+            fprintf(stderr, "ERROR: Fragment Shader Missing: %s\n", platform_shader_name.c_str());
+        }
+        
+        pShader = new KRShader(getContext(), szKey, options, vertShaderSource, fragShaderSource);
 
-        m_shaders[szKey] = pShader;
+        m_shaders[szKey] = pShader;\
     }
     return pShader;
 }

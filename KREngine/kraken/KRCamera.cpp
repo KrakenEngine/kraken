@@ -398,13 +398,13 @@ void KRCamera::renderFrame(float deltaTime)
 void KRCamera::createBuffers() {
 
     GLint renderBufferWidth = 0, renderBufferHeight = 0;
+#if TARGET_OS_IPHONE
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
-    
-    if(renderBufferWidth == 0 || renderBufferHeight == 0) {
-        renderBufferWidth = 1024; // FINDME - HACK for OSX
-        renderBufferHeight = 768;
-    }
+#else
+    renderBufferWidth = 576; // FINDME - HACK for OSX
+    renderBufferHeight = 374;
+#endif
     
     if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
         backingWidth = renderBufferWidth;

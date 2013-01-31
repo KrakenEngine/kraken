@@ -167,12 +167,25 @@ using namespace std;
 
 - (BOOL)loadShaders
 {
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSString *bundle_directory = [[NSBundle mainBundle] bundlePath];
-    for (NSString* fileName in [fileManager contentsOfDirectoryAtPath: bundle_directory error:nil]) {
-        if([fileName hasSuffix: @".vsh"] || [fileName hasSuffix: @".fsh"] || [fileName isEqualToString:@"font.pvr"]) {
-            NSString* path = [NSString stringWithFormat:@"%@/%@", bundle_directory, fileName];
-            _context->loadResource([path UTF8String]);
+#if TARGET_OS_IPHONE
+    NSString *bundleName = @"kraken_standard_assets_ios.bundle";
+#else
+    NSString *bundleName = @"kraken_standard_assets_osx.bundle";
+#endif
+
+    NSString *bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:bundleName];
+    NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+    if(bundle == nil) {
+        NSLog(@"ERROR - Standard asset bundle could not be found.");
+    } else {
+        NSEnumerator *bundleEnumerator = [[bundle pathsForResourcesOfType: nil inDirectory: nil] objectEnumerator];
+        NSString * p = nil;
+        while (p = [bundleEnumerator nextObject]) {
+            NSString *file_name = [p lastPathComponent];
+            if([file_name hasSuffix: @".vsh"] || [file_name hasSuffix: @".fsh"] || [file_name hasPrefix:@"font."]) {
+                NSLog(@"  %@\n", file_name);
+                [self loadResource:p];
+            }
         }
     }
 
