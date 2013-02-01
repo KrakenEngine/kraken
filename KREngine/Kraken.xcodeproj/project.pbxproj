@@ -1717,7 +1717,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "krengine_osx/kraken-prefix.pch";
+				GCC_PREFIX_HEADER = "kraken_osx/kraken-prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1729,7 +1729,7 @@
 					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
 					/usr/local/include,
 				);
-				INFOPLIST_FILE = "krengine_osx/Kraken-Info.plist";
+				INFOPLIST_FILE = "kraken_osx/Kraken-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1763,7 +1763,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "krengine_osx/kraken-prefix.pch";
+				GCC_PREFIX_HEADER = "kraken_osx/kraken-prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -1771,7 +1771,7 @@
 					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
 					/usr/local/include,
 				);
-				INFOPLIST_FILE = "krengine_osx/Kraken-Info.plist";
+				INFOPLIST_FILE = "kraken_osx/Kraken-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
