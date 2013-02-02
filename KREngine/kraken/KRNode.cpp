@@ -195,7 +195,12 @@ const KRVector3 KRNode::getWorldScale() {
     return KRMat4::DotNoTranslate(getModelMatrix(), m_localScale);
 }
 const KRVector3 KRNode::getWorldRotation() {
-    return KRMat4::DotNoTranslate(getModelMatrix(), m_localRotation);
+    KRVector3 world_rotation = m_localRotation;
+    if(m_parentNode) {
+        KRVector3 parent_rotation = m_parentNode->getWorldRotation();
+        world_rotation = (KRQuaternion(world_rotation) * KRQuaternion(parent_rotation)).eulerXYZ();
+    }
+    return world_rotation;
 }
 
 std::string KRNode::getElementName() {
