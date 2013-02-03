@@ -38,37 +38,52 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
-    // ----- Initialize OpenAL -----
-    ALDEBUG(m_alDevice = alcOpenDevice(NULL));
-    ALDEBUG(m_alContext=alcCreateContext(m_alDevice,NULL));
-    ALDEBUG(alcMakeContextCurrent(m_alContext));
-    
-    // ----- Configure listener -----
-    ALDEBUG(alSpeedOfSound(1116.43701f)); // 1116.43701 feet per second
-    ALDEBUG(alDistanceModel(AL_EXPONENT_DISTANCE));
+    m_alDevice = 0;
+    m_alContext = 0;
 
-#if TARGET_OS_IPHONE
-    ALDEBUG(alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES));
-#else
-    ALDEBUG(alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH));
-#endif
-    UInt32 setting = 1;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting)));
-    ALfloat global_reverb_level = -5.0f;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level)));
-    
-    setting = ALC_ASA_REVERB_ROOM_TYPE_SmallRoom; // ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting)));
-    
-    
-    ALfloat global_reverb_eq_gain = 0.0f;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_GAIN, &global_reverb_eq_gain, sizeof(global_reverb_eq_gain)));
-    
-    ALfloat global_reverb_eq_bandwidth = 0.0f;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_BANDWITH, &global_reverb_eq_bandwidth, sizeof(global_reverb_eq_bandwidth)));
-    
-    ALfloat global_reverb_eq_freq = 0.0f;
-    ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_FREQ, &global_reverb_eq_freq, sizeof(global_reverb_eq_freq)));
+}
+
+void KRAudioManager::initAudio()
+{
+    if(m_alDevice == 0) {
+        // ----- Initialize OpenAL -----
+        ALDEBUG(m_alDevice = alcOpenDevice(NULL));
+        ALDEBUG(m_alContext=alcCreateContext(m_alDevice,NULL));
+        ALDEBUG(alcMakeContextCurrent(m_alContext));
+        
+        // ----- Configure listener -----
+        ALDEBUG(alDistanceModel(AL_EXPONENT_DISTANCE));
+        ALDEBUG(alSpeedOfSound(1116.43701f)); // 1116.43701 feet per second
+        
+         /*
+          // BROKEN IN IOS 6!!
+    #if TARGET_OS_IPHONE
+        ALDEBUG(alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES));
+    #else
+        ALDEBUG(alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH));
+    #endif
+          */
+        bool enable_reverb = false;
+        if(enable_reverb) {
+            UInt32 setting = 1;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting)));
+            ALfloat global_reverb_level = -5.0f;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level)));
+            
+            setting = ALC_ASA_REVERB_ROOM_TYPE_SmallRoom; // ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting)));
+            
+            
+            ALfloat global_reverb_eq_gain = 0.0f;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_GAIN, &global_reverb_eq_gain, sizeof(global_reverb_eq_gain)));
+            
+            ALfloat global_reverb_eq_bandwidth = 0.0f;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_BANDWITH, &global_reverb_eq_bandwidth, sizeof(global_reverb_eq_bandwidth)));
+            
+            ALfloat global_reverb_eq_freq = 0.0f;
+            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_FREQ, &global_reverb_eq_freq, sizeof(global_reverb_eq_freq)));
+        }
+    }
 }
 
 KRAudioManager::~KRAudioManager()
@@ -93,6 +108,7 @@ KRAudioManager::~KRAudioManager()
 
 void KRAudioManager::makeCurrentContext()
 {
+    initAudio();
     ALDEBUG(alcMakeContextCurrent(m_alContext));
 }
 
@@ -109,9 +125,10 @@ void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
     vectorForward.normalize();
     
     makeCurrentContext();
-    player_position = KRVector3(1.0, 0.0, 0.0); // FINDME - HACK - TEST CODE
+//    player_position = KRVector3(1.0, 0.0, 0.0); // FINDME - HACK - TEST CODE
     ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
     ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
+//    ALfloat orientation[] = {0.0, 1.0, 0.0, 0.0, 1.0, 0.0}; // FINDME - HACK - TEST CODE
     ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
 }
 

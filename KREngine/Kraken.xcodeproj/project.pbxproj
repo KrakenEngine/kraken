@@ -34,6 +34,8 @@
 		E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E41843921678704000DBD6CF /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
+		E41B6BA816BE436100B510EB /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41B6BA716BE436100B510EB /* CoreAudio.framework */; };
+		E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41B6BA916BE437800B510EB /* CoreAudio.framework */; };
 		E428C2F21669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F51669611600A16EDF /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
@@ -372,6 +374,8 @@
 		E416AA9816713749000F6786 /* KRAnimationCurveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimationCurveManager.h; sourceTree = "<group>"; };
 		E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAnimationCurveManager.cpp; sourceTree = "<group>"; };
 		E41AE1DD16B124CA00980428 /* font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.tga; sourceTree = "<group>"; };
+		E41B6BA716BE436100B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		E41B6BA916BE437800B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreAudio.framework; sourceTree = DEVELOPER_DIR; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimationManager.h; sourceTree = "<group>"; };
 		E428C2F41669611600A16EDF /* KRAnimationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAnimationManager.cpp; sourceTree = "<group>"; };
 		E428C2F71669612500A16EDF /* KRAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimation.h; sourceTree = "<group>"; };
@@ -580,6 +584,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E41B6BA816BE436100B510EB /* CoreAudio.framework in Frameworks */,
 				E4F027FA1698116000D4427D /* AudioToolbox.framework in Frameworks */,
 				E4F027D31697A01300D4427D /* OpenAL.framework in Frameworks */,
 				E4CA10F61638BCAF005D9400 /* Accelerate.framework in Frameworks */,
@@ -592,6 +597,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */,
 				E4F027F71698115600D4427D /* AudioToolbox.framework in Frameworks */,
 				E4F027D51697A02D00D4427D /* OpenAL.framework in Frameworks */,
 				E4CA10F81638BCBB005D9400 /* Accelerate.framework in Frameworks */,
@@ -993,6 +999,7 @@
 		E4BBBB931512A41500F43B5B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E41B6BA916BE437800B510EB /* CoreAudio.framework */,
 				10CC33A3168530A300BB9846 /* libPVRTexLib.a */,
 				E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */,
 				E4BBBB9A1512A48200F43B5B /* Foundation.framework */,
@@ -1079,9 +1086,10 @@
 		E4C8E50D16B9B5F80031DDCB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E4F027F91698116000D4427D /* AudioToolbox.framework */,
+				E41B6BA716BE436100B510EB /* CoreAudio.framework */,
 				E491016413C99B9E0098455B /* Foundation.framework */,
 				E4F027D21697A01300D4427D /* OpenAL.framework */,
-				E4F027F91698116000D4427D /* AudioToolbox.framework */,
 				E491019F13C99BF50098455B /* OpenGLES.framework */,
 				E4CA10F51638BCAE005D9400 /* Accelerate.framework */,
 			);

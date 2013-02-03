@@ -68,6 +68,8 @@ private:
     
     ALCcontext* m_alContext;
     ALCdevice* m_alDevice;
+    
+    void initAudio();
 
 };
 

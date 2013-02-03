@@ -410,7 +410,7 @@ void KRAudioSource::updatePosition()
         ALfloat obstruction = 0.0f; // type ALfloat	-100.0 db (most obstruction) - 0.0 db (no obstruction, 0.0 default)
         
         KRVector3 worldPosition = getWorldTranslation();
-        worldPosition = KRVector3(0.0, 0.0, 0.0); // FINDME - HACK - TEST CODE
+//        worldPosition = KRVector3(0.0, 0.5, 0.0); // FINDME - HACK - TEST CODE
         ALDEBUG(alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z));
         ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
         ALDEBUG(alSourcef(m_sourceID, AL_MIN_GAIN, 0.0));
