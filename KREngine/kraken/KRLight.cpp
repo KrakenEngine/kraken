@@ -259,7 +259,11 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
             if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, lights, 0, viewport, occlusion_test_sphere_matrix, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass)) {
 
                 GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+#if TARGET_OS_IPHONE
                 GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
+#else
+                GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
+#endif
 
                 std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
                 if(sphereModels.size()) {
@@ -268,7 +272,11 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     }
                 }
 
+#if TARGET_OS_IPHONE
                 GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
+#else
+                GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
+#endif
 
             }
         }

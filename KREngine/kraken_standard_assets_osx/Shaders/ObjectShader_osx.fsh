@@ -25,7 +25,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#extension GL_EXT_shadow_samplers : require
+//#extension GL_EXT_shadow_samplers : require
 
 #if FOG_TYPE > 0
     // FOG_TYPE 1 - Linear

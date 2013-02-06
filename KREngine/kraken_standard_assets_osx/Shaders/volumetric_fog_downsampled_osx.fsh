@@ -25,8 +25,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#extension GL_EXT_shadow_samplers : require
-
 varying mediump vec4        shadowMapCoord1;
 uniform sampler2DShadow     shadowTexture1;
 uniform lowp sampler2D      depthFrame;
@@ -37,5 +35,5 @@ void main()
 {
     if(gl_FragCoord.z > texture2D(depthFrame, vec2(gl_FragCoord.xy / viewport.zw)).r) discard;
 
-    gl_FragColor = vec4(light_color, 1.0) * shadow2DProjEXT(shadowTexture1, shadowMapCoord1);
+    gl_FragColor = vec4(light_color, 1.0) * shadow2DProj(shadowTexture1, shadowMapCoord1);
 }

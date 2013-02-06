@@ -71,6 +71,7 @@ using namespace std;
     BOOL isRetina = false;
 #endif
     
+#if TARGET_OS_IPHONE
     if(isIpad && isRetina) {
         KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
         KRContext::KRENGINE_MAX_VBO_MEM = 128000000 * 2;
@@ -94,6 +95,18 @@ using namespace std;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     }
+#else
+    KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
+    KRContext::KRENGINE_MAX_VBO_MEM = 256000000;
+    KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+    KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
+    KRContext::KRENGINE_MAX_TEXTURE_MEM = 256000000;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 192000000;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  96000000;
+    KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
+    KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
+#endif
     
     _context = NULL;
     if ((self = [super init])) {
@@ -168,12 +181,13 @@ using namespace std;
 - (BOOL)loadShaders
 {
 #if TARGET_OS_IPHONE
-    NSString *bundleName = @"kraken_standard_assets_ios.bundle";
+    NSString *bundleName = @"kraken_standard_assets_ios";
 #else
-    NSString *bundleName = @"kraken_standard_assets_osx.bundle";
+    NSString *bundleName = @"kraken_standard_assets_osx";
 #endif
 
-    NSString *bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:bundleName];
+//    NSString *bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:bundleName];
+    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"bundle"];
     NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
     if(bundle == nil) {
         NSLog(@"ERROR - Standard asset bundle could not be found.");

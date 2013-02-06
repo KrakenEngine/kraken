@@ -60,16 +60,19 @@ KRCamera::~KRCamera() {
 void KRCamera::renderFrame(float deltaTime)
 {
 
+    GLint defaultFBO;
+    GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
+    
     createBuffers();
     
     KRScene &scene = getScene();
+    
 
 
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     getContext().getAudioManager()->setViewMatrix(viewMatrix); // FINDME, TODO - Should we support de-coupling the audio listener location from the camera?
     
-    GLint defaultFBO;
-    GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
+
     
     settings.setViewportSize(KRVector2(backingWidth, backingHeight));
     KRMat4 projectionMatrix;
@@ -391,7 +394,6 @@ void KRCamera::renderFrame(float deltaTime)
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
-
 }
 
 
@@ -402,8 +404,8 @@ void KRCamera::createBuffers() {
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
 #else
-    renderBufferWidth = 576; // FINDME - HACK for OSX
-    renderBufferHeight = 374;
+    renderBufferWidth = 1920; // FINDME - HACK for OSX
+    renderBufferHeight = 1200;
 #endif
     
     if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
@@ -476,6 +478,7 @@ void KRCamera::createBuffers() {
         GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
     }
+    
     int targetVolumetricBufferWidth = 0;
     int targetVolumetricBufferHeight = 0;
     if(settings.volumetric_environment_enable && settings.volumetric_environment_downsample != 0) {
@@ -497,6 +500,7 @@ void KRCamera::createBuffers() {
             GLDEBUG(glDeleteFramebuffers(1, &volumetricLightAccumulationBuffer));
             volumetricLightAccumulationBuffer = 0;
         }
+        
         
         if(targetVolumetricBufferWidth != 0 && targetVolumetricBufferHeight != 0) {
             // ===== Create offscreen compositing framebuffer object for volumetric lighting =====

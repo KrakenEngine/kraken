@@ -29,7 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#extension GL_EXT_shadow_samplers : require
+//#extension GL_EXT_shadow_samplers : require
 
 varying mediump vec2 texCoord;
 
@@ -39,5 +39,5 @@ uniform mediump vec3        light_color;
 varying lowp float          intensity_modulate;
 
 void main() {
-    gl_FragColor = vec4(light_color, 1.0) * shadow2DProjEXT(shadowTexture1, shadowMapCoord1) * max(1.0 - texCoord.x*texCoord.x-texCoord.y*texCoord.y, 0.0) * intensity_modulate;
+    gl_FragColor = vec4(light_color, 1.0) * shadow2DProj(shadowTexture1, shadowMapCoord1) * max(1.0 - texCoord.x*texCoord.x-texCoord.y*texCoord.y, 0.0) * intensity_modulate;
 }
