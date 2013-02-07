@@ -32,13 +32,14 @@
 #include "KRAudioManager.h"
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
+#include "KRAudioBuffer.h"
 
 OSStatus  alcASASetListenerProc(const ALuint property, ALvoid *data, ALuint dataSize);
 ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
-    m_audio_engine = KRAKEN_AUDIO_OPENAL;
+    m_audio_engine = KRAKEN_AUDIO_SIREN;
     
     // OpenAL
     m_alDevice = 0;
@@ -63,15 +64,10 @@ void KRAudioManager::initAudio()
     }
 }
 
-// audio render procedure, don't allocate memory, don't take any locks, don't waste time
-static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData)
+void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
     static float phase;
     static float pan_phase;
-	// Get a reference to the object that was passed with the callback
-	// In this case, the AudioController passed itself so
-	// that you can access its data.
-	KRAudioManager *THIS = (KRAudioManager*)inRefCon;
     
 	// Get a pointer to the dataBuffer of the AudioBufferList
     
@@ -96,20 +92,25 @@ static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioAction
         // -32767 to 32767 and then cast to an integer
         float left_channel = sinSignal * (sin(pan_phase) * 0.5f + 0.5f);
         float right_channel = sinSignal * (-sin(pan_phase) * 0.5f + 0.5f);
+        
+        
+        left_channel = 0;
+        right_channel = 0;
+        
 #if CA_PREFER_FIXED_POINT
         // Interleaved
-//        outA[i*2] = (SInt16)(left_channel * 32767.0f);
-//        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
-
+        //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
+        //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
+        
         // Non-Interleaved
         outA[i] = (SInt32)(left_channel * 0x1000000f);
         outB[i] = (SInt32)(right_channel * 0x1000000f);
 #else
-
+        
         // Interleaved
-//        outA[i*2] = (Float32)left_channel;
-//        outA[i*2 + 1] = (Float32)right_channel;
-
+        //        outA[i*2] = (Float32)left_channel;
+        //        outA[i*2 + 1] = (Float32)right_channel;
+        
         // Non-Interleaved
         outA[i] = (Float32)left_channel;
         outB[i] = (Float32)right_channel;
@@ -123,6 +124,60 @@ static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioAction
 		phase = phase - M_PI * freq;
 	}
     
+    for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
+        int channel_count = 1;
+        
+        KRAudioSource *source = *itr;
+        KRAudioBuffer *buffer = source->getBuffer();
+        int buffer_offset = source->getBufferFrame();
+        int frames_advanced = 0;
+        for (UInt32 i = 0; i < inNumberFrames; ++i) {
+            float left_channel=0;
+            float right_channel=0;
+            if(buffer) {
+                short *frame = buffer->getFrameData() + (buffer_offset++ * channel_count);
+                frames_advanced++;
+                left_channel = (float)frame[0] / 32767.0f;
+                if(channel_count == 2) {
+                    right_channel = (float)frame[1] / 32767.0f;
+                } else {
+                    right_channel = left_channel;
+                }
+                if(buffer_offset >= buffer->getFrameCount()) {
+                    source->advanceFrames(frames_advanced);
+                    frames_advanced = 0;
+                    buffer = source->getBuffer();
+                    buffer_offset = source->getBufferFrame();
+                }
+            }
+            
+#if CA_PREFER_FIXED_POINT
+            // Interleaved
+            //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
+            //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
+            
+            // Non-Interleaved
+            outA[i] += (SInt32)(left_channel * 0x1000000f);
+            outB[i] += (SInt32)(right_channel * 0x1000000f);
+#else
+            
+            // Interleaved
+            //        outA[i*2] = (Float32)left_channel;
+            //        outA[i*2 + 1] = (Float32)right_channel;
+            
+            // Non-Interleaved
+            outA[i] += (Float32)left_channel;
+            outB[i] += (Float32)right_channel;
+#endif
+        }
+        source->advanceFrames(frames_advanced);
+    }
+}
+
+// audio render procedure, don't allocate memory, don't take any locks, don't waste time
+OSStatus KRAudioManager::renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData)
+{
+    ((KRAudioManager*)inRefCon)->renderAudio(inNumberFrames, ioData);
 	return noErr;
 }
 
@@ -298,7 +353,7 @@ void KRAudioManager::initSiren()
         
         OSDEBUG(AUGraphStart(m_auGraph));
         
-        CAShow(m_auGraph);
+//        CAShow(m_auGraph);
     }
 }
 
@@ -504,4 +559,14 @@ ALvoid alcMacOSXRenderingQualityProc(const ALint value)
 KRAudioManager::audio_engine_t KRAudioManager::getAudioEngine()
 {
     return m_audio_engine;
+}
+
+void KRAudioManager::activateAudioSource(KRAudioSource *audioSource)
+{
+    m_activeAudioSources.insert(audioSource);
+}
+
+void KRAudioManager::deactivateAudioSource(KRAudioSource *audioSource)
+{
+    m_activeAudioSources.erase(audioSource);
 }

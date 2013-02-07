@@ -38,6 +38,7 @@
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRMat4.h"
+#include "KRAudioSource.h"
 
 const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
@@ -69,12 +70,16 @@ public:
     
     audio_engine_t getAudioEngine();
     
+    void activateAudioSource(KRAudioSource *audioSource);
+    void deactivateAudioSource(KRAudioSource *audioSource);
+    
     
 private:
     map<std::string, KRAudioSample *> m_sounds;
     
     std::vector<KRDataBlock *> m_bufferPoolIdle;
     
+    std::set<KRAudioSource *> m_activeAudioSources;
     
     void initAudio();
     void initOpenAL();
@@ -95,7 +100,8 @@ private:
     // Siren Handles
     AUGraph m_auGraph;
     AudioUnit m_auMixer;
-
+    static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
+    void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

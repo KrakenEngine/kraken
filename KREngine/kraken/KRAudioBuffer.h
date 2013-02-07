@@ -22,6 +22,9 @@ public:
     ~KRAudioBuffer();
     
     unsigned int getBufferID();
+    int getFrameCount();
+    int getFrameRate();
+    signed short *getFrameData();
 private:
     KRAudioManager *m_pSoundManager;
     

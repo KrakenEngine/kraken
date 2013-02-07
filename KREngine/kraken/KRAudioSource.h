@@ -86,7 +86,16 @@ public:
     bool getEnableObstruction();
     void setEnableObstruction(bool enable_obstruction);
     
+    // ---- Siren Audio Engine Interface ----
+    
+    void advanceFrames(int frame_count);
+    KRAudioBuffer *getBuffer();
+    int getBufferFrame();
+    
 private:
+    int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
+    void advanceBuffer();
+    
     std::string m_audio_sample_name;
     
     KRAudioSample *m_audioFile;

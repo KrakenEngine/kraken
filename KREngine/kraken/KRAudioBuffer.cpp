@@ -45,3 +45,18 @@ unsigned int KRAudioBuffer::getBufferID()
 {
     return m_bufferID;
 }
+
+int KRAudioBuffer::getFrameCount()
+{
+    return m_frameCount;
+}
+
+int KRAudioBuffer::getFrameRate()
+{
+    return m_frameRate;
+}
+
+signed short *KRAudioBuffer::getFrameData()
+{
+    return (signed short *)m_pData->getStart();
+}
