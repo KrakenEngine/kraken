@@ -61,15 +61,40 @@ public:
     KRDataBlock *getBufferData(int size);
     void recycleBufferData(KRDataBlock *data);
     
+    enum audio_engine_t {
+        KRAKEN_AUDIO_NONE,
+        KRAKEN_AUDIO_OPENAL,
+        KRAKEN_AUDIO_SIREN
+    };
+    
+    audio_engine_t getAudioEngine();
+    
+    
 private:
     map<std::string, KRAudioSample *> m_sounds;
     
     std::vector<KRDataBlock *> m_bufferPoolIdle;
     
+    
+    void initAudio();
+    void initOpenAL();
+    void initSiren();
+    
+    void cleanupAudio();
+    void cleanupOpenAL();
+    void cleanupSiren();
+    
+
+    
+    audio_engine_t m_audio_engine;
+    
+    // OpenAL Handles
     ALCcontext* m_alContext;
     ALCdevice* m_alDevice;
     
-    void initAudio();
+    // Siren Handles
+    AUGraph m_auGraph;
+    AudioUnit m_auMixer;
 
 };
 

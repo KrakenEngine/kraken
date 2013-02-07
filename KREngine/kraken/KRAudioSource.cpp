@@ -373,7 +373,7 @@ void KRAudioSource::play()
         ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
         ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
         ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
-//        ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
+        ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
     } else {
         ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE));
         ALDEBUG(alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0));
@@ -410,7 +410,6 @@ void KRAudioSource::updatePosition()
         ALfloat obstruction = 0.0f; // type ALfloat	-100.0 db (most obstruction) - 0.0 db (no obstruction, 0.0 default)
         
         KRVector3 worldPosition = getWorldTranslation();
-//        worldPosition = KRVector3(0.0, 0.5, 0.0); // FINDME - HACK - TEST CODE
         ALDEBUG(alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z));
         ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
         ALDEBUG(alSourcef(m_sourceID, AL_MIN_GAIN, 0.0));

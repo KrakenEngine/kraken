@@ -24,9 +24,10 @@ KRAudioBuffer::KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int 
     m_pData = m_pSoundManager->getBufferData(m_frameCount * m_bytesPerFrame);
     fn_populate(sound, index, m_pData->getStart());
     
-    
-    ALDEBUG(alGenBuffers(1, &m_bufferID));
-    ALDEBUG(alBufferData(m_bufferID, m_dataFormat, m_pData->getStart(), m_frameCount * m_bytesPerFrame, m_frameRate));
+    if(manager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
+        ALDEBUG(alGenBuffers(1, &m_bufferID));
+        ALDEBUG(alBufferData(m_bufferID, m_dataFormat, m_pData->getStart(), m_frameCount * m_bytesPerFrame, m_frameRate));
+    }
 }
 
 KRAudioBuffer::~KRAudioBuffer()

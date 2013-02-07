@@ -85,6 +85,7 @@ using std::queue;
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioToolbox/AudioFile.h>
 #include <AudioToolbox/ExtendedAudioFile.h>
+#include <AudioToolbox/AUGraph.h>
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #if TARGET_OS_IPHONE
@@ -116,6 +117,14 @@ fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i f
 } \
 }
 
+#define OSDEBUG(x) \
+{ \
+OSStatus e = x; \
+if( e != noErr) \
+{ \
+fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n",__LINE__, __FILE__, e, #x ); \
+} \
+}
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))

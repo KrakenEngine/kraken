@@ -63,15 +63,10 @@ using namespace std;
 
 - (id)init
 {
+
 #if TARGET_OS_IPHONE
     BOOL isIpad = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
     BOOL isRetina = [[UIScreen mainScreen] scale] >= 2.0;
-#else
-    BOOL isIpad = false;
-    BOOL isRetina = false;
-#endif
-    
-#if TARGET_OS_IPHONE
     if(isIpad && isRetina) {
         KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
         KRContext::KRENGINE_MAX_VBO_MEM = 128000000 * 2;
@@ -105,7 +100,7 @@ using namespace std;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  96000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
-    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
+    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 128000000;
 #endif
     
     _context = NULL;

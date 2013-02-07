@@ -76,6 +76,8 @@
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E44F38281683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
 		E44F38291683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
+		E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040316C30CC5002B00A0 /* AudioUnit.framework */; };
+		E459040616C30CD9002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040516C30CD9002B00A0 /* AudioUnit.framework */; };
 		E460292616681CFF00261BB9 /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E460292816681D1000261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
 		E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */; };
@@ -396,6 +398,8 @@
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRContextObject.h; sourceTree = "<group>"; };
 		E44F38231683B22C00399B5D /* KRRenderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRRenderSettings.h; sourceTree = "<group>"; };
 		E44F38271683B24400399B5D /* KRRenderSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRRenderSettings.cpp; sourceTree = "<group>"; };
+		E459040316C30CC5002B00A0 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/AudioUnit.framework; sourceTree = DEVELOPER_DIR; };
+		E459040516C30CD9002B00A0 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		E460292516681CFE00261BB9 /* KRTextureAnimated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTextureAnimated.h; sourceTree = "<group>"; };
 		E460292716681D1000261BB9 /* KRTextureAnimated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTextureAnimated.cpp; sourceTree = "<group>"; };
 		E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "lib/gcc4/ub/libfbxsdk-2013.3-static.a"; sourceTree = FBXSDK; };
@@ -584,6 +588,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E459040616C30CD9002B00A0 /* AudioUnit.framework in Frameworks */,
 				E41B6BA816BE436100B510EB /* CoreAudio.framework in Frameworks */,
 				E4F027FA1698116000D4427D /* AudioToolbox.framework in Frameworks */,
 				E4F027D31697A01300D4427D /* OpenAL.framework in Frameworks */,
@@ -597,6 +602,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */,
 				E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */,
 				E4F027F71698115600D4427D /* AudioToolbox.framework in Frameworks */,
 				E4F027D51697A02D00D4427D /* OpenAL.framework in Frameworks */,
@@ -999,6 +1005,7 @@
 		E4BBBB931512A41500F43B5B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E459040316C30CC5002B00A0 /* AudioUnit.framework */,
 				E41B6BA916BE437800B510EB /* CoreAudio.framework */,
 				10CC33A3168530A300BB9846 /* libPVRTexLib.a */,
 				E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */,
@@ -1087,6 +1094,7 @@
 			isa = PBXGroup;
 			children = (
 				E4F027F91698116000D4427D /* AudioToolbox.framework */,
+				E459040516C30CD9002B00A0 /* AudioUnit.framework */,
 				E41B6BA716BE436100B510EB /* CoreAudio.framework */,
 				E491016413C99B9E0098455B /* Foundation.framework */,
 				E4F027D21697A01300D4427D /* OpenAL.framework */,

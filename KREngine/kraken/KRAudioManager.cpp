@@ -38,12 +38,282 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
+    m_audio_engine = KRAKEN_AUDIO_OPENAL;
+    
+    // OpenAL
     m_alDevice = 0;
     m_alContext = 0;
-
+    
+    // Siren
+    m_auGraph = NULL;
+    m_auMixer = NULL;
 }
 
 void KRAudioManager::initAudio()
+{
+    switch(m_audio_engine) {
+        case KRAKEN_AUDIO_OPENAL:
+            initOpenAL();
+            break;
+        case KRAKEN_AUDIO_SIREN:
+            initSiren();
+            break;
+        case KRAKEN_AUDIO_NONE:
+            break;
+    }
+}
+
+// audio render procedure, don't allocate memory, don't take any locks, don't waste time
+static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData)
+{
+    static float phase;
+    static float pan_phase;
+	// Get a reference to the object that was passed with the callback
+	// In this case, the AudioController passed itself so
+	// that you can access its data.
+	KRAudioManager *THIS = (KRAudioManager*)inRefCon;
+    
+	// Get a pointer to the dataBuffer of the AudioBufferList
+    
+	AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
+    AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
+    
+	// Calculations to produce a 600 Hz sinewave
+	// A constant frequency value, you can pass in a reference vary this.
+	float freq = 300;
+	// The amount the phase changes in  single sample
+	double phaseIncrement = M_PI * freq / 44100.0;
+	// Pass in a reference to the phase value, you have to keep track of this
+	// so that the sin resumes right where the last call left off
+    
+	// Loop through the callback buffer, generating samples
+	for (UInt32 i = 0; i < inNumberFrames; ++i) {
+        
+        // calculate the next sample
+        float sinSignal = sin(phase);
+        // Put the sample into the buffer
+        // Scale the -1 to 1 values float to
+        // -32767 to 32767 and then cast to an integer
+        float left_channel = sinSignal * (sin(pan_phase) * 0.5f + 0.5f);
+        float right_channel = sinSignal * (-sin(pan_phase) * 0.5f + 0.5f);
+#if CA_PREFER_FIXED_POINT
+        // Interleaved
+//        outA[i*2] = (SInt16)(left_channel * 32767.0f);
+//        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
+
+        // Non-Interleaved
+        outA[i] = (SInt32)(left_channel * 0x1000000f);
+        outB[i] = (SInt32)(right_channel * 0x1000000f);
+#else
+
+        // Interleaved
+//        outA[i*2] = (Float32)left_channel;
+//        outA[i*2 + 1] = (Float32)right_channel;
+
+        // Non-Interleaved
+        outA[i] = (Float32)left_channel;
+        outB[i] = (Float32)right_channel;
+#endif
+        // calculate the phase for the next sample
+        phase = phase + phaseIncrement;
+        pan_phase = pan_phase + 1 / 44100.0 * M_PI;
+    }
+    // Reset the phase value to prevent the float from overflowing
+    if (phase >=  M_PI * freq) {
+		phase = phase - M_PI * freq;
+	}
+    
+	return noErr;
+}
+
+
+void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool interleaved)
+{
+    desc.mFormatID = kAudioFormatLinearPCM;
+#if CA_PREFER_FIXED_POINT
+    desc.mFormatFlags = kAudioFormatFlagsCanonical | (kAudioUnitSampleFractionBits << kLinearPCMFormatFlagsSampleFractionShift);
+#else
+    desc.mFormatFlags = kAudioFormatFlagsCanonical;
+#endif
+    desc.mChannelsPerFrame = nChannels;
+    desc.mFramesPerPacket = 1;
+    desc.mBitsPerChannel = 8 * sizeof(AudioUnitSampleType);
+    if (interleaved)
+        desc.mBytesPerPacket = desc.mBytesPerFrame = nChannels * sizeof(AudioUnitSampleType);
+    else {
+        desc.mBytesPerPacket = desc.mBytesPerFrame = sizeof(AudioUnitSampleType);
+        desc.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
+    }
+    
+    
+    /*
+     desc.mSampleRate = 44100.0; // set sample rate
+     desc.mFormatID = kAudioFormatLinearPCM;
+     desc.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+     desc.mBitsPerChannel = sizeof(AudioSampleType) * 8; // AudioSampleType == 16 bit signed ints
+     desc.mChannelsPerFrame = 2;
+     desc.mFramesPerPacket = 1;
+     desc.mBytesPerFrame = (desc.mBitsPerChannel / 8) * desc.mChannelsPerFrame;
+     desc.mBytesPerPacket = desc.mBytesPerFrame * desc.mFramesPerPacket;
+     */
+}
+
+void KRAudioManager::initSiren()
+{
+    if(m_auGraph == NULL) {
+        // ----====---- Initialize Core Audio Objects ----====----
+        OSDEBUG(NewAUGraph(&m_auGraph));
+        
+        // ---- Create output node ----
+        AudioComponentDescription output_desc;
+        output_desc.componentType = kAudioUnitType_Output;
+#if TARGET_OS_IPHONE
+        output_desc.componentSubType = kAudioUnitSubType_RemoteIO;
+#else
+        output_desc.componentSubType = kAudioUnitSubType_DefaultOutput;
+#endif
+        output_desc.componentFlags = 0;
+        output_desc.componentFlagsMask = 0;
+        output_desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+        AUNode outputNode = 0;
+        OSDEBUG(AUGraphAddNode(m_auGraph, &output_desc, &outputNode));
+        
+        // ---- Create mixer node ----
+        AudioComponentDescription mixer_desc;
+        mixer_desc.componentType = kAudioUnitType_Mixer;
+        mixer_desc.componentSubType = kAudioUnitSubType_MultiChannelMixer;
+        mixer_desc.componentFlags = 0;
+        mixer_desc.componentFlagsMask = 0;
+        mixer_desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+        AUNode mixerNode = 0;
+        OSDEBUG(AUGraphAddNode(m_auGraph, &mixer_desc, &mixerNode ));
+        
+        // ---- Connect mixer to output node ----
+        OSDEBUG(AUGraphConnectNodeInput(m_auGraph, mixerNode, 0, outputNode, 0));
+        
+        // ---- Open the audio graph ----
+        OSDEBUG(AUGraphOpen(m_auGraph));
+        
+        // ---- Get a handle to the mixer ----
+        OSDEBUG(AUGraphNodeInfo(m_auGraph, mixerNode, NULL, &m_auMixer));
+        
+        // ---- Add output channel to mixer ----
+        UInt32 bus_count = 1;
+        OSDEBUG(AudioUnitSetProperty(m_auMixer, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &bus_count, sizeof(bus_count)));
+        
+        // ---- Attach render function to channel ----
+        AURenderCallbackStruct renderCallbackStruct;
+		renderCallbackStruct.inputProc = &renderInput;
+		renderCallbackStruct.inputProcRefCon = this;
+        OSDEBUG(AUGraphSetNodeInputCallback(m_auGraph, mixerNode, 0, &renderCallbackStruct)); // 0 = mixer input number
+        
+        AudioStreamBasicDescription desc;
+        memset(&desc, 0, sizeof(desc));
+        
+        UInt32 size = sizeof(desc);
+        memset(&desc, 0, sizeof(desc));
+		OSDEBUG(AudioUnitGetProperty(  m_auMixer,
+                                      kAudioUnitProperty_StreamFormat,
+                                      kAudioUnitScope_Input,
+                                      0, // 0 = mixer input number
+                                      &desc,
+                                      &size));
+
+        KRSetAUCanonical(desc, 2, false);
+        desc.mSampleRate = 44100.0f;
+        /*
+        desc.mSampleRate = 44100.0; // set sample rate
+		desc.mFormatID = kAudioFormatLinearPCM;
+		desc.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+		desc.mBitsPerChannel = sizeof(AudioSampleType) * 8; // AudioSampleType == 16 bit signed ints
+		desc.mChannelsPerFrame = 2;
+		desc.mFramesPerPacket = 1;
+		desc.mBytesPerFrame = (desc.mBitsPerChannel / 8) * desc.mChannelsPerFrame;
+		desc.mBytesPerPacket = desc.mBytesPerFrame * desc.mFramesPerPacket;
+         */
+        
+        OSDEBUG(AudioUnitSetProperty(m_auMixer,
+                             kAudioUnitProperty_StreamFormat,
+                             kAudioUnitScope_Input,
+                             0, // 0 == mixer input number
+                             &desc,
+                            sizeof(desc)));
+        
+        // ---- Apply properties to mixer output ----
+        OSDEBUG(AudioUnitSetProperty(m_auMixer,
+                             kAudioUnitProperty_StreamFormat,
+                             kAudioUnitScope_Output,
+                             0, // Always 0 for output bus
+                             &desc,
+                             sizeof(desc)));
+        
+        
+        memset(&desc, 0, sizeof(desc));
+        size = sizeof(desc);
+        OSDEBUG(AudioUnitGetProperty(m_auMixer,
+                             kAudioUnitProperty_StreamFormat,
+                             kAudioUnitScope_Output,
+                             0,
+                             &desc,
+                             &size));
+        
+        // ----
+        // AUCanonical on the iPhone is the 8.24 integer format that is native to the iPhone.
+
+        KRSetAUCanonical(desc, 2, false);
+        desc.mSampleRate = 44100.0f;
+//        int channel_count = 2;
+//        bool interleaved = true;
+//        
+//        desc.mFormatID = kAudioFormatLinearPCM;
+//#if CA_PREFER_FIXED_POINT
+//        desc.mFormatFlags = kAudioFormatFlagsCanonical | (kAudioUnitSampleFractionBits << kLinearPCMFormatFlagsSampleFractionShift);
+//#else
+//        desc.mFormatFlags = kAudioFormatFlagsCanonical;
+//#endif
+//        desc.mChannelsPerFrame = channel_count;
+//        desc.mFramesPerPacket = 1;
+//        desc.mBitsPerChannel = 8 * sizeof(AudioUnitSampleType);
+//        if (interleaved) {
+//            desc.mBytesPerPacket = desc.mBytesPerFrame = channel_count * sizeof(AudioUnitSampleType);
+//        } else {
+//            desc.mBytesPerPacket = desc.mBytesPerFrame = sizeof(AudioUnitSampleType);
+//            desc.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
+//        }
+        
+        // ----
+
+        OSDEBUG(AudioUnitSetProperty(m_auMixer,
+                                      kAudioUnitProperty_StreamFormat,
+                                      kAudioUnitScope_Output,
+                                      0,
+                                      &desc,
+                                      sizeof(desc)));
+        
+        
+        OSDEBUG(AudioUnitSetParameter(m_auMixer, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, 1.0, 0));
+        OSDEBUG(AudioUnitSetParameter(m_auMixer, kMultiChannelMixerParam_Volume, kAudioUnitScope_Output, 0, 1.0, 0));
+        
+        OSDEBUG(AUGraphInitialize(m_auGraph));
+        
+        OSDEBUG(AUGraphStart(m_auGraph));
+        
+        CAShow(m_auGraph);
+    }
+}
+
+
+void KRAudioManager::cleanupSiren()
+{
+    if(m_auGraph) {
+        OSDEBUG(AUGraphStop(m_auGraph));
+        OSDEBUG(DisposeAUGraph(m_auGraph));
+        m_auGraph = NULL;
+        m_auMixer = NULL;
+    }
+}
+
+void KRAudioManager::initOpenAL()
 {
     if(m_alDevice == 0) {
         // ----- Initialize OpenAL -----
@@ -86,12 +356,14 @@ void KRAudioManager::initAudio()
     }
 }
 
-KRAudioManager::~KRAudioManager()
+void KRAudioManager::cleanupAudio()
 {
-    for(map<std::string, KRAudioSample *>::iterator name_itr=m_sounds.begin(); name_itr != m_sounds.end(); name_itr++) {
-        delete (*name_itr).second;
-    }
-    
+    cleanupOpenAL();
+    cleanupSiren();
+}
+
+void KRAudioManager::cleanupOpenAL()
+{
     if(m_alContext) {
         ALDEBUG(alcDestroyContext(m_alContext));
         m_alContext = 0;
@@ -100,6 +372,15 @@ KRAudioManager::~KRAudioManager()
         ALDEBUG(alcCloseDevice(m_alDevice));
         m_alDevice = 0;
     }
+}
+
+KRAudioManager::~KRAudioManager()
+{
+    for(map<std::string, KRAudioSample *>::iterator name_itr=m_sounds.begin(); name_itr != m_sounds.end(); name_itr++) {
+        delete (*name_itr).second;
+    }
+    
+    cleanupAudio();
     
     for(std::vector<KRDataBlock *>::iterator itr = m_bufferPoolIdle.begin(); itr != m_bufferPoolIdle.end(); itr++) {
         delete *itr;
@@ -109,7 +390,11 @@ KRAudioManager::~KRAudioManager()
 void KRAudioManager::makeCurrentContext()
 {
     initAudio();
-    ALDEBUG(alcMakeContextCurrent(m_alContext));
+    if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
+        if(m_alContext != 0) {
+            ALDEBUG(alcMakeContextCurrent(m_alContext));
+        }
+    }
 }
 
 void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
@@ -125,11 +410,11 @@ void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
     vectorForward.normalize();
     
     makeCurrentContext();
-//    player_position = KRVector3(1.0, 0.0, 0.0); // FINDME - HACK - TEST CODE
-    ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
-    ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
-//    ALfloat orientation[] = {0.0, 1.0, 0.0, 0.0, 1.0, 0.0}; // FINDME - HACK - TEST CODE
-    ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
+    if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
+        ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
+        ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
+        ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
+    }
 }
 
 void KRAudioManager::add(KRAudioSample *sound)
@@ -214,4 +499,9 @@ ALvoid alcMacOSXRenderingQualityProc(const ALint value)
         proc(value);
     
     return;
+}
+
+KRAudioManager::audio_engine_t KRAudioManager::getAudioEngine()
+{
+    return m_audio_engine;
 }
