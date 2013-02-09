@@ -58,6 +58,8 @@ public:
     void setSample(const std::string &sound_name);
     std::string getSample();
     
+    KRAudioSample *getAudioSample();
+    
     float getGain();
     void setGain(float gain);
     
@@ -92,7 +94,11 @@ public:
     KRAudioBuffer *getBuffer();
     int getBufferFrame();
     
+    
+    __int64_t getStartAudioFrame();
+    
 private:
+    __int64_t m_start_audio_frame; // Global audio frame that matches the start of the audio sample playback
     int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
     void advanceBuffer();
     

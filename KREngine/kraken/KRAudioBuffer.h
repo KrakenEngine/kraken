@@ -25,10 +25,13 @@ public:
     int getFrameCount();
     int getFrameRate();
     signed short *getFrameData();
+    
+    KRAudioSample *getAudioSample();
+    int getIndex();
 private:
     KRAudioManager *m_pSoundManager;
     
-    
+    int m_index;
     ALenum m_dataFormat;
 	int m_frameCount;
     int m_frameRate;
@@ -36,6 +39,8 @@ private:
     KRDataBlock *m_pData;
     
     unsigned int m_bufferID;
+    
+    KRAudioSample *m_audioSample;
 };
 
 #endif /* defined(KRAUDIO_BUFFER_H) */

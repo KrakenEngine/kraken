@@ -48,6 +48,8 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     // Siren
     m_auGraph = NULL;
     m_auMixer = NULL;
+    
+    m_audio_frame = 0;
 }
 
 void KRAudioManager::initAudio()
@@ -66,45 +68,39 @@ void KRAudioManager::initAudio()
 
 void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
-    static float phase;
-    static float pan_phase;
+    // hrtf_kemar_H-10e000a.wav
+    
+    static float hrtf_workspace[128];
+    
+    float speed_of_sound = 1126.0f; // feed per second FINDME - TODO - This needs to be configurable for scenes with different units
+    float head_radius = 0.7431f; // 0.74ft = 22cm
+    float half_max_itd_time = head_radius / speed_of_sound / 2.0f; // half of ITD time (Interaural time difference) when audio source is directly 90 degrees azimuth to one ear.
+    
+//    KRVector3 m_listener_position;
+//    KRVector3 m_listener_forward;
+//    KRVector3 m_listener_up;
+    
+    KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
+    
+    KRVector3 listener_right_ear = m_listener_position + listener_right * head_radius / 2.0f;
+    KRVector3 listener_left_ear = m_listener_position - listener_right * head_radius / 2.0f;
     
 	// Get a pointer to the dataBuffer of the AudioBufferList
     
 	AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
     AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
     
-	// Calculations to produce a 600 Hz sinewave
-	// A constant frequency value, you can pass in a reference vary this.
-	float freq = 300;
-	// The amount the phase changes in  single sample
-	double phaseIncrement = M_PI * freq / 44100.0;
-	// Pass in a reference to the phase value, you have to keep track of this
-	// so that the sin resumes right where the last call left off
-    
-	// Loop through the callback buffer, generating samples
+
 	for (UInt32 i = 0; i < inNumberFrames; ++i) {
-        
-        // calculate the next sample
-        float sinSignal = sin(phase);
-        // Put the sample into the buffer
-        // Scale the -1 to 1 values float to
-        // -32767 to 32767 and then cast to an integer
-        float left_channel = sinSignal * (sin(pan_phase) * 0.5f + 0.5f);
-        float right_channel = sinSignal * (-sin(pan_phase) * 0.5f + 0.5f);
-        
-        
-        left_channel = 0;
-        right_channel = 0;
-        
+
 #if CA_PREFER_FIXED_POINT
         // Interleaved
         //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
         //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
         
         // Non-Interleaved
-        outA[i] = (SInt32)(left_channel * 0x1000000f);
-        outB[i] = (SInt32)(right_channel * 0x1000000f);
+        outA[i] = (SInt32)(0x1000000f);
+        outB[i] = (SInt32)(0x1000000f);
 #else
         
         // Interleaved
@@ -112,18 +108,12 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
         //        outA[i*2 + 1] = (Float32)right_channel;
         
         // Non-Interleaved
-        outA[i] = (Float32)left_channel;
-        outB[i] = (Float32)right_channel;
+        outA[i] = (Float32)0.0f;
+        outB[i] = (Float32)0.0f;
 #endif
-        // calculate the phase for the next sample
-        phase = phase + phaseIncrement;
-        pan_phase = pan_phase + 1 / 44100.0 * M_PI;
     }
-    // Reset the phase value to prevent the float from overflowing
-    if (phase >=  M_PI * freq) {
-		phase = phase - M_PI * freq;
-	}
     
+    /*
     for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
         int channel_count = 1;
         
@@ -172,6 +162,64 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
         }
         source->advanceFrames(frames_advanced);
     }
+    */
+    
+    for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
+        KRAudioSource *source = *itr;
+        KRVector3 listener_to_source = source->getWorldTranslation() - m_listener_position;
+        KRVector3 right_ear_to_source = source->getWorldTranslation() - listener_right_ear;
+        KRVector3 left_ear_to_source = source->getWorldTranslation() - listener_left_ear;
+        KRVector3 source_direction = KRVector3::Normalize(listener_to_source);
+        float right_ear_distance = right_ear_to_source.magnitude();
+        float left_ear_distance = left_ear_to_source.magnitude();
+        float right_itd_time = right_ear_distance / speed_of_sound;
+        float left_itd_time = left_ear_distance / speed_of_sound;
+        
+        float rolloff_factor = source->getRolloffFactor();
+        float left_gain = 1.0f / pow(left_ear_distance / rolloff_factor, 2.0f);
+        float right_gain = 1.0f / pow(left_ear_distance / rolloff_factor, 2.0f);
+        if(left_gain > 1.0f) left_gain = 1.0f;
+        if(right_gain > 1.0f) right_gain = 1.0f;
+        left_gain *= source->getGain();
+        right_gain *= source->getGain();
+        int left_itd_offset = (int)(left_itd_time * 44100.0f);
+        int right_itd_offset = (int)(right_itd_time * 44100.0f);
+        KRAudioSample *sample = source->getAudioSample();
+        if(sample) {
+            __int64_t source_start_frame = source->getStartAudioFrame();
+            int sample_frame = (int)(m_audio_frame - source_start_frame);
+            for (UInt32 i = 0; i < inNumberFrames; ++i) {
+                float left_channel=sample->sample(sample_frame + left_itd_offset, 44100, 0) * left_gain;
+                float right_channel = sample->sample(sample_frame + right_itd_offset, 44100, 0) * right_gain;
+
+//                left_channel = 0.0f;
+//                right_channel = 0.0f;
+                
+#if CA_PREFER_FIXED_POINT
+                // Interleaved
+                //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
+                //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
+                
+                // Non-Interleaved
+                outA[i] += (SInt32)(left_channel * 0x1000000f);
+                outB[i] += (SInt32)(right_channel * 0x1000000f);
+#else
+                
+                // Interleaved
+                //        outA[i*2] = (Float32)left_channel;
+                //        outA[i*2 + 1] = (Float32)right_channel;
+                
+                // Non-Interleaved
+                outA[i] += (Float32)left_channel;
+                outB[i] += (Float32)right_channel;
+#endif
+                sample_frame++;
+            }
+        }
+    }
+
+    
+    m_audio_frame += inNumberFrames;
 }
 
 // audio render procedure, don't allocate memory, don't take any locks, don't waste time
@@ -457,17 +505,17 @@ void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
     KRMat4 invView = viewMatrix;
     invView.invert();
     
-    KRVector3 player_position = KRMat4::Dot(invView, KRVector3(0.0, 0.0, 0.0));
-    KRVector3 vectorForward = KRMat4::Dot(invView, KRVector3(0.0, 0.0, -1.0)) - player_position;
-    KRVector3 vectorUp = KRMat4::Dot(invView, KRVector3(0.0, 1.0, 0.0)) - player_position;
+    m_listener_position = KRMat4::Dot(invView, KRVector3(0.0, 0.0, 0.0));
+    m_listener_forward = KRMat4::Dot(invView, KRVector3(0.0, 0.0, -1.0)) - m_listener_position;
+    m_listener_up = KRMat4::Dot(invView, KRVector3(0.0, 1.0, 0.0)) - m_listener_position;
     
-    vectorUp.normalize();
-    vectorForward.normalize();
+    m_listener_up.normalize();
+    m_listener_forward.normalize();
     
     makeCurrentContext();
     if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
-        ALDEBUG(alListener3f(AL_POSITION, player_position.x, player_position.y, player_position.z));
-        ALfloat orientation[] = {vectorForward.x, vectorForward.y, vectorForward.z, vectorUp.x, vectorUp.y, vectorUp.z};
+        ALDEBUG(alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z));
+        ALfloat orientation[] = {m_listener_forward.x, m_listener_forward.y, m_listener_forward.z, m_listener_up.x, m_listener_up.y, m_listener_up.z};
         ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
     }
 }
@@ -569,4 +617,34 @@ void KRAudioManager::activateAudioSource(KRAudioSource *audioSource)
 void KRAudioManager::deactivateAudioSource(KRAudioSource *audioSource)
 {
     m_activeAudioSources.erase(audioSource);
+}
+
+__int64_t KRAudioManager::getAudioFrame()
+{
+    return m_audio_frame;
+}
+
+KRAudioBuffer *KRAudioManager::getBuffer(KRAudioSample &audio_sample, int buffer_index)
+{
+    // ----====---- Try to find the buffer in the cache ----====----
+    for(std::vector<KRAudioBuffer *>::iterator itr=m_bufferCache.begin(); itr != m_bufferCache.end(); itr++) {
+        KRAudioBuffer *cache_buffer = *itr;
+        if(cache_buffer->getAudioSample() == &audio_sample && cache_buffer->getIndex() == buffer_index) {
+            return cache_buffer;
+        }
+    }
+    
+    // ----====---- Make room in the cache for a new buffer ----====----
+    if(m_bufferCache.size() >= KRENGINE_AUDIO_MAX_POOL_SIZE) {
+        // delete a random entry from the cache
+        int index_to_delete = arc4random() % m_bufferCache.size();
+        std::vector<KRAudioBuffer *>::iterator itr_to_delete = m_bufferCache.begin() + index_to_delete;
+        delete *itr_to_delete;
+        m_bufferCache.erase(itr_to_delete);
+    }
+    
+    // ----====---- Request new buffer, add to cache, and return it ----====----
+    KRAudioBuffer *buffer = audio_sample.getBuffer(buffer_index);
+    m_bufferCache.push_back(buffer);
+    return buffer;
 }

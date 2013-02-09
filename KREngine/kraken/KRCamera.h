@@ -53,12 +53,12 @@ public:
     KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
 
-    void renderFrame(float deltaTime); 
+    void renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight);
     
     KRRenderSettings settings;
         
 private:    
-    void createBuffers();
+    void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
     
     GLint backingWidth, backingHeight;
     GLint volumetricBufferWidth, volumetricBufferHeight;

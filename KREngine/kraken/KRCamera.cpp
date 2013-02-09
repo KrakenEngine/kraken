@@ -57,13 +57,12 @@ KRCamera::~KRCamera() {
     destroyBuffers();
 }
 
-void KRCamera::renderFrame(float deltaTime)
+void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
 {
-
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
-    createBuffers();
+    createBuffers(renderBufferWidth, renderBufferHeight);
     
     KRScene &scene = getScene();
     
@@ -254,8 +253,8 @@ void KRCamera::renderFrame(float deltaTime)
 //    // Disable backface culling
 //    GLDEBUG(glDisable(GL_CULL_FACE));
 //    
-//    // Disable z-buffer write
-//    GLDEBUG(glDepthMask(GL_FALSE));
+    // Disable z-buffer write
+    GLDEBUG(glDepthMask(GL_FALSE));
 //    
 //    // Enable z-buffer test
 //    GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -397,16 +396,7 @@ void KRCamera::renderFrame(float deltaTime)
 }
 
 
-void KRCamera::createBuffers() {
-
-    GLint renderBufferWidth = 0, renderBufferHeight = 0;
-#if TARGET_OS_IPHONE
-    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
-    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
-#else
-    renderBufferWidth = 1920; // FINDME - HACK for OSX
-    renderBufferHeight = 1200;
-#endif
+void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) {
     
     if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
         backingWidth = renderBufferWidth;

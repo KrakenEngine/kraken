@@ -19,6 +19,8 @@ KRAudioBuffer::KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int 
     m_frameRate = frameRate;
     m_bytesPerFrame = bytesPerFrame;
     m_pData = NULL;
+    m_audioSample = sound;
+    m_index = index;
     
     m_pSoundManager->makeCurrentContext();
     m_pData = m_pSoundManager->getBufferData(m_frameCount * m_bytesPerFrame);
@@ -40,6 +42,10 @@ KRAudioBuffer::~KRAudioBuffer()
     m_pSoundManager->recycleBufferData(m_pData);
 }
 
+KRAudioSample *KRAudioBuffer::getAudioSample()
+{
+    return m_audioSample;
+}
 
 unsigned int KRAudioBuffer::getBufferID()
 {
@@ -59,4 +65,9 @@ int KRAudioBuffer::getFrameRate()
 signed short *KRAudioBuffer::getFrameData()
 {
     return (signed short *)m_pData->getStart();
+}
+
+int KRAudioBuffer::getIndex()
+{
+    return m_index;
 }

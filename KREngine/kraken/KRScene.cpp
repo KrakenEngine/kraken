@@ -59,7 +59,7 @@ KRScene::~KRScene() {
     m_pRootNode = NULL;
 }
 
-void KRScene::renderFrame(float deltaTime) {
+void KRScene::renderFrame(float deltaTime, int width, int height) {
     getContext().startFrame(deltaTime);
     KRCamera *camera = find<KRCamera>();
     if(camera == NULL) {
@@ -67,7 +67,7 @@ void KRScene::renderFrame(float deltaTime) {
         camera = new KRCamera(*this, "default_camera");
         m_pRootNode->addChild(camera);
     }
-    camera->renderFrame(deltaTime);
+    camera->renderFrame(deltaTime, width, height);
     getContext().endFrame(deltaTime);
     physicsUpdate(deltaTime);
 }

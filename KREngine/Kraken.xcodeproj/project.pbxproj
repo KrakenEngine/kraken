@@ -68,6 +68,8 @@
 		E4324BAE16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
 		E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
 		E4324BB0164458930043185B /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
+		E437849816C4884F0037FD43 /* hrtf_kemar.krbundle in Resources */ = {isa = PBXBuildFile; fileRef = E437849716C488360037FD43 /* hrtf_kemar.krbundle */; };
+		E437849916C488550037FD43 /* hrtf_kemar.krbundle in Resources */ = {isa = PBXBuildFile; fileRef = E437849716C488360037FD43 /* hrtf_kemar.krbundle */; };
 		E43B0AD615DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -394,6 +396,7 @@
 		E4324BA716444C230043185B /* KRParticleSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRParticleSystem.cpp; sourceTree = "<group>"; };
 		E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRParticleSystemNewtonian.h; sourceTree = "<group>"; };
 		E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRParticleSystemNewtonian.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E437849716C488360037FD43 /* hrtf_kemar.krbundle */ = {isa = PBXFileReference; lastKnownFileType = file; path = hrtf_kemar.krbundle; sourceTree = "<group>"; };
 		E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRContextObject.cpp; sourceTree = "<group>"; };
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRContextObject.h; sourceTree = "<group>"; };
 		E44F38231683B22C00399B5D /* KRRenderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRRenderSettings.h; sourceTree = "<group>"; };
@@ -721,6 +724,14 @@
 			name = "Particle Systems";
 			sourceTree = "<group>";
 		};
+		E437849616C4881A0037FD43 /* kraken_standard_assets */ = {
+			isa = PBXGroup;
+			children = (
+				E437849716C488360037FD43 /* hrtf_kemar.krbundle */,
+			);
+			path = kraken_standard_assets;
+			sourceTree = "<group>";
+		};
 		E461A170152E598200F2044A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -930,6 +941,7 @@
 		E491015613C99B9D0098455B = {
 			isa = PBXGroup;
 			children = (
+				E437849616C4881A0037FD43 /* kraken_standard_assets */,
 				E491016613C99B9E0098455B /* kraken */,
 				E4C8E50C16B9B5ED0031DDCB /* kraken_ios */,
 				E4BBBB851512A40300F43B5B /* kraken_osx */,
@@ -1383,6 +1395,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E437849816C4884F0037FD43 /* hrtf_kemar.krbundle in Resources */,
 				E4E6F68516BA5DF700E410F8 /* sky_box.fsh in Resources */,
 				E4E6F68616BA5DF700E410F8 /* debug_font.fsh in Resources */,
 				E4E6F68716BA5DF700E410F8 /* debug_font.vsh in Resources */,
@@ -1421,6 +1434,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E437849916C488550037FD43 /* hrtf_kemar.krbundle in Resources */,
 				E4E6F6A316BA5E0A00E410F8 /* PostShader_osx.fsh in Resources */,
 				E4E6F6A416BA5E0A00E410F8 /* PostShader_osx.vsh in Resources */,
 				E4E6F6A516BA5E0A00E410F8 /* sky_box_osx.fsh in Resources */,

@@ -198,7 +198,7 @@ void KRMesh::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRV
                                         // Render back faces first
                                         GLDEBUG(glCullFace(GL_BACK));
                                         renderSubmesh(iSubmesh);
-                                        
+
                                         // Render front faces second
                                         GLDEBUG(glCullFace(GL_BACK));
                                         renderSubmesh(iSubmesh);

@@ -98,12 +98,13 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     
     KRNode::render(pCamera, lights, viewport, renderPass);
     
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && (renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT || this->hasTransparency()) && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-        // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
-    
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
         loadModel();
         
-        if(m_models.size() > 0) {
+            if(m_models.size() > 0) {
+            // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
+        
+
             float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
             if(lod_coverage > m_min_lod_coverage) {
                 
@@ -138,14 +139,6 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 pModel->render(pCamera, lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
             }
         }
-    }
-}
-
-bool KRModel::hasTransparency() {
-    if(m_models.size() > 0) {
-        return m_models[0]->hasTransparency();
-    } else {
-        return false;
     }
 }
 

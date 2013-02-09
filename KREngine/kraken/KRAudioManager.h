@@ -73,11 +73,20 @@ public:
     void activateAudioSource(KRAudioSource *audioSource);
     void deactivateAudioSource(KRAudioSource *audioSource);
     
+    __int64_t getAudioFrame();
+    
+    KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
 private:
+    KRVector3 m_listener_position;
+    KRVector3 m_listener_forward;
+    KRVector3 m_listener_up;
+    
     map<std::string, KRAudioSample *> m_sounds;
     
     std::vector<KRDataBlock *> m_bufferPoolIdle;
+    
+    std::vector<KRAudioBuffer *> m_bufferCache;
     
     std::set<KRAudioSource *> m_activeAudioSources;
     
@@ -102,6 +111,8 @@ private:
     AudioUnit m_auMixer;
     static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
     void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
+    
+    __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

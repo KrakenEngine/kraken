@@ -59,9 +59,6 @@ public:
 
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
-    bool hasTransparency();
-    
-    
     virtual KRAABB getBounds();
     
 private:

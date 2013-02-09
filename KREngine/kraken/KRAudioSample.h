@@ -54,6 +54,11 @@ public:
     KRAudioBuffer *getBuffer(int index);
     int getBufferCount();
     
+    // Siren audio engine interface
+    int getChannelCount();
+    int getFrameCount(int frame_rate);
+    float sample(int frame_offset, int frame_rate, int channel);
+    
 private:
     
     std::string m_extension;

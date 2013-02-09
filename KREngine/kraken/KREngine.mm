@@ -95,9 +95,9 @@ using namespace std;
     KRContext::KRENGINE_MAX_VBO_MEM = 256000000;
     KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
-    KRContext::KRENGINE_MAX_TEXTURE_MEM = 256000000;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 192000000;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  96000000;
+    KRContext::KRENGINE_MAX_TEXTURE_MEM = 512000000;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 384000000;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  256000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 128000000;
@@ -164,13 +164,21 @@ using namespace std;
     return self;
 }
 
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime
+- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height
 {
     KRCamera *camera = pScene->find<KRCamera>();
     if(camera) {
         camera->settings = _settings;
     }
-    pScene->renderFrame(deltaTime);
+    pScene->renderFrame(deltaTime, width, height);
+}
+
+- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime
+{    
+    GLint renderBufferWidth = 0, renderBufferHeight = 0;
+    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
+    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
+    [self renderScene:pScene WithDeltaTime:deltaTime AndWidth:renderBufferWidth AndHeight:renderBufferHeight];
 }
 
 - (BOOL)loadShaders
@@ -191,7 +199,7 @@ using namespace std;
         NSString * p = nil;
         while (p = [bundleEnumerator nextObject]) {
             NSString *file_name = [p lastPathComponent];
-            if([file_name hasSuffix: @".vsh"] || [file_name hasSuffix: @".fsh"] || [file_name hasPrefix:@"font."]) {
+            if([file_name hasSuffix: @".vsh"] || [file_name hasSuffix: @".fsh"] || [file_name hasSuffix: @".krbundle"] ||[file_name hasPrefix:@"font."]) {
                 NSLog(@"  %@\n", file_name);
                 [self loadResource:p];
             }

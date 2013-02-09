@@ -72,6 +72,49 @@ KRAudioSample::~KRAudioSample()
     delete m_pData;
 }
 
+int KRAudioSample::getChannelCount()
+{
+    openFile();
+    return m_channelsPerFrame;
+}
+
+int KRAudioSample::getFrameCount(int frame_rate)
+{
+    return (int)((__int64_t)m_totalFrames * (__int64_t)frame_rate / (__int64_t)m_frameRate);
+}
+
+float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
+{
+    if(frame_offset < 0) {
+        return 0.0f; // Past the beginning of the recording
+    } else {
+        int sample_frame;
+        if(m_frameRate == frame_rate) {
+            // No resampling required
+            sample_frame = frame_offset;
+        } else {
+            // Need to resample from m_frameRate to frame_rate
+            sample_frame = (int)((__int64_t)frame_offset * (__int64_t)m_frameRate / (__int64_t)frame_rate);
+        }
+        int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
+        int buffer_index = sample_frame / maxFramesPerBuffer;
+        if(buffer_index >= m_bufferCount) {
+            return 0.0f; // Past the end of the recording
+        } else {
+            int buffer_offset = frame_offset - buffer_index * maxFramesPerBuffer;
+            
+            KRAudioBuffer *buffer = getContext().getAudioManager()->getBuffer(*this, buffer_index);
+            if(buffer == NULL) {
+                return 0.0f;
+            } else if(buffer_offset >= buffer->getFrameCount()) {
+                return 0.0f; // past the end of the recording
+            } else {
+                short *frame = buffer->getFrameData() + (buffer_offset * m_channelsPerFrame);
+                return frame[channel] / 32767.0f;
+            }
+        }
+    }
+}
 
 OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc
                                        void *		inClientData,
@@ -120,12 +163,8 @@ void KRAudioSample::openFile()
         UInt32 propertySize;
         
         // ---- Open audio file ----
-//        ExtAudioFileOpenURL((CFURLRef)m_soundURL, &_fileRef);
-
-        
         assert(AudioFileOpenWithCallbacks((void *)this, ReadProc, WriteProc, GetSizeProc, SetSizeProc, 0, &m_audio_file_id) == noErr);
         assert(ExtAudioFileWrapAudioFileID(m_audio_file_id, false, &m_fileRef)  == noErr);
-        
         
         // ---- Get file format information ----
         AudioStreamBasicDescription inputFormat;

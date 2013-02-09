@@ -54,6 +54,8 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
     m_rolloffFactor = 2.0f;
     m_enable_occlusion = true;
     m_enable_obstruction = true;
+    
+    m_start_audio_frame = -1;
 }
 
 KRAudioSource::~KRAudioSource()
@@ -394,6 +396,7 @@ void KRAudioSource::physicsUpdate(float deltaTime)
 void KRAudioSource::play()
 {
     KRAudioManager *audioManager = getContext().getAudioManager();
+    m_start_audio_frame = audioManager->getAudioFrame();
     audioManager->activateAudioSource(this);
     if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
         getContext().getAudioManager()->makeCurrentContext();
@@ -417,6 +420,7 @@ void KRAudioSource::play()
 
 void KRAudioSource::stop()
 {
+    m_start_audio_frame = -1;
     m_playing = false;
     getContext().getAudioManager()->deactivateAudioSource(this);
 }
@@ -435,6 +439,14 @@ void KRAudioSource::setSample(const std::string &sound_name)
 std::string KRAudioSource::getSample()
 {
     return m_audio_sample_name;
+}
+
+KRAudioSample *KRAudioSource::getAudioSample()
+{
+    if(m_audioFile == NULL && m_audio_sample_name.size() != 0) {
+        m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
+    }
+    return m_audioFile;
 }
 
 void KRAudioSource::updatePosition()
@@ -485,6 +497,11 @@ KRAudioBuffer *KRAudioSource::getBuffer()
 int KRAudioSource::getBufferFrame()
 {
     return m_currentBufferFrame;
+}
+
+__int64_t KRAudioSource::getStartAudioFrame()
+{
+    return m_start_audio_frame;
 }
 
 OSStatus alcASASetSourceProc(const ALuint property, ALuint source, ALvoid *data, ALuint dataSize)
