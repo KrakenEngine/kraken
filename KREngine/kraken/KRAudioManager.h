@@ -44,6 +44,13 @@ const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
+const int KRENGINE_FILTER_LENGTH = 128; // Size for FFT's used in HRTF convolution
+const int KRENGINE_FILTER_LOG2 = 7; // 2 ^ 7 = 128
+
+const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_REVERB_FILTER_LENGTH
+const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
+const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
+
 class KRAudioManager : public KRContextObject {
 public:
     KRAudioManager(KRContext &context);
@@ -77,7 +84,13 @@ public:
     
     KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
+    float getGlobalReverbSendLevel();
+    void setGlobalReverbSendLevel(float send_level);
+    
 private:
+    
+    float m_global_reverb_send_level;
+    
     KRVector3 m_listener_position;
     KRVector3 m_listener_forward;
     KRVector3 m_listener_up;
@@ -113,6 +126,20 @@ private:
     void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
     
     __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
+    
+    float *m_reverb_input_samples; // Circular-buffered reverb input, single channel
+    int m_reverb_input_next_sample; // Pointer to next sample in reverb buffer
+    
+    KRAudioSample *m_reverb_impulse_responses[KRENGINE_MAX_REVERB_IMPULSE_MIX];
+    float m_reverb_impulse_responses_weight[KRENGINE_MAX_REVERB_IMPULSE_MIX];
+    float m_reverb_accumulation[KRENGINE_FILTER_LENGTH * 2];
+    
+    float m_output_accumulation[KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS]; // Interleaved output accumulation buffer
+    int m_output_sample;
+    
+    FFTSetup m_fft_setup;
+    
+    void renderBlock();
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

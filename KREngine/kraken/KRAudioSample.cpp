@@ -116,6 +116,14 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
     }
 }
 
+void KRAudioSample::sample(int frame_offset, int frame_rate, int frame_count, int channel, float *buffer)
+{
+    // FINDME, TODO, HACK - Replace with optimized function utilizing SIMD
+    for(int i=0; i < frame_count; i++ ) {
+        buffer[i] = sample(frame_offset + i, frame_rate, channel);
+    }
+}
+
 OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc
                                        void *		inClientData,
                                        SInt64		inPosition,
