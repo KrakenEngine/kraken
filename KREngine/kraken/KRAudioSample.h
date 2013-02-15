@@ -56,9 +56,9 @@ public:
     
     // Siren audio engine interface
     int getChannelCount();
-    int getFrameCount(int frame_rate);
+    int getFrameCount();
     float sample(int frame_offset, int frame_rate, int channel);
-    void sample(int frame_offset, int frame_rate, int frame_count, int channel, float *buffer);
+    void sample(int frame_offset, int frame_count, int channel, float *buffer, float amplitude);
     
 private:
     

@@ -132,9 +132,9 @@ private:
     
     KRAudioSample *m_reverb_impulse_responses[KRENGINE_MAX_REVERB_IMPULSE_MIX];
     float m_reverb_impulse_responses_weight[KRENGINE_MAX_REVERB_IMPULSE_MIX];
-    float m_reverb_accumulation[KRENGINE_FILTER_LENGTH * 2];
+    float *m_reverb_accumulation;
     
-    float m_output_accumulation[KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS]; // Interleaved output accumulation buffer
+    float *m_output_accumulation[KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS]; // Interleaved output accumulation buffer
     int m_output_sample;
     
     FFTSetup m_fft_setup;

@@ -363,7 +363,7 @@
 /* Begin PBXFileReference section */
 		104A335C1672D31B001C8BA6 /* KRCollider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRCollider.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		104A335D1672D31C001C8BA6 /* KRCollider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRCollider.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		10CC33A3168530A300BB9846 /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = PVRTexTool/Library/OSX_x86/Static/libPVRTexLib.a; sourceTree = PVRTexLib; };
+		10CC33A3168530A300BB9846 /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = Utilities/PVRTexLib/MacOS/libPVRTexLib.a; sourceTree = PVRSDK; };
 		E4030E4B160A3CF000592648 /* KRStockGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRStockGeometry.h; sourceTree = "<group>"; };
 		E40BA45215EFF79500D7C3DD /* KRAABB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAABB.cpp; sourceTree = "<group>"; };
 		E40BA45315EFF79500D7C3DD /* KRAABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAABB.h; sourceTree = "<group>"; };

@@ -35,6 +35,8 @@
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
 
+#include <Accelerate/Accelerate.h>
+
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
 {
     m_pData = new KRDataBlock();
@@ -78,9 +80,10 @@ int KRAudioSample::getChannelCount()
     return m_channelsPerFrame;
 }
 
-int KRAudioSample::getFrameCount(int frame_rate)
+int KRAudioSample::getFrameCount()
 {
-    return (int)((__int64_t)m_totalFrames * (__int64_t)frame_rate / (__int64_t)m_frameRate);
+    //return (int)((__int64_t)m_totalFrames * (__int64_t)frame_rate / (__int64_t)m_frameRate);
+    return m_totalFrames;
 }
 
 float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
@@ -116,12 +119,62 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
     }
 }
 
-void KRAudioSample::sample(int frame_offset, int frame_rate, int frame_count, int channel, float *buffer)
+void KRAudioSample::sample(int frame_offset, int frame_count, int channel, float *buffer, float amplitude)
 {
-    // FINDME, TODO, HACK - Replace with optimized function utilizing SIMD
-    for(int i=0; i < frame_count; i++ ) {
-        buffer[i] = sample(frame_offset + i, frame_rate, channel);
+    if(frame_offset + frame_count < 0) {
+        // Range is entirely before the sample
+        memset(buffer, 0, frame_count * sizeof(float));
+    } else if(frame_offset >= m_totalFrames) {
+        // Range is entirely after the sample
+        memset(buffer, 0, frame_count * sizeof(float));
+    } else {
+        int start_frame = frame_offset < 0 ? 0 : frame_offset;
+        int prefix_frames = frame_offset < 0 ? -frame_offset : 0;
+        if(prefix_frames > 0) {
+            // Prefix with padding of 0's
+            memset(buffer, 0, prefix_frames * sizeof(float));
+        }
+        
+        int frames_per_buffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
+        
+        int buffer_index = start_frame / frames_per_buffer;
+        int buffer_offset = start_frame % frames_per_buffer;
+        int processed_frames = prefix_frames;
+        while(processed_frames < frame_count) {
+            int frames_left = frame_count - processed_frames;
+            if(buffer_index >= m_bufferCount) {
+                // Suffix with padding of 0's
+                memset(buffer + processed_frames, 0, frames_left * sizeof(float));
+                processed_frames += frames_left;
+            } else {
+                KRAudioBuffer *source_buffer = getContext().getAudioManager()->getBuffer(*this, buffer_index);
+                int frames_to_copy = source_buffer->getFrameCount() - buffer_offset;
+                if(frames_to_copy > frames_left) frames_to_copy = frames_left;
+                if(frames_to_copy > 0) {
+                    /*
+                     
+                     void vDSP_vflt16 (
+                     short *A,
+                     vDSP_Stride __vDSP_I,
+                     float *__vDSP_C,
+                     vDSP_Stride __vDSP_K,
+                     vDSP_Length __vDSP_N
+                     );
+                     
+                     */
+                    signed short *source_data = source_buffer->getFrameData() + buffer_offset * m_channelsPerFrame + channel;
+                    vDSP_vflt16(source_data, m_channelsPerFrame, buffer + processed_frames, 1, frames_to_copy);
+                    //memcpy(buffer + processed_frames, source_buffer->getFrameData() + buffer_offset, frames_to_copy * m_channelsPerFrame * sizeof(float));
+                    processed_frames += frames_to_copy;
+                }
+                buffer_index++;
+                buffer_offset = 0;
+            }
+        }
     }
+    
+    float scale = amplitude / 32768.0f;
+    vDSP_vsmul(buffer, 1, &scale, buffer, 1, frame_count);
 }
 
 OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc

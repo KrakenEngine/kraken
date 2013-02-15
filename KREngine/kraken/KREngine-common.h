@@ -82,6 +82,7 @@ using std::queue;
 
 #endif
 
+#include <Accelerate/Accelerate.h>
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioToolbox/AudioFile.h>
 #include <AudioToolbox/ExtendedAudioFile.h>
