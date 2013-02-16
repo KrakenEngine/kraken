@@ -132,14 +132,19 @@ private:
     
     KRAudioSample *m_reverb_impulse_responses[KRENGINE_MAX_REVERB_IMPULSE_MIX];
     float m_reverb_impulse_responses_weight[KRENGINE_MAX_REVERB_IMPULSE_MIX];
-    float *m_reverb_accumulation;
     
-    float *m_output_accumulation[KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS]; // Interleaved output accumulation buffer
+    float *m_output_accumulation; // Interleaved output accumulation buffer
+    int m_output_accumulation_block_start;
     int m_output_sample;
     
     FFTSetup m_fft_setup;
     
+    float *getBlockAddress(int block_offset);
     void renderBlock();
+    void renderReverb();
+    void renderHRTF();
+    void renderITD();
+    void renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_block);
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */
