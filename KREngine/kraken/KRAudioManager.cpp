@@ -65,6 +65,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     m_reverb_input_next_sample = 0;
     
     m_reverb_workspace_data = NULL;
+    m_reverb_sequence = 0;
 
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
         m_reverb_impulse_responses[i] = NULL;
@@ -141,47 +142,62 @@ float *KRAudioManager::getBlockAddress(int block_offset)
     return m_output_accumulation + (m_output_accumulation_block_start + block_offset * KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
 }
 
-void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_block)
+void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log_2)
 {
+    int frame_count = 1 << frame_count_log_2;
+    int fft_size = frame_count * 2;
+    int fft_size_log_2 = frame_count_log_2 + 1;
+    
     DSPSplitComplex reverb_sample_data_complex = m_reverb_workspace[0];
     DSPSplitComplex impulse_block_data_complex = m_reverb_workspace[1];
     DSPSplitComplex conv_data_complex = m_reverb_workspace[2];
     
-    float *block_data = getBlockAddress(0);
-    float *next_block = getBlockAddress(1);
-    
-    float impulse_block_start_index = impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH;
-    int reverb_block_start_index = (m_reverb_input_next_sample - KRENGINE_AUDIO_BLOCK_LENGTH * (impulse_response_block + 1));
-    if(reverb_block_start_index < 0) {
-        reverb_block_start_index += KRENGINE_REVERB_MAX_SAMPLES;
+    int reverb_offset = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH - impulse_response_offset);
+    if(reverb_offset < 0) {
+        reverb_offset += KRENGINE_REVERB_MAX_SAMPLES;
     } else {
-        reverb_block_start_index = reverb_block_start_index % KRENGINE_REVERB_MAX_SAMPLES;
+        reverb_offset = reverb_offset % KRENGINE_REVERB_MAX_SAMPLES;
     }
     
+    int frames_left = frame_count;
+    while(frames_left) {
+        int frames_to_process = KRENGINE_REVERB_MAX_SAMPLES - reverb_offset;
+        if(frames_to_process > frames_left) frames_to_process = frames_left;
+        memcpy(reverb_sample_data_complex.realp + frame_count - frames_left, m_reverb_input_samples + reverb_offset, frames_to_process * sizeof(float));
+        
+        frames_left -= frames_to_process;
+        reverb_offset = (reverb_offset + frames_to_process) % KRENGINE_REVERB_MAX_SAMPLES;
+    }
+    
+    memset(reverb_sample_data_complex.realp + frame_count, 0, frame_count * sizeof(float));
+    memset(reverb_sample_data_complex.imagp, 0, fft_size * sizeof(float));
 
-    memcpy(reverb_sample_data_complex.realp, m_reverb_input_samples + reverb_block_start_index, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
-    memset(reverb_sample_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 0, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
-    memset(reverb_sample_data_complex.imagp, 0, KRENGINE_AUDIO_BLOCK_LENGTH * 2 * sizeof(float));
+    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, fft_size_log_2, kFFTDirection_Forward);
     
-
-    
-    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Forward);
-    
-    float scale = 1.0f / (2 * KRENGINE_AUDIO_BLOCK_LENGTH);
+    float scale = 1.0f / fft_size;
     
     int impulse_response_channels = 2;
     for(int channel=0; channel < impulse_response_channels; channel++) {
         
-        impulse_response->sample(impulse_block_start_index, KRENGINE_AUDIO_BLOCK_LENGTH, channel, impulse_block_data_complex.realp, 1.0f);
-        memset(impulse_block_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 0, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
-        memset(impulse_block_data_complex.imagp, 0, KRENGINE_AUDIO_BLOCK_LENGTH * 2 * sizeof(float));
+        impulse_response->sample(impulse_response_offset, frame_count, channel, impulse_block_data_complex.realp, 1.0f);
+        memset(impulse_block_data_complex.realp + frame_count, 0, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
+        memset(impulse_block_data_complex.imagp, 0, fft_size * sizeof(float));
         
-        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Forward);
-        vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, KRENGINE_AUDIO_BLOCK_LENGTH * 2, 1);
-        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Inverse);
-        vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH * 2);
-        vDSP_vadd(block_data + channel, impulse_response_channels, conv_data_complex.realp, 1, block_data + channel, impulse_response_channels, KRENGINE_AUDIO_BLOCK_LENGTH);
-        vDSP_vadd(next_block + channel, impulse_response_channels, conv_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 1, next_block + channel, impulse_response_channels, KRENGINE_AUDIO_BLOCK_LENGTH);
+        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, fft_size_log_2, kFFTDirection_Forward);
+        vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, fft_size, 1);
+        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, fft_size_log_2, kFFTDirection_Inverse);
+        vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, fft_size);
+        
+        
+        int output_offset = m_output_accumulation_block_start;
+        frames_left = fft_size;
+        while(frames_left) {
+            int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - m_output_accumulation_block_start) / 2;
+            if(frames_to_process > frames_left) frames_to_process = frames_left;
+            vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, conv_data_complex.realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
+            frames_left -= frames_to_process;
+            output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+        }
     }
 }
 
@@ -219,7 +235,7 @@ void KRAudioManager::renderReverb()
     if(impulse_response_sample) {
         int impulse_response_blocks = impulse_response_sample->getFrameCount() / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
         for(int impulse_response_block=0; impulse_response_block < impulse_response_blocks; impulse_response_block++) {
-            renderReverbImpulseResponse(impulse_response_sample, impulse_response_block);
+            renderReverbImpulseResponse(impulse_response_sample, impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH, KRENGINE_AUDIO_BLOCK_LOG2N);
         }
     }
 }
@@ -295,6 +311,8 @@ void KRAudioManager::initSiren()
         m_reverb_workspace[1].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 3;
         m_reverb_workspace[2].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 4;
         m_reverb_workspace[2].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 5;
+        
+        m_reverb_sequence = 0;
         
         m_fft_setup = vDSP_create_fftsetup( 16, kFFTRadix2);
         
