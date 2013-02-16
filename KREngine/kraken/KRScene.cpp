@@ -147,7 +147,7 @@ void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, co
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         

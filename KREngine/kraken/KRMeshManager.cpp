@@ -46,7 +46,8 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     m_randomParticleVertexData = NULL;
     m_volumetricLightingVertexData = NULL;
     
-    addModel(new KRMeshCube(context));
+//    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
+    
     addModel(new KRMeshSphere(context));
 }
 

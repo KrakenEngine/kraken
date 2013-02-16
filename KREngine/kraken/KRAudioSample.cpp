@@ -121,7 +121,7 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
 
 void KRAudioSample::sample(int frame_offset, int frame_count, int channel, float *buffer, float amplitude)
 {
-    if(frame_offset + frame_count < 0) {
+    if(frame_offset + frame_count <= 0) {
         // Range is entirely before the sample
         memset(buffer, 0, frame_count * sizeof(float));
     } else if(frame_offset >= m_totalFrames) {
