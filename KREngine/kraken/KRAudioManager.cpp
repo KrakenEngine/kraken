@@ -63,6 +63,8 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     
     m_reverb_input_samples = NULL;
     m_reverb_input_next_sample = 0;
+    
+    m_reverb_workspace_data = NULL;
 
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
         m_reverb_impulse_responses[i] = NULL;
@@ -141,6 +143,10 @@ float *KRAudioManager::getBlockAddress(int block_offset)
 
 void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_block)
 {
+    DSPSplitComplex reverb_sample_data_complex = m_reverb_workspace[0];
+    DSPSplitComplex impulse_block_data_complex = m_reverb_workspace[1];
+    DSPSplitComplex conv_data_complex = m_reverb_workspace[2];
+    
     float *block_data = getBlockAddress(0);
     float *next_block = getBlockAddress(1);
     
@@ -152,52 +158,31 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
         reverb_block_start_index = reverb_block_start_index % KRENGINE_REVERB_MAX_SAMPLES;
     }
     
-    float reverb_sample_data_real[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-    memcpy(reverb_sample_data_real, m_reverb_input_samples + reverb_block_start_index, KRENGINE_FILTER_LENGTH * sizeof(float));
-    memset(reverb_sample_data_real + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
+
     
-    float reverb_sample_data_imag[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-    memset(reverb_sample_data_imag, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
+    memcpy(reverb_sample_data_complex.realp, m_reverb_input_samples + reverb_block_start_index, KRENGINE_FILTER_LENGTH * sizeof(float));
+    memset(reverb_sample_data_complex.realp + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
+    memset(reverb_sample_data_complex.imagp, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
     
-    DSPSplitComplex reverb_sample_data_complex;
-    reverb_sample_data_complex.realp = reverb_sample_data_real;
-    reverb_sample_data_complex.imagp = reverb_sample_data_imag;
+
     
     vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Forward);
     
-    int impulse_response_channels = 2;
+    float scale = 1.0f / (2 * (KRENGINE_FILTER_LENGTH * 2));
     
+    int impulse_response_channels = 2;
     for(int channel=0; channel < impulse_response_channels; channel++) {
         
-        float impulse_response_block_real[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-        float impulse_response_block_imag[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-        impulse_response->sample(impulse_block_start_index, KRENGINE_FILTER_LENGTH, channel, impulse_response_block_real, 1.0f);
-        memset(impulse_response_block_real + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
-        memset(impulse_response_block_imag, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
-        
-        DSPSplitComplex impulse_block_data_complex;
-        impulse_block_data_complex.realp = impulse_response_block_real ;
-        impulse_block_data_complex.imagp = impulse_response_block_imag;
-        
-        float conv_data_real[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-        float conv_data_imag[KRENGINE_FILTER_LENGTH * 2] __attribute__ ((aligned));
-        DSPSplitComplex conv_data_complex;
-        conv_data_complex.realp = conv_data_real;
-        conv_data_complex.imagp = conv_data_imag;
+        impulse_response->sample(impulse_block_start_index, KRENGINE_FILTER_LENGTH, channel, impulse_block_data_complex.realp, 1.0f);
+        memset(impulse_block_data_complex.realp + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
+        memset(impulse_block_data_complex.imagp, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
         
         vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Forward);
-        
         vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, KRENGINE_FILTER_LENGTH * 2, 1);
-        
         vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Inverse);
-        
-        float scale = 1.0f / (2 * (KRENGINE_FILTER_LENGTH * 2));
-        
         vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, KRENGINE_FILTER_LENGTH * 2);
-        
-        vDSP_vadd(block_data + channel, impulse_response_channels, conv_data_real, 1, block_data + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
-        
-        vDSP_vadd(next_block + channel, impulse_response_channels, conv_data_real + KRENGINE_FILTER_LENGTH, 1, next_block + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
+        vDSP_vadd(block_data + channel, impulse_response_channels, conv_data_complex.realp, 1, block_data + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
+        vDSP_vadd(next_block + channel, impulse_response_channels, conv_data_complex.realp + KRENGINE_FILTER_LENGTH, 1, next_block + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
     }
 }
 
@@ -304,6 +289,13 @@ void KRAudioManager::initSiren()
         memset(m_output_accumulation, 0, buffer_size * 2);
         m_output_accumulation_block_start = 0;
         
+        m_reverb_workspace_data = (float *)malloc(KRENGINE_REVERB_WORKSPACE_SIZE * 6);
+        m_reverb_workspace[0].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 0;
+        m_reverb_workspace[0].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 1;
+        m_reverb_workspace[1].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 2;
+        m_reverb_workspace[1].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 3;
+        m_reverb_workspace[2].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 4;
+        m_reverb_workspace[2].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 5;
         
         m_fft_setup = vDSP_create_fftsetup( 16, kFFTRadix2);
         
@@ -466,6 +458,11 @@ void KRAudioManager::cleanupSiren()
     if(m_output_accumulation) {
         free(m_output_accumulation);
         m_output_accumulation = NULL;
+    }
+    
+    if(m_reverb_workspace_data) {
+        free(m_reverb_workspace_data);
+        m_reverb_workspace_data = NULL;
     }
         
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {

@@ -47,6 +47,8 @@ const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 const int KRENGINE_FILTER_LENGTH = 128; // Size for FFT's used in HRTF convolution
 const int KRENGINE_FILTER_LOG2 = 7; // 2 ^ 7 = 128
 
+const int KRENGINE_REVERB_WORKSPACE_SIZE = KRENGINE_FILTER_LENGTH * 2;
+
 const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_REVERB_FILTER_LENGTH
 const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
@@ -138,6 +140,8 @@ private:
     int m_output_sample;
     
     FFTSetup m_fft_setup;
+    float *m_reverb_workspace_data;
+    DSPSplitComplex m_reverb_workspace[3];
     
     float *getBlockAddress(int block_offset);
     void renderBlock();
