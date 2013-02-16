@@ -152,7 +152,7 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
     DSPSplitComplex impulse_block_data_complex = m_reverb_workspace[1];
     DSPSplitComplex conv_data_complex = m_reverb_workspace[2];
     
-    int reverb_offset = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH - impulse_response_offset);
+    int reverb_offset = (m_reverb_input_next_sample - impulse_response_offset);
     if(reverb_offset < 0) {
         reverb_offset += KRENGINE_REVERB_MAX_SAMPLES;
     } else {
@@ -224,11 +224,6 @@ void KRAudioManager::renderReverb()
         }
     }
     
-    m_reverb_input_next_sample += KRENGINE_AUDIO_BLOCK_LENGTH;
-    if(m_reverb_input_next_sample >= KRENGINE_REVERB_MAX_SAMPLES) {
-        m_reverb_input_next_sample = 0;
-    }
-    
     // Apply impulse response reverb
     //    KRAudioSample *impulse_response = getContext().getAudioManager()->get("hrtf_kemar_H10e040a");
     KRAudioSample *impulse_response_sample = getContext().getAudioManager()->get("test_reverb");
@@ -238,6 +233,9 @@ void KRAudioManager::renderReverb()
             renderReverbImpulseResponse(impulse_response_sample, impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH, KRENGINE_AUDIO_BLOCK_LOG2N);
         }
     }
+    
+    // Rotate reverb buffer
+    m_reverb_input_next_sample = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH) % KRENGINE_REVERB_MAX_SAMPLES;
 }
 
 void KRAudioManager::renderBlock()
