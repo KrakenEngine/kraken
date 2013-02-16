@@ -44,12 +44,12 @@ const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
-const int KRENGINE_FILTER_LENGTH = 128; // Size for FFT's used in HRTF convolution
-const int KRENGINE_FILTER_LOG2 = 7; // 2 ^ 7 = 128
+const int KRENGINE_AUDIO_BLOCK_LENGTH = 256; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
+const int KRENGINE_AUDIO_BLOCK_LOG2N = 8; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
-const int KRENGINE_REVERB_WORKSPACE_SIZE = KRENGINE_FILTER_LENGTH * 2;
+const int KRENGINE_REVERB_WORKSPACE_SIZE = 1024;
 
-const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_REVERB_FILTER_LENGTH
+const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
 const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
 

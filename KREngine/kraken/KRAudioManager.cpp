@@ -94,11 +94,11 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     int output_frame = 0;
     
     while(output_frame < inNumberFrames) {
-        int frames_ready = KRENGINE_FILTER_LENGTH - m_output_sample;
+        int frames_ready = KRENGINE_AUDIO_BLOCK_LENGTH - m_output_sample;
         if(frames_ready == 0) {
             renderBlock();
             m_output_sample = 0;
-            frames_ready = KRENGINE_FILTER_LENGTH;
+            frames_ready = KRENGINE_AUDIO_BLOCK_LENGTH;
         }
         
         int frames_processed = inNumberFrames - output_frame;
@@ -138,7 +138,7 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 
 float *KRAudioManager::getBlockAddress(int block_offset)
 {
-    return m_output_accumulation + (m_output_accumulation_block_start + block_offset * KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+    return m_output_accumulation + (m_output_accumulation_block_start + block_offset * KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
 }
 
 void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_block)
@@ -150,8 +150,8 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
     float *block_data = getBlockAddress(0);
     float *next_block = getBlockAddress(1);
     
-    float impulse_block_start_index = impulse_response_block * KRENGINE_FILTER_LENGTH;
-    int reverb_block_start_index = (m_reverb_input_next_sample - KRENGINE_FILTER_LENGTH * (impulse_response_block + 1));
+    float impulse_block_start_index = impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH;
+    int reverb_block_start_index = (m_reverb_input_next_sample - KRENGINE_AUDIO_BLOCK_LENGTH * (impulse_response_block + 1));
     if(reverb_block_start_index < 0) {
         reverb_block_start_index += KRENGINE_REVERB_MAX_SAMPLES;
     } else {
@@ -159,30 +159,29 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
     }
     
 
-    
-    memcpy(reverb_sample_data_complex.realp, m_reverb_input_samples + reverb_block_start_index, KRENGINE_FILTER_LENGTH * sizeof(float));
-    memset(reverb_sample_data_complex.realp + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
-    memset(reverb_sample_data_complex.imagp, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
+    memcpy(reverb_sample_data_complex.realp, m_reverb_input_samples + reverb_block_start_index, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
+    memset(reverb_sample_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 0, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
+    memset(reverb_sample_data_complex.imagp, 0, KRENGINE_AUDIO_BLOCK_LENGTH * 2 * sizeof(float));
     
 
     
-    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Forward);
+    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Forward);
     
-    float scale = 1.0f / (2 * (KRENGINE_FILTER_LENGTH * 2));
+    float scale = 1.0f / (2 * KRENGINE_AUDIO_BLOCK_LENGTH);
     
     int impulse_response_channels = 2;
     for(int channel=0; channel < impulse_response_channels; channel++) {
         
-        impulse_response->sample(impulse_block_start_index, KRENGINE_FILTER_LENGTH, channel, impulse_block_data_complex.realp, 1.0f);
-        memset(impulse_block_data_complex.realp + KRENGINE_FILTER_LENGTH, 0, KRENGINE_FILTER_LENGTH * sizeof(float));
-        memset(impulse_block_data_complex.imagp, 0, KRENGINE_FILTER_LENGTH * 2 * sizeof(float));
+        impulse_response->sample(impulse_block_start_index, KRENGINE_AUDIO_BLOCK_LENGTH, channel, impulse_block_data_complex.realp, 1.0f);
+        memset(impulse_block_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 0, KRENGINE_AUDIO_BLOCK_LENGTH * sizeof(float));
+        memset(impulse_block_data_complex.imagp, 0, KRENGINE_AUDIO_BLOCK_LENGTH * 2 * sizeof(float));
         
-        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Forward);
-        vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, KRENGINE_FILTER_LENGTH * 2, 1);
-        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, KRENGINE_FILTER_LOG2 + 1, kFFTDirection_Inverse);
-        vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, KRENGINE_FILTER_LENGTH * 2);
-        vDSP_vadd(block_data + channel, impulse_response_channels, conv_data_complex.realp, 1, block_data + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
-        vDSP_vadd(next_block + channel, impulse_response_channels, conv_data_complex.realp + KRENGINE_FILTER_LENGTH, 1, next_block + channel, impulse_response_channels, KRENGINE_FILTER_LENGTH);
+        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Forward);
+        vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, KRENGINE_AUDIO_BLOCK_LENGTH * 2, 1);
+        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, KRENGINE_AUDIO_BLOCK_LOG2N + 1, kFFTDirection_Inverse);
+        vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH * 2);
+        vDSP_vadd(block_data + channel, impulse_response_channels, conv_data_complex.realp, 1, block_data + channel, impulse_response_channels, KRENGINE_AUDIO_BLOCK_LENGTH);
+        vDSP_vadd(next_block + channel, impulse_response_channels, conv_data_complex.realp + KRENGINE_AUDIO_BLOCK_LENGTH, 1, next_block + channel, impulse_response_channels, KRENGINE_AUDIO_BLOCK_LENGTH);
     }
 }
 
@@ -193,23 +192,23 @@ void KRAudioManager::renderHRTF()
 
 void KRAudioManager::renderReverb()
 {
-    float reverb_data[KRENGINE_FILTER_LENGTH];
+    float reverb_data[KRENGINE_AUDIO_BLOCK_LENGTH];
     
     float *reverb_accum = m_reverb_input_samples + m_reverb_input_next_sample;
-    memset(reverb_accum, 0, sizeof(float) * KRENGINE_FILTER_LENGTH);
+    memset(reverb_accum, 0, sizeof(float) * KRENGINE_AUDIO_BLOCK_LENGTH);
     for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
         KRAudioSource *source = *itr;
         float reverb_send_level = m_global_reverb_send_level * source->getReverb();
         if(reverb_send_level > 0.0f) {
             KRAudioSample *sample = source->getAudioSample();
             if(sample) {
-                sample->sample((int)((__int64_t)m_audio_frame - source->getStartAudioFrame()), KRENGINE_FILTER_LENGTH, 0, reverb_data, reverb_send_level);
-                vDSP_vadd(reverb_accum, 1, reverb_data, 1, reverb_accum, 1, KRENGINE_FILTER_LENGTH);
+                sample->sample((int)((__int64_t)m_audio_frame - source->getStartAudioFrame()), KRENGINE_AUDIO_BLOCK_LENGTH, 0, reverb_data, reverb_send_level);
+                vDSP_vadd(reverb_accum, 1, reverb_data, 1, reverb_accum, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
             }
         }
     }
     
-    m_reverb_input_next_sample += KRENGINE_FILTER_LENGTH;
+    m_reverb_input_next_sample += KRENGINE_AUDIO_BLOCK_LENGTH;
     if(m_reverb_input_next_sample >= KRENGINE_REVERB_MAX_SAMPLES) {
         m_reverb_input_next_sample = 0;
     }
@@ -218,7 +217,7 @@ void KRAudioManager::renderReverb()
     //    KRAudioSample *impulse_response = getContext().getAudioManager()->get("hrtf_kemar_H10e040a");
     KRAudioSample *impulse_response_sample = getContext().getAudioManager()->get("test_reverb");
     if(impulse_response_sample) {
-        int impulse_response_blocks = impulse_response_sample->getFrameCount() / KRENGINE_FILTER_LENGTH + 1;
+        int impulse_response_blocks = impulse_response_sample->getFrameCount() / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
         for(int impulse_response_block=0; impulse_response_block < impulse_response_blocks; impulse_response_block++) {
             renderReverbImpulseResponse(impulse_response_sample, impulse_response_block);
         }
@@ -231,10 +230,10 @@ void KRAudioManager::renderBlock()
     
     // Zero out block that was last used, so it will be ready for the next pass through the circular buffer
     float *block_data = getBlockAddress(0);
-    memset(block_data, 0, KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS * sizeof(float));
+    memset(block_data, 0, KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS * sizeof(float));
     
     // Advance to the next block, and wrap around
-    m_output_accumulation_block_start = (m_output_accumulation_block_start + KRENGINE_FILTER_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+    m_output_accumulation_block_start = (m_output_accumulation_block_start + KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
     
     // ----====---- Render Direct / HRTF audio ----====----
     renderHRTF();
@@ -244,7 +243,7 @@ void KRAudioManager::renderBlock()
     renderReverb();
     
     // ----====---- Advance audio sources ----====----
-    m_audio_frame += KRENGINE_FILTER_LENGTH;
+    m_audio_frame += KRENGINE_AUDIO_BLOCK_LENGTH;
 }
 
 // audio render procedure, don't allocate memory, don't take any locks, don't waste time
@@ -277,7 +276,7 @@ void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool 
 void KRAudioManager::initSiren()
 {
     if(m_auGraph == NULL) {
-        m_output_sample = KRENGINE_FILTER_LENGTH;
+        m_output_sample = KRENGINE_AUDIO_BLOCK_LENGTH;
         
         // initialize double-buffer for reverb input
         int buffer_size = sizeof(float) * KRENGINE_REVERB_MAX_SAMPLES; // Reverb input is a single channel, circular buffered
