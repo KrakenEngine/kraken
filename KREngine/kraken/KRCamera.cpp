@@ -69,9 +69,6 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 
 
     KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
-    getContext().getAudioManager()->setViewMatrix(viewMatrix); // FINDME, TODO - Should we support de-coupling the audio listener location from the camera?
-    
-
     
     settings.setViewportSize(KRVector2(backingWidth, backingHeight));
     KRMat4 projectionMatrix;

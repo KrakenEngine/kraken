@@ -36,6 +36,7 @@
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
 #include "KRVector2.h"
+#include "KRCollider.h"
 #include <Accelerate/Accelerate.h>
 
 OSStatus  alcASASetListenerProc(const ALuint property, ALvoid *data, ALuint dataSize);
@@ -1071,18 +1072,36 @@ void KRAudioManager::makeCurrentContext()
     }
 }
 
-void KRAudioManager::setViewMatrix(const KRMat4 &viewMatrix)
+void KRAudioManager::setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix)
 {
-    KRMat4 invView = viewMatrix;
-    invView.invert();
-    
-    m_listener_position = KRMat4::Dot(invView, KRVector3(0.0, 0.0, 0.0));
-    m_listener_forward = KRMat4::Dot(invView, KRVector3(0.0, 0.0, -1.0)) - m_listener_position;
-    m_listener_up = KRMat4::Dot(invView, KRVector3(0.0, 1.0, 0.0)) - m_listener_position;
-    
-    m_listener_up.normalize();
-    m_listener_forward.normalize();
-    
+    setListenerOrientation(
+        KRMat4::Dot(modelMatrix, KRVector3(0.0, 0.0, 0.0)),
+        KRVector3::Normalize(KRMat4::Dot(modelMatrix, KRVector3(0.0, 0.0, -1.0)) - m_listener_position),
+        KRVector3::Normalize(KRMat4::Dot(modelMatrix, KRVector3(0.0, 1.0, 0.0)) - m_listener_position)
+    );
+}
+
+KRVector3 &KRAudioManager::getListenerForward()
+{
+    return m_listener_forward;
+}
+
+KRVector3 &KRAudioManager::getListenerPosition()
+{
+    return m_listener_position;
+}
+
+KRVector3 &KRAudioManager::getListenerUp()
+{
+    return m_listener_up;
+}
+
+void KRAudioManager::setListenerOrientation(const KRVector3 &position, const KRVector3 &forward, const KRVector3 &up)
+{
+    m_listener_position = position;
+    m_listener_forward = forward;
+    m_listener_up = up;
+
     makeCurrentContext();
     if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
         ALDEBUG(alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z));
@@ -1253,11 +1272,19 @@ void KRAudioManager::renderHRTF()
         KRAudioSource *source = *itr;
         KRAudioSample *source_sample = source->getAudioSample();
         if(source_sample) {
-            
-            KRVector3 source_listener_space = KRMat4::Dot(inv_listener_mat, source->getWorldTranslation());
+            KRVector3 source_world_position = source->getWorldTranslation();
+            KRVector3 source_listener_space = KRMat4::Dot(inv_listener_mat, source_world_position);
             KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
             float distance = source_listener_space.magnitude();
             float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
+            
+            if(source->getEnableOcclusion() && false) {
+                KRHitInfo hitinfo;
+                if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
+                    gain = 0.0f;
+                }
+            }
+            
             
             float azimuth = atan2(source_dir.x, source_dir.z);
             float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));

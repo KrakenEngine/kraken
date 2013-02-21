@@ -64,8 +64,11 @@ public:
     KRAudioSample *load(const std::string &name, const std::string &extension, KRDataBlock *data);
     KRAudioSample *get(const std::string &name);
     
-    void setViewMatrix(const KRMat4 &viewMatrix);
-    
+    void setListenerOrientation(const KRVector3 &position, const KRVector3 &forward, const KRVector3 &up);
+    void setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix);
+    KRVector3 &getListenerForward();
+    KRVector3 &getListenerPosition();
+    KRVector3 &getListenerUp();
 
     void makeCurrentContext();
     
