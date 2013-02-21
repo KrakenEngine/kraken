@@ -50,6 +50,14 @@ KRMat4::KRMat4(GLfloat *pMat) {
     memcpy(m_mat, pMat, sizeof(GLfloat) * 16);
 }
 
+KRMat4::KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans)
+{
+    m_mat[0]  = axis_x.x;  m_mat[1]  = axis_x.y;   m_mat[2]  = axis_x.z;   m_mat[3]  = 0.0f;
+    m_mat[4]  = axis_y.x;  m_mat[5]  = axis_y.y;   m_mat[6]  = axis_y.z;   m_mat[7]  = 0.0f;
+    m_mat[8]  = axis_z.x;  m_mat[9]  = axis_z.y;   m_mat[10] = axis_z.z;   m_mat[11] = 0.0f;
+    m_mat[12] = trans.x;   m_mat[13] = trans.y;    m_mat[14] = trans.z;    m_mat[15] = 1.0f;
+}
+
 KRMat4::~KRMat4() {
     
 }

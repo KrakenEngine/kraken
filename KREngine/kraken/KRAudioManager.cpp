@@ -35,7 +35,7 @@
 #include "KRDataBlock.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-
+#include "KRVector2.h"
 #include <Accelerate/Accelerate.h>
 
 OSStatus  alcASASetListenerProc(const ALuint property, ALvoid *data, ALuint dataSize);
@@ -64,7 +64,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     m_reverb_input_samples = NULL;
     m_reverb_input_next_sample = 0;
     
-    m_reverb_workspace_data = NULL;
+    m_workspace_data = NULL;
     m_reverb_sequence = 0;
 
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
@@ -142,15 +142,15 @@ float *KRAudioManager::getBlockAddress(int block_offset)
     return m_output_accumulation + (m_output_accumulation_block_start + block_offset * KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
 }
 
-void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log_2)
+void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log2)
 {
-    int frame_count = 1 << frame_count_log_2;
+    int frame_count = 1 << frame_count_log2;
     int fft_size = frame_count * 2;
-    int fft_size_log_2 = frame_count_log_2 + 1;
+    int fft_size_log2 = frame_count_log2 + 1;
     
-    DSPSplitComplex reverb_sample_data_complex = m_reverb_workspace[0];
-    DSPSplitComplex impulse_block_data_complex = m_reverb_workspace[1];
-    DSPSplitComplex conv_data_complex = m_reverb_workspace[2];
+    DSPSplitComplex reverb_sample_data_complex = m_workspace[0];
+    DSPSplitComplex impulse_block_data_complex = m_workspace[1];
+    DSPSplitComplex conv_data_complex = m_workspace[2];
     
     int reverb_offset = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH - frame_count);
     if(reverb_offset < 0) {
@@ -172,7 +172,7 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
     memset(reverb_sample_data_complex.realp + frame_count, 0, frame_count * sizeof(float));
     memset(reverb_sample_data_complex.imagp, 0, fft_size * sizeof(float));
 
-    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, fft_size_log_2, kFFTDirection_Forward);
+    vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
     
     float scale = 1.0f / fft_size;
     
@@ -183,9 +183,9 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
         memset(impulse_block_data_complex.realp + frame_count, 0, frame_count * sizeof(float));
         memset(impulse_block_data_complex.imagp, 0, fft_size * sizeof(float));
         
-        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, fft_size_log_2, kFFTDirection_Forward);
+        vDSP_fft_zip(m_fft_setup, &impulse_block_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
         vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, fft_size, 1);
-        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, fft_size_log_2, kFFTDirection_Inverse);
+        vDSP_fft_zip(m_fft_setup, &conv_data_complex, 1, fft_size_log2, kFFTDirection_Inverse);
         vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, fft_size);
         
         
@@ -199,11 +199,6 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
             output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
         }
     }
-}
-
-void KRAudioManager::renderHRTF()
-{
-    
 }
 
 void KRAudioManager::renderReverb()
@@ -229,19 +224,15 @@ void KRAudioManager::renderReverb()
     KRAudioSample *impulse_response_sample = getContext().getAudioManager()->get("test_reverb");
     if(impulse_response_sample) {
         int impulse_response_blocks = impulse_response_sample->getFrameCount() / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
-        int period_log_2 = 0;
+        int period_log2 = 0;
         int impulse_response_block=0;
         int period_count = 0;
         
-//        fprintf(stderr, "m_reverb_sequence - %i - ", m_reverb_sequence);
         while(impulse_response_block < impulse_response_blocks) {
-            int period = 1 << period_log_2;
+            int period = 1 << period_log2;
             
             if((m_reverb_sequence + period - period_count) % period == 0) {
-//                fprintf(stderr, "-%02i-", period);
-                renderReverbImpulseResponse(impulse_response_sample, impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH, KRENGINE_AUDIO_BLOCK_LOG2N + period_log_2);
-            } else {
-//                fprintf(stderr, "----");
+                renderReverbImpulseResponse(impulse_response_sample, impulse_response_block * KRENGINE_AUDIO_BLOCK_LENGTH, KRENGINE_AUDIO_BLOCK_LOG2N + period_log2);
             }
             
             impulse_response_block += period;
@@ -249,12 +240,11 @@ void KRAudioManager::renderReverb()
             period_count++;
             if(period_count >= period) {
                 period_count = 0;
-                if(KRENGINE_AUDIO_BLOCK_LOG2N + period_log_2 + 1 < KRENGINE_REVERB_MAX_FFT_LOG_2) { // FFT Size is double the number of frames in the period
-                    period_log_2++;
+                if(KRENGINE_AUDIO_BLOCK_LOG2N + period_log2 + 1 < KRENGINE_REVERB_MAX_FFT_LOG2) { // FFT Size is double the number of frames in the period
+                    period_log2++;
                 }
             }
         }
-//        fprintf(stderr, "\n");
     }
     
     m_reverb_sequence = (m_reverb_sequence + 1) % 0x1000000;
@@ -265,6 +255,8 @@ void KRAudioManager::renderReverb()
 
 void KRAudioManager::renderBlock()
 {
+    bool headphone_mode = true;
+    
     // ----====---- Advance to next block in accumulation buffer ----====----
     
     // Zero out block that was last used, so it will be ready for the next pass through the circular buffer
@@ -275,8 +267,11 @@ void KRAudioManager::renderBlock()
     m_output_accumulation_block_start = (m_output_accumulation_block_start + KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
     
     // ----====---- Render Direct / HRTF audio ----====----
-    renderHRTF();
-//    renderITD();
+    if(headphone_mode) {
+        renderHRTF();
+    } else {
+        renderITD();
+    }
     
     // ----====---- Render Indirect / Reverb channel ----====----
     renderReverb();
@@ -312,9 +307,510 @@ void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool 
     }
 }
 
+void KRAudioManager::initHRTF()
+{
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,005.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,025.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,035.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,055.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,065.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,085.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,095.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,115.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,125.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,145.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,155.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,175.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,005.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,025.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,035.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,055.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,065.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,085.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,095.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,115.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,125.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,145.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,155.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,175.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,006.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,012.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,018.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,024.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,036.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,042.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,048.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,054.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,066.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,072.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,078.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,084.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,096.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,102.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,108.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,114.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,126.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,132.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,138.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,144.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,156.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,162.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,168.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,174.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,006.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,013.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,019.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,026.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,032.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,039.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,051.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,058.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,064.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,071.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,077.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,084.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,096.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,103.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,109.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,116.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,122.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,129.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,141.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,148.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,154.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,161.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,167.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,174.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,005.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,025.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,035.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,055.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,065.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,085.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,095.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,115.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,125.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,145.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,155.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,175.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(0.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,005.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,025.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,035.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,055.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,065.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,085.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,095.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,115.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,125.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,145.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,155.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,175.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(10.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,005.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,025.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,035.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,055.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,065.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,085.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,095.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,115.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,125.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,145.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,155.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,175.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(20.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,006.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,012.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,018.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,024.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,036.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,042.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,048.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,054.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,066.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,072.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,078.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,084.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,096.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,102.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,108.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,114.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,126.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,132.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,138.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,144.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,156.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,162.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,168.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,174.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(30.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,006.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,013.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,019.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,026.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,032.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,039.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,051.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,058.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,064.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,071.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,077.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,084.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,096.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,103.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,109.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,116.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,122.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,129.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,141.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,148.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,154.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,161.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,167.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,174.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(40.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,008.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,016.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,024.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,032.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,048.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,056.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,064.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,072.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,088.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,096.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,104.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,112.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,128.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,136.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,144.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,152.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,168.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(50.0f,176.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,010.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,020.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,040.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,050.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,070.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,080.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,100.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,110.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,130.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,140.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,160.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,170.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(60.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,015.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,045.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,075.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,105.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,135.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,165.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(70.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,000.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,030.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,060.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,090.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,120.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,150.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(80.0f,180.0f));
+    m_hrtf_sample_locations.push_back(KRVector2(90.0f,000.0f));
+}
+
+void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2 &dir2, KRVector2 &dir3, KRVector2 &dir4, float &mix1, float &mix2, float &mix3, float &mix4)
+{
+    float elev_gran = 10.0f;
+    
+    float elevation = dir.x * 180.0f / M_PI;
+    float azimuth = dir.y * 180.0f / M_PI;
+    
+    float elev1 = floor(elevation / elev_gran) * elev_gran;
+    float elev2 = ceil(elevation / elev_gran) * elev_gran;
+    float elev_blend = (elevation - elev1) / elev_gran;
+    if(elev1 < -40.0f) {
+        elev1 = -40.0f;
+        elev2 = -40.0f;
+        elev_blend = 0.0f;
+    }
+    
+    dir1.x = elev1;
+    dir2.x = elev1;
+    dir3.x = elev2;
+    dir4.x = elev2;
+    
+    bool first1 = true;
+    bool first2 = true;
+    bool first3 = true;
+    bool first4 = true;
+    for(std::vector<KRVector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+        KRVector2 sample_pos = *itr;
+        
+        if(sample_pos.x == elev1) {
+            if(sample_pos.y <= azimuth) {
+                if(first1) {
+                    first1 = false;
+                    dir1.y = sample_pos.y;
+                } else if(sample_pos.y > dir1.y) {
+                    dir1.y = sample_pos.y;
+                }
+            }
+            if(-sample_pos.y <= azimuth) {
+                if(first1) {
+                    first1 = false;
+                    dir1.y = -sample_pos.y;
+                } else if(-sample_pos.y > dir1.y) {
+                    dir1.y = -sample_pos.y;
+                }
+            }
+
+            if(sample_pos.y > azimuth) {
+                if(first2) {
+                    first2 = false;
+                    dir2.y = sample_pos.y;
+                } else if(sample_pos.y < dir2.y) {
+                    dir2.y = sample_pos.y;
+                }
+            }
+            if(-sample_pos.y > azimuth) {
+                if(first2) {
+                    first2 = false;
+                    dir2.y = -sample_pos.y;
+                } else if(-sample_pos.y < dir2.y) {
+                    dir2.y = -sample_pos.y;
+                }
+            }
+        }
+        if(sample_pos.x == elev2) {
+            if(sample_pos.y <= azimuth) {
+                if(first3) {
+                    first3 = false;
+                    dir3.y = sample_pos.y;
+                } else if(sample_pos.y > dir3.y) {
+                    dir3.y = sample_pos.y;
+                }
+            }
+            if(-sample_pos.y <= azimuth) {
+                if(first3) {
+                    first3 = false;
+                    dir3.y = -sample_pos.y;
+                } else if(-sample_pos.y > dir3.y) {
+                    dir3.y = -sample_pos.y;
+                }
+            }
+            
+            if(sample_pos.y > azimuth) {
+                if(first4) {
+                    first4 = false;
+                    dir4.y = sample_pos.y;
+                } else if(sample_pos.y < dir4.y) {
+                    dir4.y = sample_pos.y;
+                }
+            }
+            if(-sample_pos.y > azimuth) {
+                if(first4) {
+                    first4 = false;
+                    dir4.y = -sample_pos.y;
+                } else if(-sample_pos.y < dir4.y) {
+                    dir4.y = -sample_pos.y;
+                }
+            }
+        }
+    }
+    
+    
+    float azim_blend1 = 0.0f;
+    if(dir2.y > dir1.y) {
+        azim_blend1 = (azimuth - dir1.y) / (dir2.y - dir1.y);
+    }
+    
+    float azim_blend2 = 0.0f;
+    if(dir4.y > dir3.y) {
+        azim_blend2 = (azimuth - dir3.y) / (dir4.y - dir3.y);
+    }
+    
+    mix1 = (1.0f - azim_blend1)  *  (1.0f - elev_blend);
+    mix2 = azim_blend1           *  (1.0f - elev_blend);
+    mix3 = (1.0f - azim_blend2)  *  elev_blend;
+    mix4 = azim_blend2           *  elev_blend;
+}
+
+KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir, bool &swap)
+{
+    //hrtf_kemar_H-10e000a.wav
+    swap = hrtf_dir.y < 0;
+    
+    char szName[64];
+    sprintf(szName, "hrtf_kemar_H%de%03da", int(hrtf_dir.x), abs(int(hrtf_dir.y)));
+    
+    return get(szName);
+}
+
 void KRAudioManager::initSiren()
 {
     if(m_auGraph == NULL) {
+        initHRTF();
         m_output_sample = KRENGINE_AUDIO_BLOCK_LENGTH;
         
         // initialize double-buffer for reverb input
@@ -327,17 +823,17 @@ void KRAudioManager::initSiren()
         memset(m_output_accumulation, 0, buffer_size * 2);
         m_output_accumulation_block_start = 0;
         
-        m_reverb_workspace_data = (float *)malloc(KRENGINE_REVERB_WORKSPACE_SIZE * 6 * sizeof(float));
-        m_reverb_workspace[0].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 0;
-        m_reverb_workspace[0].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 1;
-        m_reverb_workspace[1].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 2;
-        m_reverb_workspace[1].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 3;
-        m_reverb_workspace[2].realp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 4;
-        m_reverb_workspace[2].imagp = m_reverb_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 5;
+        m_workspace_data = (float *)malloc(KRENGINE_REVERB_WORKSPACE_SIZE * 6 * sizeof(float));
+        m_workspace[0].realp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 0;
+        m_workspace[0].imagp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 1;
+        m_workspace[1].realp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 2;
+        m_workspace[1].imagp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 3;
+        m_workspace[2].realp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 4;
+        m_workspace[2].imagp = m_workspace_data + KRENGINE_REVERB_WORKSPACE_SIZE * 5;
         
         m_reverb_sequence = 0;
         
-        m_fft_setup = vDSP_create_fftsetup( KRENGINE_REVERB_MAX_FFT_LOG_2, kFFTRadix2);
+        m_fft_setup = vDSP_create_fftsetup( KRENGINE_REVERB_MAX_FFT_LOG2, kFFTRadix2);
         
         // ----====---- Initialize Core Audio Objects ----====----
         OSDEBUG(NewAUGraph(&m_auGraph));
@@ -500,9 +996,9 @@ void KRAudioManager::cleanupSiren()
         m_output_accumulation = NULL;
     }
     
-    if(m_reverb_workspace_data) {
-        free(m_reverb_workspace_data);
-        m_reverb_workspace_data = NULL;
+    if(m_workspace_data) {
+        free(m_workspace_data);
+        m_workspace_data = NULL;
     }
         
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
@@ -759,6 +1255,92 @@ void KRAudioManager::setGlobalReverbSendLevel(float send_level)
     m_global_reverb_send_level = send_level;
 }
 
+
+void KRAudioManager::renderHRTF()
+{
+    DSPSplitComplex *hrtf_accum = m_workspace + 0;
+    DSPSplitComplex *hrtf_impulse = m_workspace + 1;
+    DSPSplitComplex *hrtf_convolved = m_workspace + 1; // We only need hrtf_impulse or hrtf_convolved at once; we can recycle the buffer
+    DSPSplitComplex *hrtf_sample = m_workspace + 2;
+    
+    int impulse_response_channels = 2;
+    int hrtf_frames = 128;
+    int fft_size = 256;
+    int fft_size_log2 = 8;
+    
+    
+    
+    KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
+    
+    KRMat4 inv_listener_mat = KRMat4::Invert(KRMat4(listener_right, m_listener_up, m_listener_forward, m_listener_position));
+    
+    for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
+        KRAudioSource *source = *itr;
+        KRAudioSample *source_sample = source->getAudioSample();
+        if(source_sample) {
+            
+            KRVector3 source_listener_space = KRMat4::Dot(inv_listener_mat, source->getWorldTranslation());
+            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
+            float distance = source_listener_space.magnitude();
+            float gain = source->getGain() / pow(distance / source->getRolloffFactor(), 2.0f);
+//            gain = 1.0f; // FINDME, HACK - Test code
+            
+            float azimuth = atan2(source_dir.x, source_dir.z);
+            float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
+            
+            float mix[4];
+            KRVector2 dir[4];
+            bool swap[4];
+            KRAudioSample *sample[4];
+            
+            getHRTFMix(KRVector2(elevation, azimuth), dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
+            
+            for(int i=0; i < 4; i++) {
+                sample[i] = getHRTFSample(dir[i], swap[i]);
+            }
+            
+            for(int channel=0; channel<impulse_response_channels; channel++) {
+                
+                memset(hrtf_accum->realp, 0, sizeof(float) * fft_size);
+                memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
+                
+                for(int i=0; i < 4; i++) {
+                    if(sample[i] != NULL && mix[i] > 0.0f) {
+                        
+                        sample[i]->sample(0, hrtf_frames, (channel + (swap[i] ? 1 : 0)) % 2, hrtf_impulse->realp, 1.0f);
+                        memset(hrtf_impulse->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
+                        memset(hrtf_impulse->imagp, 0, sizeof(float) * fft_size);
+                        vDSP_fft_zip(m_fft_setup, hrtf_impulse, 1, fft_size_log2, kFFTDirection_Forward);
+                        vDSP_vsmul(hrtf_impulse->realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
+                        vDSP_vsmul(hrtf_impulse->imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
+                        vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
+                    }
+                }
+                
+                source_sample->sample((int)((__int64_t)m_audio_frame - source->getStartAudioFrame()), KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
+                memset(hrtf_sample->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
+                memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
+                
+                
+                float scale = 1.0f / fft_size;
+                vDSP_fft_zip(m_fft_setup, hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
+                vDSP_zvmul(hrtf_sample, 1, hrtf_accum, 1, hrtf_convolved, 1, fft_size, 1);
+                vDSP_fft_zip(m_fft_setup, hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
+                vDSP_vsmul(hrtf_convolved->realp, 1, &scale, hrtf_convolved->realp, 1, fft_size);
+                
+                int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+                int frames_left = fft_size;
+                while(frames_left) {
+                    int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - output_offset) / KRENGINE_MAX_OUTPUT_CHANNELS;
+                    if(frames_to_process > frames_left) frames_to_process = frames_left;
+                    vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, hrtf_convolved->realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
+                    frames_left -= frames_to_process;
+                    output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+                }
+            }
+        }
+    }
+}
 
 void KRAudioManager::renderITD()
 {

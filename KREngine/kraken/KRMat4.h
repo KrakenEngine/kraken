@@ -67,6 +67,8 @@ public:
     
     KRMat4(GLfloat *pMat);
     
+    KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans);
+    
     // Destructor
     ~KRMat4();
     

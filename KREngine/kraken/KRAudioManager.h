@@ -47,8 +47,8 @@ const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 128; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
-const int KRENGINE_REVERB_MAX_FFT_LOG_2 = 15;
-const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG_2;
+const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
+const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
 
 const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
 const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
@@ -109,6 +109,7 @@ private:
     void initAudio();
     void initOpenAL();
     void initSiren();
+    void initHRTF();
     
     void cleanupAudio();
     void cleanupOpenAL();
@@ -142,15 +143,20 @@ private:
     int m_output_sample;
     
     FFTSetup m_fft_setup;
-    float *m_reverb_workspace_data;
-    DSPSplitComplex m_reverb_workspace[3];
+    float *m_workspace_data;
+    DSPSplitComplex m_workspace[3];
     
     float *getBlockAddress(int block_offset);
     void renderBlock();
     void renderReverb();
     void renderHRTF();
     void renderITD();
-    void renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log_2);
+    void renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log2);
+    
+    std::vector<KRVector2> m_hrtf_sample_locations;
+    
+    void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
+    KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir, bool &swap);
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */
