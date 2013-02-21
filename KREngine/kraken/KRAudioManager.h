@@ -93,6 +93,7 @@ public:
 private:
     
     float m_global_reverb_send_level;
+    float m_global_gain;
     
     KRVector3 m_listener_position;
     KRVector3 m_listener_forward;

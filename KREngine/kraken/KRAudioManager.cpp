@@ -45,7 +45,9 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
     m_audio_engine = KRAKEN_AUDIO_SIREN;
     
-    m_global_reverb_send_level = 0.25f;
+    m_global_gain = 0.20f;
+    m_global_reverb_send_level = 1.00f;
+   
     
     // OpenAL
     m_alDevice = 0;
@@ -174,7 +176,7 @@ void KRAudioManager::renderReverbImpulseResponse(KRAudioSample *impulse_response
 
     vDSP_fft_zip(m_fft_setup, &reverb_sample_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
     
-    float scale = 1.0f / fft_size;
+    float scale = 0.5f / fft_size;
     
     int impulse_response_channels = 2;
     for(int channel=0; channel < impulse_response_channels; channel++) {
@@ -209,7 +211,7 @@ void KRAudioManager::renderReverb()
     memset(reverb_accum, 0, sizeof(float) * KRENGINE_AUDIO_BLOCK_LENGTH);
     for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
         KRAudioSource *source = *itr;
-        float reverb_send_level = m_global_reverb_send_level * source->getReverb();
+        float reverb_send_level = m_global_reverb_send_level * m_global_gain * source->getReverb();
         if(reverb_send_level > 0.0f) {
             KRAudioSample *sample = source->getAudioSample();
             if(sample) {
@@ -895,17 +897,7 @@ void KRAudioManager::initSiren()
 
         KRSetAUCanonical(desc, 2, false);
         desc.mSampleRate = 44100.0f;
-        /*
-        desc.mSampleRate = 44100.0; // set sample rate
-		desc.mFormatID = kAudioFormatLinearPCM;
-		desc.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-		desc.mBitsPerChannel = sizeof(AudioSampleType) * 8; // AudioSampleType == 16 bit signed ints
-		desc.mChannelsPerFrame = 2;
-		desc.mFramesPerPacket = 1;
-		desc.mBytesPerFrame = (desc.mBitsPerChannel / 8) * desc.mChannelsPerFrame;
-		desc.mBytesPerPacket = desc.mBytesPerFrame * desc.mFramesPerPacket;
-         */
-        
+
         OSDEBUG(AudioUnitSetProperty(m_auMixer,
                              kAudioUnitProperty_StreamFormat,
                              kAudioUnitScope_Input,
@@ -936,24 +928,7 @@ void KRAudioManager::initSiren()
 
         KRSetAUCanonical(desc, 2, false);
         desc.mSampleRate = 44100.0f;
-//        int channel_count = 2;
-//        bool interleaved = true;
-//        
-//        desc.mFormatID = kAudioFormatLinearPCM;
-//#if CA_PREFER_FIXED_POINT
-//        desc.mFormatFlags = kAudioFormatFlagsCanonical | (kAudioUnitSampleFractionBits << kLinearPCMFormatFlagsSampleFractionShift);
-//#else
-//        desc.mFormatFlags = kAudioFormatFlagsCanonical;
-//#endif
-//        desc.mChannelsPerFrame = channel_count;
-//        desc.mFramesPerPacket = 1;
-//        desc.mBitsPerChannel = 8 * sizeof(AudioUnitSampleType);
-//        if (interleaved) {
-//            desc.mBytesPerPacket = desc.mBytesPerFrame = channel_count * sizeof(AudioUnitSampleType);
-//        } else {
-//            desc.mBytesPerPacket = desc.mBytesPerFrame = sizeof(AudioUnitSampleType);
-//            desc.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
-//        }
+
         
         // ----
 
@@ -1282,8 +1257,7 @@ void KRAudioManager::renderHRTF()
             KRVector3 source_listener_space = KRMat4::Dot(inv_listener_mat, source->getWorldTranslation());
             KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
             float distance = source_listener_space.magnitude();
-            float gain = source->getGain() / pow(distance / source->getRolloffFactor(), 2.0f);
-//            gain = 1.0f; // FINDME, HACK - Test code
+            float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
             
             float azimuth = atan2(source_dir.x, source_dir.z);
             float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
@@ -1322,7 +1296,7 @@ void KRAudioManager::renderHRTF()
                 memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
                 
                 
-                float scale = 1.0f / fft_size;
+                float scale = 0.5f / fft_size;
                 vDSP_fft_zip(m_fft_setup, hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
                 vDSP_zvmul(hrtf_sample, 1, hrtf_accum, 1, hrtf_convolved, 1, fft_size, 1);
                 vDSP_fft_zip(m_fft_setup, hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
