@@ -59,6 +59,10 @@ public:
     KRVector2& operator *=(const float v);
     KRVector2& operator /=(const float v);
     
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    bool operator >(const KRVector2& b) const;
+    bool operator <(const KRVector2& b) const;
+    
     bool operator ==(const KRVector2& b) const;
     bool operator !=(const KRVector2& b) const;
     

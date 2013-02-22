@@ -150,6 +150,8 @@ private:
     float *m_workspace_data;
     DSPSplitComplex m_workspace[3];
     
+    
+    
     float *getBlockAddress(int block_offset);
     void renderBlock();
     void renderReverb();
@@ -158,9 +160,12 @@ private:
     void renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log2);
     
     std::vector<KRVector2> m_hrtf_sample_locations;
+    float *m_hrtf_data;
+    map<KRVector2, DSPSplitComplex> m_hrtf_spectral[2];
     
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
-    KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir, bool &swap);
+    KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
+    DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

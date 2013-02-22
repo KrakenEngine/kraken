@@ -69,6 +69,8 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     
     m_workspace_data = NULL;
     m_reverb_sequence = 0;
+    
+    m_hrtf_data = NULL;
 
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
         m_reverb_impulse_responses[i] = NULL;
@@ -680,6 +682,53 @@ void KRAudioManager::initHRTF()
     m_hrtf_sample_locations.push_back(KRVector2(80.0f,150.0f));
     m_hrtf_sample_locations.push_back(KRVector2(80.0f,180.0f));
     m_hrtf_sample_locations.push_back(KRVector2(90.0f,000.0f));
+    
+    if(m_hrtf_data) {
+        delete m_hrtf_data;
+    }
+    m_hrtf_data = (float *)malloc(m_hrtf_sample_locations.size() * sizeof(float) * 128 * 4 * 2);
+    
+    for(int channel=0; channel < 2; channel++) {
+        m_hrtf_spectral[channel].clear();
+    }
+    
+    int sample_index=0;
+    for(std::vector<KRVector2>::iterator itr=m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+        KRVector2 pos = *itr;
+        KRAudioSample *sample = getHRTFSample(pos);
+        for(int channel=0; channel < 2; channel++) {
+            DSPSplitComplex spectral;
+            spectral.realp = m_hrtf_data + sample_index * 1024 + channel * 512;
+            spectral.imagp = m_hrtf_data + sample_index * 1024 + channel * 512 + 256;
+            sample->sample(0, 128, channel, spectral.realp, 1.0f);
+            memset(spectral.realp + 128, 0, sizeof(float) * 128);
+            memset(spectral.imagp, 0, sizeof(float) * 256);
+            vDSP_fft_zip(m_fft_setup, &spectral, 1, 8, kFFTDirection_Forward);
+            m_hrtf_spectral[channel][pos] = spectral;
+        }
+        sample_index++;
+    }
+    
+}
+
+KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir)
+{
+    //hrtf_kemar_H-10e000a.wav
+    char szName[64];
+    sprintf(szName, "hrtf_kemar_H%de%03da", int(hrtf_dir.x), abs(int(hrtf_dir.y)));
+    
+    return get(szName);
+}
+
+DSPSplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
+{
+    KRVector2 dir = hrtf_dir;
+    int sample_channel = channel;
+    if(dir.y < 0) {
+        dir.y = -dir.y;
+        sample_channel = (channel + 1) % 2;
+    }
+    return m_hrtf_spectral[sample_channel][dir];
 }
 
 void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2 &dir2, KRVector2 &dir3, KRVector2 &dir4, float &mix1, float &mix2, float &mix3, float &mix4)
@@ -799,21 +848,10 @@ void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2
     mix4 = azim_blend2           *  elev_blend;
 }
 
-KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir, bool &swap)
-{
-    //hrtf_kemar_H-10e000a.wav
-    swap = hrtf_dir.y < 0;
-    
-    char szName[64];
-    sprintf(szName, "hrtf_kemar_H%de%03da", int(hrtf_dir.x), abs(int(hrtf_dir.y)));
-    
-    return get(szName);
-}
-
 void KRAudioManager::initSiren()
 {
     if(m_auGraph == NULL) {
-        initHRTF();
+        
         m_output_sample = KRENGINE_AUDIO_BLOCK_LENGTH;
         
         // initialize double-buffer for reverb input
@@ -946,6 +984,11 @@ void KRAudioManager::initSiren()
         
         OSDEBUG(AUGraphInitialize(m_auGraph));
         
+        // ----====---- Initialize HRTF Engine ----====----
+        
+        initHRTF();
+        
+        // ----====---- Start the audio system ----====---- 
         OSDEBUG(AUGraphStart(m_auGraph));
         
 //        CAShow(m_auGraph);
@@ -976,7 +1019,12 @@ void KRAudioManager::cleanupSiren()
         free(m_workspace_data);
         m_workspace_data = NULL;
     }
-        
+    
+    if(m_hrtf_data) {
+        free(m_hrtf_data);
+        m_hrtf_data = NULL;
+    }
+    
     for(int i=0; i < KRENGINE_MAX_REVERB_IMPULSE_MIX; i++) {
         m_reverb_impulse_responses[i] = NULL;
         m_reverb_impulse_responses_weight[i] = 0.0f;
@@ -1262,21 +1310,26 @@ void KRAudioManager::renderHRTF()
     int fft_size = 256;
     int fft_size_log2 = 8;
     
-    
-    
     KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
-    
-    KRMat4 inv_listener_mat = KRMat4::Invert(KRMat4(listener_right, m_listener_up, m_listener_forward, m_listener_position));
     
     for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
         KRAudioSource *source = *itr;
         KRAudioSample *source_sample = source->getAudioSample();
         if(source_sample) {
             KRVector3 source_world_position = source->getWorldTranslation();
-            KRVector3 source_listener_space = KRMat4::Dot(inv_listener_mat, source_world_position);
-            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
-            float distance = source_listener_space.magnitude();
+            KRVector3 diff = source_world_position - m_listener_position;
+            float distance = diff.magnitude();
             float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
+            KRVector3 source_listener_space = KRVector3(
+                KRVector3::Dot(listener_right, diff),
+                KRVector3::Dot(m_listener_up, diff),
+                KRVector3::Dot(m_listener_forward, diff)
+            );
+            
+            
+            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
+            
+            
             
             if(source->getEnableOcclusion() && false) {
                 KRHitInfo hitinfo;
@@ -1285,20 +1338,15 @@ void KRAudioManager::renderHRTF()
                 }
             }
             
-            
-            float azimuth = atan2(source_dir.x, source_dir.z);
+            KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
+            float azimuth = -atan2(source_dir2.x, -source_dir2.y);
             float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
             
             float mix[4];
             KRVector2 dir[4];
-            bool swap[4];
-            KRAudioSample *sample[4];
+            
             
             getHRTFMix(KRVector2(elevation, azimuth), dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
-            
-            for(int i=0; i < 4; i++) {
-                sample[i] = getHRTFSample(dir[i], swap[i]);
-            }
             
             for(int channel=0; channel<impulse_response_channels; channel++) {
                 
@@ -1306,14 +1354,10 @@ void KRAudioManager::renderHRTF()
                 memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
                 
                 for(int i=0; i < 4; i++) {
-                    if(sample[i] != NULL && mix[i] > 0.0f) {
-                        
-                        sample[i]->sample(0, hrtf_frames, (channel + (swap[i] ? 1 : 0)) % 2, hrtf_impulse->realp, 1.0f);
-                        memset(hrtf_impulse->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
-                        memset(hrtf_impulse->imagp, 0, sizeof(float) * fft_size);
-                        vDSP_fft_zip(m_fft_setup, hrtf_impulse, 1, fft_size_log2, kFFTDirection_Forward);
-                        vDSP_vsmul(hrtf_impulse->realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
-                        vDSP_vsmul(hrtf_impulse->imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
+                    if(mix[i] > 0.0f) {
+                        DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
+                        vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
+                        vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
                         vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
                     }
                 }

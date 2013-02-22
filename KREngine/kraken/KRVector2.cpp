@@ -120,6 +120,34 @@ bool KRVector2::operator !=(const KRVector2& b) const {
     return x != b.x || y != b.y;
 }
 
+bool KRVector2::operator >(const KRVector2& b) const
+{
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    if(x > b.x) {
+        return true;
+    } else if(x < b.x) {
+        return false;
+    } else if(y > b.y) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool KRVector2::operator <(const KRVector2& b) const
+{
+    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+    if(x < b.x) {
+        return true;
+    } else if(x > b.x) {
+        return false;
+    } else if(y < b.y) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 float& KRVector2::operator[] (unsigned i) {
     switch(i) {
         case 0:
