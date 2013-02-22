@@ -13,6 +13,7 @@
 #include "KRVector3.h"
 #include "KRViewport.h"
 #include "tinyxml2.h"
+#include "KROctreeNode.h"
 
 class KRCamera;
 class KRShaderManager;
@@ -131,7 +132,12 @@ private:
     
     KRScene *m_pScene;
     
+    std::set<KROctreeNode *> m_octree_nodes;
+    
 public:
+    
+    void removeFromOctreeNodes();
+    void addToOctreeNode(KROctreeNode *octree_node);
     
     template <class T> T *find()
     {

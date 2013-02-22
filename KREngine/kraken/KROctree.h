@@ -34,7 +34,6 @@ public:
 private:
     KROctreeNode *m_pRootNode;
     std::set<KRNode *> m_outerSceneNodes;
-    //std::set<KRMat4> visibleMVPs;
     
     void shrink();
 };

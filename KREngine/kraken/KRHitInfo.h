@@ -33,7 +33,8 @@
 #define KRHITINFO_H
 
 #include "KRVector3.h"
-#include "KRNode.h"
+
+class KRNode;
 
 class KRHitInfo {
 public:

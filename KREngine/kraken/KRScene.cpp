@@ -73,7 +73,7 @@ void KRScene::renderFrame(float deltaTime, int width, int height) {
 }
 
 void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
-    
+    updateOctree();
     
     
     if(new_frame) {
@@ -97,7 +97,6 @@ void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, co
     
     std::vector<KRLight *> lights;
     
-    updateOctree();
     pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
     
     
@@ -383,40 +382,47 @@ KRLight *KRScene::getFirstLight()
 
 void KRScene::notify_sceneGraphCreate(KRNode *pNode)
 {
-    m_nodeTree.add(pNode);
-    if(pNode->hasPhysics()) {
-        m_physicsNodes.insert(pNode);
-    }
-//    m_newNodes.insert(pNode);
+//    m_nodeTree.add(pNode);
+//    if(pNode->hasPhysics()) {
+//        m_physicsNodes.insert(pNode);
+//    }
+    m_newNodes.insert(pNode);
+}
+
+void KRScene::notify_sceneGraphModify(KRNode *pNode)
+{
+    //    m_nodeTree.update(pNode);
+    m_modifiedNodes.insert(pNode);
 }
 
 void KRScene::notify_sceneGraphDelete(KRNode *pNode)
 {
     m_nodeTree.remove(pNode);
     m_physicsNodes.erase(pNode);
-//
-//    m_modifiedNodes.erase(pNode);
-//    if(!m_newNodes.erase(pNode)) {
-//        m_nodeTree.remove(pNode);
-//    }
-}
-
-void KRScene::notify_sceneGraphModify(KRNode *pNode)
-{
-    m_nodeTree.update(pNode);
-//    m_modifiedNodes.insert(pNode);
+    m_modifiedNodes.erase(pNode);
+    if(!m_newNodes.erase(pNode)) {
+        m_nodeTree.remove(pNode);
+    }
 }
 
 void KRScene::updateOctree()
 {
-//    for(std::set<KRNode *>::iterator itr=m_newNodes.begin(); itr != m_newNodes.end(); itr++) {
-//        m_nodeTree.add(*itr);
-//    }
-//    for(std::set<KRNode *>::iterator itr=m_modifiedNodes.begin(); itr != m_modifiedNodes.end(); itr++) {
-//        m_nodeTree.update(*itr);
-//    }
-//    m_newNodes.clear();
-//    m_modifiedNodes.clear();
+    std::set<KRNode *> newNodes = m_newNodes;
+    std::set<KRNode *> modifiedNodes = m_modifiedNodes;
+    m_newNodes.clear();
+    m_modifiedNodes.clear();
+    
+    for(std::set<KRNode *>::iterator itr=newNodes.begin(); itr != newNodes.end(); itr++) {
+        KRNode *node = *itr;
+        m_nodeTree.add(node);
+        if(node->hasPhysics()) {
+            m_physicsNodes.insert(node);
+        }
+    }
+    for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
+        KRNode *node = *itr;
+        m_nodeTree.update(node);
+    }
 }
 
 void KRScene::physicsUpdate(float deltaTime)

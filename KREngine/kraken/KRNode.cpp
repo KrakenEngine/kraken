@@ -409,3 +409,26 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
     }
 }
 
+void KRNode::removeFromOctreeNodes()
+{
+    for(std::set<KROctreeNode *>::iterator itr=m_octree_nodes.begin(); itr != m_octree_nodes.end(); itr++) {
+        KROctreeNode *octree_node = *itr;
+        octree_node->remove(this);
+        
+        // FINDME, TODO - This should be moved to the KROctree class
+        while(octree_node) {
+            octree_node->trim();
+            if(octree_node->isEmpty()) {
+                octree_node = octree_node->getParent();
+            } else {
+                octree_node = NULL;
+            }
+        }
+    }
+    m_octree_nodes.clear();
+}
+
+void KRNode::addToOctreeNode(KROctreeNode *octree_node)
+{
+    m_octree_nodes.insert(octree_node);
+}

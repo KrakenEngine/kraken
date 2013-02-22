@@ -10,8 +10,10 @@
 #include "KRNode.h"
 #include "KRCollider.h"
 
-KROctreeNode::KROctreeNode(const KRAABB &bounds) : m_bounds(bounds)
+KROctreeNode::KROctreeNode(KROctreeNode *parent, const KRAABB &bounds) : m_bounds(bounds)
 {
+    m_parent = parent;
+    
     for(int i=0; i<8; i++) m_children[i] = NULL;
     
     m_occlusionQuery = 0;
@@ -19,11 +21,14 @@ KROctreeNode::KROctreeNode(const KRAABB &bounds) : m_bounds(bounds)
     m_activeQuery = false;
 }
 
-KROctreeNode::KROctreeNode(const KRAABB &bounds, int iChild, KROctreeNode *pChild) : m_bounds(bounds)
+KROctreeNode::KROctreeNode(KROctreeNode *parent, const KRAABB &bounds, int iChild, KROctreeNode *pChild) : m_bounds(bounds)
 {
     // This constructor is used when expanding the octree and replacing the root node with a new root that encapsulates it
+    m_parent = parent;
+    
     for(int i=0; i<8; i++) m_children[i] = NULL;
     m_children[iChild] = pChild;
+    pChild->m_parent = this;
     
     m_occlusionQuery = 0;
     m_occlusionTested = false;
@@ -81,9 +86,10 @@ void KROctreeNode::add(KRNode *pNode)
     int iChild = getChildIndex(pNode);
     if(iChild == -1) {
         m_sceneNodes.insert(pNode);
+        pNode->addToOctreeNode(this);
     } else {
         if(m_children[iChild] == NULL) {
-            m_children[iChild] = new KROctreeNode(getChildBounds(iChild));
+            m_children[iChild] = new KROctreeNode(this, getChildBounds(iChild));
         }
         m_children[iChild]->add(pNode);
     }
@@ -115,18 +121,21 @@ int KROctreeNode::getChildIndex(KRNode *pNode)
     return -1;
 }
 
-void KROctreeNode::remove(KRNode *pNode)
+void KROctreeNode::trim()
 {
-    if(!m_sceneNodes.erase(pNode)) {
-        int iChild = getChildIndex(pNode);
+    for(int iChild = 0; iChild < 8; iChild++) {
         if(m_children[iChild]) {
-            m_children[iChild]->remove(pNode);
             if(m_children[iChild]->isEmpty()) {
                 delete m_children[iChild];
                 m_children[iChild] = NULL;
             }
         }
     }
+}
+
+void KROctreeNode::remove(KRNode *pNode)
+{
+    m_sceneNodes.erase(pNode);
 }
 
 void KROctreeNode::update(KRNode *pNode)
@@ -162,6 +171,7 @@ KROctreeNode *KROctreeNode::stripChild()
     for(int i=0; i<8; i++) {
         if(m_children[i]) {
             KROctreeNode *child = m_children[i];
+            child->m_parent = NULL;
             m_children[i] = NULL;
             return child;
         }
@@ -169,6 +179,11 @@ KROctreeNode *KROctreeNode::stripChild()
     return NULL;
 }
 
+
+KROctreeNode *KROctreeNode::getParent()
+{
+    return m_parent;
+}
 
 KROctreeNode **KROctreeNode::getChildren()
 {

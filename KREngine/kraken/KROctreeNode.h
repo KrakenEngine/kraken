@@ -18,8 +18,8 @@ class KRNode;
 
 class KROctreeNode {
 public:
-    KROctreeNode(const KRAABB &bounds);
-    KROctreeNode(const KRAABB &bounds, int iChild, KROctreeNode *pChild);
+    KROctreeNode(KROctreeNode *parent, const KRAABB &bounds);
+    KROctreeNode(KROctreeNode *parent, const KRAABB &bounds, int iChild, KROctreeNode *pChild);
     ~KROctreeNode();
     
     KROctreeNode **getChildren();
@@ -31,9 +31,11 @@ public:
     
     KRAABB getBounds();
     
+    KROctreeNode *getParent();
     void setChildNode(int iChild, KROctreeNode *pChild);
     int getChildIndex(KRNode *pNode);
     KRAABB getChildBounds(int iChild);
+    void trim();
     bool isEmpty() const;
     
     bool canShrinkRoot() const;
@@ -53,6 +55,7 @@ private:
     
     KRAABB m_bounds;
     
+    KROctreeNode *m_parent;
     KROctreeNode *m_children[8];
     
     std::set<KRNode *>m_sceneNodes;
