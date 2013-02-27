@@ -96,6 +96,7 @@ public:
     
     
     __int64_t getStartAudioFrame();
+    void sample(int frame_count, int channel, float *buffer, float gain);
     
 private:
     __int64_t m_start_audio_frame; // Global audio frame that matches the start of the audio sample playback

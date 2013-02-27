@@ -216,11 +216,8 @@ void KRAudioManager::renderReverb()
         KRAudioSource *source = *itr;
         float reverb_send_level = m_global_reverb_send_level * m_global_gain * source->getReverb();
         if(reverb_send_level > 0.0f) {
-            KRAudioSample *sample = source->getAudioSample();
-            if(sample) {
-                sample->sample((int)((__int64_t)m_audio_frame - source->getStartAudioFrame()), KRENGINE_AUDIO_BLOCK_LENGTH, 0, reverb_data, reverb_send_level);
-                vDSP_vadd(reverb_accum, 1, reverb_data, 1, reverb_accum, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
-            }
+            source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, reverb_data, reverb_send_level);
+            vDSP_vadd(reverb_accum, 1, reverb_data, 1, reverb_accum, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
         }
     }
     
@@ -1314,74 +1311,71 @@ void KRAudioManager::renderHRTF()
     
     for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
         KRAudioSource *source = *itr;
-        KRAudioSample *source_sample = source->getAudioSample();
-        if(source_sample) {
-            KRVector3 source_world_position = source->getWorldTranslation();
-            KRVector3 diff = source_world_position - m_listener_position;
-            float distance = diff.magnitude();
-            float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
-            KRVector3 source_listener_space = KRVector3(
-                KRVector3::Dot(listener_right, diff),
-                KRVector3::Dot(m_listener_up, diff),
-                KRVector3::Dot(m_listener_forward, diff)
-            );
+        KRVector3 source_world_position = source->getWorldTranslation();
+        KRVector3 diff = source_world_position - m_listener_position;
+        float distance = diff.magnitude();
+        float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
+        KRVector3 source_listener_space = KRVector3(
+            KRVector3::Dot(listener_right, diff),
+            KRVector3::Dot(m_listener_up, diff),
+            KRVector3::Dot(m_listener_forward, diff)
+        );
+        
+        
+        KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
+        
+        
+        
+        if(source->getEnableOcclusion() && false) {
+            KRHitInfo hitinfo;
+            if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
+                gain = 0.0f;
+            }
+        }
+        
+        KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
+        float azimuth = -atan2(source_dir2.x, -source_dir2.y);
+        float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
+        
+        float mix[4];
+        KRVector2 dir[4];
+        
+        
+        getHRTFMix(KRVector2(elevation, azimuth), dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
+        
+        for(int channel=0; channel<impulse_response_channels; channel++) {
             
+            memset(hrtf_accum->realp, 0, sizeof(float) * fft_size);
+            memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
             
-            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
-            
-            
-            
-            if(source->getEnableOcclusion() && false) {
-                KRHitInfo hitinfo;
-                if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
-                    gain = 0.0f;
+            for(int i=0; i < 4; i++) {
+                if(mix[i] > 0.0f) {
+                    DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
+                    vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
+                    vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
+                    vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
                 }
             }
             
-            KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
-            float azimuth = -atan2(source_dir2.x, -source_dir2.y);
-            float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
-            
-            float mix[4];
-            KRVector2 dir[4];
+            source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
+            memset(hrtf_sample->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
+            memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
             
             
-            getHRTFMix(KRVector2(elevation, azimuth), dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
+            float scale = 0.5f / fft_size;
+            vDSP_fft_zip(m_fft_setup, hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
+            vDSP_zvmul(hrtf_sample, 1, hrtf_accum, 1, hrtf_convolved, 1, fft_size, 1);
+            vDSP_fft_zip(m_fft_setup, hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
+            vDSP_vsmul(hrtf_convolved->realp, 1, &scale, hrtf_convolved->realp, 1, fft_size);
             
-            for(int channel=0; channel<impulse_response_channels; channel++) {
-                
-                memset(hrtf_accum->realp, 0, sizeof(float) * fft_size);
-                memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
-                
-                for(int i=0; i < 4; i++) {
-                    if(mix[i] > 0.0f) {
-                        DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
-                        vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
-                        vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
-                        vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
-                    }
-                }
-                
-                source_sample->sample((int)((__int64_t)m_audio_frame - source->getStartAudioFrame()), KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
-                memset(hrtf_sample->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
-                memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
-                
-                
-                float scale = 0.5f / fft_size;
-                vDSP_fft_zip(m_fft_setup, hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
-                vDSP_zvmul(hrtf_sample, 1, hrtf_accum, 1, hrtf_convolved, 1, fft_size, 1);
-                vDSP_fft_zip(m_fft_setup, hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
-                vDSP_vsmul(hrtf_convolved->realp, 1, &scale, hrtf_convolved->realp, 1, fft_size);
-                
-                int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
-                int frames_left = fft_size;
-                while(frames_left) {
-                    int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - output_offset) / KRENGINE_MAX_OUTPUT_CHANNELS;
-                    if(frames_to_process > frames_left) frames_to_process = frames_left;
-                    vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, hrtf_convolved->realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
-                    frames_left -= frames_to_process;
-                    output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
-                }
+            int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+            int frames_left = fft_size;
+            while(frames_left) {
+                int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - output_offset) / KRENGINE_MAX_OUTPUT_CHANNELS;
+                if(frames_to_process > frames_left) frames_to_process = frames_left;
+                vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, hrtf_convolved->realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
+                frames_left -= frames_to_process;
+                output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
             }
         }
     }
