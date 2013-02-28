@@ -212,7 +212,10 @@ void KRAudioManager::renderReverb()
     
     float *reverb_accum = m_reverb_input_samples + m_reverb_input_next_sample;
     memset(reverb_accum, 0, sizeof(float) * KRENGINE_AUDIO_BLOCK_LENGTH);
-    for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
+    
+    std::set<KRAudioSource *> active_sources = m_activeAudioSources;
+    
+    for(std::set<KRAudioSource *>::iterator itr=active_sources.begin(); itr != active_sources.end(); itr++) {
         KRAudioSource *source = *itr;
         float reverb_send_level = m_global_reverb_send_level * m_global_gain * source->getReverb();
         if(reverb_send_level > 0.0f) {
@@ -1309,7 +1312,9 @@ void KRAudioManager::renderHRTF()
     
     KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
     
-    for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
+    std::set<KRAudioSource *> active_sources = m_activeAudioSources;
+    
+    for(std::set<KRAudioSource *>::iterator itr=active_sources.begin(); itr != active_sources.end(); itr++) {
         KRAudioSource *source = *itr;
         KRVector3 source_world_position = source->getWorldTranslation();
         KRVector3 diff = source_world_position - m_listener_position;
