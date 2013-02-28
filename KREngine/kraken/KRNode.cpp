@@ -20,7 +20,7 @@
 #include "KRQuaternion.h"
 #include "KRBone.h"
 #include "KRAudioSource.h"
-#include "KRReverbZone.h"
+#include "KRAmbientSphere.h"
 
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
@@ -241,8 +241,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRBone(scene, szName);
     } else if(strcmp(szElementName, "audio_source") == 0) {
         new_node = new KRAudioSource(scene, szName);
-    } else if(strcmp(szElementName, "reverb_zone") == 0) {
-        new_node = new KRReverbZone(scene, szName);
+    } else if(strcmp(szElementName, "ambient_sphere") == 0) {
+        new_node = new KRAmbientSphere(scene, szName);
     }
     
     if(new_node) {
