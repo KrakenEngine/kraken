@@ -1,5 +1,5 @@
 //
-//  KRAmbientSphere.h
+//  KRAmbientZone.h
 //  KREngine
 //
 //  Created by Kearwood Gilbert on 2012-12-06.
@@ -13,10 +13,10 @@
 #include "KRNode.h"
 #include "KRTexture.h"
 
-class KRAmbientSphere : public KRNode {
+class KRAmbientZone : public KRNode {
 public:
-    KRAmbientSphere(KRScene &scene, std::string name);
-    virtual ~KRAmbientSphere();
+    KRAmbientZone(KRScene &scene, std::string name);
+    virtual ~KRAmbientZone();
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
@@ -29,12 +29,6 @@ public:
     float getGradientDistance();
     void setGradientDistance(float gradient_distance);
     
-    std::string getReverb();
-    void setReverb(const std::string &reverb);
-    
-    float getReverbGain();
-    void setReverbGain(float reverb_gain);
-    
     std::string getAmbient();
     void setAmbient(const std::string &ambient);
     
@@ -43,13 +37,12 @@ public:
     
     virtual KRAABB getBounds();
     
+    float getContainment(const KRVector3 &pos);
+    
 private:
     std::string m_zone;
     
     float m_gradient_distance;
-    
-    std::string m_reverb;
-    float m_reverb_gain;
     
     std::string m_ambient;
     float m_ambient_gain;

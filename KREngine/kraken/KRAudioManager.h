@@ -50,9 +50,27 @@ const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KR
 const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
 const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
 
+const float KRENGINE_AUDIO_CUTOFF = 0.02f; // Cutoff gain level, to cull out processing of very quiet sounds
+
 const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
 const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
+
+
+class KRAmbientZone;
+class KRReverbZone;
+
+typedef struct {
+    float weight;
+    KRAmbientZone *ambient_zone;
+    KRAudioSample *ambient_sample;
+} siren_ambient_zone_weight_info;
+
+typedef struct {
+    float weight;
+    KRReverbZone *reverb_zone;
+    KRAudioSample *reverb_sample;
+} siren_reverb_zone_weight_info;
 
 class KRAudioManager : public KRContextObject {
 public:
@@ -64,12 +82,26 @@ public:
     KRAudioSample *load(const std::string &name, const std::string &extension, KRDataBlock *data);
     KRAudioSample *get(const std::string &name);
     
+    // Listener position and orientation
+    KRScene *getListenerScene();
+    void setListenerScene(KRScene *scene);
     void setListenerOrientation(const KRVector3 &position, const KRVector3 &forward, const KRVector3 &up);
     void setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix);
     KRVector3 &getListenerForward();
     KRVector3 &getListenerPosition();
     KRVector3 &getListenerUp();
+    
+    
+    // Global audio gain / attenuation
+    float getGlobalGain();
+    void setGlobalGain(float gain);
+    float getGlobalReverbSendLevel();
+    void setGlobalReverbSendLevel(float send_level);
+    float getGlobalAmbientGain();
+    void setGlobalAmbientGain(float gain);
 
+    
+    
     void makeCurrentContext();
     
     KRDataBlock *getBufferData(int size);
@@ -90,12 +122,14 @@ public:
     
     KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
-    float getGlobalReverbSendLevel();
-    void setGlobalReverbSendLevel(float send_level);
-    
+
+    void startFrame(float deltaTime);
 private:
     
+    KRScene *m_listener_scene; // For now, only one scene is allowed to have active audio at once
+    
     float m_global_reverb_send_level;
+    float m_global_ambient_gain;
     float m_global_gain;
     
     KRVector3 m_listener_position;
@@ -155,9 +189,10 @@ private:
     float *getBlockAddress(int block_offset);
     void renderBlock();
     void renderReverb();
+    void renderAmbient();
     void renderHRTF();
     void renderITD();
-    void renderReverbImpulseResponse(KRAudioSample *impulse_response, int impulse_response_offset, int frame_count_log2);
+    void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
     
     std::vector<KRVector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
@@ -166,6 +201,15 @@ private:
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
     KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
     DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
+    
+    
+    std::map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
+    float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
+    
+    std::map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
+    float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
+    
+    boost::signals2::mutex m_mutex;
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

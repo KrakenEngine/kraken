@@ -72,6 +72,18 @@ void KRScene::renderFrame(float deltaTime, int width, int height) {
     physicsUpdate(deltaTime);
 }
 
+std::set<KRAmbientZone *> &KRScene::getAmbientZones()
+{
+    // FINDME, TODO - To support large scenes with many reverb / ambient zones, this function should take a KRAABB and cull out any far away zones
+    return m_ambientZoneNodes;
+}
+
+std::set<KRReverbZone *> &KRScene::getReverbZones()
+{
+    // FINDME, TODO - To support large scenes with many reverb / ambient zones, this function should take a KRAABB and cull out any far away zones
+    return m_reverbZoneNodes;
+}
+
 void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     updateOctree();
     
@@ -399,6 +411,14 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
 {
     m_nodeTree.remove(pNode);
     m_physicsNodes.erase(pNode);
+    KRAmbientZone *AmbientZoneNode = dynamic_cast<KRAmbientZone *>(pNode);
+    if(AmbientZoneNode) {
+        m_ambientZoneNodes.erase(AmbientZoneNode);
+    }
+    KRReverbZone *ReverbZoneNode = dynamic_cast<KRReverbZone *>(pNode);
+    if(ReverbZoneNode) {
+        m_reverbZoneNodes.erase(ReverbZoneNode);
+    }
     m_modifiedNodes.erase(pNode);
     if(!m_newNodes.erase(pNode)) {
         m_nodeTree.remove(pNode);
@@ -417,6 +437,14 @@ void KRScene::updateOctree()
         m_nodeTree.add(node);
         if(node->hasPhysics()) {
             m_physicsNodes.insert(node);
+        }
+        KRAmbientZone *AmbientZoneNode = dynamic_cast<KRAmbientZone *>(node);
+        if(dynamic_cast<KRAmbientZone *>(node)) {
+            m_ambientZoneNodes.insert(AmbientZoneNode);
+        }
+        KRReverbZone *ReverbZoneNode = dynamic_cast<KRReverbZone *>(node);
+        if(dynamic_cast<KRReverbZone *>(node)) {
+            m_reverbZoneNodes.insert(ReverbZoneNode);
         }
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {

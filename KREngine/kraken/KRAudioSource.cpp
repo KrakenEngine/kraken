@@ -508,28 +508,10 @@ void KRAudioSource::sample(int frame_count, int channel, float *buffer, float ga
 {
     KRAudioSample *source_sample = getAudioSample();
     if(source_sample && m_playing) {
-        if(m_looping) {
-            int buffer_offset = 0;
-            int frames_left = frame_count;
-            int sample_length = source_sample->getFrameCount();
-            while(frames_left) {
-                int next_frame = (int)((getContext().getAudioManager()->getAudioFrame() - getStartAudioFrame() + buffer_offset) % sample_length);
-                if(next_frame + frames_left >= sample_length) {
-                    int frames_processed = sample_length - next_frame;
-                    source_sample->sample(next_frame, frames_processed, channel, buffer + buffer_offset, gain);
-                    frames_left -= frames_processed;
-                    buffer_offset += frames_processed;
-                } else {
-                    source_sample->sample(next_frame, frames_left, channel, buffer + buffer_offset, gain);
-                    frames_left = 0;
-                }
-            }
-        } else {
-            int next_frame = (int)(getContext().getAudioManager()->getAudioFrame() - getStartAudioFrame());
-            source_sample->sample(next_frame, frame_count, channel, buffer, gain);
-            if(next_frame > source_sample->getFrameCount()) {
-                stop();
-            }
+        __int64_t next_frame = getContext().getAudioManager()->getAudioFrame() - getStartAudioFrame();
+        source_sample->sample(next_frame, frame_count, channel, buffer, gain, m_looping);
+        if(!m_looping && next_frame > source_sample->getFrameCount()) {
+            stop();
         }
     } else {
         memset(buffer, 0, sizeof(float) * frame_count);

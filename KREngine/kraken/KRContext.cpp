@@ -190,6 +190,7 @@ void KRContext::startFrame(float deltaTime)
 {
     m_pTextureManager->startFrame(deltaTime);
     m_pAnimationManager->startFrame(deltaTime);
+    m_pSoundManager->startFrame(deltaTime);
 }
 
 void KRContext::endFrame(float deltaTime)

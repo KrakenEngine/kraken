@@ -42,6 +42,7 @@ float const D2R = PI * 2 / 360;
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/signals2/mutex.hpp>
 
 
 
@@ -129,6 +130,7 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))
+#define KRCLAMP(x, min, max) (KRMAX(KRMIN(x, max), min))
 #define KRALIGN(x) ((x + 3) & ~0x03)
 
 #include "KRVector3.h"

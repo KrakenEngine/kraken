@@ -58,7 +58,7 @@ public:
     int getChannelCount();
     int getFrameCount();
     float sample(int frame_offset, int frame_rate, int channel);
-    void sample(int frame_offset, int frame_count, int channel, float *buffer, float amplitude);
+    void sample(__int64_t frame_offset, int frame_count, int channel, float *buffer, float amplitude, bool loop);
     
 private:
     

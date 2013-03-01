@@ -40,6 +40,8 @@
 #include "KRCamera.h"
 #include "KRMeshManager.h"
 #include "KRNode.h"
+#include "KRAmbientZone.h"
+#include "KRReverbZone.h"
 #include "KROctree.h"
 class KRModel;
 class KRLight;
@@ -79,6 +81,9 @@ public:
     
     KRAABB getRootOctreeBounds();
     
+    std::set<KRAmbientZone *> &getAmbientZones();
+    std::set<KRReverbZone *> &getReverbZones();
+    
 private:
 
     KRNode *m_pRootNode;
@@ -90,6 +95,8 @@ private:
     
     
     std::set<KRNode *> m_physicsNodes;
+    std::set<KRAmbientZone *> m_ambientZoneNodes;
+    std::set<KRReverbZone *> m_reverbZoneNodes;
     
     KROctree m_nodeTree;
     void updateOctree();

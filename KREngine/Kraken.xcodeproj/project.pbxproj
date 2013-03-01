@@ -78,6 +78,10 @@
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E44F38281683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
 		E44F38291683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
+		E450273916E0491D00FDEC5C /* KRReverbZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E450273716E0491D00FDEC5C /* KRReverbZone.cpp */; };
+		E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E450273716E0491D00FDEC5C /* KRReverbZone.cpp */; };
+		E450273B16E0491D00FDEC5C /* KRReverbZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E450273816E0491D00FDEC5C /* KRReverbZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E450273C16E0491D00FDEC5C /* KRReverbZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E450273816E0491D00FDEC5C /* KRReverbZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040316C30CC5002B00A0 /* AudioUnit.framework */; };
 		E459040616C30CD9002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040516C30CD9002B00A0 /* AudioUnit.framework */; };
 		E460292616681CFF00261BB9 /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -168,10 +172,10 @@
 		E4924C2715EE95E800B965C6 /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
 		E4924C2C15EE96AB00B965C6 /* KROctreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4943231169E08D200BCB891 /* KRAmbientSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E494322F169E08D200BCB891 /* KRAmbientSphere.cpp */; };
-		E4943232169E08D200BCB891 /* KRAmbientSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E494322F169E08D200BCB891 /* KRAmbientSphere.cpp */; };
-		E4943233169E08D200BCB891 /* KRAmbientSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4943230169E08D200BCB891 /* KRAmbientSphere.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4943234169E08D200BCB891 /* KRAmbientSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4943230169E08D200BCB891 /* KRAmbientSphere.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4943231169E08D200BCB891 /* KRAmbientZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E494322F169E08D200BCB891 /* KRAmbientZone.cpp */; };
+		E4943232169E08D200BCB891 /* KRAmbientZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E494322F169E08D200BCB891 /* KRAmbientZone.cpp */; };
+		E4943233169E08D200BCB891 /* KRAmbientZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E4943230169E08D200BCB891 /* KRAmbientZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E4943230169E08D200BCB891 /* KRAmbientZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E497B946151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
 		E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
 		E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */ = {isa = PBXBuildFile; fileRef = E497B943151BA93400D3DC67 /* KRVector2.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -401,6 +405,8 @@
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRContextObject.h; sourceTree = "<group>"; };
 		E44F38231683B22C00399B5D /* KRRenderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRRenderSettings.h; sourceTree = "<group>"; };
 		E44F38271683B24400399B5D /* KRRenderSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRRenderSettings.cpp; sourceTree = "<group>"; };
+		E450273716E0491D00FDEC5C /* KRReverbZone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRReverbZone.cpp; sourceTree = "<group>"; };
+		E450273816E0491D00FDEC5C /* KRReverbZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRReverbZone.h; sourceTree = "<group>"; };
 		E459040316C30CC5002B00A0 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/AudioUnit.framework; sourceTree = DEVELOPER_DIR; };
 		E459040516C30CD9002B00A0 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		E460292516681CFE00261BB9 /* KRTextureAnimated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTextureAnimated.h; sourceTree = "<group>"; };
@@ -467,8 +473,8 @@
 		E4924C2515EE95E800B965C6 /* KROctree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KROctree.h; sourceTree = "<group>"; };
 		E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KROctreeNode.cpp; sourceTree = "<group>"; };
 		E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KROctreeNode.h; sourceTree = "<group>"; };
-		E494322F169E08D200BCB891 /* KRAmbientSphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRAmbientSphere.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		E4943230169E08D200BCB891 /* KRAmbientSphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRAmbientSphere.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E494322F169E08D200BCB891 /* KRAmbientZone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRAmbientZone.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E4943230169E08D200BCB891 /* KRAmbientZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRAmbientZone.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E497B943151BA93400D3DC67 /* KRVector2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRVector2.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E497B945151BA99400D3DC67 /* KRVector2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRVector2.cpp; sourceTree = "<group>"; };
 		E497B949151BCEE900D3DC67 /* KRResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRResource.h; sourceTree = "<group>"; };
@@ -891,8 +897,10 @@
 			children = (
 				E48B68131697794F00D99917 /* KRAudioSource.cpp */,
 				E48B68141697794F00D99917 /* KRAudioSource.h */,
-				E494322F169E08D200BCB891 /* KRAmbientSphere.cpp */,
-				E4943230169E08D200BCB891 /* KRAmbientSphere.h */,
+				E494322F169E08D200BCB891 /* KRAmbientZone.cpp */,
+				E4943230169E08D200BCB891 /* KRAmbientZone.h */,
+				E450273716E0491D00FDEC5C /* KRReverbZone.cpp */,
+				E450273816E0491D00FDEC5C /* KRReverbZone.h */,
 			);
 			name = Audio;
 			sourceTree = "<group>";
@@ -1197,11 +1205,12 @@
 				E4F027C916979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D016979CE200D4427D /* KRAudioSample.h in Headers */,
 				E4F027E01697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
-				E4943233169E08D200BCB891 /* KRAmbientSphere.h in Headers */,
+				E4943233169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E499BF1B16AE747C007FCDBE /* KRVector2.h in Headers */,
 				E499BF1E16AE751E007FCDBE /* KRSceneManager.h in Headers */,
 				E499BF2016AE755B007FCDBE /* KRPointLight.h in Headers */,
 				E499BF2116AE75A7007FCDBE /* KREngine-common.h in Headers */,
+				E450273B16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
 				E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1268,11 +1277,12 @@
 				E4F027CA16979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D116979CE200D4427D /* KRAudioSample.h in Headers */,
 				E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
-				E4943234169E08D200BCB891 /* KRAmbientSphere.h in Headers */,
+				E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
 				E499BF2216AE760F007FCDBE /* krengine_osx.h in Headers */,
 				E4FE6AA916B21D660058B8CE /* forsyth.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRMeshSphere.h in Headers */,
+				E450273C16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
 				E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */,
 				E499BF1D16AE74FF007FCDBE /* KRTextureAnimated.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
@@ -1535,8 +1545,9 @@
 				E4F027C716979CCD00D4427D /* KRAudioManager.cpp in Sources */,
 				E4F027CE16979CE200D4427D /* KRAudioSample.cpp in Sources */,
 				E4F027DE1697BFFF00D4427D /* KRAudioBuffer.cpp in Sources */,
-				E4943231169E08D200BCB891 /* KRAmbientSphere.cpp in Sources */,
+				E4943231169E08D200BCB891 /* KRAmbientZone.cpp in Sources */,
 				E4FE6AAB16B21D7E0058B8CE /* forsyth.cpp in Sources */,
+				E450273916E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1606,7 +1617,8 @@
 				E4F027C816979CCD00D4427D /* KRAudioManager.cpp in Sources */,
 				E4F027CF16979CE200D4427D /* KRAudioSample.cpp in Sources */,
 				E4F027DF1697BFFF00D4427D /* KRAudioBuffer.cpp in Sources */,
-				E4943232169E08D200BCB891 /* KRAmbientSphere.cpp in Sources */,
+				E4943232169E08D200BCB891 /* KRAmbientZone.cpp in Sources */,
+				E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

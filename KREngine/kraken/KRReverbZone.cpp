@@ -1,53 +1,49 @@
 //
-//  KRAmbientSphere.cpp
+//  KRReverbZone.cpp
 //  KREngine
 //
 //  Created by Kearwood Gilbert on 2012-12-06.
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include "KRAmbientSphere.h"
+#include "KRReverbZone.h"
 #include "KRContext.h"
 
-KRAmbientSphere::KRAmbientSphere(KRScene &scene, std::string name) : KRNode(scene, name)
+KRReverbZone::KRReverbZone(KRScene &scene, std::string name) : KRNode(scene, name)
 {
-    m_ambient = "";
     m_reverb = "";
-    m_ambient_gain = 1.0f;
     m_reverb_gain = 1.0f;
-    m_gradient_distance = 1.0f;
+    m_gradient_distance = 0.25f;
     
 }
 
-KRAmbientSphere::~KRAmbientSphere()
+KRReverbZone::~KRReverbZone()
 {
 }
 
-std::string KRAmbientSphere::getElementName() {
-    return "ambient_sphere";
+std::string KRReverbZone::getElementName() {
+    return "reverb_zone";
 }
 
-tinyxml2::XMLElement *KRAmbientSphere::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement *KRReverbZone::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
     e->SetAttribute("zone", m_zone.c_str());
-    e->SetAttribute("ambient", m_ambient.c_str());
-    e->SetAttribute("ambient_gain", m_ambient_gain);
-    e->SetAttribute("reverb", m_reverb.c_str());
-    e->SetAttribute("reverb_gain", m_reverb_gain);
+    e->SetAttribute("sample", m_reverb.c_str());
+    e->SetAttribute("gain", m_reverb_gain);
     e->SetAttribute("gradient", m_gradient_distance);
     return e;
 }
 
-void KRAmbientSphere::loadXML(tinyxml2::XMLElement *e)
+void KRReverbZone::loadXML(tinyxml2::XMLElement *e)
 {
     KRNode::loadXML(e);
     
     m_zone = e->Attribute("zone");
     
-    m_gradient_distance = 1.0f;
+    m_gradient_distance = 0.25f;
     if(e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
-        m_gradient_distance = 1.0f;
+        m_gradient_distance = 0.25f;
     }
     
     m_reverb = e->Attribute("reverb");
@@ -56,66 +52,39 @@ void KRAmbientSphere::loadXML(tinyxml2::XMLElement *e)
     if(e->QueryFloatAttribute("reverb_gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
         m_reverb_gain = 1.0f;
     }
-    
-    m_ambient = e->Attribute("ambient");
-    
-    m_ambient_gain = 1.0f;
-    if(e->QueryFloatAttribute("ambient_gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
-        m_ambient_gain = 1.0f;
-    }
 }
 
-std::string KRAmbientSphere::getReverb()
+std::string KRReverbZone::getReverb()
 {
     return m_reverb;
 }
 
-void KRAmbientSphere::setReverb(const std::string &reverb)
+void KRReverbZone::setReverb(const std::string &reverb)
 {
     m_reverb = reverb;
 }
 
-float KRAmbientSphere::getReverbGain()
+float KRReverbZone::getReverbGain()
 {
     return m_reverb_gain;
 }
 
-void KRAmbientSphere::setReverbGain(float reverb_gain)
+void KRReverbZone::setReverbGain(float reverb_gain)
 {
     m_reverb_gain = reverb_gain;
 }
 
-std::string KRAmbientSphere::getAmbient()
-{
-    return m_ambient;
-}
-
-void KRAmbientSphere::setAmbient(const std::string &ambient)
-{
-    m_ambient = ambient;
-}
-
-float KRAmbientSphere::getAmbientGain()
-{
-    return m_ambient_gain;
-}
-
-void KRAmbientSphere::setAmbientGain(float ambient_gain)
-{
-    m_ambient_gain = ambient_gain;
-}
-
-std::string KRAmbientSphere::getZone()
+std::string KRReverbZone::getZone()
 {
     return m_zone;
 }
 
-void KRAmbientSphere::setZone(const std::string &zone)
+void KRReverbZone::setZone(const std::string &zone)
 {
     m_zone = zone;
 }
 
-void KRAmbientSphere::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRReverbZone::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
     KRNode::render(pCamera, lights, viewport, renderPass);
@@ -156,17 +125,41 @@ void KRAmbientSphere::render(KRCamera *pCamera, std::vector<KRLight *> &lights, 
 }
 
 
-float KRAmbientSphere::getGradientDistance()
+float KRReverbZone::getGradientDistance()
 {
     return m_gradient_distance;
 }
 
-void KRAmbientSphere::setGradientDistance(float gradient_distance)
+void KRReverbZone::setGradientDistance(float gradient_distance)
 {
     m_gradient_distance = gradient_distance;
 }
 
-KRAABB KRAmbientSphere::getBounds() {
+KRAABB KRReverbZone::getBounds() {
     // Reverb zones always have a -1, -1, -1 to 1, 1, 1 bounding box
     return KRAABB(-KRVector3::One(), KRVector3::One(), getModelMatrix());
+}
+
+float KRReverbZone::getContainment(const KRVector3 &pos)
+{
+    KRAABB bounds = getBounds();
+    if(bounds.contains(pos)) {
+        KRVector3 size = bounds.size();
+        KRVector3 diff = pos - bounds.center();
+        diff = diff * 2.0f;
+        diff = KRVector3(diff.x / size.x, diff.y / size.y, diff.z / size.z);
+        float d = diff.magnitude();
+        
+        if(m_gradient_distance <= 0.0f) {
+            // Avoid division by zero
+            d = d > 1.0f ? 0.0f : 1.0f;
+        } else {
+            d = (1.0f - d) / m_gradient_distance;
+            d = KRCLAMP(d, 0.0f, 1.0f);
+        }
+        return d;
+        
+    } else {
+        return 0.0f;
+    }
 }
