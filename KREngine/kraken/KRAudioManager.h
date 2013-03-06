@@ -47,7 +47,7 @@ const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 128; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
-const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
+const int KRENGINE_REVERB_MAX_FFT_LOG2 = 17;
 const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
 
 const float KRENGINE_AUDIO_CUTOFF = 0.02f; // Cutoff gain level, to cull out processing of very quiet sounds
@@ -55,6 +55,9 @@ const float KRENGINE_AUDIO_CUTOFF = 0.02f; // Cutoff gain level, to cull out pro
 const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
 const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
+
+const int KRENGINE_MAX_ACTIVE_SOURCES = 24;
+const int KRENGINE_AUDIO_ANTICLICK_SAMPLES = 16;
 
 
 class KRAmbientZone;
@@ -198,6 +201,7 @@ private:
     float *m_hrtf_data;
     map<KRVector2, DSPSplitComplex> m_hrtf_spectral[2];
     
+    KRVector2 getNearestHRTFSample(const KRVector2 &dir);
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
     KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
     DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
@@ -210,6 +214,12 @@ private:
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
     boost::signals2::mutex m_mutex;
+    mach_timebase_info_data_t m_timebase_info;
+    
+    
+    std::multimap<KRVector2, std::pair<KRAudioSource *, float> > m_mapped_sources;
+    
+    bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };
 
 #endif /* defined(KRAUDIO_MANAGER_H) */

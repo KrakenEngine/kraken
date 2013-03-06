@@ -86,6 +86,9 @@ private:
     
     long m_current_frame;
     float m_absolute_time;
+    
+    
+    mach_timebase_info_data_t    m_timebase_info;
 };
 
 #endif

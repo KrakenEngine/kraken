@@ -27,6 +27,12 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 };
 
 KRContext::KRContext() {
+    mach_timebase_info(&m_timebase_info);
+    
+    m_bDetectedExtensions = false;
+    m_current_frame = 0;
+    m_absolute_time = 0.0f;
+    
     m_pBundleManager = new KRBundleManager(*this);
     m_pShaderManager = new KRShaderManager(*this);
     m_pTextureManager = new KRTextureManager(*this);
@@ -37,9 +43,7 @@ KRContext::KRContext() {
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
-    m_bDetectedExtensions = false;
-    m_current_frame = 0;
-    m_absolute_time = 0.0f;
+
 }
 
 KRContext::~KRContext() {

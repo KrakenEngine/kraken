@@ -44,7 +44,10 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
+    mach_timebase_info(&m_timebase_info);
+    
     m_audio_engine = KRAKEN_AUDIO_SIREN;
+    m_high_quality_hrtf = false;
     
     m_listener_scene = NULL;
     
@@ -107,6 +110,9 @@ void KRAudioManager::setListenerScene(KRScene *scene)
 
 void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
+    uint64_t start_time = mach_absolute_time();
+    
+    
 	AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
     AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
     
@@ -153,6 +159,12 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
             
         }
     }
+    
+    
+    uint64_t end_time = mach_absolute_time();
+    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
+    uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
+//    fprintf(stderr, "duration: %lli  max_duration: %lli\n", duration / 1000, max_duration / 1000);
 }
 
 float *KRAudioManager::getBlockAddress(int block_offset)
@@ -789,6 +801,42 @@ DSPSplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const
     return m_hrtf_spectral[sample_channel][dir];
 }
 
+KRVector2 KRAudioManager::getNearestHRTFSample(const KRVector2 &dir)
+{
+    float elev_gran = 10.0f;
+
+    
+    KRVector2 dir_deg = dir * (180.0f / M_PI);
+    float elevation = floor(dir_deg.x / elev_gran + 0.5f) * elev_gran;
+    if(elevation < -40.0f) {
+        elevation = -40.0f;
+    }
+    
+    KRVector2 min_direction;
+    bool first = true;
+    float min_distance;
+    for(std::vector<KRVector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+        if(first) {
+            first = false;
+            min_direction = (*itr);
+            min_distance = 360.0f;
+        } else if((*itr).x == elevation) {
+            float distance = fabs(dir_deg.y - (*itr).y);
+            if(min_distance > distance) {
+                min_direction = (*itr);
+                min_distance = distance;
+            }
+            distance = fabs(dir_deg.y - -(*itr).y);
+            if(min_distance > distance) {
+                min_direction = (*itr);
+                min_direction.y = -min_direction.y;
+                min_distance = distance;
+            }
+        }
+    }
+    return min_direction;
+}
+
 void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2 &dir2, KRVector2 &dir3, KRVector2 &dir4, float &mix1, float &mix2, float &mix3, float &mix4)
 {
     float elev_gran = 10.0f;
@@ -1379,6 +1427,7 @@ void KRAudioManager::startFrame(float deltaTime)
 {
     m_mutex.lock();
     
+    // ----====---- Determine Ambient Zone Contributions ----====----
     m_ambient_zone_weights.clear();
     m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
     if(m_listener_scene) {
@@ -1407,7 +1456,7 @@ void KRAudioManager::startFrame(float deltaTime)
         }
     }
     
-    
+    // ----====---- Determine Reverb Zone Contributions ----====----
     m_reverb_zone_weights.clear();
     m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     if(m_listener_scene) {
@@ -1435,6 +1484,61 @@ void KRAudioManager::startFrame(float deltaTime)
             }
         }
     }
+    
+    
+    
+    // ----====---- Map Source Directions and Gains ----====----
+    m_mapped_sources.clear();
+    
+    KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
+    std::set<KRAudioSource *> active_sources = m_activeAudioSources;
+    
+    
+    for(std::set<KRAudioSource *>::iterator itr=active_sources.begin(); itr != active_sources.end(); itr++) {
+        KRAudioSource *source = *itr;
+        KRVector3 source_world_position = source->getWorldTranslation();
+        KRVector3 diff = source_world_position - m_listener_position;
+        float distance = diff.magnitude();
+        float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
+        
+        // apply minimum-cutoff so that we don't waste cycles processing very quiet / distant sound sources
+        gain = KRMAX(gain - KRENGINE_AUDIO_CUTOFF, 0.0f) / (1.0f - KRENGINE_AUDIO_CUTOFF);
+        
+        if(gain > 0.0f) {
+            
+            KRVector3 source_listener_space = KRVector3(
+                                                        KRVector3::Dot(listener_right, diff),
+                                                        KRVector3::Dot(m_listener_up, diff),
+                                                        KRVector3::Dot(m_listener_forward, diff)
+                                                        );
+            
+            
+            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
+            
+            
+            
+            if(source->getEnableOcclusion() && false) {
+                KRHitInfo hitinfo;
+                if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
+                    gain = 0.0f;
+                }
+            }
+            
+            KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
+            float azimuth = -atan2(source_dir2.x, -source_dir2.y);
+            float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
+            
+            KRVector2 adjusted_source_dir = KRVector2(elevation, azimuth);
+            
+            if(!m_high_quality_hrtf) {
+                adjusted_source_dir = getNearestHRTFSample(adjusted_source_dir);
+            }
+            
+            m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, float> >(adjusted_source_dir, std::pair<KRAudioSource *, float>(source, gain)));
+        }
+    }
+
+    
     m_mutex.unlock();
 }
 
@@ -1472,72 +1576,75 @@ void KRAudioManager::renderHRTF()
     int fft_size = 256;
     int fft_size_log2 = 8;
     
-    KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
-    
-    std::set<KRAudioSource *> active_sources = m_activeAudioSources;
-    
-    for(std::set<KRAudioSource *>::iterator itr=active_sources.begin(); itr != active_sources.end(); itr++) {
-        KRAudioSource *source = *itr;
-        KRVector3 source_world_position = source->getWorldTranslation();
-        KRVector3 diff = source_world_position - m_listener_position;
-        float distance = diff.magnitude();
-        float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
-
-        // apply minimum-cutoff so that we don't waste cycles processing very quiet / distant sound sources
-        gain = KRMAX(gain - KRENGINE_AUDIO_CUTOFF, 0.0f) / (1.0f - KRENGINE_AUDIO_CUTOFF);
+    for(int channel=0; channel<impulse_response_channels; channel++) {
         
-        if(gain > 0.0f) {
+        bool first_source = true;
+        std::multimap<KRVector2, std::pair<KRAudioSource *, float> >::iterator itr=m_mapped_sources.begin();
+        while(itr != m_mapped_sources.end()) {
+            // Batch together sound sources that are emitted from the same direction
+            KRVector2 source_direction = (*itr).first;
+            KRAudioSource *source = (*itr).second.first;
+            float gain = (*itr).second.second;
+
             
-            KRVector3 source_listener_space = KRVector3(
-                KRVector3::Dot(listener_right, diff),
-                KRVector3::Dot(m_listener_up, diff),
-                KRVector3::Dot(m_listener_forward, diff)
-            );
-            
-            
-            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
-            
-            
-            
-            if(source->getEnableOcclusion() && false) {
-                KRHitInfo hitinfo;
-                if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
-                    gain = 0.0f;
-                }
+            if(first_source) {
+                // If this is the first or only sample, write directly to the first half of the FFT input buffer
+                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
+                first_source = false;
+            } else {
+                // Subsequent samples write to the second half of the FFT input buffer, which is then added to the first half (the second half will be zero'ed out anyways and works as a convenient temporary buffer)
+                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp + KRENGINE_AUDIO_BLOCK_LENGTH, gain);
+                vDSP_vadd(hrtf_sample->realp, 1, hrtf_sample->realp + KRENGINE_AUDIO_BLOCK_LENGTH, 1, hrtf_sample->realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
             }
             
-            KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
-            float azimuth = -atan2(source_dir2.x, -source_dir2.y);
-            float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
-            
-            float mix[4];
-            KRVector2 dir[4];
-            
-            
-            getHRTFMix(KRVector2(elevation, azimuth), dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
-            
-            for(int channel=0; channel<impulse_response_channels; channel++) {
+            itr++;
+
+            bool end_of_group = false;
+            if(itr == m_mapped_sources.end()) {
+                end_of_group = true;
+            } else {
+                KRVector2 next_direction = (*itr).first;
+                end_of_group = next_direction != source_direction;
+            }
+
+            if(end_of_group) {
+                // ----====---- We have reached the end of a batch; convolve with HRTF impulse response and add to output accumulation buffer ----====----                
+                first_source = true;
                 
-                memset(hrtf_accum->realp, 0, sizeof(float) * fft_size);
-                memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
-                
-                for(int i=0; i < 4; i++) {
-                    if(mix[i] > 0.0f) {
-                        DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
-                        vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
-                        vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
-                        vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
-                    }
-                }
-                
-                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
                 memset(hrtf_sample->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
                 memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
                 
+                DSPSplitComplex hrtf_spectral;
+                
+                if(m_high_quality_hrtf) {
+                    // High quality, interpolated HRTF
+                    hrtf_spectral= *hrtf_accum;
+                    
+                    float mix[4];
+                    KRVector2 dir[4];
+                    
+                    getHRTFMix(source_direction, dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
+                
+                    
+                    memset(hrtf_accum->realp, 0, sizeof(float) * fft_size);
+                    memset(hrtf_accum->imagp, 0, sizeof(float) * fft_size);
+                    
+                    for(int i=0; i < 1 /*4 */; i++) {
+                        if(mix[i] > 0.0f) {
+                            DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
+                            vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
+                            vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
+                            vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
+                        }
+                    }
+                } else {
+                    // Low quality, non-interpolated HRTF
+                    hrtf_spectral = getHRTFSpectral(source_direction, channel);
+                }
                 
                 float scale = 0.5f / fft_size;
                 vDSP_fft_zip(m_fft_setup, hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
-                vDSP_zvmul(hrtf_sample, 1, hrtf_accum, 1, hrtf_convolved, 1, fft_size, 1);
+                vDSP_zvmul(hrtf_sample, 1, &hrtf_spectral, 1, hrtf_convolved, 1, fft_size, 1);
                 vDSP_fft_zip(m_fft_setup, hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
                 vDSP_vsmul(hrtf_convolved->realp, 1, &scale, hrtf_convolved->realp, 1, fft_size);
                 

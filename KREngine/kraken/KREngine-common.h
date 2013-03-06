@@ -39,11 +39,11 @@ float const D2R = PI * 2 / 360;
 #include <unistd.h>
 #include <iostream>
 #include <math.h>
+#include <pthread.h>
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/signals2/mutex.hpp>
-
 
 
 using std::vector;
@@ -56,6 +56,8 @@ using std::queue;
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
+#include <mach/mach.h>
+#include <mach/mach_time.h>
 #include <Accelerate/Accelerate.h>
 #endif
 
