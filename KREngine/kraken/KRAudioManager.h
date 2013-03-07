@@ -57,7 +57,7 @@ const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse res
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
 
 const int KRENGINE_MAX_ACTIVE_SOURCES = 24;
-const int KRENGINE_AUDIO_ANTICLICK_SAMPLES = 16;
+const int KRENGINE_AUDIO_ANTICLICK_SAMPLES = 64;
 
 
 class KRAmbientZone;
@@ -217,8 +217,8 @@ private:
     mach_timebase_info_data_t m_timebase_info;
     
     
-    std::multimap<KRVector2, std::pair<KRAudioSource *, float> > m_mapped_sources;
-    
+    std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+    bool m_anticlick_block;
     bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };
 

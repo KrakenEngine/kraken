@@ -44,6 +44,7 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
+    m_anticlick_block = true;
     mach_timebase_info(&m_timebase_info);
     
     m_audio_engine = KRAKEN_AUDIO_SIREN;
@@ -164,7 +165,7 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     uint64_t end_time = mach_absolute_time();
     uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
     uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
-//    fprintf(stderr, "duration: %lli  max_duration: %lli\n", duration / 1000, max_duration / 1000);
+    fprintf(stderr, "audio load: %5.1f%% hrtf channels: %li\n", (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 }
 
 float *KRAudioManager::getBlockAddress(int block_offset)
@@ -352,6 +353,7 @@ void KRAudioManager::renderBlock()
     // ----====---- Advance audio sources ----====----
     m_audio_frame += KRENGINE_AUDIO_BLOCK_LENGTH;
     
+    m_anticlick_block = false;
     m_mutex.unlock();
 }
 
@@ -1488,7 +1490,8 @@ void KRAudioManager::startFrame(float deltaTime)
     
     
     // ----====---- Map Source Directions and Gains ----====----
-    m_mapped_sources.clear();
+    m_prev_mapped_sources.clear();
+    m_mapped_sources.swap(m_prev_mapped_sources);
     
     KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
     std::set<KRAudioSource *> active_sources = m_activeAudioSources;
@@ -1534,11 +1537,46 @@ void KRAudioManager::startFrame(float deltaTime)
                 adjusted_source_dir = getNearestHRTFSample(adjusted_source_dir);
             }
             
-            m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, float> >(adjusted_source_dir, std::pair<KRAudioSource *, float>(source, gain)));
+            // Click Removal - Add ramping of gain changes for audio sources that are continuing to play
+            float gain_anticlick = 0.0f;
+            std::pair<std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> prev_range = m_prev_mapped_sources.equal_range(adjusted_source_dir);
+            for(std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator prev_itr=prev_range.first; prev_itr != prev_range.second; prev_itr++) {
+                if( (*prev_itr).second.first == source) {
+                    gain_anticlick = (*prev_itr).second.second.second;
+                    break;
+                }
+            }
+            
+            m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >(adjusted_source_dir, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(gain_anticlick, gain))));
         }
     }
-
     
+    // Click Removal - Map audio sources for ramp-down of gain for audio sources that have been squelched by attenuation
+    for(std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_prev_mapped_sources.begin(); itr != m_prev_mapped_sources.end(); itr++) {
+
+        KRAudioSource *source = (*itr).second.first;
+        float source_prev_gain = (*itr).second.second.second;
+        if(source->isPlaying() && source_prev_gain > 0.0f) {
+            // Only create ramp-down channels for 3d sources that have been squelched by attenuation; this is not necessary if the sample has completed playing
+            KRVector2 source_position = (*itr).first;
+            
+            std::pair<std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> new_range = m_mapped_sources.equal_range(source_position);
+            bool already_merged = false;
+            for(std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator new_itr=new_range.first; new_itr != new_range.second; new_itr++) {
+                if( (*new_itr).second.first == source) {
+                    already_merged = true;
+                    break;
+                }
+            }
+            if(!already_merged) {
+                
+                // source gain becomes anticlick gain and gain becomes 0 for anti-click ramp-down.
+                m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >(source_position, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(source_prev_gain, 0.0f))));
+            }
+        }
+    }
+    
+    m_anticlick_block = true;
     m_mutex.unlock();
 }
 
@@ -1579,22 +1617,38 @@ void KRAudioManager::renderHRTF()
     for(int channel=0; channel<impulse_response_channels; channel++) {
         
         bool first_source = true;
-        std::multimap<KRVector2, std::pair<KRAudioSource *, float> >::iterator itr=m_mapped_sources.begin();
+        std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
         while(itr != m_mapped_sources.end()) {
             // Batch together sound sources that are emitted from the same direction
             KRVector2 source_direction = (*itr).first;
             KRAudioSource *source = (*itr).second.first;
-            float gain = (*itr).second.second;
+            float gain_anticlick = (*itr).second.second.first;
+            float gain = (*itr).second.second.second;
 
             
+            // If this is the first or only sample, write directly to the first half of the FFT input buffer
+            // Subsequent samples write to the second half of the FFT input buffer, which is then added to the first half (the second half will be zero'ed out anyways and works as a convenient temporary buffer)
+            float *sample_buffer = first_source ? hrtf_sample->realp : hrtf_sample->realp + KRENGINE_AUDIO_BLOCK_LENGTH;
+            
+            if(gain != gain_anticlick && m_anticlick_block) {
+                // Sample and perform anti-click filtering
+                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, sample_buffer, 1.0);
+                float ramp_gain = gain_anticlick;
+                float ramp_step = (gain - gain_anticlick) / KRENGINE_AUDIO_ANTICLICK_SAMPLES;
+                vDSP_vrampmul(sample_buffer, 1, &ramp_gain, &ramp_step, sample_buffer, 1, KRENGINE_AUDIO_ANTICLICK_SAMPLES);
+                if(KRENGINE_AUDIO_BLOCK_LENGTH > KRENGINE_AUDIO_ANTICLICK_SAMPLES) {
+                    vDSP_vsmul(sample_buffer + KRENGINE_AUDIO_ANTICLICK_SAMPLES, 1, &gain, sample_buffer + KRENGINE_AUDIO_ANTICLICK_SAMPLES, 1, KRENGINE_AUDIO_BLOCK_LENGTH - KRENGINE_AUDIO_ANTICLICK_SAMPLES);
+                }
+            } else {
+                // Don't need to perform anti-click filtering, so just sample
+                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, sample_buffer, gain);
+            }
+
             if(first_source) {
-                // If this is the first or only sample, write directly to the first half of the FFT input buffer
-                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp, gain);
                 first_source = false;
             } else {
-                // Subsequent samples write to the second half of the FFT input buffer, which is then added to the first half (the second half will be zero'ed out anyways and works as a convenient temporary buffer)
-                source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, hrtf_sample->realp + KRENGINE_AUDIO_BLOCK_LENGTH, gain);
-                vDSP_vadd(hrtf_sample->realp, 1, hrtf_sample->realp + KRENGINE_AUDIO_BLOCK_LENGTH, 1, hrtf_sample->realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
+                // Accumulate samples on subsequent sources
+                vDSP_vadd(hrtf_sample->realp, 1, sample_buffer, 1, hrtf_sample->realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
             }
             
             itr++;
