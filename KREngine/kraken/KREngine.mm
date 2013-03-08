@@ -39,6 +39,11 @@
 
 using namespace std;
 
+// Temporary wrapper function, until the KREngine class is refactored into the C++ codebase
+void kraken::set_parameter(const std::string &parameter_name, float parameter_value)
+{
+    [[KREngine sharedInstance] setParameterValueWithName: [NSString stringWithUTF8String:parameter_name.c_str()] Value:parameter_value];
+}
 
 
 @interface KREngine() {

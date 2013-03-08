@@ -41,6 +41,11 @@
 
 typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL} KREngineParameterType;
 
+namespace kraken {
+    void set_parameter(const std::string &parameter_name, float parameter_value);
+};
+
+#ifdef __OBJC__
 
 @interface KREngine : NSObject
 
@@ -71,4 +76,6 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 - (void)setFarZ: (float)dFarZ;
 
 @end
+
+#endif
 
