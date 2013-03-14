@@ -39,7 +39,7 @@ public:
     
     void setFlareTexture(std::string flare_texture);
     void setFlareSize(float flare_size);
-    void setOcclusionSize(float occlusion_size);
+    void setFlareOcclusionSize(float occlusion_size);
     void deleteBuffers();
 
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);

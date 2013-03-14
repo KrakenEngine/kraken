@@ -144,8 +144,8 @@ void KRLight::setFlareSize(float flare_size) {
     m_flareSize = flare_size;
 }
 
-void KRLight::setOcclusionSize(float occlusion_size) {
-    m_flareOcclusionSize;
+void KRLight::setFlareOcclusionSize(float occlusion_size) {
+    m_flareOcclusionSize = occlusion_size;
 }
 
 void KRLight::setIntensity(float intensity) {
