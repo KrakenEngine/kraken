@@ -35,6 +35,9 @@ std::string KRPointLight::getElementName() {
 
 KRAABB KRPointLight::getBounds() {
     float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;
+    if(influence_radius < m_flareOcclusionSize) {
+        influence_radius = m_flareOcclusionSize;
+    }
     return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
 }
 
