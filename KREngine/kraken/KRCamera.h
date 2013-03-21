@@ -77,6 +77,17 @@ private:
     KRViewport m_viewport;
     
     float m_particlesAbsoluteTime;
+    
+    
+    typedef struct {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat u;
+        GLfloat v;
+    } DebugTextVertexData;
+    
+    DebugTextVertexData *m_debug_text_vertices;
 };
 
 #endif

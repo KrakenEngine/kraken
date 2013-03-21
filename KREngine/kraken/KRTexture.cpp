@@ -135,3 +135,14 @@ KRTexture *KRTexture::compress()
     return NULL;
 }
 
+int KRTexture::getCurrentLodMaxDim() {
+    return m_current_lod_max_dim;
+}
+
+int KRTexture::getMaxMipMap() {
+    return m_max_lod_max_dim;
+}
+
+int KRTexture::getMinMipMap() {
+    return m_min_lod_max_dim;
+}

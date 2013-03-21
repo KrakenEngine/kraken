@@ -47,8 +47,6 @@ public:
     virtual bool save(KRDataBlock &data);
     
     bool hasMipmaps();
-    int getMaxMipMap();
-    int getMinMipMap();
     
     virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed) = 0;
     virtual void bind();

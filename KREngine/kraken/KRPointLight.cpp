@@ -111,7 +111,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
                     GLDEBUG(glDisable(GL_DEPTH_TEST));
                     
                     // Render a full screen quad
-                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
 #if GL_OES_vertex_array_object

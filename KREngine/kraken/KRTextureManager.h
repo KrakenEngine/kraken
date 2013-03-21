@@ -65,6 +65,8 @@ public:
     
     void compress();
     
+    std::set<KRTexture *> &getActiveTextures();
+    
 private:
     long m_memoryTransferredThisFrame;
     

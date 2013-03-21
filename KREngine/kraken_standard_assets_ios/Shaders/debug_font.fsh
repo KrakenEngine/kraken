@@ -31,5 +31,7 @@ uniform sampler2D 		diffuseTexture;
 
 void main()
 {
-    gl_FragColor = texture2D(diffuseTexture, textureCoordinate);
+    lowp vec4 font_color = texture2D(diffuseTexture, textureCoordinate);
+    gl_FragColor = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
+//    gl_FragColor = vec4(textureCoordinate.s, textureCoordinate.t, 0.0, 1.0);
 }

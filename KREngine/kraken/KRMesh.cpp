@@ -273,7 +273,7 @@ void KRMesh::renderSubmesh(int iSubmesh) {
         
         
         m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES),
-                                               has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS));
+                                               has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
         
         
         if(iVertex + cVertexes >= MAX_VBO_SIZE) {

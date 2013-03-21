@@ -79,14 +79,6 @@ void KRTexture2D::bind() {
     }
 }
 
-int KRTexture2D::getMaxMipMap() {
-    return m_max_lod_max_dim;
-}
-
-int KRTexture2D::getMinMipMap() {
-    return m_min_lod_max_dim;
-}
-
 bool KRTexture2D::hasMipmaps() {
     return m_max_lod_max_dim != m_min_lod_max_dim;
 }

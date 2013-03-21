@@ -212,7 +212,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     
                     GLDEBUG(glUniform1f(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE], m_dust_particle_size));
                     
-                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, true, false, false, true, false, false, false);
+                    m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, true, false, false, true, false, false, false, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
                 }
             }
@@ -239,7 +239,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
             KRVector2(slice_near, slice_spacing).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE]);
             (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f).setUniform(pFogShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
-            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRMeshManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRMeshManager::VolumetricLightingVertexData), NULL, 0, true, false, false, false, false, false, false);
+            m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getVolumetricLightingVertexes(), KRMeshManager::KRENGINE_MAX_VOLUMETRIC_PLANES * 6 * sizeof(KRMeshManager::VolumetricLightingVertexData), NULL, 0, true, false, false, false, false, false, false, true);
             GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
         }
 
@@ -309,7 +309,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                                                 m_flareSize
                                                 ));
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
-                            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
+                            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
                             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                         }
                     }

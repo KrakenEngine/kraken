@@ -74,6 +74,7 @@
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E4409D2916FA748700310F76 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
 		E44F38241683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E44F38281683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
@@ -144,7 +145,6 @@
 		E48B68171697794F00D99917 /* KRAudioSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B68141697794F00D99917 /* KRAudioSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48B68181697794F00D99917 /* KRAudioSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B68141697794F00D99917 /* KRAudioSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48B953016B9C8BA0042EE29 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
-		E48B955016B9C8D60042EE29 /* font.pvr in Resources */ = {isa = PBXBuildFile; fileRef = E4CE184815FEEDA200F80870 /* font.pvr */; };
 		E48C696F15374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48C697015374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48C697215374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
@@ -1405,6 +1405,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4409D2916FA748700310F76 /* font.tga in Resources */,
 				E437849816C4884F0037FD43 /* hrtf_kemar.krbundle in Resources */,
 				E4E6F68516BA5DF700E410F8 /* sky_box.fsh in Resources */,
 				E4E6F68616BA5DF700E410F8 /* debug_font.fsh in Resources */,
@@ -1436,7 +1437,6 @@
 				E4E6F6A016BA5DF700E410F8 /* volumetric_fog_downsampled.vsh in Resources */,
 				E4E6F6A116BA5DF700E410F8 /* volumetric_fog.fsh in Resources */,
 				E4E6F6A216BA5DF700E410F8 /* volumetric_fog.vsh in Resources */,
-				E48B955016B9C8D60042EE29 /* font.pvr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

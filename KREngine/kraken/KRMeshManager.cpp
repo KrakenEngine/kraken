@@ -114,7 +114,38 @@ void KRMeshManager::unbindVBO() {
     }
 }
 
-void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights) {
+void KRMeshManager::releaseVBO(GLvoid *data)
+{
+    if(m_currentVBO.data == data) {
+        unbindVBO();
+    }
+
+    vbo_info_type vbo_to_release;
+    if(m_vbosActive.find(data) != m_vbosActive.end()) {
+        fprintf(stderr, "glFinish called due to releasing a VBO that is active in the current frame.\n");
+        GLDEBUG(glFinish());
+        
+        // The VBO is active
+        vbo_to_release = m_vbosActive[data];
+        m_vbosActive.erase(data);
+    } else {
+        // The VBO is inactive
+        vbo_to_release = m_vbosPool[data];
+        m_vbosPool.erase(data);
+    }
+    
+    m_vboMemUsed -= vbo_to_release.size;
+    
+#if GL_OES_vertex_array_object
+    GLDEBUG(glDeleteVertexArraysOES(1, &vbo_to_release.vao_handle));
+#endif
+    GLDEBUG(glDeleteBuffers(1, &vbo_to_release.vbo_handle));
+    if(vbo_to_release.vbo_handle_indexes != -1) {
+        GLDEBUG(glDeleteBuffers(1, &vbo_to_release.vbo_handle_indexes));
+    }
+}
+
+void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights, bool static_vbo) {
     
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
@@ -168,7 +199,7 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 #endif
 
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
-            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
             m_vboMemUsed += size;
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb, enable_bone_indexes, enable_bone_weights);
             

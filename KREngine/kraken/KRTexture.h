@@ -61,6 +61,9 @@ public:
     virtual bool isAnimated();
     
     KRTexture *compress();
+    int getCurrentLodMaxDim();
+    int getMaxMipMap();
+    int getMinMipMap();
     
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;

@@ -133,7 +133,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &light
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             // Render a full screen quad
-            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
+            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
     }

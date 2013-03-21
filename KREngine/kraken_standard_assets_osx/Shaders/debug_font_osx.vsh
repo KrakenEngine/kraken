@@ -33,6 +33,6 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 void main()
 {
-    gl_Position = mvp_matrix * vertex_position;
+    gl_Position = /*mvp_matrix * */vertex_position;
 	textureCoordinate = vertex_uv.xy;
 }

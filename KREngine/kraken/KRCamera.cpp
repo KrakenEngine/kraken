@@ -51,9 +51,14 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
+    
+    m_debug_text_vertices = NULL;
 }
 
 KRCamera::~KRCamera() {
+    if(m_debug_text_vertices) {
+        delete m_debug_text_vertices;
+    }
     destroyBuffers();
 }
 
@@ -234,7 +239,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
         
         // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -370,7 +375,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, true, false, false, false, false, false, false);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, true, false, false, false, false, false, false, true);
         for(std::map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() / 2.0f);
@@ -390,6 +395,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
+    m_pContext->getModelManager()->unbindVBO();
 }
 
 
@@ -590,7 +596,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false);
+    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -612,7 +618,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false);
+//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, true);
 //            GLDEBUG(glActiveTexture(GL_TEXTURE0));
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
@@ -631,50 +637,171 @@ void KRCamera::renderPost()
     
     
     
+    if(m_debug_text_vertices) {
+        m_pContext->getModelManager()->releaseVBO(m_debug_text_vertices);
+    }
+    
     const char *szText = settings.m_debug_text.c_str();
-    if(*szText) {
-        KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-
-        m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"));
+    
+    bool show_active_textures = false;
+    std::string debug_text = "";
+    if(show_active_textures) {
         
-        const char *pChar = szText;
-        int iPos=0;
-        float dScale = 1.0 / 24.0;
-        float dTexScale = 1.0 / 16.0;
-        while(*pChar) {
-            int iChar = *pChar++ - '\0';
-            int iCol = iChar % 16;
-            int iRow = 15 - (iChar - iCol) / 16;
-            
-            GLfloat charVertices[] = {
-                -1.0f,              dScale * iPos - 1.0,
-                -1.0 + dScale,      dScale * iPos - 1.0,
-                -1.0f,              dScale * iPos + dScale - 1.0,
-                -1.0 + dScale,      dScale * iPos + dScale - 1.0,
-            };
-            
-            GLfloat charTexCoords[] = {
-                dTexScale * iCol,                 dTexScale * iRow + dTexScale,
-                dTexScale * iCol,                 dTexScale * iRow,
-                dTexScale * iCol + dTexScale,     dTexScale * iRow + dTexScale,
-                dTexScale * iCol + dTexScale,     dTexScale * iRow
-            };
-#if GL_OES_vertex_array_object
-            GLDEBUG(glBindVertexArrayOES(0));
-#elif GL_vertex_array_object
-#endif
-            m_pContext->getModelManager()->configureAttribs(true, false, false, true, false, false, false);
-            GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, 0, 0, charTexCoords));
-            GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, charVertices));
-            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-            
-            iPos++;
+        
+        std::set<KRTexture *> active_textures = m_pContext->getTextureManager()->getActiveTextures();
+        for(std::set<KRTexture *>::iterator itr=active_textures.begin(); itr != active_textures.end(); itr++) {
+            KRTexture *texture = *itr;
+            if(debug_text.length()) {
+                debug_text += "\n";
+            }
+            debug_text += texture->getName();
+            debug_text += "      ";
+            debug_text += texture->getMemSize() / 1024;
+            debug_text += "kB";
+            debug_text += "      ";
+            debug_text += texture->getMaxMipMap();
+            if(texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
+                debug_text += "px => ";
+                debug_text += texture->getCurrentLodMaxDim();
+            }
+            debug_text += "px";
         }
         
-        GLDEBUG(glActiveTexture(GL_TEXTURE0));
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
+        szText = debug_text.c_str();
+    }
+    if(*szText) {
+        int row_count = 1;
+        int col_count = 0;
+        int iCol = 0;
+        const char *pChar = szText;
+        while(*pChar) {
+            char c = *pChar++;
+            if(c == '\n') {
+                row_count++;
+                iCol = 0;
+            } else {
+                iCol++;
+                if(iCol > col_count) col_count = iCol;
+            }
+        }
         
-        m_pContext->getTextureManager()->selectTexture(1, NULL);
+        
+        const int DEBUG_TEXT_COLUMNS = 256;
+        const int DEBUG_TEXT_ROWS = 128;
+        
+        if(m_debug_text_vertices == NULL) {
+            m_debug_text_vertices = new DebugTextVertexData[DEBUG_TEXT_COLUMNS * DEBUG_TEXT_ROWS * 6];
+        }
+        int vertex_count = 0;
+        
+
+
+        pChar = szText;
+        float dScaleX = 2.0 / (2048 / 16);
+        float dScaleY = 2.0 / (1536 / 16);
+        float dTexScale = 1.0 / 16.0;
+        int iRow = row_count - 1; iCol = 0;
+        while(*pChar) {
+            char c = *pChar++;
+            if(c == ' ') {
+                iCol++;
+            } else if(c == '\n') {
+                iCol = 0;
+                iRow--;
+            } else {
+                if(iCol < DEBUG_TEXT_COLUMNS && iRow < DEBUG_TEXT_ROWS) {
+                    int iChar = c - '\0';
+                    int iTexCol = iChar % 16;
+                    int iTexRow = 15 - (iChar - iTexCol) / 16;
+                    
+                    KRVector2 top_left_pos = KRVector2(-1.0f + dScaleX * iCol, dScaleY * iRow - 1.0);
+                    KRVector2 bottom_right_pos = KRVector2(-1.0 + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0);
+                    top_left_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    bottom_right_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    KRVector2 top_left_uv = KRVector2(dTexScale * iTexCol, dTexScale * iTexRow);
+                    KRVector2 bottom_right_uv = KRVector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
+                    
+                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
+                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
+                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_count++;
+                    
+                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
+                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
+                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_count++;
+                    
+                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
+                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
+                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_count++;
+                    
+                    
+                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
+                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
+                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_count++;
+                    
+                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
+                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
+                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_count++;
+                    
+                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
+                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
+                    m_debug_text_vertices[vertex_count].z = 0.0f;
+                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
+                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_count++;
+                }
+                
+                iCol++;
+            }
+        }
+        
+        
+        // Disable backface culling
+        GLDEBUG(glDisable(GL_CULL_FACE));
+        
+        // Disable z-buffer write
+        GLDEBUG(glDepthMask(GL_FALSE));
+        
+        // Disable z-buffer test
+        GLDEBUG(glDisable(GL_DEPTH_TEST));
+//        GLDEBUG(glDepthRangef(0.0, 1.0));
+        
+        // Enable alpha blending
+        GLDEBUG(glEnable(GL_BLEND));
+        GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        
+        KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, KRMat4(), std::vector<KRLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        
+        m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"));
+        
+        
+        m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, true, false, false, true, false, false, false, true);
+        
+        GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
+        
+        // Re-enable z-buffer write
+        GLDEBUG(glDepthMask(GL_TRUE));
+
+    } else {
+        if(m_debug_text_vertices) {
+            delete m_debug_text_vertices;
+            m_debug_text_vertices = NULL;
+        }
     }
 }
 

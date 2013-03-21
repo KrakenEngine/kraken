@@ -301,3 +301,9 @@ void KRTextureManager::compress()
         m_textures[lowerName] = texture;
     }
 }
+
+
+std::set<KRTexture *> &KRTextureManager::getActiveTextures()
+{
+    return m_activeTextures;
+}
