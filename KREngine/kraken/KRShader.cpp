@@ -238,7 +238,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     int light_point_count = 0;
     int light_spot_count = 0;
     // TODO - Need to support multiple lights and more light types in forward rendering
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         for(std::vector<KRLight *>::const_iterator light_itr=lights.begin(); light_itr != lights.end(); light_itr++) {
             KRLight *light = (*light_itr);
             KRDirectionalLight *directional_light = dynamic_cast<KRDirectionalLight *>(light);

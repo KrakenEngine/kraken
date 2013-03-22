@@ -146,3 +146,7 @@ int KRTexture::getMaxMipMap() {
 int KRTexture::getMinMipMap() {
     return m_min_lod_max_dim;
 }
+
+bool KRTexture::hasMipmaps() {
+    return m_max_lod_max_dim != m_min_lod_max_dim;
+}

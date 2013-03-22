@@ -63,7 +63,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     int light_directional_count = 0;
     int light_point_count = 0;
     int light_spot_count = 0;
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE) {
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         for(std::vector<KRLight *>::const_iterator light_itr=lights.begin(); light_itr != lights.end(); light_itr++) {
             KRLight *light = (*light_itr);
             KRDirectionalLight *directional_light = dynamic_cast<KRDirectionalLight *>(light);

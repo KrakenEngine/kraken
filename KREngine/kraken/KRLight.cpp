@@ -268,7 +268,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
                 if(sphereModels.size()) {
                     for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                        sphereModels[0]->renderSubmesh(i);
+                        sphereModels[0]->renderSubmesh(i, renderPass, getName(), "occlusion_test");
                     }
                 }
 

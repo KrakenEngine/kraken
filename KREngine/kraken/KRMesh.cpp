@@ -131,7 +131,7 @@ void KRMesh::loadPack(KRDataBlock *data) {
     m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 }
 
-void KRMesh::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -171,7 +171,7 @@ void KRMesh::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRV
 
                     if(!pMaterial->isTransparent()) {
                         // Exclude transparent and semi-transparent meshes from shadow maps
-                        renderSubmesh(iSubmesh);
+                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
                     }
                 }
                 
@@ -189,19 +189,19 @@ void KRMesh::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRV
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                        renderSubmesh(iSubmesh);
+                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
                                         break;
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                        renderSubmesh(iSubmesh);
+                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
                                         break;
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                         // Render back faces first
                                         GLDEBUG(glCullFace(GL_BACK));
-                                        renderSubmesh(iSubmesh);
+                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
 
                                         // Render front faces second
                                         GLDEBUG(glCullFace(GL_BACK));
-                                        renderSubmesh(iSubmesh);
+                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
                                         break;
                                 }
                             }
@@ -249,7 +249,7 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
     return m_submeshes;
 }
 
-void KRMesh::renderSubmesh(int iSubmesh) {
+void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name) {
     unsigned char *pVertexData = getVertexData();
     
     pack_header *pHeader = getHeader();
@@ -294,6 +294,7 @@ void KRMesh::renderSubmesh(int iSubmesh) {
                 default:
                     break;
             }
+            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
             
             cVertexes -= (MAX_VBO_SIZE - iVertex);
             iVertex = 0;
@@ -311,6 +312,7 @@ void KRMesh::renderSubmesh(int iSubmesh) {
                 default:
                     break;
             }
+            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
             
             cVertexes = 0;
         }

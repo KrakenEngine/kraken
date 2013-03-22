@@ -35,6 +35,7 @@
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
+#include "KRNode.h"
 
 class KRContext;
 class KRMesh;
@@ -49,6 +50,7 @@ public:
     
     void rotateBuffers(bool new_frame);
     void startFrame(float deltaTime);
+    void endFrame(float deltaTime);
     
     KRMesh *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRMesh *> getModel(const char *szName);
@@ -99,6 +101,16 @@ public:
     int getActiveVBOCount();
     int getPoolVBOCount();
     
+    struct draw_call_info {
+        KRNode::RenderPass pass;
+        char object_name[256];
+        char material_name[256];
+        int vertex_count;
+    };
+    
+    void log_draw_call(KRNode::RenderPass pass, const std::string &object_name, const std::string &material_name, int vertex_count);
+    std::vector<draw_call_info> getDrawCalls();
+
     
 private:
     std::multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -121,6 +133,10 @@ private:
     VolumetricLightingVertexData *m_volumetricLightingVertexData;
     
     long m_memoryTransferredThisFrame;
+    
+    std::vector<draw_call_info> m_draw_calls;
+    bool m_draw_call_logging_enabled;
+    bool m_draw_call_log_used;
 
 };
 

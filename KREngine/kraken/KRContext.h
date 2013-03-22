@@ -69,6 +69,7 @@ public:
     
     long getCurrentFrame() const;
     float getAbsoluteTime() const;
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
@@ -86,7 +87,6 @@ private:
     
     long m_current_frame;
     float m_absolute_time;
-    
     
     mach_timebase_info_data_t    m_timebase_info;
 };

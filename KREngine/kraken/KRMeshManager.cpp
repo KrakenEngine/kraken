@@ -50,6 +50,8 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
 //    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
     
     addModel(new KRMeshSphere(context));
+    m_draw_call_logging_enabled = false;
+    m_draw_call_log_used = false;
 }
 
 KRMeshManager::~KRMeshManager() {
@@ -403,6 +405,18 @@ KRMeshManager::RandomParticleVertexData *KRMeshManager::getRandomParticles()
 void KRMeshManager::startFrame(float deltaTime)
 {
     m_memoryTransferredThisFrame = 0;
+    if(m_draw_call_log_used) {
+        // Only log draw calls on the next frame if the draw call log was used on last frame
+        m_draw_call_log_used = false;
+        m_draw_call_logging_enabled = true;
+    }
+    m_draw_calls.clear();
+    
+}
+
+void KRMeshManager::endFrame(float deltaTime)
+{
+
 }
 
 long KRMeshManager::getMemoryTransferedThisFrame()
@@ -419,4 +433,22 @@ int KRMeshManager::getActiveVBOCount()
 int KRMeshManager::getPoolVBOCount()
 {
     return m_vbosPool.size();
+}
+
+void KRMeshManager::log_draw_call(KRNode::RenderPass pass, const std::string &object_name, const std::string &material_name, int vertex_count)
+{
+    if(m_draw_call_logging_enabled) {
+        draw_call_info info;
+        info.pass = pass;
+        strncpy(info.object_name, object_name.c_str(), 256);
+        strncpy(info.material_name, material_name.c_str(), 256);
+        info.vertex_count = vertex_count;
+        m_draw_calls.push_back(info);
+    }
+}
+
+std::vector<KRMeshManager::draw_call_info> KRMeshManager::getDrawCalls()
+{
+    m_draw_call_log_used = true;
+    return m_draw_calls;
 }

@@ -79,9 +79,6 @@ void KRTexture2D::bind() {
     }
 }
 
-bool KRTexture2D::hasMipmaps() {
-    return m_max_lod_max_dim != m_min_lod_max_dim;
-}
 
 bool KRTexture2D::save(const std::string& path)
 {

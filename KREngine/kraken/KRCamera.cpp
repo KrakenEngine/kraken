@@ -179,7 +179,9 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     } else {
         // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, true);
+        if(settings.m_cShadowBuffers > 0) {
+            scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, true);
+        }
         // ----====---- Opaque Geometry, Forward Rendering ----====----
         
         // Set render target
@@ -831,11 +833,11 @@ std::string KRCamera::getDebugText()
             
             stream << "Textures\t" << texture_count_active << "\t" << texture_count << "\t" << (texture_mem_active / 1024) << " Kb\t" << (texture_mem_used / 1024) << " Kb\t" << (texture_mem_throughput / 1024) << " Kb / frame\n";
             stream << "VBO's\t" << vbo_count_active << "\t" << vbo_count_active + vbo_count_pooled << "\t" << (vbo_mem_active / 1024) <<" Kb\t" << (vbo_mem_used / 1024) << " Kb\t" << (vbo_mem_throughput / 1024) << " Kb / frame\n";
-            stream << "\nTOTAL\t\t\t" << (total_mem_active / 1024) << " Kb\t"  << (total_mem_used / 1024) << " Kb\t" << (total_mem_throughput / 1024) << " Kb / frame";
+            stream << "\nGPU Total\t\t\t" << (total_mem_active / 1024) << " Kb\t"  << (total_mem_used / 1024) << " Kb\t" << (total_mem_throughput / 1024) << " Kb / frame";
         }
         break;
             
-    case 2: // ----====---- Show active textures ----====----
+    case 2: // ----====---- List Active Textures ----====----
         {
             bool first = true;
             int texture_count = 0;
@@ -850,21 +852,70 @@ std::string KRCamera::getDebugText()
                 stream << texture->getName();
                 stream << "\t";
                 stream << texture->getMemSize() / 1024;
-                stream << "kB";
+                stream << " kB";
                 stream << "\t";
                 stream << texture->getMaxMipMap();
-                if(texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
-                    stream << "px => ";
+                if(texture->hasMipmaps() && texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
+                    stream << " px => ";
                     stream << texture->getCurrentLodMaxDim();
                 }
-                stream << "px";
+                stream << " px";
                 texture_count++;
             }
             
             stream << "\n\nTOTAL: ";
             stream << texture_count;
             stream << " textures\t";
-            stream << (m_pContext->getTextureManager()->getMemActive() / 1024) << " Kb\t" << (m_pContext->getTextureManager()->getMemoryTransferedThisFrame() / 1024) << " Kb / Frame";
+            stream << (m_pContext->getTextureManager()->getMemActive() / 1024) << " Kb";
+        }
+        break;
+    
+    case 3: // ----====---- List Draw Calls ----====----
+        {
+            std::vector<KRMeshManager::draw_call_info> draw_calls = m_pContext->getModelManager()->getDrawCalls();
+            
+            long draw_call_count = 0;
+            long vertex_count = 0;
+            stream << "\tVerts\tPass\tObject\tMaterial";
+            for(std::vector<KRMeshManager::draw_call_info>::iterator itr = draw_calls.begin(); itr != draw_calls.end(); itr++) {
+                draw_call_count++;
+                stream << "\n" << draw_call_count << "\t" << (*itr).vertex_count << "\t";
+                switch((*itr).pass) {
+                    case KRNode::RENDER_PASS_FORWARD_OPAQUE:
+                        stream << "opaq";
+                        break;
+                    case KRNode::RENDER_PASS_DEFERRED_GBUFFER:
+                        stream << "d gb";
+                        break;
+                    case KRNode::RENDER_PASS_DEFERRED_LIGHTS:
+                        stream << "d light";
+                        break;
+                    case KRNode::RENDER_PASS_DEFERRED_OPAQUE:
+                        stream << "d opaq";
+                        break;
+                    case KRNode::RENDER_PASS_FORWARD_TRANSPARENT:
+                        stream << "trans";
+                        break;
+                    case KRNode::RENDER_PASS_PARTICLE_OCCLUSION:
+                        stream << "p occl";
+                        break;
+                    case KRNode::RENDER_PASS_ADDITIVE_PARTICLES:
+                        stream << "a part";
+                        break;
+                    case KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE:
+                        stream << "vol add";
+                        break;
+                    case KRNode::RENDER_PASS_GENERATE_SHADOWMAPS:
+                        stream << "g shadow";
+                        break;
+                    case KRNode::RENDER_PASS_SHADOWMAP:
+                        stream << "shadow";
+                        break;
+                }
+                stream << "\t" << (*itr).object_name << "\t" << (*itr).material_name;
+                vertex_count += (*itr).vertex_count;
+            }
+            stream << "\n\n\t\tTOTAL:\t" << draw_call_count << " draw calls\t" << vertex_count << " vertices";
         }
         break;
     }

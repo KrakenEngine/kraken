@@ -64,7 +64,8 @@ public:
     int getCurrentLodMaxDim();
     int getMaxMipMap();
     int getMinMipMap();
-    
+    bool hasMipmaps();
+
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;
     GLuint getHandle();

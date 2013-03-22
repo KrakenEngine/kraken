@@ -37,7 +37,7 @@
 #include "KRcontext.h"
 
 KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(context, szName) {
-    strcpy(m_szName, szName);
+    m_name = szName;
     m_pAmbientMap = NULL;
     m_pDiffuseMap = NULL;
     m_pSpecularMap = NULL;
@@ -80,7 +80,7 @@ bool KRMaterial::save(KRDataBlock &data) {
     stream.precision(std::numeric_limits<long double>::digits10);
     stream.setf(std::ios::fixed,std::ios::floatfield);
     
-    stream << "newmtl " << m_szName;
+    stream << "newmtl " << m_name;
     stream << "\nka " << m_ambientColor.x << " " << m_ambientColor.y << " " << m_ambientColor.z;
     stream << "\nkd " << m_diffuseColor.x << " " << m_diffuseColor.y << " " << m_diffuseColor.z;
     stream << "\nks " << m_specularColor.x << " " << m_specularColor.y << " " << m_specularColor.z;
@@ -406,6 +406,8 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
     return true;
 }
 
-char *KRMaterial::getName() {
-    return m_szName;
+const std::string &KRMaterial::getName() const
+{
+    return m_name;
 }
+

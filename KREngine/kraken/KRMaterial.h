@@ -81,12 +81,12 @@ public:
     
 
     bool isTransparent();
-    char *getName();
+    const std::string &getName() const;
     
     bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRLight *> &lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
 private:
-    char m_szName[256];
+    std::string m_name;
     
     KRTexture *m_pAmbientMap; // mtl map_Ka value
     KRTexture *m_pDiffuseMap; // mtl map_Kd value

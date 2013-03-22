@@ -46,8 +46,6 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    bool hasMipmaps();
-    
     virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed) = 0;
     virtual void bind();
     

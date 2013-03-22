@@ -202,6 +202,7 @@ void KRContext::endFrame(float deltaTime)
 {
     m_pTextureManager->endFrame(deltaTime);
     m_pAnimationManager->endFrame(deltaTime);
+    m_pModelManager->endFrame(deltaTime);
     rotateBuffers(true);
     m_current_frame++;
     m_absolute_time += deltaTime;
@@ -216,3 +217,4 @@ float KRContext::getAbsoluteTime() const
 {
     return m_absolute_time;
 }
+

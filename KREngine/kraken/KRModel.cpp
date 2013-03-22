@@ -98,7 +98,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     
     KRNode::render(pCamera, lights, viewport, renderPass);
     
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         loadModel();
         
             if(m_models.size() > 0) {
@@ -136,7 +136,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(pCamera, lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
+                pModel->render(getName(), pCamera, lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
             }
         }
     }

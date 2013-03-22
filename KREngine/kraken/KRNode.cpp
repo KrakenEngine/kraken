@@ -262,7 +262,7 @@ const std::vector<KRNode *> &KRNode::getChildren() {
     return m_childNodes;
 }
 
-const std::string &KRNode::getName() {
+const std::string &KRNode::getName() const {
     return m_name;
 }
 
