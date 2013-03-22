@@ -52,6 +52,7 @@ public:
     KRTexture *getTexture(const char *szFile);
     
     long getMemUsed();
+    long getMemActive();
     
     long getMemoryTransferedThisFrame();
     void addMemoryTransferredThisFrame(long memoryTransferred);
@@ -66,6 +67,7 @@ public:
     void compress();
     
     std::set<KRTexture *> &getActiveTextures();
+    std::set<KRTexture *> &getPoolTextures();
     
 private:
     long m_memoryTransferredThisFrame;
@@ -77,7 +79,6 @@ private:
     std::set<KRTexture *> m_poolTextures;
     
     long m_textureMemUsed;
-
     
     void rotateBuffers();
     void balanceTextureMemory();

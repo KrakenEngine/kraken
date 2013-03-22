@@ -88,6 +88,8 @@ private:
     } DebugTextVertexData;
     
     DebugTextVertexData *m_debug_text_vertices;
+    
+    std::string getDebugText();
 };
 
 #endif

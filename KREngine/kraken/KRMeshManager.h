@@ -48,6 +48,7 @@ public:
     virtual ~KRMeshManager();
     
     void rotateBuffers(bool new_frame);
+    void startFrame(float deltaTime);
     
     KRMesh *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRMesh *> getModel(const char *szName);
@@ -61,6 +62,7 @@ public:
     void releaseVBO(GLvoid *data);
     void unbindVBO();
     long getMemUsed();
+    long getMemActive();
     
     void configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights);
     
@@ -85,8 +87,18 @@ public:
         KRVector3D vertex;
     } VolumetricLightingVertexData;
     
+
+    
+    
     RandomParticleVertexData *getRandomParticles();
     VolumetricLightingVertexData *getVolumetricLightingVertexes();
+    
+    
+    long getMemoryTransferedThisFrame();
+
+    int getActiveVBOCount();
+    int getPoolVBOCount();
+    
     
 private:
     std::multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -108,6 +120,8 @@ private:
     RandomParticleVertexData *m_randomParticleVertexData;
     VolumetricLightingVertexData *m_volumetricLightingVertexData;
     
+    long m_memoryTransferredThisFrame;
+
 };
 
 #endif

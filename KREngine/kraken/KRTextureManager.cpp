@@ -41,6 +41,7 @@
 
 KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
     m_textureMemUsed = 0;
+
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         m_boundTextures[iTexture] = NULL;
     }
@@ -140,6 +141,16 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
 
 long KRTextureManager::getMemUsed() {
     return m_textureMemUsed;
+}
+
+long KRTextureManager::getMemActive() {
+    long mem_active = 0;
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+        KRTexture *activeTexture = *itr;
+        mem_active += activeTexture->getMemSize();
+    }
+    
+    return mem_active;
 }
 
 void KRTextureManager::startFrame(float deltaTime)
@@ -306,4 +317,9 @@ void KRTextureManager::compress()
 std::set<KRTexture *> &KRTextureManager::getActiveTextures()
 {
     return m_activeTextures;
+}
+
+std::set<KRTexture *> &KRTextureManager::getPoolTextures()
+{
+    return m_poolTextures;
 }

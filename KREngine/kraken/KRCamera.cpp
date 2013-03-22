@@ -643,48 +643,40 @@ void KRCamera::renderPost()
     
     const char *szText = settings.m_debug_text.c_str();
     
-    bool show_active_textures = false;
-    std::string debug_text = "";
-    if(show_active_textures) {
-        
-        
-        std::set<KRTexture *> active_textures = m_pContext->getTextureManager()->getActiveTextures();
-        for(std::set<KRTexture *>::iterator itr=active_textures.begin(); itr != active_textures.end(); itr++) {
-            KRTexture *texture = *itr;
-            if(debug_text.length()) {
-                debug_text += "\n";
-            }
-            debug_text += texture->getName();
-            debug_text += "      ";
-            debug_text += texture->getMemSize() / 1024;
-            debug_text += "kB";
-            debug_text += "      ";
-            debug_text += texture->getMaxMipMap();
-            if(texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
-                debug_text += "px => ";
-                debug_text += texture->getCurrentLodMaxDim();
-            }
-            debug_text += "px";
-        }
-        
+    bool show_active_textures = true;
+    std::string debug_text = getDebugText();
+    if(debug_text.length() > 0) {
         szText = debug_text.c_str();
     }
+    
     if(*szText) {
         int row_count = 1;
-        int col_count = 0;
+        const int MAX_TABS = 5;
+        const int TAB_EXTRA = 2;
+        int tab_cols[MAX_TABS] = {0, 0, 0, 0, 0};
         int iCol = 0;
+        int iTab = 0;
         const char *pChar = szText;
         while(*pChar) {
             char c = *pChar++;
             if(c == '\n') {
                 row_count++;
                 iCol = 0;
+                iTab = 0;
+            } else if(c == '\t') {
+                iCol = 0;
+                iTab++;
             } else {
                 iCol++;
-                if(iCol > col_count) col_count = iCol;
+                if(iCol > tab_cols[iTab]) tab_cols[iTab] = iCol;
             }
         }
         
+        iCol = 0;
+        for(iTab=0; iTab < MAX_TABS; iTab++) {
+            iCol += tab_cols[iTab] + TAB_EXTRA;
+            tab_cols[iTab] = iCol;
+        }
         
         const int DEBUG_TEXT_COLUMNS = 256;
         const int DEBUG_TEXT_ROWS = 128;
@@ -697,17 +689,18 @@ void KRCamera::renderPost()
 
 
         pChar = szText;
-        float dScaleX = 2.0 / (2048 / 16);
-        float dScaleY = 2.0 / (1536 / 16);
+        float dScaleX = 2.0 / (1024 / 16);
+        float dScaleY = 2.0 / (768 / 16);
         float dTexScale = 1.0 / 16.0;
-        int iRow = row_count - 1; iCol = 0;
+        int iRow = row_count - 1; iCol = 0, iTab = 0;
         while(*pChar) {
             char c = *pChar++;
-            if(c == ' ') {
-                iCol++;
-            } else if(c == '\n') {
+            if(c == '\n') {
                 iCol = 0;
+                iTab = 0;
                 iRow--;
+            } else if(c == '\t') {
+                iCol = tab_cols[iTab++];
             } else {
                 if(iCol < DEBUG_TEXT_COLUMNS && iRow < DEBUG_TEXT_ROWS) {
                     int iChar = c - '\0';
@@ -805,3 +798,75 @@ void KRCamera::renderPost()
     }
 }
 
+
+std::string KRCamera::getDebugText()
+{
+    std::stringstream stream;
+    stream.precision(std::numeric_limits<long double>::digits10);
+    
+    switch(settings.debug_display) {
+    case 0: // ----====---- No debug display ----====----
+        break;
+            
+    case 1: // ----====---- Memory Utilization ----=====----
+        {
+            int texture_count_active = m_pContext->getTextureManager()->getActiveTextures().size();
+            int texture_count_pooled = m_pContext->getTextureManager()->getPoolTextures().size();
+            int texture_count = texture_count_active + texture_count_pooled;
+            long texture_mem_active = m_pContext->getTextureManager()->getMemActive();
+            long texture_mem_used = m_pContext->getTextureManager()->getMemUsed();
+            long texture_mem_throughput = m_pContext->getTextureManager()->getMemoryTransferedThisFrame();
+            
+            int vbo_count_active = m_pContext->getModelManager()->getActiveVBOCount();
+            int vbo_count_pooled = m_pContext->getModelManager()->getPoolVBOCount();
+            long vbo_mem_active = m_pContext->getModelManager()->getMemActive();
+            long vbo_mem_used = m_pContext->getModelManager()->getMemUsed();
+            long vbo_mem_throughput = m_pContext->getModelManager()->getMemoryTransferedThisFrame();
+            
+            long total_mem_active = texture_mem_active + vbo_mem_active;
+            long total_mem_used = texture_mem_used + vbo_mem_used;
+            long total_mem_throughput = texture_mem_throughput + vbo_mem_throughput;
+            
+            stream << "\t# Active\t# Used\tActive\tUsed\tThroughput\n";
+            
+            stream << "Textures\t" << texture_count_active << "\t" << texture_count << "\t" << (texture_mem_active / 1024) << " Kb\t" << (texture_mem_used / 1024) << " Kb\t" << (texture_mem_throughput / 1024) << " Kb / frame\n";
+            stream << "VBO's\t" << vbo_count_active << "\t" << vbo_count_active + vbo_count_pooled << "\t" << (vbo_mem_active / 1024) <<" Kb\t" << (vbo_mem_used / 1024) << " Kb\t" << (vbo_mem_throughput / 1024) << " Kb / frame\n";
+            stream << "\nTOTAL\t\t\t" << (total_mem_active / 1024) << " Kb\t"  << (total_mem_used / 1024) << " Kb\t" << (total_mem_throughput / 1024) << " Kb / frame";
+        }
+        break;
+            
+    case 2: // ----====---- Show active textures ----====----
+        {
+            bool first = true;
+            int texture_count = 0;
+            std::set<KRTexture *> active_textures = m_pContext->getTextureManager()->getActiveTextures();
+            for(std::set<KRTexture *>::iterator itr=active_textures.begin(); itr != active_textures.end(); itr++) {
+                KRTexture *texture = *itr;
+                if(first) {
+                    first = false;
+                } else {
+                    stream << "\n";
+                }
+                stream << texture->getName();
+                stream << "\t";
+                stream << texture->getMemSize() / 1024;
+                stream << "kB";
+                stream << "\t";
+                stream << texture->getMaxMipMap();
+                if(texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
+                    stream << "px => ";
+                    stream << texture->getCurrentLodMaxDim();
+                }
+                stream << "px";
+                texture_count++;
+            }
+            
+            stream << "\n\nTOTAL: ";
+            stream << texture_count;
+            stream << " textures\t";
+            stream << (m_pContext->getTextureManager()->getMemActive() / 1024) << " Kb\t" << (m_pContext->getTextureManager()->getMemoryTransferedThisFrame() / 1024) << " Kb / Frame";
+        }
+        break;
+    }
+    return stream.str();
+}

@@ -9,7 +9,7 @@
 //  
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
@@ -45,6 +45,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     m_vboMemUsed = 0;
     m_randomParticleVertexData = NULL;
     m_volumetricLightingVertexData = NULL;
+    m_memoryTransferredThisFrame = 0;
     
 //    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
     
@@ -200,6 +201,7 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
             GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            m_memoryTransferredThisFrame += size;
             m_vboMemUsed += size;
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb, enable_bone_indexes, enable_bone_weights);
             
@@ -292,6 +294,15 @@ void KRMeshManager::configureAttribs(bool enable_vertex, bool enable_normal, boo
 long KRMeshManager::getMemUsed()
 {
     return m_vboMemUsed;
+}
+
+long KRMeshManager::getMemActive()
+{
+    long mem_active = 0;
+    for(std::map<GLvoid *, vbo_info_type>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
+        mem_active += (*itr).second.size;
+    }
+    return mem_active;
 }
 
 void KRMeshManager::rotateBuffers(bool new_frame)
@@ -387,4 +398,25 @@ KRMeshManager::RandomParticleVertexData *KRMeshManager::getRandomParticles()
         }
     }
     return m_randomParticleVertexData;
+}
+
+void KRMeshManager::startFrame(float deltaTime)
+{
+    m_memoryTransferredThisFrame = 0;
+}
+
+long KRMeshManager::getMemoryTransferedThisFrame()
+{
+    return m_memoryTransferredThisFrame;
+}
+
+
+int KRMeshManager::getActiveVBOCount()
+{
+    return m_vbosActive.size();
+}
+
+int KRMeshManager::getPoolVBOCount()
+{
+    return m_vbosPool.size();
 }

@@ -72,6 +72,8 @@ KRRenderSettings::KRRenderSettings()
     
     dust_particle_intensity = 0.25f;
     dust_particle_enable = false;
+    
+    debug_display = 0;
 
 }
 
@@ -138,6 +140,7 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     perspective_farz=s.perspective_farz;
     
     m_skyBoxName=s.m_skyBoxName;
+    debug_display = s.debug_display;
     
     return *this;
 }

@@ -84,6 +84,8 @@ public:
     float perspective_farz;
     
     std::string m_skyBoxName;
+    
+    int debug_display;
 
 private:
 };

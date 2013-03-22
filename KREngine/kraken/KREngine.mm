@@ -159,7 +159,8 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             @"fog_color_g": @44,
             @"fog_color_b": @45,
             @"dust_enable" : @46,
-            @"dust_intensity" : @47
+            @"dust_intensity" : @47,
+            @"debug_display" : @48
                             
         } copy];
         [self loadShaders];
@@ -232,7 +233,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(int)getParameterCount
 {
-    return 48;
+    return 49;
 }
 
 -(NSString *)getParameterNameWithIndex: (int)i
@@ -242,7 +243,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[48] = {
+    NSString *parameter_labels[49] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -290,13 +291,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         @"Fog - Color G",
         @"Fog - Color B",
         @"Dust - Enable",
-        @"Dust - Intensity"
+        @"Dust - Intensity",
+        @"Debug - Display"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[48] = {
+    KREngineParameterType types[49] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -345,13 +347,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_BOOL,
-        KRENGINE_PARAMETER_FLOAT
+        KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_INT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[48] = {
+    float values[49] = {
         _settings.perspective_fov,
         (float)_settings.m_cShadowBuffers,
         _settings.bEnablePerPixel ? 1.0f : 0.0f,
@@ -399,7 +402,8 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         _settings.fog_color.y,
         _settings.fog_color.z,
         _settings.dust_particle_enable,
-        _settings.dust_particle_intensity
+        _settings.dust_particle_intensity,
+        _settings.debug_display
     };
     return values[i];
 }
@@ -592,17 +596,20 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         case 47:
             _settings.dust_particle_intensity = v;
             break;
+        case 48:
+            _settings.debug_display = v;
+            break;
     }
 }
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[48] = {
+    float minValues[49] = {
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.01f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
     return minValues[i];
@@ -610,12 +617,12 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[48] = {
+    float maxValues[49] = {
              PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
            1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f,  1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
-        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f
+        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 2.0f
     };
     
     return maxValues[i];
