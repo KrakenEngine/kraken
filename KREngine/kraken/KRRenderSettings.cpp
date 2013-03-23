@@ -73,8 +73,7 @@ KRRenderSettings::KRRenderSettings()
     dust_particle_intensity = 0.25f;
     dust_particle_enable = false;
     
-    debug_display = 0;
-
+    debug_display = KRENGINE_DEBUG_DISPLAY_NONE;
 }
 
 KRRenderSettings::~KRRenderSettings()

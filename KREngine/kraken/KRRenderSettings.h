@@ -85,7 +85,14 @@ public:
     
     std::string m_skyBoxName;
     
-    int debug_display;
+    enum debug_display_type{
+        KRENGINE_DEBUG_DISPLAY_NONE = 0,
+        KRENGINE_DEBUG_DISPLAY_TIME,
+        KRENGINE_DEBUG_DISPLAY_MEMORY,
+        KRENGINE_DEBUG_DISPLAY_TEXTURES,
+        KRENGINE_DEBUG_DISPLAY_DRAW_CALLS,
+        KRENGINE_DEBUG_DISPLAY_NUMBER
+    } debug_display;
 
 private:
 };

@@ -70,6 +70,8 @@ public:
     long getCurrentFrame() const;
     float getAbsoluteTime() const;
     
+    long getAbsoluteTimeMilliseconds();
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;

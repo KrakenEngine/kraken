@@ -597,7 +597,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             _settings.dust_particle_intensity = v;
             break;
         case 48:
-            _settings.debug_display = v;
+            _settings.debug_display = (KRRenderSettings::debug_display_type)v;
             break;
     }
 }
@@ -622,7 +622,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
            1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f,  1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
-        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 3.0f
+        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1)
     };
     
     return maxValues[i];

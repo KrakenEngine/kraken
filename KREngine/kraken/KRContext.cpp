@@ -218,3 +218,9 @@ float KRContext::getAbsoluteTime() const
     return m_absolute_time;
 }
 
+
+long KRContext::getAbsoluteTimeMilliseconds()
+{
+    return (long)(mach_absolute_time() / 1000 * m_timebase_info.numer / m_timebase_info.denom); // Division done first to avoid potential overflow
+}
+

@@ -44,6 +44,8 @@
 #include "KRViewport.h"
 #include "KRRenderSettings.h"
 
+#define KRAKEN_FPS_AVERAGE_FRAME_COUNT 30
+
 class KRModel;
 class KRScene;
 class KRViewport;
@@ -79,6 +81,7 @@ private:
     float m_particlesAbsoluteTime;
     
     
+    
     typedef struct {
         GLfloat x;
         GLfloat y;
@@ -90,6 +93,10 @@ private:
     DebugTextVertexData *m_debug_text_vertices;
     
     std::string getDebugText();
+    
+    uint64_t m_last_frame_start;
+    int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
+    int m_frame_times_filled;
 };
 
 #endif

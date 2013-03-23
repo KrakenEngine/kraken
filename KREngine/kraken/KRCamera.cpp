@@ -36,6 +36,8 @@
 #include "KRDirectionalLight.h"
 
 KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
+    m_last_frame_start = 0;
+    
     m_particlesAbsoluteTime = 0.0f;
     backingWidth = 0;
     backingHeight = 0;
@@ -51,6 +53,7 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
+    m_frame_times_filled = 0;
     
     m_debug_text_vertices = NULL;
 }
@@ -64,6 +67,16 @@ KRCamera::~KRCamera() {
 
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
 {
+    // ----====---- Record timing information for measuring FPS ----====----
+    uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
+    if(m_last_frame_start != 0) {
+        m_frame_times[m_pContext->getCurrentFrame() % KRAKEN_FPS_AVERAGE_FRAME_COUNT] = (current_time - m_last_frame_start);
+        if(m_frame_times_filled < KRAKEN_FPS_AVERAGE_FRAME_COUNT) m_frame_times_filled++;
+    }
+    m_last_frame_start = current_time;
+    
+    
+    
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
@@ -806,12 +819,67 @@ std::string KRCamera::getDebugText()
     std::stringstream stream;
     stream.precision(std::numeric_limits<long double>::digits10);
     
+    
+    
+    uint64_t fps = 0;
+    if(m_frame_times_filled == KRAKEN_FPS_AVERAGE_FRAME_COUNT) {
+        for(int i=0; i < KRAKEN_FPS_AVERAGE_FRAME_COUNT; i++) {
+            fps += m_frame_times[i];
+        }
+    }
+    
+    fps = 1000000 / (fps / KRAKEN_FPS_AVERAGE_FRAME_COUNT); // Order of division chosen to prevent overflow
+    
     switch(settings.debug_display) {
-    case 0: // ----====---- No debug display ----====----
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NONE: // ----====---- No debug display ----====----
         break;
             
-    case 1: // ----====---- Memory Utilization ----=====----
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_TIME: // ----====---- Time / FPS ----====----
         {
+            if(fps > 0) {
+                stream << "FPS\t" << fps;
+            }
+        }
+        break;
+            
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_MEMORY: // ----====---- Memory Utilization ----=====----
+        {
+            
+            // ---- CPU Memory ----
+            
+            struct task_basic_info info;
+            mach_msg_type_number_t size = sizeof(info);
+            kern_return_t kerr = task_info(mach_task_self(),
+                                           TASK_BASIC_INFO,
+                                           (task_info_t)&info,
+                                           &size);
+            if( kerr == KERN_SUCCESS ) {
+                stream << "\tResident\tVirtual\tTotal";
+                stream << "\nCPU\t" << (info.resident_size / 1024 / 1024) << " MB\t" << (info.virtual_size / 1024 / 1024) << " MB\t" << ((info.resident_size + info.virtual_size) / 1024 / 1024) << " MB";
+            } else {
+                stream << "\nERROR: Could not get CPU memory utilization.";
+            }
+            
+            
+            mach_port_t host_port = mach_host_self();
+            mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+            vm_size_t pagesize = 0;
+            vm_statistics_data_t vm_stat;
+            if(host_page_size(host_port, &pagesize) != KERN_SUCCESS) {
+                stream << "\n\nERROR: Could not get VM page size.";
+            } else if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
+                stream << "\n\nERROR: Could not get VM stats.";
+            } else {
+                stream << "\n\n\n\tWired\tActive\tInactive\tFree\tTotal";
+                stream << "\nVM\t";
+                stream << (vm_stat.wire_count * pagesize / 1024 / 1024) << " MB\t";
+                stream << (vm_stat.active_count * pagesize / 1024 / 1024) << " MB\t";
+                stream << (vm_stat.inactive_count * pagesize / 1024 / 1024) << " MB\t";
+                stream << (vm_stat.free_count * pagesize / 1024 / 1024) << " MB\t";
+                stream << ((vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count) * pagesize / 1024 / 1024) << " MB";
+            }
+                
+            // ---- GPU Memory ----
             int texture_count_active = m_pContext->getTextureManager()->getActiveTextures().size();
             int texture_count_pooled = m_pContext->getTextureManager()->getPoolTextures().size();
             int texture_count = texture_count_active + texture_count_pooled;
@@ -829,15 +897,15 @@ std::string KRCamera::getDebugText()
             long total_mem_used = texture_mem_used + vbo_mem_used;
             long total_mem_throughput = texture_mem_throughput + vbo_mem_throughput;
             
-            stream << "\t# Active\t# Used\tActive\tUsed\tThroughput\n";
+            stream << "\n\n\n\t# Active\t# Used\tActive\tUsed\tThroughput\n";
             
-            stream << "Textures\t" << texture_count_active << "\t" << texture_count << "\t" << (texture_mem_active / 1024) << " Kb\t" << (texture_mem_used / 1024) << " Kb\t" << (texture_mem_throughput / 1024) << " Kb / frame\n";
-            stream << "VBO's\t" << vbo_count_active << "\t" << vbo_count_active + vbo_count_pooled << "\t" << (vbo_mem_active / 1024) <<" Kb\t" << (vbo_mem_used / 1024) << " Kb\t" << (vbo_mem_throughput / 1024) << " Kb / frame\n";
-            stream << "\nGPU Total\t\t\t" << (total_mem_active / 1024) << " Kb\t"  << (total_mem_used / 1024) << " Kb\t" << (total_mem_throughput / 1024) << " Kb / frame";
+            stream << "Textures\t" << texture_count_active << "\t" << texture_count << "\t" << (texture_mem_active / 1024) << " KB\t" << (texture_mem_used / 1024) << " KB\t" << (texture_mem_throughput / 1024) << " KB / frame\n";
+            stream << "VBO's\t" << vbo_count_active << "\t" << vbo_count_active + vbo_count_pooled << "\t" << (vbo_mem_active / 1024) <<" KB\t" << (vbo_mem_used / 1024) << " KB\t" << (vbo_mem_throughput / 1024) << " KB / frame\n";
+            stream << "\nGPU Total\t\t\t" << (total_mem_active / 1024) << " KB\t"  << (total_mem_used / 1024) << " KB\t" << (total_mem_throughput / 1024) << " KB / frame";
         }
         break;
             
-    case 2: // ----====---- List Active Textures ----====----
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_TEXTURES: // ----====---- List Active Textures ----====----
         {
             bool first = true;
             int texture_count = 0;
@@ -852,7 +920,7 @@ std::string KRCamera::getDebugText()
                 stream << texture->getName();
                 stream << "\t";
                 stream << texture->getMemSize() / 1024;
-                stream << " kB";
+                stream << " KB";
                 stream << "\t";
                 stream << texture->getMaxMipMap();
                 if(texture->hasMipmaps() && texture->getCurrentLodMaxDim() != texture->getMaxMipMap()) {
@@ -866,11 +934,11 @@ std::string KRCamera::getDebugText()
             stream << "\n\nTOTAL: ";
             stream << texture_count;
             stream << " textures\t";
-            stream << (m_pContext->getTextureManager()->getMemActive() / 1024) << " Kb";
+            stream << (m_pContext->getTextureManager()->getMemActive() / 1024) << " KB";
         }
         break;
     
-    case 3: // ----====---- List Draw Calls ----====----
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_DRAW_CALLS: // ----====---- List Draw Calls ----====----
         {
             std::vector<KRMeshManager::draw_call_info> draw_calls = m_pContext->getModelManager()->getDrawCalls();
             
