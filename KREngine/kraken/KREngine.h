@@ -54,6 +54,7 @@ namespace kraken {
 @property(nonatomic, readonly) NSDictionary *parameter_names;
 @property(nonatomic, assign) KRContext *context;
 @property(nonatomic, retain) NSString *debug_text;
+@property(nonatomic, assign, readonly) KRRenderSettings *settings;
 
 - (id)init;
 - (BOOL)loadResource:(NSString *)path;

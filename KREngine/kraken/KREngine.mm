@@ -236,6 +236,12 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
     return 49;
 }
 
+
+-(KRRenderSettings *)settings
+{
+    return &_settings;
+}
+
 -(NSString *)getParameterNameWithIndex: (int)i
 {
     return [[self.parameter_names allKeysForObject:[NSNumber numberWithInt:i]] objectAtIndex:0];

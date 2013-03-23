@@ -658,10 +658,12 @@ void KRCamera::renderPost()
     
     const char *szText = settings.m_debug_text.c_str();
     
-    bool show_active_textures = true;
-    std::string debug_text = getDebugText();
-    if(debug_text.length() > 0) {
-        szText = debug_text.c_str();
+    std::string debug_text;
+    if(settings.debug_display != KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NONE) {
+        debug_text = getDebugText();;
+        if(debug_text.length() > 0) {
+            szText = debug_text.c_str();
+        }
     }
     
     if(*szText) {
