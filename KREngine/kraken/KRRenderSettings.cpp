@@ -26,7 +26,7 @@ KRRenderSettings::KRRenderSettings()
     bEnableSpecular = true;
     bEnableLightMap = true;
     bDebugSuperShiny = false;
-    bEnableDeferredLighting = true;
+    bEnableDeferredLighting = false;
     
     ambient_intensity = KRVector3::Zero();
     light_intensity = KRVector3::One();

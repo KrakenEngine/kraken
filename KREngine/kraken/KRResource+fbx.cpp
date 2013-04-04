@@ -95,17 +95,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     if(pNode) {
         pNode->ResetPivotSetAndConvertAnimation();
     }
-    
-    // ----====---- Import Scene Graph Nodes ----====----
-    printf("\nLoading scene graph...\n");
-    if(pNode)
-    {
-        for(int i = 0; i < pNode->GetChildCount(); i++)
-        {
-            LoadNode(pFbxScene, pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
-        }
-    }
-    
+        
     // ----====---- Import Animation Layers ----====----
     printf("\nLoading animations...\n");
     int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
@@ -162,8 +152,22 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         context.loadResource(file_name);
     }
     
+    // ----====---- Import Scene Graph Nodes ----====----
+    printf("\nLoading scene graph...\n");
+    if(pNode)
+    {
+        for(int i = 0; i < pNode->GetChildCount(); i++)
+        {
+            LoadNode(pFbxScene, pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
+        }
+    }
+    
     for(std::map<std::string, KRTexture *>::iterator texture_itr = context.getTextureManager()->getTextures().begin(); texture_itr != context.getTextureManager()->getTextures().end(); texture_itr++) {
         resources.push_back((*texture_itr).second);
+    }
+    
+    for(std::map<std::string, KRMesh *>::iterator mesh_itr = context.getModelManager()->getModels().begin(); mesh_itr != context.getModelManager()->getModels().end(); mesh_itr++) {
+        resources.push_back((*mesh_itr).second);
     }
     
     DestroySdkObjects(lSdkManager);
@@ -727,7 +731,6 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
 //    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
 //    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
     
-    
     KFbxNodeAttribute::EType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
     if(attribute_type == KFbxNodeAttribute::eLODGroup) {
         std::string name = GetFbxObjectName(pNode);
@@ -741,6 +744,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             group_min_distance = fbx_lod_group->MinDistance.Get();
             group_max_distance = fbx_lod_group->MinDistance.Get();
         }
+        
+        KRVector3 reference_point;
         // Create a lod_group node for each fbx child node
         int child_count = pNode->GetChildCount();
         for(int i = 0; i < child_count; i++)
@@ -792,6 +797,13 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             parent_node->addChild(new_node);
             
             LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
+            
+            if(i == 0) {
+                // Calculate reference point using the bounding box center from the highest quality LOD level
+                reference_point = new_node->getBounds().center();
+            }
+            
+            new_node->setReferencePoint(new_node->worldToLocal(reference_point));
         }
     } else {
         KRNode *new_node = NULL;
@@ -1279,7 +1291,8 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
     new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES);
-    resources.push_back(new_mesh);
+    
+    context.getModelManager()->addModel(new_mesh);
 }
 
 KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {

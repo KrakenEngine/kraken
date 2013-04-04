@@ -279,3 +279,14 @@ bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 {
     return true;
 }
+
+void KRAABB::encapsulate(const KRAABB & b)
+{
+    if(b.min.x < min.x) min.x = b.min.x;
+    if(b.min.y < min.y) min.y = b.min.y;
+    if(b.min.z < min.z) min.z = b.min.z;
+    
+    if(b.max.x > max.x) max.x = b.max.x;
+    if(b.max.y > max.y) max.y = b.max.y;
+    if(b.max.z > max.z) max.z = b.max.z;
+}

@@ -489,3 +489,4 @@ bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hiti
 {
     return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }
+

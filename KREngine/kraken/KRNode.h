@@ -71,6 +71,9 @@ public:
     const KRVector3 getWorldScale();
     const KRVector3 getWorldRotation();
     
+    const KRVector3 localToWorld(const KRVector3 &local_point);
+    const KRVector3 worldToLocal(const KRVector3 &world_point);
+    
     void setWorldTranslation(const KRVector3 &v);
     void setWorldScale(const KRVector3 &v);
     void setWorldRotation(const KRVector3 &v);

@@ -57,7 +57,7 @@ public:
     void addModel(KRMesh *model);
     
     std::vector<std::string> getModelNames();
-    std::multimap<std::string, KRMesh *> getModels();
+    std::multimap<std::string, KRMesh *> &getModels();
     
     
     void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights, bool static_vbo);

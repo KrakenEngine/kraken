@@ -193,7 +193,7 @@ const KRVector3 &KRNode::getInitialLocalRotation() {
 }
 
 const KRVector3 KRNode::getWorldTranslation() {
-    return KRMat4::Dot(getModelMatrix(), KRVector3::Zero());
+    return localToWorld(KRVector3::Zero());
 }
 
 const KRVector3 KRNode::getWorldScale() {
@@ -278,7 +278,20 @@ KRScene &KRNode::getScene() {
 }
 
 KRAABB KRNode::getBounds() {
-    return KRAABB::Infinite();
+    KRAABB bounds = KRAABB::Infinite();
+
+    bool first_child = true;
+    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        KRNode *child = (*itr);
+        if(first_child) {
+            first_child = false;
+            bounds = child->getBounds();
+        } else {
+            bounds.encapsulate(child->getBounds());
+        }
+    }
+
+    return bounds;
 }
 
 void KRNode::invalidateModelMatrix()
@@ -474,4 +487,14 @@ void KRNode::showLOD()
 bool KRNode::lodIsVisible()
 {
     return m_lod_visible;
+}
+
+const KRVector3 KRNode::localToWorld(const KRVector3 &local_point)
+{
+    return KRMat4::Dot(getModelMatrix(), local_point);
+}
+
+const KRVector3 KRNode::worldToLocal(const KRVector3 &world_point)
+{
+    return KRMat4::Dot(getInverseModelMatrix(), world_point);
 }

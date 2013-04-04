@@ -28,10 +28,16 @@ public:
     void setMinDistance(float min_distance);
     void setMaxDistance(float max_distance);
     
+    const KRVector3 getReferencePoint();
+    void setReferencePoint(const KRVector3 &referencePoint);
+    
+    const KRVector3 getWorldReferencePoint();
+    
 private:
     bool getLODVisibility(const KRViewport &viewport);
     float m_min_distance;
     float m_max_distance;
+    KRVector3 m_referencePoint; // Point of reference, used for distance calculation.  Usually set to the bounding box center
 };
 
 

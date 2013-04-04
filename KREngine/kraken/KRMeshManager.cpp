@@ -64,19 +64,17 @@ KRMeshManager::~KRMeshManager() {
 }
 
 KRMesh *KRMeshManager::loadModel(const char *szName, KRDataBlock *pData) {
-    
-    std::string lowerName = szName;
-    std::transform(lowerName.begin(), lowerName.end(),
-                   lowerName.begin(), ::tolower);
-    
-    
-    KRMesh *pModel = new KRMesh(*m_pContext, lowerName, pData);
+    KRMesh *pModel = new KRMesh(*m_pContext, szName, pData);
     addModel(pModel);
     return pModel;
 }
 
 void KRMeshManager::addModel(KRMesh *model) {
-    m_models.insert(std::pair<std::string, KRMesh *>(model->getLODBaseName(), model));
+    std::string lowerName = model->getLODBaseName();
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    m_models.insert(std::pair<std::string, KRMesh *>(lowerName, model));
 }
 
 std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
@@ -101,7 +99,7 @@ std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
     return matching_models;
 }
 
-std::multimap<std::string, KRMesh *> KRMeshManager::getModels() {
+std::multimap<std::string, KRMesh *> &KRMeshManager::getModels() {
     return m_models;
 }
 
