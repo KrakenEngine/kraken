@@ -79,6 +79,7 @@ void KROctree::shrink()
             KROctreeNode *newRoot = m_pRootNode->stripChild();
             delete m_pRootNode;
             m_pRootNode = newRoot;
+            if(m_pRootNode == NULL) return;
         }
     }
 }

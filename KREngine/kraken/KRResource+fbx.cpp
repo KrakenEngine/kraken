@@ -7,7 +7,8 @@
 //
 
 #include "KREngine-common.h"
-
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 #include <fbxsdk.h>
 
 
@@ -24,6 +25,7 @@
 #include "KRBone.h"
 #include "KRBundle.h"
 #include "KRModel.h"
+#include "KRLODGroup.h"
 #include "KRCollider.h"
 
 #ifdef IOS_REF
@@ -45,6 +47,7 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
 KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
 KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
+void LoadLOD(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, FbxLODGroup* pSourceLodGroup);
 std::string GetFbxObjectName(FbxObject *obj);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable
@@ -724,44 +727,155 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
 //    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
 //    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
     
-    KRNode *new_node = NULL;
+    
     KFbxNodeAttribute::EType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
-    switch(attribute_type) {
-        case KFbxNodeAttribute::eMesh:
-            new_node = LoadMesh(parent_node, resources, pGeometryConverter, pNode);
-            break;
-        case KFbxNodeAttribute::eLight:
-            new_node = LoadLight(parent_node, resources, pNode);
-            break;
-        case KFbxNodeAttribute::eSkeleton:
-            new_node = LoadSkeleton(parent_node, resources, pNode);
-            break;
-        case KFbxNodeAttribute::eCamera:
-            new_node = LoadCamera(parent_node, resources, pNode);
-            break;
-        default:
-            {
-                if(pNode->GetChildCount() > 0) {
-                    // Create an empty node, for inheritence of transforms
-                    new_node = new KRNode(parent_node->getScene(), GetFbxObjectName(pNode));
+    if(attribute_type == KFbxNodeAttribute::eLODGroup) {
+        std::string name = GetFbxObjectName(pNode);
+        FbxLODGroup *fbx_lod_group = (FbxLODGroup*) pNode->GetNodeAttribute(); // FbxCast<FbxLODGroup>(pNode);
+        if(!fbx_lod_group->WorldSpace.Get()) {
+            printf("WARNING - LOD Groups only supported with world space distance thresholds.\n");
+        }
+        float group_min_distance = 0.0f;
+        float group_max_distance = 0.0f;
+        if(fbx_lod_group->MinMaxDistance.Get()) {
+            group_min_distance = fbx_lod_group->MinDistance.Get();
+            group_max_distance = fbx_lod_group->MinDistance.Get();
+        }
+        // Create a lod_group node for each fbx child node
+        int child_count = pNode->GetChildCount();
+        for(int i = 0; i < child_count; i++)
+        {
+            float min_distance = 0;
+            float max_distance = 0; // 0 for max_distance means infinity
+            FbxLODGroup::EDisplayLevel display_level;
+            fbx_lod_group->GetDisplayLevel(i, display_level);
+            switch(display_level) {
+                case FbxLODGroup::eUseLOD:
+                    if(i > 0 ) {
+                        FbxDistance d;
+                        fbx_lod_group->GetThreshold(i - 1, d);
+                        min_distance = d.value();
+                    }
+                    if(i < child_count - 1) {
+                        FbxDistance d;
+                        fbx_lod_group->GetThreshold(i, d);
+                        max_distance = d.value();
+                    }
+                    break;
+                case FbxLODGroup::eShow:
+                    // We leave min_distance and max_distance as 0's, which effectively makes the LOD group always visible
+                    break;
+                case FbxLODGroup::eHide:
+                    min_distance = -1;
+                    max_distance = -1;
+                    // LOD Groups with -1 for both min_distance and max_distance will never be displayed; import in case that the distance values are to be modified by scripting at runtime
+                    break;
+            }
+            
+            if(group_min_distance != 0.0f && min_distance != -1) {
+                if(min_distance < group_min_distance) min_distance = group_min_distance;
+            }
+            if(group_max_distance != 0.0f && max_distance != -1) {
+                if(max_distance == 0.0f) {
+                    max_distance = group_max_distance;
+                } else if(max_distance > group_max_distance) {
+                    max_distance = group_max_distance;
                 }
             }
-            break;
-    }
-    
-    
-    if(new_node != NULL) {
-        new_node->setLocalRotation(node_rotation);
-        new_node->setLocalTranslation(node_translation);
-        new_node->setLocalScale(node_scale);
-        parent_node->addChild(new_node);
-        
-        // Load child nodes
-        for(int i = 0; i < pNode->GetChildCount(); i++)
-        {
+
+            KRLODGroup *new_node = new KRLODGroup(parent_node->getScene(), name + "_lodlevel" + boost::lexical_cast<string>(i + 1));
+            new_node->setMinDistance(min_distance);
+            new_node->setMaxDistance(max_distance);
+            new_node->setLocalRotation(node_rotation);
+            new_node->setLocalTranslation(node_translation);
+            new_node->setLocalScale(node_scale);
+            parent_node->addChild(new_node);
+            
             LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
         }
+    } else {
+        KRNode *new_node = NULL;
+        switch(attribute_type) {
+            case KFbxNodeAttribute::eMesh:
+                new_node = LoadMesh(parent_node, resources, pGeometryConverter, pNode);
+                break;
+            case KFbxNodeAttribute::eLight:
+                new_node = LoadLight(parent_node, resources, pNode);
+                break;
+            case KFbxNodeAttribute::eSkeleton:
+                new_node = LoadSkeleton(parent_node, resources, pNode);
+                break;
+            case KFbxNodeAttribute::eCamera:
+                new_node = LoadCamera(parent_node, resources, pNode);
+                break;
+            default:
+                {
+                    if(pNode->GetChildCount() > 0) {
+                        // Create an empty node, for inheritence of transforms
+                        std::string name = GetFbxObjectName(pNode);
+                        
+                        float min_distance = 0.0f;
+                        float max_distance = 0.0f;
+                        
+                        typedef boost::tokenizer<boost::char_separator<char> > char_tokenizer;
+                        
+                        int step = 0;
+                        
+                        char_tokenizer name_components(name, boost::char_separator<char>("_"));
+                        for(char_tokenizer::iterator itr=name_components.begin(); itr != name_components.end(); itr++) {
+                            std::string component = *itr;
+                            std::transform(component.begin(), component.end(),
+                                           component.begin(), ::tolower);
+                            if(component.compare("lod") == 0) {
+                                step = 1;
+                            } else if(step == 1) {
+                                min_distance = boost::lexical_cast<float>(component);
+                                step++;
+                            } else if(step == 2) {
+                                max_distance = boost::lexical_cast<float>(component);
+                                step++;
+                            }
+                        }
+                        
+                        /*
+                         if(min_distance == 0.0f && max_distance == 0.0f) {
+                            // Regular node for grouping children together under one transform
+                            new_node = new KRNode(parent_node->getScene(), name);
+                        } else {
+                         */
+                            // LOD Enabled group node
+                            KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
+                            lod_group->setMinDistance(min_distance);
+                            lod_group->setMaxDistance(max_distance);
+                            new_node = lod_group;
+                        /*
+                        }
+                         */
+                        
+                        
+                    }
+                }
+                break;
+        }
+        
+        
+        if(new_node != NULL) {
+            new_node->setLocalRotation(node_rotation);
+            new_node->setLocalTranslation(node_translation);
+            new_node->setLocalScale(node_scale);
+            parent_node->addChild(new_node);
+            
+            // Load child nodes
+            for(int i = 0; i < pNode->GetChildCount(); i++)
+            {
+                LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
+            }
+        }
     }
+}
+
+void LoadLOD(KRContext &context, std::vector<KRResource *> &resources, FbxLODGroup* pSourceLodGroup) {
+    
 }
 
 void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxSurfaceMaterial *pMaterial) {

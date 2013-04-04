@@ -71,6 +71,7 @@ public:
     
     void render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
+    void updateOctree(const KRViewport &viewport);
     
     void notify_sceneGraphCreate(KRNode *pNode);
     void notify_sceneGraphDelete(KRNode *pNode);
@@ -99,7 +100,6 @@ private:
     std::set<KRReverbZone *> m_reverbZoneNodes;
     
     KROctree m_nodeTree;
-    void updateOctree();
     
     std::string m_skyBoxName;
     

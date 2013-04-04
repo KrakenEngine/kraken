@@ -38,6 +38,7 @@
 
 #include "KRScene.h"
 #include "KRNode.h"
+#include "KRLODGroup.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
@@ -48,7 +49,7 @@ const long KRENGINE_OCCLUSION_TEST_EXPIRY = 60;
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
-    m_pRootNode = new KRNode(*this, "scene_root");
+    m_pRootNode = new KRLODGroup(*this, "scene_root");
     notify_sceneGraphCreate(m_pRootNode);
     
     m_skyBoxName = name + "_skybox";
@@ -85,9 +86,6 @@ std::set<KRReverbZone *> &KRScene::getReverbZones()
 }
 
 void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
-    updateOctree();
-    
-    
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
@@ -425,8 +423,10 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
     }
 }
 
-void KRScene::updateOctree()
+void KRScene::updateOctree(const KRViewport &viewport)
 {
+    m_pRootNode->updateLODVisibility(viewport);
+    
     std::set<KRNode *> newNodes = m_newNodes;
     std::set<KRNode *> modifiedNodes = m_modifiedNodes;
     m_newNodes.clear();
@@ -449,7 +449,9 @@ void KRScene::updateOctree()
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
-        m_nodeTree.update(node);
+        if(node->lodIsVisible()) {
+            m_nodeTree.update(node);
+        }
     }
 }
 

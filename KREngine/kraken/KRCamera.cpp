@@ -95,6 +95,9 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     
+    
+    scene.updateOctree(m_viewport);
+    
     if(settings.bEnableDeferredLighting) {
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
         

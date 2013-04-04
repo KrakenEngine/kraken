@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */ = {isa = PBXBuildFile; fileRef = 104A335D1672D31C001C8BA6 /* KRCollider.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		10CC33A4168530A300BB9846 /* libPVRTexLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10CC33A3168530A300BB9846 /* libPVRTexLib.a */; };
 		10CC33A5168534F000BB9846 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
 		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -197,6 +196,10 @@
 		E499BF2216AE760F007FCDBE /* krengine_osx.h in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8C1512A40300F43B5B /* krengine_osx.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8B1512A40300F43B5B /* kraken-prefix.pch */; };
 		E499BF2516AE8C20007FCDBE /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
+		E4AE635D1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
+		E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
+		E4AE635F1704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; };
+		E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; };
 		E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B915F7C7B200DDB4C8 /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
@@ -483,6 +486,8 @@
 		E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = "KRResource+fbx.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E497B95C151BF05F00D3DC67 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRLODGroup.cpp; sourceTree = "<group>"; };
+		E4AE635C1704FB0A00B460CD /* KRLODGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRLODGroup.h; sourceTree = "<group>"; };
 		E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTexture.cpp; sourceTree = "<group>"; };
 		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTextureCube.cpp; sourceTree = "<group>"; };
@@ -624,7 +629,6 @@
 				E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */,
 				E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */,
 				E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */,
-				10CC33A4168530A300BB9846 /* libPVRTexLib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,7 +806,7 @@
 				E428C2EF166960ED00A16EDF /* Animation */,
 				E48839AB15F930E200BD66D5 /* Bundle */,
 				E48839AA15F9309E00BD66D5 /* Material */,
-				E48839A915F9307E00BD66D5 /* Model */,
+				E48839A915F9307E00BD66D5 /* Mesh */,
 				E48839A815F9304C00BD66D5 /* Texture */,
 				E48839A715F9302E00BD66D5 /* Shader */,
 				E48839A615F92FC300BD66D5 /* Scene */,
@@ -855,7 +859,7 @@
 			name = Texture;
 			sourceTree = "<group>";
 		};
-		E48839A915F9307E00BD66D5 /* Model */ = {
+		E48839A915F9307E00BD66D5 /* Mesh */ = {
 			isa = PBXGroup;
 			children = (
 				E491018313C99BDC0098455B /* KRMeshManager.h */,
@@ -867,7 +871,7 @@
 				E4C454B1167BC04B003586CD /* KRMeshSphere.h */,
 				E4C454B4167BC05C003586CD /* KRMeshSphere.cpp */,
 			);
-			name = Model;
+			name = Mesh;
 			sourceTree = "<group>";
 		};
 		E48839AA15F9309E00BD66D5 /* Material */ = {
@@ -942,6 +946,8 @@
 				E4F975351536221C00FD60B2 /* KRNode.cpp */,
 				E480BE671671C641004EC8AD /* KRBone.h */,
 				E480BE6B1671C653004EC8AD /* KRBone.cpp */,
+				E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */,
+				E4AE635C1704FB0A00B460CD /* KRLODGroup.h */,
 			);
 			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
@@ -1212,6 +1218,7 @@
 				E499BF2116AE75A7007FCDBE /* KREngine-common.h in Headers */,
 				E450273B16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
 				E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */,
+				E4AE635F1704FB0A00B460CD /* KRLODGroup.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1287,6 +1294,7 @@
 				E499BF1D16AE74FF007FCDBE /* KRTextureAnimated.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
+				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1548,6 +1556,7 @@
 				E4943231169E08D200BCB891 /* KRAmbientZone.cpp in Sources */,
 				E4FE6AAB16B21D7E0058B8CE /* forsyth.cpp in Sources */,
 				E450273916E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
+				E4AE635D1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1619,6 +1628,7 @@
 				E4F027DF1697BFFF00D4427D /* KRAudioBuffer.cpp in Sources */,
 				E4943232169E08D200BCB891 /* KRAmbientZone.cpp in Sources */,
 				E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
+				E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1748,6 +1758,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LIBRARY = "libstdc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1780,8 +1791,9 @@
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
 					"\"$(SYSTEM_APPS_DIR)/Imagination/PowerVR/GraphicsSDK/PVRTexTool/Library/OSX_x86/Static\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = kraken;
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";
@@ -1794,6 +1806,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LIBRARY = "libstdc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1822,7 +1835,8 @@
 					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
 					"\"$(SYSTEM_APPS_DIR)/Imagination/PowerVR/GraphicsSDK/PVRTexTool/Library/OSX_x86/Static\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = kraken;
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";

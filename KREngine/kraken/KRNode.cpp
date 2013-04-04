@@ -9,6 +9,7 @@
 #include "KREngine-common.h"
 
 #include "KRNode.h"
+#include "KRLODGroup.h"
 #include "KRPointLight.h"
 #include "KRSpotLight.h"
 #include "KRDirectionalLight.h"
@@ -37,6 +38,7 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_inverseBindPoseMatrixValid = false;
     m_modelMatrix = KRMat4();
     m_bindPoseMatrix = KRMat4();
+    m_lod_visible = false;
 }
 
 KRNode::~KRNode() {
@@ -51,7 +53,10 @@ void KRNode::addChild(KRNode *child) {
     assert(child->m_parentNode == NULL);
     child->m_parentNode = this;
     m_childNodes.push_back(child);
-    getScene().notify_sceneGraphCreate(child);
+    if(m_lod_visible) {
+        // Child node inherits LOD visibility status from parent
+        child->showLOD();
+    }
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
@@ -213,6 +218,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
         new_node = new KRNode(scene, szName);
+    } if(strcmp(szElementName, "lod_group") == 0) {
+        new_node = new KRLODGroup(scene, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
         new_node = new KRPointLight(scene, szName);
     } else if(strcmp(szElementName, "directional_light") == 0) {
@@ -433,4 +440,38 @@ void KRNode::removeFromOctreeNodes()
 void KRNode::addToOctreeNode(KROctreeNode *octree_node)
 {
     m_octree_nodes.insert(octree_node);
+}
+
+void KRNode::updateLODVisibility(const KRViewport &viewport)
+{
+    // If we aren't an LOD group node, then we just add ourselves and all our children to the octree
+    showLOD();
+}
+
+void KRNode::hideLOD()
+{
+    if(m_lod_visible) {
+        m_lod_visible = false;
+        getScene().notify_sceneGraphDelete(this);
+        for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+            (*itr)->hideLOD();
+        }
+    }
+}
+
+void KRNode::showLOD()
+{
+    if(!m_lod_visible) {
+        getScene().notify_sceneGraphCreate(this);
+        m_lod_visible = true;
+        for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+            (*itr)->showLOD();
+        }
+    }
+}
+
+
+bool KRNode::lodIsVisible()
+{
+    return m_lod_visible;
 }

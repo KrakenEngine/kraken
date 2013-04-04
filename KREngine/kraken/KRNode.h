@@ -103,6 +103,9 @@ public:
     virtual void physicsUpdate(float deltaTime);
     virtual bool hasPhysics();
     
+    virtual void updateLODVisibility(const KRViewport &viewport);
+    bool lodIsVisible();
+    
 protected:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
@@ -112,7 +115,16 @@ protected:
     KRVector3 m_initialLocalScale;
     KRVector3 m_initialLocalRotation;
     
+    
+    
+    bool m_lod_visible;
+    void hideLOD();
+    void showLOD();
+    float m_lod_min_coverage;
+    float m_lod_max_coverage;
+    
     KRNode *m_parentNode;
+    std::vector<KRNode *> m_childNodes;
     
 private:
     void invalidateModelMatrix();
@@ -128,7 +140,7 @@ private:
     
     std::string m_name;
     
-    std::vector<KRNode *> m_childNodes;
+    
     
     KRScene *m_pScene;
     

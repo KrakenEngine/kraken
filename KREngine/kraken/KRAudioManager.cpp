@@ -83,6 +83,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
         m_reverb_impulse_responses[i] = NULL;
         m_reverb_impulse_responses_weight[i] = 0.0f;
     }
+    m_output_accumulation = NULL;
 }
 
 void KRAudioManager::initAudio()
