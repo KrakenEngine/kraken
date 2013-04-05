@@ -70,6 +70,37 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 {
 
 #if TARGET_OS_IPHONE
+    mach_port_t host_port = mach_host_self();
+    mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+    vm_size_t pagesize = 0;
+    vm_statistics_data_t vm_stat;
+    int total_ram = 256 * 1024 * 1024;
+    if(host_page_size(host_port, &pagesize) != KERN_SUCCESS) {
+        fprintf(stderr, "ERROR: Could not get VM page size.\n");
+    } else if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
+        fprintf(stderr, "ERROR: Could not get VM stats.\n");
+    } else {
+        total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
+    }
+    
+    
+    KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
+    KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+    KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
+    KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
+    KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+    
+    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
+    
+
+    KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
+    KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 4;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = KRContext::KRENGINE_MAX_TEXTURE_MEM * 3 / 4;
+    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  KRContext::KRENGINE_MAX_TEXTURE_MEM / 2;
+
+
+    
+    /*
     BOOL isIpad = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
     BOOL isRetina = [[UIScreen mainScreen] scale] >= 2.0;
     if(isIpad && isRetina) {
@@ -95,6 +126,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     }
+     */
 #else
     KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
     KRContext::KRENGINE_MAX_VBO_MEM = 256000000;

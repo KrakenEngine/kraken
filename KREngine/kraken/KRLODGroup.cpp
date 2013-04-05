@@ -87,7 +87,7 @@ bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
     } else {
         // return (m_max_distance == 0); // FINDME, HACK - Test code to enable only the lowest LOD group
         float lod_bias = viewport.getLODBias();
-        lod_bias = pow(2.0f, lod_bias);
+        lod_bias = pow(2.0f, -lod_bias);
         // Compare square distances as sqrt is expensive
         float sqr_distance = (viewport.getCameraPosition() - getWorldReferencePoint()).sqrMagnitude() * (lod_bias * lod_bias);
         float sqr_min_distance = m_min_distance * m_min_distance;

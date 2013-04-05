@@ -19,7 +19,7 @@ KRViewport::KRViewport()
     m_size = KRVector2::One();
     m_matProjection = KRMat4();
     m_matView = KRMat4();
-    m_lodBias = 1.0f;
+    m_lodBias = 0.0f;
     calculateDerivedValues();
 }
 
