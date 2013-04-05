@@ -92,6 +92,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     KRMat4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
+    m_viewport.setLODBias(settings.getLODBias());
 
     KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
     

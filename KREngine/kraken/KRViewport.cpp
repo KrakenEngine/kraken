@@ -19,6 +19,7 @@ KRViewport::KRViewport()
     m_size = KRVector2::One();
     m_matProjection = KRMat4();
     m_matView = KRMat4();
+    m_lodBias = 1.0f;
     calculateDerivedValues();
 }
 
@@ -36,6 +37,7 @@ KRViewport& KRViewport::operator=(const KRViewport &v) {
         m_size = v.m_size;
         m_matProjection = v.m_matProjection;
         m_matView = v.m_matView;
+        m_lodBias = v.m_lodBias;
         
         calculateDerivedValues();
     }
@@ -158,3 +160,14 @@ std::map<KRAABB, int> &KRViewport::getVisibleBounds()
 {
     return m_visibleBounds;
 }
+
+float KRViewport::getLODBias() const
+{
+    return m_lodBias;
+}
+
+void KRViewport::setLODBias(float lod_bias)
+{
+    m_lodBias = lod_bias;
+}
+

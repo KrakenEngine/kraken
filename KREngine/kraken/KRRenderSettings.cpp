@@ -73,6 +73,8 @@ KRRenderSettings::KRRenderSettings()
     dust_particle_intensity = 0.25f;
     dust_particle_enable = false;
     
+    m_lodBias = 1.0f;
+    
     debug_display = KRENGINE_DEBUG_DISPLAY_NONE;
 }
 
@@ -141,6 +143,8 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     m_skyBoxName=s.m_skyBoxName;
     debug_display = s.debug_display;
     
+    m_lodBias = s.m_lodBias;
+    
     return *this;
 }
 
@@ -178,3 +182,13 @@ void KRRenderSettings::setPerpsectiveFarZ(float v)
     }
 }
 
+
+float KRRenderSettings::getLODBias()
+{
+    return m_lodBias;
+}
+
+void KRRenderSettings::setLODBias(float v)
+{
+    m_lodBias = v;
+}

@@ -28,6 +28,9 @@ public:
     void setPerspectiveNear(float v);
     void setPerpsectiveFarZ(float v);
     
+    float getLODBias();
+    void setLODBias(float v);
+    
     bool bEnablePerPixel;
     bool bEnableDiffuseMap;
     bool bEnableNormalMap;
@@ -95,6 +98,7 @@ public:
     } debug_display;
 
 private:
+    float m_lodBias;
 };
 
 #endif

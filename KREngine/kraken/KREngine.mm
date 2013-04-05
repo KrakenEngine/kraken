@@ -160,7 +160,8 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             @"fog_color_b": @45,
             @"dust_enable" : @46,
             @"dust_intensity" : @47,
-            @"debug_display" : @48
+            @"lod_bias" : @48,
+            @"debug_display" : @49
                             
         } copy];
         [self loadShaders];
@@ -233,7 +234,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(int)getParameterCount
 {
-    return 49;
+    return 50;
 }
 
 
@@ -249,7 +250,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[49] = {
+    NSString *parameter_labels[50] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -298,13 +299,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         @"Fog - Color B",
         @"Dust - Enable",
         @"Dust - Intensity",
+        @"LOD Bias",
         @"Debug - Display"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[49] = {
+    KREngineParameterType types[50] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -354,13 +356,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_FLOAT,
+        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[49] = {
+    float values[50] = {
         _settings.perspective_fov,
         (float)_settings.m_cShadowBuffers,
         _settings.bEnablePerPixel ? 1.0f : 0.0f,
@@ -409,6 +412,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         _settings.fog_color.z,
         _settings.dust_particle_enable,
         _settings.dust_particle_intensity,
+        _settings.getLODBias(),
         _settings.debug_display
     };
     return values[i];
@@ -603,6 +607,9 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             _settings.dust_particle_intensity = v;
             break;
         case 48:
+            _settings.setLODBias(v);
+            break;
+        case 49:
             _settings.debug_display = (KRRenderSettings::debug_display_type)v;
             break;
     }
@@ -610,12 +617,12 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[49] = {
+    float minValues[50] = {
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.01f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, -10.0f, 0.0f
     };
 
     return minValues[i];
@@ -623,12 +630,12 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[49] = {
+    float maxValues[50] = {
              PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
            1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f,  1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
-        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1)
+        1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 10.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1)
     };
     
     return maxValues[i];

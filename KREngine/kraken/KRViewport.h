@@ -35,6 +35,8 @@ public:
     void setSize(const KRVector2 &size);
     void setViewMatrix(const KRMat4 &matView);
     void setProjectionMatrix(const KRMat4 &matProjection);
+    float getLODBias() const;
+    void setLODBias(float lod_bias);
     
     // Overload assignment operator
     KRViewport& operator=(const KRViewport &v);
@@ -49,6 +51,7 @@ private:
     KRMat4 m_matView;
     KRMat4 m_matProjection;
     
+    float m_lodBias;
     
     // Derived values
     KRMat4 m_matViewProjection;

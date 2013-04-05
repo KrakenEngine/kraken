@@ -86,11 +86,13 @@ bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
         return true;
     } else {
         // return (m_max_distance == 0); // FINDME, HACK - Test code to enable only the lowest LOD group
-        float lod_bias = 1.0f;
-        
+        float lod_bias = viewport.getLODBias();
+        lod_bias = pow(2.0f, lod_bias);
         // Compare square distances as sqrt is expensive
         float sqr_distance = (viewport.getCameraPosition() - getWorldReferencePoint()).sqrMagnitude() * (lod_bias * lod_bias);
-        return ((sqr_distance >= m_min_distance * m_min_distance || m_min_distance == 0) && (sqr_distance < m_max_distance * m_max_distance || m_max_distance == 0));
+        float sqr_min_distance = m_min_distance * m_min_distance;
+        float sqr_max_distance = m_max_distance * m_max_distance;
+        return ((sqr_distance >= sqr_min_distance || m_min_distance == 0) && (sqr_distance < sqr_max_distance || m_max_distance == 0));
     }
 }
 

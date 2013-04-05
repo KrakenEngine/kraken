@@ -594,6 +594,9 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
     KFbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
     
+    
+    FbxSystemUnit system_unit = pFbxScene->GetGlobalSettings().GetSystemUnit();
+    
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
     // Import animated properties
@@ -759,12 +762,12 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
                     if(i > 0 ) {
                         FbxDistance d;
                         fbx_lod_group->GetThreshold(i - 1, d);
-                        min_distance = d.value();
+                        min_distance = d.valueAs(system_unit);
                     }
                     if(i < child_count - 1) {
                         FbxDistance d;
                         fbx_lod_group->GetThreshold(i, d);
-                        max_distance = d.value();
+                        max_distance = d.valueAs(system_unit);
                     }
                     break;
                 case FbxLODGroup::eShow:
