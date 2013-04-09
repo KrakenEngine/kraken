@@ -20,6 +20,7 @@ class KRAABB {
 public:
     KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint);
     KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix);
+    KRAABB();
     ~KRAABB();
     
     void scale(const KRVector3 &s);
@@ -48,8 +49,10 @@ public:
     KRVector3 max;
     
     static KRAABB Infinite();
+    static KRAABB Zero();
     float coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const;
     float longest_radius() const;
+    KRVector3 nearestPoint(const KRVector3 & v) const;
 };
 
 

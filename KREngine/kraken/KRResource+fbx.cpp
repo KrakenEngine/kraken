@@ -738,9 +738,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
     if(attribute_type == KFbxNodeAttribute::eLODGroup) {
         std::string name = GetFbxObjectName(pNode);
         FbxLODGroup *fbx_lod_group = (FbxLODGroup*) pNode->GetNodeAttribute(); // FbxCast<FbxLODGroup>(pNode);
-        if(!fbx_lod_group->WorldSpace.Get()) {
-            printf("WARNING - LOD Groups only supported with world space distance thresholds.\n");
-        }
+        bool use_world_space_units = fbx_lod_group->WorldSpace.Get();
         float group_min_distance = 0.0f;
         float group_max_distance = 0.0f;
         if(fbx_lod_group->MinMaxDistance.Get()) {
@@ -748,7 +746,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             group_max_distance = fbx_lod_group->MinDistance.Get();
         }
         
-        KRVector3 reference_point;
+        KRAABB reference_bounds;
         // Create a lod_group node for each fbx child node
         int child_count = pNode->GetChildCount();
         for(int i = 0; i < child_count; i++)
@@ -797,16 +795,17 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             new_node->setLocalRotation(node_rotation);
             new_node->setLocalTranslation(node_translation);
             new_node->setLocalScale(node_scale);
+            new_node->setUseWorldUnits(use_world_space_units);
             parent_node->addChild(new_node);
             
             LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
             
             if(i == 0) {
                 // Calculate reference point using the bounding box center from the highest quality LOD level
-                reference_point = new_node->getBounds().center();
+                reference_bounds = new_node->getBounds();
             }
             
-            new_node->setReferencePoint(new_node->worldToLocal(reference_point));
+            new_node->setReference(KRAABB(reference_bounds.min, reference_bounds.max, new_node->getInverseModelMatrix()));
         }
     } else {
         KRNode *new_node = NULL;

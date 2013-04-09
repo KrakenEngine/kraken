@@ -138,3 +138,8 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &light
         }
     }
 }
+
+KRAABB KRDirectionalLight::getBounds()
+{
+    return KRAABB::Infinite();
+}

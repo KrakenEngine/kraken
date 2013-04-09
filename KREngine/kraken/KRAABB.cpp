@@ -11,6 +11,12 @@
 #include "KRVector2.h"
 #include "assert.h"
 
+KRAABB::KRAABB()
+{
+    min = KRVector3::Min();
+    max = KRVector3::Max();
+}
+
 KRAABB::KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint)
 {
     min = minPoint;
@@ -142,6 +148,11 @@ bool KRAABB::contains(const KRVector3 &v) const
 KRAABB KRAABB::Infinite()
 {
     return KRAABB(KRVector3::Min(), KRVector3::Max());
+}
+
+KRAABB KRAABB::Zero()
+{
+    return KRAABB(KRVector3::Zero(), KRVector3::Zero());
 }
 
 bool KRAABB::visible(const KRMat4 &matViewProjection) const
@@ -277,6 +288,7 @@ bool KRAABB::intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const
 
 bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 {
+    // FINDME, TODO - Need to implement this
     return true;
 }
 
@@ -289,4 +301,9 @@ void KRAABB::encapsulate(const KRAABB & b)
     if(b.max.x > max.x) max.x = b.max.x;
     if(b.max.y > max.y) max.y = b.max.y;
     if(b.max.z > max.z) max.z = b.max.z;
+}
+
+KRVector3 KRAABB::nearestPoint(const KRVector3 & v) const
+{
+    return KRVector3(KRCLAMP(v.x, min.x, max.x), KRCLAMP(v.y, min.y, max.y), KRCLAMP(v.z, min.z, max.z));
 }

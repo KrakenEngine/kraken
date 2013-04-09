@@ -278,16 +278,18 @@ KRScene &KRNode::getScene() {
 }
 
 KRAABB KRNode::getBounds() {
-    KRAABB bounds = KRAABB::Infinite();
+    KRAABB bounds = KRAABB::Zero();
 
     bool first_child = true;
     for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
-        if(first_child) {
-            first_child = false;
-            bounds = child->getBounds();
-        } else {
-            bounds.encapsulate(child->getBounds());
+        if(child->getBounds() != KRAABB::Zero()) {
+            if(first_child) {
+                first_child = false;
+                bounds = child->getBounds();
+            } else {
+                bounds.encapsulate(child->getBounds());
+            }
         }
     }
 

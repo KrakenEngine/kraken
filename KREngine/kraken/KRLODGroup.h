@@ -28,16 +28,17 @@ public:
     void setMinDistance(float min_distance);
     void setMaxDistance(float max_distance);
     
-    const KRVector3 getReferencePoint();
-    void setReferencePoint(const KRVector3 &referencePoint);
-    
-    const KRVector3 getWorldReferencePoint();
+    const KRAABB &getReference() const;
+    void setReference(const KRAABB &reference);
+    void setUseWorldUnits(bool use_world_units);
+    bool getUseWorldUnits() const;
     
 private:
     bool getLODVisibility(const KRViewport &viewport);
     float m_min_distance;
     float m_max_distance;
-    KRVector3 m_referencePoint; // Point of reference, used for distance calculation.  Usually set to the bounding box center
+    KRAABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
+    bool m_use_world_units;
 };
 
 

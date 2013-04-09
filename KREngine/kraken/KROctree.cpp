@@ -26,7 +26,9 @@ KROctree::~KROctree()
 void KROctree::add(KRNode *pNode)
 {
     KRAABB nodeBounds = pNode->getBounds();
-    if(nodeBounds == KRAABB::Infinite()) {
+    if(nodeBounds == KRAABB::Zero()) {
+        // This item is not visible, don't add it to the octree or outer scene nodes
+    } else if(nodeBounds == KRAABB::Infinite()) {
         // This item is infinitely large; we track it separately
         m_outerSceneNodes.insert(pNode);
     } else { 

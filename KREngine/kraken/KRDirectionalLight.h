@@ -24,6 +24,7 @@ public:
     KRVector3 getWorldLightDirection();
 
     virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+    virtual KRAABB getBounds();
     
 protected:
     
