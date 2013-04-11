@@ -196,7 +196,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                                         break;
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                         // Render back faces first
-                                        GLDEBUG(glCullFace(GL_BACK));
+                                        GLDEBUG(glCullFace(GL_FRONT));
                                         renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
 
                                         // Render front faces second
