@@ -165,6 +165,11 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
         if(bOcclusionResultsPass) {
             // ----====---- Occlusion results pass ----====----
             if(pOctreeNode->m_occlusionTested) {
+                GLuint hasBeenTested = 0;
+                while(!hasBeenTested) {
+                    GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_AVAILABLE_EXT, &hasBeenTested)); // FINDME, HACK!!  This needs to be replaced with asynchonous logic
+                }
+                
                 GLuint params = 0;
                 GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
 
