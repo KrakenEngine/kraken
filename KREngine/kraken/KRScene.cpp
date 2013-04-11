@@ -200,6 +200,11 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;
                 bool bNeedOcclusionTest = true;
+                
+                if(!pCamera->settings.getEnableRealtimeOcclusion()) {
+                    bVisible = true;
+                    bNeedOcclusionTest = false;
+                }
           
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
@@ -239,7 +244,10 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                         for(int i=0; i<8; i++) {
                             if(pOctreeNode->getChildren()[i] != NULL) child_count++;
                         }
-                        if(child_count == 1) bVisible = true;
+                        if(child_count == 1) {
+                            bVisible = true;
+                            bNeedOcclusionTest = false;
+                        }
                     }
                 }
                 

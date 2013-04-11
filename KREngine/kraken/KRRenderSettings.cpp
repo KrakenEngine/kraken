@@ -11,6 +11,7 @@
 KRRenderSettings::KRRenderSettings()
 {
     
+    m_enable_realtime_occlusion = true;
     bShowShadowBuffer = false;
     bShowOctree = false;
     bShowDeferred = false;
@@ -191,4 +192,13 @@ float KRRenderSettings::getLODBias()
 void KRRenderSettings::setLODBias(float v)
 {
     m_lodBias = v;
+}
+
+bool KRRenderSettings::getEnableRealtimeOcclusion()
+{
+    return m_enable_realtime_occlusion;
+}
+void KRRenderSettings::setEnableRealtimeOcclusion(bool enable)
+{
+    m_enable_realtime_occlusion = enable;
 }

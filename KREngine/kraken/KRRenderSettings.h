@@ -96,9 +96,13 @@ public:
         KRENGINE_DEBUG_DISPLAY_DRAW_CALLS,
         KRENGINE_DEBUG_DISPLAY_NUMBER
     } debug_display;
+    
+    bool getEnableRealtimeOcclusion();
+    void setEnableRealtimeOcclusion(bool enable);
 
 private:
     float m_lodBias;
+    bool m_enable_realtime_occlusion;
 };
 
 #endif
