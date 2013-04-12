@@ -1508,7 +1508,7 @@ void KRAudioManager::startFrame(float deltaTime)
         // apply minimum-cutoff so that we don't waste cycles processing very quiet / distant sound sources
         gain = KRMAX(gain - KRENGINE_AUDIO_CUTOFF, 0.0f) / (1.0f - KRENGINE_AUDIO_CUTOFF);
         
-        if(gain > 0.0f) {
+        if(gain > 0.0f || true) { // FINDME, HACK!  "true" added to prevent squelching of audio sources that are contributing to reverb
             
             KRVector3 source_listener_space = KRVector3(
                                                         KRVector3::Dot(listener_right, diff),
