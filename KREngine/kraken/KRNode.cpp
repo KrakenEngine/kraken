@@ -304,6 +304,8 @@ void KRNode::invalidateModelMatrix()
         KRNode *child = (*itr);
         child->invalidateModelMatrix();
     }
+    
+    getScene().notify_sceneGraphModify(this);
 }
 
 void KRNode::invalidateBindPoseMatrix()
