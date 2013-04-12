@@ -145,6 +145,7 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     debug_display = s.debug_display;
     
     m_lodBias = s.m_lodBias;
+    m_enable_realtime_occlusion = s.m_enable_realtime_occlusion;
     
     return *this;
 }
