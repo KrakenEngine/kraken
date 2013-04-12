@@ -45,7 +45,7 @@
 #include "KRPointLight.h"
 #include "KRQuaternion.h"
 
-const long KRENGINE_OCCLUSION_TEST_EXPIRY = 60;
+const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
@@ -165,10 +165,17 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
         if(bOcclusionResultsPass) {
             // ----====---- Occlusion results pass ----====----
             if(pOctreeNode->m_occlusionTested) {
+                /*
                 GLuint hasBeenTested = 0;
+                int c =0;
                 while(!hasBeenTested) {
                     GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_AVAILABLE_EXT, &hasBeenTested)); // FINDME, HACK!!  This needs to be replaced with asynchonous logic
+                    c++;
                 }
+                if(c > 1) {
+                    fprintf(stderr, "GL_QUERY_RESULT_AVAILABLE_EXT count = %i\n", c);
+                }
+                 */
                 
                 GLuint params = 0;
                 GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
@@ -282,6 +289,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                     
                     if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+                        m_pContext->getModelManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
                     
                     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||

@@ -286,10 +286,12 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             
             if(m_occlusionQuery) {
+                /*
                 GLuint hasBeenTested = 0;
                 while(!hasBeenTested) {
                     GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_AVAILABLE_EXT, &hasBeenTested)); // FINDME, HACK!!  This needs to be replaced with asynchonous logic
                 }
+                 */
                 GLuint params = 0;
                 GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
                 GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
