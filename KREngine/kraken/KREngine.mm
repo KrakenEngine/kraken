@@ -94,7 +94,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
     
 
     KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
-    KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 4;
+    KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 8;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = KRContext::KRENGINE_MAX_TEXTURE_MEM * 3 / 4;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  KRContext::KRENGINE_MAX_TEXTURE_MEM / 2;
 
