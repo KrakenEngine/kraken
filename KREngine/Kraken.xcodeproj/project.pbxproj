@@ -199,7 +199,7 @@
 		E4AE635D1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
 		E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
 		E4AE635F1704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; };
-		E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; };
+		E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B915F7C7B200DDB4C8 /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
@@ -314,6 +314,7 @@
 		E4E6F6BE16BA5E0A00E410F8 /* volumetric_fog_downsampled_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F62816BA5D8300E410F8 /* volumetric_fog_downsampled_osx.vsh */; };
 		E4E6F6BF16BA5E0A00E410F8 /* volumetric_fog_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F62916BA5D8300E410F8 /* volumetric_fog_osx.fsh */; };
 		E4E6F6C016BA5E0A00E410F8 /* volumetric_fog_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F62A16BA5D8300E410F8 /* volumetric_fog_osx.vsh */; };
+		E4EC73B8171F32780065299F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4FE6AAA16B21D7E0058B8CE /* forsyth.cpp */; };
 		E4F027C716979CCD00D4427D /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
 		E4F027C816979CCD00D4427D /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
 		E4F027C916979CCD00D4427D /* KRAudioManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027C616979CCD00D4427D /* KRAudioManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1292,9 +1293,9 @@
 				E450273C16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
 				E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */,
 				E499BF1D16AE74FF007FCDBE /* KRTextureAnimated.h in Headers */,
+				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
-				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1564,6 +1565,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4EC73B8171F32780065299F /* forsyth.cpp in Sources */,
 				E499BF2516AE8C20007FCDBE /* KREngine.mm in Sources */,
 				10CC33A5168534F000BB9846 /* KRCamera.cpp in Sources */,
 				E460292C166834AB00261BB9 /* KRTextureAnimated.cpp in Sources */,
@@ -1668,7 +1670,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1773,10 +1775,6 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kraken_osx/kraken-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;

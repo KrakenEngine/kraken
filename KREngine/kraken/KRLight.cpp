@@ -184,7 +184,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
         // Render brownian particles for dust floating in air
         if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
             float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
-            if(lod_coverage > 0.0f || true) {
+            if(lod_coverage > 0.0f || true) { // FINDME, HACK need to remove "|| true"?
                 
                 float particle_range = 600.0f;
                 
@@ -413,8 +413,9 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             
             GLDEBUG(glDisable(GL_DITHER));
             
-            GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
-            GLDEBUG(glEnable(GL_CULL_FACE));
+            //GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
+            //GLDEBUG(glEnable(GL_CULL_FACE));
+            GLDEBUG(glDisable(GL_CULL_FACE));
             
             // Enable z-buffer test
             GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -431,6 +432,8 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             
             
             getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+            
+            GLDEBUG(glEnable(GL_CULL_FACE));
         }
     }
 }

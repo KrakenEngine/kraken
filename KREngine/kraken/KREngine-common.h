@@ -101,6 +101,8 @@ using std::queue;
 #endif
 
 
+
+#if DEBUG
 #define GLDEBUG(x) \
 x; \
 { \
@@ -110,7 +112,12 @@ while( (e=glGetError()) != GL_NO_ERROR) \
 fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
 } \
 }
+#else
+#define GLDEBUG(x) x;
+#endif
 
+
+#if DEBUG
 #define ALDEBUG(x) \
 x; \
 { \
@@ -120,7 +127,11 @@ while( (e=alGetError()) != AL_NO_ERROR) \
 fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
 } \
 }
+#else
+#define ALDEBUG(x) x;
+#endif
 
+#if DEBUG
 #define OSDEBUG(x) \
 { \
 OSStatus e = x; \
@@ -129,6 +140,22 @@ if( e != noErr) \
 fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n",__LINE__, __FILE__, e, #x ); \
 } \
 }
+#else
+#define OSDEBUG(x) x;
+#endif
+
+
+#if GL_EXT_debug_marker && DEBUG
+
+#define GL_PUSH_GROUP_MARKER(x) glPushGroupMarkerEXT(0, x)
+#define GL_POP_GROUP_MARKER glPopGroupMarkerEXT()
+
+#else
+
+#define GL_PUSH_GROUP_MARKER(x)
+#define GL_POP_GROUP_MARKER
+
+#endif
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))

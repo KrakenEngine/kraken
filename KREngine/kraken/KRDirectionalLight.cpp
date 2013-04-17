@@ -33,13 +33,14 @@ KRVector3 KRDirectionalLight::getWorldLightDirection() {
     const GLfloat PI = 3.14159265;
     const GLfloat d2r = PI * 2 / 360;
     
-    KRVector3 world_rotation = getLocalRotation();
-    KRVector3 light_rotation = KRVector3(0.0, 0.0, -1.0);
+    KRVector3 world_rotation = getWorldRotation();
+    KRVector3 light_rotation = KRVector3(0.0, 0.0, 1.0);
+    
     KRMat4 m;
     m.rotate(world_rotation.x, X_AXIS);
     m.rotate(world_rotation.y, Y_AXIS);
-    m.rotate(world_rotation.z, X_AXIS);
-    m.rotate(-90.0 * d2r, Y_AXIS);
+    m.rotate(world_rotation.z, Z_AXIS);
+//    m.rotate(-90.0 * d2r, Y_AXIS);
     KRVector3 light_direction = KRMat4::Dot(m, light_rotation);
     return light_direction;
 }
@@ -87,7 +88,7 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         KRAABB prevShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
         KRAABB minimumShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(newShadowViewport.getViewProjectionMatrix()));
         minimumShadowBounds.scale(1.0f / KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
-        if(!prevShadowBounds.contains(minimumShadowBounds) || !shadowValid[iShadow]) {
+        if(!prevShadowBounds.contains(minimumShadowBounds) || !shadowValid[iShadow] || true) { // FINDME, HACK - Re-generating the shadow map every frame.  This should only be needed if the shadow contains non-static geometry
             m_shadowViewports[iShadow] = newShadowViewport;
             shadowValid[iShadow] = false;
             fprintf(stderr, "Kraken - Generate shadow maps...\n");

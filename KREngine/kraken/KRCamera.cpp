@@ -75,8 +75,6 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     }
     m_last_frame_start = current_time;
     
-    
-    
     GLint defaultFBO;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
@@ -99,8 +97,20 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     scene.updateOctree(m_viewport);
     
+    // ----====---- Generate Shadowmaps for Lights ----====----
+    if(settings.m_cShadowBuffers > 0) {
+        GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
+        
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, settings.bEnableDeferredLighting);
+        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
+        GL_POP_GROUP_MARKER;
+    }
+    
     if(settings.bEnableDeferredLighting) {
+        
         //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
+        
+        GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 1 (Opaque)");
         
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -125,11 +135,15 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         // Render the geometry
         scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, true);
         
-        // ----====---- Generate Shadowmaps for Lights ----====----
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false);
-        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
+        
+        GL_POP_GROUP_MARKER;
+        
+        
         
         //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
+        
+        GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 2 (Opaque)");
+        
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
@@ -155,7 +169,12 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         // Render the geometry
         scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
         
+        GL_POP_GROUP_MARKER;
+        
         //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
+        
+        GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 3 (Opaque)");
+        
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
@@ -194,12 +213,12 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         m_pContext->getTextureManager()->selectTexture(7, NULL);
         GLDEBUG(glActiveTexture(GL_TEXTURE7));
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
+        
+        GL_POP_GROUP_MARKER;
     } else {
-        // ----====---- Generate Shadowmaps for Lights ----====----
-        if(settings.m_cShadowBuffers > 0) {
-            scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, true);
-        }
         // ----====---- Opaque Geometry, Forward Rendering ----====----
+        
+        GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
         
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -229,9 +248,14 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         // Render the geometry
         scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, true);
+        
+        GL_POP_GROUP_MARKER;
     }
     
     // ----====---- Sky Box ----====----
+    
+    
+    GL_PUSH_GROUP_MARKER("Sky Box");
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -262,8 +286,12 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
+    GL_POP_GROUP_MARKER;
+    
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
+    
+    GL_PUSH_GROUP_MARKER("Forward Rendering - Transparent");
 
 //    Note: These parameters have already been set up by the skybox render above
 //
@@ -289,7 +317,11 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     // Render all transparent geometry
     scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
+    GL_POP_GROUP_MARKER;
+    
     // ----====---- Particle Occlusion Tests ----====----
+    
+    GL_PUSH_GROUP_MARKER("Particle Occlusion Tests");
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -313,7 +345,11 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     // ----====---- Perform Occlusion Tests ----====----
     scene.render(this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
+    GL_POP_GROUP_MARKER;
+    
     // ----====---- Flares ----====----
+    
+    GL_PUSH_GROUP_MARKER("Additive Particles");
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -336,9 +372,14 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     // Render all flares
     scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
+    GL_POP_GROUP_MARKER;
+    
     // ----====---- Volumetric Lighting ----====----
     
     if(settings.volumetric_environment_enable) {
+        
+        GL_PUSH_GROUP_MARKER("Volumetric Lighting");
+        
         KRViewport volumetricLightingViewport = KRViewport(KRVector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
         
         if(settings.volumetric_environment_downsample != 0) {
@@ -371,11 +412,15 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
             
             GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         }
+        
+        GL_POP_GROUP_MARKER;
     }
 
     
     
     // ----====---- Debug Overlay ----====----
+    
+    GL_PUSH_GROUP_MARKER("Debug Overlays");
     
     if(settings.bShowOctree) {
         // Enable z-buffer test
@@ -409,12 +454,17 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     // Re-enable z-buffer write
     GLDEBUG(glDepthMask(GL_TRUE));
     
+    GL_POP_GROUP_MARKER;
+    
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
+    GL_PUSH_GROUP_MARKER("Post Processing");
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
     m_pContext->getModelManager()->unbindVBO();
+    
+    GL_POP_GROUP_MARKER;
 }
 
 
