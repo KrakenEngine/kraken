@@ -315,6 +315,10 @@
 		E4E6F6BF16BA5E0A00E410F8 /* volumetric_fog_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F62916BA5D8300E410F8 /* volumetric_fog_osx.fsh */; };
 		E4E6F6C016BA5E0A00E410F8 /* volumetric_fog_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F62A16BA5D8300E410F8 /* volumetric_fog_osx.vsh */; };
 		E4EC73B8171F32780065299F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4FE6AAA16B21D7E0058B8CE /* forsyth.cpp */; };
+		E4EC73C11720B1FF0065299F /* KRVector4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4EC73BF1720B1FF0065299F /* KRVector4.cpp */; };
+		E4EC73C21720B1FF0065299F /* KRVector4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4EC73BF1720B1FF0065299F /* KRVector4.cpp */; };
+		E4EC73C31720B1FF0065299F /* KRVector4.h in Headers */ = {isa = PBXBuildFile; fileRef = E4EC73C01720B1FF0065299F /* KRVector4.h */; };
+		E4EC73C41720B1FF0065299F /* KRVector4.h in Headers */ = {isa = PBXBuildFile; fileRef = E4EC73C01720B1FF0065299F /* KRVector4.h */; };
 		E4F027C716979CCD00D4427D /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
 		E4F027C816979CCD00D4427D /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
 		E4F027C916979CCD00D4427D /* KRAudioManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027C616979CCD00D4427D /* KRAudioManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -582,6 +586,8 @@
 		E4E6F66416BA5D9400E410F8 /* volumetric_fog_downsampled.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = volumetric_fog_downsampled.vsh; sourceTree = "<group>"; };
 		E4E6F66516BA5D9400E410F8 /* volumetric_fog.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = volumetric_fog.fsh; sourceTree = "<group>"; };
 		E4E6F66616BA5D9400E410F8 /* volumetric_fog.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = volumetric_fog.vsh; sourceTree = "<group>"; };
+		E4EC73BF1720B1FF0065299F /* KRVector4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRVector4.cpp; sourceTree = "<group>"; };
+		E4EC73C01720B1FF0065299F /* KRVector4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRVector4.h; sourceTree = "<group>"; };
 		E4F027C516979CCD00D4427D /* KRAudioManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRAudioManager.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E4F027C616979CCD00D4427D /* KRAudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRAudioManager.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4F027CC16979CE200D4427D /* KRAudioSample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRAudioSample.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -784,6 +790,8 @@
 				E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */,
 				E40BA45215EFF79500D7C3DD /* KRAABB.cpp */,
 				E40BA45315EFF79500D7C3DD /* KRAABB.h */,
+				E4EC73BF1720B1FF0065299F /* KRVector4.cpp */,
+				E4EC73C01720B1FF0065299F /* KRVector4.h */,
 			);
 			name = Math;
 			sourceTree = "<group>";
@@ -1220,6 +1228,7 @@
 				E450273B16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
 				E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */,
 				E4AE635F1704FB0A00B460CD /* KRLODGroup.h in Headers */,
+				E4EC73C31720B1FF0065299F /* KRVector4.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1296,6 +1305,7 @@
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
+				E4EC73C41720B1FF0065299F /* KRVector4.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1558,6 +1568,7 @@
 				E4FE6AAB16B21D7E0058B8CE /* forsyth.cpp in Sources */,
 				E450273916E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 				E4AE635D1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
+				E4EC73C11720B1FF0065299F /* KRVector4.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1631,6 +1642,7 @@
 				E4943232169E08D200BCB891 /* KRAmbientZone.cpp in Sources */,
 				E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 				E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
+				E4EC73C21720B1FF0065299F /* KRVector4.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

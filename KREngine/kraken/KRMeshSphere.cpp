@@ -134,7 +134,10 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     submesh_lengths.push_back(vertices.size());
     material_names.push_back("");
     
-    LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_TRIANGLES);
+    std::vector<__uint16_t> vertex_indexes;
+    std::vector<std::pair<int, int> > vertex_index_bases;
+    
+    LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_TRIANGLES, true, true);
 }
 
 KRMeshSphere::~KRMeshSphere()

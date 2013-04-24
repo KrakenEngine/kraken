@@ -49,13 +49,6 @@ KRShaderManager::~KRShaderManager() {
 
 
 KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *pCamera, const std::vector<KRLight *> &lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass) {
-
-    std::string platform_shader_name = shader_name;
-#if TARGET_OS_IPHONE
-    platform_shader_name = shader_name;
-#else
-    platform_shader_name = shader_name + "_osx";
-#endif
     
     int iShadowQuality = 0; // FINDME - HACK - Placeholder code, need to iterate through lights and dynamically build shader
 
@@ -81,20 +74,68 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     if(iShadowQuality > pCamera->settings.m_cShadowBuffers) {
         iShadowQuality = pCamera->settings.m_cShadowBuffers;
     }
-    
+    /*
     char szKey[256];
     sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, platform_shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
     
     KRShader *pShader = m_shaders[szKey];
+     */
+    
+    std::pair<std::string, std::vector<int> > key;
+    key.first = shader_name;
+    key.second.push_back(light_directional_count);
+    key.second.push_back(bSpecMap);
+    key.second.push_back(bReflectionMap);
+    key.second.push_back(bReflectionCubeMap);
+    key.second.push_back(pCamera->settings.bDebugPSSM);
+    key.second.push_back(iShadowQuality);
+    key.second.push_back(pCamera->settings.bEnableAmbient);
+    key.second.push_back(pCamera->settings.bEnableDiffuse);
+    key.second.push_back(pCamera->settings.bEnableSpecular);
+    key.second.push_back(bLightMap);
+    key.second.push_back(bDiffuseMapScale);
+    key.second.push_back(bSpecMapScale);
+    key.second.push_back(bReflectionMapScale);
+    key.second.push_back(bNormalMapScale);
+    key.second.push_back(bDiffuseMapOffset);
+    key.second.push_back(bSpecMapOffset);
+    key.second.push_back(bReflectionMapOffset);
+    key.second.push_back(bNormalMapOffset);
+    key.second.push_back(pCamera->settings.volumetric_environment_enable);
+    key.second.push_back(pCamera->settings.volumetric_environment_downsample != 0);
+    key.second.push_back(renderPass);
+    key.second.push_back(pCamera->settings.dof_quality);
+    key.second.push_back(pCamera->settings.bEnableFlash);
+    key.second.push_back(pCamera->settings.bEnableVignette);
+    key.second.push_back(pCamera->settings.dof_depth * 1000.0f);
+    key.second.push_back(pCamera->settings.dof_falloff * 1000.0f);
+    key.second.push_back(pCamera->settings.flash_depth * 1000.0f);
+    key.second.push_back(pCamera->settings.flash_falloff * 1000.0f);
+    key.second.push_back(pCamera->settings.flash_intensity * 1000.0f);
+    key.second.push_back(pCamera->settings.vignette_radius * 1000.0f);
+    key.second.push_back(pCamera->settings.vignette_falloff * 1000.0f);
+                         
+                         
+                         
+    KRShader *pShader = m_shaders[key];
+    
     
     if(pShader == NULL) {
         if(m_shaders.size() > KRContext::KRENGINE_MAX_SHADER_HANDLES) {
             // Keep the size of the shader cache reasonable
-            std::map<std::string, KRShader *>::iterator itr = m_shaders.begin();
+            std::map<std::pair<std::string, std::vector<int> > , KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;
             m_shaders.erase(itr);
             fprintf(stderr, "Swapping shaders...\n");
         }
+        
+        
+        std::string platform_shader_name = shader_name;
+#if TARGET_OS_IPHONE
+        platform_shader_name = shader_name;
+#else
+        platform_shader_name = shader_name + "_osx";
+#endif
         
         stringstream stream;
         stream.precision(std::numeric_limits<long double>::digits10);
@@ -188,9 +229,12 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
             fprintf(stderr, "ERROR: Fragment Shader Missing: %s\n", platform_shader_name.c_str());
         }
         
+        char szKey[256];
+        sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
+        
         pShader = new KRShader(getContext(), szKey, options, vertShaderSource, fragShaderSource);
 
-        m_shaders[szKey] = pShader;\
+        m_shaders[key] = pShader;
     }
     return pShader;
 }

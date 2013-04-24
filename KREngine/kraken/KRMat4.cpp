@@ -126,7 +126,7 @@ void KRMat4::perspective(GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat far
    
     memset(m_mat, 0, sizeof(GLfloat) * 16);
     
-    GLfloat range= tan(fov / 2.0f) * nearz; 
+    GLfloat range= tan(fov * 0.5) * nearz;
     m_mat[0] = (2 * nearz) / ((range * aspect) - (-range * aspect));
     m_mat[5] = (2 * nearz) / (2 * range);
     m_mat[10] = -(farz + nearz) / (farz - nearz);

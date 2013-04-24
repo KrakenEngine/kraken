@@ -46,6 +46,9 @@ public:
     const std::set<KRLight *> &getVisibleLights();
     void setVisibleLights(const std::set<KRLight *> visibleLights);
     
+    bool visible(const KRAABB &b) const;
+    float coverage(const KRAABB &b) const;
+    
 private:
     KRVector2 m_size;
     KRMat4 m_matView;
@@ -66,6 +69,8 @@ private:
     void calculateDerivedValues();
     
     std::map<KRAABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
+    
+    
 };
 
 #endif

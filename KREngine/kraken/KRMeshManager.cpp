@@ -148,6 +148,7 @@ void KRMeshManager::releaseVBO(GLvoid *data)
 
 void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights, bool static_vbo) {
     
+    
     if(m_currentVBO.data != data || m_currentVBO.size != size) {
         
         if(m_vbosActive.find(data) != m_vbosActive.end()) {
@@ -157,6 +158,11 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 #else
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb, enable_bone_indexes, enable_bone_weights);
+            if(m_currentVBO.vbo_handle_indexes == -1) {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+            } else {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
+            }
 #endif
         } else if(m_vbosPool.find(data) != m_vbosPool.end()) {
             m_currentVBO = m_vbosPool[data];
@@ -167,11 +173,16 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 #else
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
             configureAttribs(enable_vertex, enable_normal, enable_tangent, enable_uva, enable_uvb, enable_bone_indexes, enable_bone_weights);
+            if(m_currentVBO.vbo_handle_indexes == -1) {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+            } else {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
+            }
 #endif
         } else {
             
             
-            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + size >= KRContext::KRENGINE_MAX_VBO_MEM) {
+            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + size + index_data_size >= KRContext::KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
                     fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
                     m_pContext->rotateBuffers(false);
@@ -194,6 +205,10 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
             m_currentVBO.vbo_handle = -1;
             m_currentVBO.vbo_handle_indexes = -1;
             GLDEBUG(glGenBuffers(1, &m_currentVBO.vbo_handle));
+            if(index_data != NULL) {
+                GLDEBUG(glGenBuffers(1, &m_currentVBO.vbo_handle_indexes));
+            }
+            
 #if GL_OES_vertex_array_object
             GLDEBUG(glGenVertexArraysOES(1, &m_currentVBO.vao_handle));
             GLDEBUG(glBindVertexArrayOES(m_currentVBO.vao_handle));
@@ -207,6 +222,16 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
             
             m_currentVBO.size = size;
             m_currentVBO.data = data;
+            
+            if(index_data == NULL) {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+            } else {
+                GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
+                GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data_size, index_data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+                m_memoryTransferredThisFrame += index_data_size;
+                m_vboMemUsed += index_data_size;
+                m_currentVBO.size += index_data_size;
+            }
             
             m_vbosActive[data] = m_currentVBO;
         }
@@ -370,7 +395,7 @@ KRMeshManager::RandomParticleVertexData *KRMeshManager::getRandomParticles()
         
         // Generate vertices for randomly placed equilateral triangles with a side length of 1 and an origin point centered so that an inscribed circle can be efficiently rendered without wasting fill
         
-        float equilateral_triangle_height = sqrt(3.0f) / 2.0f;
+        float equilateral_triangle_height = sqrt(3.0f) * 0.5f;
         float inscribed_circle_radius = 1.0f / (2.0f * sqrt(3.0f));
         
         int iVertex=0;

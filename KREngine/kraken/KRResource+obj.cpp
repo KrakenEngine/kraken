@@ -330,7 +330,10 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         std::vector<std::vector<int> > bone_indexes;
         std::vector<std::vector<float> > bone_weights;
         
-        new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES);
+        std::vector<__uint16_t> vertex_indexes;
+        std::vector<std::pair<int, int> > vertex_index_bases;
+        
+        new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, false);
     }
     
     if(pFaces) {

@@ -217,19 +217,19 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
     bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
-        m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap.c_str());
+        m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap);
     }
     if(!m_pDiffuseMap && m_diffuseMap.size()) {
-        m_pDiffuseMap = getContext().getTextureManager()->getTexture(m_diffuseMap.c_str());
+        m_pDiffuseMap = getContext().getTextureManager()->getTexture(m_diffuseMap);
     }
     if(!m_pNormalMap && m_normalMap.size()) {
-        m_pNormalMap = getContext().getTextureManager()->getTexture(m_normalMap.c_str());
+        m_pNormalMap = getContext().getTextureManager()->getTexture(m_normalMap);
     }
     if(!m_pSpecularMap && m_specularMap.size()) {
-        m_pSpecularMap = getContext().getTextureManager()->getTexture(m_specularMap.c_str());
+        m_pSpecularMap = getContext().getTextureManager()->getTexture(m_specularMap);
     }
     if(!m_pReflectionMap && m_reflectionMap.size()) {
-        m_pReflectionMap = getContext().getTextureManager()->getTexture(m_reflectionMap.c_str());
+        m_pReflectionMap = getContext().getTextureManager()->getTexture(m_reflectionMap);
     }
     if(!m_pReflectionCube && m_reflectionCube.size()) {
         m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());

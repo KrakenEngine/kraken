@@ -32,7 +32,7 @@ public:
     bool intersects(const KRAABB& b) const;
     bool contains(const KRAABB &b) const;
     bool contains(const KRVector3 &v) const;
-    bool visible(const KRMat4 &matViewProjection) const;
+    
     bool intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const;
     bool intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const;
     void encapsulate(const KRAABB & b);
@@ -50,7 +50,7 @@ public:
     
     static KRAABB Infinite();
     static KRAABB Zero();
-    float coverage(const KRMat4 &matVP, const KRVector2 viewportSize) const;
+    
     float longest_radius() const;
     KRVector3 nearestPoint(const KRVector3 & v) const;
 };

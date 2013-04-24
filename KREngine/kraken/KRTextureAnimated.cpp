@@ -72,7 +72,7 @@ std::string KRTextureAnimated::textureNameForFrame(int frame)
 
 KRTexture2D *KRTextureAnimated::textureForFrame(int frame)
 {
-    return (KRTexture2D *)getContext().getTextureManager()->getTexture(textureNameForFrame(frame).c_str());
+    return (KRTexture2D *)getContext().getTextureManager()->getTexture(textureNameForFrame(frame));
 }
 
 KRTextureAnimated::~KRTextureAnimated()

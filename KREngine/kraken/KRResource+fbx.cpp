@@ -1292,7 +1292,9 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     delete control_point_weights;
     
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
-    new_mesh->LoadData(vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES);
+    std::vector<__uint16_t> vertex_indexes;
+    std::vector<std::pair<int, int> > vertex_index_bases;
+    new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, false); // FINDME, HACK!  "false" set for importing tangents so that we can merge more vertices in the index buffer.  This should be configurable by the end-user so if normal maps are required and no tangents are included in the model, they can be calculated
     
     context.getModelManager()->addModel(new_mesh);
 }

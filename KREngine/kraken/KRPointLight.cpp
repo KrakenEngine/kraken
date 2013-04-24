@@ -62,9 +62,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
         sphereModelMatrix.scale(influence_radius);
         sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
 
-        
-        float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
-        if(lod_coverage > 0) { // Cull out any lights not within the view frustrum
+        if(viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
 
             KRVector3 view_light_position = KRMat4::Dot(viewport.getViewMatrix(), light_position);
             

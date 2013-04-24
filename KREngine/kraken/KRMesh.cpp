@@ -3,7 +3,7 @@
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
-//  
+//
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
 //  
@@ -38,6 +38,7 @@
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
+#include "forsyth.h"
 
 
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)  {
@@ -135,11 +136,10 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-    
+        getSubmeshes();
         if(m_materials.size() == 0) {
-            vector<KRMesh::Submesh *> submeshes = getSubmeshes();
             
-            for(std::vector<KRMesh::Submesh *>::iterator itr = submeshes.begin(); itr != submeshes.end(); itr++) {
+            for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
                 const char *szMaterialName = (*itr)->szMaterialName;
                 KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
                 m_materials.push_back(pMaterial);
@@ -162,7 +162,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
         KRMaterial *pPrevBoundMaterial = NULL;
         char szPrevShaderKey[256];
         szPrevShaderKey[0] = '\0';
-        int cSubmeshes = getSubmeshes().size();
+        int cSubmeshes = m_submeshes.size();
         if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
             for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
                 KRMaterial *pMaterial = m_materials[iSubmesh];
@@ -228,7 +228,7 @@ bool KRMesh::hasTransparency() {
 }
 
 
-vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
+void KRMesh::getSubmeshes() {
     if(m_submeshes.size() == 0) {
         pack_header *pHeader = getHeader();
         pack_material *pPackMaterials = (pack_material *)(pHeader+1);
@@ -246,86 +246,105 @@ vector<KRMesh::Submesh *> KRMesh::getSubmeshes() {
             m_submeshes.push_back(pSubmesh);
         }
     }
-    return m_submeshes;
 }
 
 void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name) {
-    unsigned char *pVertexData = getVertexData();
-    
-    pack_header *pHeader = getHeader();
-    int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
-    
-    vector<KRMesh::Submesh *> submeshes = getSubmeshes();
-    Submesh *pSubmesh = submeshes[iSubmesh];
-    
-    int iVertex = pSubmesh->start_vertex;
-    int iBuffer = iVertex / MAX_VBO_SIZE;
-    iVertex = iVertex % MAX_VBO_SIZE;
+    getSubmeshes();
+    Submesh *pSubmesh = m_submeshes[iSubmesh];
     int cVertexes = pSubmesh->vertex_count;
-    while(cVertexes > 0) {
-        GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
-        int vertex_size = m_vertex_size;
-        
-        void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
-        void *buffer_end = m_pData->getEnd();
-        assert(vbo_end <= buffer_end);
-        assert(cBufferVertexes <= 65535);
-        
-        
-        m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES),
-                                               has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
+    // fprintf(stderr, "start - object: %s material: %s vertices: %i\n", object_name.c_str(), material_name.c_str(), cVertexes);
+    unsigned char *pVertexData = getVertexData();
+    pack_header *pHeader = getHeader();
+
+    
+    
+    if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
         
         
-        if(iVertex + cVertexes >= MAX_VBO_SIZE) {
-            assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
-            switch (getModelFormat()) {
-                case KRENGINE_MODEL_FORMAT_TRIANGLES:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                    break;
-                case KRENGINE_MODEL_FORMAT_STRIP:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                    break;
-                case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                    break;
-                case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                    break;
-                default:
-                    break;
-            }
-            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
+        
+        
+        __uint16_t *index_data = getIndexData();
+        int submesh_index_group = 0;
+        while(cVertexes > 0) {
             
-            cVertexes -= (MAX_VBO_SIZE - iVertex);
-            iVertex = 0;
-            iBuffer++;
-        } else {
-            assert(iVertex + cVertexes <= cBufferVertexes);
+            int start_index_offset, start_vertex_offset, index_count, vertex_count;
+            getIndexedRange(iSubmesh, submesh_index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            switch (getModelFormat()) {
-                case KRENGINE_MODEL_FORMAT_TRIANGLES:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
-                    break;
-                case KRENGINE_MODEL_FORMAT_STRIP:
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, cVertexes));
-                    break;
-                default:
-                    break;
-            }
-            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
+            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, m_vertex_size * vertex_count, index_data + start_index_offset, index_count * 4, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES), has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
             
-            cVertexes = 0;
+            glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_SHORT, 0);
+            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, index_count);
+            cVertexes -= index_count;
         }
         
+    } else {
+        int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
+        int iVertex = pSubmesh->start_vertex;
+        int iBuffer = iVertex / MAX_VBO_SIZE;
+        iVertex = iVertex % MAX_VBO_SIZE;
+        while(cVertexes > 0) {
+            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
+            int vertex_size = m_vertex_size;
+            
+            void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
+            void *buffer_end = m_pData->getEnd();
+            assert(vbo_end <= buffer_end);
+            assert(cBufferVertexes <= 65535);
+            
+            
+            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES), has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
+            
+            
+            if(iVertex + cVertexes >= MAX_VBO_SIZE) {
+                assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
+                switch (getModelFormat()) {
+                    case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                        break;
+                    case KRENGINE_MODEL_FORMAT_STRIP:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                        break;
+                    case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                        break;
+                    case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
+                        break;
+                    default:
+                        break;
+                }
+                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
+                
+                cVertexes -= (MAX_VBO_SIZE - iVertex);
+                iVertex = 0;
+                iBuffer++;
+            } else {
+                assert(iVertex + cVertexes <= cBufferVertexes);
+                
+                switch (getModelFormat()) {
+                    case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
+                        break;
+                    case KRENGINE_MODEL_FORMAT_STRIP:
+                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, cVertexes));
+                        break;
+                    default:
+                        break;
+                }
+                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
+                
+                cVertexes = 0;
+            }
+            
+        }
     }
+    // fprintf(stderr, "end object\n");
+    
 }
 
-void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, KRMesh::model_format_t model_format) {
+void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, KRMesh::model_format_t model_format, bool calculate_normals, bool calculate_tangents) {
     
     clearData();
-    
-    bool calculate_normals = true;
-    bool calculate_tangents = true;
     
     
     __int32_t vertex_attrib_flags = 0;
@@ -348,11 +367,13 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
         vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
     }
     size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
-    size_t index_count = 0;
+    size_t index_count = vertex_indexes.size();
+    size_t index_base_count = vertex_index_bases.size();
     size_t submesh_count = submesh_lengths.size();
     size_t vertex_count = vertices.size();
     size_t bone_count = bone_names.size();
-    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + vertex_size * vertex_count;
+    size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
+    
     m_pData->expand(new_file_size);
     
     pack_header *pHeader = getHeader();
@@ -362,8 +383,9 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
     pHeader->vertex_count = (__int32_t)vertex_count;
     pHeader->bone_count = (__int32_t)bone_count;
     pHeader->index_count = (__int32_t)index_count;
+    pHeader->index_base_count = (__int32_t)index_base_count;
     pHeader->model_format = model_format;
-    strcpy(pHeader->szTag, "KROBJPACK1.1   ");
+    strcpy(pHeader->szTag, "KROBJPACK1.2   ");
     updateAttributeOffsets();
     
     pack_material *pPackMaterials = (pack_material *)(pHeader+1);
@@ -384,8 +406,6 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
     
     bool bFirstVertex = true;
     
-//    VertexData *pVertexData = (VertexData *)(pPackMaterials + pHeader->submesh_count);
-//    VertexData *pVertex = pVertexData;
     memset(getVertexData(), 0, m_vertex_size * vertices.size());
     for(int iVertex=0; iVertex < vertices.size(); iVertex++) {
         KRVector3 source_vertex = vertices[iVertex];
@@ -430,54 +450,69 @@ void KRMesh::LoadData(std::vector<KRVector3> vertices, std::vector<KRVector2> uv
     pHeader->maxz = m_maxPoint.z;
     
     
-    // Calculate missing surface normals and tangents
-    //cout << "  Calculate surface normals and tangents\n";
+    __uint16_t *index_data = getIndexData();
+    for(std::vector<__uint16_t>::iterator itr=vertex_indexes.begin(); itr != vertex_indexes.end(); itr++) {
+        *index_data++ = *itr;
+    }
     
-    for(int iVertex=0; iVertex < vertices.size(); iVertex+= 3) {
-        KRVector3 p1 = getVertexPosition(iVertex);
-        KRVector3 p2 = getVertexPosition(iVertex+1);
-        KRVector3 p3 = getVertexPosition(iVertex+2);
-        KRVector3 v1 = p2 - p1;
-        KRVector3 v2 = p3 - p1;
-        
-        
-        // -- Calculate normal if missing --
-        if(calculate_normals) {
-            KRVector3 first_normal = getVertexNormal(iVertex);
-            if(first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
-                // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
-                KRVector3 normal = KRVector3::Cross(v1, v2);
+    __uint32_t *index_base_data = getIndexBaseData();
+    for(std::vector<std::pair<int, int> >::iterator itr=vertex_index_bases.begin(); itr != vertex_index_bases.end(); itr++) {
+        *index_base_data++ = (*itr).first;
+        *index_base_data++ = (*itr).second;
+    }
+    
+    if(getModelFormat() == KRENGINE_MODEL_FORMAT_TRIANGLES) {
+        // Calculate missing surface normals and tangents
+        //cout << "  Calculate surface normals and tangents\n";
+        if(calculate_normals || calculate_tangents) {
+            // NOTE: This will not work properly if the vertices are already indexed
+            for(int iVertex=0; iVertex < vertices.size(); iVertex+= 3) {
+                KRVector3 p1 = getVertexPosition(iVertex);
+                KRVector3 p2 = getVertexPosition(iVertex+1);
+                KRVector3 p3 = getVertexPosition(iVertex+2);
+                KRVector3 v1 = p2 - p1;
+                KRVector3 v2 = p3 - p1;
                 
-                normal.normalize();
-                setVertexNormal(iVertex, normal);
-                setVertexNormal(iVertex+1, normal);
-                setVertexNormal(iVertex+2, normal);
-            }
-        }
-        
-        // -- Calculate tangent vector for normal mapping --
-        if(calculate_tangents) {
-            KRVector3 first_tangent = getVertexTangent(iVertex);
-            if(first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
-
-                KRVector2 uv0 = getVertexUVA(iVertex);
-                KRVector2 uv1 = getVertexUVA(iVertex + 1);
-                KRVector2 uv2 = getVertexUVA(iVertex + 2);
                 
-                KRVector2 st1 = KRVector2(uv1.x - uv0.x, uv1.y - uv0.y);
-                KRVector2 st2 = KRVector2(uv2.x - uv0.x, uv2.y - uv0.y);
-                double coef = 1/ (st1.x * st2.y - st2.x * st1.y);
+                // -- Calculate normal if missing --
+                if(calculate_normals) {
+                    KRVector3 first_normal = getVertexNormal(iVertex);
+                    if(first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
+                        // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
+                        KRVector3 normal = KRVector3::Cross(v1, v2);
+                        
+                        normal.normalize();
+                        setVertexNormal(iVertex, normal);
+                        setVertexNormal(iVertex+1, normal);
+                        setVertexNormal(iVertex+2, normal);
+                    }
+                }
                 
-                KRVector3 tangent(
-                                  coef * ((v1.x * st2.y)  + (v2.x * -st1.y)),
-                                  coef * ((v1.y * st2.y)  + (v2.y * -st1.y)),
-                                  coef * ((v1.z * st2.y)  + (v2.z * -st1.y))
-                                  );
-                
-                tangent.normalize();
-                setVertexTangent(iVertex, tangent);
-                setVertexTangent(iVertex+1, tangent);
-                setVertexTangent(iVertex+2, tangent);
+                // -- Calculate tangent vector for normal mapping --
+                if(calculate_tangents) {
+                    KRVector3 first_tangent = getVertexTangent(iVertex);
+                    if(first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
+                        
+                        KRVector2 uv0 = getVertexUVA(iVertex);
+                        KRVector2 uv1 = getVertexUVA(iVertex + 1);
+                        KRVector2 uv2 = getVertexUVA(iVertex + 2);
+                        
+                        KRVector2 st1 = KRVector2(uv1.x - uv0.x, uv1.y - uv0.y);
+                        KRVector2 st2 = KRVector2(uv2.x - uv0.x, uv2.y - uv0.y);
+                        double coef = 1/ (st1.x * st2.y - st2.x * st1.y);
+                        
+                        KRVector3 tangent(
+                                          coef * ((v1.x * st2.y)  + (v2.x * -st1.y)),
+                                          coef * ((v1.y * st2.y)  + (v2.y * -st1.y)),
+                                          coef * ((v1.z * st2.y)  + (v2.z * -st1.y))
+                                          );
+                        
+                        tangent.normalize();
+                        setVertexTangent(iVertex, tangent);
+                        setVertexTangent(iVertex+1, tangent);
+                        setVertexTangent(iVertex+2, tangent);
+                    }
+                }
             }
         }
     }
@@ -533,12 +568,17 @@ KRMesh::pack_bone *KRMesh::getBone(int index)
 
 unsigned char *KRMesh::getVertexData() const {
     pack_header *pHeader = getHeader();
-    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count);
+    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count) + KRALIGN(8 * pHeader->index_base_count);
 }
 
 __uint16_t *KRMesh::getIndexData() const {
     pack_header *pHeader = getHeader();
-    return (__uint16_t *)((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
+    return (__uint16_t *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count);
+}
+
+__uint32_t *KRMesh::getIndexBaseData() const {
+    pack_header *pHeader = getHeader();
+    return (__uint32_t *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count));
 }
 
 
@@ -815,27 +855,47 @@ bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVec
     return true; // hit_point is in triangle
 }
 
+/*
 bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
 {
     return rayCast(line_v0, dir, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
 }
+ */
 
 bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const
 {
     bool hit_found = false;
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
+//        int vertex_start = getSubmesh(submesh_index)->start_vertex;
         int vertex_count = getVertexCount(submesh_index);
         switch(getModelFormat()) {
             case KRENGINE_MODEL_FORMAT_TRIANGLES:
+            case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
                 for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
-                    if(rayCast(v0, dir, getVertexPosition(triangle_index*3), getVertexPosition(triangle_index*3+1), getVertexPosition(triangle_index*3+2), getVertexNormal(triangle_index*3), getVertexNormal(triangle_index*3+1), getVertexNormal(triangle_index*3+2), hitinfo)) hit_found = true;
+                    int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
+                    tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index*3);
+                    tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
+                    tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
+                    
+                    if(rayCast(v0, dir, getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]), getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
                 }
                 break;
+            /*
+             
+             NOTE: Not yet supported:
+             
             case KRENGINE_MODEL_FORMAT_STRIP:
+            case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
-                    if(rayCast(v0, dir, getVertexPosition(triangle_index), getVertexPosition(triangle_index+1), getVertexPosition(triangle_index+2), getVertexNormal(triangle_index), getVertexNormal(triangle_index+1), getVertexNormal(triangle_index+2), hitinfo)) hit_found = true;
+                    int tri_vert_index[3];
+                    tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
+                    tri_vert_index[1] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 1);
+                    tri_vert_index[2] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 2);
+                    
+                    if(rayCast(v0, dir, getVertexPosition(vertex_start + triangle_index), getVertexPosition(vertex_start + triangle_index+1), getVertexPosition(vertex_start + triangle_index+2), getVertexNormal(vertex_start + triangle_index), getVertexNormal(vertex_start + triangle_index+1), getVertexNormal(vertex_start + triangle_index+2), hitinfo)) hit_found = true;
                 }
                 break;
+             */
             default:
                 break;
         }
@@ -857,14 +917,296 @@ bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
     return false; // Either no hit, or the hit was beyond v1
 }
 
-void KRMesh::convert(model_format_t model_format)
+void KRMesh::convertToIndexed()
 {
+    // Convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
+    std::vector<__uint16_t> vertex_indexes;
+    std::vector<std::pair<int, int> > vertex_index_bases;
     
+    std::vector<KRVector3> vertices;
+    std::vector<KRVector2> uva;
+    std::vector<KRVector2> uvb;
+    std::vector<KRVector3> normals;
+    std::vector<KRVector3> tangents;
+    std::vector<int> submesh_starts;
+    std::vector<int> submesh_lengths;
+    std::vector<std::string> material_names;
+    std::vector<std::string> bone_names;
+    std::vector<std::vector<int> > bone_indexes;
+    std::vector<std::vector<float> > bone_weights;
+    
+    int bone_count = getBoneCount();
+    for(int bone_index=0; bone_index < bone_count; bone_index++) {
+        bone_names.push_back(getBoneName(bone_index));
+    }
+    
+    for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
+        material_names.push_back(getSubmesh(submesh_index)->szName);
+        
+        int vertexes_remaining = getVertexCount(submesh_index);
+        submesh_starts.push_back(vertex_index_bases.size());
+        submesh_lengths.push_back(vertexes_remaining);
+        int source_index = getSubmesh(submesh_index)->start_vertex;
+        
+        
+        while(vertexes_remaining) {
+            vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
+            
+            
+            int vertex_count = vertexes_remaining;
+            if(vertex_count > 0xffff) {
+                vertex_count = 0xffff;
+            }
+            
+            int vertex_index_base_start_vertex = vertices.size();
+            
+            std::map<std::pair<std::vector<float>, std::vector<int> >, int> prev_indexes = std::map<std::pair<std::vector<float>, std::vector<int> >, int>();
+            
+            for(int i=0; i < vertex_count; i++) {
+                
+
+                
+                KRVector3 vertex_position = getVertexPosition(source_index);
+                KRVector2 vertex_uva = getVertexUVA(source_index);
+                KRVector2 vertex_uvb = getVertexUVB(source_index);
+                KRVector3 vertex_normal = getVertexNormal(source_index);
+                KRVector3 vertex_tangent = getVertexTangent(source_index);
+                std::vector<int> vertex_bone_indexes;
+                if(has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
+                    vertex_bone_indexes.push_back(getBoneIndex(source_index, 0));
+                    vertex_bone_indexes.push_back(getBoneIndex(source_index, 1));
+                    vertex_bone_indexes.push_back(getBoneIndex(source_index, 2));
+                    vertex_bone_indexes.push_back(getBoneIndex(source_index, 3));
+                }
+                std::vector<float> vertex_bone_weights;
+                if(has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
+                    vertex_bone_weights.push_back(getBoneWeight(source_index, 0));
+                    vertex_bone_weights.push_back(getBoneWeight(source_index, 1));
+                    vertex_bone_weights.push_back(getBoneWeight(source_index, 2));
+                    vertex_bone_weights.push_back(getBoneWeight(source_index, 3));
+                }
+                
+                std::pair<std::vector<float>, std::vector<int> > vertex_key; // = std::make_pair(std::vector<float>(), std::vector<int>());
+                if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
+                    vertex_key.first.push_back(vertex_position.x);
+                    vertex_key.first.push_back(vertex_position.y);
+                    vertex_key.first.push_back(vertex_position.z);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
+                    vertex_key.first.push_back(vertex_normal.x);
+                    vertex_key.first.push_back(vertex_normal.y);
+                    vertex_key.first.push_back(vertex_normal.z);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA)) {
+                    vertex_key.first.push_back(vertex_uva.x);
+                    vertex_key.first.push_back(vertex_uva.y);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB)) {
+                    vertex_key.first.push_back(vertex_uvb.x);
+                    vertex_key.first.push_back(vertex_uvb.y);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
+                    vertex_key.first.push_back(vertex_tangent.x);
+                    vertex_key.first.push_back(vertex_tangent.y);
+                    vertex_key.first.push_back(vertex_tangent.z);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
+                    vertex_key.second.push_back(vertex_bone_indexes[0]);
+                    vertex_key.second.push_back(vertex_bone_indexes[1]);
+                    vertex_key.second.push_back(vertex_bone_indexes[2]);
+                    vertex_key.second.push_back(vertex_bone_indexes[3]);
+                }
+                if(has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
+                    vertex_key.first.push_back(vertex_bone_weights[0]);
+                    vertex_key.first.push_back(vertex_bone_weights[1]);
+                    vertex_key.first.push_back(vertex_bone_weights[2]);
+                    vertex_key.first.push_back(vertex_bone_weights[3]);
+                }
+                
+                int found_index = -1;
+                if(prev_indexes.count(vertex_key) == 0) {
+                    found_index = vertices.size() - vertex_index_base_start_vertex;
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
+                        vertices.push_back(vertex_position);
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
+                        normals.push_back(vertex_normal);
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
+                        tangents.push_back(vertex_tangent);
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA)) {
+                        uva.push_back(vertex_uva);
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB)) {
+                        uvb.push_back(vertex_uvb);
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
+                        bone_indexes.push_back(vertex_bone_indexes);
+                        
+                    }
+                    if(has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
+                        bone_weights.push_back(vertex_bone_weights);
+                    }
+                    prev_indexes[vertex_key] = found_index;
+                } else {
+                    found_index = prev_indexes[vertex_key];
+                }
+                
+                vertex_indexes.push_back(found_index);
+                
+                source_index++;
+            }
+            
+            vertexes_remaining -= vertex_count;
+        }
+    }
+    
+    fprintf(stderr, "Convert to indexed, before: %i after: %i \(%.2f%% saving)\n", getHeader()->vertex_count, vertices.size(), ((float)getHeader()->vertex_count - (float)vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
+    
+    LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES, false, false);
 }
 
 void KRMesh::optimize()
 {
-    convert(KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES);
-    // TODO - Add algorithm to convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
+    switch(getModelFormat()) {
+        case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+            optimizeIndexes();
+            break;
+        default:
+            convertToIndexed(); // HACK, FINDME, TODO - This may not be ideal in every case and should be exposed through the API independently
+            break;
+    }
 }
 
+void KRMesh::getIndexedRange(int submesh, int submesh_index_group, int &start_index_offset, int &start_vertex_offset, int &index_count, int &vertex_count) const {
+    pack_header *h = getHeader();
+    int index_group = getSubmesh(submesh)->start_vertex + submesh_index_group;
+    __uint32_t *index_base_data = getIndexBaseData();
+    start_index_offset = index_base_data[index_group * 2];
+    start_vertex_offset = index_base_data[index_group * 2 + 1];
+    if(index_group + 1 < h->index_base_count) {
+        index_count = index_base_data[index_group * 2 + 2] - start_index_offset;
+        vertex_count = index_base_data[index_group * 2 + 3] - start_vertex_offset;
+    } else {
+        index_count = h->index_count - start_index_offset;
+        vertex_count = h->vertex_count - start_vertex_offset;
+    }
+}
+
+int KRMesh::getTriangleVertexIndex(int submesh, int index) const
+{
+    switch(getModelFormat()) {
+        case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+            {
+                int remaining_vertices = index;
+                int submesh_index_group = 0;
+                int start_index_offset, start_vertex_offset, index_count, vertex_count;
+                getIndexedRange(submesh, submesh_index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+                while(remaining_vertices >= index_count) {
+                    remaining_vertices -= index_count;
+                    getIndexedRange(submesh, submesh_index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+                }
+                return getIndexData()[start_index_offset + remaining_vertices] + start_vertex_offset;
+            }
+            break;
+        default:
+            return getSubmesh(submesh)->start_vertex + index;
+            break;
+    }
+}
+
+void KRMesh::optimizeIndexes()
+{
+    if(getModelFormat() != KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) return;
+    
+    __uint16_t *new_indices = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
+    __uint16_t *vertex_mapping = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
+    unsigned char *new_vertex_data = (unsigned char *)malloc(m_vertex_size * 0x10000);
+    
+    // FINDME, TODO, HACK - This will segfault if the KRData object is still mmap'ed to a read-only file.  Need to detach from the file before calling this function.  Currently, this function is only being used during the import process, so it isn't going to cause any problems for now.
+    
+    pack_header *header = getHeader();
+    
+    __uint16_t *index_data = getIndexData();
+    unsigned char *vertex_data = getVertexData();
+    
+    for(int submesh_index=0; submesh_index < header->submesh_count; submesh_index++) {
+        pack_material *submesh = getSubmesh(submesh_index);
+        int vertexes_remaining = submesh->vertex_count;
+        int submesh_index_group = 0;
+        while(vertexes_remaining > 0) {
+            int start_index_offset, start_vertex_offset, index_count, vertex_count;
+            getIndexedRange(submesh_index, submesh_index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+            
+            __uint16_t *index_data_start = index_data + start_index_offset;
+            unsigned char * vertex_data_start = vertex_data + start_vertex_offset * m_vertex_size;
+            
+            // ----====---- Step 1: Optimize triangle drawing order to maximize use of the GPU's post-transform vertex cache ----====----
+            Forsyth::OptimizeFaces(index_data_start, index_count, vertex_count, new_indices, 16); // FINDME, TODO - GPU post-transform vertex cache size of 16 should be configureable
+            memcpy(index_data_start, new_indices, index_count * sizeof(__uint16_t));
+            vertexes_remaining -= index_count;
+            
+            /*
+            // ----====---- Step 2: Re-order the vertex data to maintain cache coherency ----====----
+            for(int i=0; i < vertex_count; i++) {
+                vertex_mapping[i] = i;
+            }
+            int new_vertex_index=0;
+            for(int index_number=0; index_number<index_count; index_number++) {
+                int prev_vertex_index = index_data_start[index_number];
+                if(prev_vertex_index > new_vertex_index) {
+                    // Swap prev_vertex_index and new_vertex_index
+                    
+                    for(int i=0; i < index_count; i++) {
+                        if(index_data_start[i] == prev_vertex_index) {
+                            index_data_start[i] = new_vertex_index;
+                        } else if(index_data_start[i] == new_vertex_index) {
+                            index_data_start[i] = prev_vertex_index;
+                        }
+                    }
+                    
+                    int tmp = vertex_mapping[prev_vertex_index];
+                    vertex_mapping[prev_vertex_index] = vertex_mapping[new_vertex_index];
+                    vertex_mapping[new_vertex_index] = tmp;
+                    
+                    
+                    new_vertex_index++;
+                }
+            }
+            
+            for(int i=0; i < vertex_count; i++) {
+                memcpy(new_vertex_data + vertex_mapping[i] * m_vertex_size, vertex_data_start + i * m_vertex_size, m_vertex_size);
+            }
+            memcpy(vertex_data_start, new_vertex_data, vertex_count * m_vertex_size);
+             */
+        }
+    }
+    
+    free(new_indices);
+    free(vertex_mapping);
+    free(new_vertex_data);
+    
+    /*
+     
+     
+     if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+     
+     int cVertexes = pSubmesh->vertex_count;
+     //fprintf(stderr, "start - object: %s material: %s vertices: %i\n", object_name.c_str(), material_name.c_str(), cVertexes);
+     
+     __uint16_t *index_data = getIndexData();
+     int submesh_index_group = 0;
+     while(cVertexes > 0) {
+     
+     int start_index_offset, start_vertex_offset, index_count, vertex_count;
+     getIndexedRange(iSubmesh, submesh_index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+     
+     m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, m_vertex_size * vertex_count, index_data + start_index_offset, index_count * 4, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES), has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
+     
+     glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_SHORT, 0);
+     cVertexes -= index_count;
+     }
+     
+     */
+}

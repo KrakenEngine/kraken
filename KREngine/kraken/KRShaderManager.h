@@ -67,7 +67,8 @@ public:
     long getShaderHandlesUsed();
     
 private:
-    std::map<std::string, KRShader *> m_shaders;
+    //std::map<std::string, KRShader *> m_shaders;
+    std::map<std::pair<std::string, std::vector<int> >, KRShader *> m_shaders;
     
     std::map<std::string, std::string> m_fragShaderSource;
     std::map<std::string, std::string> m_vertShaderSource;

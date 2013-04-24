@@ -199,10 +199,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
             }
         } else {
             
-            float min_coverage = 0.0f;
-            
-            float lod_coverage = pOctreeNode->getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // Cull against the view frustrum
-            if(lod_coverage > min_coverage) {
+            if(viewport.visible(pOctreeNode->getBounds())) {
 
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;
@@ -264,7 +261,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
 
 
                     KRMat4 matModel = KRMat4();
-                    matModel.scale(octreeBounds.size() / 2.0f);
+                    matModel.scale(octreeBounds.size() * 0.5f);
                     matModel.translate(octreeBounds.center());
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     

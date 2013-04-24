@@ -442,7 +442,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, true, false, false, false, false, false, false, true);
         for(std::map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
-            matModel.scale((*itr).first.size() / 2.0f);
+            matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
             
             if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {

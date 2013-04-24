@@ -60,8 +60,7 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *>
     KRNode::render(pCamera, lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
-        float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
-        if(lod_coverage > 0.0f) {
+        if(viewport.visible(getBounds())) {
             
 
             // Enable z-buffer test

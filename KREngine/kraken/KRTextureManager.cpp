@@ -94,14 +94,16 @@ KRTexture *KRTextureManager::getTextureCube(const char *szName) {
     }
 }
 
-KRTexture *KRTextureManager::getTexture(const char *szName) {
-    std::string lowerName = szName;
+KRTexture *KRTextureManager::getTexture(const std::string &name) {
+    std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
     map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
-        if(lowerName.substr(8).compare("animate:") == 0) {
+        if(lowerName.length() <= 8) {
+            return NULL;
+        } else if(lowerName.substr(8).compare("animate:") == 0) {
             // This is an animated texture, create KRTextureAnimated's on-demand
             KRTextureAnimated *pTexture = new KRTextureAnimated(getContext(), lowerName);
             m_textures[lowerName] = pTexture;

@@ -171,3 +171,81 @@ void KRViewport::setLODBias(float lod_bias)
     m_lodBias = lod_bias;
 }
 
+float KRViewport::coverage(const KRAABB &b) const
+{
+    if(!visible(b)) {
+        return 0.0f; // Culled out by view frustrum
+    } else {
+        KRVector2 screen_min;
+        KRVector2 screen_max;
+        // Loop through all corners and transform them to screen space
+        for(int i=0; i<8; i++) {
+            KRVector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, KRVector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
+            if(i==0) {
+                screen_min.x = screen_pos.x;
+                screen_min.y = screen_pos.y;
+                screen_max.x = screen_pos.x;
+                screen_max.y = screen_pos.y;
+            } else {
+                if(screen_pos.x < screen_min.x) screen_min.x = screen_pos.x;
+                if(screen_pos.y < screen_min.y) screen_min.y = screen_pos.y;
+                if(screen_pos.x > screen_max.x) screen_max.x = screen_pos.x;
+                if(screen_pos.y > screen_max.y) screen_max.y = screen_pos.y;
+            }
+        }
+        
+        return (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
+    }
+}
+
+
+bool KRViewport::visible(const KRAABB &b) const
+{
+    // test if bounding box would be within the visible range of the clip space transformed by matViewProjection
+    // This is used for view frustrum culling
+    
+    int outside_count[6] = {0, 0, 0, 0, 0, 0};
+    
+    for(int iCorner=0; iCorner<8; iCorner++) {
+        KRVector3 sourceCornerVertex = KRVector3(
+                                                 (iCorner & 1) == 0 ? b.min.x : b.max.x,
+                                                 (iCorner & 2) == 0 ? b.min.y : b.max.y,
+                                                 (iCorner & 4) == 0 ? b.min.z : b.max.z);
+        
+        KRVector3 cornerVertex = KRMat4::Dot(m_matViewProjection, sourceCornerVertex);
+        float cornerVertexW = KRMat4::DotW(m_matViewProjection, sourceCornerVertex);
+        
+        if(cornerVertex.x < -cornerVertexW) {
+            outside_count[0]++;
+        }
+        if(cornerVertex.y < -cornerVertexW) {
+            outside_count[1]++;
+        }
+        if(cornerVertex.z < -cornerVertexW) {
+            outside_count[2]++;
+        }
+        if(cornerVertex.x > cornerVertexW) {
+            outside_count[3]++;
+        }
+        if(cornerVertex.y > cornerVertexW) {
+            outside_count[4]++;
+        }
+        if(cornerVertex.z > cornerVertexW) {
+            outside_count[5]++;
+        }
+    }
+    
+    bool is_visible = true;
+    for(int iFace=0; iFace < 6; iFace++) {
+        if(outside_count[iFace] == 8) {
+            is_visible = false;
+        }
+    }
+    
+    return is_visible;
+}
+
+
+
+
+

@@ -183,8 +183,8 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->settings.dust_particle_enable) {
         // Render brownian particles for dust floating in air
         if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
-            float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
-            if(lod_coverage > 0.0f || true) { // FINDME, HACK need to remove "|| true"?
+            
+            if(viewport.visible(getBounds()) || true) { // FINDME, HACK need to remove "|| true"?
                 
                 float particle_range = 600.0f;
                 
@@ -299,7 +299,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 if(params) {
                     
                     if(!m_pFlareTexture && m_flareTexture.size()) {
-                        m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture.c_str());
+                        m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture);
                     }
                     
                     if(m_pFlareTexture) {

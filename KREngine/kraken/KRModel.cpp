@@ -101,11 +101,16 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         loadModel();
         
-            if(m_models.size() > 0) {
+        if(m_models.size() > 0) {
             // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
         
-
-            float lod_coverage = getBounds().coverage(viewport.getViewProjectionMatrix(), viewport.getSize()); // This also checks the view frustrum culling
+            float lod_coverage = 0.0f;
+            if(m_models.size() > 1) {
+                lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
+            } else if(viewport.visible(getBounds())) {
+                lod_coverage = 1.0f;
+            }
+            
             if(lod_coverage > m_min_lod_coverage) {
                 
                 // ---===--- Select the best LOD model based on screen coverage ---===---
@@ -122,7 +127,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                 }
                 
                 if(m_pLightMap == NULL && m_lightMap.size()) {
-                    m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap.c_str());
+                    m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
                 }
                 
                 if(m_pLightMap && pCamera->settings.bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {

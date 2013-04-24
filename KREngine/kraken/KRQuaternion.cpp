@@ -81,10 +81,17 @@ KRQuaternion::~KRQuaternion() {
 
 void KRQuaternion::setEulerZYX(const KRVector3 &euler) {
     // ZYX Order!
-    m_val[0] = cos(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) + sin(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
-    m_val[1] = sin(euler[0] / 2.0) * cos(euler[1] / 2.0) * cos(euler[2] / 2.0) - cos(euler[0] / 2.0) * sin(euler[1] / 2.0) * sin(euler[2] / 2.0);
-    m_val[2] = cos(euler[0] / 2.0) * sin(euler[1] / 2.0) * cos(euler[2] / 2.0) + sin(euler[0] / 2.0) * cos(euler[1] / 2.0) * sin(euler[2] / 2.0);
-    m_val[3] = cos(euler[0] / 2.0) * cos(euler[1] / 2.0) * sin(euler[2] / 2.0) - sin(euler[0] / 2.0) * sin(euler[1] / 2.0) * cos(euler[2] / 2.0);
+    float c1 = cos(euler[0] * 0.5f);
+    float c2 = cos(euler[1] * 0.5f);
+    float c3 = cos(euler[2] * 0.5f);
+    float s1 = sin(euler[0] * 0.5f);
+    float s2 = sin(euler[1] * 0.5f);
+    float s3 = sin(euler[2] * 0.5f);
+    
+    m_val[0] = c1 * c2 * c3 + s1 * s2 * s3;
+    m_val[1] = s1 * c2 * c3 - c1 * s2 * s3;
+    m_val[2] = c1 * s2 * c3 + s1 * c2 * s3;
+    m_val[3] = c1 * c2 * s3 - s1 * s2 * c3;
 }
 
 float KRQuaternion::operator [](unsigned i) const {
@@ -100,13 +107,13 @@ KRVector3 KRQuaternion::eulerXYZ() const {
     if(a2 <= -0.99999) {
         return KRVector3(
            2.0 * atan2(m_val[1], m_val[0]),
-           -PI / 2.0,
+           -PI * 0.5f,
            0
         );
     } else if(a2 >= 0.99999) {
         return KRVector3(
            2.0 * atan2(m_val[1], m_val[0]),
-           PI / 2.0,
+           PI * 0.5f,
            0
         );
     } else {

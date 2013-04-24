@@ -49,7 +49,7 @@ public:
     
     KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
     KRTexture *getTextureCube(const char *szName);
-    KRTexture *getTexture(const char *szFile);
+    KRTexture *getTexture(const std::string &name);
     
     long getMemUsed();
     long getMemActive();

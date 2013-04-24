@@ -41,7 +41,7 @@ KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(c
     
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
             if(faceTexture->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = faceTexture->getMaxMipMap();
             if(faceTexture->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = faceTexture->getMinMipMap();
@@ -67,7 +67,7 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
 
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
             if(faceTexture->hasMipmaps()) bMipMaps = true;
             faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, m_textureMemUsed);
@@ -92,7 +92,7 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
     long memoryRequired = 0;
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
             memoryRequired += faceTexture->getMemRequiredForSize(target_dim);
         }
@@ -106,7 +106,7 @@ void KRTextureCube::resetPoolExpiry()
     KRTexture::resetPoolExpiry();
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName.c_str());
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
             faceTexture->resetPoolExpiry(); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
         }
