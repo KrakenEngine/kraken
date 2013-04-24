@@ -259,7 +259,6 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             
             strcpy(szPrevShaderKey, pShader->getKey());
         }
-        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], pCamera->settings.bDebugSuperShiny ? 20.0 : m_ns ));
         
         // Bind bones
         if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
@@ -284,7 +283,9 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                     *bone_mat_component++ = t[i];
                 }
             }
-            glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
+            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+                glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
+            }
         }
         
         bool bSameAmbient = false;
@@ -301,11 +302,13 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         bool bSameSpecularOffset = false;
         bool bSameReflectionOffset = false;
         bool bSameNormalOffset = false;
+        bool bSameShininess = false;
         
         if(*prevBoundMaterial && bSameShader) {
             bSameAmbient = (*prevBoundMaterial)->m_ambientColor == m_ambientColor;
             bSameDiffuse = (*prevBoundMaterial)->m_diffuseColor == m_diffuseColor;
             bSameSpecular = (*prevBoundMaterial)->m_specularColor == m_specularColor;
+            bSameShininess = (*prevBoundMaterial)->m_ns == m_ns;
             bSameReflection = (*prevBoundMaterial)->m_reflectionColor == m_reflectionColor;
             bSameAmbientScale = (*prevBoundMaterial)->m_ambientMapScale == m_ambientMapScale;
             bSameDiffuseScale = (*prevBoundMaterial)->m_diffuseMapScale == m_diffuseMapScale;
@@ -338,6 +341,12 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
             } else {
                 m_specularColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
+            }
+        }
+        
+        if(!bSameShininess) {
+            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS] != -1) {
+                GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], m_ns));
             }
         }
         
@@ -377,7 +386,9 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
             m_normalMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET]);
         }
         
-        GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
+        if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA] != -1) {
+            GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
+        }
         
         if(bDiffuseMap) {
             m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);

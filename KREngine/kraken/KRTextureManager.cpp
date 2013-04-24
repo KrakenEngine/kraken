@@ -46,11 +46,60 @@ KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context
         m_boundTextures[iTexture] = NULL;
     }
     m_memoryTransferredThisFrame = 0;
+    
+    
+    _clearGLState();
 }
 
 KRTextureManager::~KRTextureManager() {
     for(map<std::string, KRTexture *>::iterator itr = m_textures.begin(); itr != m_textures.end(); ++itr){
         delete (*itr).second;
+    }
+}
+
+void KRTextureManager::_clearGLState()
+{
+    for(int i=0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
+        m_wrapModeS[i] = 0;
+        m_wrapModeT[i] = 0;
+        m_maxAnisotropy[i] = -1.0f;
+    }
+    
+    m_iActiveTexture = -1;
+}
+
+void KRTextureManager::_setActiveTexture(int i)
+{
+    if(m_iActiveTexture != i) {
+        m_iActiveTexture = i;
+        GLDEBUG(glActiveTexture(GL_TEXTURE0 + i));
+    }
+}
+
+void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)
+{
+    if(m_wrapModeS[i] != wrap_mode) {
+        _setActiveTexture(i);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode);
+        m_wrapModeS[i] = wrap_mode;
+    }
+}
+
+void KRTextureManager::_setMaxAnisotropy(int i, float max_anisotropy)
+{
+    if(m_maxAnisotropy[i] != max_anisotropy) {
+        _setActiveTexture(i);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+        m_maxAnisotropy[i] = max_anisotropy;
+    }
+}
+
+void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)
+{
+    if(m_wrapModeT[i] != wrap_mode) {
+        _setActiveTexture(i);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode);
+        m_wrapModeT[i] = wrap_mode;
     }
 }
 
@@ -125,13 +174,13 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
     }
     
     if(m_boundTextures[iTextureUnit] != pTexture || is_animated) {
-        GLDEBUG(glActiveTexture(GL_TEXTURE0 + iTextureUnit));
+        _setActiveTexture(iTextureUnit);
         if(pTexture != NULL) {
             m_poolTextures.erase(pTexture);
             if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
                 m_activeTextures.insert(pTexture);
             }
-            pTexture->bind();
+            pTexture->bind(iTextureUnit);
 
         } else {
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
@@ -157,6 +206,7 @@ long KRTextureManager::getMemActive() {
 
 void KRTextureManager::startFrame(float deltaTime)
 {
+    _clearGLState();
     m_memoryTransferredThisFrame = 0;
     balanceTextureMemory();
     rotateBuffers();
@@ -325,3 +375,4 @@ std::set<KRTexture *> &KRTextureManager::getPoolTextures()
 {
     return m_poolTextures;
 }
+

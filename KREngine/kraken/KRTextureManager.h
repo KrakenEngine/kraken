@@ -69,12 +69,24 @@ public:
     std::set<KRTexture *> &getActiveTextures();
     std::set<KRTexture *> &getPoolTextures();
     
+    void _setActiveTexture(int i);
+    void _setWrapModeS(GLuint i, GLuint wrap_mode);
+    void _setWrapModeT(GLuint i, GLuint wrap_mode);
+    void _setMaxAnisotropy(int i, float max_anisotropy);
+    
+    void _clearGLState();
+    
 private:
+    int m_iActiveTexture;
+    
     long m_memoryTransferredThisFrame;
     
     std::map<std::string, KRTexture *> m_textures;
     
     KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
+    GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
+    GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
+    float m_maxAnisotropy[KRENGINE_MAX_TEXTURE_UNITS];
     std::set<KRTexture *> m_activeTextures;
     std::set<KRTexture *> m_poolTextures;
     

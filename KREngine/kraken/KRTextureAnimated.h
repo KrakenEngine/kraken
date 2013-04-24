@@ -43,7 +43,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    virtual void bind();
+    virtual void bind(GLuint texture_unit);
     virtual long getMemRequiredForSize(int max_dim);
     virtual void resetPoolExpiry();
     

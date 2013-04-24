@@ -159,10 +159,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         // Set source to buffers from pass 1
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
         m_pContext->getTextureManager()->selectTexture(7, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE7));
+        m_pContext->getTextureManager()->_setActiveTexture(7);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
         
@@ -187,7 +187,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         // Set source to buffers from pass 2
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
         
         // Enable backface culling
@@ -208,10 +208,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(6, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE6));
+        m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         m_pContext->getTextureManager()->selectTexture(7, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE7));
+        m_pContext->getTextureManager()->_setActiveTexture(7);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         
         GL_POP_GROUP_MARKER;
@@ -392,7 +392,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             m_pContext->getTextureManager()->selectTexture(0, NULL);
-            GLDEBUG(glActiveTexture(GL_TEXTURE0));
+            m_pContext->getTextureManager()->_setActiveTexture(0);
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
             
             GLDEBUG(glViewport(0, 0, volumetricLightingViewport.getSize().x, volumetricLightingViewport.getSize().y));
@@ -651,16 +651,16 @@ void KRCamera::renderPost()
     getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
-    GLDEBUG(glActiveTexture(GL_TEXTURE0));
+    m_pContext->getTextureManager()->_setActiveTexture(0);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
     
     m_pContext->getTextureManager()->selectTexture(1, NULL);
-    GLDEBUG(glActiveTexture(GL_TEXTURE1));
+    m_pContext->getTextureManager()->_setActiveTexture(1);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
     
     if(settings.volumetric_environment_enable) {
         m_pContext->getTextureManager()->selectTexture(2, NULL);
-        GLDEBUG(glActiveTexture(GL_TEXTURE2));
+        m_pContext->getTextureManager()->_setActiveTexture(2);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, volumetricLightAccumulationTexture));
     }
 	
@@ -670,11 +670,11 @@ void KRCamera::renderPost()
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
-    GLDEBUG(glActiveTexture(GL_TEXTURE0));
+    m_pContext->getTextureManager()->_setActiveTexture(0);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
     m_pContext->getTextureManager()->selectTexture(1, NULL);
-    GLDEBUG(glActiveTexture(GL_TEXTURE1));
+    m_pContext->getTextureManager()->_setActiveTexture(1);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
     
@@ -688,7 +688,7 @@ void KRCamera::renderPost()
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
 //            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, true);
-//            GLDEBUG(glActiveTexture(GL_TEXTURE0));
+//            m_pContext->getTextureManager()->_setActiveTexture(0);
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
 //            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_NONE)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
@@ -700,7 +700,7 @@ void KRCamera::renderPost()
 //        }
 //        
 //        m_pContext->getTextureManager()->selectTexture(0, NULL);
-//        GLDEBUG(glActiveTexture(GL_TEXTURE0));
+//        m_pContext->getTextureManager()->_setActiveTexture(0);
 //        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
 //    }
     

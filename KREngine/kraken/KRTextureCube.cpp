@@ -113,7 +113,7 @@ void KRTextureCube::resetPoolExpiry()
     }
 }
 
-void KRTextureCube::bind()
+void KRTextureCube::bind(GLuint texture_unit)
 {
     GLuint handle = getHandle();
     GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, handle));

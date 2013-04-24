@@ -26,7 +26,6 @@ KRRenderSettings::KRRenderSettings()
     bEnableDiffuse = true;
     bEnableSpecular = true;
     bEnableLightMap = true;
-    bDebugSuperShiny = false;
     bEnableDeferredLighting = false;
     
     ambient_intensity = KRVector3::Zero();
@@ -94,7 +93,6 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     bEnableReflection=s.bEnableReflection;
     bEnableLightMap=s.bEnableLightMap;
     bDebugPSSM=s.bDebugPSSM;
-    bDebugSuperShiny=s.bDebugSuperShiny;
     bShowShadowBuffer=s.bShowShadowBuffer;
     bShowOctree=s.bShowOctree;
     bShowDeferred=s.bShowDeferred;

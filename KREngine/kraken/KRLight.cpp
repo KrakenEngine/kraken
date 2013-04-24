@@ -209,8 +209,9 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     (m_color * pCamera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
                     
                     KRMat4::DotWDiv(KRMat4::Invert(particleModelMatrix), KRVector3::Zero()).setUniform(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_PARTICLE_ORIGIN]);
-                    
-                    GLDEBUG(glUniform1f(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE], m_dust_particle_size));
+                    if(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE] != -1) {
+                        GLDEBUG(glUniform1f(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE], m_dust_particle_size));
+                    }
                     
                     m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, true, false, false, true, false, false, false, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
@@ -310,10 +311,12 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                         // Render light flare on transparency pass
                         KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
                         if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), lights, 0, renderPass)) {
-                            GLDEBUG(glUniform1f(
-                                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
-                                                m_flareSize
-                                                ));
+                            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE] != -1) {
+                                GLDEBUG(glUniform1f(
+                                                    pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
+                                                    m_flareSize
+                                                    ));
+                            }
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
                             m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
                             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
@@ -357,8 +360,8 @@ void KRLight::allocateShadowBuffers(int cBuffers) {
             GLDEBUG( glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+            m_pContext->getTextureManager()->_setWrapModeS(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
+            m_pContext->getTextureManager()->_setWrapModeT(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
 #if GL_EXT_shadow_samplers
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_EXT, GL_LEQUAL)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available

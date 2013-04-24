@@ -46,7 +46,7 @@ public:
     KRTexture(KRContext &context, std::string name);
     virtual ~KRTexture();
 
-    virtual void bind() = 0;
+    virtual void bind(GLuint texture_unit) = 0;
     void releaseHandle();
     long getMemSize();
     virtual long getReferencedMemSize();

@@ -36,7 +36,7 @@
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data, std::string name) : KRTexture(context, name) {
     m_current_lod_max_dim = 0;
     m_pData = data;
-}
+}                
 
 KRTexture2D::~KRTexture2D() {
     delete m_pData;
@@ -67,15 +67,15 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     return true;
 }
 
-void KRTexture2D::bind() {
+void KRTexture2D::bind(GLuint texture_unit) {
     GLuint handle = getHandle();
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, handle));
     if(handle) {
         // TODO - These texture parameters should be assigned by the material or texture parameters
-        GLDEBUG(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+        m_pContext->getTextureManager()->_setMaxAnisotropy(texture_unit, 1.0f);
+        m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
+        m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
     }
 }
 

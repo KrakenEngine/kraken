@@ -122,10 +122,12 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &light
             light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
             m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
             
-            GLDEBUG(glUniform1f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
-                        m_intensity / 100.0f
-                        ));
+            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY] != -1) {
+                GLDEBUG(glUniform1f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
+                            m_intensity / 100.0f
+                            ));
+            }
             
             // Disable z-buffer write
             GLDEBUG(glDepthMask(GL_FALSE));

@@ -232,7 +232,9 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     
     GLDEBUG(glUseProgram(m_iProgram));
     
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_ABSOLUTE_TIME], getContext().getAbsoluteTime()));
+    if(m_uniforms[KRENGINE_UNIFORM_ABSOLUTE_TIME] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_ABSOLUTE_TIME], getContext().getAbsoluteTime()));
+    }
     
     int light_directional_count = 0;
     int light_point_count = 0;
@@ -249,32 +251,34 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                     int cShadowBuffers = directional_light->getShadowBufferCount();
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
                         m_pContext->getTextureManager()->selectTexture(3, NULL);
-                        GLDEBUG(glActiveTexture(GL_TEXTURE3));
+                        m_pContext->getTextureManager()->_setActiveTexture(3);
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                        
+                        m_pContext->getTextureManager()->_setWrapModeS(3, GL_CLAMP_TO_EDGE);
+                        m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
                     }
                 
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
                         m_pContext->getTextureManager()->selectTexture(4, NULL);
-                        GLDEBUG(glActiveTexture(GL_TEXTURE4));
+                        m_pContext->getTextureManager()->_setActiveTexture(4);
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                        m_pContext->getTextureManager()->_setWrapModeS(4, GL_CLAMP_TO_EDGE);
+                        m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
                     }
                 
                     if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
                         m_pContext->getTextureManager()->selectTexture(5, NULL);
+                        m_pContext->getTextureManager()->_setActiveTexture(5);
                         GLDEBUG(glActiveTexture(GL_TEXTURE5));
                         GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+                        m_pContext->getTextureManager()->_setWrapModeS(5, GL_CLAMP_TO_EDGE);
+                        m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
                     }
                     
                     KRMat4 matBias;
@@ -389,10 +393,18 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     // Fog parameters
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR], camera.settings.fog_near));
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_FAR], camera.settings.fog_far));
-    GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY], camera.settings.fog_density));
-    camera.settings.fog_color.setUniform(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR]);
+    if(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_NEAR], camera.settings.fog_near));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_FOG_FAR] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_FAR], camera.settings.fog_far));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY] != -1) {
+        GLDEBUG(glUniform1f(m_uniforms[KRENGINE_UNIFORM_FOG_DENSITY], camera.settings.fog_density));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR] != -1) {
+        camera.settings.fog_color.setUniform(m_uniforms[KRENGINE_UNIFORM_FOG_COLOR]);
+    }
     
     
     if(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] != -1) {
@@ -406,30 +418,58 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     // Sets the diffuseTexture variable to the first texture unit
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0));
+    if(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DIFFUSETEXTURE], 0));
+    }
     
     // Sets the specularTexture variable to the second texture unit
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE], 1));
+    if(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SPECULARTEXTURE], 1));
+    }
     
     // Sets the normalTexture variable to the third texture unit
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE], 2));
+    if(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_NORMALTEXTURE], 2));
+    }
     
     // Sets the shadowTexture variable to the fourth texture unit
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1], 3));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5));
+    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1], 3));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2], 4));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3], 5));
+    }
     
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE], 4));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_LIGHTMAPTEXTURE], 5));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7)); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7)); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+    if(m_uniforms[KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE], 4));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_LIGHTMAPTEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_LIGHTMAPTEXTURE], 5));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_FRAME], 6));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_GBUFFER_DEPTH], 7)); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_REFLECTIONTEXTURE], 7)); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+    }
     
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME], 0));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME], 1));
-    GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME], 2));
+    if(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_DEPTH_FRAME], 0));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_RENDER_FRAME], 1));
+    }
+    if(m_uniforms[KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME] != -1) {
+        GLDEBUG(glUniform1i(m_uniforms[KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME], 2));
+    }
     
-#if defined(DEBUG)
+#if DEBUG
     GLint logLength;
     
     GLint validate_status = GL_FALSE;

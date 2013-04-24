@@ -39,7 +39,6 @@ public:
     bool bEnableReflection;
     bool bEnableLightMap;
     bool bDebugPSSM;
-    bool bDebugSuperShiny;
     bool bShowShadowBuffer;
     bool bShowOctree;
     bool bShowDeferred;

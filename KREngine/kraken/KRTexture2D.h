@@ -47,7 +47,7 @@ public:
     virtual bool save(KRDataBlock &data);
     
     virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed) = 0;
-    virtual void bind();
+    virtual void bind(GLuint texture_unit);
     
 protected:
     KRDataBlock *m_pData;

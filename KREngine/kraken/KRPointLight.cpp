@@ -76,22 +76,29 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
                 
                 m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
                 
-                GLDEBUG(glUniform1f(
-                        pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
-                        m_intensity / 100.0f
-                ));
+                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY] != -1) {
+                    GLDEBUG(glUniform1f(
+                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
+                            m_intensity / 100.0f
+                    ));
+                }
                 
-                GLDEBUG(glUniform1f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START],
-                            getDecayStart()
-                ));
+                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START] != -1) {
+                    GLDEBUG(glUniform1f(
+                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START],
+                                getDecayStart()
+                    ));
+                }
+                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF] != -1) {
+                    GLDEBUG(glUniform1f(
+                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF],
+                                KRLIGHT_MIN_INFLUENCE
+                    ));
+                }
                 
-                GLDEBUG(glUniform1f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF],
-                            KRLIGHT_MIN_INFLUENCE
-                ));
-                
-                light_position.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION]);
+                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION] != -1) {
+                    light_position.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION]);
+                }
                 
                 if(bVisualize) {
                     // Enable additive blending
