@@ -67,7 +67,7 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
 void KRModel::loadModel() {
     if(m_models.size() == 0) {
         std::vector<KRMesh *> models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
-        std::map<KRMesh *, std::vector<KRBone *> > bones;
+        std::unordered_map<KRMesh *, std::vector<KRBone *> > bones;
         if(models.size() > 0) {
             bool all_bones_found = true;
             for(std::vector<KRMesh *>::iterator model_itr = models.begin(); model_itr != models.end(); model_itr++) {

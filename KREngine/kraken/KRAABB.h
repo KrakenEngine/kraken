@@ -55,5 +55,18 @@ public:
     KRVector3 nearestPoint(const KRVector3 & v) const;
 };
 
+namespace std {
+    template<>
+    struct hash<KRAABB> {
+    public:
+        size_t operator()(const KRAABB &s) const
+        {
+            size_t h1 = std::hash<KRVector3>()(s.min);
+            size_t h2 = std::hash<KRVector3>()(s.max);
+            return h1 ^ ( h2 << 1 );
+        }
+    };
+}
+
 
 #endif /* defined(KRAABB_H) */

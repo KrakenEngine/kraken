@@ -38,7 +38,7 @@ KRAnimationManager::KRAnimationManager(KRContext &context) : KRContextObject(con
 }
 
 KRAnimationManager::~KRAnimationManager() {
-    for(map<std::string, KRAnimation *>::iterator itr = m_animations.begin(); itr != m_animations.end(); ++itr){
+    for(unordered_map<std::string, KRAnimation *>::iterator itr = m_animations.begin(); itr != m_animations.end(); ++itr){
         delete (*itr).second;
     }
 }
@@ -67,7 +67,7 @@ KRAnimation *KRAnimationManager::getAnimation(const char *szName) {
     return m_animations[szName];
 }
 
-std::map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
+std::unordered_map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
     return m_animations;
 }
 

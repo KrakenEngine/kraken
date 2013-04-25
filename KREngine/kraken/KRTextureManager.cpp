@@ -52,7 +52,7 @@ KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context
 }
 
 KRTextureManager::~KRTextureManager() {
-    for(map<std::string, KRTexture *>::iterator itr = m_textures.begin(); itr != m_textures.end(); ++itr){
+    for(unordered_map<std::string, KRTexture *>::iterator itr = m_textures.begin(); itr != m_textures.end(); ++itr){
         delete (*itr).second;
     }
 }
@@ -132,7 +132,7 @@ KRTexture *KRTextureManager::getTextureCube(const char *szName) {
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
-    map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
+    unordered_map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
         KRTextureCube *pTexture = new KRTextureCube(getContext(), lowerName);
         
@@ -148,7 +148,7 @@ KRTexture *KRTextureManager::getTexture(const std::string &name) {
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
-    map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
+    unordered_map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
         if(lowerName.length() <= 8) {
             return NULL;
@@ -328,7 +328,7 @@ void KRTextureManager::memoryChanged(long memoryDelta)
     m_textureMemUsed += memoryDelta;
 }
 
-std::map<std::string, KRTexture *> &KRTextureManager::getTextures()
+std::unordered_map<std::string, KRTexture *> &KRTextureManager::getTextures()
 {
     return m_textures;
 }
@@ -338,7 +338,7 @@ void KRTextureManager::compress()
     std::vector<KRTexture *> textures_to_remove;
     std::vector<KRTexture *> textures_to_add;
     
-    for(std::map<std::string, KRTexture *>::iterator itr=m_textures.begin(); itr != m_textures.end(); itr++) {
+    for(std::unordered_map<std::string, KRTexture *>::iterator itr=m_textures.begin(); itr != m_textures.end(); itr++) {
         KRTexture *texture = (*itr).second;
         KRTexture *compressed_texture = texture->compress();
         if(compressed_texture) {

@@ -63,7 +63,7 @@ public:
     
 private:
     std::vector<KRMesh *> m_models;
-    std::map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
+    std::unordered_map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
     KRTexture *m_pLightMap;
     std::string m_lightMap;
     std::string m_model_name;

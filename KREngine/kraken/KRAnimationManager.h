@@ -48,7 +48,7 @@ public:
     KRAnimation *loadAnimation(const char *szName, KRDataBlock *data);
     KRAnimation *getAnimation(const char *szName);
     void addAnimation(KRAnimation *new_animation);
-    std::map<std::string, KRAnimation *> &getAnimations();
+    unordered_map<std::string, KRAnimation *> &getAnimations();
     
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
@@ -56,7 +56,7 @@ public:
     void updateActiveAnimations(KRAnimation *animation);
     
 private:
-    map<std::string, KRAnimation *> m_animations;
+    unordered_map<std::string, KRAnimation *> m_animations;
     set<KRAnimation *>m_activeAnimations;
 };
 

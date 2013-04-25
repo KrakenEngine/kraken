@@ -49,10 +49,10 @@ public:
     KRUnknown *get(const std::string &name, const std::string &extension);
     
 
-    const map<std::string, KRUnknown *> &get(const std::string &extension);
+    const unordered_map<std::string, KRUnknown *> &get(const std::string &extension);
     
 private:
-    map<std::string, map<std::string, KRUnknown *> > m_unknowns;
+    unordered_map<std::string, unordered_map<std::string, KRUnknown *> > m_unknowns;
 };
 
 #endif /* defined(KRUNKNOWN_MANAGER_H) */

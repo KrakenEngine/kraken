@@ -50,11 +50,11 @@ public:
     KRScene *getFirstScene();
     
     std::vector<std::string> getSceneNames();
-    std::map<std::string, KRScene *> getScenes();
+    std::unordered_map<std::string, KRScene *> getScenes();
 
     
 private:
-    std::map<std::string, KRScene *> m_scenes;
+    std::unordered_map<std::string, KRScene *> m_scenes;
     
 };
 

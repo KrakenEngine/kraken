@@ -85,13 +85,13 @@ std::set<KRReverbZone *> &KRScene::getReverbZones()
     return m_reverbZoneNodes;
 }
 
-void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+void KRScene::render(KRCamera *pCamera, std::unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
         // Cached "success" results are expired after KRENGINE_OCCLUSION_TEST_EXPIRY frames (marked with .second of the last frame
         std::set<KRAABB> expired_visible_bounds;
-        for(std::map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
+        for(std::unordered_map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
             if((*visible_bounds_itr).second == -1 || (*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
                 expired_visible_bounds.insert((*visible_bounds_itr).first);
             }
@@ -156,7 +156,7 @@ void KRScene::render(KRCamera *pCamera, std::map<KRAABB, int> &visibleBounds, co
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, std::unordered_map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -226,7 +226,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, std::map<KRAABB, int> &visibleBo
                 if(!bVisible) {
                     // Check if a previous occlusion query has returned true, taking advantage of temporal consistency of visible elements from frame to frame
                     // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
-                    std::map<KRAABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
+                    std::unordered_map<KRAABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
                     if(match_itr != visibleBounds.end()) {
                         if((*match_itr).second == -1) {
                             // We have already tested these bounds with a negative result

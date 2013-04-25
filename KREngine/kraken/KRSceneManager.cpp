@@ -36,7 +36,7 @@ KRSceneManager::KRSceneManager(KRContext &context) : KRContextObject(context){
 }
 
 KRSceneManager::~KRSceneManager() {
-    for(map<std::string, KRScene *>::iterator itr = m_scenes.begin(); itr != m_scenes.end(); ++itr){
+    for(unordered_map<std::string, KRScene *>::iterator itr = m_scenes.begin(); itr != m_scenes.end(); ++itr){
         delete (*itr).second;
     }
     m_scenes.empty();
@@ -53,7 +53,7 @@ KRScene *KRSceneManager::getScene(const char *szName) {
 }
 
 KRScene *KRSceneManager::getFirstScene() {
-    static std::map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
+    static std::unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
     if(scene_itr == m_scenes.end()) {
         return NULL;
     } else {
@@ -61,7 +61,7 @@ KRScene *KRSceneManager::getFirstScene() {
     }
 }
 
-std::map<std::string, KRScene *> KRSceneManager::getScenes() {
+std::unordered_map<std::string, KRScene *> KRSceneManager::getScenes() {
     return m_scenes;
 }
 

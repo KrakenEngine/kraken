@@ -51,7 +51,7 @@ public:
     static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
     void addLayer(KRAnimationLayer *layer);
-    std::map<std::string, KRAnimationLayer *> &getLayers();
+    std::unordered_map<std::string, KRAnimationLayer *> &getLayers();
     KRAnimationLayer *getLayer(const char *szName);
     void Play();
     void Stop();
@@ -62,7 +62,7 @@ public:
     void setDuration(float duration);
     bool isPlaying();
 private:
-    std::map<std::string, KRAnimationLayer *> m_layers;
+    std::unordered_map<std::string, KRAnimationLayer *> m_layers;
     bool m_auto_play;
     bool m_loop;
     bool m_playing;

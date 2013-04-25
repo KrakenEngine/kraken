@@ -38,7 +38,7 @@ KRBundleManager::KRBundleManager(KRContext &context) : KRContextObject(context) 
 }
 
 KRBundleManager::~KRBundleManager() {
-    for(map<std::string, KRBundle *>::iterator itr = m_bundles.begin(); itr != m_bundles.end(); ++itr){
+    for(unordered_map<std::string, KRBundle *>::iterator itr = m_bundles.begin(); itr != m_bundles.end(); ++itr){
         delete (*itr).second;
     }
     m_bundles.empty();
@@ -55,6 +55,6 @@ KRBundle *KRBundleManager::getBundle(const char *szName) {
     return m_bundles[szName];
 }
 
-std::map<std::string, KRBundle *> KRBundleManager::getBundles() {
+std::unordered_map<std::string, KRBundle *> KRBundleManager::getBundles() {
     return m_bundles;
 }

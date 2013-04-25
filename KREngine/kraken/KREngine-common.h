@@ -22,6 +22,7 @@ float const D2R = PI * 2 / 360;
 #include <set>
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <stack>
 #include <queue>
 #include <iostream>
@@ -51,6 +52,9 @@ using std::string;
 using std::set;
 using std::list;
 using std::map;
+using std::unordered_map;
+using std::multimap;
+using std::unordered_multimap;
 using std::stack;
 using std::queue;
 

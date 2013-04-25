@@ -41,7 +41,7 @@ public:
     // Overload assignment operator
     KRViewport& operator=(const KRViewport &v);
     
-    std::map<KRAABB, int> &getVisibleBounds();
+    std::unordered_map<KRAABB, int> &getVisibleBounds();
     
     const std::set<KRLight *> &getVisibleLights();
     void setVisibleLights(const std::set<KRLight *> visibleLights);
@@ -68,7 +68,7 @@ private:
     
     void calculateDerivedValues();
     
-    std::map<KRAABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
+    std::unordered_map<KRAABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
     
     
 };

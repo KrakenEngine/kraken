@@ -96,4 +96,18 @@ public:
     void setUniform(GLint location) const;
 };
 
+namespace std {
+    template<>
+    struct hash<KRVector3> {
+    public:
+        size_t operator()(const KRVector3 &s) const
+        {
+            size_t h1 = std::hash<float>()(s.x);
+            size_t h2 = std::hash<float>()(s.y);
+            size_t h3 = std::hash<float>()(s.z);
+            return h1 ^ ( h2 << 1 ) ^ (h3 << 2);
+        }
+    };
+};
+
 #endif

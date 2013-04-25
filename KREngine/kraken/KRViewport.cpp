@@ -156,7 +156,7 @@ void KRViewport::calculateDerivedValues()
 }
 
 
-std::map<KRAABB, int> &KRViewport::getVisibleBounds()
+std::unordered_map<KRAABB, int> &KRViewport::getVisibleBounds()
 {
     return m_visibleBounds;
 }

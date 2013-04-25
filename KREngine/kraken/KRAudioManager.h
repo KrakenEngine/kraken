@@ -139,7 +139,7 @@ private:
     KRVector3 m_listener_forward;
     KRVector3 m_listener_up;
     
-    map<std::string, KRAudioSample *> m_sounds;
+    unordered_map<std::string, KRAudioSample *> m_sounds;
     
     std::vector<KRDataBlock *> m_bufferPoolIdle;
     
@@ -199,7 +199,7 @@ private:
     
     std::vector<KRVector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
-    map<KRVector2, DSPSplitComplex> m_hrtf_spectral[2];
+    unordered_map<KRVector2, DSPSplitComplex> m_hrtf_spectral[2];
     
     KRVector2 getNearestHRTFSample(const KRVector2 &dir);
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
@@ -207,17 +207,17 @@ private:
     DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
     
     
-    std::map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
+    std::unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
     float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
     
-    std::map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
+    std::unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
     boost::signals2::mutex m_mutex;
     mach_timebase_info_data_t m_timebase_info;
     
     
-    std::multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+    std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
     bool m_anticlick_block;
     bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };

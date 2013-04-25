@@ -90,5 +90,18 @@ private:
     
 };
 
+namespace std {
+    template<>
+    struct hash<KRVector2> {
+    public:
+        size_t operator()(const KRVector2 &s) const
+        {
+            size_t h1 = std::hash<float>()(s.x);
+            size_t h2 = std::hash<float>()(s.y);
+            return h1 ^ ( h2 << 1 );
+        }
+    };
+};
+
 
 #endif

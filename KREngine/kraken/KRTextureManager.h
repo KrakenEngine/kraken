@@ -62,7 +62,7 @@ public:
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
     
-    std::map<std::string, KRTexture *> &getTextures();
+    std::unordered_map<std::string, KRTexture *> &getTextures();
     
     void compress();
     
@@ -81,7 +81,7 @@ private:
     
     long m_memoryTransferredThisFrame;
     
-    std::map<std::string, KRTexture *> m_textures;
+    std::unordered_map<std::string, KRTexture *> m_textures;
     
     KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
