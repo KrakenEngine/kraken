@@ -34,20 +34,29 @@
 
 #include "KREngine-common.h"
 
+class KRVector4;
+
 class KRVector3 {
 
 public:
-    float x, y, z;
+    union {        
+        struct {
+            float x, y, z;
+        };
+        float c[3];
+    };
     
     KRVector3();
 	KRVector3(float X, float Y, float Z);
     KRVector3(float v);
     KRVector3(float *v);
     KRVector3(const KRVector3 &v);
+    KRVector3(const KRVector4 &v);
 	~KRVector3();
     
     
     KRVector3& operator =(const KRVector3& b);
+    KRVector3& operator =(const KRVector4& b);
     KRVector3 operator +(const KRVector3& b) const;
     KRVector3 operator -(const KRVector3& b) const;
     KRVector3 operator +() const;

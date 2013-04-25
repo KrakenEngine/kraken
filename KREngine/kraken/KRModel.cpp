@@ -93,10 +93,10 @@ void KRModel::loadModel() {
     }
 }
 
-void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     
-    KRNode::render(pCamera, lights, viewport, renderPass);
+    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         loadModel();
@@ -141,7 +141,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KR
                     matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(getName(), pCamera, lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
+                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
             }
         }
     }

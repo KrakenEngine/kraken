@@ -34,16 +34,24 @@
 
 #include "KREngine-common.h"
 
+class KRVector3;
+
 class KRVector4 {
     
 public:
-    float x, y, z, w;
+    union {
+        struct {
+            float x, y, z, w;
+        };
+        float c[4];
+    };
     
     KRVector4();
 	KRVector4(float X, float Y, float Z, float W);
     KRVector4(float v);
     KRVector4(float *v);
     KRVector4(const KRVector4 &v);
+    KRVector4(const KRVector3 &v, float W);
 	~KRVector4();
     
     

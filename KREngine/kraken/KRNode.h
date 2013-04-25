@@ -25,6 +25,9 @@ class KRContext;
 class KRScene;
 class KRAABB;
 class KRNode;
+class KRPointLight;
+class KRSpotLight;
+class KRDirectionalLight;
 
 class KRNode : public KRContextObject
 {
@@ -101,7 +104,7 @@ public:
     
     KRScene &getScene();
     
-    virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, RenderPass renderPass);
+    virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, RenderPass renderPass);
     
     virtual void physicsUpdate(float deltaTime);
     virtual bool hasPhysics();

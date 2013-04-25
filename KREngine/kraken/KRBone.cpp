@@ -35,19 +35,19 @@ void KRBone::loadXML(tinyxml2::XMLElement *e)
 }
 
 
-void KRBone::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
-    KRNode::render(pCamera, lights, viewport, renderPass);
+    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     bool bVisualize = false;
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
         KRMat4 sphereModelMatrix = getModelMatrix();
 
-            KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, lights, 0, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass)) {
 
                 // Enable additive blending
                 GLDEBUG(glEnable(GL_BLEND));

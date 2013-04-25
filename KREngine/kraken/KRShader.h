@@ -47,7 +47,7 @@ public:
     virtual ~KRShader();
     const char *getKey() const;
     
-    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRLight *> &lights, const KRNode::RenderPass &renderPass) const;
+    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass) const;
     
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,

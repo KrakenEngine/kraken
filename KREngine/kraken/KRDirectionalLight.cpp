@@ -98,14 +98,14 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
     return 1;
 }
 
-void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
-    KRLight::render(pCamera, lights, viewport, renderPass);
+    KRLight::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
 
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
         
-        std::vector<KRLight *> this_light;
+        std::vector<KRDirectionalLight *> this_light;
         this_light.push_back(this);
 
         KRMat4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
@@ -116,8 +116,8 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRLight *> &light
         light_direction_view_space = KRMat4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, this_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), this_light, 0, renderPass)) {
+        KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass)) {
             
             light_direction_view_space.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE]);
             m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);

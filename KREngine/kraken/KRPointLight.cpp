@@ -41,17 +41,17 @@ KRAABB KRPointLight::getBounds() {
     return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
 }
 
-void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
-    KRLight::render(pCamera, lights, viewport, renderPass);
+    KRLight::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.bShowDeferred;
     
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
         
-        std::vector<KRLight *> this_light;
+        std::vector<KRPointLight *> this_light;
         this_light.push_back(this);
 
         KRVector3 light_position = getLocalTranslation();
@@ -68,9 +68,9 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRLight *> &lights, con
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
-            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, 0, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass)) {
                 
                 
                 

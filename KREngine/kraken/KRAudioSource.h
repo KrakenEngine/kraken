@@ -50,7 +50,7 @@ public:
     virtual bool hasPhysics();
     virtual void physicsUpdate(float deltaTime);
     
-    void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+    void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     void play();
     void stop();
     bool isPlaying();

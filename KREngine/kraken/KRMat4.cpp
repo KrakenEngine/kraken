@@ -36,64 +36,64 @@
 
 KRMat4::KRMat4() {
     // Default constructor - Initialize with an identity matrix
-    static const GLfloat IDENTITY_MATRIX[] = {
+    static const float IDENTITY_MATRIX[] = {
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     };
-    memcpy(m_mat, IDENTITY_MATRIX, sizeof(GLfloat) * 16);
+    memcpy(c, IDENTITY_MATRIX, sizeof(float) * 16);
     
 }
 
-KRMat4::KRMat4(GLfloat *pMat) {
-    memcpy(m_mat, pMat, sizeof(GLfloat) * 16);
+KRMat4::KRMat4(float *pMat) {
+    memcpy(c, pMat, sizeof(float) * 16);
 }
 
 KRMat4::KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans)
 {
-    m_mat[0]  = axis_x.x;  m_mat[1]  = axis_x.y;   m_mat[2]  = axis_x.z;   m_mat[3]  = 0.0f;
-    m_mat[4]  = axis_y.x;  m_mat[5]  = axis_y.y;   m_mat[6]  = axis_y.z;   m_mat[7]  = 0.0f;
-    m_mat[8]  = axis_z.x;  m_mat[9]  = axis_z.y;   m_mat[10] = axis_z.z;   m_mat[11] = 0.0f;
-    m_mat[12] = trans.x;   m_mat[13] = trans.y;    m_mat[14] = trans.z;    m_mat[15] = 1.0f;
+    c[0]  = axis_x.x;  c[1]  = axis_x.y;   c[2]  = axis_x.z;   c[3]  = 0.0f;
+    c[4]  = axis_y.x;  c[5]  = axis_y.y;   c[6]  = axis_y.z;   c[7]  = 0.0f;
+    c[8]  = axis_z.x;  c[9]  = axis_z.y;   c[10] = axis_z.z;   c[11] = 0.0f;
+    c[12] = trans.x;   c[13] = trans.y;    c[14] = trans.z;    c[15] = 1.0f;
 }
 
 KRMat4::~KRMat4() {
     
 }
 
-GLfloat *KRMat4::getPointer() {
-    return m_mat;
+float *KRMat4::getPointer() {
+    return c;
 }
 
 // Copy constructor
 KRMat4::KRMat4(const KRMat4 &m) {
-    memcpy(m_mat, m.m_mat, sizeof(GLfloat) * 16);
+    memcpy(c, m.c, sizeof(float) * 16);
 }
 
 KRMat4& KRMat4::operator=(const KRMat4 &m) {
     if(this != &m) { // Prevent self-assignment.
-        memcpy(m_mat, m.m_mat, sizeof(GLfloat) * 16);
+        memcpy(c, m.c, sizeof(float) * 16);
     }
     return *this;
 }
 
 float& KRMat4::operator[](unsigned i) {
-    return m_mat[i];
+    return c[i];
 }
 
 float KRMat4::operator[](unsigned i) const {
-    return m_mat[i];
+    return c[i];
 }
 
 // Overload comparison operator
 bool KRMat4::operator==(const KRMat4 &m) {
-    return memcmp(m_mat, m.m_mat, sizeof(GLfloat) * 16) == 0;
+    return memcmp(c, m.c, sizeof(float) * 16) == 0;
 }
 
 // Overload compound multiply operator
 KRMat4& KRMat4::operator*=(const KRMat4 &m) {
-    GLfloat temp[16];
+    float temp[16];
     
     int x,y;
     
@@ -101,14 +101,14 @@ KRMat4& KRMat4::operator*=(const KRMat4 &m) {
     {
         for(y=0; y < 4; y++)
         {
-            temp[y + (x*4)] = (m_mat[x*4] * m.m_mat[y]) +
-            (m_mat[(x*4)+1] * m.m_mat[y+4]) +
-            (m_mat[(x*4)+2] * m.m_mat[y+8]) +
-            (m_mat[(x*4)+3] * m.m_mat[y+12]);
+            temp[y + (x*4)] = (c[x*4] * m.c[y]) +
+            (c[(x*4)+1] * m.c[y+4]) +
+            (c[(x*4)+2] * m.c[y+8]) +
+            (c[(x*4)+3] * m.c[y+12]);
         }
     }
     
-    memcpy(m_mat, temp, sizeof(GLfloat) << 4);
+    memcpy(c, temp, sizeof(float) << 4);
     return *this;
 }
 
@@ -122,36 +122,36 @@ KRMat4 KRMat4::operator*(const KRMat4 &m) const {
 
 /* Generate a perspective view matrix using a field of view angle fov,
  * window aspect ratio, near and far clipping planes */
-void KRMat4::perspective(GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat farz) {
+void KRMat4::perspective(float fov, float aspect, float nearz, float farz) {
    
-    memset(m_mat, 0, sizeof(GLfloat) * 16);
+    memset(c, 0, sizeof(float) * 16);
     
-    GLfloat range= tan(fov * 0.5) * nearz;
-    m_mat[0] = (2 * nearz) / ((range * aspect) - (-range * aspect));
-    m_mat[5] = (2 * nearz) / (2 * range);
-    m_mat[10] = -(farz + nearz) / (farz - nearz);
-    m_mat[11] = -1;
-    m_mat[14] = -(2 * farz * nearz) / (farz - nearz);
+    float range= tan(fov * 0.5) * nearz;
+    c[0] = (2 * nearz) / ((range * aspect) - (-range * aspect));
+    c[5] = (2 * nearz) / (2 * range);
+    c[10] = -(farz + nearz) / (farz - nearz);
+    c[11] = -1;
+    c[14] = -(2 * farz * nearz) / (farz - nearz);
     /*
-    GLfloat range= atan(fov / 20.0f) * nearz; 
-    GLfloat r = range * aspect;
-    GLfloat t = range * 1.0;
+    float range= atan(fov / 20.0f) * nearz; 
+    float r = range * aspect;
+    float t = range * 1.0;
     
-    m_mat[0] = nearz / r;
-    m_mat[5] = nearz / t;
-    m_mat[10] = -(farz + nearz) / (farz - nearz);
-    m_mat[11] = -(2.0 * farz * nearz) / (farz - nearz);
-    m_mat[14] = -1.0;
+    c[0] = nearz / r;
+    c[5] = nearz / t;
+    c[10] = -(farz + nearz) / (farz - nearz);
+    c[11] = -(2.0 * farz * nearz) / (farz - nearz);
+    c[14] = -1.0;
     */
 }
 
 /* Perform translation operations on a matrix */
-void KRMat4::translate(GLfloat x, GLfloat y, GLfloat z) {
+void KRMat4::translate(float x, float y, float z) {
     KRMat4 newMatrix; // Create new identity matrix
     
-    newMatrix.m_mat[12] = x;
-    newMatrix.m_mat[13] = y;
-    newMatrix.m_mat[14] = z;
+    newMatrix.c[12] = x;
+    newMatrix.c[13] = y;
+    newMatrix.c[14] = z;
     
     *this *= newMatrix;
 }
@@ -162,7 +162,7 @@ void KRMat4::translate(const KRVector3 &v)
 }
 
 /* Rotate a matrix by an angle on a X, Y, or Z axis */
-void KRMat4::rotate(GLfloat angle, AXIS axis) {
+void KRMat4::rotate(float angle, AXIS axis) {
     const int cos1[3] = { 5, 0, 0 };
     const int cos2[3] = { 10, 10, 5 };
     const int sin1[3] = { 6, 2, 1 };
@@ -170,10 +170,10 @@ void KRMat4::rotate(GLfloat angle, AXIS axis) {
     
     KRMat4 newMatrix; // Create new identity matrix
     
-    newMatrix.m_mat[cos1[axis]] = cos(angle);
-    newMatrix.m_mat[sin1[axis]] = -sin(angle);
-    newMatrix.m_mat[sin2[axis]] = -newMatrix.m_mat[sin1[axis]];
-    newMatrix.m_mat[cos2[axis]] = newMatrix.m_mat[cos1[axis]];
+    newMatrix.c[cos1[axis]] = cos(angle);
+    newMatrix.c[sin1[axis]] = -sin(angle);
+    newMatrix.c[sin2[axis]] = -newMatrix.c[sin1[axis]];
+    newMatrix.c[cos2[axis]] = newMatrix.c[cos1[axis]];
     
     *this *= newMatrix;
 }
@@ -184,12 +184,12 @@ void KRMat4::rotate(const KRQuaternion &q)
 }
 
 /* Scale matrix by separate x, y, and z amounts */
-void KRMat4::scale(GLfloat x, GLfloat y, GLfloat z) {
+void KRMat4::scale(float x, float y, float z) {
     KRMat4 newMatrix; // Create new identity matrix
     
-    newMatrix.m_mat[0] = x;
-    newMatrix.m_mat[5] = y;
-    newMatrix.m_mat[10] = z;
+    newMatrix.c[0] = x;
+    newMatrix.c[5] = y;
+    newMatrix.c[10] = z;
     
     *this *= newMatrix;
 }
@@ -199,30 +199,30 @@ void KRMat4::scale(const KRVector3 &v) {
 }
 
 /* Scale all dimensions equally */
-void KRMat4::scale(GLfloat s) {
+void KRMat4::scale(float s) {
     scale(s,s,s);
 }
 
  // Initialize with a bias matrix
 void KRMat4::bias() {
-    static const GLfloat BIAS_MATRIX[] = {
+    static const float BIAS_MATRIX[] = {
         0.5, 0.0, 0.0, 0.0, 
         0.0, 0.5, 0.0, 0.0,
         0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0
     };
-    memcpy(m_mat, BIAS_MATRIX, sizeof(GLfloat) * 16);
+    memcpy(c, BIAS_MATRIX, sizeof(float) * 16);
 }
 
 
 /* Generate an orthographic view matrix */
-void KRMat4::ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLfloat nearz, GLfloat farz) {
-    memset(m_mat, 0, sizeof(GLfloat) * 16);
-    m_mat[0] = 2.0f / (right - left);
-    m_mat[5] = 2.0f / (bottom - top);
-    m_mat[10] = -1.0f / (farz - nearz);
-    m_mat[11] = -nearz / (farz - nearz);
-    m_mat[15] = 1.0f;
+void KRMat4::ortho(float left, float right, float top, float bottom, float nearz, float farz) {
+    memset(c, 0, sizeof(float) * 16);
+    c[0] = 2.0f / (right - left);
+    c[5] = 2.0f / (bottom - top);
+    c[10] = -1.0f / (farz - nearz);
+    c[11] = -nearz / (farz - nearz);
+    c[15] = 1.0f;
 }
 
 /* Replace matrix with its inverse */
@@ -232,40 +232,40 @@ bool KRMat4::invert() {
     float inv[16], det;
     int i;
     
-    inv[0] =   m_mat[5]*m_mat[10]*m_mat[15] - m_mat[5]*m_mat[11]*m_mat[14] - m_mat[9]*m_mat[6]*m_mat[15]
-    + m_mat[9]*m_mat[7]*m_mat[14] + m_mat[13]*m_mat[6]*m_mat[11] - m_mat[13]*m_mat[7]*m_mat[10];
-    inv[4] =  -m_mat[4]*m_mat[10]*m_mat[15] + m_mat[4]*m_mat[11]*m_mat[14] + m_mat[8]*m_mat[6]*m_mat[15]
-    - m_mat[8]*m_mat[7]*m_mat[14] - m_mat[12]*m_mat[6]*m_mat[11] + m_mat[12]*m_mat[7]*m_mat[10];
-    inv[8] =   m_mat[4]*m_mat[9]*m_mat[15] - m_mat[4]*m_mat[11]*m_mat[13] - m_mat[8]*m_mat[5]*m_mat[15]
-    + m_mat[8]*m_mat[7]*m_mat[13] + m_mat[12]*m_mat[5]*m_mat[11] - m_mat[12]*m_mat[7]*m_mat[9];
-    inv[12] = -m_mat[4]*m_mat[9]*m_mat[14] + m_mat[4]*m_mat[10]*m_mat[13] + m_mat[8]*m_mat[5]*m_mat[14]
-    - m_mat[8]*m_mat[6]*m_mat[13] - m_mat[12]*m_mat[5]*m_mat[10] + m_mat[12]*m_mat[6]*m_mat[9];
-    inv[1] =  -m_mat[1]*m_mat[10]*m_mat[15] + m_mat[1]*m_mat[11]*m_mat[14] + m_mat[9]*m_mat[2]*m_mat[15]
-    - m_mat[9]*m_mat[3]*m_mat[14] - m_mat[13]*m_mat[2]*m_mat[11] + m_mat[13]*m_mat[3]*m_mat[10];
-    inv[5] =   m_mat[0]*m_mat[10]*m_mat[15] - m_mat[0]*m_mat[11]*m_mat[14] - m_mat[8]*m_mat[2]*m_mat[15]
-    + m_mat[8]*m_mat[3]*m_mat[14] + m_mat[12]*m_mat[2]*m_mat[11] - m_mat[12]*m_mat[3]*m_mat[10];
-    inv[9] =  -m_mat[0]*m_mat[9]*m_mat[15] + m_mat[0]*m_mat[11]*m_mat[13] + m_mat[8]*m_mat[1]*m_mat[15]
-    - m_mat[8]*m_mat[3]*m_mat[13] - m_mat[12]*m_mat[1]*m_mat[11] + m_mat[12]*m_mat[3]*m_mat[9];
-    inv[13] =  m_mat[0]*m_mat[9]*m_mat[14] - m_mat[0]*m_mat[10]*m_mat[13] - m_mat[8]*m_mat[1]*m_mat[14]
-    + m_mat[8]*m_mat[2]*m_mat[13] + m_mat[12]*m_mat[1]*m_mat[10] - m_mat[12]*m_mat[2]*m_mat[9];
-    inv[2] =   m_mat[1]*m_mat[6]*m_mat[15] - m_mat[1]*m_mat[7]*m_mat[14] - m_mat[5]*m_mat[2]*m_mat[15]
-    + m_mat[5]*m_mat[3]*m_mat[14] + m_mat[13]*m_mat[2]*m_mat[7] - m_mat[13]*m_mat[3]*m_mat[6];
-    inv[6] =  -m_mat[0]*m_mat[6]*m_mat[15] + m_mat[0]*m_mat[7]*m_mat[14] + m_mat[4]*m_mat[2]*m_mat[15]
-    - m_mat[4]*m_mat[3]*m_mat[14] - m_mat[12]*m_mat[2]*m_mat[7] + m_mat[12]*m_mat[3]*m_mat[6];
-    inv[10] =  m_mat[0]*m_mat[5]*m_mat[15] - m_mat[0]*m_mat[7]*m_mat[13] - m_mat[4]*m_mat[1]*m_mat[15]
-    + m_mat[4]*m_mat[3]*m_mat[13] + m_mat[12]*m_mat[1]*m_mat[7] - m_mat[12]*m_mat[3]*m_mat[5];
-    inv[14] = -m_mat[0]*m_mat[5]*m_mat[14] + m_mat[0]*m_mat[6]*m_mat[13] + m_mat[4]*m_mat[1]*m_mat[14]
-    - m_mat[4]*m_mat[2]*m_mat[13] - m_mat[12]*m_mat[1]*m_mat[6] + m_mat[12]*m_mat[2]*m_mat[5];
-    inv[3] =  -m_mat[1]*m_mat[6]*m_mat[11] + m_mat[1]*m_mat[7]*m_mat[10] + m_mat[5]*m_mat[2]*m_mat[11]
-    - m_mat[5]*m_mat[3]*m_mat[10] - m_mat[9]*m_mat[2]*m_mat[7] + m_mat[9]*m_mat[3]*m_mat[6];
-    inv[7] =   m_mat[0]*m_mat[6]*m_mat[11] - m_mat[0]*m_mat[7]*m_mat[10] - m_mat[4]*m_mat[2]*m_mat[11]
-    + m_mat[4]*m_mat[3]*m_mat[10] + m_mat[8]*m_mat[2]*m_mat[7] - m_mat[8]*m_mat[3]*m_mat[6];
-    inv[11] = -m_mat[0]*m_mat[5]*m_mat[11] + m_mat[0]*m_mat[7]*m_mat[9] + m_mat[4]*m_mat[1]*m_mat[11]
-    - m_mat[4]*m_mat[3]*m_mat[9] - m_mat[8]*m_mat[1]*m_mat[7] + m_mat[8]*m_mat[3]*m_mat[5];
-    inv[15] =  m_mat[0]*m_mat[5]*m_mat[10] - m_mat[0]*m_mat[6]*m_mat[9] - m_mat[4]*m_mat[1]*m_mat[10]
-    + m_mat[4]*m_mat[2]*m_mat[9] + m_mat[8]*m_mat[1]*m_mat[6] - m_mat[8]*m_mat[2]*m_mat[5];
+    inv[0] =   c[5]*c[10]*c[15] - c[5]*c[11]*c[14] - c[9]*c[6]*c[15]
+    + c[9]*c[7]*c[14] + c[13]*c[6]*c[11] - c[13]*c[7]*c[10];
+    inv[4] =  -c[4]*c[10]*c[15] + c[4]*c[11]*c[14] + c[8]*c[6]*c[15]
+    - c[8]*c[7]*c[14] - c[12]*c[6]*c[11] + c[12]*c[7]*c[10];
+    inv[8] =   c[4]*c[9]*c[15] - c[4]*c[11]*c[13] - c[8]*c[5]*c[15]
+    + c[8]*c[7]*c[13] + c[12]*c[5]*c[11] - c[12]*c[7]*c[9];
+    inv[12] = -c[4]*c[9]*c[14] + c[4]*c[10]*c[13] + c[8]*c[5]*c[14]
+    - c[8]*c[6]*c[13] - c[12]*c[5]*c[10] + c[12]*c[6]*c[9];
+    inv[1] =  -c[1]*c[10]*c[15] + c[1]*c[11]*c[14] + c[9]*c[2]*c[15]
+    - c[9]*c[3]*c[14] - c[13]*c[2]*c[11] + c[13]*c[3]*c[10];
+    inv[5] =   c[0]*c[10]*c[15] - c[0]*c[11]*c[14] - c[8]*c[2]*c[15]
+    + c[8]*c[3]*c[14] + c[12]*c[2]*c[11] - c[12]*c[3]*c[10];
+    inv[9] =  -c[0]*c[9]*c[15] + c[0]*c[11]*c[13] + c[8]*c[1]*c[15]
+    - c[8]*c[3]*c[13] - c[12]*c[1]*c[11] + c[12]*c[3]*c[9];
+    inv[13] =  c[0]*c[9]*c[14] - c[0]*c[10]*c[13] - c[8]*c[1]*c[14]
+    + c[8]*c[2]*c[13] + c[12]*c[1]*c[10] - c[12]*c[2]*c[9];
+    inv[2] =   c[1]*c[6]*c[15] - c[1]*c[7]*c[14] - c[5]*c[2]*c[15]
+    + c[5]*c[3]*c[14] + c[13]*c[2]*c[7] - c[13]*c[3]*c[6];
+    inv[6] =  -c[0]*c[6]*c[15] + c[0]*c[7]*c[14] + c[4]*c[2]*c[15]
+    - c[4]*c[3]*c[14] - c[12]*c[2]*c[7] + c[12]*c[3]*c[6];
+    inv[10] =  c[0]*c[5]*c[15] - c[0]*c[7]*c[13] - c[4]*c[1]*c[15]
+    + c[4]*c[3]*c[13] + c[12]*c[1]*c[7] - c[12]*c[3]*c[5];
+    inv[14] = -c[0]*c[5]*c[14] + c[0]*c[6]*c[13] + c[4]*c[1]*c[14]
+    - c[4]*c[2]*c[13] - c[12]*c[1]*c[6] + c[12]*c[2]*c[5];
+    inv[3] =  -c[1]*c[6]*c[11] + c[1]*c[7]*c[10] + c[5]*c[2]*c[11]
+    - c[5]*c[3]*c[10] - c[9]*c[2]*c[7] + c[9]*c[3]*c[6];
+    inv[7] =   c[0]*c[6]*c[11] - c[0]*c[7]*c[10] - c[4]*c[2]*c[11]
+    + c[4]*c[3]*c[10] + c[8]*c[2]*c[7] - c[8]*c[3]*c[6];
+    inv[11] = -c[0]*c[5]*c[11] + c[0]*c[7]*c[9] + c[4]*c[1]*c[11]
+    - c[4]*c[3]*c[9] - c[8]*c[1]*c[7] + c[8]*c[3]*c[5];
+    inv[15] =  c[0]*c[5]*c[10] - c[0]*c[6]*c[9] - c[4]*c[1]*c[10]
+    + c[4]*c[2]*c[9] + c[8]*c[1]*c[6] - c[8]*c[2]*c[5];
     
-    det = m_mat[0]*inv[0] + m_mat[1]*inv[4] + m_mat[2]*inv[8] + m_mat[3]*inv[12];
+    det = c[0]*inv[0] + c[1]*inv[4] + c[2]*inv[8] + c[3]*inv[12];
     
     if (det == 0) {
         return false;
@@ -274,56 +274,82 @@ bool KRMat4::invert() {
     det = 1.0 / det;
     
     for (i = 0; i < 16; i++) {
-        m_mat[i] = inv[i] * det;
+        c[i] = inv[i] * det;
     }
     
     return true;
 }
 
 void KRMat4::transpose() {
-    GLfloat trans[16];
+    float trans[16];
     for(int x=0; x<4; x++) {
         for(int y=0; y<4; y++) {
-            trans[x + y * 4] = m_mat[y + x * 4];
+            trans[x + y * 4] = c[y + x * 4];
         }
     }
-    memcpy(m_mat, trans, sizeof(GLfloat) * 16);
+    memcpy(c, trans, sizeof(float) * 16);
 }
 
 /* Dot Product, returning KRVector3 */
 KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
     return KRVector3(
-        v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0] + (float)m[3*4 + 0],
-        v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1] + (float)m[3*4 + 1],
-        v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2] + (float)m[3*4 + 2]
+        v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
+        v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
+        v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14]
     );
+}
+
+KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
+#ifdef KRAKEN_USE_ARM_NEON
+
+    KRVector4 d;
+    asm volatile (
+                  "vld1.32                {d0, d1}, [%1]                  \n\t"   //Q0 = v
+                  "vld1.32                {d18, d19}, [%0]!               \n\t"   //Q1 = m
+                  "vld1.32                {d20, d21}, [%0]!               \n\t"   //Q2 = m+4
+                  "vld1.32                {d22, d23}, [%0]!               \n\t"   //Q3 = m+8
+                  "vld1.32                {d24, d25}, [%0]!               \n\t"   //Q4 = m+12
+                  
+                  "vmul.f32               q13, q9, d0[0]                  \n\t"   //Q5 = Q1*Q0[0]
+                  "vmla.f32               q13, q10, d0[1]                 \n\t"   //Q5 += Q1*Q0[1]
+                  "vmla.f32               q13, q11, d1[0]                 \n\t"   //Q5 += Q2*Q0[2]
+                  "vmla.f32               q13, q12, d1[1]                 \n\t"   //Q5 += Q3*Q0[3]
+                  
+                  "vst1.32                {d26, d27}, [%2]                \n\t"   //Q4 = m+12
+                  : /* no output registers */
+                  : "r"(m.c), "r"(v.c), "r"(d.c)
+                  : "q0", "q9", "q10","q11", "q12", "q13", "memory"
+                  );
+    return d;
+#else
+    return KRVector4(
+        v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
+        v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
+        v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14],
+        v.c[0] * m.c[3] + v.c[1] * m.c[7] + v.c[2] * m.c[11] + m.c[15]
+    );
+#endif
 }
 
 // Dot product without including translation; useful for transforming normals and tangents
 KRVector3 KRMat4::DotNoTranslate(const KRMat4 &m, const KRVector3 &v)
 {
     return KRVector3(
-                     v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0],
-                     v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1],
-                     v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2]
+         v.x * m.c[0] + v.y * m.c[4] + v.z * m.c[8],
+         v.x * m.c[1] + v.y * m.c[5] + v.z * m.c[9],
+         v.x * m.c[2] + v.y * m.c[6] + v.z * m.c[10]
     );
 }
 
 /* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
 float KRMat4::DotW(const KRMat4 &m, const KRVector3 &v) {
-    return v.x * (float)m[0*4 + 3] + v.y * (float)m[1*4 + 3] + v.z * (float)m[2*4 + 3] + (float)m[3*4 + 3];
+    return v.x * m.c[0*4 + 3] + v.y * m.c[1*4 + 3] + v.z * m.c[2*4 + 3] + m.c[3*4 + 3];
 }
 
 /* Dot Product followed by W-divide */
 KRVector3 KRMat4::DotWDiv(const KRMat4 &m, const KRVector3 &v) {
-    KRVector3 r = KRVector3(
-        v.x * (float)m[0*4 + 0] + v.y * (float)m[1*4 + 0] + v.z * (float)m[2*4 + 0] + (float)m[3*4 + 0],
-        v.x * (float)m[0*4 + 1] + v.y * (float)m[1*4 + 1] + v.z * (float)m[2*4 + 1] + (float)m[3*4 + 1],
-        v.x * (float)m[0*4 + 2] + v.y * (float)m[1*4 + 2] + v.z * (float)m[2*4 + 2] + (float)m[3*4 + 2]
-    );
-    // Get W component, then divide x, y, and z by w.
-    r /= DotW(m, v);
-    return r;
+    KRVector4 r = Dot4(m, KRVector4(v, 1.0f));
+    return KRVector3(r) / r.w;
 }
 
 KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection)
@@ -370,5 +396,5 @@ KRMat4 KRMat4::Transpose(const KRMat4 &m)
 
 void KRMat4::setUniform(GLint location) const
 {
-    if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, m_mat));
+    if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, c));
 }

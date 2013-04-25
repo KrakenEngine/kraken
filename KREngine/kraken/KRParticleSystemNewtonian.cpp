@@ -54,10 +54,10 @@ bool KRParticleSystemNewtonian::hasPhysics()
     return true;
 }
 
-void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     
-    KRNode::render(pCamera, lights, viewport, renderPass);
+    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(viewport.visible(getBounds())) {
@@ -72,9 +72,9 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRLight *>
             
             int particle_count = 10000;
             
-            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), lights, 0, renderPass)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass)) {
                 if(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE] != -1) {
                     GLDEBUG(glUniform1f(
                         pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],

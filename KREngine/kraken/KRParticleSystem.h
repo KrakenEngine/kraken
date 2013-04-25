@@ -21,7 +21,7 @@ public:
     
     virtual KRAABB getBounds() = 0;
     
-    virtual void render(KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, KRNode::RenderPass renderPass) = 0;
+    virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) = 0;
     
 protected:
     KRParticleSystem(KRScene &scene, std::string name);

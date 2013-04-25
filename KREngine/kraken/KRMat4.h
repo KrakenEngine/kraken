@@ -31,6 +31,7 @@
 
 
 #include "KRVector3.h"
+#include "KRVector4.h"
 
 #include "KREngine-common.h"
 
@@ -58,14 +59,17 @@ class KRQuaternion;
 
 class KRMat4 {
     
-    GLfloat m_mat[16];
     
-public:
+    public:
+    
+    float c[16];
+    
+
     
     // Default constructor - Creates an identity matrix
     KRMat4();
     
-    KRMat4(GLfloat *pMat);
+    KRMat4(float *pMat);
     
     KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans);
     
@@ -91,16 +95,16 @@ public:
     //KRMat4& operator*(const KRMat4 &m);
     KRMat4 operator*(const KRMat4 &m) const;
     
-    GLfloat *getPointer();
+    float *getPointer();
     
-    void perspective(GLfloat fov, GLfloat aspect, GLfloat nearz, GLfloat farz);
-    void ortho(GLfloat left, GLfloat right, GLfloat top, GLfloat bottom, GLfloat nearz, GLfloat farz);
-    void translate(GLfloat x, GLfloat y, GLfloat z);
+    void perspective(float fov, float aspect, float nearz, float farz);
+    void ortho(float left, float right, float top, float bottom, float nearz, float farz);
+    void translate(float x, float y, float z);
     void translate(const KRVector3 &v);
-    void scale(GLfloat x, GLfloat y, GLfloat z);
+    void scale(float x, float y, float z);
     void scale(const KRVector3 &v);
-    void scale(GLfloat s);
-    void rotate(GLfloat angle, AXIS axis);
+    void scale(float s);
+    void rotate(float angle, AXIS axis);
     void rotate(const KRQuaternion &q);
     void bias();
     bool invert();
@@ -110,6 +114,7 @@ public:
     static KRMat4 Invert(const KRMat4 &m);
     static KRMat4 Transpose(const KRMat4 &m);
     static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
+    static KRVector4 Dot4(const KRMat4 &m, const KRVector4 &v);
     static float DotW(const KRMat4 &m, const KRVector3 &v);
     static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
     

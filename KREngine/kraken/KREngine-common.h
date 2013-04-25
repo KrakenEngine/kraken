@@ -63,6 +63,12 @@ using std::queue;
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <Accelerate/Accelerate.h>
+#define KRAKEN_HAVE_BLAS 1
+#endif
+
+
+#if !defined(__i386__) && defined(__arm__)
+#define KRAKEN_USE_ARM_NEON
 #endif
 
 #if TARGET_OS_IPHONE
@@ -166,5 +172,6 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #define KRCLAMP(x, min, max) (KRMAX(KRMIN(x, max), min))
 #define KRALIGN(x) ((x + 3) & ~0x03)
 
+#include "KRVector4.h"
 #include "KRVector3.h"
 #include "KRVector2.h"

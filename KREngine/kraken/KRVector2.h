@@ -37,7 +37,12 @@
 class KRVector2 {
     
 public:
-    float x, y;
+    union {
+        struct {
+            float x, y;
+        };
+        float c[2];
+    };
     
     KRVector2();
     KRVector2(float X, float Y);

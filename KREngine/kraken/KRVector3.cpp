@@ -46,6 +46,12 @@ KRVector3::KRVector3(const KRVector3 &v) {
     z = v.z;
 }
 
+KRVector3::KRVector3(const KRVector4 &v) {
+    x = v.x;
+    y = v.y;
+    z = v.z;
+}
+
 KRVector3::KRVector3(float *v) {
     x = v[0];
     y = v[1];
@@ -144,6 +150,14 @@ KRVector3& KRVector3::operator =(const KRVector3& b) {
     z = b.z;
     return *this;
 }
+
+KRVector3& KRVector3::operator =(const KRVector4 &b) {
+    x = b.x;
+    y = b.y;
+    z = b.z;
+    return *this;
+}
+
 KRVector3 KRVector3::operator +(const KRVector3& b) const {
     return KRVector3(x + b.x, y + b.y, z + b.z);
 }

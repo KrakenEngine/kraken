@@ -207,30 +207,29 @@ bool KRViewport::visible(const KRAABB &b) const
     int outside_count[6] = {0, 0, 0, 0, 0, 0};
     
     for(int iCorner=0; iCorner<8; iCorner++) {
-        KRVector3 sourceCornerVertex = KRVector3(
+        KRVector4 sourceCornerVertex = KRVector4(
                                                  (iCorner & 1) == 0 ? b.min.x : b.max.x,
                                                  (iCorner & 2) == 0 ? b.min.y : b.max.y,
-                                                 (iCorner & 4) == 0 ? b.min.z : b.max.z);
+                                                 (iCorner & 4) == 0 ? b.min.z : b.max.z, 1.0f);
         
-        KRVector3 cornerVertex = KRMat4::Dot(m_matViewProjection, sourceCornerVertex);
-        float cornerVertexW = KRMat4::DotW(m_matViewProjection, sourceCornerVertex);
+        KRVector4 cornerVertex = KRMat4::Dot4(m_matViewProjection, sourceCornerVertex);
         
-        if(cornerVertex.x < -cornerVertexW) {
+        if(cornerVertex.x < -cornerVertex.w) {
             outside_count[0]++;
         }
-        if(cornerVertex.y < -cornerVertexW) {
+        if(cornerVertex.y < -cornerVertex.w) {
             outside_count[1]++;
         }
-        if(cornerVertex.z < -cornerVertexW) {
+        if(cornerVertex.z < -cornerVertex.w) {
             outside_count[2]++;
         }
-        if(cornerVertex.x > cornerVertexW) {
+        if(cornerVertex.x > cornerVertex.w) {
             outside_count[3]++;
         }
-        if(cornerVertex.y > cornerVertexW) {
+        if(cornerVertex.y > cornerVertex.w) {
             outside_count[4]++;
         }
-        if(cornerVertex.z > cornerVertexW) {
+        if(cornerVertex.z > cornerVertex.w) {
             outside_count[5]++;
         }
     }

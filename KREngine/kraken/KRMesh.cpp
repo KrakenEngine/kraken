@@ -132,7 +132,7 @@ void KRMesh::loadPack(KRDataBlock *data) {
     m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRLight *> &lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -184,7 +184,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                     
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, lights, bones, viewport, matModel, pLightMap, renderPass)) {
+                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, point_lights, directional_lights, spot_lights, bones, viewport, matModel, pLightMap, renderPass)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
