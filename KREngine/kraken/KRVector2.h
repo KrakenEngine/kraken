@@ -101,8 +101,8 @@ namespace std {
     public:
         size_t operator()(const KRVector2 &s) const
         {
-            size_t h1 = std::hash<float>()(s.x);
-            size_t h2 = std::hash<float>()(s.y);
+            size_t h1 = hash<float>()(s.x);
+            size_t h2 = hash<float>()(s.y);
             return h1 ^ ( h2 << 1 );
         }
     };

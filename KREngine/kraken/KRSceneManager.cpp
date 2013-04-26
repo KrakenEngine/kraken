@@ -53,7 +53,7 @@ KRScene *KRSceneManager::getScene(const char *szName) {
 }
 
 KRScene *KRSceneManager::getFirstScene() {
-    static std::unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
+    static unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
     if(scene_itr == m_scenes.end()) {
         return NULL;
     } else {
@@ -61,7 +61,7 @@ KRScene *KRSceneManager::getFirstScene() {
     }
 }
 
-std::unordered_map<std::string, KRScene *> KRSceneManager::getScenes() {
+unordered_map<std::string, KRScene *> KRSceneManager::getScenes() {
     return m_scenes;
 }
 

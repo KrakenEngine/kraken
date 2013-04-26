@@ -22,7 +22,23 @@ float const D2R = PI * 2 / 360;
 #include <set>
 #include <list>
 #include <map>
+
+#if TARGET_OS_IPHONE
+
 #include <unordered_map>
+using std::unordered_map;
+using std::unordered_multimap;
+using std::hash;
+
+#else
+
+#include <tr1/unordered_map>
+using std::tr1::unordered_map;
+using std::tr1::unordered_multimap;
+using std::tr1::hash;
+
+#endif
+
 #include <stack>
 #include <queue>
 #include <iostream>
@@ -52,9 +68,9 @@ using std::string;
 using std::set;
 using std::list;
 using std::map;
-using std::unordered_map;
+
 using std::multimap;
-using std::unordered_multimap;
+
 using std::stack;
 using std::queue;
 

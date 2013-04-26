@@ -57,7 +57,7 @@ public:
     void addModel(KRMesh *model);
     
     std::vector<std::string> getModelNames();
-    std::unordered_multimap<std::string, KRMesh *> &getModels();
+    unordered_multimap<std::string, KRMesh *> &getModels();
     
     
     void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights, bool static_vbo);
@@ -113,7 +113,7 @@ public:
 
     
 private:
-    std::unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
+    unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
     typedef struct vbo_info {
         GLuint vbo_handle;
@@ -126,8 +126,8 @@ private:
     long m_vboMemUsed;
     vbo_info_type m_currentVBO;
     
-    std::unordered_map<GLvoid *, vbo_info_type> m_vbosActive;
-    std::unordered_map<GLvoid *, vbo_info_type> m_vbosPool;
+    unordered_map<GLvoid *, vbo_info_type> m_vbosActive;
+    unordered_map<GLvoid *, vbo_info_type> m_vbosPool;
     
     RandomParticleVertexData *m_randomParticleVertexData;
     VolumetricLightingVertexData *m_volumetricLightingVertexData;

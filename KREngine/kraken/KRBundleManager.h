@@ -49,10 +49,10 @@ public:
     KRBundle *getBundle(const char *szName);
     
     std::vector<std::string> getBundleNames();
-    std::unordered_map<std::string, KRBundle *> getBundles();
+    unordered_map<std::string, KRBundle *> getBundles();
     
 private:
-    std::unordered_map<std::string, KRBundle *> m_bundles;
+    unordered_map<std::string, KRBundle *> m_bundles;
 };
 
 #endif /* defined(KRBUNDLEMANAGER_H) */

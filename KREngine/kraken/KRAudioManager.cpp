@@ -212,7 +212,7 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
     int impulse_response_channels = 2;
     for(int channel=0; channel < impulse_response_channels; channel++) {
         bool first_sample = true;
-        for(std::unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
+        for(unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
             siren_reverb_zone_weight_info zi = (*zone_itr).second;
             if(zi.reverb_sample) {
                 if(impulse_response_offset < zi.reverb_sample->getFrameCount()) { // Optimization - when mixing multiple impulse responses (i.e. fading between reverb zones), do not process blocks past the end of a shorter impulse response sample when they differ in length
@@ -264,7 +264,7 @@ void KRAudioManager::renderReverb()
         if(&source->getScene() == m_listener_scene) {
             float containment_factor = 0.0f;
             
-            for(std::unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
+            for(unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
                 siren_reverb_zone_weight_info zi = (*zone_itr).second;
                 float gain = zi.weight * zi.reverb_zone->getReverbGain() * zi.reverb_zone->getContainment(source->getWorldTranslation());
                 if(gain > containment_factor) containment_factor = gain;
@@ -283,7 +283,7 @@ void KRAudioManager::renderReverb()
     //    KRAudioSample *impulse_response = getContext().getAudioManager()->get("hrtf_kemar_H10e040a");
     
     int impulse_response_blocks = 0;
-    for(std::unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
+    for(unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
         siren_reverb_zone_weight_info zi = (*zone_itr).second;
         if(zi.reverb_sample) {
             int zone_sample_blocks = zi.reverb_sample->getFrameCount() / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
@@ -1540,8 +1540,8 @@ void KRAudioManager::startFrame(float deltaTime)
             
             // Click Removal - Add ramping of gain changes for audio sources that are continuing to play
             float gain_anticlick = 0.0f;
-            std::pair<std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> prev_range = m_prev_mapped_sources.equal_range(adjusted_source_dir);
-            for(std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator prev_itr=prev_range.first; prev_itr != prev_range.second; prev_itr++) {
+            std::pair<unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> prev_range = m_prev_mapped_sources.equal_range(adjusted_source_dir);
+            for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator prev_itr=prev_range.first; prev_itr != prev_range.second; prev_itr++) {
                 if( (*prev_itr).second.first == source) {
                     gain_anticlick = (*prev_itr).second.second.second;
                     break;
@@ -1553,7 +1553,7 @@ void KRAudioManager::startFrame(float deltaTime)
     }
     
     // Click Removal - Map audio sources for ramp-down of gain for audio sources that have been squelched by attenuation
-    for(std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_prev_mapped_sources.begin(); itr != m_prev_mapped_sources.end(); itr++) {
+    for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_prev_mapped_sources.begin(); itr != m_prev_mapped_sources.end(); itr++) {
 
         KRAudioSource *source = (*itr).second.first;
         float source_prev_gain = (*itr).second.second.second;
@@ -1561,9 +1561,9 @@ void KRAudioManager::startFrame(float deltaTime)
             // Only create ramp-down channels for 3d sources that have been squelched by attenuation; this is not necessary if the sample has completed playing
             KRVector2 source_position = (*itr).first;
             
-            std::pair<std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> new_range = m_mapped_sources.equal_range(source_position);
+            std::pair<unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> new_range = m_mapped_sources.equal_range(source_position);
             bool already_merged = false;
-            for(std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator new_itr=new_range.first; new_itr != new_range.second; new_itr++) {
+            for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator new_itr=new_range.first; new_itr != new_range.second; new_itr++) {
                 if( (*new_itr).second.first == source) {
                     already_merged = true;
                     break;
@@ -1588,7 +1588,7 @@ void KRAudioManager::renderAmbient()
         int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
         float *buffer = m_workspace[0].realp;
         
-        for(std::unordered_map<std::string, siren_ambient_zone_weight_info>::iterator zone_itr=m_ambient_zone_weights.begin(); zone_itr != m_ambient_zone_weights.end(); zone_itr++) {
+        for(unordered_map<std::string, siren_ambient_zone_weight_info>::iterator zone_itr=m_ambient_zone_weights.begin(); zone_itr != m_ambient_zone_weights.end(); zone_itr++) {
             siren_ambient_zone_weight_info zi = (*zone_itr).second;
             float gain = (*zone_itr).second.weight * zi.ambient_zone->getAmbientGain() * m_global_ambient_gain * m_global_gain;
             
@@ -1618,7 +1618,7 @@ void KRAudioManager::renderHRTF()
     for(int channel=0; channel<impulse_response_channels; channel++) {
         
         bool first_source = true;
-        std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
+        unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
         while(itr != m_mapped_sources.end()) {
             // Batch together sound sources that are emitted from the same direction
             KRVector2 source_direction = (*itr).first;

@@ -207,17 +207,17 @@ private:
     DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
     
     
-    std::unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
+    unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
     float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
     
-    std::unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
+    unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
     boost::signals2::mutex m_mutex;
     mach_timebase_info_data_t m_timebase_info;
     
     
-    std::unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+    unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
     bool m_anticlick_block;
     bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };

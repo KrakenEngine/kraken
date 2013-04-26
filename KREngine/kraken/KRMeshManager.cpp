@@ -55,7 +55,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
 }
 
 KRMeshManager::~KRMeshManager() {
-    for(std::unordered_multimap<std::string, KRMesh *>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr){
+    for(unordered_multimap<std::string, KRMesh *>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr){
         delete (*itr).second;
     }
     m_models.empty();
@@ -85,8 +85,8 @@ std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
     
     std::vector<KRMesh *> matching_models;
     
-    std::pair<std::unordered_multimap<std::string, KRMesh *>::iterator, std::unordered_multimap<std::string, KRMesh *>::iterator> range = m_models.equal_range(lowerName);
-    for(std::unordered_multimap<std::string, KRMesh *>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
+    std::pair<unordered_multimap<std::string, KRMesh *>::iterator, unordered_multimap<std::string, KRMesh *>::iterator> range = m_models.equal_range(lowerName);
+    for(unordered_multimap<std::string, KRMesh *>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
         matching_models.push_back(itr_match->second);
     }
     
@@ -99,7 +99,7 @@ std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
     return matching_models;
 }
 
-std::unordered_multimap<std::string, KRMesh *> &KRMeshManager::getModels() {
+unordered_multimap<std::string, KRMesh *> &KRMeshManager::getModels() {
     return m_models;
 }
 
@@ -187,7 +187,7 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
                     fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
                     m_pContext->rotateBuffers(false);
                 }
-                std::unordered_map<GLvoid *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
+                unordered_map<GLvoid *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
                 vbo_info_type firstVBO = first_itr->second;
 #if GL_OES_vertex_array_object
                 GLDEBUG(glDeleteVertexArraysOES(1, &firstVBO.vao_handle));
@@ -324,7 +324,7 @@ long KRMeshManager::getMemUsed()
 long KRMeshManager::getMemActive()
 {
     long mem_active = 0;
-    for(std::unordered_map<GLvoid *, vbo_info_type>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
+    for(unordered_map<GLvoid *, vbo_info_type>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
         mem_active += (*itr).second.size;
     }
     return mem_active;

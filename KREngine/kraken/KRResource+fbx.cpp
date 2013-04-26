@@ -162,11 +162,11 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         }
     }
     
-    for(std::unordered_map<std::string, KRTexture *>::iterator texture_itr = context.getTextureManager()->getTextures().begin(); texture_itr != context.getTextureManager()->getTextures().end(); texture_itr++) {
+    for(unordered_map<std::string, KRTexture *>::iterator texture_itr = context.getTextureManager()->getTextures().begin(); texture_itr != context.getTextureManager()->getTextures().end(); texture_itr++) {
         resources.push_back((*texture_itr).second);
     }
     
-    for(std::unordered_map<std::string, KRMesh *>::iterator mesh_itr = context.getModelManager()->getModels().begin(); mesh_itr != context.getModelManager()->getModels().end(); mesh_itr++) {
+    for(unordered_map<std::string, KRMesh *>::iterator mesh_itr = context.getModelManager()->getModels().begin(); mesh_itr != context.getModelManager()->getModels().end(); mesh_itr++) {
         resources.push_back((*mesh_itr).second);
     }
     

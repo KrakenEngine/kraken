@@ -67,7 +67,7 @@ KRAnimation *KRAnimationManager::getAnimation(const char *szName) {
     return m_animations[szName];
 }
 
-std::unordered_map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
+unordered_map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
     return m_animations;
 }
 

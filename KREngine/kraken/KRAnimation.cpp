@@ -47,7 +47,7 @@ KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(cont
 }
 KRAnimation::~KRAnimation()
 {
-    for(std::unordered_map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         delete (*itr).second;
     }
 }
@@ -69,7 +69,7 @@ bool KRAnimation::save(KRDataBlock &data) {
     animation_node->SetAttribute("auto_play", m_auto_play ? "true" : "false");
     animation_node->SetAttribute("duration", m_duration);
     
-    for(std::unordered_map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         (*itr).second->saveXML(animation_node);
     }
     
@@ -120,7 +120,7 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
 }
 
 
-std::unordered_map<std::string, KRAnimationLayer *> &KRAnimation::getLayers()
+unordered_map<std::string, KRAnimationLayer *> &KRAnimation::getLayers()
 {
     return m_layers;
 }
@@ -139,7 +139,7 @@ void KRAnimation::update(float deltaTime)
         m_local_time -= m_duration;
     }
     
-    for(std::unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
         KRAnimationLayer *layer = (*layer_itr).second;
         for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
             KRAnimationAttribute *attribute = *attribute_itr;

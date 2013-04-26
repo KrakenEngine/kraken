@@ -30,7 +30,7 @@
 //
 
 #include "KRUnknownManager.h"
-#include <unordered_map>
+#include "KREngine-common.h"
 
 KRUnknownManager::KRUnknownManager(KRContext &context) : KRContextObject(context)
 {

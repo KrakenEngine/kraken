@@ -53,7 +53,7 @@ KRAnimationCurve *KRAnimationCurveManager::getAnimationCurve(const char *szName)
     return m_animationCurves[szName];
 }
 
-std::unordered_map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnimationCurves() {
+unordered_map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnimationCurves() {
     return m_animationCurves;
 }
 

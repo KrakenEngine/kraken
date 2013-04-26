@@ -55,6 +55,6 @@ KRBundle *KRBundleManager::getBundle(const char *szName) {
     return m_bundles[szName];
 }
 
-std::unordered_map<std::string, KRBundle *> KRBundleManager::getBundles() {
+unordered_map<std::string, KRBundle *> KRBundleManager::getBundles() {
     return m_bundles;
 }

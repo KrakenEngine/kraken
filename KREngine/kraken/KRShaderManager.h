@@ -67,11 +67,11 @@ public:
     long getShaderHandlesUsed();
     
 private:
-    //std::unordered_map<std::string, KRShader *> m_shaders;
+    //unordered_map<std::string, KRShader *> m_shaders;
     std::map<std::pair<std::string, std::vector<int> >, KRShader *> m_shaders;
     
-    std::unordered_map<std::string, std::string> m_fragShaderSource;
-    std::unordered_map<std::string, std::string> m_vertShaderSource;
+    unordered_map<std::string, std::string> m_fragShaderSource;
+    unordered_map<std::string, std::string> m_vertShaderSource;
     
     KRShader *m_pShader;
     char m_szCurrentShaderKey[256];

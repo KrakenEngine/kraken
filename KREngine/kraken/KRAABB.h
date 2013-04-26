@@ -61,8 +61,8 @@ namespace std {
     public:
         size_t operator()(const KRAABB &s) const
         {
-            size_t h1 = std::hash<KRVector3>()(s.min);
-            size_t h2 = std::hash<KRVector3>()(s.max);
+            size_t h1 = hash<KRVector3>()(s.min);
+            size_t h2 = hash<KRVector3>()(s.max);
             return h1 ^ ( h2 << 1 );
         }
     };
