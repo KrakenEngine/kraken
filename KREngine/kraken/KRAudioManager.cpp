@@ -47,7 +47,7 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     m_anticlick_block = true;
     mach_timebase_info(&m_timebase_info);
     
-    m_audio_engine = KRAKEN_AUDIO_NONE;
+    m_audio_engine = KRAKEN_AUDIO_SIREN;
     m_high_quality_hrtf = false;
     
     m_listener_scene = NULL;
