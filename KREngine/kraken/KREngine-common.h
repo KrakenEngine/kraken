@@ -23,21 +23,6 @@ float const D2R = PI * 2 / 360;
 #include <list>
 #include <map>
 
-#if TARGET_OS_IPHONE
-
-#include <unordered_map>
-using std::unordered_map;
-using std::unordered_multimap;
-using std::hash;
-
-#else
-
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-using std::tr1::unordered_multimap;
-using std::tr1::hash;
-
-#endif
 
 #include <stack>
 #include <queue>
@@ -86,6 +71,24 @@ using std::queue;
 #if !defined(__i386__) && defined(__arm__)
 #define KRAKEN_USE_ARM_NEON
 #endif
+
+
+#if TARGET_OS_IPHONE
+
+#include <unordered_map>
+using std::unordered_map;
+using std::unordered_multimap;
+using std::hash;
+
+#else
+
+#include <tr1/unordered_map>
+using std::tr1::unordered_map;
+using std::tr1::unordered_multimap;
+using std::tr1::hash;
+
+#endif
+
 
 #if TARGET_OS_IPHONE
 

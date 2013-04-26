@@ -73,6 +73,17 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     std::pair<std::string, std::vector<int> > key;
     key.first = shader_name;
     key.second.push_back(light_directional_count);
+    key.second.push_back(light_point_count);
+    key.second.push_back(light_spot_count);
+    key.second.push_back(pCamera->settings.fog_type);
+    key.second.push_back(pCamera->settings.bEnablePerPixel);
+    key.second.push_back(bAlphaTest);
+    key.second.push_back(bAlphaBlend);
+    key.second.push_back(bDiffuseMap);
+    key.second.push_back(bNormalMap);
+    key.second.push_back(bSpecMap);
+    key.second.push_back(bReflectionMap);
+    key.second.push_back(bone_count);
     key.second.push_back(bSpecMap);
     key.second.push_back(bReflectionMap);
     key.second.push_back(bReflectionCubeMap);
@@ -103,8 +114,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     key.second.push_back(pCamera->settings.flash_intensity * 1000.0f);
     key.second.push_back(pCamera->settings.vignette_radius * 1000.0f);
     key.second.push_back(pCamera->settings.vignette_falloff * 1000.0f);
-                         
-                         
+              
                          
     KRShader *pShader = m_shaders[key];
     
