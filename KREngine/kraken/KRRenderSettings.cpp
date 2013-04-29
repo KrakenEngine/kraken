@@ -10,6 +10,9 @@
 
 KRRenderSettings::KRRenderSettings()
 {
+    siren_enable = true;
+    siren_enable_reverb = true;
+    siren_enable_hrtf = true;
     
     m_enable_realtime_occlusion = true;
     bShowShadowBuffer = false;
@@ -85,6 +88,10 @@ KRRenderSettings::~KRRenderSettings()
 
 KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
 {
+    siren_enable = s.siren_enable;
+    siren_enable_reverb = s.siren_enable_reverb;
+    siren_enable_hrtf = s.siren_enable_hrtf;
+    
     bEnablePerPixel = s.bEnablePerPixel;
     bEnableDiffuseMap = s.bEnableDiffuseMap;
     bEnableNormalMap = s.bEnableNormalMap;

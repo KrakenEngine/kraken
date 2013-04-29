@@ -66,7 +66,7 @@ KRCamera::~KRCamera() {
 }
 
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
-{
+{    
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
     if(m_last_frame_start != 0) {

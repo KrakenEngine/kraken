@@ -127,7 +127,20 @@ public:
     
 
     void startFrame(float deltaTime);
+    
+    bool getEnableAudio();
+    void setEnableAudio(bool enable);
+    
+    bool getEnableHRTF();
+    void setEnableHRTF(bool enable);
+    
+    bool getEnableReverb();
+    void setEnableReverb(bool enable);
+    
 private:
+    bool m_enable_audio;
+    bool m_enable_hrtf;
+    bool m_enable_reverb;
     
     KRScene *m_listener_scene; // For now, only one scene is allowed to have active audio at once
     

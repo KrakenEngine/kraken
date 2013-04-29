@@ -98,6 +98,10 @@ public:
     
     bool getEnableRealtimeOcclusion();
     void setEnableRealtimeOcclusion(bool enable);
+    
+    bool siren_enable;
+    bool siren_enable_reverb;
+    bool siren_enable_hrtf;
 
 private:
     float m_lodBias;

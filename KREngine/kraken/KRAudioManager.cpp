@@ -44,6 +44,10 @@ ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
 
 KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
 {
+    m_enable_audio = true;
+    m_enable_hrtf = true;
+    m_enable_reverb = true;
+    
     m_anticlick_block = true;
     mach_timebase_info(&m_timebase_info);
     
@@ -98,6 +102,34 @@ void KRAudioManager::initAudio()
         case KRAKEN_AUDIO_NONE:
             break;
     }
+}
+
+bool KRAudioManager::getEnableAudio()
+{
+    return m_enable_audio;
+}
+void KRAudioManager::setEnableAudio(bool enable)
+{
+    m_enable_audio = enable;
+}
+
+bool KRAudioManager::getEnableHRTF()
+{
+    return m_enable_hrtf;
+}
+void KRAudioManager::setEnableHRTF(bool enable)
+{
+    m_enable_hrtf = enable;
+}
+
+bool KRAudioManager::getEnableReverb()
+{
+    return m_enable_reverb;
+}
+
+void KRAudioManager::setEnableReverb(bool enable)
+{
+    m_enable_reverb = enable;
 }
 
 KRScene *KRAudioManager::getListenerScene()
@@ -327,8 +359,6 @@ void KRAudioManager::renderBlock()
 {
     m_mutex.lock();
     
-    bool headphone_mode = true;
-    
     // ----====---- Advance to next block in accumulation buffer ----====----
     
     // Zero out block that was last used, so it will be ready for the next pass through the circular buffer
@@ -338,18 +368,22 @@ void KRAudioManager::renderBlock()
     // Advance to the next block, and wrap around
     m_output_accumulation_block_start = (m_output_accumulation_block_start + KRENGINE_AUDIO_BLOCK_LENGTH * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
     
-    // ----====---- Render Direct / HRTF audio ----====----
-    if(headphone_mode) {
-        renderHRTF();
-    } else {
-        renderITD();
+    if(m_enable_audio) {
+        // ----====---- Render Direct / HRTF audio ----====----
+        if(m_enable_hrtf) {
+            renderHRTF();
+        } else {
+            renderITD();
+        }
+        
+        // ----====---- Render Indirect / Reverb channel ----====----
+        if(m_enable_reverb) {
+            renderReverb();
+        }
+        
+        // ----====---- Render Ambient Sound ----====----
+        renderAmbient();
     }
-    
-    // ----====---- Render Indirect / Reverb channel ----====----
-    renderReverb();
-    
-    // ----====---- Render Ambient Sound ----====----
-    renderAmbient();
     
     // ----====---- Advance audio sources ----====----
     m_audio_frame += KRENGINE_AUDIO_BLOCK_LENGTH;
@@ -1719,6 +1753,8 @@ void KRAudioManager::renderHRTF()
 
 void KRAudioManager::renderITD()
 {
+    // FINDME, TODO - Need Inter-Temperal based phase shifting to support 3-d spatialized audio without headphones
+    
     /*
      
      
