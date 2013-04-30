@@ -42,17 +42,28 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
 }
 
 KRNode::~KRNode() {
-    getScene().notify_sceneGraphDelete(this);
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
-        delete *itr;
+    while(m_childNodes.size() > 0) {
+        delete *m_childNodes.begin();
     }
-    m_childNodes.clear();
+
+    if(m_parentNode) {
+        m_parentNode->childDeleted(this);
+    }
+    getScene().notify_sceneGraphDelete(this);
+    
+}
+
+void KRNode::childDeleted(KRNode *child_node)
+{
+    m_childNodes.erase(child_node);
+    // InvalidateBounds();
+    getScene().notify_sceneGraphModify(this);
 }
 
 void KRNode::addChild(KRNode *child) {
     assert(child->m_parentNode == NULL);
     child->m_parentNode = this;
-    m_childNodes.push_back(child);
+    m_childNodes.insert(child);
     if(m_lod_visible) {
         // Child node inherits LOD visibility status from parent
         child->showLOD();
@@ -73,7 +84,7 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     e->SetAttribute("rotate_x", m_localRotation.x * 180 / M_PI);
     e->SetAttribute("rotate_y", m_localRotation.y * 180 / M_PI);
     e->SetAttribute("rotate_z", m_localRotation.z * 180 / M_PI);
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         child->saveXML(n);
     }
@@ -265,7 +276,7 @@ void KRNode::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
 {
 }
 
-const std::vector<KRNode *> &KRNode::getChildren() {
+const std::set<KRNode *> &KRNode::getChildren() {
     return m_childNodes;
 }
 
@@ -281,7 +292,7 @@ KRAABB KRNode::getBounds() {
     KRAABB bounds = KRAABB::Zero();
 
     bool first_child = true;
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         if(child->getBounds() != KRAABB::Zero()) {
             if(first_child) {
@@ -300,11 +311,12 @@ void KRNode::invalidateModelMatrix()
 {
     m_modelMatrixValid = false;
     m_inverseModelMatrixValid = false;
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         child->invalidateModelMatrix();
     }
     
+    // InvalidateBounds
     getScene().notify_sceneGraphModify(this);
 }
 
@@ -312,7 +324,7 @@ void KRNode::invalidateBindPoseMatrix()
 {
     m_bindPoseMatrixValid = false;
     m_inverseBindPoseMatrixValid = false;
-    for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
         child->invalidateBindPoseMatrix();
     }
@@ -470,7 +482,7 @@ void KRNode::hideLOD()
     if(m_lod_visible) {
         m_lod_visible = false;
         getScene().notify_sceneGraphDelete(this);
-        for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             (*itr)->hideLOD();
         }
     }
@@ -481,7 +493,7 @@ void KRNode::showLOD()
     if(!m_lod_visible) {
         getScene().notify_sceneGraphCreate(this);
         m_lod_visible = true;
-        for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             (*itr)->showLOD();
         }
     }

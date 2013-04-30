@@ -139,7 +139,7 @@ void KRLODGroup::updateLODVisibility(const KRViewport &viewport)
             getScene().notify_sceneGraphCreate(this);
             m_lod_visible = true;
         }
-        for(std::vector<KRNode *>::iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             (*itr)->updateLODVisibility(viewport);
         }
     }

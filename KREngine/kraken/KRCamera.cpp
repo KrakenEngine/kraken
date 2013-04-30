@@ -1045,3 +1045,9 @@ std::string KRCamera::getDebugText()
     }
     return stream.str();
 }
+
+
+const KRViewport &KRCamera::getViewport()
+{
+    return m_viewport;
+}

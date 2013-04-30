@@ -56,7 +56,7 @@ public:
     const std::string &getName() const;
     
     void addChild(KRNode *child);
-    const std::vector<KRNode *> &getChildren();
+    const std::set<KRNode *> &getChildren();
     
     void setLocalTranslation(const KRVector3 &v, bool set_original = false);
     void setLocalScale(const KRVector3 &v, bool set_original = false);
@@ -130,7 +130,7 @@ protected:
     float m_lod_max_coverage;
     
     KRNode *m_parentNode;
-    std::vector<KRNode *> m_childNodes;
+    std::set<KRNode *> m_childNodes;
     
 private:
     void invalidateModelMatrix();
@@ -156,6 +156,7 @@ public:
     
     void removeFromOctreeNodes();
     void addToOctreeNode(KROctreeNode *octree_node);
+    void childDeleted(KRNode *child_node);
     
     template <class T> T *find()
     {
@@ -164,7 +165,7 @@ public:
             return match;
         }
         
-        for(std::vector<KRNode *>::const_iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        for(std::set<KRNode *>::const_iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             match = (*itr)->find<T>();
             if(match) {
                 return match;
@@ -183,7 +184,7 @@ public:
             }
         }
         
-        for(std::vector<KRNode *>::const_iterator itr=m_childNodes.begin(); itr < m_childNodes.end(); ++itr) {
+        for(std::set<KRNode *>::const_iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             match = (*itr)->find<T>(name);
             if(match) {
                 return match;

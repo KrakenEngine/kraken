@@ -128,7 +128,7 @@ bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hit
         }
     }
     if(m_pRootNode) {
-        if(m_pRootNode->lineCast(v0, dir, hitinfo, layer_mask)) hit_found = true;
+        if(m_pRootNode->rayCast(v0, dir, hitinfo, layer_mask)) hit_found = true;
     }
     return hit_found;
 }

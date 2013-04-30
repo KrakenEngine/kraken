@@ -58,6 +58,8 @@ public:
     void renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight);
     
     KRRenderSettings settings;
+    
+    const KRViewport &getViewport();
         
 private:    
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
