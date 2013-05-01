@@ -422,7 +422,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     GL_PUSH_GROUP_MARKER("Debug Overlays");
     
-    if(settings.bShowOctree) {
+    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
         // Enable z-buffer test
         GLDEBUG(glEnable(GL_DEPTH_TEST));
         GLDEBUG(glDepthRangef(0.0, 1.0));
@@ -1041,6 +1041,12 @@ std::string KRCamera::getDebugText()
             }
             stream << "\n\n\t\tTOTAL:\t" << draw_call_count << " draw calls\t" << vertex_count << " vertices";
         }
+        break;
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE:
+        stream << "Octree Visualization";
+        break;
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS:
+        stream << "Collider Visualization";
         break;
     }
     return stream.str();

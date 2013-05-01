@@ -172,31 +172,30 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             @"debug_enable_diffuse" : @25,
             @"debug_enable_specular" : @26,
             @"debug_enable_reflection" : @27,
-            @"debug_octree" : @28,
-            @"debug_deferred" : @29,
-            @"enable_deferred_lighting" : @30,
-            @"near_clip" : @31,
-            @"far_clip" : @32,
-            @"volumetric_environment_enable" : @33,
-            @"volumetric_environment_downsample" : @34,
-            @"volumetric_environment_max_distance" : @35,
-            @"volumetric_environment_slices" : @36,
-            @"volumetric_environment_intensity" : @37,
-            @"fog_type": @38,
-            @"fog_near": @39,
-            @"fog_far": @40,
-            @"fog_density": @41,
-            @"fog_color_r": @42,
-            @"fog_color_g": @43,
-            @"fog_color_b": @44,
-            @"dust_enable" : @45,
-            @"dust_intensity" : @46,
-            @"lod_bias" : @47,
-            @"enable_realtime_occlusion" : @48,
-            @"debug_display" : @49,
-            @"siren_enable" : @50,
-            @"siren_enable_reverb" : @51,
-            @"siren_enable_hrtf" : @52
+            @"debug_deferred" : @28,
+            @"enable_deferred_lighting" : @29,
+            @"near_clip" : @30,
+            @"far_clip" : @31,
+            @"volumetric_environment_enable" : @32,
+            @"volumetric_environment_downsample" : @33,
+            @"volumetric_environment_max_distance" : @34,
+            @"volumetric_environment_slices" : @35,
+            @"volumetric_environment_intensity" : @36,
+            @"fog_type": @37,
+            @"fog_near": @38,
+            @"fog_far": @39,
+            @"fog_density": @40,
+            @"fog_color_r": @41,
+            @"fog_color_g": @42,
+            @"fog_color_b": @43,
+            @"dust_enable" : @44,
+            @"dust_intensity" : @45,
+            @"lod_bias" : @46,
+            @"enable_realtime_occlusion" : @47,
+            @"debug_display" : @48,
+            @"siren_enable" : @49,
+            @"siren_enable_reverb" : @50,
+            @"siren_enable_hrtf" : @51
                             
         } copy];
         [self loadShaders];
@@ -269,7 +268,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(int)getParameterCount
 {
-    return 53;
+    return 52;
 }
 
 
@@ -285,7 +284,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[53] = {
+    NSString *parameter_labels[52] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -314,7 +313,6 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         @"Debug - Enable Diffuse",
         @"Debug - Enable Specular",
         @"Debug - Enable Reflections",
-        @"Debug - Octree Visualize",
         @"Debug - Deferred Lights Visualize",
         @"Enable Deferred Lighting",
         @"Clip Plane - Near",
@@ -344,7 +342,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[53] = {
+    KREngineParameterType types[52] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -368,7 +366,6 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT,
-        KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
@@ -404,7 +401,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[53] = {
+    float values[52] = {
         _settings.perspective_fov,
         (float)_settings.m_cShadowBuffers,
         _settings.bEnablePerPixel ? 1.0f : 0.0f,
@@ -433,7 +430,6 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         _settings.bEnableDiffuse ? 1.0f : 0.0f,
         _settings.bEnableSpecular ? 1.0f : 0.0f,
         _settings.bEnableReflection ? 1.0f : 0.0f,
-        _settings.bShowOctree ? 1.0f : 0.0f,
         _settings.bShowDeferred ? 1.0f : 0.0f,
         _settings.bEnableDeferredLighting ? 1.0f : 0.0f,
         _settings.getPerspectiveNearZ(),
@@ -583,84 +579,79 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             }
             break;
         case 28:
-            if(_settings.bShowOctree != bNewBoolVal) {
-                _settings.bShowOctree = bNewBoolVal;
-            }
-            break;
-        case 29:
             if(_settings.bShowDeferred != bNewBoolVal) {
                 _settings.bShowDeferred = bNewBoolVal;
             }
             break;
-        case 30:
+        case 29:
             if(_settings.bEnableDeferredLighting != bNewBoolVal) {
                 _settings.bEnableDeferredLighting = bNewBoolVal;
             }
             break;
-        case 31:
+        case 30:
             _settings.setPerspectiveNear(v);
             break;
-        case 32:
+        case 31:
             _settings.setPerpsectiveFarZ(v);
             break;
-        case 33:
+        case 32:
             _settings.volumetric_environment_enable = bNewBoolVal;
             break;
-        case 34:
+        case 33:
             _settings.volumetric_environment_downsample = 5 - (int)v;
             break;
-        case 35:
+        case 34:
             _settings.volumetric_environment_max_distance = v;
             break;
-        case 36:
+        case 35:
             _settings.volumetric_environment_quality = v;
             break;
-        case 37:
+        case 36:
             _settings.volumetric_environment_intensity = v;
             break;
-        case 38:
+        case 37:
             _settings.fog_type = v;
             break;
-        case 39:
+        case 38:
             _settings.fog_near = v;
             break;
-        case 40:
+        case 39:
             _settings.fog_far = v;
             break;
-        case 41:
+        case 40:
             _settings.fog_density = v;
             break;
-        case 42:
+        case 41:
             _settings.fog_color.x = v;
             break;
-        case 43:
+        case 42:
             _settings.fog_color.y = v;
             break;
-        case 44:
+        case 43:
             _settings.fog_color.z = v;
             break;
-        case 45:
+        case 44:
             _settings.dust_particle_enable = bNewBoolVal;
             break;
-        case 46:
+        case 45:
             _settings.dust_particle_intensity = v;
             break;
-        case 47:
+        case 46:
             _settings.setLODBias(v);
             break;
-        case 48:
+        case 47:
             _settings.setEnableRealtimeOcclusion(bNewBoolVal);
             break;
-        case 49:
+        case 48:
             _settings.debug_display = (KRRenderSettings::debug_display_type)v;
             break;
-        case 50:
+        case 49:
             _settings.siren_enable = bNewBoolVal;
             break;
-        case 51:
+        case 50:
             _settings.siren_enable_reverb = bNewBoolVal;
             break;
-        case 52:
+        case 51:
             _settings.siren_enable_hrtf = bNewBoolVal;
             break;
     }
@@ -668,10 +659,10 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[53] = {
+    float minValues[52] = {
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.01f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, -10.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f
@@ -682,10 +673,10 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[53] = {
+    float maxValues[52] = {
              PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
            1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
-           2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,  1.0f,
+           2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
         1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 10.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1),
         1.0f, 1.0f, 1.0f

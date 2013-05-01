@@ -150,3 +150,47 @@ void KRCollider::setAudioOcclusion(float audio_occlusion)
 {
     m_audio_occlusion = audio_occlusion;
 }
+
+
+void KRCollider::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+{
+    
+    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    
+    if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
+        loadModel();
+        if(m_models.size()) {
+            
+            GL_PUSH_GROUP_MARKER("Debug Overlays");
+            
+            KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass)) {
+                
+                // Enable additive blending
+                GLDEBUG(glEnable(GL_BLEND));
+                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+                
+                
+                // Disable z-buffer write
+                GLDEBUG(glDepthMask(GL_FALSE));
+                
+                // Enable z-buffer test
+                GLDEBUG(glEnable(GL_DEPTH_TEST));
+                GLDEBUG(glDepthFunc(GL_LEQUAL));
+                GLDEBUG(glDepthRangef(0.0, 1.0));
+
+
+                for(int i=0; i < m_models[0]->getSubmeshCount(); i++) {
+                    m_models[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay");
+                }
+            
+                // Enable alpha blending
+                GLDEBUG(glEnable(GL_BLEND));
+                GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            }
+            
+            GL_POP_GROUP_MARKER;
+        }
+    }
+}
