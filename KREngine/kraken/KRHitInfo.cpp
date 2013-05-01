@@ -41,6 +41,9 @@ KRHitInfo::KRHitInfo()
 KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, KRNode *node)
 {
     m_position = position;
+    if(m_position == KRVector3::Zero()) {
+        fprintf(stderr, "Zero position hitinfo\n");
+    }
     m_normal = normal;
     m_node = node;
 }

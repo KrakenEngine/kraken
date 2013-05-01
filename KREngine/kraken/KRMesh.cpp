@@ -836,7 +836,11 @@ bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVec
     
     float new_hit_distance_sqr = (hit_point - line_v0).sqrMagnitude();
     float prev_hit_distance_sqr = (hitinfo.getPosition() - line_v0).sqrMagnitude();
-    if(new_hit_distance_sqr < prev_hit_distance_sqr) {
+
+    // ---===--- hit_point is in triangle ---===---
+    
+    
+    if(new_hit_distance_sqr < prev_hit_distance_sqr || !hitinfo.didHit()) {
         // Update the hitinfo object if this hit is closer than the prior hit
         
         // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
@@ -850,9 +854,10 @@ bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVec
         KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
         
         hitinfo = KRHitInfo(hit_point, normal);
+        return true;
+    } else {
+        return false; // Either no hit, or the hit was farther than an existing hit
     }
-    
-    return true; // hit_point is in triangle
 }
 
 /*

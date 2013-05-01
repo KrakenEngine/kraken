@@ -208,8 +208,75 @@ bool KRAABB::intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const
 
 bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 {
-    // FINDME, TODO - Need to implement this
-    return true;
+    /*
+     Fast Ray-Box Intersection
+     by Andrew Woo
+     from "Graphics Gems", Academic Press, 1990
+     */
+    
+    // FINDME, TODO - Perhaps there is a more efficient algorithm, as we don't actually need the exact coordinate of the intersection
+    
+    enum {
+        RIGHT = 0,
+        LEFT = 1,
+        MIDDLE = 2
+    } quadrant[3];
+    
+    bool inside = true;
+    KRVector3 maxT;
+    KRVector3 coord;
+	double candidatePlane[3];
+    
+    // Find candidate planes; this loop can be avoided if rays cast all from the eye(assume perpsective view)
+	for (int i=0; i<3; i++)
+		if(v1.c[i] < min.c[i]) {
+			quadrant[i] = LEFT;
+			candidatePlane[i] = min.c[i];
+			inside = FALSE;
+		}else if (v1.c[i] > max.c[i]) {
+			quadrant[i] = RIGHT;
+			candidatePlane[i] = max.c[i];
+			inside = FALSE;
+		}else	{
+			quadrant[i] = MIDDLE;
+		}
+    
+	/* Ray v1 inside bounding box */
+	if(inside) {
+		coord = v1;
+		return true;
+	}
+    
+    
+	/* Calculate T distances to candidate planes */
+	for (int i = 0; i < 3; i++) {
+		if (quadrant[i] != MIDDLE && dir[i] !=0.) {
+			maxT.c[i] = (candidatePlane[i]-v1.c[i]) / dir[i];
+		} else {
+			maxT.c[i] = -1.0f;
+        }
+    }
+    
+	/* Get largest of the maxT's for final choice of intersection */
+	int whichPlane = 0;
+	for (int i = 1; i < 3; i++) {
+		if (maxT.c[whichPlane] < maxT.c[i]) {
+			whichPlane = i;
+        }
+    }
+    
+	/* Check final candidate actually inside box */
+	if (maxT.c[whichPlane] < 0.0f) return false;
+	for (int i = 0; i < 3; i++) {
+		if (whichPlane != i) {
+			coord[i] = v1.c[i] + maxT.c[whichPlane] *dir[i];
+			if (coord[i] < min.c[i] || coord[i] > max.c[i])
+				return false;
+		} else {
+			coord[i] = candidatePlane[i];
+		}
+    }
+	return true;				/* ray hits box */
 }
 
 void KRAABB::encapsulate(const KRAABB & b)
