@@ -322,9 +322,35 @@ void main()
             // -------------------- Add diffuse light --------------------
             gl_FragColor += diffuseMaterial * vec4(material_diffuse, 1.0) * vec4(vec3(lamberFactor), 1.0);
         #endif
+
+        // -------------------- Switch to Pre-multiplied Alpha and Apply material_alpha --------------------
     
+        #if ALPHA_BLEND == 1
+            gl_FragColor.a = gl_FragColor.a * material_alpha; // Apply material_alpha
+            gl_FragColor.rgb *= gl_FragColor.a; // Switch to pre-multiplied alpha
+        #endif
+    
+        // -------------------- Add specular light --------------------
+        // Additive, not masked against diffuse alpha
+        #if ENABLE_SPECULAR == 1
+            #if HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1
+                gl_FragColor.rgb += material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor;
+            #else
+                gl_FragColor.rgb += material_specular * specularFactor;
+            #endif    
+        #endif
+
+        // -------------------- Multiply light map --------------------
+        #if HAS_LIGHT_MAP == 1
+            mediump vec3 lightMapColor = vec3(texture2D(lightmapTexture, lightmap_uv));
+            //gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, gl_FragColor.a);
+            gl_FragColor.rgb *= lightMapColor;
+        #endif
+    
+    
+        // -------------------- Add reflected light --------------------
         #if HAS_REFLECTION_CUBE_MAP == 1
-            // -------------------- Add reflected light --------------------
+            // Reflected light is additive and not modulated by the light map
             #if HAS_NORMAL_MAP == 1
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
                 mediump vec3 incidenceVec = -normalize(eyeVec);
@@ -338,43 +364,33 @@ void main()
             #endif
         #endif
     
-        // -------------------- Add specular light --------------------
-        #if ENABLE_SPECULAR == 1
-            #if HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1
-                gl_FragColor += vec4(material_specular * vec3(texture2D(specularTexture, spec_uv)) * specularFactor, 0.0);
-            #else
-                gl_FragColor += vec4(material_specular * specularFactor, 0.0);
+        // -------------------- Apply Fog --------------------
+        #if FOG_TYPE == 1 || FOG_TYPE == 2 || FOG_TYPE == 3
+            
+            #if FOG_TYPE == 1
+                // Linear fog
+                lowp float fog_alpha = clamp((fog_far - gl_FragCoord.z / gl_FragCoord.w) * fog_scale, 0.0, 1.0);
             #endif
-            
-        #endif
-
-        #if ALPHA_BLEND == 1
-            gl_FragColor.a = gl_FragColor.a * material_alpha;
-        #endif
-
-        // -------------------- Multiply light map -------------------- 
-            
-        #if HAS_LIGHT_MAP == 1
-            mediump vec3 lightMapColor = vec3(texture2D(lightmapTexture, lightmap_uv));
-            gl_FragColor = vec4(gl_FragColor.r * lightMapColor.r, gl_FragColor.g * lightMapColor.g, gl_FragColor.b * lightMapColor.b, gl_FragColor.a);
+                
+            #if FOG_TYPE == 2
+                // Exponential fog
+                mediump float fog_z = gl_FragCoord.z / gl_FragCoord.w - fog_near;
+                lowp float fog_alpha = clamp(exp2(fog_density_premultiplied_exponential * fog_z), 0.0, 1.0);
+            #endif
+                
+            #if FOG_TYPE == 3
+                // Exponential squared fog
+                mediump float fog_z = max(gl_FragCoord.z / gl_FragCoord.w - fog_near, 0.0);
+                lowp float fog_alpha = clamp(exp2(fog_density_premultiplied_squared * fog_z * fog_z), 0.0, 1.0);
+            #endif
+    
+            #if ALPHA_BLEND == 1
+                gl_FragColor.rgb = mix(fog_color.rgb * gl_FragColor.a, gl_FragColor.rgb, fog_alpha);
+            #else
+                gl_FragColor.rgb = mix(fog_color.rgb, gl_FragColor.rgb, fog_alpha);
+            #endif
         #endif
     
-        // -------------------- Apply Fog -------------------- 
-        #if FOG_TYPE == 1
-            // Linear fog
-            gl_FragColor.rgb = mix(fog_color.rgb, gl_FragColor.rgb, clamp((fog_far - gl_FragCoord.z / gl_FragCoord.w) * fog_scale, 0.0, 1.0));
-        #endif
-            
-        #if FOG_TYPE == 2
-            // Exponential fog
-            mediump float fog_z = gl_FragCoord.z / gl_FragCoord.w - fog_near;
-            gl_FragColor.rgb = mix(fog_color.rgb, gl_FragColor.rgb, clamp(exp2(fog_density_premultiplied_exponential * fog_z), 0.0, 1.0));
-        #endif
-            
-        #if FOG_TYPE == 3
-            // Exponential squared fog
-            mediump float fog_z = max(gl_FragCoord.z / gl_FragCoord.w - fog_near, 0.0);
-            gl_FragColor.rgb = mix(fog_color.rgb, gl_FragColor.rgb, clamp(exp2(fog_density_premultiplied_squared * fog_z * fog_z), 0.0, 1.0));
-        #endif
+
     #endif
 }

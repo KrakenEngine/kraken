@@ -193,7 +193,7 @@ void KRCollider::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_li
             
                 // Enable alpha blending
                 GLDEBUG(glEnable(GL_BLEND));
-                GLDEBUG(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
             }
             
             GL_POP_GROUP_MARKER;
