@@ -937,7 +937,7 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
         
         // Transparency
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->TransparencyFactor;
-        new_material->setTransparency(lKFbxDouble1.Get());
+        new_material->setTransparency(1.0f - lKFbxDouble1.Get());
         
         // Shininess
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
@@ -972,7 +972,7 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
         
         // Opacity
         lKFbxDouble1 =((KFbxSurfaceLambert *)pMaterial)->TransparencyFactor;
-        new_material->setTransparency(lKFbxDouble1.Get());
+        new_material->setTransparency(1.0f - lKFbxDouble1.Get());
     } else {
         printf("Error! Unable to convert material: %s", pMaterial->GetName());
     }
