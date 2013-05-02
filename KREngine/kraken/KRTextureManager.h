@@ -75,6 +75,7 @@ public:
     void _setMaxAnisotropy(int i, float max_anisotropy);
     
     void _clearGLState();
+    void setMaxAnisotropy(float max_anisotropy);
     
 private:
     int m_iActiveTexture;

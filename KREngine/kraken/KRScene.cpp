@@ -73,6 +73,7 @@ void KRScene::renderFrame(float deltaTime, int width, int height) {
     getContext().getAudioManager()->setEnableAudio(camera->settings.siren_enable);
     getContext().getAudioManager()->setEnableHRTF(camera->settings.siren_enable_hrtf);
     getContext().getAudioManager()->setEnableReverb(camera->settings.siren_enable_reverb);
+    getContext().getTextureManager()->setMaxAnisotropy(camera->settings.max_anisotropy);
     
     camera->renderFrame(deltaTime, width, height);
     getContext().endFrame(deltaTime);

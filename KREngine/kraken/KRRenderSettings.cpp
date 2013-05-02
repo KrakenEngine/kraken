@@ -30,6 +30,7 @@ KRRenderSettings::KRRenderSettings()
     bEnableSpecular = true;
     bEnableLightMap = true;
     bEnableDeferredLighting = false;
+    max_anisotropy = 4.0f;
     
     ambient_intensity = KRVector3::Zero();
     light_intensity = KRVector3::One();
@@ -151,6 +152,8 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     
     m_lodBias = s.m_lodBias;
     m_enable_realtime_occlusion = s.m_enable_realtime_occlusion;
+    
+    max_anisotropy = s.max_anisotropy;
     
     return *this;
 }

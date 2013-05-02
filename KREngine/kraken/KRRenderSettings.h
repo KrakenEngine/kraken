@@ -104,6 +104,8 @@ public:
     bool siren_enable;
     bool siren_enable_reverb;
     bool siren_enable_hrtf;
+    
+    float max_anisotropy;
 
 private:
     float m_lodBias;

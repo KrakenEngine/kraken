@@ -94,6 +94,13 @@ void KRTextureManager::_setMaxAnisotropy(int i, float max_anisotropy)
     }
 }
 
+void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
+{
+    for(int i=0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
+        _setMaxAnisotropy(i, max_anisotropy);
+    }
+}
+
 void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)
 {
     if(m_wrapModeT[i] != wrap_mode) {
