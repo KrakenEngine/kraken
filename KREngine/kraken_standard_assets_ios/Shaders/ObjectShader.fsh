@@ -272,14 +272,14 @@ void main()
                     
                     if(shadowMapCoord1.x >= -1.0 && shadowMapCoord1.x <= 1.0 && shadowMapCoord1.y >= -1.0 && shadowMapCoord1.y <= 1.0 && shadowMapCoord1.z >= 0.0 && shadowMapCoord1.z <= 1.0) {
                         #if DEBUG_PSSM == 1
-                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5, 0.0);
+                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.75, 0.5, 1.0) + vec4(0.0, 0.0, 0.5 * diffuseMaterial.a, 0.0);
                         #endif
                         highp vec2 shadowMapPos = (shadowMapCoord1 / shadowMapCoord1.w).st;
                         shadowMapDepth =  texture2D(shadowTexture1, shadowMapPos).z;
                         vertexShadowDepth = (shadowMapCoord1 / shadowMapCoord1.w).z;
                     } else if(shadowMapCoord2.s >= -1.0 && shadowMapCoord2.s <= 1.0 && shadowMapCoord2.t >= -1.0 && shadowMapCoord2.t <= 1.0 && shadowMapCoord2.z >= 0.0 && shadowMapCoord2.z <= 1.0) {
                         #if DEBUG_PSSM == 1
-                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.50, 0.75, 1.0) + vec4(0.0, 0.5, 0.0, 0.0);
+                            diffuseMaterial = diffuseMaterial * vec4(0.75, 0.50, 0.75, 1.0) + vec4(0.0, 0.5 * diffuseMaterial.a, 0.0, 0.0);
                         #endif
                         highp vec2 shadowMapPos = (shadowMapCoord2 / shadowMapCoord2.w).st;
                         shadowMapDepth =  texture2D(shadowTexture2, shadowMapPos).z;
@@ -288,7 +288,7 @@ void main()
                     #if SHADOW_QUALITY >= 3
                         else if(shadowMapCoord3.s >= -1.0 && shadowMapCoord3.s <= 1.0 && shadowMapCoord3.t >= -1.0 && shadowMapCoord3.t <= 1.0 && shadowMapCoord3.z >= 0.0 && shadowMapCoord3.z <= 1.0) {
                             #if DEBUG_PSSM == 1
-                                diffuseMaterial = diffuseMaterial * vec4(0.50, 0.75, 0.75, 1.0) + vec4(0.5, 0.0, 0.0, 0.0);
+                                diffuseMaterial = diffuseMaterial * vec4(0.50, 0.75, 0.75, 1.0) + vec4(0.5 * diffuseMaterial.a, 0.0, 0.0, 0.0);
                             #endif
                             highp vec2 shadowMapPos = (shadowMapCoord3 / shadowMapCoord3.w).st;
                             shadowMapDepth =  texture2D(shadowTexture3, shadowMapPos).z;
@@ -320,14 +320,14 @@ void main()
             
         #if ENABLE_DIFFUSE == 1
             // -------------------- Add diffuse light --------------------
-            gl_FragColor += diffuseMaterial * vec4(material_diffuse, 1.0) * vec4(vec3(lamberFactor), 1.0);
+            gl_FragColor += diffuseMaterial * vec4(material_diffuse * lamberFactor, 1.0);
         #endif
 
-        // -------------------- Switch to Pre-multiplied Alpha and Apply material_alpha --------------------
+        // -------------------- Apply material_alpha --------------------
     
         #if ALPHA_BLEND == 1
-            gl_FragColor.a = gl_FragColor.a * material_alpha; // Apply material_alpha
-            gl_FragColor.rgb *= gl_FragColor.a; // Switch to pre-multiplied alpha
+            gl_FragColor.a = diffuseMaterial.a;
+            gl_FragColor *= material_alpha;
         #endif
     
         // -------------------- Add specular light --------------------
