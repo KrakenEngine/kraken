@@ -294,3 +294,49 @@ KRQuaternion KRQuaternion::FromAngleAxis(const KRVector3 &axis, float angle)
     float sha = sin(ha);
     return KRQuaternion(cos(ha), axis.x * sha, axis.y * sha, axis.z * sha);
 }
+
+float KRQuaternion::Dot(const KRQuaternion &v1, const KRQuaternion &v2)
+{
+    return v1.m_val[0] * v2.m_val[0] + v1.m_val[1] * v2.m_val[1] + v1.m_val[2] * v2.m_val[2] + v1.m_val[3] * v2.m_val[3];
+}
+
+KRQuaternion KRQuaternion::Lerp(const KRQuaternion &a, const KRQuaternion &b, float t)
+{
+    if (t <= 0.0f) {
+        return a;
+    } else if (t >= 1.0f) {
+        return b;
+    }
+    
+    return a * (1.0f - t) + b * t;
+}
+
+KRQuaternion KRQuaternion::Slerp(const KRQuaternion &a, const KRQuaternion &b, float t)
+{
+    if (t <= 0.0f) {
+        return a;
+    }
+    
+    if (t >= 1.0f) {
+        return b;
+    }
+    
+    float coshalftheta = Dot(a, b);
+    KRQuaternion c = a;
+    
+    // Angle is greater than 180. We can negate the angle/quat to get the
+    // shorter rotation to reach the same destination.
+    if ( coshalftheta < 0.0f ) {
+        coshalftheta = -coshalftheta;
+        c = -c;
+    }
+    
+    if ( coshalftheta > (1.0f - std::numeric_limits<float>::epsilon())) {
+        // Angle is tiny - save some computation by lerping instead.
+        return Lerp(c, b, t);
+    }
+    
+    float halftheta = acos(coshalftheta);
+    
+    return (c * sin((1.0f - t) * halftheta) + b * sin(t * halftheta)) / sin(halftheta);
+}

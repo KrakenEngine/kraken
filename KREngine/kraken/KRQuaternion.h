@@ -79,6 +79,9 @@ public:
     static KRQuaternion Conjugate(const KRQuaternion &v1);
     
     static KRQuaternion FromAngleAxis(const KRVector3 &axis, float angle);
+    static KRQuaternion Lerp(const KRQuaternion &a, const KRQuaternion &b, float t);
+    static KRQuaternion Slerp(const KRQuaternion &a, const KRQuaternion &b, float t);
+    static float Dot(const KRQuaternion &v1, const KRQuaternion &v2);
 private:
     float m_val[4];
 };
