@@ -206,10 +206,11 @@ KRVector4& KRVector4::operator *=(const float v) {
 }
 
 KRVector4& KRVector4::operator /=(const float v) {
-    x /= v;
-    y /= v;
-    z /= v;
-    w /= v;
+    float inv_v = 1.0f / v;
+    x *= inv_v;
+    y *= inv_v;
+    z *= inv_v;
+    w *= inv_v;
     
     return *this;
 }
@@ -260,15 +261,15 @@ float KRVector4::magnitude() const {
 }
 
 void KRVector4::normalize() {
-    float magnitude = sqrtf(x * x + y * y + z * z + w * w);
-    x /= magnitude;
-    y /= magnitude;
-    z /= magnitude;
-    w /= magnitude;
+    float inv_magnitude = 1.0f / sqrtf(x * x + y * y + z * z + w * w);
+    x *= inv_magnitude;
+    y *= inv_magnitude;
+    z *= inv_magnitude;
+    w *= inv_magnitude;
 }
 KRVector4 KRVector4::Normalize(const KRVector4 &v) {
-    float magnitude = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
-    return KRVector4(v.x / magnitude, v.y / magnitude, v.z / magnitude, v.w / magnitude);
+    float inv_magnitude = 1.0f / sqrtf(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+    return KRVector4(v.x * inv_magnitude, v.y * inv_magnitude, v.z * inv_magnitude, v.w * inv_magnitude);
 }
 
 

@@ -176,7 +176,8 @@ KRVector3 KRVector3::operator *(const float v) const {
 }
 
 KRVector3 KRVector3::operator /(const float v) const {
-    return KRVector3(x / v, y / v, z / v);
+    float inv_v = 1.0f / v;
+    return KRVector3(x * inv_v, y * inv_v, z * inv_v);
 }
 
 KRVector3& KRVector3::operator +=(const KRVector3& b) {
@@ -204,9 +205,10 @@ KRVector3& KRVector3::operator *=(const float v) {
 }
 
 KRVector3& KRVector3::operator /=(const float v) {
-    x /= v;
-    y /= v;
-    z /= v;
+    float inv_v = 1.0f / v;
+    x *= inv_v;
+    y *= inv_v;
+    z *= inv_v;
     
     return *this;
 }
@@ -253,14 +255,14 @@ float KRVector3::magnitude() const {
 }
 
 void KRVector3::normalize() {
-    float magnitude = sqrtf(x * x + y * y + z * z);
-    x /= magnitude;
-    y /= magnitude;
-    z /= magnitude;
+    float inv_magnitude = 1.0f / sqrtf(x * x + y * y + z * z);
+    x *= inv_magnitude;
+    y *= inv_magnitude;
+    z *= inv_magnitude;
 }
 KRVector3 KRVector3::Normalize(const KRVector3 &v) {
-    float magnitude = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-    return KRVector3(v.x / magnitude, v.y / magnitude, v.z / magnitude);
+    float inv_magnitude = 1.0f / sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+    return KRVector3(v.x * inv_magnitude, v.y * inv_magnitude, v.z * inv_magnitude);
 }
 
 KRVector3 KRVector3::Cross(const KRVector3 &v1, const KRVector3 &v2) {

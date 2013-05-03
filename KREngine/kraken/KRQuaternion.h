@@ -62,8 +62,8 @@ public:
     KRQuaternion& operator *=(const float& v);
     KRQuaternion& operator /=(const float& v);
 
-    friend bool operator ==(KRVector3 &v1, KRVector3 &v2);
-    friend bool operator !=(KRVector3 &v1, KRVector3 &v2);
+    friend bool operator ==(KRQuaternion &v1, KRQuaternion &v2);
+    friend bool operator !=(KRQuaternion &v1, KRQuaternion &v2);
     float& operator [](unsigned i);
     float operator [](unsigned i) const;
     
@@ -77,6 +77,8 @@ public:
     
     void conjugate();
     static KRQuaternion Conjugate(const KRQuaternion &v1);
+    
+    static KRQuaternion FromAngleAxis(const KRVector3 &axis, float angle);
 private:
     float m_val[4];
 };

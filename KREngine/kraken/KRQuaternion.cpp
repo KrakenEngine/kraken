@@ -168,7 +168,8 @@ KRQuaternion KRQuaternion::operator *(float v) const {
 }
 
 KRQuaternion KRQuaternion::operator /(float num) const {
-    return KRQuaternion(m_val[0] / num, m_val[1] / num, m_val[2] / num, m_val[3] / num);
+    float inv_num = 1.0f / num;
+    return KRQuaternion(m_val[0] * inv_num, m_val[1] * inv_num, m_val[2] * inv_num, m_val[3] * inv_num);
 }
 
 KRQuaternion KRQuaternion::operator +(const KRQuaternion &v) const {
@@ -224,10 +225,11 @@ KRQuaternion& KRQuaternion::operator *=(const float& v) {
 }
 
 KRQuaternion& KRQuaternion::operator /=(const float& v) {
-    m_val[0] /= v;
-    m_val[1] /= v;
-    m_val[2] /= v;
-    m_val[3] /= v;
+    float inv_v = 1.0f / v;
+    m_val[0] *= inv_v;
+    m_val[1] *= inv_v;
+    m_val[2] *= inv_v;
+    m_val[3] *= inv_v;
     return *this;
 }
 
@@ -240,21 +242,21 @@ KRQuaternion KRQuaternion::operator -() const {
 }
 
 KRQuaternion Normalize(const KRQuaternion &v1) {
-    float magnitude = sqrtf(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2] + v1[3] * v1[3]);
+    float inv_magnitude = 1.0f / sqrtf(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2] + v1[3] * v1[3]);
     return KRQuaternion(
-        v1[0] / magnitude,
-        v1[1] / magnitude,
-        v1[2] / magnitude,
-        v1[3] / magnitude
+        v1[0] * inv_magnitude,
+        v1[1] * inv_magnitude,
+        v1[2] * inv_magnitude,
+        v1[3] * inv_magnitude
     );
 }
 
 void KRQuaternion::normalize() {
-    float magnitude = sqrtf(m_val[0] * m_val[0] + m_val[1] * m_val[1] + m_val[2] * m_val[2] + m_val[3] * m_val[3]);
-    m_val[0] /= magnitude;
-    m_val[1] /= magnitude;
-    m_val[2] /= magnitude;
-    m_val[3] /= magnitude;
+    float inv_magnitude = 1.0f / sqrtf(m_val[0] * m_val[0] + m_val[1] * m_val[1] + m_val[2] * m_val[2] + m_val[3] * m_val[3]);
+    m_val[0] *= inv_magnitude;
+    m_val[1] *= inv_magnitude;
+    m_val[2] *= inv_magnitude;
+    m_val[3] *= inv_magnitude;
 }
 
 KRQuaternion Conjugate(const KRQuaternion &v1) {
@@ -285,3 +287,10 @@ KRMat4 KRQuaternion::rotationMatrix() const {
     return matRotate;
 }
 
+
+KRQuaternion KRQuaternion::FromAngleAxis(const KRVector3 &axis, float angle)
+{
+    float ha = angle * 0.5f;
+    float sha = sin(ha);
+    return KRQuaternion(cos(ha), axis.x * sha, axis.y * sha, axis.z * sha);
+}
