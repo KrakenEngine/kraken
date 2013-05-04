@@ -148,6 +148,10 @@
 		E48C697015374F5B00232E28 /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48C697215374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
 		E48C697315374F7E00232E28 /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
+		E48CF942173453990005EBBB /* KRFloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48CF940173453990005EBBB /* KRFloat.cpp */; };
+		E48CF943173453990005EBBB /* KRFloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48CF940173453990005EBBB /* KRFloat.cpp */; };
+		E48CF944173453990005EBBB /* KRFloat.h in Headers */ = {isa = PBXBuildFile; fileRef = E48CF941173453990005EBBB /* KRFloat.h */; };
+		E48CF945173453990005EBBB /* KRFloat.h in Headers */ = {isa = PBXBuildFile; fileRef = E48CF941173453990005EBBB /* KRFloat.h */; };
 		E491018713C99BDC0098455B /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
 		E491018A13C99BDC0098455B /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E491018E13C99BDC0098455B /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -455,6 +459,8 @@
 		E48B68141697794F00D99917 /* KRAudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRAudioSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E48C696E15374F5A00232E28 /* KRContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRContext.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E48C697115374F7E00232E28 /* KRContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRContext.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		E48CF940173453990005EBBB /* KRFloat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRFloat.cpp; sourceTree = "<group>"; };
+		E48CF941173453990005EBBB /* KRFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRFloat.h; sourceTree = "<group>"; };
 		E491016113C99B9E0098455B /* libkraken.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libkraken.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E491016413C99B9E0098455B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E491016813C99B9E0098455B /* Kraken-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Kraken-Prefix.pch"; sourceTree = "<group>"; };
@@ -792,6 +798,8 @@
 				E40BA45315EFF79500D7C3DD /* KRAABB.h */,
 				E4EC73BF1720B1FF0065299F /* KRVector4.cpp */,
 				E4EC73C01720B1FF0065299F /* KRVector4.h */,
+				E48CF940173453990005EBBB /* KRFloat.cpp */,
+				E48CF941173453990005EBBB /* KRFloat.h */,
 			);
 			name = Math;
 			sourceTree = "<group>";
@@ -1229,6 +1237,7 @@
 				E4FE6AA816B21D660058B8CE /* forsyth.h in Headers */,
 				E4AE635F1704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E4EC73C31720B1FF0065299F /* KRVector4.h in Headers */,
+				E48CF944173453990005EBBB /* KRFloat.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1306,6 +1315,7 @@
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
+				E48CF945173453990005EBBB /* KRFloat.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1569,6 +1579,7 @@
 				E450273916E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 				E4AE635D1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
 				E4EC73C11720B1FF0065299F /* KRVector4.cpp in Sources */,
+				E48CF942173453990005EBBB /* KRFloat.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1643,6 +1654,7 @@
 				E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */,
 				E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */,
 				E4EC73C21720B1FF0065299F /* KRVector4.cpp in Sources */,
+				E48CF943173453990005EBBB /* KRFloat.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

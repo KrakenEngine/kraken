@@ -270,8 +270,16 @@ void KRQuaternion::conjugate() {
 }
 
 KRMat4 KRQuaternion::rotationMatrix() const {
-    KRMat4 matRotate;
     
+    KRVector3 euler = eulerXYZ();
+    KRMat4 matRotate;
+    matRotate.rotate(euler.x, X_AXIS);
+    matRotate.rotate(euler.y, Y_AXIS);
+    matRotate.rotate(euler.z, Z_AXIS);
+    
+    // FINDME - Determine why the more optimal routine commented below wasn't working
+    
+    /*
     matRotate.getPointer()[0] = 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]);
     matRotate.getPointer()[1] = 2.0 * (m_val[1] * m_val[2] - m_val[0] * m_val[3]);
     matRotate.getPointer()[2] = 2.0 * (m_val[0] * m_val[2] + m_val[1] * m_val[3]);
@@ -283,6 +291,7 @@ KRMat4 KRQuaternion::rotationMatrix() const {
     matRotate.getPointer()[8] = 2.0 * (m_val[1] * m_val[3] - m_val[0] * m_val[2]);
     matRotate.getPointer()[9] = 2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]);
     matRotate.getPointer()[10] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]);
+     */
     
     return matRotate;
 }
