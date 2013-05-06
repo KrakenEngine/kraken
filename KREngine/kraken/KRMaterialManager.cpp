@@ -44,6 +44,11 @@ KRMaterialManager::~KRMaterialManager() {
 }
 
 
+unordered_map<std::string, KRMaterial *> &KRMaterialManager::getMaterials()
+{
+    return m_materials;
+}
+
 void KRMaterialManager::configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable) {
 	if(blend_enable) {
 		GLDEBUG(glEnable(GL_BLEND));
@@ -67,21 +72,31 @@ void KRMaterialManager::configure(bool blend_enable, GLenum blend_src, GLenum bl
 }
                 
 
-KRMaterial *KRMaterialManager::getMaterial(const char *szName) {
-    std::string lowerName = szName;
+KRMaterial *KRMaterialManager::getMaterial(const std::string &name) {
+    std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
     
     unordered_map<std::string, KRMaterial *>::iterator itr = m_materials.find(lowerName);
     if(itr == m_materials.end()) {
-        fprintf(stderr, "Material not found: %s\n", szName);
+        fprintf(stderr, "Material not found: %s\n", name.c_str());
         // Not found
         return NULL;
     } else {
         return (*itr).second;
     }
 }
+
+void KRMaterialManager::add(KRMaterial *new_material) {
+    // FINDME, TODO - Potential memory leak if multiple materials with the same name are added
+    std::string lowerName = new_material->getName();
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    m_materials[lowerName] = new_material;
+}
+
 bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
     KRMaterial *pMaterial = NULL;
     char szSymbol[16][256];

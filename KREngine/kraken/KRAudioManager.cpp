@@ -104,6 +104,11 @@ void KRAudioManager::initAudio()
     }
 }
 
+unordered_map<std::string, KRAudioSample *> &KRAudioManager::getSounds()
+{
+    return m_sounds;
+}
+
 bool KRAudioManager::getEnableAudio()
 {
     return m_enable_audio;

@@ -72,6 +72,8 @@ public:
     
     long getAbsoluteTimeMilliseconds();
     
+    std::vector<KRResource *> getResources();
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;

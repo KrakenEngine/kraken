@@ -51,6 +51,8 @@ public:
 
     const unordered_map<std::string, KRUnknown *> &get(const std::string &extension);
     
+    unordered_map<std::string, unordered_map<std::string, KRUnknown *> > &getUnknowns();
+    
 private:
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > m_unknowns;
 };

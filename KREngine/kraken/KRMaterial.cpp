@@ -75,6 +75,11 @@ std::string KRMaterial::getExtension() {
     return "mtl";
 }
 
+bool KRMaterial::needsVertexTangents()
+{
+    return m_normalMap.size() > 0;
+}
+
 bool KRMaterial::save(KRDataBlock &data) {
     std::stringstream stream;
     stream.precision(std::numeric_limits<long double>::digits10);

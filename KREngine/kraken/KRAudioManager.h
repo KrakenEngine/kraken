@@ -80,6 +80,8 @@ public:
     KRAudioManager(KRContext &context);
     virtual ~KRAudioManager();
     
+    unordered_map<std::string, KRAudioSample *> &getSounds();
+    
     void add(KRAudioSample *Sound);
     
     KRAudioSample *load(const std::string &name, const std::string &extension, KRDataBlock *data);

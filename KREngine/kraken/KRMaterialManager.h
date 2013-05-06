@@ -50,9 +50,13 @@ public:
     virtual ~KRMaterialManager();
     
     bool load(const char *szName, KRDataBlock *data);
-    KRMaterial *getMaterial(const char *szName);
+    void add(KRMaterial *new_material);
+    KRMaterial *getMaterial(const std::string &name);
     
     void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
+    
+    
+    unordered_map<std::string, KRMaterial *> &getMaterials();
     
 private:
     unordered_map<std::string, KRMaterial *> m_materials;

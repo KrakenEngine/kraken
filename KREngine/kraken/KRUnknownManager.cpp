@@ -46,6 +46,11 @@ KRUnknownManager::~KRUnknownManager()
     }
 }
 
+unordered_map<std::string, unordered_map<std::string, KRUnknown *> > &KRUnknownManager::getUnknowns()
+{
+    return m_unknowns;
+}
+
 void KRUnknownManager::add(KRUnknown *unknown)
 {
     std::string lower_name = unknown->getName();

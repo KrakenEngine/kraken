@@ -122,6 +122,15 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         }
     }
     
+    // ----====---- Import Materials ----====----
+    int material_count = pFbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
+    printf("\nLoading materials...\n");
+    for(int i=0; i < material_count; i++) {
+        FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
+        printf("  Material %i of %i: %s\n", i+1, material_count, material->GetName());
+        LoadMaterial(context, resources, material);
+    }
+    
     // ----====---- Import Meshes ----====----
     int mesh_count = pFbxScene->GetSrcObjectCount<FbxMesh>();
     printf("\nLoading meshes...\n");
@@ -130,15 +139,6 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         
         printf("  Mesh %i of %i: %s\n", i+1, mesh_count, mesh->GetNode()->GetName());
         LoadMesh(context, resources, pGeometryConverter, mesh);
-    }
-    
-    // ----====---- Import Materials ----====----
-    int material_count = pFbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
-    printf("\nLoading materials...\n");
-    for(int i=0; i < material_count; i++) {
-        FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
-        printf("  Material %i of %i: %s\n", i+1, material_count, material->GetName());
-        LoadMaterial(context, resources, material);
     }
     
     // ----====---- Import Textures ----====----
@@ -162,13 +162,8 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         }
     }
     
-    for(unordered_map<std::string, KRTexture *>::iterator texture_itr = context.getTextureManager()->getTextures().begin(); texture_itr != context.getTextureManager()->getTextures().end(); texture_itr++) {
-        resources.push_back((*texture_itr).second);
-    }
-    
-    for(unordered_map<std::string, KRMesh *>::iterator mesh_itr = context.getModelManager()->getModels().begin(); mesh_itr != context.getModelManager()->getModels().end(); mesh_itr++) {
-        resources.push_back((*mesh_itr).second);
-    }
+    std::vector<KRResource *> resources2 = context.getResources();
+    resources.insert(resources.begin(), resources2.begin(), resources2.end());
     
     DestroySdkObjects(lSdkManager);
     
@@ -1044,6 +1039,7 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
         }
     }
     
+    /*
     bool bFound = false;
     for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
         KRResource *pResource = (*resource_itr);
@@ -1056,7 +1052,16 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
     } else {
         resources.push_back(new_material);
     }
-
+    */
+    
+    
+    // Only save unique materials
+    KRMaterial *found_material = context.getMaterialManager()->getMaterial(new_material->getName());
+    if(found_material == NULL) {
+        context.getMaterialManager()->add(new_material);
+    } else {
+        delete new_material;
+    }
 }
 
 void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
@@ -1162,8 +1167,18 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     
     int dest_vertex_id = 0;
     
+    bool need_tangents = false;
+    
     for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
         KFbxSurfaceMaterial *pMaterial = pSourceMesh->GetNode()->GetMaterial(iMaterial);
+        
+        KRMaterial *material =  context.getMaterialManager()->getMaterial(pMaterial->GetName());
+        if(material) {
+            if(material->needsVertexTangents()) {
+                need_tangents = true;
+            }
+        }
+        
         int source_vertex_id = 0;
         int mat_vertex_count = 0;
         int mat_vertex_start = dest_vertex_id;
@@ -1294,7 +1309,7 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
-    new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, false); // FINDME, HACK!  "false" set for importing tangents so that we can merge more vertices in the index buffer.  This should be configurable by the end-user so if normal maps are required and no tangents are included in the model, they can be calculated
+    new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, need_tangents);
     
     context.getModelManager()->addModel(new_mesh);
 }

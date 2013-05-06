@@ -131,6 +131,45 @@ KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
 }
 
+std::vector<KRResource *> KRContext::getResources()
+{
+    
+    std::vector<KRResource *> resources;
+    
+    for(unordered_map<std::string, KRScene *>::iterator itr = m_pSceneManager->getScenes().begin(); itr != m_pSceneManager->getScenes().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_map<std::string, KRTexture *>::iterator itr = m_pTextureManager->getTextures().begin(); itr != m_pTextureManager->getTextures().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_map<std::string, KRMaterial *>::iterator itr = m_pMaterialManager->getMaterials().begin(); itr != m_pMaterialManager->getMaterials().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_multimap<std::string, KRMesh *>::iterator itr = m_pModelManager->getModels().begin(); itr != m_pModelManager->getModels().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_map<std::string, KRAnimation *>::iterator itr = m_pAnimationManager->getAnimations().begin(); itr != m_pAnimationManager->getAnimations().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_map<std::string, KRAnimationCurve *>::iterator itr = m_pAnimationCurveManager->getAnimationCurves().begin(); itr != m_pAnimationCurveManager->getAnimationCurves().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    for(unordered_map<std::string, KRAudioSample *>::iterator itr = m_pSoundManager->getSounds().begin(); itr != m_pSoundManager->getSounds().end(); itr++) {
+        resources.push_back((*itr).second);
+    }
+    
+    unordered_map<std::string, unordered_map<std::string, KRUnknown *> > unknowns = m_pUnknownManager->getUnknowns();
+    for(unordered_map<std::string, unordered_map<std::string, KRUnknown *> >::iterator itr = unknowns.begin(); itr != unknowns.end(); itr++) {
+        for(unordered_map<std::string, KRUnknown *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr++) {
+            resources.push_back((*itr2).second);
+        }
+    }
+    
+    // FINDME, TODO - Not yet exporting shaders, as they are currently only being used as standard Kraken assets.  In the future people may want their custom shaders to be exported.
+    
+    return resources;
+}
+
 void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
     std::string extension = KRResource::GetFileExtension(file_name);
