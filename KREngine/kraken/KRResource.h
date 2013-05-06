@@ -25,9 +25,14 @@ public:
     static std::string GetFileBase(const std::string& name);
     static std::string GetFilePath(const std::string& name);
     
-    static std::vector<KRResource *> Load(KRContext &context, const std::string& path);
-    
     virtual ~KRResource();
+    
+    
+    static std::vector<KRResource *> LoadObj(KRContext &context, const std::string& path);
+#if TARGET_OS_MAC
+    static void LoadFbx(KRContext &context, const std::string& path);
+    static std::vector<KRResource *> LoadBlenderScene(KRContext &context, const std::string& path);
+#endif
    
 protected:
     KRResource(KRContext &context, std::string name);
@@ -36,11 +41,7 @@ protected:
 private:
     std::string m_name;
     
-    static std::vector<KRResource *> LoadObj(KRContext &context, const std::string& path);
-#if TARGET_OS_MAC
-    static std::vector<KRResource *> LoadFbx(KRContext &context, const std::string& path);
-    static std::vector<KRResource *> LoadBlenderScene(KRContext &context, const std::string& path);
-#endif
+
 };
 
 #endif

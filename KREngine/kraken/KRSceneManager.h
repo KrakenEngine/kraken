@@ -44,13 +44,14 @@ public:
     KRSceneManager(KRContext &context);
     virtual ~KRSceneManager();
     
-    KRScene *loadScene(const char *szName, KRDataBlock *data);
+    void add(KRScene *scene);
+    KRScene *loadScene(const std::string &name, KRDataBlock *data);
 
-    KRScene *getScene(const char *szName);
+    KRScene *getScene(const std::string &name);
     KRScene *getFirstScene();
     
     std::vector<std::string> getSceneNames();
-    unordered_map<std::string, KRScene *> getScenes();
+    unordered_map<std::string, KRScene *> &getScenes();
 
     
 private:

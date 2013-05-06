@@ -160,7 +160,7 @@ std::vector<KRResource *> KRContext::getResources()
     
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > unknowns = m_pUnknownManager->getUnknowns();
     for(unordered_map<std::string, unordered_map<std::string, KRUnknown *> >::iterator itr = unknowns.begin(); itr != unknowns.end(); itr++) {
-        for(unordered_map<std::string, KRUnknown *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr++) {
+        for(unordered_map<std::string, KRUnknown *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr2++) {
             resources.push_back((*itr2).second);
         }
     }
@@ -202,6 +202,14 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("aac") == 0) {
         m_pSoundManager->load(name.c_str(), extension, data);
+    } else if(extension.compare("obj") == 0) {
+        KRResource::LoadObj(*this, file_name);
+#if TARGET_OS_MAC
+    } else if(extension.compare("fbx") == 0) {
+        KRResource::LoadFbx(*this, file_name);
+    } else if(extension.compare("blend") == 0) {
+        KRResource::LoadBlenderScene(*this, file_name);
+#endif
     } else {
         m_pUnknownManager->load(name, extension, data);
     }

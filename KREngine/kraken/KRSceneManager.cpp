@@ -42,14 +42,30 @@ KRSceneManager::~KRSceneManager() {
     m_scenes.empty();
 }
 
-KRScene *KRSceneManager::loadScene(const char *szName, KRDataBlock *data) {
-    KRScene *pScene = KRScene::Load(*m_pContext, szName, data);
-    m_scenes[szName] = pScene;
+KRScene *KRSceneManager::loadScene(const std::string &name, KRDataBlock *data) {
+    std::string lowerName = name;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    KRScene *pScene = KRScene::Load(*m_pContext, name, data);
+    m_scenes[lowerName] = pScene;
     return pScene;
 }
 
-KRScene *KRSceneManager::getScene(const char *szName) {
-    return m_scenes[szName];
+void KRSceneManager::add(KRScene *scene)
+{
+    std::string lowerName = scene->getName();
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    m_scenes[lowerName] = scene;
+}
+
+KRScene *KRSceneManager::getScene(const std::string &name) {
+    std::string lowerName = name;
+    std::transform(lowerName.begin(), lowerName.end(),
+                   lowerName.begin(), ::tolower);
+    
+    return m_scenes[lowerName];
 }
 
 KRScene *KRSceneManager::getFirstScene() {
@@ -61,7 +77,7 @@ KRScene *KRSceneManager::getFirstScene() {
     }
 }
 
-unordered_map<std::string, KRScene *> KRSceneManager::getScenes() {
+unordered_map<std::string, KRScene *> &KRSceneManager::getScenes() {
     return m_scenes;
 }
 

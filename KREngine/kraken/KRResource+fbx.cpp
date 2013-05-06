@@ -39,15 +39,14 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack);
 KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve);
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
-void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
-void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxSurfaceMaterial *pMaterial);
-void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
-KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
-KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
-KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
-KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode);
-void LoadLOD(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, FbxLODGroup* pSourceLodGroup);
+void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial);
+void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
+KRNode *LoadMesh(KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode);
+KRNode *LoadSkeleton(KRNode *parent_node, KFbxNode* pNode);
+KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode);
 std::string GetFbxObjectName(FbxObject *obj);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable
@@ -67,12 +66,10 @@ std::string GetFbxObjectName(FbxObject *obj)
     return st.str();
 }
 
-std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::string& path)
+void KRResource::LoadFbx(KRContext &context, const std::string& path)
 {
-    
-    std::vector<KRResource *> resources;
     KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
-    resources.push_back(pScene);
+    context.getSceneManager()->add(pScene);
     
     KFbxSdkManager* lSdkManager = NULL;
     KFbxScene* pFbxScene = NULL;
@@ -105,7 +102,6 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         KRAnimation *new_animation = LoadAnimation(context, animation);
         if(new_animation) {
             context.getAnimationManager()->addAnimation(new_animation);
-            resources.push_back(new_animation);
         }
     }
     
@@ -118,7 +114,6 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
         if(new_curve) {
             context.getAnimationCurveManager()->addAnimationCurve(new_curve);
-            resources.push_back(new_curve);
         }
     }
     
@@ -128,7 +123,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     for(int i=0; i < material_count; i++) {
         FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
         printf("  Material %i of %i: %s\n", i+1, material_count, material->GetName());
-        LoadMaterial(context, resources, material);
+        LoadMaterial(context, material);
     }
     
     // ----====---- Import Meshes ----====----
@@ -138,7 +133,7 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
         FbxMesh *mesh = pFbxScene->GetSrcObject<FbxMesh>(i);
         
         printf("  Mesh %i of %i: %s\n", i+1, mesh_count, mesh->GetNode()->GetName());
-        LoadMesh(context, resources, pGeometryConverter, mesh);
+        LoadMesh(context, pGeometryConverter, mesh);
     }
     
     // ----====---- Import Textures ----====----
@@ -158,60 +153,15 @@ std::vector<KRResource *> KRResource::LoadFbx(KRContext &context, const std::str
     {
         for(int i = 0; i < pNode->GetChildCount(); i++)
         {
-            LoadNode(pFbxScene, pScene->getRootNode(), resources, pGeometryConverter, pNode->GetChild(i));
+            LoadNode(pFbxScene, pScene->getRootNode(), pGeometryConverter, pNode->GetChild(i));
         }
     }
     
-    std::vector<KRResource *> resources2 = context.getResources();
-    resources.insert(resources.begin(), resources2.begin(), resources2.end());
+    
+    
     
     DestroySdkObjects(lSdkManager);
-    
-    // Compress textures to PVR format
-    context.getTextureManager()->compress(); // TODO, HACK, FINDME - This should be configurable and exposed through the World Builder GUI
-    
-    std::string base_name = KRResource::GetFileBase(path);
-    std::vector<KRResource *> output_resources;
-    
-//    KRBundle *main_bundle = new KRBundle(context, base_name);
-    KRBundle *texture_bundle = new KRBundle(context, base_name + "_textures");
-    KRBundle *animation_bundle = new KRBundle(context, base_name + "_animations");
-    KRBundle *material_bundle = new KRBundle(context, base_name + "_materials");
-    KRBundle *meshes_bundle = new KRBundle(context, base_name + "_meshes");
-    
-    for(std::vector<KRResource *>::iterator resource_itr=resources.begin(); resource_itr != resources.end(); resource_itr++) {
-        KRResource *resource = *resource_itr;
-        if(dynamic_cast<KRTexture *>(resource) != NULL) {
-            texture_bundle->append(*resource);
-        } else if(dynamic_cast<KRAnimation *>(resource) != NULL) {
-            animation_bundle->append(*resource);
-        } else if(dynamic_cast<KRAnimationCurve *>(resource) != NULL) {
-            animation_bundle->append(*resource);
-        } else if(dynamic_cast<KRMaterial *>(resource) != NULL) {
-            material_bundle->append(*resource);
-        } else if(dynamic_cast<KRMesh *>(resource) != NULL) {
-            meshes_bundle->append(*resource);
-        } else {
-            output_resources.push_back(resource);
-//            main_bundle->append(*resource);
-        }
-    }
-    
-    output_resources.push_back(texture_bundle);
-    output_resources.push_back(animation_bundle);
-    output_resources.push_back(material_bundle);
-    output_resources.push_back(meshes_bundle);
-    
-//    main_bundle->append(texture_bundle);
-//    main_bundle->append(animation_bundle);
-//    main_bundle->append(material_bundle);
-//    main_bundle->append(meshes_bundle);
-//    output_resources.push_back(main_bundle);
-    
-    return output_resources;
 }
-
-
 
 void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene)
 {
@@ -585,7 +535,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 //    }
 //}
 
-void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     KFbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
     
@@ -793,7 +743,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             new_node->setUseWorldUnits(use_world_space_units);
             parent_node->addChild(new_node);
             
-            LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
+            LoadNode(pFbxScene, new_node, pGeometryConverter, pNode->GetChild(i));
             
             if(i == 0) {
                 // Calculate reference point using the bounding box center from the highest quality LOD level
@@ -806,16 +756,16 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
         KRNode *new_node = NULL;
         switch(attribute_type) {
             case KFbxNodeAttribute::eMesh:
-                new_node = LoadMesh(parent_node, resources, pGeometryConverter, pNode);
+                new_node = LoadMesh(parent_node, pGeometryConverter, pNode);
                 break;
             case KFbxNodeAttribute::eLight:
-                new_node = LoadLight(parent_node, resources, pNode);
+                new_node = LoadLight(parent_node, pNode);
                 break;
             case KFbxNodeAttribute::eSkeleton:
-                new_node = LoadSkeleton(parent_node, resources, pNode);
+                new_node = LoadSkeleton(parent_node, pNode);
                 break;
             case KFbxNodeAttribute::eCamera:
-                new_node = LoadCamera(parent_node, resources, pNode);
+                new_node = LoadCamera(parent_node, pNode);
                 break;
             default:
                 {
@@ -877,17 +827,13 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, std::vector<KRResource 
             // Load child nodes
             for(int i = 0; i < pNode->GetChildCount(); i++)
             {
-                LoadNode(pFbxScene, new_node, resources, pGeometryConverter, pNode->GetChild(i));
+                LoadNode(pFbxScene, new_node, pGeometryConverter, pNode->GetChild(i));
             }
         }
     }
 }
 
-void LoadLOD(KRContext &context, std::vector<KRResource *> &resources, FbxLODGroup* pSourceLodGroup) {
-    
-}
-
-void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxSurfaceMaterial *pMaterial) {
+void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     //printf("  %s: %i - %i\n", pMaterial->GetName(), mat_vertex_start, mat_vertex_count + mat_vertex_start - 1);
     
     // ----====---- Output Material File ----====----
@@ -1039,22 +985,6 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
         }
     }
     
-    /*
-    bool bFound = false;
-    for(vector<KRResource *>::iterator resource_itr = resources.begin(); resource_itr != resources.end(); resource_itr++) {
-        KRResource *pResource = (*resource_itr);
-        if(pResource->getName() == new_material->getName() && pResource->getExtension() == new_material->getExtension()) {
-            bFound = true;
-        }
-    }
-    if(bFound) {
-        delete new_material;
-    } else {
-        resources.push_back(new_material);
-    }
-    */
-    
-    
     // Only save unique materials
     KRMaterial *found_material = context.getMaterialManager()->getMaterial(new_material->getName());
     if(found_material == NULL) {
@@ -1064,7 +994,7 @@ void LoadMaterial(KRContext &context, std::vector<KRResource *> &resources, FbxS
     }
 }
 
-void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
+void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
     int control_point_count = pMesh->GetControlPointsCount();
@@ -1314,7 +1244,7 @@ void LoadMesh(KRContext &context, std::vector<KRResource *> &resources, FbxGeome
     context.getModelManager()->addModel(new_mesh);
 }
 
-KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+KRNode *LoadMesh(KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
@@ -1342,13 +1272,13 @@ KRNode *LoadMesh(KRNode *parent_node, std::vector<KRResource *> &resources, FbxG
     
 }
 
-KRNode *LoadSkeleton(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+KRNode *LoadSkeleton(KRNode *parent_node, KFbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     KRBone *new_bone = new KRBone(parent_node->getScene(), name.c_str());
     return new_bone;
 }
 
-KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode) {
     FbxCamera *camera = (FbxCamera *)pNode->GetNodeAttribute();
     const char *szName = pNode->GetName();
     
@@ -1356,7 +1286,7 @@ KRNode *LoadCamera(KRNode *parent_node, std::vector<KRResource *> &resources, KF
     return new_camera;
 }
 
-KRNode *LoadLight(KRNode *parent_node, std::vector<KRResource *> &resources, KFbxNode* pNode) {
+KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode) {
     const GLfloat PI = 3.14159265;
     const GLfloat d2r = PI * 2 / 360;
     
