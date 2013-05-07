@@ -204,7 +204,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("obj") == 0) {
         KRResource::LoadObj(*this, file_name);
-#if TARGET_OS_MAC
+#if !TARGET_OS_IPHONE
     } else if(extension.compare("fbx") == 0) {
         KRResource::LoadFbx(*this, file_name);
     } else if(extension.compare("blend") == 0) {

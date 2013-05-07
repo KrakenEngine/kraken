@@ -133,7 +133,13 @@ public:
     } VertexData;
     
     typedef struct {
-        int32_t start_vertex;
+        union {
+            struct { // For Indexed triangles / strips
+                int16_t index_group;
+                int16_t index_group_offset;
+            };
+            int32_t start_vertex; // For non-indexed trigangles / strips
+        };
         int32_t vertex_count;
         char szName[KRENGINE_MAX_NAME_LENGTH];
     } pack_material;
@@ -235,7 +241,7 @@ private:
     pack_bone *getBone(int index);
     
     
-    void getIndexedRange(int submesh, int submesh_index_group, int &start_index_offset, int &start_vertex_offset, int &index_count, int &vertex_count) const;
+    void getIndexedRange(int index_group, int &start_index_offset, int &start_vertex_offset, int &index_count, int &vertex_count) const;
 };
 
 

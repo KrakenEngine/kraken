@@ -79,7 +79,7 @@ bool KRDataBlock::load(const std::string &path)
     m_fdPackFile = open(path.c_str(), O_RDONLY);
     if(m_fdPackFile >= 0) {
         if(fstat(m_fdPackFile, &statbuf) >= 0) {
-            if ((m_data = mmap (0, statbuf.st_size, PROT_READ, MAP_SHARED, m_fdPackFile, 0)) == (caddr_t) -1) {
+            if ((m_data = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, m_fdPackFile, 0)) == (caddr_t) -1) {
             } else {
                 m_data_size = statbuf.st_size;
                 success = true;

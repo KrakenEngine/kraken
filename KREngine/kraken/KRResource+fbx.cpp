@@ -876,17 +876,25 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         // Emissive Color
         //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
         
+        /*
         // Transparency
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->TransparencyFactor;
         new_material->setTransparency(1.0f - lKFbxDouble1.Get());
+        */
         
         // Shininess
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
         new_material->setShininess(lKFbxDouble1.Get());
         
+        /*
         // Specular Factor
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->SpecularFactor;
         double specular_factor = lKFbxDouble1.Get();
+         */
+        
+        // Transparency Color
+        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->TransparentColor;
+        new_material->setTransparency( 1.0f - (lKFbxDouble3.Get()[0] + lKFbxDouble3.Get()[1] + lKFbxDouble3.Get()[2]) / 3.0f);
         
         // Reflection factor
         lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
@@ -910,10 +918,16 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         
         // Emissive
         //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
-        
+        /*
         // Opacity
         lKFbxDouble1 =((KFbxSurfaceLambert *)pMaterial)->TransparencyFactor;
         new_material->setTransparency(1.0f - lKFbxDouble1.Get());
+         */
+        
+        // Transparency Color
+        lKFbxDouble3 =((KFbxSurfaceLambert *) pMaterial)->TransparentColor;
+        new_material->setTransparency(1.0f - (lKFbxDouble3.Get()[0] + lKFbxDouble3.Get()[1] + lKFbxDouble3.Get()[2]) / 3.0f);
+        
     } else {
         printf("Error! Unable to convert material: %s", pMaterial->GetName());
     }
