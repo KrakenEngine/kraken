@@ -75,12 +75,7 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
             KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
             if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass)) {
-                if(pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE] != -1) {
-                    GLDEBUG(glUniform1f(
-                        pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
-                        1.0f
-                        ));
-                }
+                pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 m_pContext->getModelManager()->bindVBO((void *)m_pContext->getModelManager()->getRandomParticles(), particle_count * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, true, false, false, true, false, false, false, false);
                 GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));

@@ -41,6 +41,7 @@ using namespace std;
 
 KRShaderManager::KRShaderManager(KRContext &context) : KRContextObject(context) {
     m_szCurrentShaderKey[0] = '\0';
+    m_active_shader = NULL;
 }
 
 KRShaderManager::~KRShaderManager() {
@@ -244,7 +245,7 @@ bool KRShaderManager::selectShader(const std::string &shader_name, KRCamera &cam
     return selectShader(camera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, bone_count, renderPass);
 }
 
-bool KRShaderManager::selectShader(KRCamera &camera, const KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass)
+bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass)
 {
     if(pShader) {
         bool bSameShader = strcmp(pShader->getKey(), m_szCurrentShaderKey) == 0;

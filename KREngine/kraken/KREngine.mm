@@ -85,7 +85,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
     
     
     KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
-    KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+    KRContext::KRENGINE_MAX_SHADER_HANDLES = 4000;
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
@@ -130,7 +130,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 #else
     KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
     KRContext::KRENGINE_MAX_VBO_MEM = 256000000;
-    KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
+    KRContext::KRENGINE_MAX_SHADER_HANDLES = 4000;
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_MEM = 512000000;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 384000000;

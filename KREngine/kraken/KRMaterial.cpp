@@ -328,72 +328,68 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         }
         
         if(!bSameAmbient) {
-            (m_ambientColor + pCamera->settings.ambient_intensity).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT, m_ambientColor + pCamera->settings.ambient_intensity);
         }
         
         if(!bSameDiffuse) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
             } else {
-                m_diffuseColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE]);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
             }
         }
         
         if(!bSameSpecular) {
             if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
                 // We pre-multiply the light color with the material color in the forward renderer
-                KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z).setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
             } else {
-                m_specularColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR]);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
             }
         }
         
         if(!bSameShininess) {
-            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS] != -1) {
-                GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS], m_ns));
-            }
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS, m_ns);
         }
         
         if(!bSameReflection) {
-            m_reflectionColor.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION, m_reflectionColor);
         }
         
         if(bDiffuseMap && !bSameDiffuseScale && m_diffuseMapScale != default_scale) {
-            m_diffuseMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE, m_diffuseMapScale);
         }
         
         if(bSpecMap && !bSameSpecularScale && m_specularMapScale != default_scale) {
-            m_specularMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE, m_specularMapScale);
         }
         
         if(bReflectionMap && !bSameReflectionScale && m_reflectionMapScale != default_scale) {
-            m_reflectionMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE, m_reflectionMapScale);
         }
         
         if(bNormalMap && !bSameNormalScale && m_normalMapScale != default_scale) {
-            m_normalMapScale.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE, m_normalMapScale);
         }
         
         if(bDiffuseMap && !bSameDiffuseOffset && m_diffuseMapOffset != default_offset) {
-            m_diffuseMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET, m_diffuseMapOffset);
         }
         
         if(bSpecMap && !bSameSpecularOffset && m_specularMapOffset != default_offset) {
-            m_specularMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET, m_specularMapOffset);
         }
         
         if(bReflectionMap && !bSameReflectionOffset && m_reflectionMapOffset != default_offset) {
-            m_reflectionMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET, m_reflectionMapOffset);
         }
         
         if(bNormalMap && !bSameNormalOffset && m_normalMapOffset != default_offset) {
-            m_normalMapOffset.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET]);
+            pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET, m_normalMapOffset);
         }
         
-        if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA] != -1) {
-            GLDEBUG(glUniform1f(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA], m_tr));
-        }
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_tr);
         
         if(bDiffuseMap) {
             m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);

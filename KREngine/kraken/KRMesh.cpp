@@ -271,11 +271,14 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             int start_index_offset, start_vertex_offset, index_count, vertex_count;
             getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, m_vertex_size * vertex_count, index_data + start_index_offset, index_count * 4, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES), has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
+            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, has_vertex_attribute(KRENGINE_ATTRIB_VERTEX), has_vertex_attribute(KRENGINE_ATTRIB_NORMAL), has_vertex_attribute(KRENGINE_ATTRIB_TANGENT), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA), has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB), has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES), has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS), true);
             
-            glDrawElements(GL_TRIANGLES, index_count - index_group_offset, GL_UNSIGNED_SHORT, (void *)(index_group_offset * m_vertex_size));
-            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, index_count);
-            cVertexes -= index_count - index_group_offset;
+            int vertex_draw_count = cVertexes;
+            if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
+            
+            glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
+            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
+            cVertexes -= vertex_draw_count;
             index_group_offset = 0;
         }
         
@@ -930,6 +933,7 @@ void KRMesh::convertToIndexed()
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
     int vertex_index_offset = 0;
+    int vertex_index_base_start_vertex = 0;
     
     std::vector<KRVector3> vertices;
     std::vector<KRVector2> uva;
@@ -952,22 +956,24 @@ void KRMesh::convertToIndexed()
         material_names.push_back(getSubmesh(submesh_index)->szName);
         
         int vertexes_remaining = getVertexCount(submesh_index);
-        submesh_starts.push_back(vertex_index_bases.size() + (vertex_index_offset << 16));
+        
+        int vertex_count = vertexes_remaining;
+        if(vertex_count > 0xffff) {
+            vertex_count = 0xffff;
+        }
+        
+        if(submesh_index == 0 || vertex_index_offset + vertex_count > 0xffff) {
+            vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
+            vertex_index_offset = 0;
+            vertex_index_base_start_vertex = vertices.size();
+        }
+        
+        submesh_starts.push_back(vertex_index_bases.size() - 1 + (vertex_index_offset << 16));
         submesh_lengths.push_back(vertexes_remaining);
         int source_index = getSubmesh(submesh_index)->start_vertex;
         
         
         while(vertexes_remaining) {
-            vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
-            vertex_index_offset = 0;
-            
-            
-            int vertex_count = vertexes_remaining;
-            if(vertex_count > 0xffff) {
-                vertex_count = 0xffff;
-            }
-            
-            int vertex_index_base_start_vertex = vertices.size();
             
             std::map<std::pair<std::vector<float>, std::vector<int> >, int> prev_indexes = std::map<std::pair<std::vector<float>, std::vector<int> >, int>();
             
@@ -1063,11 +1069,25 @@ void KRMesh::convertToIndexed()
                 }
                 
                 vertex_indexes.push_back(found_index);
+                //fprintf(stderr, "Submesh: %6i  IndexBase: %3i  Index: %6i\n", submesh_index, vertex_index_bases.size(), found_index);
                 
                 source_index++;
             }
             
             vertexes_remaining -= vertex_count;
+            vertex_index_offset += vertex_count;
+            
+            
+            vertex_count = vertexes_remaining;
+            if(vertex_count > 0xffff) {
+                vertex_count = 0xffff;
+            }
+            
+            if(vertex_index_offset + vertex_count > 0xffff) {
+                vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
+                vertex_index_offset = 0;
+                vertex_index_base_start_vertex = vertices.size();
+            }
         }
     }
     
@@ -1149,19 +1169,23 @@ void KRMesh::optimizeIndexes()
             int start_index_offset, start_vertex_offset, index_count, vertex_count;
             getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            start_index_offset += index_group_offset;
-            index_count -= index_group_offset;
-            index_group_offset = 0;
+            int vertexes_to_process = vertexes_remaining;
+            if(vertexes_to_process + index_group_offset > 0xffff) {
+                vertexes_to_process = 0xffff - index_group_offset;
+            }
             
             __uint16_t *index_data_start = index_data + start_index_offset + index_group_offset;
-            unsigned char * vertex_data_start = vertex_data + start_vertex_offset;
+            
             
             // ----====---- Step 1: Optimize triangle drawing order to maximize use of the GPU's post-transform vertex cache ----====----
-            Forsyth::OptimizeFaces(index_data_start, index_count, vertex_count, new_indices, 16); // FINDME, TODO - GPU post-transform vertex cache size of 16 should be configureable
-            memcpy(index_data_start, new_indices, index_count * sizeof(__uint16_t));
-            vertexes_remaining -= index_count;
+            Forsyth::OptimizeFaces(index_data_start, vertexes_to_process, vertex_count, new_indices, 16); // FINDME, TODO - GPU post-transform vertex cache size of 16 should be configureable
+            memcpy(index_data_start, new_indices, vertexes_to_process * sizeof(__uint16_t));
+            vertexes_remaining -= vertexes_to_process;
             
             /*
+             
+             unsigned char * vertex_data_start = vertex_data + start_vertex_offset;
+             
             // ----====---- Step 2: Re-order the vertex data to maintain cache coherency ----====----
             for(int i=0; i < vertex_count; i++) {
                 vertex_mapping[i] = i;
@@ -1194,6 +1218,10 @@ void KRMesh::optimizeIndexes()
             }
             memcpy(vertex_data_start, new_vertex_data, vertex_count * m_vertex_size);
              */
+            
+            
+            
+            index_group_offset = 0;
         }
     }
     

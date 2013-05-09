@@ -47,7 +47,7 @@ public:
     virtual ~KRShader();
     const char *getKey() const;
     
-    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass) const;
+    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass);
     
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,
@@ -116,9 +116,40 @@ public:
         KRENGINE_UNIFORM_BONE_TRANSFORMS,
         KRENGINE_NUM_UNIFORMS
     };
+    /*
+    typedef enum {
+        KRENGINE_UNIFORM_TYPE_UNKNOWN,
+        KRENGINE_UNIFORM_TYPE_FLOAT,
+        KRENGINE_UNIFORM_TYPE_INT,
+        KRENGINE_UNIFORM_TYPE_VECTOR2,
+        KRENGINE_UNIFORM_TYPE_VECTOR3,
+        KRENGINE_UNIFORM_TYPE_VECTOR4,
+        KRENGINE_UNIFORM_TYPE_MAT4
+    } uniform_type_t;
+     uniform_type_t m_uniform_type[KRENGINE_NUM_UNIFORMS];
+     */
+    
     static const char *KRENGINE_UNIFORM_NAMES[];
     GLint m_uniforms[KRENGINE_NUM_UNIFORMS];
+    
+    int m_uniform_value_index[KRENGINE_NUM_UNIFORMS];
+    
+    std::vector<float> m_uniform_value_float;
+    std::vector<int> m_uniform_value_int;
+    std::vector<KRVector2> m_uniform_value_vector2;
+    std::vector<KRVector3> m_uniform_value_vector3;
+    std::vector<KRVector4> m_uniform_value_vector4;
+    std::vector<KRMat4> m_uniform_value_mat4;
+    
+    
     char m_szKey[256];
+    
+    void setUniform(int location, float value);
+    void setUniform(int location, int value);
+    void setUniform(int location, const KRVector2 &value);
+    void setUniform(int location, const KRVector3 &value);
+    void setUniform(int location, const KRVector4 &value);
+    void setUniform(int location, const KRMat4 &value);
     
 private:
     GLuint m_iProgram;

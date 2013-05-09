@@ -73,32 +73,12 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
             if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass)) {
                 
                 
-                
-                m_color.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_COLOR]);
-                
-                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY] != -1) {
-                    GLDEBUG(glUniform1f(
-                            pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY],
-                            m_intensity / 100.0f
-                    ));
-                }
-                
-                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START] != -1) {
-                    GLDEBUG(glUniform1f(
-                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START],
-                                getDecayStart()
-                    ));
-                }
-                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF] != -1) {
-                    GLDEBUG(glUniform1f(
-                                pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF],
-                                KRLIGHT_MIN_INFLUENCE
-                    ));
-                }
-                
-                if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION] != -1) {
-                    light_position.setUniform(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_LIGHT_POSITION]);
-                }
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
+                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
+
                 
                 if(bVisualize) {
                     // Enable additive blending

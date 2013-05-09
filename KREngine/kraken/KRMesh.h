@@ -135,8 +135,8 @@ public:
     typedef struct {
         union {
             struct { // For Indexed triangles / strips
-                int16_t index_group;
-                int16_t index_group_offset;
+                uint16_t index_group;
+                uint16_t index_group_offset;
             };
             int32_t start_vertex; // For non-indexed trigangles / strips
         };
