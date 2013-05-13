@@ -240,6 +240,10 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
     
+    if(bones.size() > 0) {
+        bSameMaterial = false; // FINDME, HACK!  - This is test code
+    }
+    
     if(!bSameMaterial) { 
         KRVector2 default_scale = KRVector2(1.0f, 1.0f);
         KRVector2 default_offset = KRVector2(0.0f, 0.0f);
@@ -283,7 +287,9 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
                 //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
 //                printf("%s - delta scale: %.4f %.4f %.4f\n", bone->getName().c_str(), scale.x - initialScale.x, scale.y - initialScale.y, scale.z - initialScale.z);
                 
-                KRMat4 t = bone->getInverseBindPoseMatrix() * bone->getModelMatrix();
+                KRMat4 model_mat = bone->getActivePoseMatrix();
+                KRMat4 inv_bind_mat = bone->getInverseBindPoseMatrix();
+                KRMat4 t = /*KRMat4::Invert(matModel) * */(inv_bind_mat * model_mat);
                 for(int i=0; i < 16; i++) {
                     *bone_mat_component++ = t[i];
                 }

@@ -114,15 +114,22 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
+        
+        
+#if GL_EXT_discard_framebuffer
+        GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
+        GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
+#endif
+        
+        // Enable z-buffer write
+        GLDEBUG(glDepthMask(GL_TRUE));
+        
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
-        
-        // Enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
         
         // Enable z-buffer test
         GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -229,15 +236,23 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glDisable(GL_BLEND));
         
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        
+        // Enable z-buffer write
+        GLDEBUG(glDepthMask(GL_TRUE));
+        
+        
+#if GL_EXT_discard_framebuffer
+        GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
+        GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
+        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
+#else
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        
-        
+#endif
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
         
-        // Enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
+
         
         // Enable z-buffer test
         GLDEBUG(glEnable(GL_DEPTH_TEST));
@@ -282,7 +297,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
         
         // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -439,7 +454,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, true, false, false, false, false, false, false, true);
+        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
         for(unordered_map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() * 0.5f);
@@ -465,6 +480,12 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     m_pContext->getModelManager()->unbindVBO();
     
     GL_POP_GROUP_MARKER;
+    
+    
+#if GL_EXT_discard_framebuffer
+    GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
+    GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
+#endif
 }
 
 
@@ -665,7 +686,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
+    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -687,7 +708,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, true);
+//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
 //            m_pContext->getTextureManager()->_setActiveTexture(0);
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
@@ -854,7 +875,7 @@ void KRCamera::renderPost()
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"));
         
         
-        m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, true, false, false, true, false, false, false, true);
+        m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
         
@@ -1047,6 +1068,9 @@ std::string KRCamera::getDebugText()
         break;
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS:
         stream << "Collider Visualization";
+        break;
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES:
+        stream << "Bone Visualization";
         break;
     }
     return stream.str();

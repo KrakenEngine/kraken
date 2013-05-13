@@ -96,13 +96,13 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
                     GLDEBUG(glDisable(GL_DEPTH_TEST));
                     
                     // Render a full screen quad
-                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, true, false, false, true, false, false, false, true);
+                    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
 #if GL_OES_vertex_array_object
                     GLDEBUG(glBindVertexArrayOES(0));
 #endif
-                    m_pContext->getModelManager()->configureAttribs(true, false, false, false, false, false, false);
+                    m_pContext->getModelManager()->configureAttribs(1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
                     // Render sphere of light's influence
                     generateMesh();
                 

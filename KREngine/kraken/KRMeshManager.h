@@ -59,15 +59,13 @@ public:
     std::vector<std::string> getModelNames();
     unordered_multimap<std::string, KRMesh *> &getModels();
     
-    
-    void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights, bool static_vbo);
+    void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, int vertex_attrib_flags, bool static_vbo);
     void releaseVBO(GLvoid *data);
     void unbindVBO();
     long getMemUsed();
     long getMemActive();
     
-    void configureAttribs(bool enable_vertex, bool enable_normal, bool enable_tangent, bool enable_uva, bool enable_uvb, bool enable_bone_indexes, bool enable_bone_weights);
-    
+    void configureAttribs(__int32_t attributes);
     
     typedef struct {
         GLfloat x;

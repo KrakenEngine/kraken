@@ -72,6 +72,11 @@ public:
         KRENGINE_ATTRIB_TEXUVB,
         KRENGINE_ATTRIB_BONEINDEXES,
         KRENGINE_ATTRIB_BONEWEIGHTS,
+        KRENGINE_ATTRIB_VERTEX_SHORT,
+        KRENGINE_ATTRIB_NORMAL_SHORT,
+        KRENGINE_ATTRIB_TANGENT_SHORT,
+        KRENGINE_ATTRIB_TEXUVA_SHORT,
+        KRENGINE_ATTRIB_TEXUVB_SHORT,
         KRENGINE_NUM_ATTRIBUTES
     } vertex_attrib_t;
     
@@ -112,26 +117,7 @@ public:
         GLsizei vertex_count;
         char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
     } Submesh;
-    
-    typedef struct {
-        GLfloat x;
-        GLfloat y;
-        GLfloat z;
-    } KRVector3D;
-    
-    typedef struct {
-        GLfloat u;
-        GLfloat v;
-    } TexCoord;
-    
-    typedef struct {
-        KRVector3D vertex;
-        KRVector3D normal;
-        KRVector3D tangent;
-        TexCoord uva;
-        TexCoord uvb;
-    } VertexData;
-    
+
     typedef struct {
         union {
             struct { // For Indexed triangles / strips
@@ -154,6 +140,7 @@ public:
     
     static bool lod_sort_predicate(const KRMesh *m1, const KRMesh *m2);
     bool has_vertex_attribute(vertex_attrib_t attribute_type) const;
+    static bool has_vertex_attribute(int vertex_attrib_flags, vertex_attrib_t attribute_type);
     
     int getSubmeshCount() const;
     int getVertexCount(int submesh) const;

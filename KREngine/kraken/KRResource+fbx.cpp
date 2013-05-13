@@ -85,13 +85,16 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     // Load the scene.
     lResult = LoadScene(lSdkManager, pFbxScene, path.c_str());
     
-    // ----====---- Bake pivots into transforms, as Kraken doesn't support them directly ----====----
-    
-    printf("Baking pivots...\n");
     KFbxNode* pNode = pFbxScene->GetRootNode();
+    
+    // ----====---- Bake pivots into transforms, as Kraken doesn't support them directly ----====----
+    /*
+    printf("Baking pivots...\n");
+    
     if(pNode) {
         pNode->ResetPivotSetAndConvertAnimation();
     }
+     */
         
     // ----====---- Import Animation Layers ----====----
     printf("\nLoading animations...\n");
@@ -660,12 +663,6 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
     KFbxVector4 lZero(0.0, 0.0, 0.0);
     KFbxVector4 lOne(1.0, 1.0, 1.0);
     
-    assert(post_rotation == lZero);
-    assert(pre_rotation == lZero);
-    assert(rotation_offset == lZero);
-    assert(scaling_offset == lZero);
-    assert(rotation_pivot == lZero);
-    assert(scaling_pivot == lZero);
     assert(geometric_rotation == lZero);
     assert(geometric_translation == lZero);
     assert(geometric_scaling == lOne);
@@ -674,6 +671,13 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
     KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
     KRVector3 node_scale = KRVector3(local_scale[0], local_scale[1], local_scale[2]);
+    
+    KRVector3 node_rotation_offset = KRVector3(rotation_offset[0], rotation_offset[1], rotation_offset[2]);
+    KRVector3 node_scaling_offset = KRVector3(scaling_offset[0], scaling_offset[1], scaling_offset[2]);
+    KRVector3 node_rotation_pivot = KRVector3(rotation_pivot[0], rotation_pivot[1], rotation_pivot[2]);
+    KRVector3 node_scaling_pivot = KRVector3(scaling_pivot[0], scaling_pivot[1], scaling_pivot[2]);
+    KRVector3 node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
+    KRVector3 node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;
     
 //    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
 //    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
@@ -740,6 +744,15 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
             new_node->setLocalRotation(node_rotation);
             new_node->setLocalTranslation(node_translation);
             new_node->setLocalScale(node_scale);
+            
+            
+            new_node->setRotationOffset(node_rotation_offset);
+            new_node->setScalingOffset(node_scaling_offset);
+            new_node->setRotationPivot(node_rotation_pivot);
+            new_node->setScalingPivot(node_scaling_pivot);
+            new_node->setPreRotation(node_pre_rotation);
+            new_node->setPostRotation(node_post_rotation);
+            
             new_node->setUseWorldUnits(use_world_space_units);
             parent_node->addChild(new_node);
             
@@ -822,6 +835,12 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
             new_node->setLocalRotation(node_rotation);
             new_node->setLocalTranslation(node_translation);
             new_node->setLocalScale(node_scale);
+            new_node->setRotationOffset(node_rotation_offset);
+            new_node->setScalingOffset(node_scaling_offset);
+            new_node->setRotationPivot(node_rotation_pivot);
+            new_node->setScalingPivot(node_scaling_pivot);
+            new_node->setPreRotation(node_pre_rotation);
+            new_node->setPostRotation(node_post_rotation);
             parent_node->addChild(new_node);
             
             // Load child nodes
@@ -1056,7 +1075,7 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                     }
                     weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] = bone_weight;
                     weight_info.bone_indexes[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] = target_bone_index;
-                    for(int bone_index=KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1; bone_index >=0; bone_index--) {
+                    for(int bone_index=KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 2; bone_index >=0; bone_index--) {
                         if(bone_weight > weight_info.weights[bone_index]) {
                             weight_info.weights[bone_index+1] = weight_info.weights[bone_index];
                             weight_info.bone_indexes[bone_index+1] = weight_info.bone_indexes[bone_index];

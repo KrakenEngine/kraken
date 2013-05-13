@@ -34,6 +34,7 @@
 
 #include "KREngine-common.h"
 
+
 class KRVector4;
 
 class KRVector3 {
@@ -103,6 +104,9 @@ public:
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
     
     void setUniform(GLint location) const;
+    
+    void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e);
+    void getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value);
 };
 
 namespace std {

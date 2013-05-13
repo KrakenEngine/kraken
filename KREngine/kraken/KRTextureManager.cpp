@@ -151,6 +151,7 @@ KRTexture *KRTextureManager::getTextureCube(const char *szName) {
 }
 
 KRTexture *KRTextureManager::getTexture(const std::string &name) {
+    
     std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);

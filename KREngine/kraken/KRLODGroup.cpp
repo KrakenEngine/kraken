@@ -106,7 +106,6 @@ bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
     if(m_min_distance == 0 && m_max_distance == 0) {
         return true;
     } else {
-        // return (m_max_distance == 0); // FINDME, HACK - Test code to enable only the lowest LOD group
         float lod_bias = viewport.getLODBias();
         lod_bias = pow(2.0f, -lod_bias);
         

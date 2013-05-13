@@ -62,6 +62,29 @@ public:
     void setLocalScale(const KRVector3 &v, bool set_original = false);
     void setLocalRotation(const KRVector3 &v, bool set_original = false);
     
+    
+    void setRotationOffset(const KRVector3 &v, bool set_original = false);
+    void setScalingOffset(const KRVector3 &v, bool set_original = false);
+    void setRotationPivot(const KRVector3 &v, bool set_original = false);
+    void setScalingPivot(const KRVector3 &v, bool set_original = false);
+    void setPreRotation(const KRVector3 &v, bool set_original = false);
+    void setPostRotation(const KRVector3 &v, bool set_original = false);
+    
+    const KRVector3 &getRotationOffset();
+    const KRVector3 &getScalingOffset();
+    const KRVector3 &getRotationPivot();
+    const KRVector3 &getScalingPivot();
+    const KRVector3 &getPreRotation();
+    const KRVector3 &getPostRotation();
+    
+    const KRVector3 &getInitialRotationOffset();
+    const KRVector3 &getInitialScalingOffset();
+    const KRVector3 &getInitialRotationPivot();
+    const KRVector3 &getInitialScalingPivot();
+    const KRVector3 &getInitialPreRotation();
+    const KRVector3 &getInitialPostRotation();
+    
+    
     const KRVector3 &getLocalTranslation();
     const KRVector3 &getLocalScale();
     const KRVector3 &getLocalRotation();
@@ -74,6 +97,9 @@ public:
     const KRVector3 getWorldScale();
     const KRVector3 getWorldRotation();
     
+    const KRVector3 getBindPoseWorldRotation();
+    const KRVector3 getActivePoseWorldRotation();
+    
     const KRVector3 localToWorld(const KRVector3 &local_point);
     const KRVector3 worldToLocal(const KRVector3 &world_point);
     
@@ -85,6 +111,7 @@ public:
     const KRMat4 &getModelMatrix();
     const KRMat4 &getInverseModelMatrix();
     const KRMat4 &getBindPoseMatrix();
+    const KRMat4 &getActivePoseMatrix();
     const KRMat4 &getInverseBindPoseMatrix();
     
     enum node_attribute_type {
@@ -112,16 +139,31 @@ public:
     virtual void updateLODVisibility(const KRViewport &viewport);
     bool lodIsVisible();
     
+    void setScaleCompensation(bool scale_compensation);
+    bool getScaleCompensation();
+    
 protected:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
     KRVector3 m_localRotation;
     
+    KRVector3 m_rotationOffset;
+    KRVector3 m_scalingOffset;
+    KRVector3 m_rotationPivot;
+    KRVector3 m_scalingPivot;
+    KRVector3 m_preRotation;
+    KRVector3 m_postRotation;
+    
     KRVector3 m_initialLocalTranslation;
     KRVector3 m_initialLocalScale;
     KRVector3 m_initialLocalRotation;
     
-    
+    KRVector3 m_initialRotationOffset;
+    KRVector3 m_initialScalingOffset;
+    KRVector3 m_initialRotationPivot;
+    KRVector3 m_initialScalingPivot;
+    KRVector3 m_initialPreRotation;
+    KRVector3 m_initialPostRotation;
     
     bool m_lod_visible;
     void hideLOD();
@@ -138,10 +180,12 @@ private:
     KRMat4 m_modelMatrix;
     KRMat4 m_inverseModelMatrix;
     KRMat4 m_bindPoseMatrix;
+    KRMat4 m_activePoseMatrix;
     KRMat4 m_inverseBindPoseMatrix;
     bool m_modelMatrixValid;
     bool m_inverseModelMatrixValid;
     bool m_bindPoseMatrixValid;
+    bool m_activePoseMatrixValid;
     bool m_inverseBindPoseMatrixValid;
     
     std::string m_name;
@@ -151,6 +195,7 @@ private:
     KRScene *m_pScene;
     
     std::set<KROctreeNode *> m_octree_nodes;
+    bool m_scale_compensation;
     
 public:
     

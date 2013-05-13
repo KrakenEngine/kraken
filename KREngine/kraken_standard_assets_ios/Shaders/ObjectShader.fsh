@@ -393,4 +393,8 @@ void main()
     
 
     #endif
+    
+    #if BONE_COUNT > 0
+        gl_FragColor.b = 1.0;
+    #endif
 }

@@ -62,7 +62,7 @@ class KRMat4 {
     
     public:
     
-    float c[16];
+    float c[16]; // Matrix components, in column-major order
     
 
     
