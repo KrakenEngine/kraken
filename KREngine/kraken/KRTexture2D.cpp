@@ -43,28 +43,52 @@ KRTexture2D::~KRTexture2D() {
 }
 
 bool KRTexture2D::createGLTexture(int lod_max_dim) {
+    bool success = true;
+    GLuint prev_handle = 0;
+    int prev_lod_max_dim = 0;
+    long prev_mem_size = 0;
+#if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
+    
+    if(m_iHandle != 0) {
+        prev_handle = m_iHandle;
+        prev_mem_size = getMemSize();
+        m_iHandle = 0;
+        m_textureMemUsed = 0;
+        prev_lod_max_dim = m_current_lod_max_dim;
+    }
+    
+
+#else
+    releaseHandle();
+#endif
     m_current_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iHandle));
+    
     if(m_iHandle == 0) {
-        return false;
-    }
-    
-    GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
-	if (hasMipmaps()) {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+        success = false;
     } else {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    }
+    
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
+        if (hasMipmaps()) {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+        } else {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        }
 
-    if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_textureMemUsed)) {
-        GLDEBUG(glDeleteTextures(1, &m_iHandle));
-        m_iHandle = 0;
-        m_current_lod_max_dim = 0;
-        return false;
+        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_textureMemUsed, prev_lod_max_dim, prev_handle)) {
+            GLDEBUG(glDeleteTextures(1, &m_iHandle));
+            m_iHandle = 0;
+            m_current_lod_max_dim = 0;
+            success = false;
+        }
     }
     
+    if(prev_handle != 0) {
+        getContext().getTextureManager()->memoryChanged(-prev_mem_size);
+        GLDEBUG(glDeleteTextures(1, &prev_handle));
+    }
     
-    return true;
+    return success;
 }
 
 void KRTexture2D::bind(GLuint texture_unit) {

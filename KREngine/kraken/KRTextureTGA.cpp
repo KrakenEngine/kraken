@@ -39,8 +39,8 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
-{
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle)
+{    
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 

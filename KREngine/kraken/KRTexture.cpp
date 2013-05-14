@@ -66,9 +66,6 @@ void KRTexture::resize(int max_dim)
             }
             
             if(m_current_lod_max_dim != target_dim || m_iHandle == 0) {
-                releaseHandle();
-            }
-            if(m_iHandle == 0) {
                 if(!createGLTexture(target_dim)) {
                     assert(false);
                 }

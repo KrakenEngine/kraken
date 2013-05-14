@@ -18,7 +18,7 @@ public:
     virtual ~KRTexturePVR();
     virtual std::string getExtension();
     
-    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed);
+    bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle);
     
     virtual long getMemRequiredForSize(int max_dim);
     

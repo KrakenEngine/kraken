@@ -171,7 +171,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed)
+bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle)
 {    
     int target_dim = lod_max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -186,29 +186,93 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 	int width = m_iWidth;
 	int height = m_iHeight;
     long memoryRequired = 0;
+    long memoryTransferred = 0;
     
     
-    // Upload texture data
-    int i=0;
+#if GL_EXT_texture_storage
+    //void TexStorage2DEXT(enum target, sizei levels, enum internalformat, sizei width, sizei height);
+    //TexStorage2DEXT(target, )
+    
+    int level_count=0;
+    int max_lod_width=0;
+    int max_lod_height=0;
     for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        dataBlockStruct block = *itr;
         if(width <= target_dim && height <= target_dim) {
-            memoryRequired += block.length;
+            if(max_lod_width == 0) {
+                max_lod_width = width;
+                max_lod_height = height;
+            }
             if(width > current_lod_max_dim) {
                 current_lod_max_dim = width;
             }
             if(height > current_lod_max_dim) {
                 current_lod_max_dim = height;
             }
-            glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, block.start);
-            err = glGetError();
-            if (err != GL_NO_ERROR) {
-                assert(false);
-                return false;
+
+            level_count++;
+        }
+		
+        width = width >> 1;
+        if(width < 1) {
+            width = 1;
+        }
+        height = height >> 1;
+        if(height < 1) {
+            height = 1;
+        }
+	}
+    width = m_iWidth;
+    height = m_iHeight;
+    
+    glTexStorage2DEXT(target, level_count, m_internalFormat, max_lod_width, max_lod_height);
+#endif
+    
+    // Upload texture data
+    int destination_level=0;
+    int source_level = 0;
+    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        dataBlockStruct block = *itr;
+        if(width <= target_dim && height <= target_dim) {
+
+            if(width > current_lod_max_dim) {
+                current_lod_max_dim = width;
             }
+            if(height > current_lod_max_dim) {
+                current_lod_max_dim = height;
+            }
+#if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
+            if(target == GL_TEXTURE_2D && width <= prev_lod_max_dim && height <= prev_lod_max_dim) {
+                //GLDEBUG(glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, NULL)); // Allocate, but don't copy
+//                GLDEBUG(glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+                GLDEBUG(glCopyTextureLevelsAPPLE(m_iHandle, prev_handle, source_level, 1));
+            } else {
+                // glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
+                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, block.start));
+//                GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, block.start));
+                memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+            }
+#else
+    #if GL_EXT_texture_storage
+            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, block.start));
+    #else
+            GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, block.start));
+    #endif
+            memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+#endif
+            memoryRequired += block.length;
+//            
+//            err = glGetError();
+//            if (err != GL_NO_ERROR) {
+//                assert(false);
+//                return false;
+//            }
+//        
             
-            
-            i++;
+            destination_level++;
+        }
+        
+        if(width <= prev_lod_max_dim && height <= prev_lod_max_dim) {
+            source_level++;
         }
 		
         width = width >> 1;
@@ -222,8 +286,8 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 	}
     
     textureMemUsed += memoryRequired;
-    getContext().getTextureManager()->memoryChanged(memoryRequired);
-    getContext().getTextureManager()->addMemoryTransferredThisFrame(memoryRequired);
+    getContext().getTextureManager()->memoryChanged(memoryTransferred);
+    getContext().getTextureManager()->addMemoryTransferredThisFrame(memoryTransferred);
     
     return true;
     

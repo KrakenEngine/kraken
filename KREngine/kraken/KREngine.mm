@@ -90,7 +90,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     
-    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
+    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 4000000;
     
 
     KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;

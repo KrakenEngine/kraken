@@ -55,6 +55,8 @@ KRTextureCube::~KRTextureCube()
 
 bool KRTextureCube::createGLTexture(int lod_max_dim)
 {
+    releaseHandle();
+    
     m_current_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iHandle));
     if(m_iHandle == 0) {
@@ -70,7 +72,7 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
         KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
             if(faceTexture->hasMipmaps()) bMipMaps = true;
-            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, m_textureMemUsed);
+            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, m_textureMemUsed, 0, 0);
         }
     }
     
