@@ -190,41 +190,40 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     
     
 #if GL_EXT_texture_storage
-    //void TexStorage2DEXT(enum target, sizei levels, enum internalformat, sizei width, sizei height);
-    //TexStorage2DEXT(target, )
-    
-    int level_count=0;
-    int max_lod_width=0;
-    int max_lod_height=0;
-    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        if(width <= target_dim && height <= target_dim) {
-            if(max_lod_width == 0) {
-                max_lod_width = width;
-                max_lod_height = height;
-            }
-            if(width > current_lod_max_dim) {
-                current_lod_max_dim = width;
-            }
-            if(height > current_lod_max_dim) {
-                current_lod_max_dim = height;
-            }
 
-            level_count++;
+    if(target == GL_TEXTURE_CUBE_MAP_POSITIVE_X || target == GL_TEXTURE_2D) {
+        // Call glTexStorage2DEXT only for the first uploadTexture used when creating a texture
+        int level_count=0;
+        int max_lod_width=0;
+        int max_lod_height=0;
+        for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+            if(width <= target_dim && height <= target_dim) {
+                if(max_lod_width == 0) {
+                    max_lod_width = width;
+                    max_lod_height = height;
+                }
+
+                level_count++;
+            }
+            
+            width = width >> 1;
+            if(width < 1) {
+                width = 1;
+            }
+            height = height >> 1;
+            if(height < 1) {
+                height = 1;
+            }
         }
-		
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
+        width = m_iWidth;
+        height = m_iHeight;
+        
+        if(target == GL_TEXTURE_CUBE_MAP_POSITIVE_X) {
+            glTexStorage2DEXT(GL_TEXTURE_CUBE_MAP, level_count, m_internalFormat, max_lod_width, max_lod_height);
+        } else if(target == GL_TEXTURE_2D) {
+            glTexStorage2DEXT(target, level_count, m_internalFormat, max_lod_width, max_lod_height);
         }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-	}
-    width = m_iWidth;
-    height = m_iHeight;
-    
-    glTexStorage2DEXT(target, level_count, m_internalFormat, max_lod_width, max_lod_height);
+    }
 #endif
     
     // Upload texture data

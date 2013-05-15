@@ -47,7 +47,7 @@ const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 128; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
-const int KRENGINE_REVERB_MAX_FFT_LOG2 = 17;
+const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
 const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
 
 const float KRENGINE_AUDIO_CUTOFF = 0.02f; // Cutoff gain level, to cull out processing of very quiet sounds
@@ -139,10 +139,14 @@ public:
     bool getEnableReverb();
     void setEnableReverb(bool enable);
     
+    float getReverbMaxLength();
+    void setReverbMaxLength(float max_length);
+    
 private:
     bool m_enable_audio;
     bool m_enable_hrtf;
     bool m_enable_reverb;
+    float m_reverb_max_length;
     
     KRScene *m_listener_scene; // For now, only one scene is allowed to have active audio at once
     
@@ -198,7 +202,7 @@ private:
     int m_output_accumulation_block_start;
     int m_output_sample;
     
-    FFTSetup m_fft_setup;
+    FFTSetup m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
     float *m_workspace_data;
     DSPSplitComplex m_workspace[3];
     

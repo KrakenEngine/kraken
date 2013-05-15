@@ -105,6 +105,7 @@ public:
     bool siren_enable;
     bool siren_enable_reverb;
     bool siren_enable_hrtf;
+    float siren_reverb_max_length;
     
     float max_anisotropy;
 

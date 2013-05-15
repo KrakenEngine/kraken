@@ -13,6 +13,7 @@ KRRenderSettings::KRRenderSettings()
     siren_enable = true;
     siren_enable_reverb = true;
     siren_enable_hrtf = true;
+    siren_reverb_max_length = 2.0f;
     
     m_enable_realtime_occlusion = true;
     bShowShadowBuffer = false;
@@ -92,6 +93,7 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     siren_enable = s.siren_enable;
     siren_enable_reverb = s.siren_enable_reverb;
     siren_enable_hrtf = s.siren_enable_hrtf;
+    siren_reverb_max_length = s.siren_reverb_max_length;
     
     bEnablePerPixel = s.bEnablePerPixel;
     bEnableDiffuseMap = s.bEnableDiffuseMap;

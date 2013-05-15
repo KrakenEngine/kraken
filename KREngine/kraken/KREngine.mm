@@ -196,7 +196,8 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             @"siren_enable" : @49,
             @"siren_enable_reverb" : @50,
             @"siren_enable_hrtf" : @51,
-            @"max_anisotropy" : @52
+            @"siren_reverb_max_length" : @52,
+            @"max_anisotropy" : @53
                             
         } copy];
         [self loadShaders];
@@ -285,7 +286,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(NSString *)getParameterLabelWithIndex: (int)i
 {
-    NSString *parameter_labels[53] = {
+    NSString *parameter_labels[54] = {
         @"Camera FOV",
         @"Shadow Quality (0 - 2)",
         @"Enable per-pixel lighting",
@@ -338,13 +339,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         @"Siren - Enable Audio",
         @"Siren - Enable Reverb",
         @"Siren - Enable HRTF",
+        @"Siren - Max Reverb Len",
         @"Anisotropic Filtering"
     };
     return parameter_labels[i];
 }
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i
 {
-    KREngineParameterType types[53] = {
+    KREngineParameterType types[54] = {
         
         KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_INT,
@@ -398,13 +400,14 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
         KRENGINE_PARAMETER_BOOL,
+        KRENGINE_PARAMETER_FLOAT,
         KRENGINE_PARAMETER_FLOAT
     };
     return types[i];
 }
 -(float)getParameterValueWithIndex: (int)i
 {
-    float values[53] = {
+    float values[54] = {
         _settings.perspective_fov,
         (float)_settings.m_cShadowBuffers,
         _settings.bEnablePerPixel ? 1.0f : 0.0f,
@@ -457,6 +460,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
         _settings.siren_enable,
         _settings.siren_enable_reverb,
         _settings.siren_enable_hrtf,
+        _settings.siren_reverb_max_length,
         _settings.max_anisotropy
     };
     return values[i];
@@ -659,6 +663,9 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
             _settings.siren_enable_hrtf = bNewBoolVal;
             break;
         case 52:
+            _settings.siren_reverb_max_length = v;
+            break;
+        case 53:
             _settings.max_anisotropy = v;
             break;
     }
@@ -666,13 +673,13 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMinWithIndex: (int)i
 {
-    float minValues[53] = {
+    float minValues[54] = {
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.01f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 0.0f, -10.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
+        0.0f, 0.0f, 0.0f,  0.05f, 1.0f
     };
 
     return minValues[i];
@@ -680,13 +687,13 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 -(float)getParameterMaxWithIndex: (int)i
 {
-    float maxValues[53] = {
+    float maxValues[54] = {
              PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
            1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
         1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 10.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1),
-        1.0f, 1.0f, 1.0f, 8.0f
+        1.0f, 1.0f, 1.0f, 10.0f, 8.0f
     };
     
     return maxValues[i];

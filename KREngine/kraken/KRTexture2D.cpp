@@ -56,11 +56,10 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
         m_textureMemUsed = 0;
         prev_lod_max_dim = m_current_lod_max_dim;
     }
-    
-
 #else
     releaseHandle();
 #endif
+    
     m_current_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iHandle));
     
