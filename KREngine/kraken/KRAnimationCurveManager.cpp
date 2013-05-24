@@ -43,14 +43,14 @@ KRAnimationCurveManager::~KRAnimationCurveManager() {
     }
 }
 
-KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const char *szName, KRDataBlock *data) {
-    KRAnimationCurve *pAnimationCurve = KRAnimationCurve::Load(*m_pContext, szName, data);
-    m_animationCurves[szName] = pAnimationCurve;
+KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const std::string &name, KRDataBlock *data) {
+    KRAnimationCurve *pAnimationCurve = KRAnimationCurve::Load(*m_pContext, name, data);
+    m_animationCurves[name] = pAnimationCurve;
     return pAnimationCurve;
 }
 
-KRAnimationCurve *KRAnimationCurveManager::getAnimationCurve(const char *szName) {
-    return m_animationCurves[szName];
+KRAnimationCurve *KRAnimationCurveManager::getAnimationCurve(const std::string &name) {
+    return m_animationCurves[name];
 }
 
 unordered_map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnimationCurves() {

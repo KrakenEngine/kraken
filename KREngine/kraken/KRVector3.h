@@ -51,6 +51,7 @@ public:
 	KRVector3(float X, float Y, float Z);
     KRVector3(float v);
     KRVector3(float *v);
+    KRVector3(double *v);
     KRVector3(const KRVector3 &v);
     KRVector3(const KRVector4 &v);
 	~KRVector3();
@@ -83,6 +84,7 @@ public:
     float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
     float magnitude() const;
     
+    void scale(const KRVector3 &v);
     void normalize();
     static KRVector3 Normalize(const KRVector3 &v);
     
@@ -99,6 +101,7 @@ public:
     static KRVector3 Down();
     static KRVector3 Left();
     static KRVector3 Right();
+    static KRVector3 Scale(const KRVector3 &v1, const KRVector3 &v2);
     static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization

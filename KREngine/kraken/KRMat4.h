@@ -120,6 +120,10 @@ class KRMat4 {
     
     static KRMat4 LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection);
     
+    static KRMat4 Translation(const KRVector3 &v);
+    static KRMat4 Rotation(const KRVector3 &v);
+    static KRMat4 Scaling(const KRVector3 &v);
+    
     void setUniform(GLint location) const;
 };
 

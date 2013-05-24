@@ -53,6 +53,10 @@ public:
     void addLayer(KRAnimationLayer *layer);
     unordered_map<std::string, KRAnimationLayer *> &getLayers();
     KRAnimationLayer *getLayer(const char *szName);
+    bool getAutoPlay() const;
+    void setAutoPlay(bool auto_play);
+    bool getLooping() const;
+    void setLooping(bool looping);
     void Play();
     void Stop();
     void update(float deltaTime);

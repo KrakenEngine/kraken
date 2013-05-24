@@ -79,6 +79,13 @@ KRQuaternion::~KRQuaternion() {
     
 }
 
+void KRQuaternion::setEulerXYZ(const KRVector3 &euler)
+{
+    *this = KRQuaternion::FromAngleAxis(KRVector3(1.0f, 0.0f, 0.0f), euler.x)
+        * KRQuaternion::FromAngleAxis(KRVector3(0.0f, 1.0f, 0.0f), euler.y)
+        * KRQuaternion::FromAngleAxis(KRVector3(0.0f, 0.0f, 1.0f), euler.z);
+}
+
 void KRQuaternion::setEulerZYX(const KRVector3 &euler) {
     // ZYX Order!
     float c1 = cos(euler[0] * 0.5f);
@@ -189,10 +196,10 @@ KRQuaternion& KRQuaternion::operator +=(const KRQuaternion& v) {
 }
 
 KRQuaternion& KRQuaternion::operator -=(const KRQuaternion& v) {
-    m_val[0] += v[0];
-    m_val[1] += v[1];
-    m_val[2] += v[2];
-    m_val[3] += v[3];
+    m_val[0] -= v[0];
+    m_val[1] -= v[1];
+    m_val[2] -= v[2];
+    m_val[3] -= v[3];
     return *this;
 }
 
@@ -270,28 +277,30 @@ void KRQuaternion::conjugate() {
 }
 
 KRMat4 KRQuaternion::rotationMatrix() const {
-    
-    KRVector3 euler = eulerXYZ();
     KRMat4 matRotate;
+    
+    /*
+    KRVector3 euler = eulerXYZ();
+    
     matRotate.rotate(euler.x, X_AXIS);
     matRotate.rotate(euler.y, Y_AXIS);
     matRotate.rotate(euler.z, Z_AXIS);
+     */
     
     // FINDME - Determine why the more optimal routine commented below wasn't working
     
-    /*
-    matRotate.getPointer()[0] = 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]);
-    matRotate.getPointer()[1] = 2.0 * (m_val[1] * m_val[2] - m_val[0] * m_val[3]);
-    matRotate.getPointer()[2] = 2.0 * (m_val[0] * m_val[2] + m_val[1] * m_val[3]);
     
-    matRotate.getPointer()[4] = 2.0 * (m_val[1] * m_val[2] + m_val[0] * m_val[3]);
-    matRotate.getPointer()[5] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[3] * m_val[3]);
-    matRotate.getPointer()[6] = 2.0 * (m_val[2] * m_val[3] - m_val[0] * m_val[1]);
+    matRotate.c[0] = 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]);
+    matRotate.c[1] = 2.0 * (m_val[1] * m_val[2] - m_val[0] * m_val[3]);
+    matRotate.c[2] = 2.0 * (m_val[0] * m_val[2] + m_val[1] * m_val[3]);
     
-    matRotate.getPointer()[8] = 2.0 * (m_val[1] * m_val[3] - m_val[0] * m_val[2]);
-    matRotate.getPointer()[9] = 2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]);
-    matRotate.getPointer()[10] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]);
-     */
+    matRotate.c[4] = 2.0 * (m_val[1] * m_val[2] + m_val[0] * m_val[3]);
+    matRotate.c[5] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[3] * m_val[3]);
+    matRotate.c[6] = 2.0 * (m_val[2] * m_val[3] - m_val[0] * m_val[1]);
+    
+    matRotate.c[8] = 2.0 * (m_val[1] * m_val[3] - m_val[0] * m_val[2]);
+    matRotate.c[9] = 2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]);
+    matRotate.c[10] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]);
     
     return matRotate;
 }

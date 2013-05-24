@@ -31,6 +31,7 @@
 #include "KREngine-common.h"
 
 #include "KRVector2.h"
+#include "KRMat4.h"
 #include "KRContext.h"
 #include "KRBone.h"
 
@@ -58,6 +59,9 @@ class KRNode;
 class KRMesh : public KRResource {
     
 public:
+
+    
+    
     KRMesh(KRContext &context, std::string name, KRDataBlock *data);
     KRMesh(KRContext &context, std::string name);
     virtual ~KRMesh();
@@ -87,6 +91,23 @@ public:
         KRENGINE_MODEL_FORMAT_INDEXED_STRIP
     } model_format_t;
     
+    typedef struct {
+        model_format_t format;
+        std::vector<KRVector3> vertices;
+        std::vector<__uint16_t> vertex_indexes;
+        std::vector<std::pair<int, int> > vertex_index_bases;
+        std::vector<KRVector2> uva;
+        std::vector<KRVector2> uvb;
+        std::vector<KRVector3> normals;
+        std::vector<KRVector3> tangents;
+        std::vector<int> submesh_starts;
+        std::vector<int> submesh_lengths;
+        std::vector<std::string> material_names;
+        std::vector<std::string> bone_names;
+        std::vector<std::vector<int> > bone_indexes;
+        std::vector<KRMat4> bone_bind_poses;
+        std::vector<std::vector<float> > bone_weights;
+    } mesh_info;
     
     void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones);
     
@@ -96,7 +117,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    void LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, bool calculate_normals, bool calculate_tangents);
+    void LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<KRMat4> bone_bind_poses, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, */const mesh_info &mi, bool calculate_normals, bool calculate_tangents);
     void loadPack(KRDataBlock *data);
     
     void convertToIndexed();
@@ -132,6 +153,7 @@ public:
     
     typedef struct {
         char szName[KRENGINE_MAX_NAME_LENGTH];
+        float bind_pose[16];
     } pack_bone;
 
     int getLODCoverage() const;
@@ -166,6 +188,7 @@ public:
     
     int getBoneCount();
     char *getBoneName(int bone_index);
+    KRMat4 getBoneBindPose(int bone_index);
 
     
     model_format_t getModelFormat() const;

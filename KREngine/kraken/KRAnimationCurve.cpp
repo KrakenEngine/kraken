@@ -32,7 +32,7 @@
 #include "KRAnimationCurve.h"
 #include "KRDataBlock.h"
 
-KRAnimationCurve::KRAnimationCurve(KRContext &context, std::string name) : KRResource(context, name)
+KRAnimationCurve::KRAnimationCurve(KRContext &context, const std::string &name) : KRResource(context, name)
 {
     m_pData = new KRDataBlock();
     m_pData->expand(sizeof(animation_curve_header));
@@ -129,7 +129,7 @@ float KRAnimationCurve::getValue(int frame_number)
     //printf("frame_number: %i\n", frame_number);
     int clamped_frame = frame_number;
     if(frame_number < 0) {
-        clamped_frame = frame_number;
+        clamped_frame = 0;
     } else if(frame_number >= getFrameCount()) {
         clamped_frame = getFrameCount()-1;
     }

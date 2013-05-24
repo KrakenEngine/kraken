@@ -74,9 +74,6 @@ private:
     
     unordered_map<std::string, std::string> m_fragShaderSource;
     unordered_map<std::string, std::string> m_vertShaderSource;
-    
-
-    char m_szCurrentShaderKey[256];
 };
 
 #endif

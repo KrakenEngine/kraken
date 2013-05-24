@@ -86,6 +86,60 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
         case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
             szAttribute = "rotate_z";
             break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X:
+            szAttribute = "pre_rotate_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y:
+            szAttribute = "pre_rotate_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z:
+            szAttribute = "pre_rotate_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X:
+            szAttribute = "post_rotate_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y:
+            szAttribute = "post_rotate_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z:
+            szAttribute = "post_rotate_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X:
+            szAttribute = "rotate_pivot_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y:
+            szAttribute = "rotate_pivot_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z:
+            szAttribute = "rotate_pivot_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X:
+            szAttribute = "scale_pivot_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y:
+            szAttribute = "scale_pivot_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z:
+            szAttribute = "scale_pivot_z";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X:
+            szAttribute = "rotate_offset_x";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y:
+            szAttribute = "rotate_offset_y";
+            break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z:
+            szAttribute = "rotate_offset_z";
+            break;
+        case KRNode::KRENGINE_NODE_SCALE_OFFSET_X:
+            szAttribute = "scale_offset_x";
+            break;
+        case KRNode::KRENGINE_NODE_SCALE_OFFSET_Y:
+            szAttribute = "scale_offset_y";
+            break;
+        case KRNode::KRENGINE_NODE_SCALE_OFFSET_Z:
+            szAttribute = "scale_offset_z";
+            break;
     }
     
     e->SetAttribute("attribute", szAttribute);
@@ -121,6 +175,42 @@ void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
         m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
     } else if(strcmp(szAttribute, "scale_z") == 0) {
         m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
+    } else if(strcmp(szAttribute, "pre_rotate_x") == 0) {   
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X;
+    } else if(strcmp(szAttribute, "pre_rotate_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y;
+    } else if(strcmp(szAttribute, "pre_rotate_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z;
+    } else if(strcmp(szAttribute, "post_rotate_x") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X;
+    } else if(strcmp(szAttribute, "post_rotate_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y;
+    } else if(strcmp(szAttribute, "post_rotate_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z;
+    } else if(strcmp(szAttribute, "rotate_pivot_x") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X;
+    } else if(strcmp(szAttribute, "rotate_pivot_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y;
+    } else if(strcmp(szAttribute, "rotate_pivot_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z;
+    } else if(strcmp(szAttribute, "scale_pivot_x") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X;
+    } else if(strcmp(szAttribute, "scale_pivot_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y;
+    } else if(strcmp(szAttribute, "scale_pivot_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z;
+    } else if(strcmp(szAttribute, "rotate_offset_x") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X;
+    } else if(strcmp(szAttribute, "rotate_offset_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y;
+    } else if(strcmp(szAttribute, "rotate_offset_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z;
+    } else if(strcmp(szAttribute, "scale_offset_x") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_X;
+    } else if(strcmp(szAttribute, "scale_offset_y") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Y;
+    } else if(strcmp(szAttribute, "scale_offset_z") == 0) {
+        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Z;
     } else {
         m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
     }
@@ -162,6 +252,9 @@ KRNode *KRAnimationAttribute::getTarget()
 {
     if(m_target == NULL) {
         m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->find<KRNode>(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
+    }
+    if(m_target == NULL) {
+        fprintf(stderr, "Kraken - Animation attribute could not find object: %s\n", m_target_name.c_str());
     }
     return m_target;
 }

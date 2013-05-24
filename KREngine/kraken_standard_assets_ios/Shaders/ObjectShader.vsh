@@ -29,6 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+
 attribute highp vec3	vertex_position, vertex_normal;
 #if HAS_NORMAL_MAP == 1
     attribute highp vec3    vertex_tangent;
@@ -171,8 +172,8 @@ void main()
     mediump vec4 scaled_bone_indexes = bone_indexes;
     mediump vec4 scaled_bone_weights = bone_weights;
     
-    //scaled_bone_indexes = vec4(1.0, 0.0, 0.0, 0.0);
-    scaled_bone_weights = vec4(1.0, 0.0, 0.0, 0.0);
+    //scaled_bone_indexes = vec4(0.0, 0.0, 0.0, 0.0);
+    //scaled_bone_weights = vec4(1.0, 0.0, 0.0, 0.0);
     
     highp mat4 skin_matrix =
         bone_transforms[ int(scaled_bone_indexes.x) ] * scaled_bone_weights.x +

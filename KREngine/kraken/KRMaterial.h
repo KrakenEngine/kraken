@@ -83,7 +83,7 @@ public:
     bool isTransparent();
     const std::string &getName() const;
     
-    bool bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
+    bool bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass);
     
     bool needsVertexTangents();
     

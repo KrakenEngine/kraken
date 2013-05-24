@@ -65,6 +65,23 @@ KRCamera::~KRCamera() {
     destroyBuffers();
 }
 
+std::string KRCamera::getElementName() {
+    return "camera";
+}
+
+tinyxml2::XMLElement *KRCamera::saveXML( tinyxml2::XMLNode *parent)
+{
+    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+    
+    return e;
+}
+
+
+void KRCamera::loadXML(tinyxml2::XMLElement *e)
+{
+    KRNode::loadXML(e);
+}
+
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
 {    
     // ----====---- Record timing information for measuring FPS ----====----
@@ -82,9 +99,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     KRScene &scene = getScene();
     
-
-
-    KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
+    KRMat4 modelMatrix = getModelMatrix();
+    KRMat4 viewMatrix = KRMat4::LookAt(KRMat4::Dot(modelMatrix, KRVector3::Zero()), KRMat4::Dot(modelMatrix, KRVector3::Forward()), KRVector3::Normalize(KRMat4::DotNoTranslate(modelMatrix, KRVector3::Up())));
+    
+    //KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
     settings.setViewportSize(KRVector2(backingWidth, backingHeight));
     KRMat4 projectionMatrix;

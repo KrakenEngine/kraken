@@ -84,3 +84,13 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
 
     }
 }
+
+
+void KRBone::setBindPose(const KRMat4 &pose)
+{
+    m_bind_pose = pose;
+}
+const KRMat4 &KRBone::getBindPose()
+{
+    return m_bind_pose;
+}

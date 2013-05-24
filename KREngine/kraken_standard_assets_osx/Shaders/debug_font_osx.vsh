@@ -28,11 +28,11 @@
 varying mediump vec2    textureCoordinate;
 
 attribute vec4          vertex_position;
-attribute lowp vec4     vertex_uv;
+attribute lowp vec2     vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 
 void main()
 {
     gl_Position = /*mvp_matrix * */vertex_position;
-	textureCoordinate = vertex_uv.xy;
+	textureCoordinate = vertex_uv;
 }

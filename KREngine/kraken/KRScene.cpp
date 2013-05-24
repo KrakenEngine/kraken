@@ -62,7 +62,7 @@ KRScene::~KRScene() {
 
 void KRScene::renderFrame(float deltaTime, int width, int height) {
     getContext().startFrame(deltaTime);
-    KRCamera *camera = find<KRCamera>();
+    KRCamera *camera = find<KRCamera>("default_camera");
     if(camera == NULL) {
         // Add a default camera if none are present
         camera = new KRCamera(*this, "default_camera");

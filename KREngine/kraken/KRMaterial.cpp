@@ -217,8 +217,7 @@ bool KRMaterial::isTransparent() {
     return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
-    bool bSameMaterial = *prevBoundMaterial == this;
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass) {
     bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     if(!m_pAmbientMap && m_ambientMap.size()) {
@@ -240,42 +239,32 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
         m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
     
-    if(bones.size() > 0) {
-        bSameMaterial = false; // FINDME, HACK!  - This is test code
+    KRVector2 default_scale = KRVector2::One();
+    KRVector2 default_offset = KRVector2::Zero();
+    
+    bool bHasReflection = m_reflectionColor != KRVector3::Zero();
+    bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
+    bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
+    bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
+    bool bReflectionMap = m_pReflectionMap != NULL && pCamera->settings.bEnableReflectionMap && pCamera->settings.bEnableReflection && bHasReflection;
+    bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->settings.bEnableReflection && bHasReflection;
+    bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
+    bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
+    
+    
+    KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
+
+    if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass)) {
+        return false;
     }
     
-    if(!bSameMaterial) { 
-        KRVector2 default_scale = KRVector2(1.0f, 1.0f);
-        KRVector2 default_offset = KRVector2(0.0f, 0.0f);
-        
-        bool bHasReflection = m_reflectionColor != KRVector3(0.0f, 0.0f, 0.0f);
-        bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
-        bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
-        bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
-        bool bReflectionMap = m_pReflectionMap != NULL && pCamera->settings.bEnableReflectionMap && pCamera->settings.bEnableReflection && bHasReflection;
-        bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->settings.bEnableReflection && bHasReflection;
-        bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
-        bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
-        
-        
-        KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_reflectionMapScale != default_scale && bReflectionMap, m_normalMapScale != default_scale && bNormalMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_reflectionMapOffset != default_offset && bReflectionMap, m_normalMapOffset != default_offset && bNormalMap, bAlphaTest, bAlphaBlend, renderPass);
-
-        bool bSameShader = strcmp(pShader->getKey(), szPrevShaderKey) == 0;
-        if(!bSameShader) {
-            if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass)) {
-                return false;
-            }
+    // Bind bones
+    if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+        GLfloat bone_mats[256 * 16];
+        GLfloat *bone_mat_component = bone_mats;
+        for(int bone_index=0; bone_index < bones.size(); bone_index++) {
+            KRBone *bone = bones[bone_index];
             
-            strcpy(szPrevShaderKey, pShader->getKey());
-        }
-        
-        // Bind bones
-        if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-            GLfloat bone_mats[256 * 16];
-            GLfloat *bone_mat_component = bone_mats;
-            for(int bone_index=0; bone_index < bones.size(); bone_index++) {
-                KRBone *bone = bones[bone_index];
-                
 //                KRVector3 initialRotation = bone->getInitialLocalRotation();
 //                KRVector3 rotation = bone->getLocalRotation();
 //                KRVector3 initialTranslation = bone->getInitialLocalTranslation();
@@ -283,143 +272,76 @@ bool KRMaterial::bind(KRMaterial **prevBoundMaterial, char *szPrevShaderKey, KRC
 //                KRVector3 initialScale = bone->getInitialLocalScale();
 //                KRVector3 scale = bone->getLocalScale();
 //                
-                //printf("%s - delta rotation: %.4f %.4f %.4f\n", bone->getName().c_str(), (rotation.x - initialRotation.x) * 180.0 / M_PI, (rotation.y - initialRotation.y) * 180.0 / M_PI, (rotation.z - initialRotation.z) * 180.0 / M_PI);
-                //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
+            //printf("%s - delta rotation: %.4f %.4f %.4f\n", bone->getName().c_str(), (rotation.x - initialRotation.x) * 180.0 / M_PI, (rotation.y - initialRotation.y) * 180.0 / M_PI, (rotation.z - initialRotation.z) * 180.0 / M_PI);
+            //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
 //                printf("%s - delta scale: %.4f %.4f %.4f\n", bone->getName().c_str(), scale.x - initialScale.x, scale.y - initialScale.y, scale.z - initialScale.z);
-                
-                KRMat4 model_mat = bone->getActivePoseMatrix();
-                KRMat4 inv_bind_mat = bone->getInverseBindPoseMatrix();
-                KRMat4 t = /*KRMat4::Invert(matModel) * */(inv_bind_mat * model_mat);
-                for(int i=0; i < 16; i++) {
-                    *bone_mat_component++ = t[i];
-                }
-            }
-            if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-                glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
-            }
-        }
-        
-        bool bSameAmbient = false;
-        bool bSameDiffuse = false;
-        bool bSameSpecular = false;
-        bool bSameReflection = false;
-        bool bSameAmbientScale = false;
-        bool bSameDiffuseScale = false;
-        bool bSameSpecularScale = false;
-        bool bSameReflectionScale = false;
-        bool bSameNormalScale = false;
-        bool bSameAmbientOffset = false;
-        bool bSameDiffuseOffset = false;
-        bool bSameSpecularOffset = false;
-        bool bSameReflectionOffset = false;
-        bool bSameNormalOffset = false;
-        bool bSameShininess = false;
-        
-        if(*prevBoundMaterial && bSameShader) {
-            bSameAmbient = (*prevBoundMaterial)->m_ambientColor == m_ambientColor;
-            bSameDiffuse = (*prevBoundMaterial)->m_diffuseColor == m_diffuseColor;
-            bSameSpecular = (*prevBoundMaterial)->m_specularColor == m_specularColor;
-            bSameShininess = (*prevBoundMaterial)->m_ns == m_ns;
-            bSameReflection = (*prevBoundMaterial)->m_reflectionColor == m_reflectionColor;
-            bSameAmbientScale = (*prevBoundMaterial)->m_ambientMapScale == m_ambientMapScale;
-            bSameDiffuseScale = (*prevBoundMaterial)->m_diffuseMapScale == m_diffuseMapScale;
-            bSameSpecularScale = (*prevBoundMaterial)->m_specularMapScale == m_specularMapScale;
-            bSameReflectionScale = (*prevBoundMaterial)->m_reflectionMapScale == m_reflectionMapScale;
-            bSameNormalScale = (*prevBoundMaterial)->m_normalMapScale == m_normalMapScale;
-            bSameAmbientOffset = (*prevBoundMaterial)->m_ambientMapOffset == m_ambientMapOffset;
-            bSameDiffuseOffset = (*prevBoundMaterial)->m_diffuseMapOffset == m_diffuseMapOffset;
-            bSameSpecularOffset = (*prevBoundMaterial)->m_specularMapOffset == m_specularMapOffset;
-            bSameReflectionOffset = (*prevBoundMaterial)->m_reflectionMapOffset == m_reflectionMapOffset;
-            bSameNormalOffset = (*prevBoundMaterial)->m_normalMapOffset == m_normalMapOffset;
-        }
-        
-        if(!bSameAmbient) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT, m_ambientColor + pCamera->settings.ambient_intensity);
-        }
-        
-        if(!bSameDiffuse) {
-            if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
-                // We pre-multiply the light color with the material color in the forward renderer
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
-            } else {
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
+            
+            KRMat4 skin_bone_bind_pose = bind_poses[bone_index];
+            KRMat4 active_mat = bone->getActivePoseMatrix();
+            KRMat4 inv_bind_mat = bone->getInverseBindPoseMatrix();
+            KRMat4 inv_bind_mat2 = KRMat4::Invert(bind_poses[bone_index]);
+            KRMat4 t = (inv_bind_mat * active_mat);
+            KRMat4 t2 = inv_bind_mat2 * bone->getModelMatrix();
+            for(int i=0; i < 16; i++) {
+                *bone_mat_component++ = t[i];
             }
         }
-        
-        if(!bSameSpecular) {
-            if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
-                // We pre-multiply the light color with the material color in the forward renderer
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
-            } else {
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
-            }
+        if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+            glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
         }
-        
-        if(!bSameShininess) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS, m_ns);
-        }
-        
-        if(!bSameReflection) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION, m_reflectionColor);
-        }
-        
-        if(bDiffuseMap && !bSameDiffuseScale && m_diffuseMapScale != default_scale) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE, m_diffuseMapScale);
-        }
-        
-        if(bSpecMap && !bSameSpecularScale && m_specularMapScale != default_scale) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE, m_specularMapScale);
-        }
-        
-        if(bReflectionMap && !bSameReflectionScale && m_reflectionMapScale != default_scale) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE, m_reflectionMapScale);
-        }
-        
-        if(bNormalMap && !bSameNormalScale && m_normalMapScale != default_scale) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE, m_normalMapScale);
-        }
-        
-        if(bDiffuseMap && !bSameDiffuseOffset && m_diffuseMapOffset != default_offset) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET, m_diffuseMapOffset);
-        }
-        
-        if(bSpecMap && !bSameSpecularOffset && m_specularMapOffset != default_offset) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET, m_specularMapOffset);
-        }
-        
-        if(bReflectionMap && !bSameReflectionOffset && m_reflectionMapOffset != default_offset) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET, m_reflectionMapOffset);
-        }
-        
-        if(bNormalMap && !bSameNormalOffset && m_normalMapOffset != default_offset) {
-            pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET, m_normalMapOffset);
-        }
-        
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_tr);
-        
-        if(bDiffuseMap) {
-            m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
-        }
-        
-        if(bSpecMap) {
-            m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
-        }
+    }
 
-        if(bNormalMap) {
-            m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
-        }
-        
-        if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-            m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube);
-        }
-        
-        if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-            // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-            m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
-        }
-        
-        *prevBoundMaterial = this;
-    } // if(!bSameMaterial)
+    
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_AMBIENT, m_ambientColor + pCamera->settings.ambient_intensity);
+    
+    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+        // We pre-multiply the light color with the material color in the forward renderer
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
+    } else {
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
+    }
+    
+    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+        // We pre-multiply the light color with the material color in the forward renderer
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
+    } else {
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
+    }
+    
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SHININESS, m_ns);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_REFLECTION, m_reflectionColor);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE, m_diffuseMapScale);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE, m_specularMapScale);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE, m_reflectionMapScale);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_SCALE, m_normalMapScale);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET, m_diffuseMapOffset);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET, m_specularMapOffset);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET, m_reflectionMapOffset);
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET, m_normalMapOffset);
+
+    pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_tr);
+    
+    if(bDiffuseMap) {
+        m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
+    }
+    
+    if(bSpecMap) {
+        m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
+    }
+
+    if(bNormalMap) {
+        m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
+    }
+    
+    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+        m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube);
+    }
+    
+    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+        // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
+        m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
+    }
+
     
     return true;
 }

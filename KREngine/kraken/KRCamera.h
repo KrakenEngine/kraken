@@ -60,6 +60,11 @@ public:
     KRRenderSettings settings;
     
     const KRViewport &getViewport();
+    
+    
+    virtual std::string getElementName();
+    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+    virtual void loadXML(tinyxml2::XMLElement *e);
         
 private:    
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);

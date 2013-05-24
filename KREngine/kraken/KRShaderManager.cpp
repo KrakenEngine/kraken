@@ -40,7 +40,6 @@
 using namespace std;
 
 KRShaderManager::KRShaderManager(KRContext &context) : KRContextObject(context) {
-    m_szCurrentShaderKey[0] = '\0';
     m_active_shader = NULL;
 }
 
@@ -248,13 +247,7 @@ bool KRShaderManager::selectShader(const std::string &shader_name, KRCamera &cam
 bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass)
 {
     if(pShader) {
-        bool bSameShader = strcmp(pShader->getKey(), m_szCurrentShaderKey) == 0;
-        if(!bSameShader || true) { // FINDME, HACK.  Need to update logic to detect appropriate times to bind a new shader
-            strcpy(m_szCurrentShaderKey, pShader->getKey());
-            return pShader->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass);
-        } else {
-            return true;
-        }
+        return pShader->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass);
     } else {
         return false;
     }

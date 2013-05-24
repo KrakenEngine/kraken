@@ -34,43 +34,32 @@
 
 KRMeshCube::KRMeshCube(KRContext &context) : KRMesh(context, "__cube")
 {
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector2> uvb;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_starts;
-    std::vector<int> submesh_lengths;
-    std::vector<std::string> material_names;
-    std::vector<std::string> bone_names;
-    std::vector<std::vector<int> > bone_indexes;
-    std::vector<std::vector<float> > bone_weights;
+    KRMesh::mesh_info mi;
     
     
-    vertices.push_back(KRVector3(1.0, 1.0, 1.0));
-    vertices.push_back(KRVector3(-1.0, 1.0, 1.0));
-    vertices.push_back(KRVector3(1.0,-1.0, 1.0));
-    vertices.push_back(KRVector3(-1.0,-1.0, 1.0));
-    vertices.push_back(KRVector3(-1.0,-1.0,-1.0));
-    vertices.push_back(KRVector3(-1.0, 1.0, 1.0));
-    vertices.push_back(KRVector3(-1.0, 1.0,-1.0));
-    vertices.push_back(KRVector3(1.0, 1.0, 1.0));
-    vertices.push_back(KRVector3(1.0, 1.0,-1.0));
-    vertices.push_back(KRVector3(1.0,-1.0, 1.0));
-    vertices.push_back(KRVector3(1.0,-1.0,-1.0));
-    vertices.push_back(KRVector3(-1.0,-1.0,-1.0));
-    vertices.push_back(KRVector3(1.0, 1.0,-1.0));
-    vertices.push_back(KRVector3(-1.0, 1.0,-1.0));
+    mi.vertices.push_back(KRVector3(1.0, 1.0, 1.0));
+    mi.vertices.push_back(KRVector3(-1.0, 1.0, 1.0));
+    mi.vertices.push_back(KRVector3(1.0,-1.0, 1.0));
+    mi.vertices.push_back(KRVector3(-1.0,-1.0, 1.0));
+    mi.vertices.push_back(KRVector3(-1.0,-1.0,-1.0));
+    mi.vertices.push_back(KRVector3(-1.0, 1.0, 1.0));
+    mi.vertices.push_back(KRVector3(-1.0, 1.0,-1.0));
+    mi.vertices.push_back(KRVector3(1.0, 1.0, 1.0));
+    mi.vertices.push_back(KRVector3(1.0, 1.0,-1.0));
+    mi.vertices.push_back(KRVector3(1.0,-1.0, 1.0));
+    mi.vertices.push_back(KRVector3(1.0,-1.0,-1.0));
+    mi.vertices.push_back(KRVector3(-1.0,-1.0,-1.0));
+    mi.vertices.push_back(KRVector3(1.0, 1.0,-1.0));
+    mi.vertices.push_back(KRVector3(-1.0, 1.0,-1.0));
     
     
-    submesh_starts.push_back(0);
-    submesh_lengths.push_back(vertices.size());
-    material_names.push_back("");
+    mi.submesh_starts.push_back(0);
+    mi.submesh_lengths.push_back(mi.vertices.size());
+    mi.material_names.push_back("");
+    mi.format = KRENGINE_MODEL_FORMAT_STRIP;
+
     
-    std::vector<__uint16_t> vertex_indexes;
-    std::vector<std::pair<int, int> > vertex_index_bases;
-    
-    LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_STRIP, true, true);
+    LoadData(mi, true, true);
 }
 
 KRMeshCube::~KRMeshCube()

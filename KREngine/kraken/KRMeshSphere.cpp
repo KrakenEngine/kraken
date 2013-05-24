@@ -34,19 +34,7 @@
 
 KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
 {
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector2> uvb;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_starts;
-    std::vector<int> submesh_lengths;
-    std::vector<std::string> material_names;
-    std::vector<std::string> bone_names;
-    std::vector<std::vector<int> > bone_indexes;
-    std::vector<std::vector<float> > bone_weights;
-    
-    
+    KRMesh::mesh_info mi;
     
     // Create a triangular facet approximation to a sphere
     // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
@@ -125,19 +113,18 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     }
     
     for(int facet_index=0; facet_index < facet_count; facet_index++) {
-        vertices.push_back(f[facet_index].p1);
-        vertices.push_back(f[facet_index].p2);
-        vertices.push_back(f[facet_index].p3);
+        mi.vertices.push_back(f[facet_index].p1);
+        mi.vertices.push_back(f[facet_index].p2);
+        mi.vertices.push_back(f[facet_index].p3);
     }
     
-    submesh_starts.push_back(0);
-    submesh_lengths.push_back(vertices.size());
-    material_names.push_back("");
+    mi.submesh_starts.push_back(0);
+    mi.submesh_lengths.push_back(mi.vertices.size());
+    mi.material_names.push_back("");
     
-    std::vector<__uint16_t> vertex_indexes;
-    std::vector<std::pair<int, int> > vertex_index_bases;
-    
-    LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_TRIANGLES, true, true);
+
+    mi.format = KRENGINE_MODEL_FORMAT_TRIANGLES;
+    LoadData(mi, true, true);
 }
 
 KRMeshSphere::~KRMeshSphere()

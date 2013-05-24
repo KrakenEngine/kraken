@@ -39,9 +39,9 @@
 
 KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(context, name)
 {
-    m_auto_play = true;
-    m_loop = true;
-    m_playing = true;
+    m_auto_play = false;
+    m_loop = false;
+    m_playing = false;
     m_local_time = 0.0f;
     m_duration = 0.0f;
 }
@@ -94,11 +94,11 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     }
     
     if(animation_node->QueryBoolAttribute("loop", &new_animation->m_loop) != tinyxml2::XML_SUCCESS) {
-        new_animation->m_loop = true; // Default value
+        new_animation->m_loop = false; // Default value
     }
     
     if(animation_node->QueryBoolAttribute("auto_play", &new_animation->m_auto_play) != tinyxml2::XML_SUCCESS) {
-        new_animation->m_auto_play = true; // Default value
+        new_animation->m_auto_play = false; // Default value
     }
 
     for(tinyxml2::XMLElement *child_element=animation_node->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
@@ -131,12 +131,18 @@ KRAnimationLayer *KRAnimation::getLayer(const char *szName)
 }
 
 void KRAnimation::update(float deltaTime)
-{
+{    
     if(m_playing) {
         m_local_time += deltaTime;
     }
-    while(m_local_time > m_duration) {
-        m_local_time -= m_duration;
+    if(m_loop) {
+        while(m_local_time > m_duration) {
+            m_local_time -= m_duration;
+        }
+    } else if(m_local_time > m_duration) {
+        m_local_time = m_duration;
+        m_playing = false;
+        getContext().getAnimationManager()->updateActiveAnimations(this);
     }
     
     for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
@@ -151,7 +157,14 @@ void KRAnimation::update(float deltaTime)
             KRNode::node_attribute_type attribute_type = attribute->getTargetAttribute();
             
             if(curve != NULL && target != NULL) {
-                target->SetAttribute(attribute_type, curve->getValue(m_local_time));
+                int frame_number = (int)(m_local_time * curve->getFrameRate());
+                if(frame_number < curve->getFrameStart()) {
+                    target->SetAttribute(attribute_type, curve->getValue(0));
+                } else if(frame_number - curve->getFrameStart() >= curve->getFrameCount()) {
+                    target->SetAttribute(attribute_type, curve->getValue(curve->getFrameCount() - 1));
+                } else {
+                    target->SetAttribute(attribute_type, curve->getValue(frame_number - curve->getFrameStart()));
+                }
             }
             
         }
@@ -193,4 +206,24 @@ void KRAnimation::setDuration(float duration)
 bool KRAnimation::isPlaying()
 {
     return m_playing;
+}
+
+bool KRAnimation::getAutoPlay() const
+{
+    return m_auto_play;
+}
+
+void KRAnimation::setAutoPlay(bool auto_play)
+{
+    m_auto_play = auto_play;
+}
+
+bool KRAnimation::getLooping() const
+{
+    return m_loop;
+}
+
+void KRAnimation::setLooping(bool looping)
+{
+    m_loop = looping;
 }

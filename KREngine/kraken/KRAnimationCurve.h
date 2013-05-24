@@ -40,7 +40,7 @@
 class KRAnimationCurve : public KRResource {
     
 public:
-    KRAnimationCurve(KRContext &context, std::string name);
+    KRAnimationCurve(KRContext &context, const std::string &name);
     virtual ~KRAnimationCurve();
     
     virtual std::string getExtension();

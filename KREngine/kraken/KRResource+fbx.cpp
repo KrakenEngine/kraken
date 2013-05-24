@@ -42,10 +42,10 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
 void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial);
-void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
-KRNode *LoadMesh(KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
+KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode);
-KRNode *LoadSkeleton(KRNode *parent_node, KFbxNode* pNode);
+KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pScene, KFbxNode* pNode);
 KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode);
 std::string GetFbxObjectName(FbxObject *obj);
 
@@ -56,14 +56,19 @@ std::string GetFbxObjectName(FbxObject *obj)
 {
     // Object names from FBX files are now concatenated with the FBX numerical ID to ensure that they are unique
     // TODO - This should be updated to only add a prefix or suffix if needed to make the name unique
-    std::stringstream st;
-    st << "fbx_";
-    st << obj->GetUniqueID();
-    if(strlen(obj->GetName()) != 0) {
-        st << "_";
-        st << obj->GetName();
+    if(strcmp(obj->GetName(), "default_camera") == 0) {
+        // There is currently support for rendering from only one camera, "default_camera".  We don't translate this node's name, so that animations can drive the camera
+        return "default_camera"; 
+    } else {
+        std::stringstream st;
+        st << "fbx_";
+        st << obj->GetUniqueID();
+        if(strlen(obj->GetName()) != 0) {
+            st << "_";
+            st << obj->GetName();
+        }
+        return st.str();
     }
-    return st.str();
 }
 
 void KRResource::LoadFbx(KRContext &context, const std::string& path)
@@ -136,7 +141,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
         FbxMesh *mesh = pFbxScene->GetSrcObject<FbxMesh>(i);
         
         printf("  Mesh %i of %i: %s\n", i+1, mesh_count, mesh->GetNode()->GetName());
-        LoadMesh(context, pGeometryConverter, mesh);
+        LoadMesh(context, pFbxScene, pGeometryConverter, mesh);
     }
     
     // ----====---- Import Textures ----====----
@@ -640,6 +645,171 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z);
                     pAnimationLayer->addAttribute(new_attribute);
                 }
+                
+                pAnimCurve = pNode->PreRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->PreRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->PreRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->PostRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->PostRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->PostRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                
+                pAnimCurve = pNode->RotationPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->RotationPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->RotationPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->ScalingPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->ScalingPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->ScalingPivot.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                
+                pAnimCurve = pNode->RotationOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->RotationOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->RotationOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                
+                pAnimCurve = pNode->ScalingOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_SCALE_OFFSET_X);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->ScalingOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_SCALE_OFFSET_Y);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
+                
+                pAnimCurve = pNode->ScalingOffset.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+                if(pAnimCurve) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
+                    new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
+                    new_attribute->setTargetName(GetFbxObjectName(pNode));
+                    new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_SCALE_OFFSET_Z);
+                    pAnimationLayer->addAttribute(new_attribute);
+                }
             }
         }
     }
@@ -647,6 +817,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
     fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
     fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
     fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
+    
+    bool rotation_active = pNode->RotationActive.Get();
     
     fbxDouble3 post_rotation = pNode->PostRotation.Get();
     fbxDouble3 pre_rotation = pNode->PreRotation.Get();
@@ -676,8 +848,14 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
     KRVector3 node_scaling_offset = KRVector3(scaling_offset[0], scaling_offset[1], scaling_offset[2]);
     KRVector3 node_rotation_pivot = KRVector3(rotation_pivot[0], rotation_pivot[1], rotation_pivot[2]);
     KRVector3 node_scaling_pivot = KRVector3(scaling_pivot[0], scaling_pivot[1], scaling_pivot[2]);
-    KRVector3 node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
-    KRVector3 node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;
+    KRVector3 node_pre_rotation, node_post_rotation;
+    if(rotation_active) {
+        node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
+        node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;
+    } else {
+        node_pre_rotation = KRVector3::Zero();
+        node_post_rotation = KRVector3::Zero();
+    }
     
 //    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
 //    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
@@ -769,13 +947,13 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
         KRNode *new_node = NULL;
         switch(attribute_type) {
             case KFbxNodeAttribute::eMesh:
-                new_node = LoadMesh(parent_node, pGeometryConverter, pNode);
+                new_node = LoadMesh(parent_node, pFbxScene, pGeometryConverter, pNode);
                 break;
             case KFbxNodeAttribute::eLight:
                 new_node = LoadLight(parent_node, pNode);
                 break;
             case KFbxNodeAttribute::eSkeleton:
-                new_node = LoadSkeleton(parent_node, pNode);
+                new_node = LoadSkeleton(parent_node, pFbxScene, pNode);
                 break;
             case KFbxNodeAttribute::eCamera:
                 new_node = LoadCamera(parent_node, pNode);
@@ -1027,18 +1205,23 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     }
 }
 
-void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
+
+
+void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
     KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
+    
+    KRMesh::mesh_info mi;
+    mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
+    
+    typedef struct {
+        float weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
+        int bone_indexes[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
+    } control_point_weight_info_t;
     
     int control_point_count = pMesh->GetControlPointsCount();
     KFbxVector4* control_points = pMesh->GetControlPoints();
     
-    struct control_point_weight_info {
-        float weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
-        int bone_indexes[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];
-    };
-    
-    control_point_weight_info *control_point_weights = new control_point_weight_info[control_point_count];
+    control_point_weight_info_t *control_point_weights = new control_point_weight_info_t[control_point_count];
     for(int control_point=0; control_point < control_point_count; control_point++) {
         for(int i=0; i<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
             control_point_weights[control_point].weights[i] = 0.0f;
@@ -1047,7 +1230,6 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
         
     }
     
-    std::vector<std::string> bone_names;
     bool too_many_bone_weights = false;
     
     // Collect the top 4 bone weights per vertex ...
@@ -1063,12 +1245,39 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                 printf("    Warning!  link mode not supported.\n");
             }
             std::string bone_name = GetFbxObjectName(cluster->GetLink());
-            bone_names.push_back(bone_name);
+            mi.bone_names.push_back(bone_name);
+            
+            /*
+            FbxMatrix fbx_bind_pose_matrix;
+            KRMat4 bind_pose;
+            PoseList pose_list;
+            FbxArray<int> pose_indices;
+            if(FbxPose::GetBindPoseContaining(pFbxScene, cluster->GetLink(), pose_list, pose_indices)) {
+                fbx_bind_pose_matrix = (*pose_list)[0].GetMatrix(pose_indices[0]);
+                bind_pose = KRMat4(
+                   KRVector3(fbx_bind_pose_matrix.GetColumn(0).mData),
+                   KRVector3(fbx_bind_pose_matrix.GetColumn(1).mData),
+                   KRVector3(fbx_bind_pose_matrix.GetColumn(2).mData),
+                   KRVector3(fbx_bind_pose_matrix.GetColumn(3).mData)
+                );
+                fprintf(stderr, "Found bind pose(s)!\n");
+            }
+            */
+            
+            FbxAMatrix link_matrix;
+            cluster->GetTransformLinkMatrix(link_matrix);
+            mi.bone_bind_poses.push_back(KRMat4(
+                KRVector3(link_matrix.GetColumn(0).mData),
+                KRVector3(link_matrix.GetColumn(1).mData),
+                KRVector3(link_matrix.GetColumn(2).mData),
+                KRVector3(link_matrix.GetColumn(3).mData)
+           ));
             
             int cluster_control_point_count = cluster->GetControlPointIndicesCount();
-            for(int control_point=0; control_point<cluster_control_point_count; control_point++) {
-                control_point_weight_info &weight_info = control_point_weights[cluster->GetControlPointIndices()[control_point]];
-                float bone_weight = cluster->GetControlPointWeights()[control_point];
+            for(int cluster_control_point=0; cluster_control_point<cluster_control_point_count; cluster_control_point++) {
+                int control_point = cluster->GetControlPointIndices()[cluster_control_point];
+                control_point_weight_info_t &weight_info = control_point_weights[control_point];
+                float bone_weight = cluster->GetControlPointWeights()[cluster_control_point];
                 if(bone_weight > weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1]) {
                     if(weight_info.weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX - 1] != 0.0f) {
                         too_many_bone_weights = true;
@@ -1095,9 +1304,9 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
         printf("    WARNING! - Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).\n", KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX);
     }
     // Normalize bone weights
-    if(bone_names.size() > 0) {
+    if(mi.bone_names.size() > 0) {
         for(int control_point_index=0; control_point_index < control_point_count; control_point_index++) {
-            control_point_weight_info &weight_info = control_point_weights[control_point_index];
+            control_point_weight_info_t &weight_info = control_point_weights[control_point_index];
             float total_weights = 0.0f;
             for(int i=0; i < KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
                 total_weights += weight_info.weights[i];
@@ -1116,17 +1325,17 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
     int elementmaterial_count = pMesh->GetElementMaterialCount();
     int material_count = pSourceMesh->GetNode()->GetMaterialCount(); // FINDME, TODO - To support instancing, material names should be stored in the instance rather than the mesh
     
-    std::vector<std::vector<float> > bone_weights;
-    std::vector<std::vector<int> > bone_indexes;
-    
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector2> uvb;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_lengths;
-    std::vector<int> submesh_starts;
-    std::vector<std::string> material_names;
+//    std::vector<std::vector<float> > bone_weights;
+//    std::vector<std::vector<int> > bone_indexes;
+//    
+//    std::vector<KRVector3> vertices;
+//    std::vector<KRVector2> uva;
+//    std::vector<KRVector2> uvb;
+//    std::vector<KRVector3> normals;
+//    std::vector<KRVector3> tangents;
+//    std::vector<int> submesh_lengths;
+//    std::vector<int> submesh_starts;
+//    std::vector<std::string> material_names;
     
     int dest_vertex_id = 0;
     
@@ -1172,18 +1381,18 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                         // ----====---- Read Vertex Position ----====----
                         int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
                         KFbxVector4 v = control_points[lControlPointIndex];
-                        vertices.push_back(KRVector3(v[0], v[1], v[2]));
+                        mi.vertices.push_back(KRVector3(v[0], v[1], v[2]));
                         
-                        if(bone_names.size() > 0) {
-                            control_point_weight_info &weight_info = control_point_weights[lControlPointIndex];
+                        if(mi.bone_names.size() > 0) {
+                            control_point_weight_info_t &weight_info = control_point_weights[lControlPointIndex];
                             std::vector<int> vertex_bone_indexes;
                             std::vector<float> vertex_bone_weights;
                             for(int i=0; i<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; i++) {
                                 vertex_bone_indexes.push_back(weight_info.bone_indexes[i]);
                                 vertex_bone_weights.push_back(weight_info.weights[i]);
                             }
-                            bone_indexes.push_back(vertex_bone_indexes);
-                            bone_weights.push_back(vertex_bone_weights);
+                            mi.bone_indexes.push_back(vertex_bone_indexes);
+                            mi.bone_weights.push_back(vertex_bone_weights);
                         }
                         
                         KRVector2 new_uva = KRVector2(0.0, 0.0);
@@ -1200,7 +1409,7 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
                                 new_uva = KRVector2(uv[0], uv[1]);
                             }
-                            uva.push_back(new_uva);
+                            mi.uva.push_back(new_uva);
                         }
                         
                         if(uv_count >= 2) {
@@ -1209,14 +1418,14 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
                                 new_uvb = KRVector2(uv[0], uv[1]);
                             }
-                            uvb.push_back(new_uvb);
+                            mi.uvb.push_back(new_uvb);
                         }
                         
                         // ----====---- Read Normals ----====----
                         
                         KFbxVector4 new_normal;
                         if(pMesh->GetPolygonVertexNormal(iPolygon, iVertex, new_normal)) {
-                            normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
+                            mi.normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
                         
                         
@@ -1242,7 +1451,7 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
                                 }
                             }
                             if(l == 0) {
-                                tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
+                                mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
                             }
                             
                         }
@@ -1261,23 +1470,21 @@ void LoadMesh(KRContext &context, FbxGeometryConverter *pGeometryConverter, KFbx
         
         if(mat_vertex_count) {
             // ----====---- Output last material / submesh details ----====----
-            submesh_starts.push_back(mat_vertex_start);
-            submesh_lengths.push_back(mat_vertex_count);
-            material_names.push_back(pMaterial->GetName());
+            mi.submesh_starts.push_back(mat_vertex_start);
+            mi.submesh_lengths.push_back(mat_vertex_count);
+            mi.material_names.push_back(pMaterial->GetName());
         }
     }
     
     delete control_point_weights;
     
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
-    std::vector<__uint16_t> vertex_indexes;
-    std::vector<std::pair<int, int> > vertex_index_bases;
-    new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights,KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, need_tangents);
+    new_mesh->LoadData(mi, true, need_tangents);
     
     context.getModelManager()->addModel(new_mesh);
 }
 
-KRNode *LoadMesh(KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     
     KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
@@ -1305,9 +1512,17 @@ KRNode *LoadMesh(KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, 
     
 }
 
-KRNode *LoadSkeleton(KRNode *parent_node, KFbxNode* pNode) {
+KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, KFbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     KRBone *new_bone = new KRBone(parent_node->getScene(), name.c_str());
+    
+    //static bool GetBindPoseContaining(FbxScene* pScene, FbxNode* pNode, PoseList& pPoseList, FbxArray<int>& pIndex);
+//    PoseList pose_list;
+//    FbxArray<int> pose_indices;
+//    if(FbxPose::GetBindPoseContaining(pFbxScene, pNode, pose_list, pose_indices)) {
+//        fprintf(stderr, "Found bind pose(s)!\n");
+//    }
+    
     return new_bone;
 }
 

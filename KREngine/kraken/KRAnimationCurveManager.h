@@ -45,8 +45,8 @@ public:
     KRAnimationCurveManager(KRContext &context);
     virtual ~KRAnimationCurveManager();
     
-    KRAnimationCurve *loadAnimationCurve(const char *szName, KRDataBlock *data);
-    KRAnimationCurve *getAnimationCurve(const char *szName);
+    KRAnimationCurve *loadAnimationCurve(const std::string &name, KRDataBlock *data);
+    KRAnimationCurve *getAnimationCurve(const std::string &name);
     void addAnimationCurve(KRAnimationCurve *new_animation_curve);
     unordered_map<std::string, KRAnimationCurve *> &getAnimationCurves();
     

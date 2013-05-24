@@ -17,14 +17,8 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
     
     KRMesh *new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
     resources.push_back(new_mesh);
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector2> uvb;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_lengths;
-    std::vector<int> submesh_starts;
-    std::vector<std::string> material_names;
+    
+    KRMesh::mesh_info mi;
     
     std::vector<std::string> material_names_t;
     
@@ -266,13 +260,13 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                         // There have already been 3 vertices.  Now we need to split the quad into a second triangle composed of the 1st, 3rd, and 4th vertices
                         iVertex+=2;
                         
-                        vertices.push_back(firstFaceVertex);
-                        uva.push_back(firstFaceUva);
-                        normals.push_back(firstFaceNormal);
+                        mi.vertices.push_back(firstFaceVertex);
+                        mi.uva.push_back(firstFaceUva);
+                        mi.normals.push_back(firstFaceNormal);
                         
-                        vertices.push_back(prevFaceVertex);
-                        uva.push_back(prevFaceUva);
-                        normals.push_back(prevFaceNormal);
+                        mi.vertices.push_back(prevFaceVertex);
+                        mi.uva.push_back(prevFaceUva);
+                        mi.normals.push_back(prevFaceNormal);
                     }
                     KRVector3 vertex = indexed_vertices[pFace[iFaceVertex*3+1]];
                     KRVector2 new_uva;
@@ -284,9 +278,9 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                         KRVector3 normal = indexed_normals[pFace[iFaceVertex*3+3]];
                     }
                     
-                    vertices.push_back(vertex);
-                    uva.push_back(new_uva);
-                    normals.push_back(normal);
+                    mi.vertices.push_back(vertex);
+                    mi.uva.push_back(new_uva);
+                    mi.normals.push_back(normal);
                     
                     if(iFaceVertex==0) {
                         firstFaceVertex = vertex;
@@ -318,22 +312,24 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         for(int iMaterial=0; iMaterial < m_materials.size(); iMaterial++) {
             KRMesh::pack_material *pNewMaterial = m_materials[iMaterial];
             if(pNewMaterial->vertex_count > 0) {
-                material_names.push_back(std::string(pNewMaterial->szName));
-                submesh_starts.push_back(pNewMaterial->start_vertex);
-                submesh_lengths.push_back(pNewMaterial->vertex_count);
+                mi.material_names.push_back(std::string(pNewMaterial->szName));
+                mi.submesh_starts.push_back(pNewMaterial->start_vertex);
+                mi.submesh_lengths.push_back(pNewMaterial->vertex_count);
             }
             delete pNewMaterial;
         }
         
         // TODO: Bones not yet supported for OBJ
-        std::vector<std::string> bone_names;
-        std::vector<std::vector<int> > bone_indexes;
-        std::vector<std::vector<float> > bone_weights;
+//        std::vector<std::string> bone_names;
+//        std::vector<KRMat4> bone_bind_poses;
+//        std::vector<std::vector<int> > bone_indexes;
+//        std::vector<std::vector<float> > bone_weights;
+//        
+//        std::vector<__uint16_t> vertex_indexes;
+//        std::vector<std::pair<int, int> > vertex_index_bases;
         
-        std::vector<__uint16_t> vertex_indexes;
-        std::vector<std::pair<int, int> > vertex_index_bases;
-        
-        new_mesh->LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES, true, false);
+        mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
+        new_mesh->LoadData(mi, true, false);
     }
     
     if(pFaces) {

@@ -159,9 +159,6 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
             }
         }
         
-        KRMaterial *pPrevBoundMaterial = NULL;
-        char szPrevShaderKey[256];
-        szPrevShaderKey[0] = '\0';
         int cSubmeshes = m_submeshes.size();
         if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
             for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
@@ -184,7 +181,11 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                     
                     if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                         if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            if(pMaterial->bind(&pPrevBoundMaterial, szPrevShaderKey, pCamera, point_lights, directional_lights, spot_lights, bones, viewport, matModel, pLightMap, renderPass)) {
+                            std::vector<KRMat4> bone_bind_poses;
+                            for(int i=0; i < bones.size(); i++) {
+                                bone_bind_poses.push_back(getBoneBindPose(i));
+                            }
+                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
@@ -347,7 +348,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
     
 }
 
-void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents,  std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, KRMesh::model_format_t model_format, bool calculate_normals, bool calculate_tangents) {
+void KRMesh::LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<KRMat4> bone_bind_poses, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, */const KRMesh::mesh_info &mi, bool calculate_normals, bool calculate_tangents) {
     
     clearData();
     
@@ -359,27 +360,15 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     bool use_short_uvb = true;
     
     if(use_short_vertexes) {
-        for(std::vector<KRVector3>::iterator itr=vertices.begin(); itr != vertices.end(); itr++) {
+        for(std::vector<KRVector3>::const_iterator itr=mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
             if(fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f || fabsf((*itr).z) > 1.0f) {
                 use_short_vertexes = false;
             }
         }
     }
     
-    if(use_short_normals) {
-        for(std::vector<KRVector3>::iterator itr=normals.begin(); itr != normals.end(); itr++) {
-            (*itr).normalize();
-        }
-    }
-    
-    if(use_short_tangents) {
-        for(std::vector<KRVector3>::iterator itr=tangents.begin(); itr != tangents.end(); itr++) {
-            (*itr).normalize();
-        }
-    }
-    
     if(use_short_uva) {
-        for(std::vector<KRVector2>::iterator itr=uva.begin(); itr != uva.end(); itr++) {
+        for(std::vector<KRVector2>::const_iterator itr=mi.uva.begin(); itr != mi.uva.end(); itr++) {
             if(fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
                 use_short_uva = false;
             }
@@ -387,7 +376,7 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     }
     
     if(use_short_uvb) {
-        for(std::vector<KRVector2>::iterator itr=uvb.begin(); itr != uvb.end(); itr++) {
+        for(std::vector<KRVector2>::const_iterator itr=mi.uvb.begin(); itr != mi.uvb.end(); itr++) {
             if(fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
                 use_short_uvb = false;
             }
@@ -395,50 +384,50 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     }
     
     __int32_t vertex_attrib_flags = 0;
-    if(vertices.size()) {
+    if(mi.vertices.size()) {
         if(use_short_vertexes) {
             vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX_SHORT);
         } else {
             vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX);
         }
     }
-    if(normals.size() || calculate_normals) {
+    if(mi.normals.size() || calculate_normals) {
         if(use_short_normals) {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_NORMAL_SHORT);
         } else {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_NORMAL);
         }
     }
-    if(tangents.size() || calculate_tangents) {
+    if(mi.tangents.size() || calculate_tangents) {
         if(use_short_tangents) {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT_SHORT);
         } else {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT);
         }
     }
-    if(uva.size()) {
+    if(mi.uva.size()) {
         if(use_short_uva) {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVA_SHORT);
         } else {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVA);
         }
     }
-    if(uvb.size()) {
+    if(mi.uvb.size()) {
         if(use_short_uvb) {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB_SHORT);
         } else {
             vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB);
         }
     }
-    if(bone_names.size()) {
+    if(mi.bone_names.size()) {
         vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
     }
     size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
-    size_t index_count = vertex_indexes.size();
-    size_t index_base_count = vertex_index_bases.size();
-    size_t submesh_count = submesh_lengths.size();
-    size_t vertex_count = vertices.size();
-    size_t bone_count = bone_names.size();
+    size_t index_count = mi.vertex_indexes.size();
+    size_t index_base_count = mi.vertex_index_bases.size();
+    size_t submesh_count = mi.submesh_lengths.size();
+    size_t vertex_count = mi.vertices.size();
+    size_t bone_count = mi.bone_names.size();
     size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
     
     m_pData->expand(new_file_size);
@@ -451,7 +440,7 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     pHeader->bone_count = (__int32_t)bone_count;
     pHeader->index_count = (__int32_t)index_count;
     pHeader->index_base_count = (__int32_t)index_base_count;
-    pHeader->model_format = model_format;
+    pHeader->model_format = mi.format;
     strcpy(pHeader->szTag, "KROBJPACK1.2   ");
     updateAttributeOffsets();
     
@@ -459,28 +448,29 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     
     for(int iMaterial=0; iMaterial < pHeader->submesh_count; iMaterial++) {
         pack_material *pPackMaterial = pPackMaterials + iMaterial;
-        pPackMaterial->start_vertex = submesh_starts[iMaterial];
-        pPackMaterial->vertex_count = submesh_lengths[iMaterial];
+        pPackMaterial->start_vertex = mi.submesh_starts[iMaterial];
+        pPackMaterial->vertex_count = mi.submesh_lengths[iMaterial];
         memset(pPackMaterial->szName, 0, KRENGINE_MAX_NAME_LENGTH);
-        strncpy(pPackMaterial->szName, material_names[iMaterial].c_str(), KRENGINE_MAX_NAME_LENGTH);
+        strncpy(pPackMaterial->szName, mi.material_names[iMaterial].c_str(), KRENGINE_MAX_NAME_LENGTH);
     }
     
     for(int bone_index=0; bone_index < bone_count; bone_index++) {
         pack_bone *bone = getBone(bone_index);
         memset(bone->szName, 0, KRENGINE_MAX_NAME_LENGTH);
-        strncpy(bone->szName, bone_names[bone_index].c_str(), KRENGINE_MAX_NAME_LENGTH);
+        strncpy(bone->szName, mi.bone_names[bone_index].c_str(), KRENGINE_MAX_NAME_LENGTH);
+        memcpy(bone->bind_pose, mi.bone_bind_poses[bone_index].c, sizeof(float) * 16);
     }
     
     bool bFirstVertex = true;
     
-    memset(getVertexData(), 0, m_vertex_size * vertices.size());
-    for(int iVertex=0; iVertex < vertices.size(); iVertex++) {
-        KRVector3 source_vertex = vertices[iVertex];
+    memset(getVertexData(), 0, m_vertex_size * mi.vertices.size());
+    for(int iVertex=0; iVertex < mi.vertices.size(); iVertex++) {
+        KRVector3 source_vertex = mi.vertices[iVertex];
         setVertexPosition(iVertex, source_vertex);
-        if(bone_names.size()) {
+        if(mi.bone_names.size()) {
             for(int bone_weight_index=0; bone_weight_index<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; bone_weight_index++) {
-                setBoneIndex(iVertex, bone_weight_index, bone_indexes[iVertex][bone_weight_index]);
-                setBoneWeight(iVertex, bone_weight_index, bone_weights[iVertex][bone_weight_index]);
+                setBoneIndex(iVertex, bone_weight_index, mi.bone_indexes[iVertex][bone_weight_index]);
+                setBoneWeight(iVertex, bone_weight_index, mi.bone_weights[iVertex][bone_weight_index]);
             }
         }
         if(bFirstVertex) {
@@ -495,17 +485,17 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
             if(source_vertex.y > m_maxPoint.y) m_maxPoint.y = source_vertex.y;
             if(source_vertex.z > m_maxPoint.z) m_maxPoint.z = source_vertex.z;
         }
-        if(uva.size() > iVertex) {
-            setVertexUVA(iVertex, uva[iVertex]);
+        if(mi.uva.size() > iVertex) {
+            setVertexUVA(iVertex, mi.uva[iVertex]);
         }
-        if(uvb.size() > iVertex) {
-            setVertexUVB(iVertex, uvb[iVertex]);
+        if(mi.uvb.size() > iVertex) {
+            setVertexUVB(iVertex, mi.uvb[iVertex]);
         }
-        if(normals.size() > iVertex) {
-            setVertexNormal(iVertex, normals[iVertex]);
+        if(mi.normals.size() > iVertex) {
+            setVertexNormal(iVertex, KRVector3::Normalize(mi.normals[iVertex]));
         }
-        if(tangents.size() > iVertex) {
-            setVertexTangent(iVertex, tangents[iVertex]);
+        if(mi.tangents.size() > iVertex) {
+            setVertexTangent(iVertex, KRVector3::Normalize(mi.tangents[iVertex]));
         }
     }
     
@@ -518,12 +508,12 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
     
     
     __uint16_t *index_data = getIndexData();
-    for(std::vector<__uint16_t>::iterator itr=vertex_indexes.begin(); itr != vertex_indexes.end(); itr++) {
+    for(std::vector<__uint16_t>::const_iterator itr=mi.vertex_indexes.begin(); itr != mi.vertex_indexes.end(); itr++) {
         *index_data++ = *itr;
     }
     
     __uint32_t *index_base_data = getIndexBaseData();
-    for(std::vector<std::pair<int, int> >::iterator itr=vertex_index_bases.begin(); itr != vertex_index_bases.end(); itr++) {
+    for(std::vector<std::pair<int, int> >::const_iterator itr=mi.vertex_index_bases.begin(); itr != mi.vertex_index_bases.end(); itr++) {
         *index_base_data++ = (*itr).first;
         *index_base_data++ = (*itr).second;
     }
@@ -533,7 +523,7 @@ void KRMesh::LoadData(std::vector<__uint16_t> vertex_indexes, std::vector<std::p
         //cout << "  Calculate surface normals and tangents\n";
         if(calculate_normals || calculate_tangents) {
             // NOTE: This will not work properly if the vertices are already indexed
-            for(int iVertex=0; iVertex < vertices.size(); iVertex+= 3) {
+            for(int iVertex=0; iVertex < mi.vertices.size(); iVertex+= 3) {
                 KRVector3 p1 = getVertexPosition(iVertex);
                 KRVector3 p2 = getVertexPosition(iVertex+1);
                 KRVector3 p3 = getVertexPosition(iVertex+2);
@@ -911,6 +901,11 @@ char *KRMesh::getBoneName(int bone_index)
     return getBone(bone_index)->szName;
 }
 
+KRMat4 KRMesh::getBoneBindPose(int bone_index)
+{
+    return KRMat4(getBone(bone_index)->bind_pose);
+}
+
 KRMesh::model_format_t KRMesh::getModelFormat() const
 {
     return (model_format_t)getHeader()->model_format;
@@ -1064,30 +1059,19 @@ void KRMesh::convertToIndexed()
     char *szKey = new char[m_vertex_size * 2 + 1];
     
     // Convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
-    std::vector<__uint16_t> vertex_indexes;
-    std::vector<std::pair<int, int> > vertex_index_bases;
     int vertex_index_offset = 0;
     int vertex_index_base_start_vertex = 0;
     
-    std::vector<KRVector3> vertices;
-    std::vector<KRVector2> uva;
-    std::vector<KRVector2> uvb;
-    std::vector<KRVector3> normals;
-    std::vector<KRVector3> tangents;
-    std::vector<int> submesh_starts;
-    std::vector<int> submesh_lengths;
-    std::vector<std::string> material_names;
-    std::vector<std::string> bone_names;
-    std::vector<std::vector<int> > bone_indexes;
-    std::vector<std::vector<float> > bone_weights;
+    mesh_info mi;
     
     int bone_count = getBoneCount();
     for(int bone_index=0; bone_index < bone_count; bone_index++) {
-        bone_names.push_back(getBoneName(bone_index));
+        mi.bone_names.push_back(getBoneName(bone_index));
+        mi.bone_bind_poses.push_back(getBoneBindPose(bone_index));
     }
     
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
-        material_names.push_back(getSubmesh(submesh_index)->szName);
+        mi.material_names.push_back(getSubmesh(submesh_index)->szName);
         
         int vertexes_remaining = getVertexCount(submesh_index);
         
@@ -1097,13 +1081,13 @@ void KRMesh::convertToIndexed()
         }
         
         if(submesh_index == 0 || vertex_index_offset + vertex_count > 0xffff) {
-            vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
+            mi.vertex_index_bases.push_back(std::pair<int, int>(mi.vertex_indexes.size(), mi.vertices.size()));
             vertex_index_offset = 0;
-            vertex_index_base_start_vertex = vertices.size();
+            vertex_index_base_start_vertex = mi.vertices.size();
         }
         
-        submesh_starts.push_back(vertex_index_bases.size() - 1 + (vertex_index_offset << 16));
-        submesh_lengths.push_back(vertexes_remaining);
+        mi.submesh_starts.push_back(mi.vertex_index_bases.size() - 1 + (vertex_index_offset << 16));
+        mi.submesh_lengths.push_back(vertexes_remaining);
         int source_index = getSubmesh(submesh_index)->start_vertex;
         
         
@@ -1189,35 +1173,35 @@ void KRMesh::convertToIndexed()
                 */
                 int found_index = -1;
                 if(prev_indexes.count(vertex_key) == 0) {
-                    found_index = vertices.size() - vertex_index_base_start_vertex;
+                    found_index = mi.vertices.size() - vertex_index_base_start_vertex;
                     if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX) || has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
-                        vertices.push_back(vertex_position);
+                        mi.vertices.push_back(vertex_position);
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL) || has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
-                        normals.push_back(vertex_normal);
+                        mi.normals.push_back(vertex_normal);
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT) || has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
-                        tangents.push_back(vertex_tangent);
+                        mi.tangents.push_back(vertex_tangent);
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA) || has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA_SHORT)) {
-                        uva.push_back(vertex_uva);
+                        mi.uva.push_back(vertex_uva);
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB) || has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB_SHORT)) {
-                        uvb.push_back(vertex_uvb);
+                        mi.uvb.push_back(vertex_uvb);
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
-                        bone_indexes.push_back(vertex_bone_indexes);
+                        mi.bone_indexes.push_back(vertex_bone_indexes);
                         
                     }
                     if(has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
-                        bone_weights.push_back(vertex_bone_weights);
+                        mi.bone_weights.push_back(vertex_bone_weights);
                     }
                     prev_indexes[vertex_key] = found_index;
                 } else {
                     found_index = prev_indexes[vertex_key];
                 }
                 
-                vertex_indexes.push_back(found_index);
+                mi.vertex_indexes.push_back(found_index);
                 //fprintf(stderr, "Submesh: %6i  IndexBase: %3i  Index: %6i\n", submesh_index, vertex_index_bases.size(), found_index);
                 
                 source_index++;
@@ -1233,20 +1217,20 @@ void KRMesh::convertToIndexed()
             }
             
             if(vertex_index_offset + vertex_count > 0xffff) {
-                vertex_index_bases.push_back(std::pair<int, int>(vertex_indexes.size(), vertices.size()));
+                mi.vertex_index_bases.push_back(std::pair<int, int>(mi.vertex_indexes.size(), mi.vertices.size()));
                 vertex_index_offset = 0;
-                vertex_index_base_start_vertex = vertices.size();
+                vertex_index_base_start_vertex = mi.vertices.size();
             }
         }
     }
     
     delete szKey;
     
-    fprintf(stderr, "Convert to indexed, before: %i after: %i \(%.2f%% saving)\n", getHeader()->vertex_count, vertices.size(), ((float)getHeader()->vertex_count - (float)vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
+    fprintf(stderr, "Convert to indexed, before: %i after: %i \(%.2f%% saving)\n", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
     
-    
-    LoadData(vertex_indexes, vertex_index_bases, vertices, uva, uvb, normals, tangents, submesh_starts, submesh_lengths, material_names, bone_names, bone_indexes, bone_weights, KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES, false, false);
+    mi.format = KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+    LoadData(mi, false, false);
 }
 
 void KRMesh::optimize()

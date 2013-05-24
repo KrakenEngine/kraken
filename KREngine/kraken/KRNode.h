@@ -14,6 +14,7 @@
 #include "KRViewport.h"
 #include "tinyxml2.h"
 #include "KROctreeNode.h"
+#include "KRBehavior.h"
 
 class KRCamera;
 class KRShaderManager;
@@ -95,10 +96,10 @@ public:
     
     const KRVector3 getWorldTranslation();
     const KRVector3 getWorldScale();
-    const KRVector3 getWorldRotation();
+    const KRQuaternion getWorldRotation();
     
-    const KRVector3 getBindPoseWorldRotation();
-    const KRVector3 getActivePoseWorldRotation();
+    const KRQuaternion getBindPoseWorldRotation();
+    const KRQuaternion getActivePoseWorldRotation();
     
     const KRVector3 localToWorld(const KRVector3 &local_point);
     const KRVector3 worldToLocal(const KRVector3 &world_point);
@@ -124,7 +125,26 @@ public:
         KRENGINE_NODE_ATTRIBUTE_SCALE_Z,
         KRENGINE_NODE_ATTRIBUTE_ROTATE_X,
         KRENGINE_NODE_ATTRIBUTE_ROTATE_Y,
-        KRENGINE_NODE_ATTRIBUTE_ROTATE_Z
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_Z,
+        KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X,
+        KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y,
+        KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z,
+        KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X,
+        KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y,
+        KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z,
+        KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X,
+        KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y,
+        KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y,
+        KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y,
+        KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z,
+        KRENGINE_NODE_SCALE_OFFSET_X,
+        KRENGINE_NODE_SCALE_OFFSET_Y,
+        KRENGINE_NODE_SCALE_OFFSET_Z,
+        KRENGINE_NODE_ATTRIBUTE_COUNT
     };
     
     void SetAttribute(node_attribute_type attrib, float v);
@@ -141,6 +161,8 @@ public:
     
     void setScaleCompensation(bool scale_compensation);
     bool getScaleCompensation();
+    void setAnimationEnabled(node_attribute_type attrib, bool enable);
+    bool getAnimationEnabled(node_attribute_type attrib) const;
     
 protected:
     KRVector3 m_localTranslation;
@@ -174,7 +196,10 @@ protected:
     KRNode *m_parentNode;
     std::set<KRNode *> m_childNodes;
     
+    bool m_animation_mask[KRENGINE_NODE_ATTRIBUTE_COUNT];
+    
 private:
+    long m_lastRenderFrame;
     void invalidateModelMatrix();
     void invalidateBindPoseMatrix();
     KRMat4 m_modelMatrix;
@@ -197,8 +222,10 @@ private:
     std::set<KROctreeNode *> m_octree_nodes;
     bool m_scale_compensation;
     
-public:
+    std::set<KRBehavior *> m_behaviors;
     
+public:
+    void addBehavior(KRBehavior *behavior);
     void removeFromOctreeNodes();
     void addToOctreeNode(KROctreeNode *octree_node);
     void childDeleted(KRNode *child_node);

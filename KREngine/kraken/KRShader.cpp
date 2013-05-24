@@ -345,11 +345,11 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         return false;
     }
     
-    bool need_to_validate = false;
+    bool shander_changed = false;
     if(getContext().getShaderManager()->m_active_shader != this) {
         getContext().getShaderManager()->m_active_shader = this;
         GLDEBUG(glUseProgram(m_iProgram));
-        need_to_validate = true;
+        shander_changed = true;
     }
     
     
@@ -544,7 +544,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     setUniform(KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME, 2);
     
 #if DEBUG
-    if(need_to_validate) {
+    if(shander_changed) {
         GLint logLength;
         
         GLint validate_status = GL_FALSE;

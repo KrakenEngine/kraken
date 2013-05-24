@@ -59,6 +59,12 @@ KRVector3::KRVector3(float *v) {
     z = v[2];
 }
 
+KRVector3::KRVector3(double *v) {
+    x = (float)v[0];
+    y = (float)v[1];
+    z = (float)v[2];
+}
+
 KRVector3 KRVector3::Min() {
     return KRVector3(-std::numeric_limits<float>::max());
 }
@@ -97,6 +103,19 @@ KRVector3 KRVector3::Left() {
 
 KRVector3 KRVector3::Right() {
     return KRVector3(1.0f, 0.0f, 0.0f);
+}
+
+
+void KRVector3::scale(const KRVector3 &v)
+{
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
+}
+
+KRVector3 KRVector3::Scale(const KRVector3 &v1, const KRVector3 &v2)
+{
+    return KRVector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
 }
 
 KRVector3 KRVector3::Lerp(const KRVector3 &v1, const KRVector3 &v2, float d) {

@@ -355,6 +355,9 @@ void KRAudioSource::setIs3D(bool is3D)
 
 bool KRAudioSource::hasPhysics()
 {
+    if(KRNode::hasPhysics()) {
+        return true;
+    }
     KRAudioManager *audioManager = getContext().getAudioManager();
     return audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL;
 }
@@ -370,6 +373,8 @@ void KRAudioSource::advanceBuffer()
 
 void KRAudioSource::physicsUpdate(float deltaTime)
 {
+    KRNode::physicsUpdate(deltaTime);
+    
     KRAudioManager *audioManager = getContext().getAudioManager();
     audioManager->activateAudioSource(this);
     if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {

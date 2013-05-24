@@ -12,6 +12,7 @@
 #include "KRShader.h"
 #include "KRContext.h"
 #include "KRMat4.h"
+#include "KRQuaternion.h"
 #include "assert.h"
 #include "KRStockGeometry.h"
 
@@ -30,20 +31,11 @@ std::string KRDirectionalLight::getElementName() {
 }
 
 KRVector3 KRDirectionalLight::getWorldLightDirection() {
-    KRVector3 world_rotation = getWorldRotation();
-    KRVector3 light_rotation = KRVector3(0.0, 0.0, 1.0);
-    
-    KRMat4 m;
-    m.rotate(world_rotation.x, X_AXIS);
-    m.rotate(world_rotation.y, Y_AXIS);
-    m.rotate(world_rotation.z, Z_AXIS);
-    
-    KRVector3 light_direction = KRMat4::Dot(m, light_rotation);
-    return light_direction;
+    return KRMat4::Dot(getWorldRotation().rotationMatrix(), getLocalLightDirection());
 }
 
 KRVector3 KRDirectionalLight::getLocalLightDirection() {
-   return KRVector3(0.0, 0.0, 1.0);
+   return KRVector3::Forward();
 }
 
 

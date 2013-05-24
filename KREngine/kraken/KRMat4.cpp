@@ -163,10 +163,34 @@ void KRMat4::translate(const KRVector3 &v)
 
 /* Rotate a matrix by an angle on a X, Y, or Z axis */
 void KRMat4::rotate(float angle, AXIS axis) {
-    const int cos1[3] = { 5, 0, 0 };
-    const int cos2[3] = { 10, 10, 5 };
-    const int sin1[3] = { 6, 2, 1 };
-    const int sin2[3] = { 9, 8, 4 };
+    const int cos1[3] = { 5, 0, 0 }; // cos(angle)
+    const int cos2[3] = { 10, 10, 5 }; // cos(angle)
+    const int sin1[3] = { 9, 2, 4 }; // -sin(angle)
+    const int sin2[3] = { 6, 8, 1 }; // sin(angle)
+    
+    /*
+     X_AXIS:
+     
+     1,    0,    0,    0
+     0,    cos(angle), -sin(angle), 0
+     0,    sin(angle), cos(angle), 0
+     0,    0,    0,    1
+     
+     Y_AXIS:
+     
+     cos(angle), 0, -sin(angle), 0
+     0, 1, 0, 0
+     sin(angle), 0, cos(angle), 0
+     0, 0, 0, 1
+     
+     Z_AXIS:
+     
+     cos(angle), -sin(angle), 0, 0
+     sin(angle), cos(angle), 0, 0
+     0, 0, 1, 0
+     0, 0, 0, 1
+     
+     */
     
     KRMat4 newMatrix; // Create new identity matrix
     
@@ -398,3 +422,30 @@ void KRMat4::setUniform(GLint location) const
 {
     if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, c));
 }
+
+KRMat4 KRMat4::Translation(const KRVector3 &v)
+{
+    KRMat4 m;
+    m[12] = v.x;
+    m[13] = v.y;
+    m[14] = v.z;
+//    m.translate(v);
+    return m;
+}
+
+KRMat4 KRMat4::Rotation(const KRVector3 &v)
+{
+    KRMat4 m;
+    m.rotate(v.x, X_AXIS);
+    m.rotate(v.y, Y_AXIS);
+    m.rotate(v.z, Z_AXIS);
+    return m;
+}
+
+KRMat4 KRMat4::Scaling(const KRVector3 &v)
+{
+    KRMat4 m;
+    m.scale(v);
+    return m;
+}
+

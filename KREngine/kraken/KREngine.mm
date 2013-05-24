@@ -209,7 +209,7 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
 
 - (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height
 {
-    KRCamera *camera = pScene->find<KRCamera>();
+    KRCamera *camera = pScene->find<KRCamera>("default_camera");
     if(camera) {
         camera->settings = _settings;
     }
