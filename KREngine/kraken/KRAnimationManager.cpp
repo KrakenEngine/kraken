@@ -45,6 +45,24 @@ KRAnimationManager::~KRAnimationManager() {
 
 void KRAnimationManager::startFrame(float deltaTime)
 {
+    for(std::set<KRAnimation *>::iterator itr = m_animationsToUpdate.begin(); itr != m_animationsToUpdate.end(); itr++) {
+        KRAnimation *animation = *itr;
+        std::set<KRAnimation *>::iterator active_animations_itr = m_activeAnimations.find(animation);
+        if(animation->isPlaying()) {
+            // Add playing animations to the active animations list
+            if(active_animations_itr == m_activeAnimations.end()) {
+                m_activeAnimations.insert(animation);
+            }
+        } else {
+            // Remove stopped animations from the active animations list
+            if(active_animations_itr != m_activeAnimations.end()) {
+                m_activeAnimations.erase(active_animations_itr);
+            }
+        }
+    }
+    
+    m_animationsToUpdate.clear();
+    
     for(std::set<KRAnimation *>::iterator active_animations_itr = m_activeAnimations.begin(); active_animations_itr != m_activeAnimations.end(); active_animations_itr++) {
         KRAnimation *animation = *active_animations_itr;
         animation->update(deltaTime);
@@ -79,17 +97,6 @@ void KRAnimationManager::addAnimation(KRAnimation *new_animation)
 
 void KRAnimationManager::updateActiveAnimations(KRAnimation *animation)
 {
-    std::set<KRAnimation *>::iterator active_animations_itr = m_activeAnimations.find(animation);
-    if(animation->isPlaying()) {
-        // Add playing animations to the active animations list
-        if(active_animations_itr == m_activeAnimations.end()) {
-            m_activeAnimations.insert(animation);
-        }
-    } else {
-        // Remove stopped animations from the active animations list
-        if(active_animations_itr != m_activeAnimations.end()) {
-            m_activeAnimations.erase(active_animations_itr);
-        }
-    }
+    m_animationsToUpdate.insert(animation);
 }
 

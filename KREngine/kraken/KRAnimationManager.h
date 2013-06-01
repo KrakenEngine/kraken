@@ -57,7 +57,8 @@ public:
     
 private:
     unordered_map<std::string, KRAnimation *> m_animations;
-    set<KRAnimation *>m_activeAnimations;
+    set<KRAnimation *> m_activeAnimations;
+    set<KRAnimation *> m_animationsToUpdate;
 };
 
 
