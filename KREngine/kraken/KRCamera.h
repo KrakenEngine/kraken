@@ -65,8 +65,10 @@ public:
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
-        
-private:    
+    
+    std::string getDebugText();
+
+private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
     
     GLint backingWidth, backingHeight;
@@ -99,7 +101,7 @@ private:
     
     DebugTextVertexData *m_debug_text_vertices;
     
-    std::string getDebugText();
+//    std::string getDebugText();
     
     uint64_t m_last_frame_start;
     int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
