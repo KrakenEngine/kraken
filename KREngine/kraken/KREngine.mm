@@ -45,6 +45,11 @@ void kraken::set_parameter(const std::string &parameter_name, float parameter_va
     [[KREngine sharedInstance] setParameterValueWithName: [NSString stringWithUTF8String:parameter_name.c_str()] Value:parameter_value];
 }
 
+void kraken::set_debug_text(const std::string &print_text)
+{
+    [KREngine sharedInstance].settings->m_debug_text = print_text;
+}
+
 
 @interface KREngine() {
     KRRenderSettings _settings;

@@ -43,6 +43,7 @@ typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_F
 
 namespace kraken {
     void set_parameter(const std::string &parameter_name, float parameter_value);
+    void set_debug_text(const std::string &print_text);
 };
 
 #ifdef __OBJC__
