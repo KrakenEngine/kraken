@@ -63,6 +63,7 @@ void KRTextureManager::_clearGLState()
         m_wrapModeS[i] = 0;
         m_wrapModeT[i] = 0;
         m_maxAnisotropy[i] = -1.0f;
+        selectTexture(i, NULL);
     }
     
     m_iActiveTexture = -1;
