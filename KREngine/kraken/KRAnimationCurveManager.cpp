@@ -43,6 +43,11 @@ KRAnimationCurveManager::~KRAnimationCurveManager() {
     }
 }
 
+void KRAnimationCurveManager::deleteAnimationCurve(KRAnimationCurve *curve) {
+    m_animationCurves.erase(curve->getName());
+    delete curve;
+}
+
 KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const std::string &name, KRDataBlock *data) {
     KRAnimationCurve *pAnimationCurve = KRAnimationCurve::Load(*m_pContext, name, data);
     m_animationCurves[name] = pAnimationCurve;

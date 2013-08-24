@@ -152,6 +152,8 @@ void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
     m_curve = NULL;
     m_curve_name = e->Attribute("curve");
     m_target_name = e->Attribute("target");
+    
+
     m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
     
     const char *szAttribute = e->Attribute("attribute");
@@ -267,4 +269,12 @@ KRAnimationCurve *KRAnimationAttribute::getCurve()
     return m_curve;
 }
 
+void KRAnimationAttribute::deleteCurve()
+{
+    KRAnimationCurve *curve = getCurve();
+    if(curve) {
+        getContext().getAnimationCurveManager()->deleteAnimationCurve(curve);
+        m_curve = NULL;
+    }
+}
 

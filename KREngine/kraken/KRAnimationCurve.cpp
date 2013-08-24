@@ -29,6 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KRContext.h"
 #include "KRAnimationCurve.h"
 #include "KRDataBlock.h"
 
@@ -48,7 +49,6 @@ KRAnimationCurve::~KRAnimationCurve()
     m_pData->unload();
     delete m_pData;
 }
-
 bool KRAnimationCurve::load(KRDataBlock *data)
 {
     m_pData->unload();
@@ -152,3 +152,44 @@ float KRAnimationCurve::getValue(float local_time)
     return getValue((int)(local_time * getFrameRate()));
 }
 
+bool KRAnimationCurve::valueChanges(float start_time, float duration)
+{
+    return valueChanges((int)(start_time * getFrameRate()), (int)(duration * getFrameRate()));
+}
+
+bool KRAnimationCurve::valueChanges(int start_frame, int frame_count)
+{
+    
+    float first_value = getValue(start_frame);
+    
+    // Range of frames is not inclusive of last frame
+    for(int frame_number = start_frame + 1; frame_number < start_frame + frame_count; frame_number++) {
+        if(getValue(frame_number) != first_value) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+KRAnimationCurve *KRAnimationCurve::split(const std::string &name, float start_time, float duration)
+{
+    return split(name, (int)(start_time * getFrameRate()), (int)(duration * getFrameRate()));
+}
+
+KRAnimationCurve *KRAnimationCurve::split(const std::string &name, int start_frame, int frame_count)
+{
+    KRAnimationCurve *new_curve = new KRAnimationCurve(getContext(), name);
+    
+    new_curve->setFrameRate(getFrameRate());
+    new_curve->setFrameStart(start_frame);
+    new_curve->setFrameCount(frame_count);
+    
+    // Range of frames is not inclusive of last frame
+    for(int frame_number = start_frame; frame_number < start_frame + frame_count; frame_number++) {
+        new_curve->setValue(frame_number, getValue(frame_number)); // TODO - MEMCPY here?
+    }
+    
+    getContext().getAnimationCurveManager()->addAnimationCurve(new_curve);
+    return new_curve;
+}

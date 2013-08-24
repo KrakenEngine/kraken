@@ -100,3 +100,12 @@ void KRAnimationManager::updateActiveAnimations(KRAnimation *animation)
     m_animationsToUpdate.insert(animation);
 }
 
+void KRAnimationManager::deleteAnimation(KRAnimation *animation, bool delete_curves)
+{
+    if(delete_curves)
+    {
+        animation->deleteCurves();
+    }
+    m_animations.erase(animation->getName());
+    delete animation;
+}
