@@ -50,6 +50,8 @@ public:
     void addAnimationCurve(KRAnimationCurve *new_animation_curve);
     unordered_map<std::string, KRAnimationCurve *> &getAnimationCurves();
     
+    void deleteAnimationCurve(KRAnimationCurve *curve);
+    
 private:
     unordered_map<std::string, KRAnimationCurve *> m_animationCurves;
 };

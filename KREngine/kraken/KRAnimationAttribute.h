@@ -58,6 +58,8 @@ public:
     KRNode *getTarget();
     KRAnimationCurve *getCurve();
     
+    void deleteCurve();
+    
 private:
     std::string m_target_name;
     std::string m_curve_name;

@@ -28,7 +28,8 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 #include "KRAnimation.h"
 #include "KRAnimationManager.h"
 #include "KRContext.h"
@@ -44,6 +45,7 @@ KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(cont
     m_playing = false;
     m_local_time = 0.0f;
     m_duration = 0.0f;
+    m_start_time = 0.0f;
 }
 KRAnimation::~KRAnimation()
 {
@@ -68,6 +70,7 @@ bool KRAnimation::save(KRDataBlock &data) {
     animation_node->SetAttribute("loop", m_loop ? "true" : "false");
     animation_node->SetAttribute("auto_play", m_auto_play ? "true" : "false");
     animation_node->SetAttribute("duration", m_duration);
+    animation_node->SetAttribute("start_time", m_start_time);
     
     for(unordered_map<std::string, KRAnimationLayer *>::iterator itr = m_layers.begin(); itr != m_layers.end(); ++itr){
         (*itr).second->saveXML(animation_node);
@@ -91,6 +94,10 @@ KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDa
     
     if(animation_node->QueryFloatAttribute("duration", &new_animation->m_duration) != tinyxml2::XML_SUCCESS) {
         new_animation->m_duration = 0.0f; // Default value
+    }
+    
+    if(animation_node->QueryFloatAttribute("start_time", &new_animation->m_start_time) != tinyxml2::XML_SUCCESS) {
+        new_animation->m_start_time = 0.0f; // Default value
     }
     
     if(animation_node->QueryBoolAttribute("loop", &new_animation->m_loop) != tinyxml2::XML_SUCCESS) {
@@ -157,9 +164,9 @@ void KRAnimation::update(float deltaTime)
             KRNode::node_attribute_type attribute_type = attribute->getTargetAttribute();
             
             if(curve != NULL && target != NULL) {
-                int frame_number = (int)(m_local_time * curve->getFrameRate());
+                int frame_number = (int)((m_local_time + m_start_time) * curve->getFrameRate());
                 if(frame_number < curve->getFrameStart()) {
-                    target->SetAttribute(attribute_type, curve->getValue(0));
+                    target->SetAttribute(attribute_type, curve->getValue(m_start_time));
                 } else if(frame_number - curve->getFrameStart() >= curve->getFrameCount()) {
                     target->SetAttribute(attribute_type, curve->getValue(curve->getFrameCount() - 1));
                 } else {
@@ -203,6 +210,16 @@ void KRAnimation::setDuration(float duration)
     m_duration = duration;
 }
 
+float KRAnimation::getStartTime()
+{
+    return m_start_time;
+}
+
+void KRAnimation::setStartTime(float start_time)
+{
+    m_start_time = start_time;
+}
+
 bool KRAnimation::isPlaying()
 {
     return m_playing;
@@ -227,3 +244,62 @@ void KRAnimation::setLooping(bool looping)
 {
     m_loop = looping;
 }
+
+KRAnimation *KRAnimation::split(const std::string &name, float start_time, float duration, bool strip_unchanging_attributes, bool clone_curves)
+{
+    KRAnimation *new_animation = new KRAnimation(getContext(), name);
+    new_animation->setStartTime(start_time);
+    new_animation->setDuration(duration);
+    new_animation->m_loop = m_loop;
+    new_animation->m_auto_play = m_auto_play;
+    int new_curve_count = 0;
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        KRAnimationLayer *new_layer = new KRAnimationLayer(getContext());
+        new_layer->setName(layer->getName());
+        new_layer->setRotationAccumulationMode(layer->getRotationAccumulationMode());
+        new_layer->setScaleAccumulationMode(layer->getScaleAccumulationMode());
+        new_layer->setWeight(layer->getWeight());
+        new_animation->m_layers[new_layer->getName()] = new_layer;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            KRAnimationCurve *curve = attribute->getCurve();
+            if(curve != NULL) {
+                bool include_attribute = true;
+                if(strip_unchanging_attributes) {
+                    if(!curve->valueChanges(start_time, duration)) {
+                        include_attribute = false;
+                    }
+                }
+                
+                if(include_attribute) {
+                    KRAnimationAttribute *new_attribute = new KRAnimationAttribute(getContext());
+                    KRAnimationCurve *new_curve = curve;
+                    if(clone_curves) {
+                        std::string new_curve_name = name + "_curve" + boost::lexical_cast<std::string>(++new_curve_count);
+                        new_curve = curve->split(new_curve_name, start_time, duration);
+                    }
+                    
+                    new_attribute->setCurveName(new_curve->getName());
+                    new_attribute->setTargetName(attribute->getTargetName());
+                    new_layer->addAttribute(new_attribute);
+                }
+            }
+        }
+    }
+    
+    getContext().getAnimationManager()->addAnimation(new_animation);
+    return new_animation;
+}
+
+void KRAnimation::deleteCurves()
+{
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            attribute->deleteCurve();
+        }
+    }
+}
+

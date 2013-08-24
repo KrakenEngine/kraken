@@ -61,6 +61,11 @@ public:
     
     static KRAnimationCurve *Load(KRContext &context, const std::string &name, KRDataBlock *data);
     
+    bool valueChanges(float start_time, float duration);
+    bool valueChanges(int start_frame, int frame_count);
+    
+    KRAnimationCurve *split(const std::string &name, float start_time, float duration);
+    KRAnimationCurve *split(const std::string &name, int start_frame, int frame_count);
     
 private:
     KRDataBlock *m_pData;

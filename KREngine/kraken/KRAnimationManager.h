@@ -49,6 +49,7 @@ public:
     KRAnimation *getAnimation(const char *szName);
     void addAnimation(KRAnimation *new_animation);
     unordered_map<std::string, KRAnimation *> &getAnimations();
+    void deleteAnimation(KRAnimation *animation, bool delete_curves);
     
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);

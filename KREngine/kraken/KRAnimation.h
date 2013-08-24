@@ -64,7 +64,13 @@ public:
     void setTime(float time);
     float getDuration();
     void setDuration(float duration);
+    float getStartTime();
+    void setStartTime(float start_time);
     bool isPlaying();
+    
+    KRAnimation *split(const std::string &name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
+    void deleteCurves();
+    
 private:
     unordered_map<std::string, KRAnimationLayer *> m_layers;
     bool m_auto_play;
@@ -72,6 +78,7 @@ private:
     bool m_playing;
     float m_local_time;
     float m_duration;
+    float m_start_time;
 };
 
 
