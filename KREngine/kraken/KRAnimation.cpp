@@ -281,6 +281,7 @@ KRAnimation *KRAnimation::split(const std::string &name, float start_time, float
                     }
                     
                     new_attribute->setCurveName(new_curve->getName());
+                    new_attribute->setTargetAttribute(attribute->getTargetAttribute());
                     new_attribute->setTargetName(attribute->getTargetName());
                     new_layer->addAttribute(new_attribute);
                 }
