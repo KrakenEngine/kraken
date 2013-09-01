@@ -164,16 +164,8 @@ void KRAnimation::update(float deltaTime)
             KRNode::node_attribute_type attribute_type = attribute->getTargetAttribute();
             
             if(curve != NULL && target != NULL) {
-                int frame_number = (int)((m_local_time + m_start_time) * curve->getFrameRate());
-                if(frame_number < curve->getFrameStart()) {
-                    target->SetAttribute(attribute_type, curve->getValue(m_start_time));
-                } else if(frame_number - curve->getFrameStart() >= curve->getFrameCount()) {
-                    target->SetAttribute(attribute_type, curve->getValue(curve->getFrameCount() - 1));
-                } else {
-                    target->SetAttribute(attribute_type, curve->getValue(frame_number - curve->getFrameStart()));
-                }
+                target->SetAttribute(attribute_type, curve->getValue(m_local_time + m_start_time));
             }
-            
         }
     }
 }
