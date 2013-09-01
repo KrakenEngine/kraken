@@ -359,19 +359,19 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
         return NULL;
     }
     
-    float frame_rate = 30.0f; // FINDME, TODO - This needs to be dynamic
-    int frame_start = time_span.GetStart().GetSecondDouble() * frame_rate;
-    int frame_count = (time_span.GetStop().GetSecondDouble() * frame_rate) - frame_start;
+    float dest_frame_rate = 30.0f; // FINDME, TODO - This needs to be dynamic
+    int frame_start = time_span.GetStart().GetSecondDouble() * dest_frame_rate;
+    int frame_count = (time_span.GetStop().GetSecondDouble() * dest_frame_rate) - frame_start;
     
     KRAnimationCurve *new_curve = new KRAnimationCurve(context, name);
-    new_curve->setFrameRate(frame_rate);
+    new_curve->setFrameRate(dest_frame_rate);
     new_curve->setFrameStart(frame_start);
     new_curve->setFrameCount(frame_count);
     
     // Resample animation curve
     int last_frame = 0; // Used by FBX sdk for faster keyframe searches
     for(int frame_number=0; frame_number < frame_count; frame_number++) {
-        float frame_seconds = (frame_start + frame_number) / frame_rate;
+        float frame_seconds = (frame_start + frame_number) / dest_frame_rate;
         FbxTime frame_time;
         frame_time.SetSecondDouble(frame_seconds);
         float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
