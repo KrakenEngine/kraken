@@ -111,11 +111,11 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         #endif
 
         #if HAS_REFLECTION_MAP_SCALE == 1
-            uniform highp vec2    reflection_Scale;
+            uniform highp vec2    reflectionTexture_Scale;
         #endif
 
         #if HAS_REFLECTION_MAP_OFFSET == 1
-            uniform highp vec2    reflection_Offset;
+            uniform highp vec2    reflectionTexture_Offset;
         #endif
 
         #if SHADOW_QUALITY >= 1
