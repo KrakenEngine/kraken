@@ -203,7 +203,6 @@ bool KROctreeNode::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo 
         // Optimization: If we already have a hit, only search for hits that are closer
         hit_found = lineCast(v0, hitinfo.getPosition(), hitinfo, layer_mask);
     } else {
-        bool hit_found = false;
         if(getBounds().intersectsLine(v0, v1)) {
             for(std::set<KRNode *>::iterator nodes_itr=m_sceneNodes.begin(); nodes_itr != m_sceneNodes.end(); nodes_itr++) {
                 KRCollider *collider = dynamic_cast<KRCollider *>(*nodes_itr);
