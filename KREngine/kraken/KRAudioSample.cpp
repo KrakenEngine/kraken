@@ -40,6 +40,7 @@
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
 {
     m_pData = new KRDataBlock();
+    m_pData->lock();
     m_extension = extension;
     
     m_audio_file_id = 0;
@@ -55,6 +56,7 @@ KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string e
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
 {
     m_pData = data;
+    m_pData->lock();
     m_extension = extension;
     
     m_audio_file_id = 0;
@@ -71,6 +73,7 @@ KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string e
 KRAudioSample::~KRAudioSample()
 {
     closeFile();
+    m_pData->unlock();
     delete m_pData;
 }
 
@@ -198,7 +201,8 @@ OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc
     KRAudioSample *sound = (KRAudioSample *)inClientData;
     UInt32 max_count = sound->m_pData->getSize() - inPosition;
     *actualCount = requestCount < max_count ? requestCount : max_count;
-    memcpy(buffer, (unsigned char *)sound->m_pData->getStart() + inPosition, *actualCount);
+    sound->m_pData->copy(buffer, inPosition, *actualCount);
+    //memcpy(buffer, (unsigned char *)sound->m_pData->getStart() + inPosition, *actualCount);
     return noErr;
 }
 
@@ -231,6 +235,7 @@ void KRAudioSample::openFile()
 {
     //    AudioFileInitializeWithCallbacks
     if(m_fileRef == NULL) {
+
         // Temp variables
         UInt32 propertySize;
         

@@ -46,6 +46,7 @@ KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pData = new KRDataBlock();
+    m_pData->lock();
     setName(name);
 }
 
@@ -54,6 +55,7 @@ KRMesh::KRMesh(KRContext &context, std::string name, KRDataBlock *data) : KRReso
     m_materials.clear();
     m_uniqueMaterials.clear();
     m_pData = new KRDataBlock();
+    m_pData->lock();
     setName(name);
     
     loadPack(data);
@@ -104,6 +106,7 @@ int KRMesh::GetLODCoverage(const std::string &name)
 
 KRMesh::~KRMesh() {
     clearData();
+    m_pData->unlock();
     if(m_pData) delete m_pData;
 }
 
@@ -124,8 +127,10 @@ bool KRMesh::save(KRDataBlock &data) {
 
 void KRMesh::loadPack(KRDataBlock *data) {
     clearData();
+    m_pData->unlock();
     delete m_pData;
     m_pData = data;
+    m_pData->lock();
     updateAttributeOffsets();
     pack_header *pHeader = getHeader();
     m_minPoint = KRVector3(pHeader->minx, pHeader->miny, pHeader->minz);
@@ -133,6 +138,8 @@ void KRMesh::loadPack(KRDataBlock *data) {
 }
 
 void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
+    
+    m_pData->lock();
     
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -214,6 +221,8 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
             }
         }
     }
+    
+    m_pData->unlock();
 }
 
 GLfloat KRMesh::getMaxDimension() {
@@ -429,8 +438,9 @@ void KRMesh::LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std:
     size_t vertex_count = mi.vertices.size();
     size_t bone_count = mi.bone_names.size();
     size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
-    
+    m_pData->unlock();
     m_pData->expand(new_file_size);
+    m_pData->lock();
     
     pack_header *pHeader = getHeader();
     memset(pHeader, 0, sizeof(pack_header));
@@ -586,7 +596,9 @@ KRVector3 KRMesh::getMaxPoint() const {
 }
 
 void KRMesh::clearData() {
+    m_pData->unlock();
     m_pData->unload();
+    m_pData->lock();
 }
 
 void KRMesh::clearBuffers() {
@@ -892,8 +904,11 @@ size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_
 
 int KRMesh::getBoneCount()
 {
+    m_pData->lock();
     pack_header *header = getHeader();
-    return header->bone_count;
+    int bone_count = header->bone_count;
+    m_pData->unlock();
+    return bone_count;
 }
 
 char *KRMesh::getBoneName(int bone_index)
@@ -908,7 +923,10 @@ KRMat4 KRMesh::getBoneBindPose(int bone_index)
 
 KRMesh::model_format_t KRMesh::getModelFormat() const
 {
-    return (model_format_t)getHeader()->model_format;
+    m_pData->lock();
+    model_format_t f = (model_format_t)getHeader()->model_format;
+    m_pData->unlock();
+    return f;
 }
 
 bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
@@ -1055,7 +1073,7 @@ bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitin
 
 void KRMesh::convertToIndexed()
 {
-    
+    m_pData->lock();
     char *szKey = new char[m_vertex_size * 2 + 1];
     
     // Convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
@@ -1230,6 +1248,8 @@ void KRMesh::convertToIndexed()
     
     
     mi.format = KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+    
+    m_pData->unlock();
     LoadData(mi, false, false);
 }
 
@@ -1284,85 +1304,89 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
 
 void KRMesh::optimizeIndexes()
 {
-    if(getModelFormat() != KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) return;
-    
-    __uint16_t *new_indices = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
-    __uint16_t *vertex_mapping = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
-    unsigned char *new_vertex_data = (unsigned char *)malloc(m_vertex_size * 0x10000);
-    
-    // FINDME, TODO, HACK - This will segfault if the KRData object is still mmap'ed to a read-only file.  Need to detach from the file before calling this function.  Currently, this function is only being used during the import process, so it isn't going to cause any problems for now.
-    
-    pack_header *header = getHeader();
-    
-    __uint16_t *index_data = getIndexData();
-    unsigned char *vertex_data = getVertexData();
-    
-    for(int submesh_index=0; submesh_index < header->submesh_count; submesh_index++) {
-        pack_material *submesh = getSubmesh(submesh_index);
-        int vertexes_remaining = submesh->vertex_count;
-        int index_group = getSubmesh(submesh_index)->index_group;
-        int index_group_offset = getSubmesh(submesh_index)->index_group_offset;
-        while(vertexes_remaining > 0) {
-            int start_index_offset, start_vertex_offset, index_count, vertex_count;
-            getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
-            
-            int vertexes_to_process = vertexes_remaining;
-            if(vertexes_to_process + index_group_offset > 0xffff) {
-                vertexes_to_process = 0xffff - index_group_offset;
-            }
-            
-            __uint16_t *index_data_start = index_data + start_index_offset + index_group_offset;
-            
-            
-            // ----====---- Step 1: Optimize triangle drawing order to maximize use of the GPU's post-transform vertex cache ----====----
-            Forsyth::OptimizeFaces(index_data_start, vertexes_to_process, vertex_count, new_indices, 16); // FINDME, TODO - GPU post-transform vertex cache size of 16 should be configureable
-            memcpy(index_data_start, new_indices, vertexes_to_process * sizeof(__uint16_t));
-            vertexes_remaining -= vertexes_to_process;
-            
-            /*
-             
-             unsigned char * vertex_data_start = vertex_data + start_vertex_offset;
-             
-            // ----====---- Step 2: Re-order the vertex data to maintain cache coherency ----====----
-            for(int i=0; i < vertex_count; i++) {
-                vertex_mapping[i] = i;
-            }
-            int new_vertex_index=0;
-            for(int index_number=0; index_number<index_count; index_number++) {
-                int prev_vertex_index = index_data_start[index_number];
-                if(prev_vertex_index > new_vertex_index) {
-                    // Swap prev_vertex_index and new_vertex_index
-                    
-                    for(int i=0; i < index_count; i++) {
-                        if(index_data_start[i] == prev_vertex_index) {
-                            index_data_start[i] = new_vertex_index;
-                        } else if(index_data_start[i] == new_vertex_index) {
-                            index_data_start[i] = prev_vertex_index;
-                        }
-                    }
-                    
-                    int tmp = vertex_mapping[prev_vertex_index];
-                    vertex_mapping[prev_vertex_index] = vertex_mapping[new_vertex_index];
-                    vertex_mapping[new_vertex_index] = tmp;
-                    
-                    
-                    new_vertex_index++;
+    m_pData->lock();
+    if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+
+        __uint16_t *new_indices = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
+        __uint16_t *vertex_mapping = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
+        unsigned char *new_vertex_data = (unsigned char *)malloc(m_vertex_size * 0x10000);
+        
+        // FINDME, TODO, HACK - This will segfault if the KRData object is still mmap'ed to a read-only file.  Need to detach from the file before calling this function.  Currently, this function is only being used during the import process, so it isn't going to cause any problems for now.
+        
+        pack_header *header = getHeader();
+        
+        __uint16_t *index_data = getIndexData();
+        unsigned char *vertex_data = getVertexData();
+        
+        for(int submesh_index=0; submesh_index < header->submesh_count; submesh_index++) {
+            pack_material *submesh = getSubmesh(submesh_index);
+            int vertexes_remaining = submesh->vertex_count;
+            int index_group = getSubmesh(submesh_index)->index_group;
+            int index_group_offset = getSubmesh(submesh_index)->index_group_offset;
+            while(vertexes_remaining > 0) {
+                int start_index_offset, start_vertex_offset, index_count, vertex_count;
+                getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+                
+                int vertexes_to_process = vertexes_remaining;
+                if(vertexes_to_process + index_group_offset > 0xffff) {
+                    vertexes_to_process = 0xffff - index_group_offset;
                 }
+                
+                __uint16_t *index_data_start = index_data + start_index_offset + index_group_offset;
+                
+                
+                // ----====---- Step 1: Optimize triangle drawing order to maximize use of the GPU's post-transform vertex cache ----====----
+                Forsyth::OptimizeFaces(index_data_start, vertexes_to_process, vertex_count, new_indices, 16); // FINDME, TODO - GPU post-transform vertex cache size of 16 should be configureable
+                memcpy(index_data_start, new_indices, vertexes_to_process * sizeof(__uint16_t));
+                vertexes_remaining -= vertexes_to_process;
+                
+                /*
+                 
+                 unsigned char * vertex_data_start = vertex_data + start_vertex_offset;
+                 
+                // ----====---- Step 2: Re-order the vertex data to maintain cache coherency ----====----
+                for(int i=0; i < vertex_count; i++) {
+                    vertex_mapping[i] = i;
+                }
+                int new_vertex_index=0;
+                for(int index_number=0; index_number<index_count; index_number++) {
+                    int prev_vertex_index = index_data_start[index_number];
+                    if(prev_vertex_index > new_vertex_index) {
+                        // Swap prev_vertex_index and new_vertex_index
+                        
+                        for(int i=0; i < index_count; i++) {
+                            if(index_data_start[i] == prev_vertex_index) {
+                                index_data_start[i] = new_vertex_index;
+                            } else if(index_data_start[i] == new_vertex_index) {
+                                index_data_start[i] = prev_vertex_index;
+                            }
+                        }
+                        
+                        int tmp = vertex_mapping[prev_vertex_index];
+                        vertex_mapping[prev_vertex_index] = vertex_mapping[new_vertex_index];
+                        vertex_mapping[new_vertex_index] = tmp;
+                        
+                        
+                        new_vertex_index++;
+                    }
+                }
+                
+                for(int i=0; i < vertex_count; i++) {
+                    memcpy(new_vertex_data + vertex_mapping[i] * m_vertex_size, vertex_data_start + i * m_vertex_size, m_vertex_size);
+                }
+                memcpy(vertex_data_start, new_vertex_data, vertex_count * m_vertex_size);
+                 */
+                
+                
+                
+                index_group_offset = 0;
             }
-            
-            for(int i=0; i < vertex_count; i++) {
-                memcpy(new_vertex_data + vertex_mapping[i] * m_vertex_size, vertex_data_start + i * m_vertex_size, m_vertex_size);
-            }
-            memcpy(vertex_data_start, new_vertex_data, vertex_count * m_vertex_size);
-             */
-            
-            
-            
-            index_group_offset = 0;
         }
-    }
+        
+        free(new_indices);
+        free(vertex_mapping);
+        free(new_vertex_data);
+    } // if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES)
     
-    free(new_indices);
-    free(vertex_mapping);
-    free(new_vertex_data);
+    m_pData->unlock();
 }

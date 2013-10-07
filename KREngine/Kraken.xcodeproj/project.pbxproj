@@ -109,6 +109,10 @@
 		E461A176152E5C5600F2044A /* KRPointLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A157152E555400F2044A /* KRPointLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A177152E5C6600F2044A /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
+		E468447F17FFDF51001F1FA1 /* KRLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E468447D17FFDF51001F1FA1 /* KRLocator.cpp */; };
+		E468448017FFDF51001F1FA1 /* KRLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E468447D17FFDF51001F1FA1 /* KRLocator.cpp */; };
+		E468448117FFDF51001F1FA1 /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; };
+		E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; };
 		E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */; };
 		E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */ = {isa = PBXBuildFile; fileRef = E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
@@ -438,6 +442,8 @@
 		E461A15E152E565700F2044A /* KRDirectionalLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRDirectionalLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A164152E56C000F2044A /* KRSpotLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRSpotLight.cpp; sourceTree = "<group>"; };
 		E461A167152E570500F2044A /* KRSpotLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRSpotLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		E468447D17FFDF51001F1FA1 /* KRLocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRLocator.cpp; sourceTree = "<group>"; };
+		E468447E17FFDF51001F1FA1 /* KRLocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRLocator.h; sourceTree = "<group>"; };
 		E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "KRResource+blend.cpp"; sourceTree = "<group>"; };
 		E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KRResource+blend.h"; sourceTree = "<group>"; };
 		E46C214115364BC8009CABF3 /* tinyxml2_readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tinyxml2_readme.txt; sourceTree = "<group>"; };
@@ -971,6 +977,8 @@
 				E480BE6B1671C653004EC8AD /* KRBone.cpp */,
 				E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */,
 				E4AE635C1704FB0A00B460CD /* KRLODGroup.h */,
+				E468447D17FFDF51001F1FA1 /* KRLocator.cpp */,
+				E468447E17FFDF51001F1FA1 /* KRLocator.h */,
 			);
 			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
@@ -1198,6 +1206,7 @@
 				E461A152152E54B500F2044A /* KRLight.h in Headers */,
 				E461A15C152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A168152E570700F2044A /* KRSpotLight.h in Headers */,
+				E468448117FFDF51001F1FA1 /* KRLocator.h in Headers */,
 				E4F975321536220900FD60B2 /* KRNode.h in Headers */,
 				E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */,
 				E48C696F15374F5B00232E28 /* KRContext.h in Headers */,
@@ -1257,6 +1266,7 @@
 				E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */,
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
 				E461A177152E5C6600F2044A /* KRMat4.h in Headers */,
+				E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */,
 				E4F975461536327C00FD60B2 /* KRMeshManager.h in Headers */,
 				E497B94B151BCEE900D3DC67 /* KRResource.h in Headers */,
 				E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
@@ -1544,6 +1554,7 @@
 				E497B950151BD2CE00D3DC67 /* KRResource+obj.cpp in Sources */,
 				E461A156152E54F800F2044A /* KRLight.cpp in Sources */,
 				E461A159152E557E00F2044A /* KRPointLight.cpp in Sources */,
+				E468447F17FFDF51001F1FA1 /* KRLocator.cpp in Sources */,
 				E461A15F152E565700F2044A /* KRDirectionalLight.cpp in Sources */,
 				E461A165152E56C000F2044A /* KRSpotLight.cpp in Sources */,
 				E4F975361536221C00FD60B2 /* KRNode.cpp in Sources */,
@@ -1607,6 +1618,7 @@
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
 				E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */,
 				E4BBBB8E1512A40300F43B5B /* krengine_osx.mm in Sources */,
+				E468448017FFDF51001F1FA1 /* KRLocator.cpp in Sources */,
 				E497B947151BA99500D3DC67 /* KRVector2.cpp in Sources */,
 				E497B94E151BCF2500D3DC67 /* KRResource.cpp in Sources */,
 				E497B951151BD2CE00D3DC67 /* KRResource+obj.cpp in Sources */,

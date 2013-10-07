@@ -36,9 +36,11 @@
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data, std::string name) : KRTexture(context, name) {
     m_current_lod_max_dim = 0;
     m_pData = data;
+    m_pData->lock();
 }                
 
 KRTexture2D::~KRTexture2D() {
+    m_pData->unlock();
     delete m_pData;
 }
 

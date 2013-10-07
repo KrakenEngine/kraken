@@ -406,7 +406,9 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
 {
     data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
     tinyxml2::XMLDocument doc;
+    data->lock();
     doc.Parse((char *)data->getStart());
+    data->unlock();
     KRScene *new_scene = new KRScene(context, name);
     
     tinyxml2::XMLElement *scene_element = doc.RootElement();

@@ -28,10 +28,12 @@ typedef struct {
 
 KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name)
 {
+    data->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)data->getStart();
     
     m_max_lod_max_dim = pHeader->width > pHeader->height ? pHeader->width : pHeader->height;
     m_min_lod_max_dim = m_max_lod_max_dim; // Mipmaps not yet supported for TGA images
+    data->unlock();
 }
 
 KRTextureTGA::~KRTextureTGA()
@@ -73,7 +75,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         }
 //#endif
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
-                        delete converted_image;
+                        free(converted_image);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
                             return false;

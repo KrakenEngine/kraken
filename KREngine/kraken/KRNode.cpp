@@ -20,6 +20,7 @@
 #include "KRAABB.h"
 #include "KRQuaternion.h"
 #include "KRBone.h"
+#include "KRLocator.h"
 #include "KRAudioSource.h"
 #include "KRAmbientZone.h"
 #include "KRReverbZone.h"
@@ -421,6 +422,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
+    } else if(strcmp(szElementName, "locator") == 0) {
+        new_node = new KRLocator(scene, szName);
     } else if(strcmp(szElementName, "audio_source") == 0) {
         new_node = new KRAudioSource(scene, szName);
     } else if(strcmp(szElementName, "ambient_zone") == 0) {

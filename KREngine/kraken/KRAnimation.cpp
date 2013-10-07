@@ -85,9 +85,10 @@ bool KRAnimation::save(KRDataBlock &data) {
 
 KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
-    data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
+    std::string xml_string = data->getString();
+    
     tinyxml2::XMLDocument doc;
-    doc.Parse((char *)data->getStart());
+    doc.Parse(xml_string.c_str());
     KRAnimation *new_animation = new KRAnimation(context, name);
     
     tinyxml2::XMLElement *animation_node = doc.RootElement();

@@ -254,12 +254,12 @@ bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KR
 }
 
 void KRShaderManager::loadFragmentShader(const std::string &name, KRDataBlock *data) {
-    m_fragShaderSource[name] = string((char *)data->getStart(), data->getSize());
+    m_fragShaderSource[name] = data->getString();
     delete data;
 }
 
 void KRShaderManager::loadVertexShader(const std::string &name, KRDataBlock *data) {
-    m_vertShaderSource[name] = string((char *)data->getStart(), data->getSize());
+    m_vertShaderSource[name] = data->getString();
     delete data;
 }
 

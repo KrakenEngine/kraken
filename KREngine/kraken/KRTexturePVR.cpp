@@ -64,6 +64,7 @@ typedef struct _PVRTexHeader
 
 KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name) {
 #if TARGET_OS_IPHONE
+    m_pData->lock();
     PVRTexHeader *header = (PVRTexHeader *)m_pData->getStart();
     uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
     if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
@@ -134,7 +135,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
     
     m_max_lod_max_dim = m_iWidth > m_iHeight ? m_iWidth : m_iHeight;
     m_min_lod_max_dim = width > height ? width : height;
-    
+    m_pData->unlock();
 #endif
 }
 
@@ -175,8 +176,6 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 {    
     int target_dim = lod_max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-    
-	GLenum err;
     
     if(m_blocks.size() == 0) {
         return false;

@@ -53,35 +53,18 @@ KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : K
 {
     m_pData = pData;
     
-    unsigned char *pFile = (unsigned char *)m_pData->getStart();
-    while(pFile < m_pData->getEnd() ) {
-        tar_header_type *file_header = (tar_header_type *)pFile;
-        size_t file_size = strtol(file_header->file_size, NULL, 8);
-        pFile += 512; // Skip past the header to the file contents
-        
-        if(file_header->file_name[0] != '\0' && file_header->file_name[0] != '.') {
+    __int64_t file_pos = 0;
+    while(file_pos < m_pData->getSize()) {
+        tar_header_type file_header;
+        m_pData->copy(&file_header, file_pos, sizeof(file_header));
+        size_t file_size = strtol(file_header.file_size, NULL, 8);
+        file_pos += 512; // Skip past the header to the file contents
+        if(file_header.file_name[0] != '\0' && file_header.file_name[0] != '.') {
             // We ignore the last two records in the tar file, which are zero'ed out tar_header structures
-            KRDataBlock *pFileData = new KRDataBlock();
-            if(pFileData->load(pFile, file_size)) {
-                context.loadResource(file_header->file_name, pFileData);
-            } else {
-                delete pFileData;
-                assert(false);
-            }
+            KRDataBlock *pFileData = pData->getSubBlock(file_pos, file_size);
+            context.loadResource(file_header.file_name, pFileData);
         }
-        
-         // Advance past the end of the file
-        /*
-        if((file_size & 0x01ff) == 0) {
-            // file size is a multiple of 512 bytes, we can just add it
-            pFile += file_size;
-        } else {
-            // We would not be on a 512 byte boundary, round up to the next one
-            pFile += (file_size + 0x0200) - (file_size & 0x1ff);
-        }
-         */
-        pFile += RoundUpSize(file_size);
-        
+        file_pos += RoundUpSize(file_size);
     }
 }
 
@@ -90,7 +73,9 @@ KRBundle::KRBundle(KRContext &context, std::string name) : KRResource(context, n
     // Create an empty krbundle (tar) file, initialized with two zero-ed out file headers, which terminate it.
     m_pData = new KRDataBlock();
     m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE * 2);
+    m_pData->lock();
     memset(m_pData->getStart(), 0, m_pData->getSize());
+    m_pData->unlock();
 }
 
 size_t KRBundle::RoundUpSize(size_t s)
@@ -142,6 +127,8 @@ void KRBundle::append(KRResource &resource)
     
     m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE + resource_data.getSize() + padding_size - KRENGINE_KRBUNDLE_HEADER_SIZE * 2); // We will overwrite the existing zero-ed out file headers that marked the end of the archive, so we don't have to include their size here
     
+    m_pData->lock();
+    
     // Get location of file header
     tar_header_type *file_header = (tar_header_type *)((unsigned char *)m_pData->getEnd() - padding_size - resource_data.getSize() - KRENGINE_KRBUNDLE_HEADER_SIZE);
     
@@ -149,7 +136,9 @@ void KRBundle::append(KRResource &resource)
     memset(file_header, 0, KRENGINE_KRBUNDLE_HEADER_SIZE);
     
     // Copy resource data
+    resource_data.lock();
     memcpy((unsigned char *)m_pData->getEnd() - padding_size - resource_data.getSize(), resource_data.getStart(), resource_data.getSize());
+    resource_data.unlock();
     
     // Zero out alignment padding and terminating set of file header blocks
     memset((unsigned char *)m_pData->getEnd() - padding_size, 0, padding_size);
@@ -172,4 +161,6 @@ void KRBundle::append(KRResource &resource)
         check_sum += byte_ptr[i];
     }
     sprintf(file_header->checksum, "%07o", check_sum);
+    
+    m_pData->unlock();
 }
