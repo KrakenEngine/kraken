@@ -87,7 +87,7 @@ float KRMat4::operator[](unsigned i) const {
 }
 
 // Overload comparison operator
-bool KRMat4::operator==(const KRMat4 &m) {
+bool KRMat4::operator==(const KRMat4 &m) const {
     return memcmp(c, m.c, sizeof(float) * 16) == 0;
 }
 

@@ -214,7 +214,15 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 #endif
 
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
+#if GL_OES_mapbuffer
+            
+            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+            memcpy(map_ptr, data, size);
+            GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
+#else
             GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+#endif
             m_memoryTransferredThisFrame += size;
             m_vboMemUsed += size;
             configureAttribs(vertex_attrib_flags);
@@ -226,7 +234,17 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
                 GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
             } else {
                 GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
+                
+#if GL_OES_mapbuffer
+                
+                GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data_size, NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+                GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+                memcpy(map_ptr, index_data, index_data_size);
+                GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
+#else
                 GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data_size, index_data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+#endif
+                
                 m_memoryTransferredThisFrame += index_data_size;
                 m_vboMemUsed += index_data_size;
                 m_currentVBO.size += index_data_size;
