@@ -11,10 +11,6 @@
 #ifndef KRENGINE_COMMON_H
 #define KRENGINE_COMMON_H
 
-#define KRAKEN_MEM_PAGE_SIZE 4096
-#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) (x & ~(KRAKEN_MEM_PAGE_SIZE - 1))
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-
 float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
 
@@ -70,6 +66,11 @@ using std::queue;
 #include <Accelerate/Accelerate.h>
 #define KRAKEN_HAVE_BLAS 1
 #endif
+
+int KRAKEN_MEM_PAGE_SIZE = getpagesize();
+
+#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) (x & ~(KRAKEN_MEM_PAGE_SIZE - 1))
+#define KRENGINE_MAX_TEXTURE_UNITS 8
 
 
 #if !defined(__i386__) && defined(__arm__)
