@@ -43,54 +43,52 @@ KRTexture2D::~KRTexture2D() {
 }
 
 bool KRTexture2D::createGLTexture(int lod_max_dim) {
+    if(m_iHandle != m_iNewHandle) {
+        return true;
+    }
+    
     bool success = true;
-    GLuint prev_handle = 0;
     int prev_lod_max_dim = 0;
     long prev_mem_size = 0;
 #if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
     
     if(m_iHandle != 0) {
-        prev_handle = m_iHandle;
         prev_mem_size = getMemSize();
-        m_iHandle = 0;
         m_textureMemUsed = 0;
         prev_lod_max_dim = m_current_lod_max_dim;
     }
-#else
-    releaseHandle();
 #endif
     
+    m_iNewHandle = 0;
     m_current_lod_max_dim = 0;
-    GLDEBUG(glGenTextures(1, &m_iHandle));
+    GLDEBUG(glGenTextures(1, &m_iNewHandle));
     
-    if(m_iHandle == 0) {
+    if(m_iNewHandle == 0) {
         success = false;
     } else {
     
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iHandle));
+        GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iNewHandle));
         if (hasMipmaps()) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
         } else {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         }
 
-        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_textureMemUsed, prev_lod_max_dim, prev_handle)) {
-            GLDEBUG(glDeleteTextures(1, &m_iHandle));
-            m_iHandle = 0;
-            m_current_lod_max_dim = 0;
+        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_newTextureMemUsed, prev_lod_max_dim)) {
+            GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
+            getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
+            m_newTextureMemUsed = 0;
+            m_iNewHandle = m_iHandle;
+            m_current_lod_max_dim = prev_lod_max_dim;
             success = false;
         }
-    }
-    
-    if(prev_handle != 0) {
-        getContext().getTextureManager()->memoryChanged(-prev_mem_size);
-        GLDEBUG(glDeleteTextures(1, &prev_handle));
     }
     
     return success;
 }
 
 void KRTexture2D::bind(GLuint texture_unit) {
+    KRTexture::bind(texture_unit);
     GLuint handle = getHandle();
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, handle));
@@ -100,7 +98,6 @@ void KRTexture2D::bind(GLuint texture_unit) {
         m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
     }
 }
-
 
 bool KRTexture2D::save(const std::string& path)
 {

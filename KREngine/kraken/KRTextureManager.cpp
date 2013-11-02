@@ -216,6 +216,10 @@ long KRTextureManager::getMemActive() {
 void KRTextureManager::startFrame(float deltaTime)
 {
     _clearGLState();
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+        KRTexture *activeTexture = *itr;
+        activeTexture->_swapHandles();
+    }
     m_memoryTransferredThisFrame = 0;
     balanceTextureMemory();
     rotateBuffers();
@@ -310,7 +314,7 @@ void KRTextureManager::rotateBuffers()
         KRTexture *poolTexture = *itr;
         if(poolTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
             expiredTextures.insert(poolTexture);
-            poolTexture->releaseHandle();
+            poolTexture->releaseHandles();
         }
     }
     for(std::set<KRTexture *>::iterator itr=expiredTextures.begin(); itr != expiredTextures.end(); itr++) {
@@ -318,6 +322,7 @@ void KRTextureManager::rotateBuffers()
     }
     
     // ----====---- Swap the buffers ----====----
+
     m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
     m_activeTextures.clear();
 }

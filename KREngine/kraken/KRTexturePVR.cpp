@@ -135,6 +135,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
     
     m_max_lod_max_dim = m_iWidth > m_iHeight ? m_iWidth : m_iHeight;
     m_min_lod_max_dim = width > height ? width : height;
+    
     m_pData->unlock();
 #endif
 }
@@ -172,7 +173,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle)
+bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim)
 {    
     int target_dim = lod_max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -242,7 +243,7 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             if(target == GL_TEXTURE_2D && width <= prev_lod_max_dim && height <= prev_lod_max_dim) {
                 //GLDEBUG(glCompressedTexImage2D(target, i, m_internalFormat, width, height, 0, block.length, NULL)); // Allocate, but don't copy
 //                GLDEBUG(glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
-                GLDEBUG(glCopyTextureLevelsAPPLE(m_iHandle, prev_handle, source_level, 1));
+                GLDEBUG(glCopyTextureLevelsAPPLE(m_iNewHandle, m_iHandle, source_level, 1));
             } else {
                 // glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
                 m_pData->lock();
@@ -288,7 +289,7 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 	}
     
     textureMemUsed += memoryRequired;
-    getContext().getTextureManager()->memoryChanged(memoryTransferred);
+    getContext().getTextureManager()->memoryChanged(memoryRequired);
     getContext().getTextureManager()->addMemoryTransferredThisFrame(memoryTransferred);
     
     return true;

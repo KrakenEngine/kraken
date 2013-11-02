@@ -110,7 +110,6 @@ public:
     
     void log_draw_call(KRNode::RenderPass pass, const std::string &object_name, const std::string &material_name, int vertex_count);
     std::vector<draw_call_info> getDrawCalls();
-
     
 private:
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model

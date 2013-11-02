@@ -114,6 +114,7 @@ void KRTextureAnimated::resetPoolExpiry()
 
 void KRTextureAnimated::bind(GLuint texture_unit)
 {
+    KRTexture::bind(texture_unit);
     int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate,m_frame_count));
     KRTexture2D *frame_texture = textureForFrame(frame_number);
     if(frame_texture) {

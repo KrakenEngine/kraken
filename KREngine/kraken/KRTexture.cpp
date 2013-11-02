@@ -15,16 +15,24 @@
 KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context, name)
 {
     m_iHandle = 0;
+    m_iNewHandle = 0;
     m_textureMemUsed = 0;
+    m_newTextureMemUsed = 0;
     m_last_frame_used = 0;
+    m_last_frame_bound = 0;
 }
 
 KRTexture::~KRTexture()
 {
-    releaseHandle();
+    releaseHandles();
 }
 
-void KRTexture::releaseHandle() {
+void KRTexture::releaseHandles() {
+    if(m_iNewHandle != 0) {
+        GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
+        m_iNewHandle = 0;
+        m_newTextureMemUsed = 0;
+    }
     if(m_iHandle != 0) {
         GLDEBUG(glDeleteTextures(1, &m_iHandle));
         getContext().getTextureManager()->memoryChanged(-getMemSize());
@@ -34,7 +42,7 @@ void KRTexture::releaseHandle() {
 }
 
 long KRTexture::getMemSize() {
-    return m_textureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
+    return m_textureMemUsed + m_newTextureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }
 
 long KRTexture::getReferencedMemSize() {
@@ -44,8 +52,10 @@ long KRTexture::getReferencedMemSize() {
 
 void KRTexture::resize(int max_dim)
 {
+    assert(m_iHandle == m_iNewHandle); // Only allow one resize() per frame
+    
     if(max_dim == 0) {
-        releaseHandle();
+        m_iNewHandle = 0;
     } else {
         int target_dim = max_dim;
         if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -65,7 +75,7 @@ void KRTexture::resize(int max_dim)
                 return;
             }
             
-            if(m_current_lod_max_dim != target_dim || m_iHandle == 0) {
+            if(m_current_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
                 if(!createGLTexture(target_dim)) {
                     assert(false);
                 }
@@ -74,12 +84,12 @@ void KRTexture::resize(int max_dim)
     }
 }
 
-
 GLuint KRTexture::getHandle() {
-    if(m_iHandle == 0) {
-        //resize(getContext().KRENGINE_MIN_TEXTURE_DIM);
+    /*
+    if(m_iHandle == 0 && m_iNewHandle == 0) {
         resize(m_min_lod_max_dim);
     }
+    */
     resetPoolExpiry();
     return m_iHandle;
 }
@@ -147,3 +157,25 @@ int KRTexture::getMinMipMap() {
 bool KRTexture::hasMipmaps() {
     return m_max_lod_max_dim != m_min_lod_max_dim;
 }
+
+void KRTexture::bind(GLuint texture_unit) {
+    m_last_frame_bound = getContext().getCurrentFrame();
+}
+
+bool KRTexture::canStreamOut() const {
+    return (m_last_frame_bound + 2 > getContext().getCurrentFrame());
+}
+
+void KRTexture::_swapHandles()
+{
+    if(m_iNewHandle != m_iHandle) {
+        if(m_iHandle != 0) {
+            GLDEBUG(glDeleteTextures(1, &m_iHandle));
+            getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed - m_textureMemUsed);
+            m_textureMemUsed = m_newTextureMemUsed;
+            m_newTextureMemUsed = 0;
+        }
+        m_iHandle = m_iNewHandle;
+    }
+}
+

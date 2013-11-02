@@ -72,7 +72,8 @@ using std::queue;
 
 int KRAKEN_MEM_PAGE_SIZE = getpagesize();
 
-#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) (x & ~(KRAKEN_MEM_PAGE_SIZE - 1))
+#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRAKEN_MEM_PAGE_SIZE - 1))
+#define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRAKEN_MEM_PAGE_SIZE - 1)) + KRAKEN_MEM_PAGE_SIZE)
 #define KRENGINE_MAX_TEXTURE_UNITS 8
 
 
