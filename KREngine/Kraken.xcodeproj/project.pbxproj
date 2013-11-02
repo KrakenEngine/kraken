@@ -73,6 +73,10 @@
 		E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
 		E43B0AD815DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (); }; };
 		E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E43F70DC181B20E400136169 /* KRLODSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43F70DA181B20E300136169 /* KRLODSet.cpp */; };
+		E43F70DD181B20E400136169 /* KRLODSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43F70DA181B20E300136169 /* KRLODSet.cpp */; };
+		E43F70DE181B20E400136169 /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; };
+		E43F70DF181B20E400136169 /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; };
 		E4409D2916FA748700310F76 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
 		E44F38241683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (); }; };
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -423,6 +427,8 @@
 		E437849716C488360037FD43 /* hrtf_kemar.krbundle */ = {isa = PBXFileReference; lastKnownFileType = file; path = hrtf_kemar.krbundle; sourceTree = "<group>"; };
 		E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRContextObject.cpp; sourceTree = "<group>"; };
 		E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRContextObject.h; sourceTree = "<group>"; };
+		E43F70DA181B20E300136169 /* KRLODSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRLODSet.cpp; sourceTree = "<group>"; };
+		E43F70DB181B20E400136169 /* KRLODSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRLODSet.h; sourceTree = "<group>"; };
 		E44F38231683B22C00399B5D /* KRRenderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRRenderSettings.h; sourceTree = "<group>"; };
 		E44F38271683B24400399B5D /* KRRenderSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRRenderSettings.cpp; sourceTree = "<group>"; };
 		E450273716E0491D00FDEC5C /* KRReverbZone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRReverbZone.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -979,6 +985,8 @@
 				E4AE635C1704FB0A00B460CD /* KRLODGroup.h */,
 				E468447D17FFDF51001F1FA1 /* KRLocator.cpp */,
 				E468447E17FFDF51001F1FA1 /* KRLocator.h */,
+				E43F70DA181B20E300136169 /* KRLODSet.cpp */,
+				E43F70DB181B20E400136169 /* KRLODSet.h */,
 			);
 			name = "Scene Graph Nodes";
 			sourceTree = "<group>";
@@ -1188,6 +1196,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E43F70DE181B20E400136169 /* KRLODSet.h in Headers */,
 				E491019513C99BDC0098455B /* KRMaterial.h in Headers */,
 				E491019C13C99BDC0098455B /* KRMaterialManager.h in Headers */,
 				E491019D13C99BDC0098455B /* KRTextureManager.h in Headers */,
@@ -1299,6 +1308,7 @@
 				E428C312166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
+				E43F70DF181B20E400136169 /* KRLODSet.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
@@ -1546,6 +1556,7 @@
 				E491019A13C99BDC0098455B /* KRMeshManager.cpp in Sources */,
 				E47C25A713F4F6AB00FF4370 /* KRShaderManager.cpp in Sources */,
 				E47C25A913F4F6DD00FF4370 /* KRShader.cpp in Sources */,
+				E43F70DC181B20E400136169 /* KRLODSet.cpp in Sources */,
 				E414BAE51435558900A668C4 /* KRModel.cpp in Sources */,
 				E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */,
 				E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */,
@@ -1648,6 +1659,7 @@
 				E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */,
 				E488399515F928CA00BD66D5 /* KRBundle.cpp in Sources */,
 				E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
+				E43F70DD181B20E400136169 /* KRLODSet.cpp in Sources */,
 				E4B175AD161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
 				E4B175B3161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
@@ -1713,22 +1725,21 @@
 		E491016913C99B9E0098455B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_UNROLL_LOOPS = YES;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"$(SRCROOT)/3rdparty/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1739,20 +1750,19 @@
 		E491016A13C99B9E0098455B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_UNROLL_LOOPS = YES;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"$(SRCROOT)/3rdparty/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1772,7 +1782,6 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kraken_ios/Kraken-Prefix.pch";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1781,7 +1790,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = kraken;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1798,7 +1806,6 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kraken_ios/Kraken-Prefix.pch";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1807,7 +1814,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = kraken;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
-				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

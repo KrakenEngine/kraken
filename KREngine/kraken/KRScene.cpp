@@ -404,11 +404,10 @@ bool KRScene::save(KRDataBlock &data) {
 
 KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
-    data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
+    std::string xml_string = data->getString();
+    delete data;
     tinyxml2::XMLDocument doc;
-    data->lock();
-    doc.Parse((char *)data->getStart());
-    data->unlock();
+    doc.Parse(xml_string.c_str());
     KRScene *new_scene = new KRScene(context, name);
     
     tinyxml2::XMLElement *scene_element = doc.RootElement();
@@ -420,7 +419,7 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
         new_scene->getRootNode()->addChild(n);
     }
     
-    delete data;
+    
     return new_scene;
 }
 

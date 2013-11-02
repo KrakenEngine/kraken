@@ -42,11 +42,13 @@ KRTextureTGA::~KRTextureTGA()
 }
 
 bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle)
-{    
+{
+    m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 
     if(pHeader->colourmaptype != 0) {
+        m_pData->unlock();
         return false; // Mapped colors not supported
     }
     
@@ -78,6 +80,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         free(converted_image);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
+                            m_pData->unlock();
                             return false;
                         }
                         int memAllocated = pHeader->width * pHeader->height * 4;
@@ -92,6 +95,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
+                            m_pData->unlock();
                             return false;
                         }
                         int memAllocated = pHeader->width * pHeader->height * 4;
@@ -102,13 +106,16 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     }
                     break;
                 default:
+                    m_pData->unlock();
                     return false; // 16-bit images not yet supported
             }
             break;
         default:
+            m_pData->unlock();
             return false; // Image type not yet supported
     }
 
+    m_pData->unlock();
     return true;
 }
 

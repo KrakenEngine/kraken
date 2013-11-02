@@ -87,7 +87,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
     m_iHeight = header->height;
     m_bHasAlpha = header->bitmaskAlpha;
     
-    uint8_t *bytes = ((uint8_t *)m_pData->getStart()) + sizeof(PVRTexHeader);
+    uint32_t dataStart = sizeof(PVRTexHeader);
     uint32_t dataLength = header->dataLength, dataOffset = 0, dataSize = 0;
     uint32_t width = m_iWidth, height = m_iHeight, bpp = 4;
     uint32_t blockSize = 0, widthBlocks = 0, heightBlocks = 0;
@@ -116,7 +116,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
         dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
         
         dataBlockStruct newBlock;
-        newBlock.start = bytes+dataOffset;
+        newBlock.start = dataStart + dataOffset;
         newBlock.length = dataSize;
         
         m_blocks.push_back(newBlock);
@@ -245,16 +245,20 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                 GLDEBUG(glCopyTextureLevelsAPPLE(m_iHandle, prev_handle, source_level, 1));
             } else {
                 // glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
-                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, block.start));
+                m_pData->lock();
+                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, (char *)m_pData->getStart() + block.start));
+                m_pData->unlock();
 //                GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, block.start));
                 memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
             }
 #else
+            m_pData->lock();
     #if GL_EXT_texture_storage
-            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, block.start));
+            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, (char *)m_pData->getStart() + block.start));
     #else
-            GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, block.start));
+            GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, (char *)m_pData->getStart() + block.start));
     #endif
+            m_pData->unlock();
             memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
 #endif
             memoryRequired += block.length;

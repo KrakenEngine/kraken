@@ -37,6 +37,7 @@ KRDataBlock::KRDataBlock() {
     m_data_size = 0;
     m_data_offset = 0;
     m_fdPackFile = 0;
+    m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
     m_bMalloced = false;
@@ -68,6 +69,7 @@ void KRDataBlock::unload()
     m_data_size = 0;
     m_data_offset = 0;
     m_fdPackFile = 0;
+    m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
     m_bReadOnly = false;
@@ -95,6 +97,7 @@ bool KRDataBlock::load(const std::string &path)
     m_fdPackFile = open(path.c_str(), O_RDONLY);
     if(m_fdPackFile >= 0) {
         m_fileOwnerDataBlock = this;
+        m_fileName = path;
         if(fstat(m_fdPackFile, &statbuf) >= 0) {
             m_data_size = statbuf.st_size;
             m_data_offset = 0;
@@ -117,9 +120,9 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
     if(m_fdPackFile) {
         new_block->m_fdPackFile = m_fdPackFile;
         new_block->m_fileOwnerDataBlock = m_fileOwnerDataBlock;
-        new_block->m_data_offset = start;
+        new_block->m_data_offset = start + m_data_offset;
     } else if(m_bMalloced) {
-        new_block->m_data = (unsigned char *)m_data + start;
+        new_block->m_data = (unsigned char *)m_data + start + m_data_offset;
     }
     new_block->m_bReadOnly = true;
     return new_block;
@@ -189,16 +192,20 @@ void KRDataBlock::append(void *data, size_t size) {
 
 // Copy the entire data block to the destination pointer
 void KRDataBlock::copy(void *dest) {
-    lock();
-    memcpy((unsigned char *)dest, m_data, m_data_size);
-    unlock();
+    copy(dest, 0, m_data_size);
 }
 
 // Copy a range of data to the destination pointer
 void KRDataBlock::copy(void *dest, int start, int count) {
-    lock();
-    memcpy((unsigned char *)dest, (unsigned char *)m_data + start, count);
-    unlock();
+    if(m_lockCount == 0 && m_fdPackFile != 0) {
+        // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
+        ssize_t r = pread(m_fdPackFile, dest, count, start + m_data_offset);
+        assert(r != -1);
+    } else {
+        lock();
+        memcpy((unsigned char *)dest, (unsigned char *)m_data + start, count);
+        unlock();
+    }
 }
 
 // Append data to the end of the block, increasing the size of the block and making it read-write.
@@ -249,25 +256,26 @@ bool KRDataBlock::save(const std::string& path) {
 // Get contents as a string
 std::string KRDataBlock::getString()
 {
-    lock();
     KRDataBlock b;
     b.append(*this);
     b.append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
     b.lock();
     std::string ret = std::string((char *)b.getStart());
     b.unlock();
-    unlock();
     return ret;
 }
 
 // Lock the memory, forcing it to be loaded into a contiguous block of address space
 void KRDataBlock::lock()
 {
+    
     m_lockCount++;
     if(m_lockCount == 1) {
         
         // Memory mapped file; ensure data is mapped to ram
         if(m_fdPackFile) {
+            fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+            
             // Round m_data_offset down to the next memory page, as required by mmap
             size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
             if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t) -1) {
@@ -290,6 +298,8 @@ void KRDataBlock::unlock()
         
         // Memory mapped file; ensure data is unmapped from ram
         if(m_fdPackFile) {
+            fprintf(stderr, "KRDataBlock::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+            
             munmap(m_mmapData, m_data_size);
             m_data = NULL;
             m_mmapData = NULL;

@@ -97,6 +97,7 @@ private:
     
     // For memory mapped objects:
     int m_fdPackFile;
+    std::string m_fileName;
     KRDataBlock *m_fileOwnerDataBlock;
     void *m_mmapData;
     
@@ -111,6 +112,7 @@ private:
     
     // Assert if not locked
     void assertLocked();
+
 };
 
 #endif

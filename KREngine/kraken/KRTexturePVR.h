@@ -30,7 +30,7 @@ protected:
     bool      m_bHasAlpha;
     
     struct    dataBlockStruct {
-        void *start;
+        uint32_t start;
         uint32_t length;
     };
     

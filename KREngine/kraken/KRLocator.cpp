@@ -11,7 +11,7 @@
 
 KRLocator::KRLocator(KRScene &scene, std::string name) : KRNode(scene, name)
 {
-    setScaleCompensation(true);
+ 
 }
 
 KRLocator::~KRLocator()
