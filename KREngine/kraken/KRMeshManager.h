@@ -37,6 +37,8 @@
 #include "KRDataBlock.h"
 #include "KRNode.h"
 
+#include "KRMeshStreamer.h"
+
 class KRContext;
 class KRMesh;
 
@@ -135,6 +137,8 @@ private:
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
+    
+    KRMeshStreamer m_streamer;
 
 };
 

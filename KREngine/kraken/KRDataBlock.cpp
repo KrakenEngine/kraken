@@ -31,6 +31,7 @@
 
 #include "KRDataBlock.h"
 #include "KREngine-common.h"
+#include "KRResource.h"
 
 KRDataBlock::KRDataBlock() {
     m_data = NULL;
@@ -97,7 +98,7 @@ bool KRDataBlock::load(const std::string &path)
     m_fdPackFile = open(path.c_str(), O_RDONLY);
     if(m_fdPackFile >= 0) {
         m_fileOwnerDataBlock = this;
-        m_fileName = path;
+        m_fileName = KRResource::GetFileBase(path);
         if(fstat(m_fdPackFile, &statbuf) >= 0) {
             m_data_size = statbuf.st_size;
             m_data_offset = 0;

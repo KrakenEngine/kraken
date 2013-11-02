@@ -39,7 +39,7 @@
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
 
-KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
+KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
     m_textureMemUsed = 0;
 
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {

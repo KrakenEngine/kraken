@@ -37,7 +37,7 @@
 #include "KRMeshCube.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
+KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
     m_currentVBO.vbo_handle = -1;
     m_currentVBO.vbo_handle_indexes = -1;
     m_currentVBO.vao_handle = -1;

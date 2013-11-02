@@ -45,6 +45,9 @@ float const D2R = PI * 2 / 360;
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/signals2/mutex.hpp>
 
+#include <atomic>
+#include <thread>
+
 #include "tinyxml2.h"
 
 

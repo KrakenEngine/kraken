@@ -39,6 +39,7 @@
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
+#include "KRTextureStreamer.h"
 
 class KRTextureManager : public KRContextObject {
 public:
@@ -95,6 +96,8 @@ private:
     
     void rotateBuffers();
     void balanceTextureMemory();
+    
+    KRTextureStreamer m_streamer;
 };
 
 #endif
