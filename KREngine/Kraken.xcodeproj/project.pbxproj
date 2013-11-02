@@ -1701,7 +1701,7 @@
 		E491016913C99B9E0098455B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1715,7 +1715,7 @@
 					/usr/local/include,
 					"$(SRCROOT)/3rdparty/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1725,7 +1725,7 @@
 		E491016A13C99B9E0098455B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1736,7 +1736,7 @@
 					/usr/local/include,
 					"$(SRCROOT)/3rdparty/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
