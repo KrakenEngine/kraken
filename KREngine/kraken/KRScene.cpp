@@ -272,7 +272,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+                    getContext().getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {

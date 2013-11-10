@@ -42,21 +42,22 @@
 
 
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)  {
-    m_hasTransparency = false;
-    m_materials.clear();
-    m_uniqueMaterials.clear();
-    m_pData = new KRDataBlock();
-    m_pData->lock();
     setName(name);
+    
+    m_hasTransparency = false;
+    m_pData = NULL;
+    m_pMetaData = NULL;
+    m_pIndexBaseData = NULL;
+    
 }
 
 KRMesh::KRMesh(KRContext &context, std::string name, KRDataBlock *data) : KRResource(context, name) {
-    m_hasTransparency = false;
-    m_materials.clear();
-    m_uniqueMaterials.clear();
-    m_pData = new KRDataBlock();
-    m_pData->lock();
     setName(name);
+    
+    m_hasTransparency = false;
+    m_pData = NULL;
+    m_pMetaData = NULL;
+    m_pIndexBaseData = NULL;
     
     loadPack(data);
 }
@@ -105,9 +106,24 @@ int KRMesh::GetLODCoverage(const std::string &name)
 
 
 KRMesh::~KRMesh() {
-    clearData();
-    m_pData->unlock();
-    if(m_pData) delete m_pData;
+    releaseData();
+}
+
+void KRMesh::releaseData() {
+    if(m_pIndexBaseData) {
+        m_pIndexBaseData->unlock();
+        delete m_pIndexBaseData;
+        m_pIndexBaseData = NULL;
+    }
+    if(m_pMetaData) {
+        m_pMetaData->unlock();
+        delete m_pMetaData;
+        m_pMetaData = NULL;
+    }
+    if(m_pData) {
+        delete m_pData;
+        m_pData = NULL;
+    }
 }
 
 std::string KRMesh::getExtension() {
@@ -115,32 +131,36 @@ std::string KRMesh::getExtension() {
 }
 
 bool KRMesh::save(const std::string& path) {
-    clearBuffers();
     return m_pData->save(path);
 }
 
 bool KRMesh::save(KRDataBlock &data) {
-    clearBuffers();
     data.append(*m_pData);
     return true;
 }
 
 void KRMesh::loadPack(KRDataBlock *data) {
-    clearData();
-    m_pData->unlock();
-    delete m_pData;
+    releaseData();
+    
     m_pData = data;
-    m_pData->lock();
+    
+    pack_header ph;
+    m_pData->copy((void *)&ph, 0, sizeof(ph));
+    m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
+    m_pMetaData->lock();
+    
+    m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
+    m_pIndexBaseData->lock();
+    
+    m_minPoint = KRVector3(ph.minx, ph.miny, ph.minz);
+    m_maxPoint = KRVector3(ph.maxx, ph.maxy, ph.maxz);
+    
     updateAttributeOffsets();
-    pack_header *pHeader = getHeader();
-    m_minPoint = KRVector3(pHeader->minx, pHeader->miny, pHeader->minz);
-    m_maxPoint = KRVector3(pHeader->maxx, pHeader->maxy, pHeader->maxz);
 }
 
 void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones) {
     
-    m_pData->lock();
-    
+
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
         getSubmeshes();
@@ -221,8 +241,6 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
             }
         }
     }
-    
-    m_pData->unlock();
 }
 
 GLfloat KRMesh::getMaxDimension() {
@@ -259,21 +277,21 @@ void KRMesh::getSubmeshes() {
 }
 
 void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name) {
+    //m_pData->lock();
     getSubmeshes();
     Submesh *pSubmesh = m_submeshes[iSubmesh];
     int cVertexes = pSubmesh->vertex_count;
     // fprintf(stderr, "start - object: %s material: %s vertices: %i\n", object_name.c_str(), material_name.c_str(), cVertexes);
-    unsigned char *pVertexData = getVertexData();
+    int vertex_data_offset = getVertexDataOffset();
+    int index_data_offset = getIndexDataOffset();
     pack_header *pHeader = getHeader();
-
+    int32_t vertex_attrib_flags = pHeader->vertex_attrib_flags;
+    int32_t vertex_count = pHeader->vertex_count;
     
     
+    int vbo_index=0;
     if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
         
-        
-        
-        
-        __uint16_t *index_data = getIndexData();
         int index_group = getSubmesh(iSubmesh)->index_group;
         int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
         while(cVertexes > 0) {
@@ -281,7 +299,22 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             int start_index_offset, start_vertex_offset, index_count, vertex_count;
             getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, pHeader->vertex_attrib_flags, true);
+            KRDataBlock *vertex_data_block = NULL;
+            KRDataBlock *index_data_block = NULL;
+            if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
+                vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
+                index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
+                m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
+                m_submeshes[iSubmesh]->index_data_blocks.push_back(index_data_block);
+            } else {
+                vertex_data_block = m_submeshes[iSubmesh]->vertex_data_blocks[vbo_index];
+                index_data_block = m_submeshes[iSubmesh]->index_data_blocks[vbo_index];
+            }
+            vbo_index++;
+            
+            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, vertex_attrib_flags, true);
+            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
+            
             
             int vertex_draw_count = cVertexes;
             if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
@@ -293,21 +326,27 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
         }
         
     } else {
-        int cBuffers = (pHeader->vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
+        int cBuffers = (vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
         int iVertex = pSubmesh->start_vertex;
         int iBuffer = iVertex / MAX_VBO_SIZE;
         iVertex = iVertex % MAX_VBO_SIZE;
         while(cVertexes > 0) {
-            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : pHeader->vertex_count % MAX_VBO_SIZE;
+            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
             int vertex_size = m_vertex_size;
             
-            void *vbo_end = (unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size + vertex_size * cBufferVertexes;
-            void *buffer_end = m_pData->getEnd();
-            assert(vbo_end <= buffer_end);
-            assert(cBufferVertexes <= 65535);
+            KRDataBlock *vertex_data_block = NULL;
+            KRDataBlock *index_data_block = NULL;
+            if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
+                vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
+                
+                m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
+            } else {
+                vertex_data_block = m_submeshes[iSubmesh]->vertex_data_blocks[vbo_index];
+            }
+            vbo_index++;
             
-            
-            m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, pHeader->vertex_attrib_flags, true);
+            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, vertex_attrib_flags, true);
+            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
             
             
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -353,13 +392,12 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             
         }
     }
-    // fprintf(stderr, "end object\n");
-    
+    //m_pData->unlock();
 }
 
-void KRMesh::LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<KRMat4> bone_bind_poses, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, */const KRMesh::mesh_info &mi, bool calculate_normals, bool calculate_tangents) {
+void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool calculate_tangents) {
     
-    clearData();
+    clearBuffers();
     
     // TODO, FINDME - These values should be passed as a parameter and set by GUI flags
     bool use_short_vertexes = false;
@@ -438,10 +476,10 @@ void KRMesh::LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std:
     size_t vertex_count = mi.vertices.size();
     size_t bone_count = mi.bone_names.size();
     size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
-    m_pData->unlock();
+    m_pData = new KRDataBlock();
+    m_pMetaData = m_pData;
     m_pData->expand(new_file_size);
     m_pData->lock();
-    
     pack_header *pHeader = getHeader();
     memset(pHeader, 0, sizeof(pack_header));
     pHeader->vertex_attrib_flags = vertex_attrib_flags;
@@ -583,6 +621,18 @@ void KRMesh::LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std:
             }
         }
     }
+    m_pData->unlock();
+    
+    // ----
+    
+    pack_header ph;
+    m_pData->copy((void *)&ph, 0, sizeof(ph));
+    m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
+	m_pMetaData->lock();
+    m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
+    m_pIndexBaseData->lock();
+    
+    // ----
     
     optimize();
 }
@@ -593,12 +643,6 @@ KRVector3 KRMesh::getMinPoint() const {
 
 KRVector3 KRMesh::getMaxPoint() const {
     return m_maxPoint;
-}
-
-void KRMesh::clearData() {
-    m_pData->unlock();
-    m_pData->unload();
-    m_pData->lock();
 }
 
 void KRMesh::clearBuffers() {
@@ -632,34 +676,47 @@ bool KRMesh::has_vertex_attribute(int vertex_attrib_flags, vertex_attrib_t attri
 
 KRMesh::pack_header *KRMesh::getHeader() const
 {
-    return (pack_header *)m_pData->getStart();
+    return (pack_header *)m_pMetaData->getStart();
 }
 
 KRMesh::pack_bone *KRMesh::getBone(int index)
 {
     pack_header *header = getHeader();
-    return (pack_bone *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * header->submesh_count + sizeof(pack_bone) * index);
+    return (pack_bone *)((unsigned char *)m_pMetaData->getStart() + sizeof(pack_header) + sizeof(pack_material) * header->submesh_count + sizeof(pack_bone) * index);
 }
 
 unsigned char *KRMesh::getVertexData() const {
+    return ((unsigned char *)m_pData->getStart()) + getVertexDataOffset();
+}
+
+size_t KRMesh::getVertexDataOffset() const {
     pack_header *pHeader = getHeader();
-    return ((unsigned char *)m_pData->getStart()) + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count) + KRALIGN(8 * pHeader->index_base_count);
+    return sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count) + KRALIGN(8 * pHeader->index_base_count);
 }
 
 __uint16_t *KRMesh::getIndexData() const {
+    
+    return (__uint16_t *)((unsigned char *)m_pData->getStart() + getIndexDataOffset());
+}
+
+size_t KRMesh::getIndexDataOffset() const {
     pack_header *pHeader = getHeader();
-    return (__uint16_t *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count);
+    return sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count;
 }
 
 __uint32_t *KRMesh::getIndexBaseData() const {
-    pack_header *pHeader = getHeader();
-    return (__uint32_t *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count));
+    if(m_pIndexBaseData == NULL) {
+        pack_header *pHeader = getHeader();
+        return (__uint32_t *)((unsigned char *)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count));
+    } else {
+        return (__uint32_t *)m_pIndexBaseData->getStart();
+    }
 }
 
 
 KRMesh::pack_material *KRMesh::getSubmesh(int mesh_index) const
 {
-    return (pack_material *)((unsigned char *)m_pData->getStart() + sizeof(pack_header)) + mesh_index;
+    return (pack_material *)((unsigned char *)m_pMetaData->getStart() + sizeof(pack_header)) + mesh_index;
 }
 
 unsigned char *KRMesh::getVertexData(int index) const
@@ -670,7 +727,8 @@ unsigned char *KRMesh::getVertexData(int index) const
 int KRMesh::getSubmeshCount() const
 {
     pack_header *header = getHeader();
-    return header->submesh_count;
+    int submesh_count = header->submesh_count;
+    return submesh_count;
 }
 
 int KRMesh::getVertexCount(int submesh) const
@@ -904,10 +962,8 @@ size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_
 
 int KRMesh::getBoneCount()
 {
-    m_pData->lock();
     pack_header *header = getHeader();
     int bone_count = header->bone_count;
-    m_pData->unlock();
     return bone_count;
 }
 
@@ -923,9 +979,7 @@ KRMat4 KRMesh::getBoneBindPose(int bone_index)
 
 KRMesh::model_format_t KRMesh::getModelFormat() const
 {
-    m_pData->lock();
     model_format_t f = (model_format_t)getHeader()->model_format;
-    m_pData->unlock();
     return f;
 }
 
@@ -1018,6 +1072,7 @@ bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_ind
 
 bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const
 {
+    m_pData->lock();
     bool hit_found = false;
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
 //        int vertex_start = getSubmesh(submesh_index)->start_vertex;
@@ -1054,20 +1109,24 @@ bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitin
                 break;
         }
     }
+    m_pData->unlock();
     return hit_found;
 }
 
 bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
 {
+    m_pData->lock();
     KRHitInfo new_hitinfo;
     KRVector3 dir = KRVector3::Normalize(v1 - v0);
     if(rayCast(v0, dir, new_hitinfo)) {
         if((new_hitinfo.getPosition() - v0).sqrMagnitude() <= (v1 - v0).sqrMagnitude()) {
             // The hit was between v1 and v2
             hitinfo = new_hitinfo;
+            m_pData->unlock();
             return true;
         }
     }
+    m_pData->unlock();
     return false; // Either no hit, or the hit was beyond v1
 }
 
@@ -1284,6 +1343,9 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
     switch(getModelFormat()) {
         case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
             {
+                __uint16_t *index_data = getIndexData();
+                
+                
                 int start_index_offset, start_vertex_offset, index_count, vertex_count;
                 int index_group = getSubmesh(submesh)->index_group;
                 int index_group_offset = getSubmesh(submesh)->index_group_offset;
@@ -1293,7 +1355,7 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
                     remaining_vertices -= index_count;
                     getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
                 }
-                return getIndexData()[start_index_offset + remaining_vertices] + start_vertex_offset;
+                return index_data[start_index_offset + remaining_vertices] + start_vertex_offset;
             }
             break;
         default:

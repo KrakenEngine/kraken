@@ -236,6 +236,7 @@ void KRTextureManager::endFrame(float deltaTime)
 
 void KRTextureManager::balanceTextureMemory()
 {
+    return;
     // Balance texture memory by reducing and increasing the maximum mip-map level of both active and inactive textures
     // Favour performance over maximum texture resolution when memory is insufficient for textures at full resolution.
     

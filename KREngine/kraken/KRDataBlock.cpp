@@ -52,6 +52,20 @@ KRDataBlock::KRDataBlock() {
     m_bReadOnly = false;
 }
 
+KRDataBlock::KRDataBlock(void *data, size_t size) {
+    m_data = NULL;
+    m_data_size = 0;
+    m_data_offset = 0;
+    m_fdPackFile = 0;
+    m_fileName = "";
+    m_mmapData = NULL;
+    m_fileOwnerDataBlock = NULL;
+    m_bMalloced = false;
+    m_lockCount = 0;
+    m_bReadOnly = false;
+    load(data, size);
+}
+
 KRDataBlock::~KRDataBlock() {
     unload();
 }

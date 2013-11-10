@@ -37,6 +37,7 @@
 class KRDataBlock {
 public:
     KRDataBlock();
+    KRDataBlock(void *data, size_t size);
     ~KRDataBlock();
     
     // Encapsulate a pointer.  Note - The pointer will not be free'ed

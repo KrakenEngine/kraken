@@ -133,11 +133,24 @@ public:
     
 
     
-    typedef struct {
+    class Submesh {
+    public:
+        Submesh() {};
+        ~Submesh() {
+            for(std::vector<KRDataBlock *>::iterator itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
+                delete (*itr);
+            }
+            for(std::vector<KRDataBlock *>::iterator itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
+                delete (*itr);
+            }
+        };
+        
         GLint start_vertex;
         GLsizei vertex_count;
         char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
-    } Submesh;
+        vector<KRDataBlock *> vertex_data_blocks;
+        vector<KRDataBlock *> index_data_blocks;
+    };
 
     typedef struct {
         union {
@@ -198,6 +211,10 @@ public:
     
     static int GetLODCoverage(const std::string &name);
 private:
+    KRDataBlock *m_pData;
+    KRDataBlock *m_pMetaData;
+    KRDataBlock *m_pIndexBaseData;
+    
     void getSubmeshes();
     
 //    bool rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const;
@@ -212,8 +229,7 @@ private:
     
     KRVector3 m_minPoint, m_maxPoint;
     
-    KRDataBlock *m_pData;
-    
+
 
     
     typedef struct {
@@ -235,7 +251,6 @@ private:
     void updateAttributeOffsets();
     
     
-    void clearData();
     void clearBuffers();
     
     void setName(const std::string name);
@@ -244,14 +259,19 @@ private:
     
     pack_material *getSubmesh(int mesh_index) const;
     unsigned char *getVertexData() const;
+    size_t getVertexDataOffset() const;
     unsigned char *getVertexData(int index) const;
     __uint16_t *getIndexData() const;
+    size_t getIndexDataOffset() const;
     __uint32_t *getIndexBaseData() const;
     pack_header *getHeader() const;
     pack_bone *getBone(int index);
     
     
     void getIndexedRange(int index_group, int &start_index_offset, int &start_vertex_offset, int &index_count, int &vertex_count) const;
+    
+    void releaseData();
+    
 };
 
 
