@@ -45,13 +45,17 @@ public:
     KRTextureStreamer(KRContext &context);
     ~KRTextureStreamer();
     
+    void startStreamer();
+    
 private:
     KRContext &m_context;
     
     std::thread m_thread;
     std::atomic<bool> m_stop;
+    std::atomic<bool> m_running;
     
     void run();
+    
 };
 
 #endif /* defined(KRTEXTURESTREAMER_H) */

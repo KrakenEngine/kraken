@@ -14,6 +14,7 @@
 float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
 
+
 #include <stdint.h>
 #include <vector>
 #include <string>

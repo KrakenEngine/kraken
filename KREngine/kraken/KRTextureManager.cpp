@@ -215,13 +215,20 @@ long KRTextureManager::getMemActive() {
 
 void KRTextureManager::startFrame(float deltaTime)
 {
+    m_streamer.startStreamer();
     _clearGLState();
     for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
         KRTexture *activeTexture = *itr;
         activeTexture->_swapHandles();
     }
+    
+    // TODO - Implement proper double-buffering to reduce copy operations
+    m_streamerFenceMutex.lock();
+    m_activeTextures_streamer_copy = m_activeTextures;
+    m_poolTextures_streamer_copy = m_poolTextures;
+    m_streamerFenceMutex.unlock();
+    
     m_memoryTransferredThisFrame = 0;
-    balanceTextureMemory();
     rotateBuffers();
 }
 
@@ -234,15 +241,25 @@ void KRTextureManager::endFrame(float deltaTime)
     }
 }
 
+void KRTextureManager::doStreaming()
+{
+    // TODO - Implement proper double-buffering to reduce copy operations
+    m_streamerFenceMutex.lock();
+    m_activeTextures_streamer = m_activeTextures_streamer_copy;
+    m_poolTextures_streamer = m_poolTextures_streamer_copy;
+    m_streamerFenceMutex.unlock();
+    
+    balanceTextureMemory();
+}
+
 void KRTextureManager::balanceTextureMemory()
 {
-    return;
     // Balance texture memory by reducing and increasing the maximum mip-map level of both active and inactive textures
     // Favour performance over maximum texture resolution when memory is insufficient for textures at full resolution.
     
     // Determine the additional amount of memory required in order to resize all active textures to the maximum size
     long wantedTextureMem = 0;
-    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end(); itr++) {
         KRTexture *activeTexture = *itr;
         
         wantedTextureMem = activeTexture->getMemRequiredForSize(getContext().KRENGINE_MAX_TEXTURE_DIM) - activeTexture->getMemSize();
@@ -259,7 +276,7 @@ void KRTextureManager::balanceTextureMemory()
         maxDimInactive = maxDimInactive >> 1;
         potentialMemorySaving = 0;
         
-        for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
+        for(std::set<KRTexture *>::iterator itr=m_poolTextures_streamer.begin(); itr != m_poolTextures_streamer.end(); itr++) {
             KRTexture *poolTexture = *itr;
             long potentialMemoryDelta = poolTexture->getMemRequiredForSize(maxDimInactive) - poolTexture->getMemSize();
             if(potentialMemoryDelta < 0) {
@@ -270,7 +287,7 @@ void KRTextureManager::balanceTextureMemory()
     
     // Strip off mipmap levels of inactive textures to free up memory
     long inactive_texture_mem_used_target = 0;
-    for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
+    for(std::set<KRTexture *>::iterator itr=m_poolTextures_streamer.begin(); itr != m_poolTextures_streamer.end(); itr++) {
         KRTexture *poolTexture = *itr;
         long potentialMemoryDelta = poolTexture->getMemRequiredForSize(maxDimInactive) - poolTexture->getMemSize();
         if(potentialMemoryDelta < 0) {
@@ -286,7 +303,7 @@ void KRTextureManager::balanceTextureMemory()
     long maxDimActive = getContext().KRENGINE_MAX_TEXTURE_DIM;
     while(memory_available <= 0 && maxDimActive >= getContext().KRENGINE_MIN_TEXTURE_DIM) {
         memory_available = getContext().KRENGINE_MAX_TEXTURE_MEM - inactive_texture_mem_used_target;
-        for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end() && memory_available > 0; itr++) {
+        for(std::set<KRTexture *>::iterator itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end() && memory_available > 0; itr++) {
             KRTexture *activeTexture = *itr;
             memory_available -= activeTexture->getMemRequiredForSize(maxDimActive);
         }
@@ -297,7 +314,7 @@ void KRTextureManager::balanceTextureMemory()
     }
     
     // Resize active textures to balance the memory usage and mipmap levels
-    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end() && memory_available > 0; itr++) {
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end() && memory_available > 0; itr++) {
         KRTexture *activeTexture = *itr;
         activeTexture->resize(maxDimActive);
     }

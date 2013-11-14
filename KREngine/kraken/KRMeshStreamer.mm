@@ -9,6 +9,7 @@
 #include "KRMeshStreamer.h"
 
 #include "KREngine-common.h"
+#include "KRContext.h"
 
 #include <chrono>
 
@@ -36,6 +37,9 @@ void KRMeshStreamer::run()
     
     while(!m_stop)
     {
+        if(m_context.getStreamingEnabled()) {
+        
+        }
         std::this_thread::sleep_for( sleep_duration );
     }
 }

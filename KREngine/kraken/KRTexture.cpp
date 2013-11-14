@@ -52,19 +52,20 @@ long KRTexture::getReferencedMemSize() {
 
 void KRTexture::resize(int max_dim)
 {
-    assert(m_iHandle == m_iNewHandle); // Only allow one resize() per frame
+    if(m_iHandle != m_iNewHandle) return; // Only allow one resize() per frame
     
     if(max_dim == 0) {
         m_iNewHandle = 0;
     } else {
         int target_dim = max_dim;
         if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+/*
         int requiredMemoryTransfer = getThroughputRequiredForResize(target_dim);
         int requiredMemoryDelta = getMemRequiredForSize(target_dim) - getMemSize() - getReferencedMemSize();
-        
+
         if(requiredMemoryDelta) {
             // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
-        
+            
             if(getContext().getTextureManager()->getMemoryTransferedThisFrame() + requiredMemoryTransfer > getContext().KRENGINE_MAX_TEXTURE_THROUGHPUT) {
                 // Exceeding per-frame transfer throughput; can't resize now
                 return;
@@ -74,13 +75,13 @@ void KRTexture::resize(int max_dim)
                 // Exceeding total memory allocated to textures; can't resize now
                 return;
             }
-            
+*/
             if(m_current_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
                 if(!createGLTexture(target_dim)) {
                     assert(false);
                 }
             }
-        }
+//        }
     }
 }
 

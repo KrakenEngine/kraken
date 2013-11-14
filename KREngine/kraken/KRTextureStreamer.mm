@@ -9,16 +9,25 @@
 #include "KREngine-common.h"
 
 #include "KRTextureStreamer.h"
+#include "KRContext.h"
 
 #include <chrono>
 
-EAGLContext *gTextureStreamerContext;
+EAGLContext *gTextureStreamerContext = nil;
 
 KRTextureStreamer::KRTextureStreamer(KRContext &context) : m_context(context)
 {
-    gTextureStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
+    m_running = false;
     m_stop = false;
-    m_thread = std::thread(&KRTextureStreamer::run, this);
+}
+
+void KRTextureStreamer::startStreamer()
+{
+    if(!m_running) {
+        m_running = true;
+        gTextureStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
+        m_thread = std::thread(&KRTextureStreamer::run, this);
+    }
 }
 
 KRTextureStreamer::~KRTextureStreamer()
@@ -36,6 +45,11 @@ void KRTextureStreamer::run()
 
     while(!m_stop)
     {
+        if(m_context.getStreamingEnabled()) {
+            m_context.getTextureManager()->doStreaming();
+        }
         std::this_thread::sleep_for( sleep_duration );
     }
+    
+    m_running = false;
 }

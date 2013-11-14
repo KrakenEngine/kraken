@@ -27,6 +27,7 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 };
 
 KRContext::KRContext() {
+    m_streamingEnabled = false;
     mach_timebase_info(&m_timebase_info);
     
     m_bDetectedExtensions = false;
@@ -43,7 +44,7 @@ KRContext::KRContext() {
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
-
+    m_streamingEnabled = true;
 }
 
 KRContext::~KRContext() {
@@ -271,3 +272,12 @@ long KRContext::getAbsoluteTimeMilliseconds()
     return (long)(mach_absolute_time() / 1000 * m_timebase_info.numer / m_timebase_info.denom); // Division done first to avoid potential overflow
 }
 
+bool KRContext::getStreamingEnabled()
+{
+    return m_streamingEnabled;
+}
+
+void KRContext::setStreamingEnabled(bool enable)
+{
+    m_streamingEnabled = enable;
+}

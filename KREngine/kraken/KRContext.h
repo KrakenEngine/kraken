@@ -73,6 +73,8 @@ public:
     long getAbsoluteTimeMilliseconds();
     
     std::vector<KRResource *> getResources();
+    bool getStreamingEnabled();
+    void setStreamingEnabled(bool enable);
     
 private:
     KRBundleManager *m_pBundleManager;
@@ -93,6 +95,8 @@ private:
     float m_absolute_time;
     
     mach_timebase_info_data_t    m_timebase_info;
+    
+    std::atomic<bool> m_streamingEnabled;
 };
 
 #endif
