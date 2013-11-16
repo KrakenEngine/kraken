@@ -20,6 +20,7 @@ KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context,
     m_newTextureMemUsed = 0;
     m_last_frame_used = 0;
     m_last_frame_bound = 0;
+    m_handle_lock.clear();
 }
 
 KRTexture::~KRTexture()
@@ -29,6 +30,8 @@ KRTexture::~KRTexture()
 
 void KRTexture::releaseHandles() {
     long mem_size = getMemSize();
+    
+    while(m_handle_lock.test_and_set()); // Spin lock
     
     if(m_iNewHandle != 0) {
         GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
@@ -40,6 +43,9 @@ void KRTexture::releaseHandles() {
         m_iHandle = 0;
         m_textureMemUsed = 0;
     }
+    
+    m_handle_lock.clear();
+    
     getContext().getTextureManager()->memoryChanged(-mem_size);
 }
 
@@ -54,7 +60,7 @@ long KRTexture::getReferencedMemSize() {
 
 void KRTexture::resize(int max_dim)
 {
-    if(m_handle_lock.test_and_set())
+    if(!m_handle_lock.test_and_set())
     {
         if(m_iHandle == m_iNewHandle) {
             if(max_dim == 0) {
@@ -134,8 +140,7 @@ bool KRTexture::canStreamOut() const {
 
 void KRTexture::_swapHandles()
 {
-    if(m_handle_lock.test_and_set())
-    {
+    if(!m_handle_lock.test_and_set()) {
         if(m_iHandle != m_iNewHandle) {
             if(m_iHandle != 0) {
                 GLDEBUG(glDeleteTextures(1, &m_iHandle));
