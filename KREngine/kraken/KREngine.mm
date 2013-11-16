@@ -101,7 +101,6 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
     KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 8;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = KRContext::KRENGINE_MAX_TEXTURE_MEM * 3 / 4;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  KRContext::KRENGINE_MAX_TEXTURE_MEM / 2;
 
 
     
@@ -115,7 +114,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
         KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000 * 2;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000 * 2;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000 * 2;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
@@ -126,7 +124,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
         KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
@@ -139,7 +136,6 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_MEM = 512000000;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 384000000;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  256000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 128000000;

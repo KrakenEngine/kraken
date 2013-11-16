@@ -297,3 +297,31 @@ void KRAnimation::deleteCurves()
     }
 }
 
+void KRAnimation::_lockData()
+{
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            KRAnimationCurve *curve = attribute->getCurve();
+            if(curve) {
+                curve->_lockData();
+            }
+        }
+    }
+}
+
+void KRAnimation::_unlockData()
+{
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            KRAnimationCurve *curve = attribute->getCurve();
+            if(curve) {
+                curve->_unlockData();
+            }
+        }
+    }
+}
+

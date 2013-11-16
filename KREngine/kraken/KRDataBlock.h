@@ -34,6 +34,8 @@
 
 #include "KREngine-common.h"
 
+#define KRENGINE_MIN_MMAP 327680000
+
 class KRDataBlock {
 public:
     KRDataBlock();

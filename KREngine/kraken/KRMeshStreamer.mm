@@ -32,6 +32,8 @@ KRMeshStreamer::~KRMeshStreamer()
 
 void KRMeshStreamer::run()
 {
+    pthread_setname_np("Kraken - Mesh Streamer");
+    
     std::chrono::microseconds sleep_duration( 100 );
     [EAGLContext setCurrentContext: gMeshStreamerContext];
     

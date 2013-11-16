@@ -64,9 +64,11 @@ typedef struct _PVRTexHeader
 
 KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name) {
 #if TARGET_OS_IPHONE
-    m_pData->lock();
-    PVRTexHeader *header = (PVRTexHeader *)m_pData->getStart();
-    uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
+    
+    PVRTexHeader header;
+    m_pData->copy(&header, 0, sizeof(PVRTexHeader));
+    
+    uint32_t formatFlags = header.flags & PVR_TEXTURE_FLAG_TYPE_MASK;
     if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
         m_internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
     } else if(formatFlags == kPVRTextureFlagTypePVRTC_2) {
@@ -75,7 +77,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
         assert(false);
     }
     
-    uint32_t pvrTag = header->pvrTag;
+    uint32_t pvrTag = header.pvrTag;
     if (gPVRTexIdentifier[0] != ((pvrTag >>  0) & 0xff) ||
         gPVRTexIdentifier[1] != ((pvrTag >>  8) & 0xff) ||
         gPVRTexIdentifier[2] != ((pvrTag >> 16) & 0xff) ||
@@ -83,12 +85,12 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
         assert(false);
     }
     
-    m_iWidth = header->width; // Note: call __builtin_bswap32 when needed to switch endianness
-    m_iHeight = header->height;
-    m_bHasAlpha = header->bitmaskAlpha;
+    m_iWidth = header.width; // Note: call __builtin_bswap32 when needed to switch endianness
+    m_iHeight = header.height;
+    m_bHasAlpha = header.bitmaskAlpha;
     
     uint32_t dataStart = sizeof(PVRTexHeader);
-    uint32_t dataLength = header->dataLength, dataOffset = 0, dataSize = 0;
+    uint32_t dataLength = header.dataLength, dataOffset = 0, dataSize = 0;
     uint32_t width = m_iWidth, height = m_iHeight, bpp = 4;
     uint32_t blockSize = 0, widthBlocks = 0, heightBlocks = 0;
     
@@ -115,11 +117,7 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
         }
         dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
         
-        dataBlockStruct newBlock;
-        newBlock.start = dataStart + dataOffset;
-        newBlock.length = dataSize;
-        
-        m_blocks.push_back(newBlock);
+        m_blocks.push_back(m_pData->getSubBlock(dataStart + dataOffset, dataSize));
         
         dataOffset += dataSize;
         
@@ -135,13 +133,15 @@ KRTexturePVR::KRTexturePVR(KRContext &context, KRDataBlock *data, std::string na
     
     m_max_lod_max_dim = m_iWidth > m_iHeight ? m_iWidth : m_iHeight;
     m_min_lod_max_dim = width > height ? width : height;
-    
-    m_pData->unlock();
 #endif
 }
 
 KRTexturePVR::~KRTexturePVR() {
-
+    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        KRDataBlock *block = *itr;
+        delete block;
+    }
+    m_blocks.clear();
 }
 
 long KRTexturePVR::getMemRequiredForSize(int max_dim)
@@ -154,10 +154,10 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
 	int height = m_iHeight;
     long memoryRequired = 0;
     
-    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        dataBlockStruct block = *itr;
+    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        KRDataBlock *block = *itr;
         if(width <= target_dim && height <= target_dim) {
-            memoryRequired += block.length;
+            memoryRequired += block->getSize();
         }
 		
         width = width >> 1;
@@ -173,7 +173,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim)
+bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim)
 {    
     int target_dim = lod_max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -196,7 +196,7 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
         int level_count=0;
         int max_lod_width=0;
         int max_lod_height=0;
-        for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
             if(width <= target_dim && height <= target_dim) {
                 if(max_lod_width == 0) {
                     max_lod_width = width;
@@ -229,8 +229,8 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     // Upload texture data
     int destination_level=0;
     int source_level = 0;
-    for(std::list<dataBlockStruct>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        dataBlockStruct block = *itr;
+    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+        KRDataBlock *block = *itr;
         if(width <= target_dim && height <= target_dim) {
 
             if(width > current_lod_max_dim) {
@@ -245,24 +245,23 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 //                GLDEBUG(glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
                 GLDEBUG(glCopyTextureLevelsAPPLE(m_iNewHandle, m_iHandle, source_level, 1));
             } else {
-                // glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid* data);
-                m_pData->lock();
-                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, (char *)m_pData->getStart() + block.start));
-                m_pData->unlock();
-//                GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, block.start));
-                memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+                block->lock();
+                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, (GLsizei)block->getSize(), block->getStart()));
+                block->unlock();
+                
+                memoryTransferred += block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
             }
 #else
-            m_pData->lock();
+            block->lock();
     #if GL_EXT_texture_storage
-            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block.length, (char *)m_pData->getStart() + block.start));
+            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, m_internalFormat, block->getSize(), block->getStart()));
     #else
-            GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block.length, (char *)m_pData->getStart() + block.start));
+            GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, block->getSize(), block->getStart()));
     #endif
-            m_pData->unlock();
-            memoryTransferred += block.length; // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+            block->unlock();
+            memoryTransferred += block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
 #endif
-            memoryRequired += block.length;
+            memoryRequired += block->getSize();
 //            
 //            err = glGetError();
 //            if (err != GL_NO_ERROR) {
@@ -287,10 +286,6 @@ bool KRTexturePVR::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             height = 1;
         }
 	}
-    
-    textureMemUsed += memoryRequired;
-    getContext().getTextureManager()->memoryChanged(memoryRequired);
-    getContext().getTextureManager()->addMemoryTransferredThisFrame(memoryTransferred);
     
     return true;
     

@@ -40,6 +40,8 @@ KRTextureStreamer::~KRTextureStreamer()
 
 void KRTextureStreamer::run()
 {
+    pthread_setname_np("Kraken - Texture Streamer");
+    
     std::chrono::microseconds sleep_duration( 100 );
     [EAGLContext setCurrentContext: gTextureStreamerContext];
 

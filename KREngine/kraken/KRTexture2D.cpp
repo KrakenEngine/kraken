@@ -49,12 +49,9 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     
     bool success = true;
     int prev_lod_max_dim = 0;
-    long prev_mem_size = 0;
 #if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
     
     if(m_iHandle != 0) {
-        prev_mem_size = getMemSize();
-        m_textureMemUsed = 0;
         prev_lod_max_dim = m_current_lod_max_dim;
     }
 #endif
@@ -74,10 +71,8 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         }
 
-        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, m_newTextureMemUsed, prev_lod_max_dim)) {
+        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim)) {
             GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
-            getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
-            m_newTextureMemUsed = 0;
             m_iNewHandle = m_iHandle;
             m_current_lod_max_dim = prev_lod_max_dim;
             success = false;

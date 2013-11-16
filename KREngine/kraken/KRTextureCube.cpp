@@ -68,36 +68,30 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
     
 #endif
     
-    
-    
-    
     m_iNewHandle = 0;
     GLDEBUG(glGenTextures(1, &m_iNewHandle));
-    if(m_iNewHandle == 0) {
-        m_iNewHandle = m_iHandle;
-        success = false;
-    } else {
-        m_current_lod_max_dim = 0;
-        GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, m_iNewHandle));
-        
-        bool bMipMaps = false;
+    assert(m_iNewHandle != 0);
+    
+    m_current_lod_max_dim = 0;
+    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, m_iNewHandle));
+    
+    bool bMipMaps = false;
 
-        for(int i=0; i<6; i++) {
-            std::string faceName = getName() + SUFFIXES[i];
-            KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-            if(faceTexture) {
-                if(faceTexture->hasMipmaps()) bMipMaps = true;
-                faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, m_newTextureMemUsed, prev_lod_max_dim);
-            }
+    for(int i=0; i<6; i++) {
+        std::string faceName = getName() + SUFFIXES[i];
+        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
+        if(faceTexture) {
+            if(faceTexture->hasMipmaps()) bMipMaps = true;
+            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim);
         }
-        
-        if(bMipMaps) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-        } else {
-            // GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-            GLDEBUG(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
-        }
+    }
+    
+    if(bMipMaps) {
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+    } else {
+        // GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+        GLDEBUG(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
     }
 
     

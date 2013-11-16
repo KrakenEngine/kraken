@@ -17,7 +17,6 @@ int KRContext::KRENGINE_MAX_SHADER_HANDLES;
 int KRContext::KRENGINE_MAX_TEXTURE_HANDLES;
 int KRContext::KRENGINE_MAX_TEXTURE_MEM;
 int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
-int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 int KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT;
@@ -280,4 +279,27 @@ bool KRContext::getStreamingEnabled()
 void KRContext::setStreamingEnabled(bool enable)
 {
     m_streamingEnabled = enable;
+}
+
+void KRContext::getMemoryStats(long &free_memory)
+{
+    free_memory = 0;
+#if TARGET_OS_IPHONE
+    mach_port_t host_port = mach_host_self();
+    mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+    vm_size_t pagesize = 0;
+    vm_statistics_data_t vm_stat;
+    int total_ram = 256 * 1024 * 1024;
+    if(host_page_size(host_port, &pagesize) != KERN_SUCCESS) {
+        fprintf(stderr, "ERROR: Could not get VM page size.\n");
+    } else if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
+        fprintf(stderr, "ERROR: Could not get VM stats.\n");
+    } else {
+        total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
+        
+        free_memory = vm_stat.free_count * pagesize;
+    }
+#else
+#error Unsupported Platform
+#endif
 }

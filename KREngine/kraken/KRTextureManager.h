@@ -101,7 +101,7 @@ private:
     std::set<KRTexture *> m_activeTextures_streamer_copy;
     std::set<KRTexture *> m_poolTextures_streamer_copy;
     
-    long m_textureMemUsed;
+    std::atomic<long> m_textureMemUsed;
     
     void rotateBuffers();
     void balanceTextureMemory();

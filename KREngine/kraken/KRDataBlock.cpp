@@ -146,6 +146,7 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
         new_block->m_data = (unsigned char *)m_data + start + m_data_offset;
     }
     new_block->m_bReadOnly = true;
+
     return new_block;
 }
 
@@ -289,55 +290,58 @@ std::string KRDataBlock::getString()
 // Lock the memory, forcing it to be loaded into a contiguous block of address space
 void KRDataBlock::lock()
 {
-    
-    m_lockCount++;
-    
-    if(m_lockCount == 1) {
+    if(m_lockCount == 0) {
         
         // Memory mapped file; ensure data is mapped to ram
         if(m_fdPackFile) {
-            //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
-            
-            // Round m_data_offset down to the next memory page, as required by mmap
-            size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
-            if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t) -1) {
-                int iError = errno;
-                switch(iError) {
-                    case EACCES:
-                        fprintf(stderr, "mmap failed with EACCES\n");
-                        break;
-                    case EBADF:
-                        fprintf(stderr, "mmap failed with EBADF\n");
-                        break;
-                    case EMFILE:
-                        fprintf(stderr, "mmap failed with EMFILE\n");
-                        break;
-                    case EINVAL:
-                        fprintf(stderr, "mmap failed with EINVAL\n");
-                        break;
-                    case ENOMEM:
-                        fprintf(stderr, "mmap failed with ENOMEM\n");
-                        break;
-                    case ENXIO:
-                        fprintf(stderr, "mmap failed with ENXIO\n");
-                        break;
-                    case EOVERFLOW:
-                        fprintf(stderr, "mmap failed with EOVERFLOW\n");
-                        break;
-                    default:
-                        fprintf(stderr, "mmap failed with errno: %i\n", iError);
-                        break;
+            if(m_data_size < KRENGINE_MIN_MMAP) {
+                m_data = malloc(m_data_size);
+                assert(m_data != NULL);
+                copy(m_data);
+            } else {
+                //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+                
+                // Round m_data_offset down to the next memory page, as required by mmap
+                size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
+                if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t) -1) {
+                    int iError = errno;
+                    switch(iError) {
+                        case EACCES:
+                            fprintf(stderr, "mmap failed with EACCES\n");
+                            break;
+                        case EBADF:
+                            fprintf(stderr, "mmap failed with EBADF\n");
+                            break;
+                        case EMFILE:
+                            fprintf(stderr, "mmap failed with EMFILE\n");
+                            break;
+                        case EINVAL:
+                            fprintf(stderr, "mmap failed with EINVAL\n");
+                            break;
+                        case ENOMEM:
+                            fprintf(stderr, "mmap failed with ENOMEM\n");
+                            break;
+                        case ENXIO:
+                            fprintf(stderr, "mmap failed with ENXIO\n");
+                            break;
+                        case EOVERFLOW:
+                            fprintf(stderr, "mmap failed with EOVERFLOW\n");
+                            break;
+                        default:
+                            fprintf(stderr, "mmap failed with errno: %i\n", iError);
+                            break;
+                    }
+                    assert(false); // mmap() failed.
                 }
-                assert(false); // mmap() failed.
+                m_mapCount++;
+                m_mapSize += m_data_size;
+                m_mapOverhead += alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
+                fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
+                m_data = (unsigned char *)m_mmapData + alignment_offset;
             }
-            m_mapCount++;
-            m_mapSize += m_data_size;
-            m_mapOverhead += alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
-            fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
-            m_data = (unsigned char *)m_mmapData + alignment_offset;
         }
-        
     }
+    m_lockCount++;
 }
 
 // Unlock the memory, releasing the address space for use by other allocations
@@ -346,24 +350,29 @@ void KRDataBlock::unlock()
     // We expect that the data block was previously locked
     assertLocked();
     
-    m_lockCount--;
-    if(m_lockCount == 0) {
+    
+    if(m_lockCount == 1) {
         
         // Memory mapped file; ensure data is unmapped from ram
         if(m_fdPackFile) {
-            //fprintf(stderr, "KRDataBlock::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
-            
-            munmap(m_mmapData, m_data_size);
-            m_data = NULL;
-            m_mmapData = NULL;
-            m_mapCount--;
-            m_mapSize -= m_data_size;
-            size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
-            m_mapOverhead -= alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
-            fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
+            if(m_data_size < KRENGINE_MIN_MMAP) {
+                free(m_data);
+                m_data = NULL;
+            } else {
+                //fprintf(stderr, "KRDataBlock::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+                
+                munmap(m_mmapData, m_data_size);
+                m_data = NULL;
+                m_mmapData = NULL;
+                m_mapCount--;
+                m_mapSize -= m_data_size;
+                size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
+                m_mapOverhead -= alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
+                fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
+            }
         }
-        
     }
+    m_lockCount--;
 }
 
 // Assert if not locked

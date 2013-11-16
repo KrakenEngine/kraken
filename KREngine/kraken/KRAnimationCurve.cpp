@@ -228,3 +228,13 @@ KRAnimationCurve *KRAnimationCurve::split(const std::string &name, int start_fra
     getContext().getAnimationCurveManager()->addAnimationCurve(new_curve);
     return new_curve;
 }
+
+void KRAnimationCurve::_lockData()
+{
+    m_pData->lock();
+}
+
+void KRAnimationCurve::_unlockData()
+{
+    m_pData->unlock();
+}

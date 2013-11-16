@@ -52,7 +52,6 @@ public:
     virtual long getReferencedMemSize();
     
     virtual long getMemRequiredForSize(int max_dim) = 0;
-    virtual long getThroughputRequiredForResize(int max_dim);
     virtual void resize(int max_dim);
     
     long getLastFrameUsed();
@@ -74,10 +73,9 @@ protected:
     GLuint getHandle();
     
     
-    GLuint  m_iHandle;
+    GLuint m_iHandle;
     GLuint m_iNewHandle;
-    long  m_textureMemUsed;
-    long m_newTextureMemUsed;
+    std::atomic_flag m_handle_lock;
     
     int m_current_lod_max_dim;
     
@@ -86,6 +84,10 @@ protected:
     
     long m_last_frame_used;
     long m_last_frame_bound;
+    
+private:
+    std::atomic<long> m_textureMemUsed;
+    std::atomic<long> m_newTextureMemUsed;
 };
 
 

@@ -28,6 +28,8 @@ KRTexture::~KRTexture()
 }
 
 void KRTexture::releaseHandles() {
+    long mem_size = getMemSize();
+    
     if(m_iNewHandle != 0) {
         GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
         m_iNewHandle = 0;
@@ -35,10 +37,10 @@ void KRTexture::releaseHandles() {
     }
     if(m_iHandle != 0) {
         GLDEBUG(glDeleteTextures(1, &m_iHandle));
-        getContext().getTextureManager()->memoryChanged(-getMemSize());
         m_iHandle = 0;
         m_textureMemUsed = 0;
     }
+    getContext().getTextureManager()->memoryChanged(-mem_size);
 }
 
 long KRTexture::getMemSize() {
@@ -52,45 +54,36 @@ long KRTexture::getReferencedMemSize() {
 
 void KRTexture::resize(int max_dim)
 {
-    if(m_iHandle != m_iNewHandle) return; // Only allow one resize() per frame
-    
-    if(max_dim == 0) {
-        m_iNewHandle = 0;
-    } else {
-        int target_dim = max_dim;
-        if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-/*
-        int requiredMemoryTransfer = getThroughputRequiredForResize(target_dim);
-        int requiredMemoryDelta = getMemRequiredForSize(target_dim) - getMemSize() - getReferencedMemSize();
+    if(m_handle_lock.test_and_set())
+    {
+        if(m_iHandle == m_iNewHandle) {
+            if(max_dim == 0) {
+                m_iNewHandle = 0;
+            } else {
+                int target_dim = max_dim;
+                if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
-        if(requiredMemoryDelta) {
-            // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
-            
-            if(getContext().getTextureManager()->getMemoryTransferedThisFrame() + requiredMemoryTransfer > getContext().KRENGINE_MAX_TEXTURE_THROUGHPUT) {
-                // Exceeding per-frame transfer throughput; can't resize now
-                return;
-            }
-            
-            if(getContext().getTextureManager()->getMemUsed() + requiredMemoryDelta > getContext().KRENGINE_MAX_TEXTURE_MEM) {
-                // Exceeding total memory allocated to textures; can't resize now
-                return;
-            }
-*/
-            if(m_current_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
-                if(!createGLTexture(target_dim)) {
-                    assert(false);
+                if(m_current_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
+                    assert(m_newTextureMemUsed == 0);
+                    m_newTextureMemUsed = getMemRequiredForSize(target_dim);
+                    
+                    getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
+                    getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
+                    
+                    if(!createGLTexture(target_dim)) {
+                        getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
+                        m_newTextureMemUsed = 0;
+                        assert(false);
+                    }
                 }
             }
-//        }
+        }
+        
+        m_handle_lock.clear();
     }
 }
 
 GLuint KRTexture::getHandle() {
-    /*
-    if(m_iHandle == 0 && m_iNewHandle == 0) {
-        resize(m_min_lod_max_dim);
-    }
-    */
     resetPoolExpiry();
     return m_iHandle;
 }
@@ -98,34 +91,6 @@ GLuint KRTexture::getHandle() {
 void KRTexture::resetPoolExpiry()
 {
     m_last_frame_used = getContext().getCurrentFrame();
-}
-
-long KRTexture::getThroughputRequiredForResize(int max_dim)
-{
-    // Calculate the throughput required for GPU texture upload if the texture is resized to max_dim.
-    // This default behaviour assumes that the texture will need to be deleted and regenerated to change the maximum mip-map level.
-    // If an OpenGL extension is present that allows a texture to be resized incrementally, then this method should be overridden
-    
-    if(max_dim == 0) {
-        return 0;
-    } else {    
-        int target_dim = max_dim;
-        if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
-        
-        
-        if(target_dim != m_current_lod_max_dim) {
-            int requiredMemory = getMemRequiredForSize(target_dim);
-            int requiredMemoryDelta = requiredMemory - getMemSize() - getReferencedMemSize();
-            
-            if(requiredMemoryDelta == 0) {
-                // Only resize / regenerate the texture if it actually changes the size of the texture (Assumption: textures of different sizes will always consume different amounts of memory)
-                return 0;
-            }
-            return requiredMemory;
-        } else {
-            return 0;
-        }
-    }
 }
 
 long KRTexture::getLastFrameUsed()
@@ -169,14 +134,18 @@ bool KRTexture::canStreamOut() const {
 
 void KRTexture::_swapHandles()
 {
-    if(m_iNewHandle != m_iHandle) {
-        if(m_iHandle != 0) {
-            GLDEBUG(glDeleteTextures(1, &m_iHandle));
-            getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed - m_textureMemUsed);
-            m_textureMemUsed = m_newTextureMemUsed;
+    if(m_handle_lock.test_and_set())
+    {
+        if(m_iHandle != m_iNewHandle) {
+            if(m_iHandle != 0) {
+                GLDEBUG(glDeleteTextures(1, &m_iHandle));
+                getContext().getTextureManager()->memoryChanged(-m_textureMemUsed);
+            }
+            m_textureMemUsed = (long)m_newTextureMemUsed;
             m_newTextureMemUsed = 0;
+            m_iHandle = m_iNewHandle;
         }
-        m_iHandle = m_iNewHandle;
+        m_handle_lock.clear();
     }
 }
 
