@@ -74,6 +74,10 @@ private:
     
     bool m_receivesShadow;
     bool m_faces_camera;
+    
+    
+    KRMat4 m_boundsCachedMat;
+    KRAABB m_boundsCached;
 };
 
 

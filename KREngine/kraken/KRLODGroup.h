@@ -11,7 +11,6 @@
 
 #include "KRResource.h"
 #include "KRNode.h"
-#include "KRTexture.h"
 
 class KRLODGroup : public KRNode {
 public:

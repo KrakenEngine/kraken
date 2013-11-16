@@ -198,7 +198,7 @@ OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc
     KRAudioSample *sound = (KRAudioSample *)inClientData;
     UInt32 max_count = sound->m_pData->getSize() - inPosition;
     *actualCount = requestCount < max_count ? requestCount : max_count;
-    memcpy(buffer, (unsigned char *)sound->m_pData->getStart() + inPosition, *actualCount);
+    sound->m_pData->copy(buffer, inPosition, *actualCount);
     return noErr;
 }
 
@@ -231,6 +231,7 @@ void KRAudioSample::openFile()
 {
     //    AudioFileInitializeWithCallbacks
     if(m_fileRef == NULL) {
+
         // Temp variables
         UInt32 propertySize;
         

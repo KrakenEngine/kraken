@@ -67,6 +67,9 @@ public:
     KRAnimationCurve *split(const std::string &name, float start_time, float duration);
     KRAnimationCurve *split(const std::string &name, int start_frame, int frame_count);
     
+    void _lockData();
+    void _unlockData();
+    
 private:
     KRDataBlock *m_pData;
     

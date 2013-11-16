@@ -99,7 +99,7 @@ private:
         GLfloat v;
     } DebugTextVertexData;
     
-    DebugTextVertexData *m_debug_text_vertices;
+    KRDataBlock m_debug_text_vertices;
     
 //    std::string getDebugText();
     

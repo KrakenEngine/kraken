@@ -101,7 +101,6 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
     KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 8;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = KRContext::KRENGINE_MAX_TEXTURE_MEM * 3 / 4;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  KRContext::KRENGINE_MAX_TEXTURE_MEM / 2;
 
 
     
@@ -115,7 +114,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
         KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000 * 2;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000 * 2;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000 * 2;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
@@ -126,7 +124,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
         KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000;
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN = 32000000;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
         KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
@@ -139,7 +136,6 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_MEM = 512000000;
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 384000000;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MIN =  256000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 128000000;
@@ -425,7 +421,7 @@ void kraken::set_debug_text(const std::string &print_text)
         [self getAmbientIntensity],
         [self getSunTemperature],
         [self getSunIntensity],
-        _settings.dof_quality,
+        static_cast<float>(_settings.dof_quality),
         _settings.dof_depth,
         _settings.dof_falloff,
         _settings.bEnableFlash ? 1.0f : 0.0f,
@@ -445,26 +441,26 @@ void kraken::set_debug_text(const std::string &print_text)
         _settings.bEnableDeferredLighting ? 1.0f : 0.0f,
         _settings.getPerspectiveNearZ(),
         _settings.getPerspectiveFarZ(),
-        _settings.volumetric_environment_enable,
-        5 - _settings.volumetric_environment_downsample,
+        static_cast<float>(_settings.volumetric_environment_enable),
+        static_cast<float>(5 - _settings.volumetric_environment_downsample),
         _settings.volumetric_environment_max_distance,
         _settings.volumetric_environment_quality,
         _settings.volumetric_environment_intensity,
-        _settings.fog_type,
+        static_cast<float>(_settings.fog_type),
         _settings.fog_near,
         _settings.fog_far,
         _settings.fog_density,
         _settings.fog_color.x,
         _settings.fog_color.y,
         _settings.fog_color.z,
-        _settings.dust_particle_enable,
+        static_cast<float>(_settings.dust_particle_enable),
         _settings.dust_particle_intensity,
         _settings.getLODBias(),
-        _settings.getEnableRealtimeOcclusion(),
+        static_cast<float>(_settings.getEnableRealtimeOcclusion()),
         _settings.debug_display,
-        _settings.siren_enable,
-        _settings.siren_enable_reverb,
-        _settings.siren_enable_hrtf,
+        static_cast<float>(_settings.siren_enable),
+        static_cast<float>(_settings.siren_enable_reverb),
+        static_cast<float>(_settings.siren_enable_hrtf),
         _settings.siren_reverb_max_length,
         _settings.max_anisotropy
     };

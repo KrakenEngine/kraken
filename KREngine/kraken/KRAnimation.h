@@ -71,6 +71,9 @@ public:
     KRAnimation *split(const std::string &name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
     void deleteCurves();
     
+    void _lockData();
+    void _unlockData();
+    
 private:
     unordered_map<std::string, KRAnimationLayer *> m_layers;
     bool m_auto_play;

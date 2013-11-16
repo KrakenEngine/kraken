@@ -34,9 +34,12 @@
 
 #include "KREngine-common.h"
 
+#define KRENGINE_MIN_MMAP 32768
+
 class KRDataBlock {
 public:
     KRDataBlock();
+    KRDataBlock(void *data, size_t size);
     ~KRDataBlock();
     
     // Encapsulate a pointer.  Note - The pointer will not be free'ed
@@ -45,8 +48,11 @@ public:
     // Load a file into memory using mmap.  The data pointer will be protected as read-only until append() or expand() is called
     bool load(const std::string &path);
     
-    // Save the data to a file, and switch to read-only mode.  The data pointer will be replaced with a mmap'ed address of the file; the malloc'ed data will be freed
+    // Save the data to a file.
     bool save(const std::string& path);
+    
+    // Create a KRDataBlock encapsulating a sub-region of this block.  The caller is responsible to free the object.
+    KRDataBlock *getSubBlock(int start, int length);
     
     // Append data to the end of the block, increasing the size of the block and making it read-write.
     void append(void *data, size_t size);
@@ -74,15 +80,42 @@ public:
     
     // Get the contents as a string
     std::string getString();
+    
+    // Copy the entire data block to the destination pointer
+    void copy(void *dest);
+    
+    // Copy a range of data to the destination pointer
+    void copy(void *dest, int start, int count);
+    
+    // Lock the memory, forcing it to be loaded into a contiguous block of address space
+    void lock();
+    
+    // Unlock the memory, releasing the address space for use by other allocations
+    void unlock();
+    
 private:
     void *m_data;
     size_t m_data_size;
+    size_t m_data_offset;
     
     // For memory mapped objects:
     int m_fdPackFile;
+    std::string m_fileName;
+    KRDataBlock *m_fileOwnerDataBlock;
+    void *m_mmapData;
     
     // For malloc'ed objects:
     bool m_bMalloced;
+    
+    // Lock refcount
+    int m_lockCount;
+    
+    // Read-only allocation
+    bool m_bReadOnly;
+    
+    // Assert if not locked
+    void assertLocked();
+
 };
 
 #endif

@@ -1,19 +1,19 @@
 //
-//  KRTexture2D.h
+//  KRMeshManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
-//  
+//
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
-//  
+//
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
-//  
+//
 //  THIS SOFTWARE IS PROVIDED BY KEARWOOD GILBERT ''AS IS'' AND ANY EXPRESS OR IMPLIED
 //  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 //  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL KEARWOOD GILBERT OR
@@ -23,36 +23,35 @@
 //  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  
+//
 //  The views and conclusions contained in the software and documentation are those of the
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
 
+#ifndef KRMESHSTREAMER_H
+#define KRMESHSTREAMER_H
+
 #include "KREngine-common.h"
-#include "KRDataBlock.h"
 
-using std::list;
+#include <thread>
+#include <atomic>
 
-#ifndef KRTEXTURE2D_H
-#define KRTEXTURE2D_H
+class KRContext;
 
-#include "KRTexture.h"
-
-class KRTexture2D : public KRTexture {
+class KRMeshStreamer
+{
 public:
-    KRTexture2D(KRContext &context, KRDataBlock *data, std::string name);
-    virtual ~KRTexture2D();
-    virtual bool save(const std::string& path);
-    virtual bool save(KRDataBlock &data);
+    KRMeshStreamer(KRContext &context);
+    ~KRMeshStreamer();
     
-    virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim) = 0;
-    virtual void bind(GLuint texture_unit);
+private:
+    KRContext &m_context;
     
-protected:
-    KRDataBlock *m_pData;
+    std::thread m_thread;
+    std::atomic<bool> m_stop;
     
-    virtual bool createGLTexture(int lod_max_dim);
+    void run();
 };
 
-#endif
+#endif /* defined(KRMESHSTREAMER_H) */
