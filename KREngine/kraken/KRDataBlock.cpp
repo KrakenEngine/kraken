@@ -336,7 +336,7 @@ void KRDataBlock::lock()
                 m_mapCount++;
                 m_mapSize += m_data_size;
                 m_mapOverhead += alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
-                fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
+                // fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
                 m_data = (unsigned char *)m_mmapData + alignment_offset;
             }
         }
@@ -368,7 +368,7 @@ void KRDataBlock::unlock()
                 m_mapSize -= m_data_size;
                 size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
                 m_mapOverhead -= alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
-                fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
+                // fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
             }
         }
     }
