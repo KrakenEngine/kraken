@@ -214,8 +214,8 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     
     
     uint64_t end_time = mach_absolute_time();
-    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
-    uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
+//    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
+//    uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
 //    fprintf(stderr, "audio load: %5.1f%% hrtf channels: %li\n", (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 }
 
@@ -1364,14 +1364,14 @@ KRDataBlock *KRAudioManager::getBufferData(int size)
         data = new KRDataBlock();
         data->expand(size);
     }
-    
+    data->lock();
     return data;
-
 }
 
 void KRAudioManager::recycleBufferData(KRDataBlock *data)
 {
     if(data != NULL) {
+        data->unlock();
         if(data->getSize() == KRENGINE_AUDIO_MAX_BUFFER_SIZE && m_bufferPoolIdle.size() < KRENGINE_AUDIO_MAX_POOL_SIZE) {
             m_bufferPoolIdle.push_back(data);
         } else {

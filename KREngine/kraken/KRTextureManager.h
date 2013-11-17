@@ -39,6 +39,7 @@
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
+#include "KRTextureStreamer.h"
 
 class KRTextureManager : public KRContextObject {
 public:
@@ -77,6 +78,8 @@ public:
     void _clearGLState();
     void setMaxAnisotropy(float max_anisotropy);
     
+    void doStreaming();
+    
 private:
     int m_iActiveTexture;
     
@@ -88,13 +91,24 @@ private:
     GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
     float m_maxAnisotropy[KRENGINE_MAX_TEXTURE_UNITS];
+    
+    
     std::set<KRTexture *> m_activeTextures;
     std::set<KRTexture *> m_poolTextures;
     
-    long m_textureMemUsed;
+    std::set<KRTexture *> m_activeTextures_streamer;
+    std::set<KRTexture *> m_poolTextures_streamer;
+    std::set<KRTexture *> m_activeTextures_streamer_copy;
+    std::set<KRTexture *> m_poolTextures_streamer_copy;
+    
+    std::atomic<long> m_textureMemUsed;
     
     void rotateBuffers();
     void balanceTextureMemory();
+    
+    KRTextureStreamer m_streamer;
+    
+    std::mutex m_streamerFenceMutex;
 };
 
 #endif

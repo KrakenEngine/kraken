@@ -11,10 +11,9 @@
 #ifndef KRENGINE_COMMON_H
 #define KRENGINE_COMMON_H
 
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-
 float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
+
 
 #include <stdint.h>
 #include <vector>
@@ -47,6 +46,9 @@ float const D2R = PI * 2 / 360;
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/signals2/mutex.hpp>
 
+#include <atomic>
+#include <thread>
+
 #include "tinyxml2.h"
 
 
@@ -68,6 +70,12 @@ using std::queue;
 #include <Accelerate/Accelerate.h>
 #define KRAKEN_HAVE_BLAS 1
 #endif
+
+int KRAKEN_MEM_PAGE_SIZE = getpagesize();
+
+#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRAKEN_MEM_PAGE_SIZE - 1))
+#define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRAKEN_MEM_PAGE_SIZE - 1)) + KRAKEN_MEM_PAGE_SIZE)
+#define KRENGINE_MAX_TEXTURE_UNITS 8
 
 
 #if !defined(__i386__) && defined(__arm__)

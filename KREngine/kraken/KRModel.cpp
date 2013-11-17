@@ -43,6 +43,23 @@ KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_na
     m_min_lod_coverage = lod_min_coverage;
     m_receivesShadow = receives_shadow;
     m_faces_camera = faces_camera;
+    
+    m_boundsCachedMat.c[0] = -1.0f;
+    m_boundsCachedMat.c[1] = -1.0f;
+    m_boundsCachedMat.c[2] = -1.0f;
+    m_boundsCachedMat.c[3] = -1.0f;
+    m_boundsCachedMat.c[4] = -1.0f;
+    m_boundsCachedMat.c[5] = -1.0f;
+    m_boundsCachedMat.c[6] = -1.0f;
+    m_boundsCachedMat.c[7] = -1.0f;
+    m_boundsCachedMat.c[8] = -1.0f;
+    m_boundsCachedMat.c[9] = -1.0f;
+    m_boundsCachedMat.c[10] = -1.0f;
+    m_boundsCachedMat.c[11] = -1.0f;
+    m_boundsCachedMat.c[12] = -1.0f;
+    m_boundsCachedMat.c[13] = -1.0f;
+    m_boundsCachedMat.c[14] = -1.0f;
+    m_boundsCachedMat.c[15] = -1.0f;
 }
 
 KRModel::~KRModel() {
@@ -155,7 +172,12 @@ KRAABB KRModel::getBounds() {
             float max_dimension = normal_bounds.longest_radius();
             return KRAABB(normal_bounds.center()-KRVector3(max_dimension), normal_bounds.center() + KRVector3(max_dimension));
         } else {
-            return KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            
+            if(!(m_boundsCachedMat == getModelMatrix())) {
+                m_boundsCachedMat = getModelMatrix();
+                m_boundsCached = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            }
+            return m_boundsCached;
         }
     } else {
         return KRAABB::Infinite();

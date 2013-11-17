@@ -23,6 +23,7 @@
 #include "KRScene.h"
 #include "KRQuaternion.h"
 #include "KRBone.h"
+#include "KRLocator.h"
 #include "KRBundle.h"
 #include "KRModel.h"
 #include "KRLODGroup.h"
@@ -46,6 +47,7 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
 KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode);
 KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pScene, KFbxNode* pNode);
+KRNode *LoadLocator(KRNode *parent_node, FbxScene* pScene, KFbxNode* pNode);
 KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode);
 std::string GetFbxObjectName(FbxObject *obj);
 
@@ -54,9 +56,25 @@ const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be c
 
 std::string GetFbxObjectName(FbxObject *obj)
 {
+    bool is_locator = false;
+    KFbxNode *node = FbxCast<KFbxNode>(obj);
+    if(node) {
+        KFbxNodeAttribute::EType attribute_type = (node->GetNodeAttribute()->GetAttributeType());
+        if(attribute_type == KFbxNodeAttribute::eNull) {
+            KFbxNull* pSourceNull = (KFbxNull*) node->GetNodeAttribute();
+            if(pSourceNull->Look.Get() == KFbxNull::eCross ) {
+                is_locator = true;
+            }
+        }
+    }
+    
+    
     // Object names from FBX files are now concatenated with the FBX numerical ID to ensure that they are unique
     // TODO - This should be updated to only add a prefix or suffix if needed to make the name unique
-    if(strcmp(obj->GetName(), "default_camera") == 0) {
+    if(is_locator) {
+        // We do not rename locators
+        return std::string(obj->GetName());
+    } else if(strcmp(obj->GetName(), "default_camera") == 0) {
         // There is currently support for rendering from only one camera, "default_camera".  We don't translate this node's name, so that animations can drive the camera
         return "default_camera"; 
     } else {
@@ -955,54 +973,40 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
             case KFbxNodeAttribute::eSkeleton:
                 new_node = LoadSkeleton(parent_node, pFbxScene, pNode);
                 break;
+
             case KFbxNodeAttribute::eCamera:
                 new_node = LoadCamera(parent_node, pNode);
                 break;
             default:
                 {
-                    if(pNode->GetChildCount() > 0) {
-                        // Create an empty node, for inheritence of transforms
-                        std::string name = GetFbxObjectName(pNode);
-                        
-                        float min_distance = 0.0f;
-                        float max_distance = 0.0f;
-                        
-                        typedef boost::tokenizer<boost::char_separator<char> > char_tokenizer;
-                        
-                        int step = 0;
-                        
-                        char_tokenizer name_components(name, boost::char_separator<char>("_"));
-                        for(char_tokenizer::iterator itr=name_components.begin(); itr != name_components.end(); itr++) {
-                            std::string component = *itr;
-                            std::transform(component.begin(), component.end(),
-                                           component.begin(), ::tolower);
-                            if(component.compare("lod") == 0) {
-                                step = 1;
-                            } else if(step == 1) {
-                                min_distance = boost::lexical_cast<float>(component);
-                                step++;
-                            } else if(step == 2) {
-                                max_distance = boost::lexical_cast<float>(component);
-                                step++;
-                            }
+                    bool is_locator = false;
+                    if(attribute_type == KFbxNodeAttribute::eNull) {
+                        KFbxNull* pSourceNull = (KFbxNull*) pNode->GetNodeAttribute();
+                        if(pSourceNull->Look.Get() == KFbxNull::eCross ) {
+                            is_locator = true;
                         }
-                        
-                        /*
-                         if(min_distance == 0.0f && max_distance == 0.0f) {
-                            // Regular node for grouping children together under one transform
-                            new_node = new KRNode(parent_node->getScene(), name);
-                        } else {
-                         */
-                            // LOD Enabled group node
-                            KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
-                            lod_group->setMinDistance(min_distance);
-                            lod_group->setMaxDistance(max_distance);
-                            new_node = lod_group;
-                        /*
+                    }
+                    
+                    if(is_locator) {
+                        new_node = LoadLocator(parent_node, pFbxScene, pNode);
+                    } else {
+                        if(pNode->GetChildCount() > 0) {
+                            // Create an empty node, for inheritence of transforms
+                            std::string name = GetFbxObjectName(pNode);
+
+                            
+                            /*
+                             if(min_distance == 0.0f && max_distance == 0.0f) {
+                                // Regular node for grouping children together under one transform
+                                new_node = new KRNode(parent_node->getScene(), name);
+                            } else {
+                             */
+                                // LOD Enabled group node
+                                KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
+                                lod_group->setMinDistance(0.0f);
+                                lod_group->setMaxDistance(0.0f);
+                                new_node = lod_group;
                         }
-                         */
-                        
-                        
                     }
                 }
                 break;
@@ -1524,6 +1528,21 @@ KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, KFbxNode* pNode) 
 //    }
     
     return new_bone;
+}
+
+KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, KFbxNode* pNode) {
+    std::string name = GetFbxObjectName(pNode);
+    
+    KRLocator *new_locator = new KRLocator(parent_node->getScene(), name.c_str());
+    
+    //static bool GetBindPoseContaining(FbxScene* pScene, FbxNode* pNode, PoseList& pPoseList, FbxArray<int>& pIndex);
+    //    PoseList pose_list;
+    //    FbxArray<int> pose_indices;
+    //    if(FbxPose::GetBindPoseContaining(pFbxScene, pNode, pose_list, pose_indices)) {
+    //        fprintf(stderr, "Found bind pose(s)!\n");
+    //    }
+    
+    return new_locator;
 }
 
 KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode) {

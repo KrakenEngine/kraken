@@ -85,9 +85,10 @@ bool KRAnimation::save(KRDataBlock &data) {
 
 KRAnimation *KRAnimation::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
-    data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
+    std::string xml_string = data->getString();
+    
     tinyxml2::XMLDocument doc;
-    doc.Parse((char *)data->getStart());
+    doc.Parse(xml_string.c_str());
     KRAnimation *new_animation = new KRAnimation(context, name);
     
     tinyxml2::XMLElement *animation_node = doc.RootElement();
@@ -292,6 +293,34 @@ void KRAnimation::deleteCurves()
         for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
             KRAnimationAttribute *attribute = *attribute_itr;
             attribute->deleteCurve();
+        }
+    }
+}
+
+void KRAnimation::_lockData()
+{
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            KRAnimationCurve *curve = attribute->getCurve();
+            if(curve) {
+                curve->_lockData();
+            }
+        }
+    }
+}
+
+void KRAnimation::_unlockData()
+{
+    for(unordered_map<std::string, KRAnimationLayer *>::iterator layer_itr = m_layers.begin(); layer_itr != m_layers.end(); layer_itr++) {
+        KRAnimationLayer *layer = (*layer_itr).second;
+        for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
+            KRAnimationAttribute *attribute = *attribute_itr;
+            KRAnimationCurve *curve = attribute->getCurve();
+            if(curve) {
+                curve->_unlockData();
+            }
         }
     }
 }

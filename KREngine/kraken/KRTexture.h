@@ -46,13 +46,12 @@ public:
     KRTexture(KRContext &context, std::string name);
     virtual ~KRTexture();
 
-    virtual void bind(GLuint texture_unit) = 0;
-    void releaseHandle();
+    virtual void bind(GLuint texture_unit);
+    void releaseHandles();
     long getMemSize();
     virtual long getReferencedMemSize();
     
     virtual long getMemRequiredForSize(int max_dim) = 0;
-    virtual long getThroughputRequiredForResize(int max_dim);
     virtual void resize(int max_dim);
     
     long getLastFrameUsed();
@@ -66,13 +65,17 @@ public:
     int getMinMipMap();
     bool hasMipmaps();
 
+    bool canStreamOut() const;
+    
+    void _swapHandles();
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;
     GLuint getHandle();
     
     
-    GLuint  m_iHandle;
-    long  m_textureMemUsed;
+    GLuint m_iHandle;
+    GLuint m_iNewHandle;
+    std::atomic_flag m_handle_lock;
     
     int m_current_lod_max_dim;
     
@@ -80,6 +83,11 @@ protected:
     uint32_t m_min_lod_max_dim;
     
     long m_last_frame_used;
+    long m_last_frame_bound;
+    
+private:
+    std::atomic<long> m_textureMemUsed;
+    std::atomic<long> m_newTextureMemUsed;
 };
 
 
