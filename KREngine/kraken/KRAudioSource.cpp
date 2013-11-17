@@ -56,6 +56,7 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
     m_enable_obstruction = true;
     
     m_start_audio_frame = -1;
+    m_paused_audio_frame = 0;
 }
 
 KRAudioSource::~KRAudioSource()
@@ -314,12 +315,13 @@ void KRAudioSource::setRolloffFactor(float rolloff_factor)
 
 void KRAudioSource::setLooping(bool looping)
 {
+    // Enable or disable looping playback; Audio source must be stopped and re-started for loop mode changes to take effect
     m_looping = looping;
-    // Audio source must be stopped and re-started for loop mode changes to take effect
 }
 
 bool KRAudioSource::getLooping()
 {
+    // Returns true if the playback will automatically loop
     return m_looping;
 }
 
@@ -400,38 +402,54 @@ void KRAudioSource::physicsUpdate(float deltaTime)
 
 void KRAudioSource::play()
 {
-    KRAudioManager *audioManager = getContext().getAudioManager();
-    m_start_audio_frame = audioManager->getAudioFrame();
-    audioManager->activateAudioSource(this);
-    if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        getContext().getAudioManager()->makeCurrentContext();
-        prime();
-        updatePosition();
+    // Start playback of audio at the current audio sample position.  If audio is already playing, this has no effect.
+    // play() does not automatically seek to the beginning of the sample.  Call setAudioFrame( 0 ) first if you wish the playback to begin at the start of the audio sample.
+    // If not set to looping, audio playback ends automatically at the end of the sample
+    
+    if(!m_playing) {
+        KRAudioManager *audioManager = getContext().getAudioManager();
+        assert(m_start_audio_frame == -1);
+        m_start_audio_frame = audioManager->getAudioFrame() - m_paused_audio_frame;
+        m_paused_audio_frame = -1;
+        audioManager->activateAudioSource(this);
+        if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
+            getContext().getAudioManager()->makeCurrentContext();
+            prime();
+            updatePosition();
 
-        if(m_is3d) {
-            ALDEBUG(alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
-            ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
-            ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
-            ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
-            ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
-        } else {
-            ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE));
-            ALDEBUG(alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0));
+            if(m_is3d) {
+                ALDEBUG(alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
+                ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
+                ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
+                ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
+                ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
+            } else {
+                ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE));
+                ALDEBUG(alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0));
+            }
+            ALDEBUG(alSourcePlay(m_sourceID));
         }
-        ALDEBUG(alSourcePlay(m_sourceID));
     }
     m_playing = true;
 }
 
 void KRAudioSource::stop()
 {
-    m_start_audio_frame = -1;
-    m_playing = false;
-    getContext().getAudioManager()->deactivateAudioSource(this);
+    // Stop playback of audio.  If audio is already stopped, this has no effect.
+    // If play() is called afterwards, playback will continue at the current audio sample position.
+    
+    if(m_playing) {
+        m_paused_audio_frame = getAudioFrame();
+        m_start_audio_frame = -1;
+        m_playing = false;
+        getContext().getAudioManager()->deactivateAudioSource(this);
+    }
 }
 
 bool KRAudioSource::isPlaying()
 {
+    // Returns true if audio is playing.  Will return false if a non-looped playback has reached the end of the audio sample.
+    
     return m_playing;
 }
 
@@ -504,16 +522,46 @@ int KRAudioSource::getBufferFrame()
     return m_currentBufferFrame;
 }
 
-__int64_t KRAudioSource::getStartAudioFrame()
+__int64_t KRAudioSource::getAudioFrame()
 {
-    return m_start_audio_frame;
+    // Returns the audio playback position in units of integer audio frames.
+    
+    if(m_playing) {
+        return getContext().getAudioManager()->getAudioFrame() - m_start_audio_frame;
+    } else {
+        return m_paused_audio_frame;
+    }
+}
+
+void KRAudioSource::setAudioFrame(__int64_t next_frame)
+{
+    // Sets the audio playback position with units of integer audio frames.
+    if(m_playing) {
+        m_start_audio_frame = getContext().getAudioManager()->getAudioFrame() - next_frame;
+    } else {
+        m_paused_audio_frame = next_frame;
+    }
+}
+
+
+float KRAudioSource::getAudioTime()
+{
+    // Gets the audio playback position with units of floating point seconds.
+    
+    return getAudioFrame() / 44100.0f;
+}
+
+void KRAudioSource::setAudioTime(float new_position)
+{
+    // Sets the audio playback position with units of floating point seconds.
+    setAudioFrame(new_position * 44100.0f);
 }
 
 void KRAudioSource::sample(int frame_count, int channel, float *buffer, float gain)
 {
     KRAudioSample *source_sample = getAudioSample();
     if(source_sample && m_playing) {
-        __int64_t next_frame = getContext().getAudioManager()->getAudioFrame() - getStartAudioFrame();
+        __int64_t next_frame = getAudioFrame();
         source_sample->sample(next_frame, frame_count, channel, buffer, gain, m_looping);
         if(!m_looping && next_frame > source_sample->getFrameCount()) {
             stop();
