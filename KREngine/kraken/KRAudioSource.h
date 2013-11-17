@@ -51,9 +51,40 @@ public:
     virtual void physicsUpdate(float deltaTime);
     
     void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+
+    // ---- Audio Playback Controls ----
+    
+    // Start playback of audio at the current audio sample position.  If audio is already playing, this has no effect.
+    // play() does not automatically seek to the beginning of the sample.  Call setAudioFrame( 0 ) first if you wish the playback to begin at the start of the audio sample.
+    // If not set to looping, audio playback ends automatically at the end of the sample
     void play();
+    
+    // Stop playback of audio.  If audio is already stopped, this has no effect.
+    // If play() is called afterwards, playback will continue at the current audio sample position.
     void stop();
+    
+    // Returns true if audio is playing.  Will return false if a non-looped playback has reached the end of the audio sample.
     bool isPlaying();
+    
+    // Returns the audio playback position in units of integer audio frames.
+    __int64_t getAudioFrame();
+    
+    // Sets the audio playback position with units of integer audio frames.
+    void setAudioFrame(__int64_t next_frame);
+    
+    // Gets the audio playback position with units of floating point seconds.
+    float getAudioTime();
+    
+    // Sets the audio playback position with units of floating point seconds.
+    void setAudioTime(float new_position);
+    
+    // Returns true if the playback will automatically loop
+    bool getLooping();
+    
+    // Enable or disable looping playback; Audio source must be stopped and re-started for loop mode changes to take effect
+    void setLooping(bool looping);
+    
+    // ---- End: Audio Playback Controls ----
     
     void setSample(const std::string &sound_name);
     std::string getSample();
@@ -66,8 +97,7 @@ public:
     float getPitch();
     void setPitch(float pitch);
     
-    bool getLooping();
-    void setLooping(bool looping);
+
     
     bool getIs3D();
     void setIs3D(bool is3D);
@@ -94,12 +124,11 @@ public:
     KRAudioBuffer *getBuffer();
     int getBufferFrame();
     
-    
-    __int64_t getStartAudioFrame();
     void sample(int frame_count, int channel, float *buffer, float gain);
     
 private:
-    __int64_t m_start_audio_frame; // Global audio frame that matches the start of the audio sample playback
+    __int64_t m_start_audio_frame; // Global audio frame that matches the start of the audio sample playback; when paused or not playing, this contains a value of -1
+    __int64_t m_paused_audio_frame; // When paused or not playing, this contains the local audio frame number.  When playing, this contains a value of -1
     int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
     void advanceBuffer();
     
