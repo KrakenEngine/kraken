@@ -58,6 +58,7 @@ public:
     
     void addChild(KRNode *child);
     const std::set<KRNode *> &getChildren();
+    KRNode *getParent();
     
     void setLocalTranslation(const KRVector3 &v, bool set_original = false);
     void setLocalScale(const KRVector3 &v, bool set_original = false);

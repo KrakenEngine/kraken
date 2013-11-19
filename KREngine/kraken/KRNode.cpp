@@ -450,6 +450,10 @@ const std::set<KRNode *> &KRNode::getChildren() {
     return m_childNodes;
 }
 
+KRNode *KRNode::getParent() {
+    return m_parentNode;
+}
+
 const std::string &KRNode::getName() const {
     return m_name;
 }
