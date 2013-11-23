@@ -13,11 +13,36 @@
 
 #include <chrono>
 
-EAGLContext *gMeshStreamerContext;
+#if TARGET_OS_IPHONE
+
+EAGLContext *gMeshStreamerContext = nil;
+
+#elif TARGET_OS_MAC
+
+NSOpenGLContext *gMeshStreamerContext = nil;
+
+#else
+
+#error Unsupported Platform
+#endif
 
 KRMeshStreamer::KRMeshStreamer(KRContext &context) : m_context(context)
 {
+    
+#if TARGET_OS_IPHONE
     gMeshStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
+#elif TARGET_OS_MAC
+    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
+    {
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        0
+    };
+    NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
+    gMeshStreamerContext = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ] autorelease];
+#else
+    #error Unsupported Platform
+#endif
+    
     m_stop = false;
     m_thread = std::thread(&KRMeshStreamer::run, this);
 }
@@ -35,7 +60,15 @@ void KRMeshStreamer::run()
     pthread_setname_np("Kraken - Mesh Streamer");
     
     std::chrono::microseconds sleep_duration( 100 );
+    
+#if TARGET_OS_IPHONE
     [EAGLContext setCurrentContext: gMeshStreamerContext];
+#elif TARGET_OS_MAC
+    [gMeshStreamerContext makeCurrentContext];
+#else
+    #error Unsupported Platform
+#endif
+    
     
     while(!m_stop)
     {

@@ -284,7 +284,7 @@ void KRContext::setStreamingEnabled(bool enable)
 void KRContext::getMemoryStats(long &free_memory)
 {
     free_memory = 0;
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || TARGET_OS_MAC
     mach_port_t host_port = mach_host_self();
     mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     vm_size_t pagesize = 0;
