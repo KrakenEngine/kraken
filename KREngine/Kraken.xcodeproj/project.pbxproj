@@ -76,15 +76,15 @@
 		E43F70DC181B20E400136169 /* KRLODSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43F70DA181B20E300136169 /* KRLODSet.cpp */; };
 		E43F70DD181B20E400136169 /* KRLODSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43F70DA181B20E300136169 /* KRLODSet.cpp */; };
 		E43F70DE181B20E400136169 /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; };
-		E43F70DF181B20E400136169 /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; };
+		E43F70DF181B20E400136169 /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E43F70E51824D9AB00136169 /* KRTextureStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70E31824D9AB00136169 /* KRTextureStreamer.mm */; };
 		E43F70E61824D9AB00136169 /* KRTextureStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70E31824D9AB00136169 /* KRTextureStreamer.mm */; };
 		E43F70E71824D9AB00136169 /* KRTextureStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRTextureStreamer.h */; };
-		E43F70E81824D9AB00136169 /* KRTextureStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRTextureStreamer.h */; };
+		E43F70E81824D9AB00136169 /* KRTextureStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRTextureStreamer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E43F70FF1824E73100136169 /* KRMeshStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70FD1824E73100136169 /* KRMeshStreamer.mm */; };
 		E43F71001824E73100136169 /* KRMeshStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70FD1824E73100136169 /* KRMeshStreamer.mm */; };
 		E43F71011824E73100136169 /* KRMeshStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70FE1824E73100136169 /* KRMeshStreamer.h */; };
-		E43F71021824E73100136169 /* KRMeshStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70FE1824E73100136169 /* KRMeshStreamer.h */; };
+		E43F71021824E73100136169 /* KRMeshStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70FE1824E73100136169 /* KRMeshStreamer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4409D2916FA748700310F76 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
 		E44F38241683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (); }; };
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -102,7 +102,7 @@
 		E459040616C30CD9002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040516C30CD9002B00A0 /* AudioUnit.framework */; };
 		E460292616681CFF00261BB9 /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; settings = {ATTRIBUTES = (); }; };
 		E460292816681D1000261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
-		E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */; };
+		E460292B16682BF700261BB9 /* libfbxsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk.a */; };
 		E460292C166834AB00261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
 		E461A152152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (); }; };
 		E461A153152E54B500F2044A /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -124,7 +124,7 @@
 		E468447F17FFDF51001F1FA1 /* KRLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E468447D17FFDF51001F1FA1 /* KRLocator.cpp */; };
 		E468448017FFDF51001F1FA1 /* KRLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E468447D17FFDF51001F1FA1 /* KRLocator.cpp */; };
 		E468448117FFDF51001F1FA1 /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; };
-		E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; };
+		E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46A6B6C1559E97D000DBD37 /* KRResource+blend.cpp */; };
 		E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */ = {isa = PBXBuildFile; fileRef = E46A6B6F1559EF0A000DBD37 /* KRResource+blend.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E46C214515364BC8009CABF3 /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214215364BC8009CABF3 /* tinyxml2.cpp */; };
@@ -451,7 +451,7 @@
 		E459040516C30CD9002B00A0 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		E460292516681CFE00261BB9 /* KRTextureAnimated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTextureAnimated.h; sourceTree = "<group>"; };
 		E460292716681D1000261BB9 /* KRTextureAnimated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTextureAnimated.cpp; sourceTree = "<group>"; };
-		E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "lib/gcc4/ub/libfbxsdk-2013.3-static.a"; sourceTree = FBXSDK; };
+		E460292916682BD900261BB9 /* libfbxsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfbxsdk.a; path = "../../FBX SDK/2014.2/lib/ios-i386/release/libfbxsdk.a"; sourceTree = FBXSDK; };
 		E461A151152E54B500F2044A /* KRLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRLight.h; sourceTree = "<group>"; };
 		E461A155152E54F700F2044A /* KRLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRLight.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E461A157152E555400F2044A /* KRPointLight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRPointLight.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -671,7 +671,7 @@
 				E4BBBB9F1512A4B100F43B5B /* Cocoa.framework in Frameworks */,
 				E497B95D151BF05F00D3DC67 /* CoreServices.framework in Frameworks */,
 				E497B95F151BF09600D3DC67 /* SystemConfiguration.framework in Frameworks */,
-				E460292B16682BF700261BB9 /* libfbxsdk-2013.3-static.a in Frameworks */,
+				E460292B16682BF700261BB9 /* libfbxsdk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1091,7 +1091,7 @@
 				E459040316C30CC5002B00A0 /* AudioUnit.framework */,
 				E41B6BA916BE437800B510EB /* CoreAudio.framework */,
 				10CC33A3168530A300BB9846 /* libPVRTexLib.a */,
-				E460292916682BD900261BB9 /* libfbxsdk-2013.3-static.a */,
+				E460292916682BD900261BB9 /* libfbxsdk.a */,
 				E4BBBB9A1512A48200F43B5B /* Foundation.framework */,
 				E46DBE7D1512AD4900D59F86 /* OpenGL.framework */,
 				E4F027D41697A02D00D4427D /* OpenAL.framework */,
@@ -1293,7 +1293,6 @@
 				E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */,
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
 				E461A177152E5C6600F2044A /* KRMat4.h in Headers */,
-				E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */,
 				E4F975461536327C00FD60B2 /* KRMeshManager.h in Headers */,
 				E497B94B151BCEE900D3DC67 /* KRResource.h in Headers */,
 				E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
@@ -1309,9 +1308,7 @@
 				E4F9754C153632F000FD60B2 /* KRCamera.h in Headers */,
 				E4F975501536333500FD60B2 /* KRMesh.h in Headers */,
 				E488399F15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
-				E43F71021824E73100136169 /* KRMeshStreamer.h in Headers */,
 				E4AFC6BC15F7C95D00DDB4C8 /* KRSceneManager.h in Headers */,
-				E43F70E81824D9AB00136169 /* KRTextureStreamer.h in Headers */,
 				E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */,
 				E4D133661537685A0070068C /* KRShader.h in Headers */,
 				E461A153152E54B500F2044A /* KRLight.h in Headers */,
@@ -1328,7 +1325,6 @@
 				E428C312166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
-				E43F70DF181B20E400136169 /* KRLODSet.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
@@ -1361,8 +1357,12 @@
 				E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */,
 				E499BF1D16AE74FF007FCDBE /* KRTextureAnimated.h in Headers */,
 				E4EC73C41720B1FF0065299F /* KRVector4.h in Headers */,
+				E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */,
+				E43F70DF181B20E400136169 /* KRLODSet.h in Headers */,
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E45134B91746A4A300443C21 /* KRBehavior.h in Headers */,
+				E43F71021824E73100136169 /* KRMeshStreamer.h in Headers */,
+				E43F70E81824D9AB00136169 /* KRTextureStreamer.h in Headers */,
 				E48CF945173453990005EBBB /* KRFloat.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
@@ -1847,7 +1847,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1866,14 +1865,14 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (
-					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
+					"\"/Applications/Autodesk/FBX SDK/2014.2/include\"",
 					/usr/local/include,
 				);
 				INFOPLIST_FILE = "kraken_osx/Kraken-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-i386/release\"",
 					"\"$(SYSTEM_APPS_DIR)/Imagination/PowerVR/GraphicsSDK/PVRTexTool/Library/OSX_x86/Static\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -1891,7 +1890,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1910,14 +1908,14 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				HEADER_SEARCH_PATHS = (
-					"\"/Applications/Autodesk/FBX SDK/2013.3/include\"",
+					"\"/Applications/Autodesk/FBX SDK/2014.2/include\"",
 					/usr/local/include,
 				);
 				INFOPLIST_FILE = "kraken_osx/Kraken-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@rpath/${EXECUTABLE_PATH}";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2013.3/lib/gcc4/ub\"",
+					"\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-i386/release\"",
 					"\"$(SYSTEM_APPS_DIR)/Imagination/PowerVR/GraphicsSDK/PVRTexTool/Library/OSX_x86/Static\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;

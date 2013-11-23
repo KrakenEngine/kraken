@@ -13,7 +13,20 @@
 
 #include <chrono>
 
+
+#if TARGET_OS_IPHONE
+
 EAGLContext *gTextureStreamerContext = nil;
+
+#elif TARGET_OS_MAC
+
+NSOpenGLContext *gTextureStreamerContext = nil;
+
+#else
+
+#error Unsupported Platform
+#endif
+
 
 KRTextureStreamer::KRTextureStreamer(KRContext &context) : m_context(context)
 {
@@ -25,7 +38,27 @@ void KRTextureStreamer::startStreamer()
 {
     if(!m_running) {
         m_running = true;
+        
+#if TARGET_OS_IPHONE
+        
         gTextureStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
+
+        
+#elif TARGET_OS_MAC
+        
+        NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
+        {
+            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+            0
+        };
+        NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
+        gTextureStreamerContext = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ] autorelease];
+        
+#else
+        
+    #error Unsupported Platform
+#endif
+        
         m_thread = std::thread(&KRTextureStreamer::run, this);
     }
 }
@@ -43,7 +76,14 @@ void KRTextureStreamer::run()
     pthread_setname_np("Kraken - Texture Streamer");
     
     std::chrono::microseconds sleep_duration( 100 );
+    
+#if TARGET_OS_IPHONE
     [EAGLContext setCurrentContext: gTextureStreamerContext];
+#elif TARGET_OS_MAC
+    [gTextureStreamerContext makeCurrentContext];
+#else
+#error Unsupported Platform
+#endif
 
     while(!m_stop)
     {

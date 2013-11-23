@@ -71,10 +71,6 @@ using std::queue;
 #define KRAKEN_HAVE_BLAS 1
 #endif
 
-int KRAKEN_MEM_PAGE_SIZE = getpagesize();
-
-#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRAKEN_MEM_PAGE_SIZE - 1))
-#define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRAKEN_MEM_PAGE_SIZE - 1)) + KRAKEN_MEM_PAGE_SIZE)
 #define KRENGINE_MAX_TEXTURE_UNITS 8
 
 
@@ -83,22 +79,10 @@ int KRAKEN_MEM_PAGE_SIZE = getpagesize();
 #endif
 
 
-#if TARGET_OS_IPHONE
-
 #include <unordered_map>
 using std::unordered_map;
 using std::unordered_multimap;
 using std::hash;
-
-#else
-
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-using std::tr1::unordered_multimap;
-using std::tr1::hash;
-
-#endif
-
 
 #if TARGET_OS_IPHONE
 
@@ -136,9 +120,6 @@ using std::tr1::hash;
 #else
 #include <OpenAL/MacOSX_OALExtensions.h>
 #endif
-
-#endif
-
 
 
 #if DEBUG
@@ -205,3 +186,5 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #include "KRVector3.h"
 #include "KRVector2.h"
 #include "KRBehavior.h"
+
+#endif
