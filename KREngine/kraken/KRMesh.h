@@ -250,9 +250,6 @@ private:
     int m_vertex_size;
     void updateAttributeOffsets();
     
-    
-    void clearBuffers();
-    
     void setName(const std::string name);
     
     
