@@ -173,7 +173,6 @@ void KRAnimation::update(float deltaTime)
 
 void KRAnimation::Play()
 {
-    m_local_time = 0.0f;
     m_playing = true;
     getContext().getAnimationManager()->updateActiveAnimations(this);
 }
