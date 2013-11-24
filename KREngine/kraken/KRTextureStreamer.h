@@ -55,7 +55,6 @@ private:
     std::atomic<bool> m_running;
     
     void run();
-    
 };
 
 #endif /* defined(KRTEXTURESTREAMER_H) */

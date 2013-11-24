@@ -110,6 +110,8 @@ KRMesh::~KRMesh() {
 }
 
 void KRMesh::releaseData() {
+    m_hasTransparency = false;
+    m_submeshes.clear();
     if(m_pIndexBaseData) {
         m_pIndexBaseData->unlock();
         delete m_pIndexBaseData;
@@ -397,7 +399,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
 
 void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool calculate_tangents) {
     
-    clearBuffers();
+    releaseData();
     
     // TODO, FINDME - These values should be passed as a parameter and set by GUI flags
     bool use_short_vertexes = false;
@@ -643,10 +645,6 @@ KRVector3 KRMesh::getMinPoint() const {
 
 KRVector3 KRMesh::getMaxPoint() const {
     return m_maxPoint;
-}
-
-void KRMesh::clearBuffers() {
-    m_submeshes.clear();
 }
 
 int KRMesh::getLODCoverage() const {

@@ -27,7 +27,6 @@ NSOpenGLContext *gTextureStreamerContext = nil;
 #error Unsupported Platform
 #endif
 
-
 KRTextureStreamer::KRTextureStreamer(KRContext &context) : m_context(context)
 {
     m_running = false;
@@ -65,8 +64,11 @@ void KRTextureStreamer::startStreamer()
 
 KRTextureStreamer::~KRTextureStreamer()
 {
-    m_stop = true;
-    m_thread.join();
+    if(m_running) {
+        m_stop = true;
+        m_thread.join();
+        m_running = false;
+    }
     
     [gTextureStreamerContext release];
 }
@@ -92,6 +94,4 @@ void KRTextureStreamer::run()
         }
         std::this_thread::sleep_for( sleep_duration );
     }
-    
-    m_running = false;
 }

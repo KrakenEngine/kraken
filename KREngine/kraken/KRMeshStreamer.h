@@ -45,11 +45,14 @@ public:
     KRMeshStreamer(KRContext &context);
     ~KRMeshStreamer();
     
+    void startStreamer();
+    
 private:
     KRContext &m_context;
     
     std::thread m_thread;
     std::atomic<bool> m_stop;
+    std::atomic<bool> m_running;
     
     void run();
 };
