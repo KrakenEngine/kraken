@@ -1420,8 +1420,9 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             FbxVector2 uv;
                             bool unmapped = false;
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
-                                assert(!unmapped);
-                                new_uva = KRVector2(uv[0], uv[1]);
+                                if(!unmapped) {
+                                    new_uva = KRVector2(uv[0], uv[1]);
+                                }
                             }
                             mi.uva.push_back(new_uva);
                         }
@@ -1431,8 +1432,9 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             FbxVector2 uv;
                             bool unmapped = false;
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
-                                assert(!unmapped);
-                                new_uvb = KRVector2(uv[0], uv[1]);
+                                if(!unmapped) {
+                                    new_uvb = KRVector2(uv[0], uv[1]);
+                                }
                             }
                             mi.uvb.push_back(new_uvb);
                         }
