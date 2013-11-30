@@ -24,6 +24,7 @@
 #include "KRAudioSource.h"
 #include "KRAmbientZone.h"
 #include "KRReverbZone.h"
+#include "KRSprite.h"
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
 {
@@ -404,6 +405,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "particles_newtonian") == 0) {
         new_node = new KRParticleSystemNewtonian(scene, szName);
+    } else if(strcmp(szElementName, "sprite") == 0) {
+        new_node = new KRSprite(scene, szName);
     } else if(strcmp(szElementName, "model") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {

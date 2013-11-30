@@ -35,6 +35,7 @@
 
 #include "KRMesh.h"
 #include "KRMeshCube.h"
+#include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
 KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
@@ -45,8 +46,8 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context), m_s
     m_vboMemUsed = 0;
     m_memoryTransferredThisFrame = 0;
     
-//    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
-    
+    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
+    addModel(new KRMeshQuad(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
     addModel(new KRMeshSphere(context));
     m_draw_call_logging_enabled = false;
     m_draw_call_log_used = false;
