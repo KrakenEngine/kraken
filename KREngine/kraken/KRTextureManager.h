@@ -46,6 +46,7 @@ public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
     
+    void primeTexture(KRTexture *pTexture);
     void selectTexture(int iTextureUnit, KRTexture *pTexture);
     
     KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);

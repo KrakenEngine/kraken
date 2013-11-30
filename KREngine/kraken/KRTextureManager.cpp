@@ -161,7 +161,7 @@ KRTexture *KRTextureManager::getTexture(const std::string &name) {
     if(itr == m_textures.end()) {
         if(lowerName.length() <= 8) {
             return NULL;
-        } else if(lowerName.substr(8).compare("animate:") == 0) {
+        } else if(lowerName.compare(0, 8, "animate:", 0, 8) == 0) {
             // This is an animated texture, create KRTextureAnimated's on-demand
             KRTextureAnimated *pTexture = new KRTextureAnimated(getContext(), lowerName);
             m_textures[lowerName] = pTexture;
@@ -185,10 +185,8 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
     if(m_boundTextures[iTextureUnit] != pTexture || is_animated) {
         _setActiveTexture(iTextureUnit);
         if(pTexture != NULL) {
-            m_poolTextures.erase(pTexture);
-            if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
-                m_activeTextures.insert(pTexture);
-            }
+            primeTexture(pTexture);
+
             pTexture->bind(iTextureUnit);
 
         } else {
@@ -197,6 +195,14 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
         m_boundTextures[iTextureUnit] = pTexture;
     }
 
+}
+
+void KRTextureManager::primeTexture(KRTexture *pTexture)
+{
+    m_poolTextures.erase(pTexture);
+    if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
+        m_activeTextures.insert(pTexture);
+    }
 }
 
 long KRTextureManager::getMemUsed() {

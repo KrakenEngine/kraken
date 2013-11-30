@@ -47,7 +47,7 @@ KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRT
     int second_comma_pos = name.find(",", first_comma_pos + 1);
     
     
-    m_texture_base_name = name.substr(8, first_comma_pos - 9);
+    m_texture_base_name = name.substr(8, first_comma_pos - 8);
     m_frame_count = atoi(name.substr(first_comma_pos+1, second_comma_pos - first_comma_pos -1).c_str());
     m_frame_rate = atof(name.substr(second_comma_pos+1).c_str());
     
@@ -87,17 +87,7 @@ bool KRTextureAnimated::createGLTexture(int lod_max_dim)
 
 long KRTextureAnimated::getMemRequiredForSize(int max_dim)
 {
-    int target_dim = max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-    
-    long memoryRequired = 0;
-    for(int i=0; i<m_frame_count; i++) {
-        KRTexture2D *frame_texture = textureForFrame(i);
-        if(frame_texture) {
-            memoryRequired += frame_texture->getMemRequiredForSize(target_dim);
-        }
-    }
-    return memoryRequired;
+    return 0; // Memory is allocated by individual frame textures
 }
 
 
@@ -108,12 +98,14 @@ void KRTextureAnimated::resetPoolExpiry()
         KRTexture2D *frame_texture = textureForFrame(i);
         if(frame_texture) {
             frame_texture->resetPoolExpiry(); // Ensure that frames of animated textures do not expire from the texture pool prematurely, as they are referenced indirectly
+            getContext().getTextureManager()->primeTexture(frame_texture);
         }
     }
 }
 
 void KRTextureAnimated::bind(GLuint texture_unit)
 {
+    resetPoolExpiry();
     KRTexture::bind(texture_unit);
     int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate,m_frame_count));
     KRTexture2D *frame_texture = textureForFrame(frame_number);
@@ -154,3 +146,7 @@ bool KRTextureAnimated::save(KRDataBlock &data)
     return true; // Animated textures are just references; there are no files to output
 }
 
+void KRTextureAnimated::resize(int max_dim)
+{
+    // Purposely not calling the superclass method
+}
