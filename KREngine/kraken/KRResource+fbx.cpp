@@ -141,10 +141,14 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
         FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
         printf("  Animation Curve %i of %i: %s\n", i+1, curve_count, curve->GetName());
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
+        
+        //***** curves 1, 2, and 3 are x, y, z translation .. the first point holds the key frame in centimeters
+        // POSSIBLE UPGRADE .. grab the key frame and output it as the start location to the kranimation file
+        
         if(new_curve) {
             context.getAnimationCurveManager()->addAnimationCurve(new_curve);
         }
-    }
+   }
     
     // ----====---- Import Materials ----====----
     int material_count = pFbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
@@ -389,6 +393,8 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
     int frame_start = time_span.GetStart().GetSecondDouble() * dest_frame_rate;
     int frame_count = (time_span.GetStop().GetSecondDouble() * dest_frame_rate) - frame_start;
     
+    printf("    animation start %d and frame count %d\n", frame_start, frame_count);
+    
     KRAnimationCurve *new_curve = new KRAnimationCurve(context, name);
     new_curve->setFrameRate(dest_frame_rate);
     new_curve->setFrameStart(frame_start);
@@ -401,8 +407,11 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
         FbxTime frame_time;
         frame_time.SetSecondDouble(frame_seconds);
         float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
-        //printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
-        new_curve->setValue(frame_number, frame_value);
+//        printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
+        if (0 == frame_number) printf("Value at starting key frame = %3.3f\n", frame_value);
+        new_curve->setValue(frame_number+frame_start, frame_value);
+            // BUG FIX Dec 2, 2013 .. changed frame_number to frame_number+frame_start
+            // setValue(frame_number, frame_value) clamps the frame_number range between frame_start : frame_start+frame_count
     }
 
     return new_curve;
@@ -974,6 +983,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
         switch(attribute_type) {
             case FbxNodeAttribute::eMesh:
                 new_node = LoadMesh(parent_node, pFbxScene, pGeometryConverter, pNode);
+                    // KRNode *LoadMesh parses the "collider names" and then alters the attributes (NFB HACK)
                 break;
             case FbxNodeAttribute::eLight:
                 new_node = LoadLight(parent_node, pNode);
@@ -996,6 +1006,27 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     }
                     
                     if(is_locator) {
+//**** HACK A BIT TO FIND OUT HOW IT WORKS
+                        printf("IS LOCATOR!\n");
+                        FbxProperty myprop = pNode->FindProperty("locRadius", true);
+                        if (myprop.IsValid()) {
+                            printf("locRadius found!\n");
+                            FbxDataType pdt = myprop.GetPropertyDataType();
+                            EFbxType ptype= pdt.GetType();
+                            if (eFbxDouble == ptype) {
+                                double radius = myprop.Get<FbxDouble>();
+                                printf("The radius is %3.4f\n", radius);
+                            }
+                        }
+                // FbxProperty p = GetFirstProperty();
+                // p = GetNextProperty(p);
+                // FbxDataType pdt = p->GetPropertyDataType();
+                // EFbxType = pdt->GetType();   // this is an enumerated type
+                // FbxString pname = p->GetName();
+                // const char * s = p->GetNameAsCStr(); // owned by the fbx library
+                // void *datap = p->GetUserDataPtr();
+                        
+//**** END OF HACK                        
                         new_node = LoadLocator(parent_node, pFbxScene, pNode);
                     } else {
                         if(pNode->GetChildCount() > 0) {
@@ -1420,6 +1451,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             FbxVector2 uv;
                             bool unmapped = false;
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
+                                // **** this is where the assert used to happen
                                 if(!unmapped) {
                                     new_uva = KRVector2(uv[0], uv[1]);
                                 }
@@ -1512,6 +1544,10 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
+//**** THIS IS WHERE THE collider in house names are parsed and handled .. and then the collider_<ack> names are done
+// in CircaViewController.mm postLoadSetup
+//
+        
         // FINDME, HACK - Until we have a GUI, we're using prefixes to select correct object type
         const char *node_name = pNode->GetName();
         if(strncmp(node_name, "physics_collider_", strlen("physics_collider_")) == 0) {
@@ -1546,6 +1582,12 @@ KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
 
 KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
+    
+//**** INTERUPT THE NODE STUFF IN HERE
+// we can parse the name, look for our special naming conventions, and then route stuff
+// either through to the normal locator block within the scene, or we can dump it out
+// to another destination .. a script file, an xml file, whatever we need.
+//****
     
     KRLocator *new_locator = new KRLocator(parent_node->getScene(), name.c_str());
     
