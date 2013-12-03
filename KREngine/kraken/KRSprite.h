@@ -24,6 +24,8 @@ public:
     
     void setSpriteTexture(std::string sprite_texture);
     void setSpriteSize(float sprite_size);
+    void setSpriteAlpha(float alpha);
+    float getSpriteAlpha() const;
     
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
@@ -34,6 +36,7 @@ protected:
     std::string m_spriteTexture;
     KRTexture *m_pSpriteTexture;
     float m_spriteSize;
+    float m_spriteAlpha;
 };
 
 #endif

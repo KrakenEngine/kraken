@@ -291,8 +291,8 @@
 		E4E6F68716BA5DF700E410F8 /* debug_font.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64B16BA5D9400E410F8 /* debug_font.vsh */; };
 		E4E6F68816BA5DF700E410F8 /* dust_particle.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64C16BA5D9400E410F8 /* dust_particle.fsh */; };
 		E4E6F68916BA5DF700E410F8 /* dust_particle.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64D16BA5D9400E410F8 /* dust_particle.vsh */; };
-		E4E6F68A16BA5DF700E410F8 /* flare.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64E16BA5D9400E410F8 /* flare.fsh */; };
-		E4E6F68B16BA5DF700E410F8 /* flare.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64F16BA5D9400E410F8 /* flare.vsh */; };
+		E4E6F68A16BA5DF700E410F8 /* sprite.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64E16BA5D9400E410F8 /* sprite.fsh */; };
+		E4E6F68B16BA5DF700E410F8 /* sprite.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F64F16BA5D9400E410F8 /* sprite.vsh */; };
 		E4E6F68C16BA5DF700E410F8 /* light_directional.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F65016BA5D9400E410F8 /* light_directional.fsh */; };
 		E4E6F68D16BA5DF700E410F8 /* light_directional.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F65116BA5D9400E410F8 /* light_directional.vsh */; };
 		E4E6F68E16BA5DF700E410F8 /* light_point_inside.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F65216BA5D9400E410F8 /* light_point_inside.fsh */; };
@@ -323,8 +323,8 @@
 		E4E6F6A716BA5E0A00E410F8 /* debug_font_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61116BA5D8300E410F8 /* debug_font_osx.vsh */; };
 		E4E6F6A816BA5E0A00E410F8 /* dust_particle_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61216BA5D8300E410F8 /* dust_particle_osx.fsh */; };
 		E4E6F6A916BA5E0A00E410F8 /* dust_particle_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61316BA5D8300E410F8 /* dust_particle_osx.vsh */; };
-		E4E6F6AA16BA5E0A00E410F8 /* flare_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61416BA5D8300E410F8 /* flare_osx.fsh */; };
-		E4E6F6AB16BA5E0A00E410F8 /* flare_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61516BA5D8300E410F8 /* flare_osx.vsh */; };
+		E4E6F6AA16BA5E0A00E410F8 /* sprite_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */; };
+		E4E6F6AB16BA5E0A00E410F8 /* sprite_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61516BA5D8300E410F8 /* sprite_osx.vsh */; };
 		E4E6F6AC16BA5E0A00E410F8 /* light_directional_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */; };
 		E4E6F6AD16BA5E0A00E410F8 /* light_directional_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61716BA5D8300E410F8 /* light_directional_osx.vsh */; };
 		E4E6F6AE16BA5E0A00E410F8 /* light_point_inside_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */; };
@@ -428,6 +428,10 @@
 		E41AE1DD16B124CA00980428 /* font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.tga; sourceTree = "<group>"; };
 		E41B6BA716BE436100B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		E41B6BA916BE437800B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreAudio.framework; sourceTree = DEVELOPER_DIR; };
+		E42559AA184DD4490081BB20 /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.fsh; sourceTree = "<group>"; };
+		E42559AC184DD45A0081BB20 /* flare.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.vsh; sourceTree = "<group>"; };
+		E42559AE184DD4730081BB20 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.fsh; sourceTree = "<group>"; };
+		E42559B0184DD48B0081BB20 /* flare_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.vsh; sourceTree = "<group>"; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimationManager.h; sourceTree = "<group>"; };
 		E428C2F41669611600A16EDF /* KRAnimationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAnimationManager.cpp; sourceTree = "<group>"; };
 		E428C2F71669612500A16EDF /* KRAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimation.h; sourceTree = "<group>"; };
@@ -581,8 +585,8 @@
 		E4E6F61116BA5D8300E410F8 /* debug_font_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font_osx.vsh; sourceTree = "<group>"; };
 		E4E6F61216BA5D8300E410F8 /* dust_particle_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.fsh; sourceTree = "<group>"; };
 		E4E6F61316BA5D8300E410F8 /* dust_particle_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61416BA5D8300E410F8 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.fsh; sourceTree = "<group>"; };
-		E4E6F61516BA5D8300E410F8 /* flare_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.vsh; sourceTree = "<group>"; };
+		E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61516BA5D8300E410F8 /* sprite_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.vsh; sourceTree = "<group>"; };
 		E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.fsh; sourceTree = "<group>"; };
 		E4E6F61716BA5D8300E410F8 /* light_directional_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.vsh; sourceTree = "<group>"; };
 		E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside_osx.fsh; sourceTree = "<group>"; };
@@ -609,8 +613,8 @@
 		E4E6F64B16BA5D9400E410F8 /* debug_font.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font.vsh; sourceTree = "<group>"; };
 		E4E6F64C16BA5D9400E410F8 /* dust_particle.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle.fsh; sourceTree = "<group>"; };
 		E4E6F64D16BA5D9400E410F8 /* dust_particle.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle.vsh; sourceTree = "<group>"; };
-		E4E6F64E16BA5D9400E410F8 /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.fsh; sourceTree = "<group>"; };
-		E4E6F64F16BA5D9400E410F8 /* flare.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.vsh; sourceTree = "<group>"; };
+		E4E6F64E16BA5D9400E410F8 /* sprite.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite.fsh; sourceTree = "<group>"; };
+		E4E6F64F16BA5D9400E410F8 /* sprite.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite.vsh; sourceTree = "<group>"; };
 		E4E6F65016BA5D9400E410F8 /* light_directional.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional.fsh; sourceTree = "<group>"; };
 		E4E6F65116BA5D9400E410F8 /* light_directional.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional.vsh; sourceTree = "<group>"; };
 		E4E6F65216BA5D9400E410F8 /* light_point_inside.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside.fsh; sourceTree = "<group>"; };
@@ -734,8 +738,8 @@
 				E4E6F64B16BA5D9400E410F8 /* debug_font.vsh */,
 				E4E6F64C16BA5D9400E410F8 /* dust_particle.fsh */,
 				E4E6F64D16BA5D9400E410F8 /* dust_particle.vsh */,
-				E4E6F64E16BA5D9400E410F8 /* flare.fsh */,
-				E4E6F64F16BA5D9400E410F8 /* flare.vsh */,
+				E4E6F64E16BA5D9400E410F8 /* sprite.fsh */,
+				E4E6F64F16BA5D9400E410F8 /* sprite.vsh */,
 				E4E6F65016BA5D9400E410F8 /* light_directional.fsh */,
 				E4E6F65116BA5D9400E410F8 /* light_directional.vsh */,
 				E4E6F65216BA5D9400E410F8 /* light_point_inside.fsh */,
@@ -759,6 +763,8 @@
 				E4E6F66416BA5D9400E410F8 /* volumetric_fog_downsampled.vsh */,
 				E4E6F66516BA5D9400E410F8 /* volumetric_fog.fsh */,
 				E4E6F66616BA5D9400E410F8 /* volumetric_fog.vsh */,
+				E42559AA184DD4490081BB20 /* flare.fsh */,
+				E42559AC184DD45A0081BB20 /* flare.vsh */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -1153,8 +1159,8 @@
 				E4E6F61116BA5D8300E410F8 /* debug_font_osx.vsh */,
 				E4E6F61216BA5D8300E410F8 /* dust_particle_osx.fsh */,
 				E4E6F61316BA5D8300E410F8 /* dust_particle_osx.vsh */,
-				E4E6F61416BA5D8300E410F8 /* flare_osx.fsh */,
-				E4E6F61516BA5D8300E410F8 /* flare_osx.vsh */,
+				E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */,
+				E4E6F61516BA5D8300E410F8 /* sprite_osx.vsh */,
 				E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */,
 				E4E6F61716BA5D8300E410F8 /* light_directional_osx.vsh */,
 				E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */,
@@ -1176,6 +1182,8 @@
 				E4E6F62816BA5D8300E410F8 /* volumetric_fog_downsampled_osx.vsh */,
 				E4E6F62916BA5D8300E410F8 /* volumetric_fog_osx.fsh */,
 				E4E6F62A16BA5D8300E410F8 /* volumetric_fog_osx.vsh */,
+				E42559AE184DD4730081BB20 /* flare_osx.fsh */,
+				E42559B0184DD48B0081BB20 /* flare_osx.vsh */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -1511,8 +1519,8 @@
 				E4E6F68716BA5DF700E410F8 /* debug_font.vsh in Resources */,
 				E4E6F68816BA5DF700E410F8 /* dust_particle.fsh in Resources */,
 				E4E6F68916BA5DF700E410F8 /* dust_particle.vsh in Resources */,
-				E4E6F68A16BA5DF700E410F8 /* flare.fsh in Resources */,
-				E4E6F68B16BA5DF700E410F8 /* flare.vsh in Resources */,
+				E4E6F68A16BA5DF700E410F8 /* sprite.fsh in Resources */,
+				E4E6F68B16BA5DF700E410F8 /* sprite.vsh in Resources */,
 				E4E6F68C16BA5DF700E410F8 /* light_directional.fsh in Resources */,
 				E4E6F68D16BA5DF700E410F8 /* light_directional.vsh in Resources */,
 				E4E6F68E16BA5DF700E410F8 /* light_point_inside.fsh in Resources */,
@@ -1551,8 +1559,8 @@
 				E4E6F6A716BA5E0A00E410F8 /* debug_font_osx.vsh in Resources */,
 				E4E6F6A816BA5E0A00E410F8 /* dust_particle_osx.fsh in Resources */,
 				E4E6F6A916BA5E0A00E410F8 /* dust_particle_osx.vsh in Resources */,
-				E4E6F6AA16BA5E0A00E410F8 /* flare_osx.fsh in Resources */,
-				E4E6F6AB16BA5E0A00E410F8 /* flare_osx.vsh in Resources */,
+				E4E6F6AA16BA5E0A00E410F8 /* sprite_osx.fsh in Resources */,
+				E4E6F6AB16BA5E0A00E410F8 /* sprite_osx.vsh in Resources */,
 				E4E6F6AC16BA5E0A00E410F8 /* light_directional_osx.fsh in Resources */,
 				E4E6F6AD16BA5E0A00E410F8 /* light_directional_osx.vsh in Resources */,
 				E4E6F6AE16BA5E0A00E410F8 /* light_point_inside_osx.fsh in Resources */,

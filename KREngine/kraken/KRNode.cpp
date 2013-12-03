@@ -921,3 +921,8 @@ void KRNode::addBehavior(KRBehavior *behavior)
     behavior->__setNode(this);
     getScene().notify_sceneGraphModify(this);
 }
+
+std::set<KRBehavior *> &KRNode::getBehaviors()
+{
+    return m_behaviors;
+}
