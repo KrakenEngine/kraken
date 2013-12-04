@@ -146,6 +146,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
         // POSSIBLE UPGRADE .. grab the key frame and output it as the start location to the kranimation file
         
         if(new_curve) {
+            printf("Adding a curve\n");
             context.getAnimationCurveManager()->addAnimationCurve(new_curve);
         }
    }
@@ -587,6 +588,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
+    int node_has_n_points = 0; // this will be 3 if the node_frame_key_position is complete after the import animated properties loop
+    KRVector3 node_key_frame_position = KRVector3(0.0, 0.0, 0.0);
+        // ADDED 3, 2013 by Peter to store the key frame (start location) of an animation
+        // the x, y, z translation position of the animation will be extracted from the curves
+        // as they are added to the animation layer in the loop below ..
+    
     // Import animated properties
     int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
     for(int i = 0; i < animation_count; i++) {
@@ -594,12 +601,11 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
         FbxAnimStack* pAnimStack = pFbxScene->GetSrcObject<FbxAnimStack>(i);
         KRAnimation *pAnimation = parent_node->getContext().getAnimationManager()->getAnimation(pAnimStack->GetName());
         if(pAnimation) {
-            int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
+           int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
             for(int iLayer=0; iLayer < cLayers; iLayer++) {
                 FbxAnimLayer *pFbxAnimLayer = pAnimStack->GetMember<FbxAnimLayer>(iLayer);
 //                float weight = pFbxAnimLayer->Weight.Get();
                 KRAnimationLayer *pAnimationLayer = pAnimation->getLayer(pFbxAnimLayer->GetName());
-                
                 FbxAnimCurve *pAnimCurve = pNode->LclRotation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
                 if(pAnimCurve) {
                     KRAnimationAttribute *new_attribute = new KRAnimationAttribute(parent_node->getContext());
@@ -633,7 +639,13 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X);
-                    pAnimationLayer->addAttribute(new_attribute);
+ 
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.x = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
+                   pAnimationLayer->addAttribute(new_attribute);
                 }
                 
                 pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -642,6 +654,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y);
+                    
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.y = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
                     pAnimationLayer->addAttribute(new_attribute);
                 }
                 
@@ -651,6 +669,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z);
+                    
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.z = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
                     pAnimationLayer->addAttribute(new_attribute);
                 }
                 
@@ -848,7 +872,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
             }
         }
     }
-    
+        
     FbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
     FbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
     FbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
@@ -874,6 +898,22 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     assert(geometric_translation == lZero);
     assert(geometric_scaling == lOne);
     assert(rotation_order == eEulerXYZ);
+    
+    // FINDME - node_key_frame_position contains the key frame (start location) for an animation node
+    // node_has_n_points
+    // node_key_frame_position
+    if (3 == node_has_n_points)
+        printf("key frame at %2.3f,  %2.3f, %2.3f\n",
+               node_key_frame_position.x,
+               node_key_frame_position.y,
+               node_key_frame_position.z);
+    //
+    // The animation curve data is output to the KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_ X, Y, Z attribute targets
+    // The actor scripts 'move' command modifies the node's world translations using setWorldTranslation()
+    //
+    // QUESTION - where should we store the key frame within the node to make sure it is output into the KRBundle ??
+    //              do we store it as node_local or store it as the world translation? or somewhere else ??
+    //
 
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
     KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
@@ -1006,27 +1046,6 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     }
                     
                     if(is_locator) {
-//**** HACK A BIT TO FIND OUT HOW IT WORKS
-                        printf("IS LOCATOR!\n");
-                        FbxProperty myprop = pNode->FindProperty("locRadius", true);
-                        if (myprop.IsValid()) {
-                            printf("locRadius found!\n");
-                            FbxDataType pdt = myprop.GetPropertyDataType();
-                            EFbxType ptype= pdt.GetType();
-                            if (eFbxDouble == ptype) {
-                                double radius = myprop.Get<FbxDouble>();
-                                printf("The radius is %3.4f\n", radius);
-                            }
-                        }
-                // FbxProperty p = GetFirstProperty();
-                // p = GetNextProperty(p);
-                // FbxDataType pdt = p->GetPropertyDataType();
-                // EFbxType = pdt->GetType();   // this is an enumerated type
-                // FbxString pname = p->GetName();
-                // const char * s = p->GetNameAsCStr(); // owned by the fbx library
-                // void *datap = p->GetUserDataPtr();
-                        
-//**** END OF HACK                        
                         new_node = LoadLocator(parent_node, pFbxScene, pNode);
                     } else {
                         if(pNode->GetChildCount() > 0) {
@@ -1051,7 +1070,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                 break;
         }
         
-        
+        // this is a KRNode
         if(new_node != NULL) {
             new_node->setLocalRotation(node_rotation);
             new_node->setLocalTranslation(node_translation);
@@ -1063,7 +1082,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
             new_node->setPreRotation(node_pre_rotation);
             new_node->setPostRotation(node_post_rotation);
             parent_node->addChild(new_node);
-            
+             
             // Load child nodes
             for(int i = 0; i < pNode->GetChildCount(); i++)
             {
@@ -1544,8 +1563,8 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
         std::string light_map = pNode->GetName();
         light_map.append("_lightmap");
         
-//**** THIS IS WHERE THE collider in house names are parsed and handled .. and then the collider_<ack> names are done
-// in CircaViewController.mm postLoadSetup
+//FINDME - THIS IS WHERE THE collider in house names are parsed and handled .. and then the collider_<ack> names are done
+// in CircaViewController.mm postLoadSetup .. with the addition of KRAKEN_COLLIDER_INTERACTABLE the postLoadSetup is redundant.
 //
         
         // FINDME, HACK - Until we have a GUI, we're using prefixes to select correct object type
@@ -1554,6 +1573,9 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS, 0.0f);
         } else if(strncmp(node_name, "audio_collider_", strlen("audio_collider_")) == 0) {
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_AUDIO, 1.0f);
+        } else if(0 == strncmp(node_name, "collider_so_", strlen("collider_so_"))) {
+            // ADDED Dec 3, 2013 by Peter to handle the scene object colliders that are layerMask 'Interactable' (16)
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_INTERACTABLE, 1.0f);
         } else if(strncmp(node_name, "collider_", strlen("collider_")) == 0) {
             
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO, 1.0f);
@@ -1588,6 +1610,80 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
 // either through to the normal locator block within the scene, or we can dump it out
 // to another destination .. a script file, an xml file, whatever we need.
 //****
+
+    //**** HACK A BIT TO FIND OUT HOW IT WORKS
+    const char *node_name = pNode->GetName();
+//    if(strncmp(node_name, "physics_collider_", strlen("physics_collider_")) == 0) {
+//        // example hard coded compare
+//    }
+        //
+        // Place all the zone markers at listening (head) height
+        //
+        // <room#> is a number with the letter 'H' (hotel) or 'A' (alley) at the end of it
+        //
+        // KRReverbZone .. see CircaActorStep_CreateReverbZone::execute
+        // RZcorner_<room#> .. with no meta data
+        // RZpoint_<room#> .. with meta data locRadius
+        //
+        // KRAmbientZone .. see CircaActorStep_CreateAmbientZone::execute
+        // AZcorner_<sound#> .. all ambient sounds will be numbered somewhere in a master sound list file
+        // AZpoint_<sound#> .. with meta data locRadius
+        //
+        // KRModel .. see CircaActorStep_CreateDummyProp::execute
+        // AN_<prop point name> .. an audio prop location that can be referenced by name in a trigger script
+        //
+        // QUESTION - should we do AN_<sound #>_<prop point name>
+        //  and then trigger the sound by activating the prop point (i.e. the sound file is already associated with the point)
+        //  but the dummy prop doesn't have anywhere to store the sound file name
+        //
+    
+        // This is how it's done in the actor files ..
+        //
+        // create_ambient_zone entrance_ambient_zone entrance 99.0728 2.9885 -35.3381 10.0 10.0 10.0 0.25 p1_s1.0_1_traffic_general_loop 1.0
+        // create_reverb_zone  telegraph_office_reverb_zone telegraph_office -53.3345 3.58721 58.2977 20.0 20.0 20.0 0.25 reverb_telegraph 1.0
+        //
+        // create_prop telegraph_radio dummyprop 94.371559 4.400661 31.469673 0.05
+        //      - creates a reference point that the radio sound is 'located at' later in the script
+        //
+    
+    // TO BE ADDED
+    //
+    // bool GetDoubleProperty(const char **match_list, double &value);
+    //      pass in a c-string array of case insensitive property names that are all treated as identical
+    //      return true if the property is found
+    // i.e. if(GetDoubleProperty({"locradius","radius",NULL}, value)) ..
+    //
+    
+    // TO BE ADDED
+    //
+    // bool ParseLocator(FbxNode* pNode);
+    //      returns true is we should add the locator to the scene and false otherwise
+    //      parses the locator and either returns it to be added to the scene or sends it somewhere else
+    //      somewhere else would be: ambient_zone, reverb_zone, dummy_prop
+    //
+    
+    FbxProperty myprop = pNode->FindProperty("locRadius", true);    // (name, is_case_sensitive)
+    if (myprop.IsValid()) {
+        printf("locRadius found!\n");
+        FbxDataType pdt = myprop.GetPropertyDataType();
+        EFbxType ptype= pdt.GetType();
+        if (eFbxDouble == ptype) {
+            double radius = myprop.Get<FbxDouble>();
+            printf("The radius is %3.4f\n", radius);
+        }
+    }
+    
+    // FbxProperty p = GetFirstProperty();
+    // p = GetNextProperty(p);
+    // if (p.IsValid()) ..
+    // FbxDataType pdt = p.GetPropertyDataType();
+    // EFbxType = pdt.GetType();   // this is an enumerated type
+    // FbxString pname = p.GetName();
+    // const char * s = p.GetNameAsCStr(); // owned by the fbx library
+    
+    
+    
+    //**** END OF HACK                        
     
     KRLocator *new_locator = new KRLocator(parent_node->getScene(), name.c_str());
     

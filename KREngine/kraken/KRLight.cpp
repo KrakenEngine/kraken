@@ -333,6 +333,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                         // Render light flare on transparency pass
                         KRShader *pShader = getContext().getShaderManager()->getShader("flare", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
                         if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass)) {
+                            pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                             pShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture);
                             m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
