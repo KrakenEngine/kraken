@@ -125,7 +125,8 @@ void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
                 
                 // Render light sprite on transparency pass
                 KRShader *pShader = getContext().getShaderManager()->getShader("sprite", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass)) {
+                KRVector3 rim_color;
+                if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, 0.0f)) {
                     pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
                     pShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, m_spriteSize);
                     m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture);

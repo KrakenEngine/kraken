@@ -290,7 +290,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getModelManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
@@ -494,6 +494,11 @@ void KRScene::updateOctree(const KRViewport &viewport)
         KRNode *node = *itr;
         if(node->lodIsVisible()) {
             m_nodeTree.update(node);
+        }
+        if(node->hasPhysics()) {
+            m_physicsNodes.insert(node);
+        } else if(!node->hasPhysics()) {
+            m_physicsNodes.erase(node);
         }
     }
 }

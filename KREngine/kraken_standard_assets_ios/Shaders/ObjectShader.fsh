@@ -27,6 +27,11 @@
 
 #extension GL_EXT_shadow_samplers : require
 
+#if ENABLE_RIM_COLOR == 1
+    uniform lowp vec3 rim_color;
+    uniform mediump float rim_power;
+#endif
+
 #if FOG_TYPE > 0
     // FOG_TYPE 1 - Linear
     // FOG_TYPE 2 - Exponential
@@ -111,16 +116,25 @@
         uniform sampler2D 		reflectionTexture;
     #endif
 
+    #if ENABLE_RIM_COLOR == 1
+        #define NEED_EYEVEC
+    #endif
+
     #if HAS_REFLECTION_CUBE_MAP == 1
         uniform lowp vec3       material_reflection;
         uniform samplerCube     reflectionCubeTexture;
         #if HAS_NORMAL_MAP == 1
             varying highp mat3 tangent_to_world_matrix;
-            varying mediump vec3 eyeVec;
+            #define NEED_EYEVEC
+
             uniform highp mat4 model_matrix;
         #else
             varying mediump vec3 reflectionVec;
         #endif
+    #endif
+
+    #ifdef NEED_EYEVEC
+        varying mediump vec3 eyeVec;
     #endif
 
 
@@ -392,6 +406,12 @@ void main()
         #endif
     
 
+    #endif
+    
+    #if ENABLE_RIM_COLOR == 1
+        lowp float rim = 1.0 - clamp(dot(normalize(eyeVec), normal), 0.0, 1.0);
+        
+        gl_FragColor += vec4(rim_color, 1.0) * pow(rim, rim_power));
     #endif
     
     #if BONE_COUNT > 0

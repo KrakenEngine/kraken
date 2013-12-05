@@ -36,13 +36,15 @@
 #include "KRMesh.h"
 #include "KRQuaternion.h"
 
-KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera) : KRNode(scene, instance_name) {
+KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, KRVector3 rim_color, float rim_power) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
     m_model_name = model_name;
     m_min_lod_coverage = lod_min_coverage;
     m_receivesShadow = receives_shadow;
     m_faces_camera = faces_camera;
+    m_rim_color = rim_color;
+    m_rim_power = rim_power;
     
     m_boundsCachedMat.c[0] = -1.0f;
     m_boundsCachedMat.c[1] = -1.0f;
@@ -78,7 +80,29 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
     e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
+    m_rim_color.setXMLAttribute("rim_color", e);
+    e->SetAttribute("rim_power", m_rim_power);
     return e;
+}
+
+void KRModel::setRimColor(const const KRVector3 &rim_color)
+{
+    m_rim_color = rim_color;
+}
+
+void KRModel::setRimPower(float rim_power)
+{
+    m_rim_power = rim_power;
+}
+
+KRVector3 KRModel::getRimColor()
+{
+    return m_rim_color;
+}
+
+float KRModel::getRimPower()
+{
+    return m_rim_power;
 }
 
 void KRModel::loadModel() {
@@ -158,7 +182,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                     matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel]);
+                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power);
             }
         }
     }
