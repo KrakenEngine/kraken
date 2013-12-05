@@ -101,7 +101,9 @@ const char *KRShader::KRENGINE_UNIFORM_NAMES[] = {
     "fog_density_premultiplied_squared", //    KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED
     "slice_depth_scale", //    KRENGINE_UNIFORM_SLICE_DEPTH_SCALE
     "particle_origin", //    KRENGINE_UNIFORM_PARTICLE_ORIGIN
-    "bone_transforms" //    KRENGINE_UNIFORM_BONE_TRANSFORMS
+    "bone_transforms", //    KRENGINE_UNIFORM_BONE_TRANSFORMS
+    "rim_color", // KRENGINE_UNIFORM_RIM_COLOR
+    "rim_power" // KRENGINE_UNIFORM_RIM_POWER
 };
 
 KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
@@ -340,7 +342,7 @@ void KRShader::setUniform(int location, const KRMat4 &value)
     }
 }
 
-bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass) {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -505,11 +507,15 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         );
     }
     
+    // Rim highlighting parameters
+    setUniform(KRENGINE_UNIFORM_RIM_COLOR, rim_color);
+    setUniform(KRENGINE_UNIFORM_RIM_POWER, rim_power);
+    
     // Fog parameters
     setUniform(KRENGINE_UNIFORM_FOG_NEAR, camera.settings.fog_near);
     setUniform(KRENGINE_UNIFORM_FOG_FAR, camera.settings.fog_far);
     setUniform(KRENGINE_UNIFORM_FOG_DENSITY, camera.settings.fog_density);
-    setUniform(KRENGINE_UNIFORM_FOG_COLOR, camera.settings.fog_color);    
+    setUniform(KRENGINE_UNIFORM_FOG_COLOR, camera.settings.fog_color);
     
     if(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] != -1) {
         setUniform(KRENGINE_UNIFORM_FOG_SCALE, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));

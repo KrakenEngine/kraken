@@ -420,7 +420,13 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         if(e->QueryBoolAttribute("faces_camera", &faces_camera) != tinyxml2::XML_SUCCESS) {
             faces_camera = false;
         }
-        new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
+        float rim_power = 0.0f;
+        if(e->QueryFloatAttribute("rim_power", &rim_power) != tinyxml2::XML_SUCCESS) {
+            rim_power = 0.0f;
+        }
+        KRVector3 rim_color = KRVector3::Zero();
+        rim_color.getXMLAttribute("rim_color", e, KRVector3::Zero());
+        new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
     } else if(strcmp(szElementName, "collider") == 0) {
         new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
     } else if(strcmp(szElementName, "bone") == 0) {
