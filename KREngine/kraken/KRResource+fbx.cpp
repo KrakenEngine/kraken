@@ -1613,6 +1613,9 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
 
     //**** HACK A BIT TO FIND OUT HOW IT WORKS
     const char *node_name = pNode->GetName();
+    FbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
+    KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]);
+    
 //    if(strncmp(node_name, "physics_collider_", strlen("physics_collider_")) == 0) {
 //        // example hard coded compare
 //    }
@@ -1644,6 +1647,7 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
         //
         // create_prop telegraph_radio dummyprop 94.371559 4.400661 31.469673 0.05
         //      - creates a reference point that the radio sound is 'located at' later in the script
+        // create_node mitchell_phone  22.7842 18.7481 9.1446
         //
     
     // TO BE ADDED

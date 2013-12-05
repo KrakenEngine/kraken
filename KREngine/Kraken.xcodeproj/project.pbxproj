@@ -10,6 +10,14 @@
 		104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */ = {isa = PBXBuildFile; fileRef = 104A335D1672D31C001C8BA6 /* KRCollider.h */; settings = {ATTRIBUTES = (); }; };
 		10CC33A5168534F000BB9846 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
+		500CB1E5185113DA0097F31B /* simpleList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50B6C531185111C600047FF8 /* simpleList.cpp */; };
+		500CB1E6185113E60097F31B /* ImporterAudioLists.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50B6C52F185111C600047FF8 /* ImporterAudioLists.cpp */; };
+		500CB1ED185115280097F31B /* ImporterAudioLists.h in Headers */ = {isa = PBXBuildFile; fileRef = 500CB1EB185115280097F31B /* ImporterAudioLists.h */; };
+		500CB1EE185115280097F31B /* simpleList.h in Headers */ = {isa = PBXBuildFile; fileRef = 500CB1EC185115280097F31B /* simpleList.h */; };
+		500CB1F5185117600097F31B /* simpleList.h in Headers */ = {isa = PBXBuildFile; fileRef = 500CB1EC185115280097F31B /* simpleList.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		500CB1F61851176D0097F31B /* ImporterAudioLists.h in Headers */ = {isa = PBXBuildFile; fileRef = 500CB1EB185115280097F31B /* ImporterAudioLists.h */; };
+		50B6C533185111C600047FF8 /* ImporterAudioLists.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50B6C52F185111C600047FF8 /* ImporterAudioLists.cpp */; };
+		50B6C535185111C600047FF8 /* simpleList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50B6C531185111C600047FF8 /* simpleList.cpp */; };
 		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (); }; };
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
@@ -408,6 +416,10 @@
 		104A335C1672D31B001C8BA6 /* KRCollider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRCollider.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		104A335D1672D31C001C8BA6 /* KRCollider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRCollider.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		10CC33A3168530A300BB9846 /* libPVRTexLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPVRTexLib.a; path = Utilities/PVRTexLib/MacOS/libPVRTexLib.a; sourceTree = PVRSDK; };
+		500CB1EB185115280097F31B /* ImporterAudioLists.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImporterAudioLists.h; sourceTree = "<group>"; };
+		500CB1EC185115280097F31B /* simpleList.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = simpleList.h; sourceTree = "<group>"; };
+		50B6C52F185111C600047FF8 /* ImporterAudioLists.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ImporterAudioLists.cpp; sourceTree = "<group>"; };
+		50B6C531185111C600047FF8 /* simpleList.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = simpleList.cpp; sourceTree = "<group>"; };
 		E4030E4B160A3CF000592648 /* KRStockGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRStockGeometry.h; sourceTree = "<group>"; };
 		E40BA45215EFF79500D7C3DD /* KRAABB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAABB.cpp; sourceTree = "<group>"; };
 		E40BA45315EFF79500D7C3DD /* KRAABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAABB.h; sourceTree = "<group>"; };
@@ -708,6 +720,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		50B6C52E1851117A00047FF8 /* Audio Import */ = {
+			isa = PBXGroup;
+			children = (
+				50B6C52F185111C600047FF8 /* ImporterAudioLists.cpp */,
+				500CB1EB185115280097F31B /* ImporterAudioLists.h */,
+				50B6C531185111C600047FF8 /* simpleList.cpp */,
+				500CB1EC185115280097F31B /* simpleList.h */,
+			);
+			name = "Audio Import";
+			sourceTree = "<group>";
+		};
 		E414F9A21694D949000B3D58 /* Unknown */ = {
 			isa = PBXGroup;
 			children = (
@@ -1056,6 +1079,7 @@
 		E491016613C99B9E0098455B /* kraken */ = {
 			isa = PBXGroup;
 			children = (
+				50B6C52E1851117A00047FF8 /* Audio Import */,
 				E4F9753815362A5200FD60B2 /* 3rdparty */,
 				E488399915F92BA300BD66D5 /* Managers */,
 				E461A173152E59DF00F2044A /* Math */,
@@ -1259,6 +1283,7 @@
 				E468448117FFDF51001F1FA1 /* KRLocator.h in Headers */,
 				E43F70E71824D9AB00136169 /* KRTextureStreamer.h in Headers */,
 				E4F975321536220900FD60B2 /* KRNode.h in Headers */,
+				500CB1EE185115280097F31B /* simpleList.h in Headers */,
 				E46C214715364BC8009CABF3 /* tinyxml2.h in Headers */,
 				E48C696F15374F5B00232E28 /* KRContext.h in Headers */,
 				E46F4A0B155E002100CCF8B8 /* KRDataBlock.h in Headers */,
@@ -1309,6 +1334,7 @@
 				E48CF944173453990005EBBB /* KRFloat.h in Headers */,
 				E43F71011824E73100136169 /* KRMeshStreamer.h in Headers */,
 				E45134B81746A4A300443C21 /* KRBehavior.h in Headers */,
+				500CB1ED185115280097F31B /* ImporterAudioLists.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1351,6 +1377,7 @@
 				E428C312166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
+				500CB1F5185117600097F31B /* simpleList.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
@@ -1394,6 +1421,7 @@
 				E48CF945173453990005EBBB /* KRFloat.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
 				E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */,
+				500CB1F61851176D0097F31B /* ImporterAudioLists.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1607,6 +1635,7 @@
 				E43F70DC181B20E400136169 /* KRLODSet.cpp in Sources */,
 				E414BAE51435558900A668C4 /* KRModel.cpp in Sources */,
 				E414BAE91435585A00A668C4 /* KRScene.cpp in Sources */,
+				500CB1E5185113DA0097F31B /* simpleList.cpp in Sources */,
 				E48B3CC014393E30000C50E2 /* KRCamera.cpp in Sources */,
 				E497B946151BA99500D3DC67 /* KRVector2.cpp in Sources */,
 				E497B94D151BCF2500D3DC67 /* KRResource.cpp in Sources */,
@@ -1632,6 +1661,7 @@
 				E4B175AC161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
 				E4B175B2161F5FAF00B8FB80 /* KRTextureCube.cpp in Sources */,
 				E4CA10E91637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
+				500CB1E6185113E60097F31B /* ImporterAudioLists.cpp in Sources */,
 				E4CA10EF1637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4CA11781639CC90005D9400 /* KRViewport.cpp in Sources */,
 				E4324BA816444C230043185B /* KRParticleSystem.cpp in Sources */,
@@ -1706,6 +1736,8 @@
 				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
 				E40F982D184A7A2700CFA4D8 /* KRMeshQuad.cpp in Sources */,
 				E46F4A0F155E003000CCF8B8 /* KRDataBlock.cpp in Sources */,
+				50B6C533185111C600047FF8 /* ImporterAudioLists.cpp in Sources */,
+				50B6C535185111C600047FF8 /* simpleList.cpp in Sources */,
 				E42CB1F1158446AB0066E0D8 /* KRQuaternion.cpp in Sources */,
 				E4AFC6BB15F7C7D600DDB4C8 /* KROctreeNode.cpp in Sources */,
 				E43B0AD715DDCA0F00A5CB9F /* KRContextObject.cpp in Sources */,
