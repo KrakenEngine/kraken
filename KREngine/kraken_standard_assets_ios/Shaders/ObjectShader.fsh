@@ -411,7 +411,7 @@ void main()
     #if ENABLE_RIM_COLOR == 1
         lowp float rim = 1.0 - clamp(dot(normalize(eyeVec), normal), 0.0, 1.0);
         
-        gl_FragColor += vec4(rim_color, 1.0) * pow(rim, rim_power));
+        gl_FragColor += vec4(rim_color, 1.0) * pow(rim, rim_power);
     #endif
     
     #if BONE_COUNT > 0
