@@ -36,7 +36,6 @@
 
 #define KRAKEN_COLLIDER_PHYSICS 1
 #define KRAKEN_COLLIDER_AUDIO 2
-#define KRAKEN_COLLIDER_INTERACTABLE 16      // ADDED Dec 3, 2013 by Peter for collider_so layer mask type
 
 #include "KRMesh.h"
 #include "KRMat4.h"
