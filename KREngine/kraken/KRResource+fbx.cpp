@@ -1615,22 +1615,24 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
     FbxProperty fbx_property = pNode->GetFirstProperty();
     while(fbx_property.IsValid()) {
         std::string property_name = fbx_property.GetNameAsCStr();
+        std::transform(property_name.begin(), property_name.end(), property_name.begin(), ::tolower);
+        
         boost::variant<int, double, bool, std::string> property_value = "";
         switch(fbx_property.GetPropertyDataType().GetType()) {
             case eFbxInt:
-                property_value = fbx_property.Get<FbxInt>();
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxInt>();
                 break;
             case eFbxDouble:
-                property_value = fbx_property.Get<FbxDouble>();
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxDouble>();
                 break;
             case eFbxBool:
-                property_value = fbx_property.Get<FbxBool>();
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxBool>();
                 break;
             case eFbxFloat:
-                property_value = fbx_property.Get<FbxDouble>();
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxDouble>();
                 break;
             case eFbxString:
-                property_value = std::string(fbx_property.Get<FbxString>().Buffer());
+                new_locator->getUserAttributes()[property_name] = std::string(fbx_property.Get<FbxString>().Buffer());
                 break;
             default:
             {
@@ -1639,9 +1641,7 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
             break;
         }
         
-        std::transform(property_name.begin(), property_name.end(), property_name.begin(), ::tolower);
-        
-        new_locator->getUserAttributes()[property_name] = property_value;
+        fbx_property = pNode->GetNextProperty(fbx_property);
     }
     
     
