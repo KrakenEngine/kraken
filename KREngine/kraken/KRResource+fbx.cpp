@@ -9,6 +9,7 @@
 #include "KREngine-common.h"
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant.hpp>
 #include <fbxsdk.h>
 
 
@@ -1609,6 +1610,40 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     
     KRLocator *new_locator = new KRLocator(parent_node->getScene(), name.c_str());
+    
+    // Enumerate fbx properties so client code can convert locators into application-specific objects
+    FbxProperty fbx_property = pNode->GetFirstProperty();
+    while(fbx_property.IsValid()) {
+        std::string property_name = fbx_property.GetNameAsCStr();
+        boost::variant<int, double, bool, std::string> property_value = "";
+        switch(fbx_property.GetPropertyDataType().GetType()) {
+            case eFbxInt:
+                property_value = fbx_property.Get<FbxInt>();
+                break;
+            case eFbxDouble:
+                property_value = fbx_property.Get<FbxDouble>();
+                break;
+            case eFbxBool:
+                property_value = fbx_property.Get<FbxBool>();
+                break;
+            case eFbxFloat:
+                property_value = fbx_property.Get<FbxDouble>();
+                break;
+            case eFbxString:
+                property_value = std::string(fbx_property.Get<FbxString>().Buffer());
+                break;
+            default:
+            {
+                fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
+            }
+            break;
+        }
+        
+        std::transform(property_name.begin(), property_name.end(), property_name.begin(), ::tolower);
+        
+        new_locator->getUserAttributes()[property_name] = property_value;
+    }
+    
     
     //static bool GetBindPoseContaining(FbxScene* pScene, FbxNode* pNode, PoseList& pPoseList, FbxArray<int>& pIndex);
     //    PoseList pose_list;

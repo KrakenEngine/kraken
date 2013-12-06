@@ -13,6 +13,8 @@
 #include "KRNode.h"
 #include "KRTexture.h"
 
+#include "boost/variant.hpp"
+
 class KRLocator : public KRNode {
 public:
     KRLocator(KRScene &scene, std::string name);
@@ -20,7 +22,10 @@ public:
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
-
+    unordered_map<std::string, boost::variant<int, double, bool, std::string> > &getUserAttributes();
+    
+private:
+    unordered_map<std::string, boost::variant<int, double, bool, std::string> > m_userAttributes;
 };
 
 
