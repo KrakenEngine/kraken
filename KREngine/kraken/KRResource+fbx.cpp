@@ -1571,8 +1571,8 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
             
             // Scan through the characters of the name until we no longer see digit characters (or see a '\0' indicating the end of the string)
             unsigned int layer = 0;
-            char *szNodeName = node_name.c_str() + 9; // 9 == strlen("collider_")
-            char *source_char = szNodeName;
+            const char *szNodeName = node_name + 9; // 9 == strlen("collider_")
+            const char *source_char = szNodeName;
             while(*source_char >= '0' && *source_char <= '9') {
                 layer = layer * 10 + (*source_char++ - '0');
             }
