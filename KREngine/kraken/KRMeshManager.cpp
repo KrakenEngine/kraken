@@ -35,23 +35,61 @@
 
 #include "KRMesh.h"
 #include "KRMeshCube.h"
+#include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
+KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
     m_currentVBO.vbo_handle = -1;
     m_currentVBO.vbo_handle_indexes = -1;
     m_currentVBO.vao_handle = -1;
     m_currentVBO.data = NULL;
     m_vboMemUsed = 0;
-    m_randomParticleVertexData = NULL;
-    m_volumetricLightingVertexData = NULL;
     m_memoryTransferredThisFrame = 0;
     
-//    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
-    
+    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
+    addModel(new KRMeshQuad(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
     addModel(new KRMeshSphere(context));
     m_draw_call_logging_enabled = false;
     m_draw_call_log_used = false;
+    
+    
+    
+    // ----  Initialize stock models ----
+    
+    static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
+        1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0,
+        1.0,-1.0, 1.0,
+        -1.0,-1.0, 1.0,
+        -1.0,-1.0,-1.0,
+        -1.0, 1.0, 1.0,
+        -1.0, 1.0,-1.0,
+        1.0, 1.0, 1.0,
+        1.0, 1.0,-1.0,
+        1.0,-1.0, 1.0,
+        1.0,-1.0,-1.0,
+        -1.0,-1.0,-1.0,
+        1.0, 1.0,-1.0,
+        -1.0, 1.0,-1.0
+    };
+    
+    KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
+    KRENGINE_VBO_3D_CUBE_VERTICES.expand(sizeof(GLfloat) * 3 * 14);
+    KRENGINE_VBO_3D_CUBE_VERTICES.lock();
+    memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
+    KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
+    
+    static const GLfloat _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f
+    };
+    KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+    KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(GLfloat) * 5 * 4);
+    KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
+    memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
+    KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
 }
 
 KRMeshManager::~KRMeshManager() {
@@ -59,8 +97,6 @@ KRMeshManager::~KRMeshManager() {
         delete (*itr).second;
     }
     m_models.empty();
-    if(m_randomParticleVertexData != NULL) delete m_randomParticleVertexData;
-    if(m_volumetricLightingVertexData != NULL) delete m_volumetricLightingVertexData;
 }
 
 KRMesh *KRMeshManager::loadModel(const char *szName, KRDataBlock *pData) {
@@ -115,24 +151,24 @@ void KRMeshManager::unbindVBO() {
     }
 }
 
-void KRMeshManager::releaseVBO(GLvoid *data)
+void KRMeshManager::releaseVBO(KRDataBlock &data)
 {
-    if(m_currentVBO.data == data) {
+    if(m_currentVBO.data == &data) {
         unbindVBO();
     }
 
     vbo_info_type vbo_to_release;
-    if(m_vbosActive.find(data) != m_vbosActive.end()) {
+    if(m_vbosActive.find(&data) != m_vbosActive.end()) {
         fprintf(stderr, "glFinish called due to releasing a VBO that is active in the current frame.\n");
         GLDEBUG(glFinish());
         
         // The VBO is active
-        vbo_to_release = m_vbosActive[data];
-        m_vbosActive.erase(data);
+        vbo_to_release = m_vbosActive[&data];
+        m_vbosActive.erase(&data);
     } else {
         // The VBO is inactive
-        vbo_to_release = m_vbosPool[data];
-        m_vbosPool.erase(data);
+        vbo_to_release = m_vbosPool[&data];
+        m_vbosPool.erase(&data);
     }
     
     m_vboMemUsed -= vbo_to_release.size;
@@ -146,12 +182,12 @@ void KRMeshManager::releaseVBO(GLvoid *data)
     }
 }
 
-void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, int vertex_attrib_flags, bool static_vbo) {
+void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo) {
 
-    if(m_currentVBO.data != data || m_currentVBO.size != size + index_data_size) {
+    if(m_currentVBO.data != &data) {
         
-        if(m_vbosActive.find(data) != m_vbosActive.end()) {
-            m_currentVBO = m_vbosActive[data];
+        if(m_vbosActive.find(&data) != m_vbosActive.end()) {
+            m_currentVBO = m_vbosActive[&data];
 #if GL_OES_vertex_array_object
             GLDEBUG(glBindVertexArrayOES(m_currentVBO.vao_handle));
 #else
@@ -163,10 +199,10 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
                 GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
             }
 #endif
-        } else if(m_vbosPool.find(data) != m_vbosPool.end()) {
-            m_currentVBO = m_vbosPool[data];
-            m_vbosPool.erase(data);
-            m_vbosActive[data] = m_currentVBO;
+        } else if(m_vbosPool.find(&data) != m_vbosPool.end()) {
+            m_currentVBO = m_vbosPool[&data];
+            m_vbosPool.erase(&data);
+            m_vbosActive[&data] = m_currentVBO;
 #if GL_OES_vertex_array_object
             GLDEBUG(glBindVertexArrayOES(m_currentVBO.vao_handle));
 #else
@@ -181,12 +217,12 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
         } else {
             
             
-            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + size + index_data_size >= KRContext::KRENGINE_MAX_VBO_MEM) {
+            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + data.getSize() + index_data.getSize() >= KRContext::KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
                     fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
                     m_pContext->rotateBuffers(false);
                 }
-                unordered_map<GLvoid *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
+                unordered_map<KRDataBlock *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();
                 vbo_info_type firstVBO = first_itr->second;
 #if GL_OES_vertex_array_object
                 GLDEBUG(glDeleteVertexArraysOES(1, &firstVBO.vao_handle));
@@ -204,7 +240,7 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
             m_currentVBO.vbo_handle = -1;
             m_currentVBO.vbo_handle_indexes = -1;
             GLDEBUG(glGenBuffers(1, &m_currentVBO.vbo_handle));
-            if(index_data != NULL) {
+            if(index_data.getSize() > 0) {
                 GLDEBUG(glGenBuffers(1, &m_currentVBO.vbo_handle_indexes));
             }
             
@@ -214,25 +250,49 @@ void KRMeshManager::bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, G
 #endif
 
             GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_currentVBO.vbo_handle));
-            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, size, data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-            m_memoryTransferredThisFrame += size;
-            m_vboMemUsed += size;
+#if GL_OES_mapbuffer
+            
+            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, data.getSize(), NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+            data.copy(map_ptr);
+            //memcpy(map_ptr, data, size);
+            GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
+#else
+            data.lock();
+            GLDEBUG(glBufferData(GL_ARRAY_BUFFER, data.getSize(), data.getStart(), static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            data.unlock();
+#endif
+            m_memoryTransferredThisFrame += data.getSize();
+            m_vboMemUsed += data.getSize();
             configureAttribs(vertex_attrib_flags);
             
-            m_currentVBO.size = size;
-            m_currentVBO.data = data;
+            m_currentVBO.size = data.getSize();
+            m_currentVBO.data = &data;
             
-            if(index_data == NULL) {
+            if(index_data.getSize() == 0) {
                 GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
             } else {
                 GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_currentVBO.vbo_handle_indexes));
-                GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data_size, index_data, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-                m_memoryTransferredThisFrame += index_data_size;
-                m_vboMemUsed += index_data_size;
-                m_currentVBO.size += index_data_size;
+                
+#if GL_OES_mapbuffer
+                
+                GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.getSize(), NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+                GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+                index_data.copy(map_ptr);
+                //memcpy(map_ptr, index_data, index_data.getSize());
+                GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
+#else
+                index_data.lock();
+                GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.getSize(), index_data.getStart(), static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+                index_data.unlock();
+#endif
+                
+                m_memoryTransferredThisFrame += index_data.getSize();
+                m_vboMemUsed += index_data.getSize();
+                m_currentVBO.size += index_data.getSize();
             }
             
-            m_vbosActive[data] = m_currentVBO;
+            m_vbosActive[&data] = m_currentVBO;
         }
     }
 }
@@ -314,7 +374,7 @@ long KRMeshManager::getMemUsed()
 long KRMeshManager::getMemActive()
 {
     long mem_active = 0;
-    for(unordered_map<GLvoid *, vbo_info_type>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
+    for(unordered_map<KRDataBlock *, vbo_info_type>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
         mem_active += (*itr).second.size;
     }
     return mem_active;
@@ -332,56 +392,56 @@ void KRMeshManager::rotateBuffers(bool new_frame)
 
 }
 
-KRMeshManager::VolumetricLightingVertexData *KRMeshManager::getVolumetricLightingVertexes()
+KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
 {
-    if(m_volumetricLightingVertexData == NULL) {
-        m_volumetricLightingVertexData = (VolumetricLightingVertexData *)malloc(sizeof(VolumetricLightingVertexData) * KRENGINE_MAX_VOLUMETRIC_PLANES * 6);
+    if(m_volumetricLightingVertexData.getSize() == 0) {
+        m_volumetricLightingVertexData.expand(sizeof(VolumetricLightingVertexData) * KRENGINE_MAX_VOLUMETRIC_PLANES * 6);
+        m_volumetricLightingVertexData.lock();
+        VolumetricLightingVertexData * vertex_data = (VolumetricLightingVertexData *)m_volumetricLightingVertexData.getStart();
         int iVertex=0;
         for(int iPlane=0; iPlane < KRENGINE_MAX_VOLUMETRIC_PLANES; iPlane++) {
-            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.x = -1.0f;
+            vertex_data[iVertex].vertex.y = -1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
             iVertex++;
             
-            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.x = 1.0f;
+            vertex_data[iVertex].vertex.y = -1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
             iVertex++;
             
-            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.x = -1.0f;
+            vertex_data[iVertex].vertex.y = 1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
             iVertex++;
             
-            m_volumetricLightingVertexData[iVertex].vertex.x = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.x = -1.0f;
+            vertex_data[iVertex].vertex.y = 1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
             iVertex++;
             
-            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = -1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.x = 1.0f;
+            vertex_data[iVertex].vertex.y = -1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
             iVertex++;
             
+            vertex_data[iVertex].vertex.x = 1.0f;
+            vertex_data[iVertex].vertex.y = 1.0f;
+            vertex_data[iVertex].vertex.z = iPlane;
+            iVertex++;
 
-            m_volumetricLightingVertexData[iVertex].vertex.x = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.y = 1.0f;
-            m_volumetricLightingVertexData[iVertex].vertex.z = iPlane;
-            iVertex++;
-            
-//            -1.0f, -1.0f,
-//            1.0f, -1.0f,
-//            -1.0f,  1.0f,
-//            1.0f,  1.0f,
         }
+        m_volumetricLightingVertexData.unlock();
     }
     return m_volumetricLightingVertexData;
 }
 
-KRMeshManager::RandomParticleVertexData *KRMeshManager::getRandomParticles()
+KRDataBlock &KRMeshManager::getRandomParticles()
 {
-    if(m_randomParticleVertexData == NULL) {
-        m_randomParticleVertexData = (RandomParticleVertexData *)malloc(sizeof(RandomParticleVertexData) * KRENGINE_MAX_RANDOM_PARTICLES * 3);
+    if(m_randomParticleVertexData.getSize() == 0) {
+        m_randomParticleVertexData.expand(sizeof(RandomParticleVertexData) * KRENGINE_MAX_RANDOM_PARTICLES * 3);
+        m_randomParticleVertexData.lock();
+        RandomParticleVertexData *vertex_data = (RandomParticleVertexData *)m_randomParticleVertexData.getStart();
         
         // Generate vertices for randomly placed equilateral triangles with a side length of 1 and an origin point centered so that an inscribed circle can be efficiently rendered without wasting fill
         
@@ -390,27 +450,28 @@ KRMeshManager::RandomParticleVertexData *KRMeshManager::getRandomParticles()
         
         int iVertex=0;
         for(int iParticle=0; iParticle < KRENGINE_MAX_RANDOM_PARTICLES; iParticle++) {
-            m_randomParticleVertexData[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
-            m_randomParticleVertexData[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
-            m_randomParticleVertexData[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
-            m_randomParticleVertexData[iVertex].uva.u = -0.5f;
-            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius;
+            vertex_data[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].uva.u = -0.5f;
+            vertex_data[iVertex].uva.v = -inscribed_circle_radius;
             iVertex++;
             
-            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
-            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
-            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
-            m_randomParticleVertexData[iVertex].uva.u = 0.5f;
-            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius;
+            vertex_data[iVertex].vertex.x = vertex_data[iVertex-1].vertex.x;
+            vertex_data[iVertex].vertex.y = vertex_data[iVertex-1].vertex.y;
+            vertex_data[iVertex].vertex.z = vertex_data[iVertex-1].vertex.z;
+            vertex_data[iVertex].uva.u = 0.5f;
+            vertex_data[iVertex].uva.v = -inscribed_circle_radius;
             iVertex++;
             
-            m_randomParticleVertexData[iVertex].vertex.x = m_randomParticleVertexData[iVertex-1].vertex.x;
-            m_randomParticleVertexData[iVertex].vertex.y = m_randomParticleVertexData[iVertex-1].vertex.y;
-            m_randomParticleVertexData[iVertex].vertex.z = m_randomParticleVertexData[iVertex-1].vertex.z;
-            m_randomParticleVertexData[iVertex].uva.u = 0.0f;
-            m_randomParticleVertexData[iVertex].uva.v = -inscribed_circle_radius + equilateral_triangle_height;
+            vertex_data[iVertex].vertex.x = vertex_data[iVertex-1].vertex.x;
+            vertex_data[iVertex].vertex.y = vertex_data[iVertex-1].vertex.y;
+            vertex_data[iVertex].vertex.z = vertex_data[iVertex-1].vertex.z;
+            vertex_data[iVertex].uva.u = 0.0f;
+            vertex_data[iVertex].uva.v = -inscribed_circle_radius + equilateral_triangle_height;
             iVertex++;
         }
+        m_randomParticleVertexData.unlock();
     }
     return m_randomParticleVertexData;
 }

@@ -38,6 +38,11 @@ KRAnimationManager::KRAnimationManager(KRContext &context) : KRContextObject(con
 }
 
 KRAnimationManager::~KRAnimationManager() {
+    for(std::set<KRAnimation *>::iterator itr = m_activeAnimations.begin(); itr != m_activeAnimations.end(); itr++) {
+        KRAnimation *animation = *itr;
+        animation->_unlockData();
+    }
+    
     for(unordered_map<std::string, KRAnimation *>::iterator itr = m_animations.begin(); itr != m_animations.end(); ++itr){
         delete (*itr).second;
     }
@@ -52,11 +57,13 @@ void KRAnimationManager::startFrame(float deltaTime)
             // Add playing animations to the active animations list
             if(active_animations_itr == m_activeAnimations.end()) {
                 m_activeAnimations.insert(animation);
+                animation->_lockData();
             }
         } else {
             // Remove stopped animations from the active animations list
             if(active_animations_itr != m_activeAnimations.end()) {
                 m_activeAnimations.erase(active_animations_itr);
+                animation->_unlockData();
             }
         }
     }

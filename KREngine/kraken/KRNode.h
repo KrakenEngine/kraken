@@ -58,6 +58,7 @@ public:
     
     void addChild(KRNode *child);
     const std::set<KRNode *> &getChildren();
+    KRNode *getParent();
     
     void setLocalTranslation(const KRVector3 &v, bool set_original = false);
     void setLocalScale(const KRVector3 &v, bool set_original = false);
@@ -226,6 +227,17 @@ private:
     
 public:
     void addBehavior(KRBehavior *behavior);
+    std::set<KRBehavior *> &getBehaviors();
+    template <class T> T *getBehavior()
+    {
+        for(std::set<KRBehavior *>::iterator itr=m_behaviors.begin(); itr != m_behaviors.end(); itr++) {
+            T *behavior = dynamic_cast<T *>(*itr);
+            if(behavior) {
+                return behavior;
+            }
+        }
+        return NULL;
+    }
     void removeFromOctreeNodes();
     void addToOctreeNode(KROctreeNode *octree_node);
     void childDeleted(KRNode *child_node);

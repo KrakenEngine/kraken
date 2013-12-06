@@ -27,6 +27,11 @@
 
 // #extension GL_EXT_shadow_samplers : require
 
+#if ENABLE_RIM_COLOR == 1
+uniform lowp vec3 rim_color;
+uniform mediump float rim_power;
+#endif
+
 #if FOG_TYPE > 0
     // FOG_TYPE 1 - Linear
     // FOG_TYPE 2 - Exponential

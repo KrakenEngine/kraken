@@ -20,9 +20,11 @@
 #include "KRAABB.h"
 #include "KRQuaternion.h"
 #include "KRBone.h"
+#include "KRLocator.h"
 #include "KRAudioSource.h"
 #include "KRAmbientZone.h"
 #include "KRReverbZone.h"
+#include "KRSprite.h"
 
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
 {
@@ -403,6 +405,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         new_node = new KRSpotLight(scene, szName);
     } else if(strcmp(szElementName, "particles_newtonian") == 0) {
         new_node = new KRParticleSystemNewtonian(scene, szName);
+    } else if(strcmp(szElementName, "sprite") == 0) {
+        new_node = new KRSprite(scene, szName);
     } else if(strcmp(szElementName, "model") == 0) {
         float lod_min_coverage = 0.0f;
         if(e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage)  != tinyxml2::XML_SUCCESS) {
@@ -416,11 +420,19 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
         if(e->QueryBoolAttribute("faces_camera", &faces_camera) != tinyxml2::XML_SUCCESS) {
             faces_camera = false;
         }
-        new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera);
+        float rim_power = 0.0f;
+        if(e->QueryFloatAttribute("rim_power", &rim_power) != tinyxml2::XML_SUCCESS) {
+            rim_power = 0.0f;
+        }
+        KRVector3 rim_color = KRVector3::Zero();
+        rim_color.getXMLAttribute("rim_color", e, KRVector3::Zero());
+        new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
     } else if(strcmp(szElementName, "collider") == 0) {
         new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
     } else if(strcmp(szElementName, "bone") == 0) {
         new_node = new KRBone(scene, szName);
+    } else if(strcmp(szElementName, "locator") == 0) {
+        new_node = new KRLocator(scene, szName);
     } else if(strcmp(szElementName, "audio_source") == 0) {
         new_node = new KRAudioSource(scene, szName);
     } else if(strcmp(szElementName, "ambient_zone") == 0) {
@@ -445,6 +457,10 @@ void KRNode::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
 
 const std::set<KRNode *> &KRNode::getChildren() {
     return m_childNodes;
+}
+
+KRNode *KRNode::getParent() {
+    return m_parentNode;
 }
 
 const std::string &KRNode::getName() const {
@@ -910,4 +926,9 @@ void KRNode::addBehavior(KRBehavior *behavior)
     m_behaviors.insert(behavior);
     behavior->__setNode(this);
     getScene().notify_sceneGraphModify(this);
+}
+
+std::set<KRBehavior *> &KRNode::getBehaviors()
+{
+    return m_behaviors;
 }

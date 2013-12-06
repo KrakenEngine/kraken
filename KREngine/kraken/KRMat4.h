@@ -83,7 +83,7 @@ class KRMat4 {
     KRMat4& operator=(const KRMat4 &m);
     
     // Overload comparison operator
-    bool operator==(const KRMat4 &m);
+    bool operator==(const KRMat4 &m) const;
     
     // Overload compound multiply operator
     KRMat4& operator*=(const KRMat4 &m);

@@ -37,6 +37,8 @@
 #include "KRDataBlock.h"
 #include "KRNode.h"
 
+#include "KRMeshStreamer.h"
+
 class KRContext;
 class KRMesh;
 
@@ -59,8 +61,8 @@ public:
     std::vector<std::string> getModelNames();
     unordered_multimap<std::string, KRMesh *> &getModels();
     
-    void bindVBO(GLvoid *data, GLsizeiptr size, GLvoid *index_data, GLsizeiptr index_data_size, int vertex_attrib_flags, bool static_vbo);
-    void releaseVBO(GLvoid *data);
+    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
+    void releaseVBO(KRDataBlock &data);
     void unbindVBO();
     long getMemUsed();
     long getMemActive();
@@ -88,10 +90,8 @@ public:
     } VolumetricLightingVertexData;
     
 
-    
-    
-    RandomParticleVertexData *getRandomParticles();
-    VolumetricLightingVertexData *getVolumetricLightingVertexes();
+    KRDataBlock &getRandomParticles();
+    KRDataBlock &getVolumetricLightingVertexes();
     
     
     long getMemoryTransferedThisFrame();
@@ -108,7 +108,13 @@ public:
     
     void log_draw_call(KRNode::RenderPass pass, const std::string &object_name, const std::string &material_name, int vertex_count);
     std::vector<draw_call_info> getDrawCalls();
-
+    
+    
+    KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
+    __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
+    
+    KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
+    __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
     
 private:
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -118,23 +124,25 @@ private:
         GLuint vbo_handle_indexes;
         GLuint vao_handle;
         GLsizeiptr size;
-        GLvoid *data;
+        KRDataBlock *data;
     } vbo_info_type;
     
     long m_vboMemUsed;
     vbo_info_type m_currentVBO;
     
-    unordered_map<GLvoid *, vbo_info_type> m_vbosActive;
-    unordered_map<GLvoid *, vbo_info_type> m_vbosPool;
+    unordered_map<KRDataBlock *, vbo_info_type> m_vbosActive;
+    unordered_map<KRDataBlock *, vbo_info_type> m_vbosPool;
     
-    RandomParticleVertexData *m_randomParticleVertexData;
-    VolumetricLightingVertexData *m_volumetricLightingVertexData;
+    KRDataBlock m_randomParticleVertexData;
+    KRDataBlock m_volumetricLightingVertexData;
     
     long m_memoryTransferredThisFrame;
     
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
+    
+    KRMeshStreamer m_streamer;
 
 };
 

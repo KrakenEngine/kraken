@@ -50,12 +50,19 @@ void KRAnimationCurveManager::deleteAnimationCurve(KRAnimationCurve *curve) {
 
 KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const std::string &name, KRDataBlock *data) {
     KRAnimationCurve *pAnimationCurve = KRAnimationCurve::Load(*m_pContext, name, data);
-    m_animationCurves[name] = pAnimationCurve;
+    if(pAnimationCurve) {
+        m_animationCurves[name] = pAnimationCurve;
+    }
     return pAnimationCurve;
 }
 
 KRAnimationCurve *KRAnimationCurveManager::getAnimationCurve(const std::string &name) {
-    return m_animationCurves[name];
+    unordered_map<std::string, KRAnimationCurve *>::iterator itr = m_animationCurves.find(name);
+    if(itr == m_animationCurves.end()) {
+        return NULL; // Not found
+    } else {
+        return (*itr).second;
+    }
 }
 
 unordered_map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnimationCurves() {
@@ -64,6 +71,7 @@ unordered_map<std::string, KRAnimationCurve *> &KRAnimationCurveManager::getAnim
 
 void KRAnimationCurveManager::addAnimationCurve(KRAnimationCurve *new_animation_curve)
 {
+    assert(new_animation_curve != NULL);
     m_animationCurves[new_animation_curve->getName()] = new_animation_curve;
 }
 

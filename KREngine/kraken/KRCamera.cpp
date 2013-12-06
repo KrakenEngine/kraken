@@ -54,14 +54,9 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
     m_frame_times_filled = 0;
-    
-    m_debug_text_vertices = NULL;
 }
 
 KRCamera::~KRCamera() {
-    if(m_debug_text_vertices) {
-        delete m_debug_text_vertices;
-    }
     destroyBuffers();
 }
 
@@ -310,12 +305,13 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     }
     
     if(m_pSkyBoxTexture) {
-        getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+        KRVector3 rim_color;
+        getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE, rim_color, 0.0f);
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
         
         // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+        m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -472,13 +468,13 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+        m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
         for(unordered_map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
-            
-            if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+            KRVector3 rim_color;
+            if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f)) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -687,7 +683,9 @@ void KRCamera::renderPost()
 	
     GLDEBUG(glDisable(GL_DEPTH_TEST));
     KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-    getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+    
+    KRVector3 rim_color;
+    getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f);
     
     m_pContext->getTextureManager()->selectTexture(0, NULL);
     m_pContext->getTextureManager()->_setActiveTexture(0);
@@ -704,7 +702,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+    m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -726,7 +724,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+//            m_pContext->getModelManager()->bindVBO(KRENGINE_VBO_2D_SQUARE_INDICES, KRENGINE_VBO_2D_SQUARE_VERTEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
 //            m_pContext->getTextureManager()->_setActiveTexture(0);
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
@@ -745,7 +743,7 @@ void KRCamera::renderPost()
     
     
     
-    if(m_debug_text_vertices) {
+    if(m_debug_text_vertices.getSize()) {
         m_pContext->getModelManager()->releaseVBO(m_debug_text_vertices);
     }
     
@@ -791,12 +789,13 @@ void KRCamera::renderPost()
         const int DEBUG_TEXT_COLUMNS = 256;
         const int DEBUG_TEXT_ROWS = 128;
         
-        if(m_debug_text_vertices == NULL) {
-            m_debug_text_vertices = new DebugTextVertexData[DEBUG_TEXT_COLUMNS * DEBUG_TEXT_ROWS * 6];
+        if(m_debug_text_vertices.getSize() == 0) {
+            m_debug_text_vertices.expand(sizeof(DebugTextVertexData) * DEBUG_TEXT_COLUMNS * DEBUG_TEXT_ROWS * 6);
         }
         int vertex_count = 0;
         
-
+        m_debug_text_vertices.lock();
+        DebugTextVertexData *vertex_data = (DebugTextVertexData *)m_debug_text_vertices.getStart();
 
         pChar = szText;
         float dScaleX = 2.0 / (1024 / 16);
@@ -824,47 +823,47 @@ void KRCamera::renderPost()
                     KRVector2 top_left_uv = KRVector2(dTexScale * iTexCol, dTexScale * iTexRow);
                     KRVector2 bottom_right_uv = KRVector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
                     
-                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
-                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
-                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_data[vertex_count].x = top_left_pos.x;
+                    vertex_data[vertex_count].y = top_left_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = top_left_uv.x;
+                    vertex_data[vertex_count].v = top_left_uv.y;
                     vertex_count++;
                     
-                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
-                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
-                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_data[vertex_count].x = bottom_right_pos.x;
+                    vertex_data[vertex_count].y = bottom_right_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = bottom_right_uv.x;
+                    vertex_data[vertex_count].v = bottom_right_uv.y;
                     vertex_count++;
                     
-                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
-                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
-                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_data[vertex_count].x = top_left_pos.x;
+                    vertex_data[vertex_count].y = bottom_right_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = top_left_uv.x;
+                    vertex_data[vertex_count].v = bottom_right_uv.y;
                     vertex_count++;
                     
                     
-                    m_debug_text_vertices[vertex_count].x = top_left_pos.x;
-                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = top_left_uv.x;
-                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_data[vertex_count].x = top_left_pos.x;
+                    vertex_data[vertex_count].y = top_left_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = top_left_uv.x;
+                    vertex_data[vertex_count].v = top_left_uv.y;
                     vertex_count++;
                     
-                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
-                    m_debug_text_vertices[vertex_count].y = top_left_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
-                    m_debug_text_vertices[vertex_count].v = top_left_uv.y;
+                    vertex_data[vertex_count].x = bottom_right_pos.x;
+                    vertex_data[vertex_count].y = top_left_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = bottom_right_uv.x;
+                    vertex_data[vertex_count].v = top_left_uv.y;
                     vertex_count++;
                     
-                    m_debug_text_vertices[vertex_count].x = bottom_right_pos.x;
-                    m_debug_text_vertices[vertex_count].y = bottom_right_pos.y;
-                    m_debug_text_vertices[vertex_count].z = 0.0f;
-                    m_debug_text_vertices[vertex_count].u = bottom_right_uv.x;
-                    m_debug_text_vertices[vertex_count].v = bottom_right_uv.y;
+                    vertex_data[vertex_count].x = bottom_right_pos.x;
+                    vertex_data[vertex_count].y = bottom_right_pos.y;
+                    vertex_data[vertex_count].z = 0.0f;
+                    vertex_data[vertex_count].u = bottom_right_uv.x;
+                    vertex_data[vertex_count].v = bottom_right_uv.y;
                     vertex_count++;
                 }
                 
@@ -888,22 +887,25 @@ void KRCamera::renderPost()
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
         
         KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-        getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        KRVector3 rim_color;
+        getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f);
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"));
         
-        
-        m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
+        KRDataBlock index_data;
+        //m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
+        m_pContext->getModelManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
         
         // Re-enable z-buffer write
         GLDEBUG(glDepthMask(GL_TRUE));
+        
+        m_debug_text_vertices.unlock();
 
     } else {
-        if(m_debug_text_vertices) {
-            delete m_debug_text_vertices;
-            m_debug_text_vertices = NULL;
+        if(m_debug_text_vertices.getSize() > 0) {
+            m_debug_text_vertices = KRDataBlock();
         }
     }
 }

@@ -105,8 +105,10 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
         light_direction_view_space = KRMat4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
+        KRVector3 rim_color;
+        
         KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass)) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, rim_color, 0.0f)) {
             
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
@@ -119,7 +121,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             // Render a full screen quad
-            m_pContext->getModelManager()->bindVBO((void *)KRENGINE_VBO_2D_SQUARE, KRENGINE_VBO_2D_SQUARE_SIZE, NULL, 0, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+            m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
     }

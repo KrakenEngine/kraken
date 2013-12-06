@@ -93,6 +93,11 @@ std::set<KRReverbZone *> &KRScene::getReverbZones()
     return m_reverbZoneNodes;
 }
 
+std::set<KRLocator *> &KRScene::getLocators()
+{
+    return m_locatorNodes;
+}
+
 void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
@@ -272,7 +277,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getModelManager()->bindVBO((void *)KRENGINE_VBO_3D_CUBE, KRENGINE_VBO_3D_CUBE_SIZE, NULL, 0, KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+                    getContext().getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -290,7 +295,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getModelManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
@@ -404,9 +409,10 @@ bool KRScene::save(KRDataBlock &data) {
 
 KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock *data)
 {
-    data->append((void *)"\0", 1); // Ensure data is null terminated, to read as a string safely
+    std::string xml_string = data->getString();
+    delete data;
     tinyxml2::XMLDocument doc;
-    doc.Parse((char *)data->getStart());
+    doc.Parse(xml_string.c_str());
     KRScene *new_scene = new KRScene(context, name);
     
     tinyxml2::XMLElement *scene_element = doc.RootElement();
@@ -418,7 +424,7 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
         new_scene->getRootNode()->addChild(n);
     }
     
-    delete data;
+    
     return new_scene;
 }
 
@@ -459,6 +465,10 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
     if(ReverbZoneNode) {
         m_reverbZoneNodes.erase(ReverbZoneNode);
     }
+    KRLocator *locator = dynamic_cast<KRLocator *>(pNode);
+    if(locator) {
+        m_locatorNodes.erase(locator);
+    }
     m_modifiedNodes.erase(pNode);
     if(!m_newNodes.erase(pNode)) {
         m_nodeTree.remove(pNode);
@@ -480,19 +490,29 @@ void KRScene::updateOctree(const KRViewport &viewport)
         if(node->hasPhysics()) {
             m_physicsNodes.insert(node);
         }
-        KRAmbientZone *AmbientZoneNode = dynamic_cast<KRAmbientZone *>(node);
-        if(dynamic_cast<KRAmbientZone *>(node)) {
-            m_ambientZoneNodes.insert(AmbientZoneNode);
+        KRAmbientZone *ambientZoneNode = dynamic_cast<KRAmbientZone *>(node);
+        if(ambientZoneNode) {
+            m_ambientZoneNodes.insert(ambientZoneNode);
         }
-        KRReverbZone *ReverbZoneNode = dynamic_cast<KRReverbZone *>(node);
-        if(dynamic_cast<KRReverbZone *>(node)) {
-            m_reverbZoneNodes.insert(ReverbZoneNode);
+        KRReverbZone *reverbZoneNode = dynamic_cast<KRReverbZone *>(node);
+        if(reverbZoneNode) {
+            m_reverbZoneNodes.insert(reverbZoneNode);
         }
+        KRLocator *locatorNode = dynamic_cast<KRLocator *>(node);
+        if(locatorNode) {
+            m_locatorNodes.insert(locatorNode);
+        }
+        
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
         if(node->lodIsVisible()) {
             m_nodeTree.update(node);
+        }
+        if(node->hasPhysics()) {
+            m_physicsNodes.insert(node);
+        } else if(!node->hasPhysics()) {
+            m_physicsNodes.erase(node);
         }
     }
 }

@@ -50,6 +50,7 @@ public:
     virtual long getReferencedMemSize();
     
     virtual bool isAnimated();
+    virtual void resize(int max_dim);
     
 private:
     virtual bool createGLTexture(int lod_max_dim);

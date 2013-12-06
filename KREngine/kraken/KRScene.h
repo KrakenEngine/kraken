@@ -40,6 +40,7 @@
 #include "KRCamera.h"
 #include "KRMeshManager.h"
 #include "KRNode.h"
+#include "KRLocator.h"
 #include "KRAmbientZone.h"
 #include "KRReverbZone.h"
 #include "KROctree.h"
@@ -84,6 +85,7 @@ public:
     
     std::set<KRAmbientZone *> &getAmbientZones();
     std::set<KRReverbZone *> &getReverbZones();
+    std::set<KRLocator *> &getLocators();
     
 private:
 
@@ -98,6 +100,7 @@ private:
     std::set<KRNode *> m_physicsNodes;
     std::set<KRAmbientZone *> m_ambientZoneNodes;
     std::set<KRReverbZone *> m_reverbZoneNodes;
+    std::set<KRLocator *> m_locatorNodes;
     
     KROctree m_nodeTree;
     

@@ -138,16 +138,23 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         varying mediump float   specularFactor;
     #endif
 
+    #if ENABLE_RIM_COLOR == 1
+        #define NEED_EYEVEC
+    #endif
 
     #if HAS_REFLECTION_CUBE_MAP == 1
         #if HAS_NORMAL_MAP == 1
+            #define NEED_EYEVEC
             uniform highp mat4 model_inverse_transpose_matrix;
-            varying mediump vec3 eyeVec;
             varying highp mat3 tangent_to_world_matrix;
         #else
             uniform highp mat4 model_matrix;
             varying mediump vec3 reflectionVec;
         #endif
+    #endif
+
+    #ifdef NEED_EYEVEC
+        varying mediump vec3 eyeVec;
     #endif
 
     #if HAS_DIFFUSE_MAP_SCALE == 1
@@ -246,7 +253,7 @@ void main()
 
         #if HAS_REFLECTION_CUBE_MAP == 1
             #if HAS_NORMAL_MAP == 1
-                eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
+    
             #else
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
                 mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
@@ -255,6 +262,9 @@ void main()
             #endif
         #endif
     
+        #ifdef NEED_EYEVEC
+            eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
+        #endif
     
         #if HAS_LIGHT_MAP == 1
             // Pass shadow UV co-ordinates

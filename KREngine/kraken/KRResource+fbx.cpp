@@ -9,6 +9,7 @@
 #include "KREngine-common.h"
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant.hpp>
 #include <fbxsdk.h>
 
 
@@ -23,6 +24,7 @@
 #include "KRScene.h"
 #include "KRQuaternion.h"
 #include "KRBone.h"
+#include "KRLocator.h"
 #include "KRBundle.h"
 #include "KRModel.h"
 #include "KRLODGroup.h"
@@ -33,20 +35,21 @@
 #define IOS_REF (*(pSdkManager->GetIOSettings()))
 #endif
 
-void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene);
-void DestroySdkObjects(KFbxSdkManager* pSdkManager);
-bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename);
+void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene);
+void DestroySdkObjects(FbxManager* pSdkManager);
+bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename);
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack);
 KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve);
 KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLayer);
-void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
+void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
 void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial);
-void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh);
-KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode);
-KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode);
-KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pScene, KFbxNode* pNode);
-KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode);
+void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pSourceMesh);
+KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode);
+KRNode *LoadLight(KRNode *parent_node, FbxNode* pNode);
+KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pScene, FbxNode* pNode);
+KRNode *LoadLocator(KRNode *parent_node, FbxScene* pScene, FbxNode* pNode);
+KRNode *LoadCamera(KRNode *parent_node, FbxNode* pNode);
 std::string GetFbxObjectName(FbxObject *obj);
 
 const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be configurable
@@ -54,9 +57,28 @@ const float KRAKEN_FBX_ANIMATION_FRAMERATE = 30.0f; // FINDME - This should be c
 
 std::string GetFbxObjectName(FbxObject *obj)
 {
+    bool is_locator = false;
+    FbxNode *node = FbxCast<FbxNode>(obj);
+    if(node) {
+        FbxNodeAttribute::EType attribute_type = (node->GetNodeAttribute()->GetAttributeType());
+        if(attribute_type == FbxNodeAttribute::eNull) {
+            FbxNull* pSourceNull = (FbxNull*) node->GetNodeAttribute();
+            if(pSourceNull->Look.Get() == FbxNull::eCross ) {
+                is_locator = true;
+            }
+        }
+    }
+    
+    
     // Object names from FBX files are now concatenated with the FBX numerical ID to ensure that they are unique
     // TODO - This should be updated to only add a prefix or suffix if needed to make the name unique
-    if(strcmp(obj->GetName(), "default_camera") == 0) {
+    if(is_locator) {
+        // We do not rename locators
+        return std::string(obj->GetName());
+    } else if(strncmp(obj->GetName(), "so_", 3) == 0) {
+        // An so_ prefix indicates that this is a "Scriptable Object" that should not have the name decorated;
+        return obj->GetName();
+    } else if(strcmp(obj->GetName(), "default_camera") == 0) {
         // There is currently support for rendering from only one camera, "default_camera".  We don't translate this node's name, so that animations can drive the camera
         return "default_camera"; 
     } else {
@@ -76,8 +98,8 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
     context.getSceneManager()->add(pScene);
     
-    KFbxSdkManager* lSdkManager = NULL;
-    KFbxScene* pFbxScene = NULL;
+    FbxManager* lSdkManager = NULL;
+    FbxScene* pFbxScene = NULL;
     bool lResult;
     FbxGeometryConverter *pGeometryConverter = NULL;
     
@@ -90,7 +112,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     // Load the scene.
     lResult = LoadScene(lSdkManager, pFbxScene, path.c_str());
     
-    KFbxNode* pNode = pFbxScene->GetRootNode();
+    FbxNode* pNode = pFbxScene->GetRootNode();
     
     // ----====---- Bake pivots into transforms, as Kraken doesn't support them directly ----====----
     /*
@@ -120,7 +142,9 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
         FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
         printf("  Animation Curve %i of %i: %s\n", i+1, curve_count, curve->GetName());
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
+
         if(new_curve) {
+            printf("Adding a curve\n");
             context.getAnimationCurveManager()->addAnimationCurve(new_curve);
         }
     }
@@ -171,11 +195,11 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     DestroySdkObjects(lSdkManager);
 }
 
-void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene)
+void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene)
 {
     // The first thing to do is to create the FBX SDK manager which is the 
     // object allocator for almost all the classes in the SDK.
-    pSdkManager = KFbxSdkManager::Create();
+    pSdkManager = FbxManager::Create();
     
     if (!pSdkManager)
     {
@@ -184,25 +208,27 @@ void InitializeSdkObjects(KFbxSdkManager*& pSdkManager, KFbxScene*& pScene)
     }
     
 	// create an IOSettings object
-	KFbxIOSettings * ios = KFbxIOSettings::Create(pSdkManager, IOSROOT );
+	FbxIOSettings * ios = FbxIOSettings::Create(pSdkManager, IOSROOT );
 	pSdkManager->SetIOSettings(ios);
     
 	// Load plugins from the executable directory
-	KString lPath = FbxGetApplicationDirectory();
-#if defined(KARCH_ENV_WIN)
-	KString lExtension = "dll";
-#elif defined(KARCH_ENV_MACOSX)
-	KString lExtension = "dylib";
-#elif defined(KARCH_ENV_LINUX)
-	KString lExtension = "so";
+	FbxString lPath = FbxGetApplicationDirectory();
+#if TARGET_OS_WIN32
+	FbxString lExtension = "dll";
+#elif TARGET_OS_MAC
+	FbxString lExtension = "dylib";
+#elif TARGET_OS_UNIX
+	FbxString lExtension = "so";
+#elif
+    #error Unsupported Platform
 #endif
 	pSdkManager->LoadPluginsDirectory(lPath.Buffer(), lExtension.Buffer());
     
     // Create the entity that will hold the scene.
-    pScene = KFbxScene::Create(pSdkManager,"");
+    pScene = FbxScene::Create(pSdkManager,"");
 }
 
-void DestroySdkObjects(KFbxSdkManager* pSdkManager)
+void DestroySdkObjects(FbxManager* pSdkManager)
 {
     // Delete the FBX SDK manager. All the objects that have been allocated 
     // using the FBX SDK manager and that haven't been explicitly destroyed 
@@ -212,7 +238,7 @@ void DestroySdkObjects(KFbxSdkManager* pSdkManager)
 }
 
 
-bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pFilename)
+bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename)
 {
     int lFileMajor, lFileMinor, lFileRevision;
     int lSDKMajor,  lSDKMinor,  lSDKRevision;
@@ -222,10 +248,10 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     char lPassword[1024];
     
     // Get the file version number generate by the FBX SDK.
-    KFbxSdkManager::GetFileFormatVersion(lSDKMajor, lSDKMinor, lSDKRevision);
+    FbxManager::GetFileFormatVersion(lSDKMajor, lSDKMinor, lSDKRevision);
     
     // Create an importer.
-    KFbxImporter* lImporter = KFbxImporter::Create(pSdkManager,"");
+    FbxImporter* lImporter = FbxImporter::Create(pSdkManager,"");
     
     // Initialize the importer by providing a filename.
     const bool lImportStatus = lImporter->Initialize(pFilename, -1, pSdkManager->GetIOSettings());
@@ -233,11 +259,14 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     
     if( !lImportStatus )
     {
-        printf("Call to KFbxImporter::Initialize() failed.\n");
-        printf("Error returned: %s\n\n", lImporter->GetLastErrorString());
+        FbxStatus &status = lImporter->GetStatus();
         
-        if (lImporter->GetLastErrorID() == FbxIOBase::eFileVersionNotSupportedYet ||
-            lImporter->GetLastErrorID() == FbxIOBase::eFileVersionNotSupportedAnymore)
+        printf("Call to KFbxImporter::Initialize() failed.\n");
+        printf("Error returned: %s\n\n", status.GetErrorString());
+        
+        
+        
+        if (status.GetCode() == FbxStatus::EStatusCode::eInvalidFileVersion)
         {
             printf("FBX version number for this FBX SDK is %d.%d.%d\n", lSDKMajor, lSDKMinor, lSDKRevision);
             printf("FBX version number for file %s is %d.%d.%d\n\n", pFilename, lFileMajor, lFileMinor, lFileRevision);
@@ -281,21 +310,21 @@ bool LoadScene(KFbxSdkManager* pSdkManager, KFbxDocument* pScene, const char* pF
     // Import the scene.
     lStatus = lImporter->Import(pScene);
     
-    if(lStatus == false && lImporter->GetLastErrorID() == FbxIOBase::ePasswordError)
+    if(lStatus == false && lImporter->GetStatus().GetCode() == FbxStatus::EStatusCode::ePasswordError)
     {
         printf("Please enter password: ");
         
         lPassword[0] = '\0';
         
         scanf("%s", lPassword);
-        KString lString(lPassword);
+        FbxString lString(lPassword);
         
         IOS_REF.SetStringProp(IMP_FBX_PASSWORD,      lString);
         IOS_REF.SetBoolProp(IMP_FBX_PASSWORD_ENABLE, true);
         
         lStatus = lImporter->Import(pScene);
         
-        if(lStatus == false && lImporter->GetLastErrorID() == FbxIOBase::ePasswordError)
+        if(lStatus == false && lImporter->GetStatus().GetCode() == FbxStatus::EStatusCode::ePasswordError)
         {
             printf("\nPassword is wrong, import aborted.\n");
         }
@@ -543,8 +572,8 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 //    }
 //}
 
-void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
-    KFbxVector4 lTmpVector;
+void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode) {
+    FbxVector4 lTmpVector;
     pNode->UpdatePropertiesFromPivotsAndLimits();
     
     
@@ -813,27 +842,27 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
             }
         }
     }
-    
-    fbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
-    fbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
-    fbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
+        
+    FbxDouble3 local_rotation = pNode->LclRotation.Get(); // pNode->GetGeometricRotation(KFbxNode::eSourcePivot);
+    FbxDouble3 local_translation = pNode->LclTranslation.Get(); // pNode->GetGeometricTranslation(KFbxNode::eSourcePivot);
+    FbxDouble3 local_scale = pNode->LclScaling.Get(); // pNode->GetGeometricScaling(KFbxNode::eSourcePivot);
     
     bool rotation_active = pNode->RotationActive.Get();
     
-    fbxDouble3 post_rotation = pNode->PostRotation.Get();
-    fbxDouble3 pre_rotation = pNode->PreRotation.Get();
-    fbxDouble3 rotation_offset = pNode->RotationOffset.Get();
-    fbxDouble3 scaling_offset = pNode->ScalingOffset.Get();
-    fbxDouble3 rotation_pivot = pNode->RotationPivot.Get();
-    fbxDouble3 scaling_pivot = pNode->ScalingPivot.Get();
-    fbxDouble3 geometric_rotation = pNode->GeometricRotation.Get();
-    fbxDouble3 geometric_translation = pNode->GeometricTranslation.Get();
-    fbxDouble3 geometric_scaling = pNode->GeometricScaling.Get();
-    ERotationOrder rotation_order = pNode->RotationOrder.Get();
+    FbxDouble3 post_rotation = pNode->PostRotation.Get();
+    FbxDouble3 pre_rotation = pNode->PreRotation.Get();
+    FbxDouble3 rotation_offset = pNode->RotationOffset.Get();
+    FbxDouble3 scaling_offset = pNode->ScalingOffset.Get();
+    FbxDouble3 rotation_pivot = pNode->RotationPivot.Get();
+    FbxDouble3 scaling_pivot = pNode->ScalingPivot.Get();
+    FbxDouble3 geometric_rotation = pNode->GeometricRotation.Get();
+    FbxDouble3 geometric_translation = pNode->GeometricTranslation.Get();
+    FbxDouble3 geometric_scaling = pNode->GeometricScaling.Get();
+    EFbxRotationOrder rotation_order = pNode->RotationOrder.Get();
     
     
-    KFbxVector4 lZero(0.0, 0.0, 0.0);
-    KFbxVector4 lOne(1.0, 1.0, 1.0);
+    FbxVector4 lZero(0.0, 0.0, 0.0);
+    FbxVector4 lOne(1.0, 1.0, 1.0);
     
     assert(geometric_rotation == lZero);
     assert(geometric_translation == lZero);
@@ -861,8 +890,8 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
 //    printf("        Local Rotation:         %f %f %f\n", local_rotation[0], local_rotation[1], local_rotation[2]);
 //    printf("        Local Scaling:          %f %f %f\n", local_scale[0], local_scale[1], local_scale[2]);
     
-    KFbxNodeAttribute::EType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
-    if(attribute_type == KFbxNodeAttribute::eLODGroup) {
+    FbxNodeAttribute::EType attribute_type = (pNode->GetNodeAttribute()->GetAttributeType());
+    if(attribute_type == FbxNodeAttribute::eLODGroup) {
         std::string name = GetFbxObjectName(pNode);
         FbxLODGroup *fbx_lod_group = (FbxLODGroup*) pNode->GetNodeAttribute(); // FbxCast<FbxLODGroup>(pNode);
         bool use_world_space_units = fbx_lod_group->WorldSpace.Get();
@@ -946,69 +975,55 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
     } else {
         KRNode *new_node = NULL;
         switch(attribute_type) {
-            case KFbxNodeAttribute::eMesh:
+            case FbxNodeAttribute::eMesh:
                 new_node = LoadMesh(parent_node, pFbxScene, pGeometryConverter, pNode);
                 break;
-            case KFbxNodeAttribute::eLight:
+            case FbxNodeAttribute::eLight:
                 new_node = LoadLight(parent_node, pNode);
                 break;
-            case KFbxNodeAttribute::eSkeleton:
+            case FbxNodeAttribute::eSkeleton:
                 new_node = LoadSkeleton(parent_node, pFbxScene, pNode);
                 break;
-            case KFbxNodeAttribute::eCamera:
+
+            case FbxNodeAttribute::eCamera:
                 new_node = LoadCamera(parent_node, pNode);
                 break;
             default:
                 {
-                    if(pNode->GetChildCount() > 0) {
-                        // Create an empty node, for inheritence of transforms
-                        std::string name = GetFbxObjectName(pNode);
-                        
-                        float min_distance = 0.0f;
-                        float max_distance = 0.0f;
-                        
-                        typedef boost::tokenizer<boost::char_separator<char> > char_tokenizer;
-                        
-                        int step = 0;
-                        
-                        char_tokenizer name_components(name, boost::char_separator<char>("_"));
-                        for(char_tokenizer::iterator itr=name_components.begin(); itr != name_components.end(); itr++) {
-                            std::string component = *itr;
-                            std::transform(component.begin(), component.end(),
-                                           component.begin(), ::tolower);
-                            if(component.compare("lod") == 0) {
-                                step = 1;
-                            } else if(step == 1) {
-                                min_distance = boost::lexical_cast<float>(component);
-                                step++;
-                            } else if(step == 2) {
-                                max_distance = boost::lexical_cast<float>(component);
-                                step++;
-                            }
+                    bool is_locator = false;
+                    if(attribute_type == FbxNodeAttribute::eNull) {
+                        FbxNull* pSourceNull = (FbxNull*) pNode->GetNodeAttribute();
+                        if(pSourceNull->Look.Get() == FbxNull::eCross ) {
+                            is_locator = true;
                         }
-                        
-                        /*
-                         if(min_distance == 0.0f && max_distance == 0.0f) {
-                            // Regular node for grouping children together under one transform
-                            new_node = new KRNode(parent_node->getScene(), name);
-                        } else {
-                         */
-                            // LOD Enabled group node
-                            KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
-                            lod_group->setMinDistance(min_distance);
-                            lod_group->setMaxDistance(max_distance);
-                            new_node = lod_group;
-                        /*
+                    }
+                    
+                    if(is_locator) {
+                        new_node = LoadLocator(parent_node, pFbxScene, pNode);
+                    } else {
+                        if(pNode->GetChildCount() > 0) {
+                            // Create an empty node, for inheritence of transforms
+                            std::string name = GetFbxObjectName(pNode);
+
+                            
+                            /*
+                             if(min_distance == 0.0f && max_distance == 0.0f) {
+                                // Regular node for grouping children together under one transform
+                                new_node = new KRNode(parent_node->getScene(), name);
+                            } else {
+                             */
+                                // LOD Enabled group node
+                                KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
+                                lod_group->setMinDistance(0.0f);
+                                lod_group->setMaxDistance(0.0f);
+                                new_node = lod_group;
                         }
-                         */
-                        
-                        
                     }
                 }
                 break;
         }
         
-        
+        // this is a KRNode
         if(new_node != NULL) {
             new_node->setLocalRotation(node_rotation);
             new_node->setLocalTranslation(node_translation);
@@ -1020,7 +1035,7 @@ void LoadNode(KFbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *p
             new_node->setPreRotation(node_pre_rotation);
             new_node->setPostRotation(node_post_rotation);
             parent_node->addChild(new_node);
-            
+             
             // Load child nodes
             for(int i = 0; i < pNode->GetChildCount(); i++)
             {
@@ -1055,7 +1070,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     FbxPropertyT<FbxDouble3> lKFbxDouble3;
     FbxPropertyT<FbxDouble> lKFbxDouble1;
     
-    if (pMaterial->GetClassId().Is(KFbxSurfacePhong::ClassId)) {
+    if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
         // We found a Phong material.
         
         // Ambient Color
@@ -1063,11 +1078,11 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Diffuse Color
-        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Diffuse;
+        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Diffuse;
         new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Specular Color (unique to Phong materials)
-        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Specular;
+        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Specular;
         new_material->setSpecular(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Emissive Color
@@ -1080,7 +1095,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         */
         
         // Shininess
-        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->Shininess;
+        lKFbxDouble1 =((FbxSurfacePhong *) pMaterial)->Shininess;
         new_material->setShininess(lKFbxDouble1.Get());
         
         /*
@@ -1090,27 +1105,27 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
          */
         
         // Transparency Color
-        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->TransparentColor;
+        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->TransparentColor;
         new_material->setTransparency( 1.0f - (lKFbxDouble3.Get()[0] + lKFbxDouble3.Get()[1] + lKFbxDouble3.Get()[2]) / 3.0f);
         
         // Reflection factor
-        lKFbxDouble1 =((KFbxSurfacePhong *) pMaterial)->ReflectionFactor;
+        lKFbxDouble1 =((FbxSurfacePhong *) pMaterial)->ReflectionFactor;
         
         // Reflection color
-        lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Reflection;
+        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
         
         // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
         new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
         
-    } else if(pMaterial->GetClassId().Is(KFbxSurfaceLambert::ClassId) ) {
+    } else if(pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) ) {
         // We found a Lambert material.
         
         // Ambient Color
-        lKFbxDouble3=((KFbxSurfaceLambert *)pMaterial)->Ambient;
+        lKFbxDouble3=((FbxSurfaceLambert *)pMaterial)->Ambient;
         new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Diffuse Color
-        lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Diffuse;
+        lKFbxDouble3 =((FbxSurfaceLambert *)pMaterial)->Diffuse;
         new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Emissive
@@ -1122,7 +1137,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
          */
         
         // Transparency Color
-        lKFbxDouble3 =((KFbxSurfaceLambert *) pMaterial)->TransparentColor;
+        lKFbxDouble3 =((FbxSurfaceLambert *) pMaterial)->TransparentColor;
         new_material->setTransparency(1.0f - (lKFbxDouble3.Get()[0] + lKFbxDouble3.Get()[1] + lKFbxDouble3.Get()[2]) / 3.0f);
         
     } else {
@@ -1131,31 +1146,31 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     
     
     
-    KFbxProperty pProperty;
+    FbxProperty pProperty;
     
     // Diffuse Map Texture
-    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sDiffuse);
-    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+    pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
         printf("Warning! Layered textures not supported.\n");
     }
     
-    int texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+    int texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
     if(texture_count > 1) {
         printf("Error! Multiple diffuse textures not supported.\n");
     } else if(texture_count == 1) {
-        KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
+        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
         assert(!pTexture->GetSwapUV());
         assert(pTexture->GetCroppingTop() == 0);
         assert(pTexture->GetCroppingLeft() == 0);
         assert(pTexture->GetCroppingRight() == 0);
         assert(pTexture->GetCroppingBottom() == 0);
-        assert(pTexture->GetWrapModeU() == KFbxTexture::eRepeat);
-        assert(pTexture->GetWrapModeV() == KFbxTexture::eRepeat);
+        assert(pTexture->GetWrapModeU() == FbxTexture::eRepeat);
+        assert(pTexture->GetWrapModeV() == FbxTexture::eRepeat);
         assert(pTexture->GetRotationU() == 0.0f);
         assert(pTexture->GetRotationV() == 0.0f);
         assert(pTexture->GetRotationW() == 0.0f);
         
-        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
             new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
@@ -1163,24 +1178,24 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     
     
     // Specular Map Texture
-    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sSpecular);
-    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+    pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sSpecular);
+    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
         printf("Warning! Layered textures not supported.\n");
     }
-    texture_count = pProperty.GetSrcObjectCount(KFbxTexture::ClassId);
+    texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
     if(texture_count > 1) {
         printf("Error! Multiple specular textures not supported.\n");
     } else if(texture_count == 1) {
-        KFbxTexture* pTexture = FbxCast <KFbxTexture> (pProperty.GetSrcObject(KFbxTexture::ClassId,0));
-        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
+        FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
             new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
     }
     
     // Normal Map Texture
-    pProperty = pMaterial->FindProperty(KFbxSurfaceMaterial::sNormalMap);
-    if(pProperty.GetSrcObjectCount(KFbxLayeredTexture::ClassId) > 0) {
+    pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
+    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
         printf("Warning! Layered textures not supported.\n");
     }
     
@@ -1189,8 +1204,8 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     if(texture_count > 1) {
         printf("Error! Multiple normal map textures not supported.\n");
     } else if(texture_count == 1) {
-        KFbxTexture* pTexture = pProperty.GetSrcObject<KFbxTexture>(0);
-        KFbxFileTexture *pFileTexture = FbxCast<KFbxFileTexture>(pTexture);
+        FbxTexture* pTexture = pProperty.GetSrcObject<FbxTexture>(0);
+        FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
             new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
@@ -1207,8 +1222,8 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
 
 
 
-void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxMesh* pSourceMesh) {
-    KFbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
+void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pSourceMesh) {
+    FbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
     
     KRMesh::mesh_info mi;
     mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
@@ -1219,7 +1234,7 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
     } control_point_weight_info_t;
     
     int control_point_count = pMesh->GetControlPointsCount();
-    KFbxVector4* control_points = pMesh->GetControlPoints();
+    FbxVector4* control_points = pMesh->GetControlPoints();
     
     control_point_weight_info_t *control_point_weights = new control_point_weight_info_t[control_point_count];
     for(int control_point=0; control_point < control_point_count; control_point++) {
@@ -1342,7 +1357,7 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
     bool need_tangents = false;
     
     for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
-        KFbxSurfaceMaterial *pMaterial = pSourceMesh->GetNode()->GetMaterial(iMaterial);
+        FbxSurfaceMaterial *pMaterial = pSourceMesh->GetNode()->GetMaterial(iMaterial);
         
         KRMaterial *material =  context.getMaterialManager()->getMaterial(pMaterial->GetName());
         if(material) {
@@ -1380,7 +1395,7 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
                     for(int iVertex=0; iVertex<3; iVertex++) {
                         // ----====---- Read Vertex Position ----====----
                         int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
-                        KFbxVector4 v = control_points[lControlPointIndex];
+                        FbxVector4 v = control_points[lControlPointIndex];
                         mi.vertices.push_back(KRVector3(v[0], v[1], v[2]));
                         
                         if(mi.bone_names.size() > 0) {
@@ -1401,29 +1416,35 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
                         
                         // ----====---- Read UVs ----====----
                         
-                        KStringList uvNames;
+                        FbxStringList uvNames;
                         pMesh->GetUVSetNames(uvNames);
                         if(uv_count >= 1) {
                             const char *setName = uvNames[0].Buffer();
-                            KFbxVector2 uv;
-                            if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
-                                new_uva = KRVector2(uv[0], uv[1]);
+                            FbxVector2 uv;
+                            bool unmapped = false;
+                            if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
+                                if(!unmapped) {
+                                    new_uva = KRVector2(uv[0], uv[1]);
+                                }
                             }
                             mi.uva.push_back(new_uva);
                         }
                         
                         if(uv_count >= 2) {
                             const char *setName = uvNames[1].Buffer();
-                            KFbxVector2 uv;
-                            if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv)) {
-                                new_uvb = KRVector2(uv[0], uv[1]);
+                            FbxVector2 uv;
+                            bool unmapped = false;
+                            if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
+                                if(!unmapped) {
+                                    new_uvb = KRVector2(uv[0], uv[1]);
+                                }
                             }
                             mi.uvb.push_back(new_uvb);
                         }
                         
                         // ----====---- Read Normals ----====----
                         
-                        KFbxVector4 new_normal;
+                        FbxVector4 new_normal;
                         if(pMesh->GetPolygonVertexNormal(iPolygon, iVertex, new_normal)) {
                             mi.normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
@@ -1432,7 +1453,7 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
                         // ----====---- Read Tangents ----====----
                         for(int l = 0; l < tangent_count; ++l)
                         {
-                            KFbxVector4 new_tangent;
+                            FbxVector4 new_tangent;
                             FbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
                             
                             if(leTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
@@ -1484,10 +1505,10 @@ void LoadMesh(KRContext &context, KFbxScene* pFbxScene, FbxGeometryConverter *pG
     context.getModelManager()->addModel(new_mesh);
 }
 
-KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, KFbxNode* pNode) {
+KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     
-    KFbxMesh* pSourceMesh = (KFbxMesh*) pNode->GetNodeAttribute();
+    FbxMesh* pSourceMesh = (FbxMesh*) pNode->GetNodeAttribute();
 
     if(KRMesh::GetLODCoverage(pNode->GetName()) == 100) {
         // If this is the full detail model, add an instance of it to the scene file
@@ -1500,9 +1521,23 @@ KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS, 0.0f);
         } else if(strncmp(node_name, "audio_collider_", strlen("audio_collider_")) == 0) {
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_AUDIO, 1.0f);
-        } else if(strncmp(node_name, "collider_", strlen("collider_")) == 0) {
+        } else if(strncmp(node_name, "collider_", 9) == 0) { // 9 == strlen("collider_")
+            // Colliders can have a prefix of collider_##_, where ## indicates the layer mask
+            // Colliders with a prefix of only collider_ will have a default layer mask of KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO
             
-            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO, 1.0f);
+            // Scan through the characters of the name until we no longer see digit characters (or see a '\0' indicating the end of the string)
+            unsigned int layer = 0;
+            const char *szNodeName = node_name + 9; // 9 == strlen("collider_")
+            const char *source_char = szNodeName;
+            while(*source_char >= '0' && *source_char <= '9') {
+                layer = layer * 10 + (*source_char++ - '0');
+            }
+            
+            if(layer == 0) {
+                // No layer mask number was found, use the default
+                layer = KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO;
+            }
+            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), layer, 1.0f);
         } else {
             return new KRModel(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
         }
@@ -1512,7 +1547,7 @@ KRNode *LoadMesh(KRNode *parent_node, KFbxScene* pFbxScene, FbxGeometryConverter
     
 }
 
-KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, KFbxNode* pNode) {
+KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
     std::string name = GetFbxObjectName(pNode);
     KRBone *new_bone = new KRBone(parent_node->getScene(), name.c_str());
     
@@ -1526,7 +1561,56 @@ KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pFbxScene, KFbxNode* pNode) 
     return new_bone;
 }
 
-KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode) {
+KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
+    std::string name = GetFbxObjectName(pNode);
+    
+    KRLocator *new_locator = new KRLocator(parent_node->getScene(), name.c_str());
+    
+    // Enumerate fbx properties so client code can convert locators into application-specific objects
+    FbxProperty fbx_property = pNode->GetFirstProperty();
+    while(fbx_property.IsValid()) {
+        std::string property_name = fbx_property.GetNameAsCStr();
+        std::transform(property_name.begin(), property_name.end(), property_name.begin(), ::tolower);
+        
+        boost::variant<int, double, bool, std::string> property_value = "";
+        switch(fbx_property.GetPropertyDataType().GetType()) {
+            case eFbxInt:
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxInt>();
+                break;
+            case eFbxDouble:
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxDouble>();
+                break;
+            case eFbxBool:
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxBool>();
+                break;
+            case eFbxFloat:
+                new_locator->getUserAttributes()[property_name] = fbx_property.Get<FbxDouble>();
+                break;
+            case eFbxString:
+                new_locator->getUserAttributes()[property_name] = std::string(fbx_property.Get<FbxString>().Buffer());
+                break;
+            default:
+            {
+                fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
+            }
+            break;
+        }
+        
+        fbx_property = pNode->GetNextProperty(fbx_property);
+    }
+    
+    
+    //static bool GetBindPoseContaining(FbxScene* pScene, FbxNode* pNode, PoseList& pPoseList, FbxArray<int>& pIndex);
+    //    PoseList pose_list;
+    //    FbxArray<int> pose_indices;
+    //    if(FbxPose::GetBindPoseContaining(pFbxScene, pNode, pose_list, pose_indices)) {
+    //        fprintf(stderr, "Found bind pose(s)!\n");
+    //    }
+    
+    return new_locator;
+}
+
+KRNode *LoadCamera(KRNode *parent_node, FbxNode* pNode) {
     FbxCamera *camera = (FbxCamera *)pNode->GetNodeAttribute();
     const char *szName = pNode->GetName();
     
@@ -1534,7 +1618,7 @@ KRNode *LoadCamera(KRNode *parent_node, KFbxNode* pNode) {
     return new_camera;
 }
 
-KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode) {
+KRNode *LoadLight(KRNode *parent_node, FbxNode* pNode) {
     const GLfloat PI = 3.14159265;
     const GLfloat d2r = PI * 2 / 360;
     
@@ -1545,7 +1629,7 @@ KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode) {
     FbxDouble light_intensity = pLight->Intensity.Get();
     FbxDouble light_hotspot = pLight->InnerAngle.Get(); // light inner cone angle (in degrees). Also know as the HotSpot
     FbxDouble light_coneangle = pLight->OuterAngle.Get(); // light outer cone angle (in degrees). Also known as the Falloff
-    KFbxLight::EDecayType light_decaytype = pLight->DecayType.Get(); // decay type
+    FbxLight::EDecayType light_decaytype = pLight->DecayType.Get(); // decay type
     FbxDouble light_decaystart = pLight->DecayStart.Get(); // decay start distance
     
     
@@ -1557,20 +1641,20 @@ KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode) {
     KRLight *new_light = NULL;
     
     switch(pLight->LightType.Get()) {
-        case KFbxLight::ePoint:
+        case FbxLight::ePoint:
         {
             KRPointLight *l = new KRPointLight(parent_node->getScene(), szName);
             new_light = l;
             
         }
             break;
-        case KFbxLight::eDirectional:
+        case FbxLight::eDirectional:
         {
             KRDirectionalLight *l = new KRDirectionalLight(parent_node->getScene(), szName);
             new_light = l;
         }
             break;
-        case KFbxLight::eSpot:
+        case FbxLight::eSpot:
         {
             KRSpotLight *l = new KRSpotLight(parent_node->getScene(), szName);
             l->setInnerAngle(light_hotspot * d2r);
@@ -1578,8 +1662,8 @@ KRNode *LoadLight(KRNode *parent_node, KFbxNode* pNode) {
             new_light = l;
         }
             break;
-        case KFbxLight::eVolume:
-        case KFbxLight::eArea:
+        case FbxLight::eVolume:
+        case FbxLight::eArea:
             // Not supported yet
             break;
     }

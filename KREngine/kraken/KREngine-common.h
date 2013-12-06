@@ -11,10 +11,9 @@
 #ifndef KRENGINE_COMMON_H
 #define KRENGINE_COMMON_H
 
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-
 float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
+
 
 #include <stdint.h>
 #include <vector>
@@ -47,6 +46,9 @@ float const D2R = PI * 2 / 360;
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/signals2/mutex.hpp>
 
+#include <atomic>
+#include <thread>
+
 #include "tinyxml2.h"
 
 
@@ -69,28 +71,18 @@ using std::queue;
 #define KRAKEN_HAVE_BLAS 1
 #endif
 
+#define KRENGINE_MAX_TEXTURE_UNITS 8
+
 
 #if !defined(__i386__) && defined(__arm__)
 #define KRAKEN_USE_ARM_NEON
 #endif
 
 
-#if TARGET_OS_IPHONE
-
 #include <unordered_map>
 using std::unordered_map;
 using std::unordered_multimap;
 using std::hash;
-
-#else
-
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-using std::tr1::unordered_multimap;
-using std::tr1::hash;
-
-#endif
-
 
 #if TARGET_OS_IPHONE
 
@@ -128,9 +120,6 @@ using std::tr1::hash;
 #else
 #include <OpenAL/MacOSX_OALExtensions.h>
 #endif
-
-#endif
-
 
 
 #if DEBUG
@@ -197,3 +186,5 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #include "KRVector3.h"
 #include "KRVector2.h"
 #include "KRBehavior.h"
+
+#endif

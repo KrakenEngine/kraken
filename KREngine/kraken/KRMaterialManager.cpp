@@ -100,7 +100,7 @@ void KRMaterialManager::add(KRMaterial *new_material) {
 bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
     KRMaterial *pMaterial = NULL;
     char szSymbol[16][256];
-    
+    data->lock();
  
     char *pScan = (char *)data->getStart();
     char *pEnd = (char *)data->getEnd();
@@ -282,7 +282,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
         }
 
     }
-
+    data->unlock();
     delete data;
     return true;
 }

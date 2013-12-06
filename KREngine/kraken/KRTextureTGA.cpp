@@ -28,10 +28,40 @@ typedef struct {
 
 KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name)
 {
+    data->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)data->getStart();
     
     m_max_lod_max_dim = pHeader->width > pHeader->height ? pHeader->width : pHeader->height;
     m_min_lod_max_dim = m_max_lod_max_dim; // Mipmaps not yet supported for TGA images
+    switch(pHeader->imagetype) {
+        case 2: // rgb
+            switch(pHeader->bitsperpixel) {
+                case 24:
+                {
+                    m_imageSize = pHeader->width * pHeader->height * 4;
+                }
+                break;
+                case 32:
+                {
+                    m_imageSize = pHeader->width * pHeader->height * 4;
+                }
+                break;
+                    
+                default:
+                {
+                    assert(false);
+                }
+                break;
+            }
+            break;
+        default:
+        {
+            assert(false);
+            break;
+        }
+    }
+    
+    data->unlock();
 }
 
 KRTextureTGA::~KRTextureTGA()
@@ -39,12 +69,14 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, long &textureMemUsed, int prev_lod_max_dim, GLuint prev_handle)
-{    
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim)
+{
+    m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 
     if(pHeader->colourmaptype != 0) {
+        m_pData->unlock();
         return false; // Mapped colors not supported
     }
     
@@ -73,15 +105,12 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         }
 //#endif
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
-                        delete converted_image;
+                        free(converted_image);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
+                            m_pData->unlock();
                             return false;
                         }
-                        int memAllocated = pHeader->width * pHeader->height * 4;
-                        textureMemUsed += memAllocated;
-                        getContext().getTextureManager()->memoryChanged(memAllocated);
-                        getContext().getTextureManager()->addMemoryTransferredThisFrame(memAllocated);
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
@@ -90,47 +119,29 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
+                            m_pData->unlock();
                             return false;
                         }
-                        int memAllocated = pHeader->width * pHeader->height * 4;
-                        textureMemUsed += memAllocated;
-                        getContext().getTextureManager()->memoryChanged(memAllocated);
-                        getContext().getTextureManager()->addMemoryTransferredThisFrame(memAllocated);
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
                 default:
+                    m_pData->unlock();
                     return false; // 16-bit images not yet supported
             }
             break;
         default:
+            m_pData->unlock();
             return false; // Image type not yet supported
     }
 
+    m_pData->unlock();
     return true;
 }
 
 long KRTextureTGA::getMemRequiredForSize(int max_dim)
 {
-    TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
-    switch(pHeader->imagetype) {
-        case 2: // rgb
-            switch(pHeader->bitsperpixel) {
-                case 24:
-                {
-                     return pHeader->width * pHeader->height * 4;
-                }
-                break;
-                case 32:
-                {
-                    return pHeader->width * pHeader->height * 4;
-                }
-                break;
-            }
-            break;
-    }
-    
-    return 0;
+    return m_imageSize;
 }
 
 std::string KRTextureTGA::getExtension()
