@@ -93,6 +93,11 @@ std::set<KRReverbZone *> &KRScene::getReverbZones()
     return m_reverbZoneNodes;
 }
 
+std::set<KRLocator *> &KRScene::getLocators()
+{
+    return m_locatorNodes;
+}
+
 void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
@@ -460,6 +465,10 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
     if(ReverbZoneNode) {
         m_reverbZoneNodes.erase(ReverbZoneNode);
     }
+    KRLocator *locator = dynamic_cast<KRLocator *>(pNode);
+    if(locator) {
+        m_locatorNodes.erase(locator);
+    }
     m_modifiedNodes.erase(pNode);
     if(!m_newNodes.erase(pNode)) {
         m_nodeTree.remove(pNode);
@@ -481,14 +490,19 @@ void KRScene::updateOctree(const KRViewport &viewport)
         if(node->hasPhysics()) {
             m_physicsNodes.insert(node);
         }
-        KRAmbientZone *AmbientZoneNode = dynamic_cast<KRAmbientZone *>(node);
-        if(dynamic_cast<KRAmbientZone *>(node)) {
-            m_ambientZoneNodes.insert(AmbientZoneNode);
+        KRAmbientZone *ambientZoneNode = dynamic_cast<KRAmbientZone *>(node);
+        if(ambientZoneNode) {
+            m_ambientZoneNodes.insert(ambientZoneNode);
         }
-        KRReverbZone *ReverbZoneNode = dynamic_cast<KRReverbZone *>(node);
-        if(dynamic_cast<KRReverbZone *>(node)) {
-            m_reverbZoneNodes.insert(ReverbZoneNode);
+        KRReverbZone *reverbZoneNode = dynamic_cast<KRReverbZone *>(node);
+        if(reverbZoneNode) {
+            m_reverbZoneNodes.insert(reverbZoneNode);
         }
+        KRLocator *locatorNode = dynamic_cast<KRLocator *>(node);
+        if(locatorNode) {
+            m_locatorNodes.insert(locatorNode);
+        }
+        
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
