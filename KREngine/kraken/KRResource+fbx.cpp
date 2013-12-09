@@ -1636,7 +1636,7 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
                 break;
             default:
             {
-                fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
+           //     fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
             }
             break;
         }
