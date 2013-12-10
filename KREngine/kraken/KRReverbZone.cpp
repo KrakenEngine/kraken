@@ -89,7 +89,7 @@ void KRReverbZone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
     
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
-    bool bVisualize = false;
+    bool bVisualize = pCamera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_REVERB_ZONES;
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
         KRMat4 sphereModelMatrix = getModelMatrix();
