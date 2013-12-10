@@ -1566,13 +1566,13 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_PHYSICS, 0.0f);
         } else if(strncmp(node_name, "audio_collider_", strlen("audio_collider_")) == 0) {
             return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), KRAKEN_COLLIDER_AUDIO, 1.0f);
-        } else if(strncmp(node_name, "collider_", 9) == 0) { // 9 == strlen("collider_")
+        } else if(strncmp(node_name, "collider", 8) == 0) { // 8 == strlen("collider")
             // Colliders can have a prefix of collider_##_, where ## indicates the layer mask
             // Colliders with a prefix of only collider_ will have a default layer mask of KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO
             
             // Scan through the characters of the name until we no longer see digit characters (or see a '\0' indicating the end of the string)
             unsigned int layer = 0;
-            const char *szNodeName = node_name + 9; // 9 == strlen("collider_")
+            const char *szNodeName = node_name + 8; // 8 == strlen("collider")
             const char *source_char = szNodeName;
             while(*source_char >= '0' && *source_char <= '9') {
                 layer = layer * 10 + (*source_char++ - '0');
@@ -1582,7 +1582,13 @@ KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter 
                 // No layer mask number was found, use the default
                 layer = KRAKEN_COLLIDER_PHYSICS | KRAKEN_COLLIDER_AUDIO;
             }
-            return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), layer, 1.0f);
+            if(*source_char == '_') {
+                // Pattern has matched
+                return new KRCollider(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), layer, 1.0f);
+            } else {
+                // This is just a normal node, which happened to be prefixed with "collider" but didn't have a number and underscore
+                return new KRModel(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
+            }
         } else {
             return new KRModel(parent_node->getScene(), GetFbxObjectName(pNode), pSourceMesh->GetNode()->GetName(), light_map, 0.0f, true, false);
         }

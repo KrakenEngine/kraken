@@ -1091,6 +1091,11 @@ std::string KRCamera::getDebugText()
         break;
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES:
         stream << "Bone Visualization";
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_REVERB_ZONES:
+        stream << "Siren - Reverb Zones";
+        break;
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES:
+        stream << "Siren - Ambient Zones";
         break;
     }
     return stream.str();
