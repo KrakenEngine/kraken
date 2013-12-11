@@ -233,7 +233,7 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
                 }
                 m_vboMemUsed -= firstVBO.size;
                 m_vbosPool.erase(first_itr);
-                fprintf(stderr, "VBO Swapping...\n");
+                // fprintf(stderr, "VBO Swapping...\n");
             }
             
             m_currentVBO.vao_handle = -1;
