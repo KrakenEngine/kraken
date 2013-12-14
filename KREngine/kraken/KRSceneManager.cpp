@@ -65,15 +65,20 @@ KRScene *KRSceneManager::getScene(const std::string &name) {
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
     
-    return m_scenes[lowerName];
+    static unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.find(lowerName);
+    if(scene_itr != m_scenes.end()) {
+        return (*scene_itr).second;
+    } else {
+        return NULL;
+    }
 }
 
 KRScene *KRSceneManager::getFirstScene() {
     static unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
-    if(scene_itr == m_scenes.end()) {
-        return NULL;
-    } else {
+    if(scene_itr != m_scenes.end()) {
         return (*scene_itr).second;
+    } else {
+        return NULL;
     }
 }
 

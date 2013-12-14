@@ -35,6 +35,8 @@
 #define IOS_REF (*(pSdkManager->GetIOSettings()))
 #endif
 
+#define warning(e,s) if(!(e))printf("WARNING: %s\n",s)
+
 void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene);
 void DestroySdkObjects(FbxManager* pSdkManager);
 bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename);
@@ -404,8 +406,7 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
         FbxTime frame_time;
         frame_time.SetSecondDouble(frame_seconds);
         float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
-        //printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
-        new_curve->setValue(frame_number, frame_value);
+        new_curve->setValue(frame_number+frame_start, frame_value);
     }
 
     return new_curve;
@@ -864,10 +865,10 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     FbxVector4 lZero(0.0, 0.0, 0.0);
     FbxVector4 lOne(1.0, 1.0, 1.0);
     
-    assert(geometric_rotation == lZero);
-    assert(geometric_translation == lZero);
-    assert(geometric_scaling == lOne);
-    assert(rotation_order == eEulerXYZ);
+    warning((geometric_rotation == lZero), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((geometric_translation == lZero), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((geometric_scaling == lOne), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((rotation_order == eEulerXYZ), "Geometric Rotation not supported .. 3DSMax file??");
 
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
     KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
@@ -1597,7 +1598,9 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
                 break;
             default:
             {
+#if defined( DEBUG )
                 fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
+#endif
             }
             break;
         }
