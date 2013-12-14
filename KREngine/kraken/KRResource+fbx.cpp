@@ -35,6 +35,8 @@
 #define IOS_REF (*(pSdkManager->GetIOSettings()))
 #endif
 
+#define warning(e,s) if(!(e))printf("WARNING: %s\n",s)
+
 void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene);
 void DestroySdkObjects(FbxManager* pSdkManager);
 bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename);
@@ -893,10 +895,10 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     FbxVector4 lZero(0.0, 0.0, 0.0);
     FbxVector4 lOne(1.0, 1.0, 1.0);
     
-    assert(geometric_rotation == lZero);
-    assert(geometric_translation == lZero);
-    assert(geometric_scaling == lOne);
-    assert(rotation_order == eEulerXYZ);
+    warning((geometric_rotation == lZero), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((geometric_translation == lZero), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((geometric_scaling == lOne), "Geometric Rotation not supported .. 3DSMax file??");
+    warning((rotation_order == eEulerXYZ), "Geometric Rotation not supported .. 3DSMax file??");
     
     // FINDME - node_key_frame_position contains the key frame (start location) for an animation node
     // node_has_n_points
