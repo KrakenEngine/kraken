@@ -25,6 +25,9 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
     "GL_EXT_texture_storage"
 };
 
+KRContext::log_callback *KRContext::s_log_callback = NULL;
+void *KRContext::s_log_callback_user_data = NULL;
+
 KRContext::KRContext() {
     m_streamingEnabled = false;
     mach_timebase_info(&m_timebase_info);
@@ -44,6 +47,8 @@ KRContext::KRContext() {
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
     m_streamingEnabled = true;
+    
+
 }
 
 KRContext::~KRContext() {
@@ -98,6 +103,32 @@ KRContext::~KRContext() {
         delete m_pBundleManager;
         m_pBundleManager = NULL;
     }
+}
+
+void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)
+{
+    s_log_callback = log_callback;
+    s_log_callback_user_data = user_data;
+}
+
+void KRContext::Log(log_level level, const std::string &message_format, ...)
+{
+    va_list args;
+    va_start(args, message_format);
+    
+    if(s_log_callback) {
+        const int LOG_BUFFER_SIZE = 32768;
+        char log_buffer[LOG_BUFFER_SIZE];
+        snprintf(log_buffer, LOG_BUFFER_SIZE, message_format.c_str(), args);
+        s_log_callback(s_log_callback_user_data, std::string(log_buffer), level);
+    } else {
+        FILE *out_file = level == LOG_LEVEL_INFORMATION ? stdout : stderr;
+        fprintf(out_file, "Kraken - INFO: ");
+        fprintf(out_file, message_format.c_str(), args);
+        fprintf(out_file, "\n");
+    }
+    
+    va_end(args);
 }
 
 KRBundleManager *KRContext::getBundleManager() {
@@ -220,7 +251,7 @@ void KRContext::loadResource(std::string path) {
     if(data->load(path)) {
         loadResource(path, data);
     } else {
-        fprintf(stderr, "KRContext::loadResource - Failed to open file: %s\n", path.c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", path.c_str());
         delete data;
     }
 }
@@ -291,9 +322,9 @@ void KRContext::getMemoryStats(long &free_memory)
     vm_statistics_data_t vm_stat;
     int total_ram = 256 * 1024 * 1024;
     if(host_page_size(host_port, &pagesize) != KERN_SUCCESS) {
-        fprintf(stderr, "ERROR: Could not get VM page size.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Could not get VM page size.");
     } else if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
-        fprintf(stderr, "ERROR: Could not get VM stats.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Could not get VM stats.");
     } else {
         total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
         

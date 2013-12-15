@@ -32,6 +32,7 @@
 #include "KRDataBlock.h"
 #include "KREngine-common.h"
 #include "KRResource.h"
+#include "KRContext.h"
 
 #include <errno.h>
 
@@ -311,28 +312,28 @@ void KRDataBlock::lock()
                     int iError = errno;
                     switch(iError) {
                         case EACCES:
-                            fprintf(stderr, "mmap failed with EACCES\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with EACCES");
                             break;
                         case EBADF:
-                            fprintf(stderr, "mmap failed with EBADF\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with EBADF");
                             break;
                         case EMFILE:
-                            fprintf(stderr, "mmap failed with EMFILE\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with EMFILE");
                             break;
                         case EINVAL:
-                            fprintf(stderr, "mmap failed with EINVAL\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with EINVAL");
                             break;
                         case ENOMEM:
-                            fprintf(stderr, "mmap failed with ENOMEM\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with ENOMEM");
                             break;
                         case ENXIO:
-                            fprintf(stderr, "mmap failed with ENXIO\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with ENXIO");
                             break;
                         case EOVERFLOW:
-                            fprintf(stderr, "mmap failed with EOVERFLOW\n");
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with EOVERFLOW");
                             break;
                         default:
-                            fprintf(stderr, "mmap failed with errno: %i\n", iError);
+                            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "mmap failed with errno: %i", iError);
                             break;
                     }
                     assert(false); // mmap() failed.

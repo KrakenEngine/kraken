@@ -126,7 +126,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
             std::map<std::pair<std::string, std::vector<int> > , KRShader *>::iterator itr = m_shaders.begin();
             delete (*itr).second;
             m_shaders.erase(itr);
-            fprintf(stderr, "Swapping shaders...\n");
+            KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Swapping shaders...\n");
         }
         
         
@@ -224,10 +224,10 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         std::string fragShaderSource = m_fragShaderSource[platform_shader_name];
         
         if(vertShaderSource.length() == 0) {
-            fprintf(stderr, "ERROR: Vertex Shader Missing: %s\n", platform_shader_name.c_str());
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Vertex Shader Missing: %s", platform_shader_name.c_str());
         }
         if(fragShaderSource.length() == 0) {
-            fprintf(stderr, "ERROR: Fragment Shader Missing: %s\n", platform_shader_name.c_str());
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Fragment Shader Missing: %s", platform_shader_name.c_str());
         }
         
         char szKey[256];

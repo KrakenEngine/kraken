@@ -129,10 +129,11 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         GLint logLength;
         GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
-            GLchar *log = (GLchar *)malloc(logLength);
+            GLchar *log = (GLchar *)malloc(logLength + 1);
             assert(log != NULL);
             GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
-            fprintf(stderr, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
+            log[logLength] = '\0';
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
         }
 
@@ -145,10 +146,11 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         // Report any compile issues to stderr
         GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
-            GLchar *log = (GLchar *)malloc(logLength);
+            GLchar *log = (GLchar *)malloc(logLength + 1);
             assert(log != NULL);
             GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
-            fprintf(stderr, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
+            log[logLength] = '\0';
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
             free(log);
         }
         
@@ -176,15 +178,16 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         
         if(link_success != GL_TRUE) {
             // Report any linking issues to stderr
-            fprintf(stderr, "KREngine - Failed to link shader program: %s\n", szKey);
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to link shader program: %s", szKey);
                     
             GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
             if (logLength > 0)
             {
-                GLchar *log = (GLchar *)malloc(logLength);
+                GLchar *log = (GLchar *)malloc(logLength + 1);
                 assert(log != NULL);
                 GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-                fprintf(stderr, "Program link log:\n%s", log);
+                log[logLength] = '\0';
+                KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program link log:\n%s", log);
                 free(log);
             }
             GLDEBUG(glDeleteProgram(m_iProgram));
@@ -557,14 +560,15 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         GLDEBUG(glValidateProgram(m_iProgram));
         GLDEBUG(glGetProgramiv(m_iProgram, GL_VALIDATE_STATUS, &validate_status));
         if(validate_status != GL_TRUE) {
-            fprintf(stderr, "KREngine - Failed to validate shader program: %s\n", m_szKey);
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to validate shader program: %s", m_szKey);
             GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
             if (logLength > 0)
             {
-                GLchar *log = (GLchar *)malloc(logLength);
+                GLchar *log = (GLchar *)malloc(logLength + 1);
                 assert(log != NULL);
                 GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-                fprintf(stderr, "Program validate log:\n%s", log);
+                log[logLength] = '\0';
+                KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program validate log:\n%s", log);
                 free(log);
                 
             }

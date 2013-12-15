@@ -129,7 +129,7 @@ std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
     std::sort(matching_models.begin(), matching_models.end(), KRMesh::lod_sort_predicate);
     
     if(matching_models.size() == 0) {        
-        fprintf(stderr, "ERROR: Model not found: %s\n", lowerName.c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Model not found: %s", lowerName.c_str());
     }
     
     return matching_models;
@@ -159,7 +159,7 @@ void KRMeshManager::releaseVBO(KRDataBlock &data)
 
     vbo_info_type vbo_to_release;
     if(m_vbosActive.find(&data) != m_vbosActive.end()) {
-        fprintf(stderr, "glFinish called due to releasing a VBO that is active in the current frame.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "glFinish called due to releasing a VBO that is active in the current frame.");
         GLDEBUG(glFinish());
         
         // The VBO is active
@@ -219,7 +219,7 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
             
             while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + data.getSize() + index_data.getSize() >= KRContext::KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
-                    fprintf(stderr, "flushBuffers due to VBO exhaustion...\n");
+                    KRContext::Log(KRContext::LOG_LEVEL_WARNING, "flushBuffers due to VBO exhaustion...");
                     m_pContext->rotateBuffers(false);
                 }
                 unordered_map<KRDataBlock *, vbo_info_type>::iterator first_itr = m_vbosPool.begin();

@@ -256,7 +256,7 @@ KRNode *KRAnimationAttribute::getTarget()
         m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->find<KRNode>(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
     }
     if(m_target == NULL) {
-        fprintf(stderr, "Kraken - Animation attribute could not find object: %s\n", m_target_name.c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Animation attribute could not find object: %s", m_target_name.c_str());
     }
     return m_target;
 }

@@ -30,6 +30,7 @@
 //
 
 #include "KRHitInfo.h"
+#include "KRContext.h"
 
 KRHitInfo::KRHitInfo()
 {
@@ -42,7 +43,7 @@ KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, KRNode 
 {
     m_position = position;
     if(m_position == KRVector3::Zero()) {
-        fprintf(stderr, "Zero position hitinfo\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Zero position hitinfo");
     }
     m_normal = normal;
     m_node = node;
