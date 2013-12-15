@@ -119,12 +119,12 @@ void KRContext::Log(log_level level, const std::string &message_format, ...)
     if(s_log_callback) {
         const int LOG_BUFFER_SIZE = 32768;
         char log_buffer[LOG_BUFFER_SIZE];
-        snprintf(log_buffer, LOG_BUFFER_SIZE, message_format.c_str(), args);
+        vsnprintf(log_buffer, LOG_BUFFER_SIZE, message_format.c_str(), args);
         s_log_callback(s_log_callback_user_data, std::string(log_buffer), level);
     } else {
         FILE *out_file = level == LOG_LEVEL_INFORMATION ? stdout : stderr;
         fprintf(out_file, "Kraken - INFO: ");
-        fprintf(out_file, message_format.c_str(), args);
+        vfprintf(out_file, message_format.c_str(), args);
         fprintf(out_file, "\n");
     }
     
