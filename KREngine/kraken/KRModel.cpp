@@ -105,6 +105,17 @@ float KRModel::getRimPower()
     return m_rim_power;
 }
 
+void KRModel::setLightMap(const std::string &name)
+{
+    m_lightMap = name;
+    m_pLightMap = NULL;
+}
+
+std::string KRModel::getLightMap()
+{
+    return m_lightMap;
+}
+
 void KRModel::loadModel() {
     if(m_models.size() == 0) {
         std::vector<KRMesh *> models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
