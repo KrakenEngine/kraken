@@ -130,7 +130,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
     for(int i = 0; i < animation_count; i++) {
         FbxAnimStack *animation = pFbxScene->GetSrcObject<FbxAnimStack>(i);
-        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation %i of %i: %s", i+1, animation_count, animation->GetName().c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation %i of %i: %s", i+1, animation_count, animation->GetName());
         KRAnimation *new_animation = LoadAnimation(context, animation);
         if(new_animation) {
             context.getAnimationManager()->addAnimation(new_animation);
@@ -142,7 +142,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     int curve_count = pFbxScene->GetSrcObjectCount<FbxAnimCurve>();
     for(int i=0; i < curve_count; i++) {
         FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
-        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation Curve %i of %i: %s", i+1, curve_count, curve->GetName().c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation Curve %i of %i: %s", i+1, curve_count, curve->GetName());
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
 
         if(new_curve) {
@@ -156,7 +156,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "\nLoading materials...");
     for(int i=0; i < material_count; i++) {
         FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
-        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Material %i of %i: %s", i+1, material_count, material->GetName().c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Material %i of %i: %s", i+1, material_count, material->GetName());
         LoadMaterial(context, material);
     }
     
@@ -166,7 +166,7 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     for(int i=0; i < mesh_count; i++) {
         FbxMesh *mesh = pFbxScene->GetSrcObject<FbxMesh>(i);
         
-        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Mesh %i of %i: %s", i+1, mesh_count, mesh->GetNode()->GetName().c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Mesh %i of %i: %s", i+1, mesh_count, mesh->GetNode()->GetName());
         LoadMesh(context, pFbxScene, pGeometryConverter, mesh);
     }
     
