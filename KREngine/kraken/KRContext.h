@@ -77,6 +77,18 @@ public:
     
     void getMemoryStats(long &free_memory);
     
+    typedef enum {
+        LOG_LEVEL_INFORMATION,
+        LOG_LEVEL_WARNING,
+        LOG_LEVEL_ERROR
+    } log_level;
+    
+    typedef void log_callback(void *userdata, const std::string &message, log_level level);
+    
+    static void SetLogCallback(log_callback *log_callback, void *user_data);
+    static void Log(log_level level, const std::string &message_format, ...);
+    
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
@@ -98,6 +110,10 @@ private:
     mach_timebase_info_data_t    m_timebase_info;
     
     std::atomic<bool> m_streamingEnabled;
+    
+    
+    static log_callback *s_log_callback;
+    static void *s_log_callback_user_data;
 };
 
 #endif

@@ -80,7 +80,7 @@ KRMaterial *KRMaterialManager::getMaterial(const std::string &name) {
     
     unordered_map<std::string, KRMaterial *>::iterator itr = m_materials.find(lowerName);
     if(itr == m_materials.end()) {
-        fprintf(stderr, "Material not found: %s\n", name.c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Material not found: %s", name.c_str());
         // Not found
         return NULL;
     } else {

@@ -175,7 +175,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                 if(pMaterial) {
                     m_uniqueMaterials.insert(pMaterial);
                 } else {
-                    fprintf(stderr, "Missing material: %s\n", szMaterialName);
+                    KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
                 }
             }
             
@@ -1301,7 +1301,7 @@ void KRMesh::convertToIndexed()
     
     delete szKey;
     
-    fprintf(stderr, "Convert to indexed, before: %i after: %i \(%.2f%% saving)\n", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i \(%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
     
     mi.format = KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
