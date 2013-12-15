@@ -35,7 +35,7 @@
 #define IOS_REF (*(pSdkManager->GetIOSettings()))
 #endif
 
-#define warning(e,s) if(!(e))printf("WARNING: %s\n",s)
+#define warning(e,s) if(!(e))KRContext::Log(KRContext::LOG_LEVEL_WARNING, "%s\n",s)
 
 void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene);
 void DestroySdkObjects(FbxManager* pSdkManager);
@@ -126,11 +126,11 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
      */
         
     // ----====---- Import Animation Layers ----====----
-    printf("\nLoading animations...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "\nLoading animations...");
     int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
     for(int i = 0; i < animation_count; i++) {
         FbxAnimStack *animation = pFbxScene->GetSrcObject<FbxAnimStack>(i);
-        printf("  Animation %i of %i: %s\n", i+1, animation_count, animation->GetName());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation %i of %i: %s", i+1, animation_count, animation->GetName());
         KRAnimation *new_animation = LoadAnimation(context, animation);
         if(new_animation) {
             context.getAnimationManager()->addAnimation(new_animation);
@@ -138,51 +138,51 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     }
     
     // ----====---- Import Animation Curves ----====----
-    printf("\nLoading animation curves...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "\nLoading animation curves...");
     int curve_count = pFbxScene->GetSrcObjectCount<FbxAnimCurve>();
     for(int i=0; i < curve_count; i++) {
         FbxAnimCurve *curve = pFbxScene->GetSrcObject<FbxAnimCurve>(i);
-        printf("  Animation Curve %i of %i: %s\n", i+1, curve_count, curve->GetName());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Animation Curve %i of %i: %s", i+1, curve_count, curve->GetName());
         KRAnimationCurve *new_curve = LoadAnimationCurve(context, curve);
 
         if(new_curve) {
-            printf("Adding a curve\n");
+            KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Adding a curve");
             context.getAnimationCurveManager()->addAnimationCurve(new_curve);
         }
     }
     
     // ----====---- Import Materials ----====----
     int material_count = pFbxScene->GetSrcObjectCount<FbxSurfaceMaterial>();
-    printf("\nLoading materials...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "\nLoading materials...");
     for(int i=0; i < material_count; i++) {
         FbxSurfaceMaterial *material = pFbxScene->GetSrcObject<FbxSurfaceMaterial>(i);
-        printf("  Material %i of %i: %s\n", i+1, material_count, material->GetName());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Material %i of %i: %s", i+1, material_count, material->GetName());
         LoadMaterial(context, material);
     }
     
     // ----====---- Import Meshes ----====----
     int mesh_count = pFbxScene->GetSrcObjectCount<FbxMesh>();
-    printf("\nLoading meshes...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Loading meshes...");
     for(int i=0; i < mesh_count; i++) {
         FbxMesh *mesh = pFbxScene->GetSrcObject<FbxMesh>(i);
         
-        printf("  Mesh %i of %i: %s\n", i+1, mesh_count, mesh->GetNode()->GetName());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Mesh %i of %i: %s", i+1, mesh_count, mesh->GetNode()->GetName());
         LoadMesh(context, pFbxScene, pGeometryConverter, mesh);
     }
     
     // ----====---- Import Textures ----====----
     int texture_count = pFbxScene->GetSrcObjectCount<FbxFileTexture>();
     
-    printf("\nLoading textures...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Loading textures...");
     for(int i=0; i < texture_count; i++) {
         FbxFileTexture *texture = pFbxScene->GetSrcObject<FbxFileTexture>(i);
         const char *file_name = texture->GetFileName();
-        printf("  Texture %i of %i: %s\n", i+1, texture_count, (KRResource::GetFileBase(file_name) + "." + KRResource::GetFileExtension(file_name)).c_str());
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Texture %i of %i: %s", i+1, texture_count, (KRResource::GetFileBase(file_name) + "." + KRResource::GetFileExtension(file_name)).c_str());
         context.loadResource(file_name);
     }
     
     // ----====---- Import Scene Graph Nodes ----====----
-    printf("\nLoading scene graph...\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Loading scene graph...");
     if(pNode)
     {
         for(int i = 0; i < pNode->GetChildCount(); i++)
@@ -205,7 +205,7 @@ void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene)
     
     if (!pSdkManager)
     {
-        printf("Unable to create the FBX SDK manager\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Unable to create the FBX SDK manager");
         exit(0);
     }
     
@@ -263,40 +263,38 @@ bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
     {
         FbxStatus &status = lImporter->GetStatus();
         
-        printf("Call to KFbxImporter::Initialize() failed.\n");
-        printf("Error returned: %s\n\n", status.GetErrorString());
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Call to KFbxImporter::Initialize() failed.\nError returned: %s", status.GetErrorString());
         
         
         
         if (status.GetCode() == FbxStatus::EStatusCode::eInvalidFileVersion)
         {
-            printf("FBX version number for this FBX SDK is %d.%d.%d\n", lSDKMajor, lSDKMinor, lSDKRevision);
-            printf("FBX version number for file %s is %d.%d.%d\n\n", pFilename, lFileMajor, lFileMinor, lFileRevision);
+            KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "FBX version number for this FBX SDK is %d.%d.%d", lSDKMajor, lSDKMinor, lSDKRevision);
+            KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "FBX version number for file %s is %d.%d.%d", pFilename, lFileMajor, lFileMinor, lFileRevision);
         }
         
         return false;
     }
     
-    printf("FBX version number for this FBX SDK is %d.%d.%d\n", lSDKMajor, lSDKMinor, lSDKRevision);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "FBX version number for this FBX SDK is %d.%d.%d", lSDKMajor, lSDKMinor, lSDKRevision);
     
     if(!lImporter->IsFBX()) {
-        printf("ERROR Unrecognized FBX File\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "ERROR Unrecognized FBX File");
         return false;
     }
 
 
-    printf("FBX version number for file %s is %d.%d.%d\n\n", pFilename, lFileMajor, lFileMinor, lFileRevision);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "FBX version number for file %s is %d.%d.%d\n", pFilename, lFileMajor, lFileMinor, lFileRevision);
     
     // From this point, it is possible to access animation stack information without
     // the expense of loading the entire file.
     
-    printf("Animation Stack Information\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Animation Stack Information");
     
     lAnimStackCount = lImporter->GetAnimStackCount();
     
-    printf("    Number of Animation Stacks: %d\n", lAnimStackCount);
-    printf("    Current Animation Stack: \"%s\"\n", lImporter->GetActiveAnimStackName().Buffer());
-    printf("\n");
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "    Number of Animation Stacks: %d", lAnimStackCount);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "    Current Animation Stack: \"%s\"", lImporter->GetActiveAnimStackName().Buffer());
     
     
     // Set the import states. By default, the import states are always set to 
@@ -369,7 +367,7 @@ bool LoadScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
 
 KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
 {
-    printf("Loading animation: \"%s\"\n", pAnimStack->GetName());
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Loading animation: \"%s\"", pAnimStack->GetName());
         
     KRAnimation *new_animation = new KRAnimation(context, pAnimStack->GetName());
     int cLayers = pAnimStack->GetMemberCount<FbxAnimLayer>();
@@ -383,10 +381,10 @@ KRAnimation *LoadAnimation(KRContext &context, FbxAnimStack* pAnimStack)
 KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurve)
 {
     std::string name = GetFbxObjectName(pAnimCurve);
-    printf("Loading animation curve: \"%s\"\n", name.c_str());
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Loading animation curve: \"%s\"", name.c_str());
     FbxTimeSpan time_span;
     if(!pAnimCurve->GetTimeInterval(time_span)) {
-        printf(" ERROR: Failed to get time interval.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Failed to get time interval.");
         return NULL;
     }
     
@@ -394,7 +392,7 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
     int frame_start = time_span.GetStart().GetSecondDouble() * dest_frame_rate;
     int frame_count = (time_span.GetStop().GetSecondDouble() * dest_frame_rate) - frame_start;
     
-    printf("    animation start %d and frame count %d\n", frame_start, frame_count);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "    animation start %d and frame count %d", frame_start, frame_count);
     
     KRAnimationCurve *new_curve = new KRAnimationCurve(context, name);
     new_curve->setFrameRate(dest_frame_rate);
@@ -409,7 +407,7 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
         frame_time.SetSecondDouble(frame_seconds);
         float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
 //        printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
-        if (0 == frame_number) printf("Value at starting key frame = %3.3f\n", frame_value);
+        if (0 == frame_number) KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Value at starting key frame = %3.3f", frame_value);
         new_curve->setValue(frame_number+frame_start, frame_value);
             // BUG FIX Dec 2, 2013 .. changed frame_number to frame_number+frame_start
             // setValue(frame_number, frame_value) clamps the frame_number range between frame_start : frame_start+frame_count
@@ -904,7 +902,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     // node_has_n_points
     // node_key_frame_position
     if (3 == node_has_n_points)
-        printf("key frame at %2.3f,  %2.3f, %2.3f\n",
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "key frame at %2.3f,  %2.3f, %2.3f",
                node_key_frame_position.x,
                node_key_frame_position.y,
                node_key_frame_position.z);
@@ -1188,7 +1186,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         new_material->setTransparency(1.0f - (lKFbxDouble3.Get()[0] + lKFbxDouble3.Get()[1] + lKFbxDouble3.Get()[2]) / 3.0f);
         
     } else {
-        printf("Error! Unable to convert material: %s", pMaterial->GetName());
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Unable to convert material: %s", pMaterial->GetName());
     }
     
     
@@ -1198,12 +1196,12 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     // Diffuse Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
     if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
-        printf("Warning! Layered textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Layered textures not supported.");
     }
     
     int texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
     if(texture_count > 1) {
-        printf("Error! Multiple diffuse textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Multiple diffuse textures not supported.");
     } else if(texture_count == 1) {
         FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
         assert(!pTexture->GetSwapUV());
@@ -1227,11 +1225,11 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     // Specular Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sSpecular);
     if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
-        printf("Warning! Layered textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Layered textures not supported.");
     }
     texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
     if(texture_count > 1) {
-        printf("Error! Multiple specular textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Multiple specular textures not supported.");
     } else if(texture_count == 1) {
         FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
@@ -1243,13 +1241,13 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     // Normal Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
     if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
-        printf("Warning! Layered textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Layered textures not supported.");
     }
     
     
     texture_count = pProperty.GetSrcObjectCount<FbxTexture>();
     if(texture_count > 1) {
-        printf("Error! Multiple normal map textures not supported.\n");
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Multiple normal map textures not supported.");
     } else if(texture_count == 1) {
         FbxTexture* pTexture = pProperty.GetSrcObject<FbxTexture>(0);
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
@@ -1300,11 +1298,11 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     for(int skin_index=0; skin_index<skin_count; skin_index++) {
         FbxSkin *skin = (FbxSkin *)pMesh->GetDeformer(skin_index, FbxDeformer::eSkin);
         int cluster_count = skin->GetClusterCount();
-        printf("  Found skin with %i clusters.\n", cluster_count);
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "  Found skin with %i clusters.\n", cluster_count);
         for(int cluster_index=0; cluster_index < cluster_count; cluster_index++) {
             FbxCluster *cluster = skin->GetCluster(cluster_index);
             if(cluster->GetLinkMode() != FbxCluster::eNormalize) {
-                printf("    Warning!  link mode not supported.\n");
+                KRContext::Log(KRContext::LOG_LEVEL_WARNING, "    Warning!  link mode not supported.");
             }
             std::string bone_name = GetFbxObjectName(cluster->GetLink());
             mi.bone_names.push_back(bone_name);
@@ -1363,7 +1361,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     }
     
     if(too_many_bone_weights) {
-        printf("    WARNING! - Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).\n", KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX);
+        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Clipped bone weights to limit of %i per vertex (selecting largest weights and re-normalizing).", KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX);
     }
     // Normalize bone weights
     if(mi.bone_names.size() > 0) {
@@ -1420,7 +1418,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
             int lPolygonSize = pMesh->GetPolygonSize(iPolygon);
             if(lPolygonSize != 3) {
                 source_vertex_id += lPolygonSize;
-                printf("    Warning - Poly with %i vertices found. Expecting only triangles.", lPolygonSize);
+                KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Poly with %i vertices found. Expecting only triangles.", lPolygonSize);
             } else {
                 // ----====---- Read SubMesh / Material Mapping ----====----
                 int iNewMaterial = -1;
