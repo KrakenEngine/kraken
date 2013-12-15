@@ -66,6 +66,9 @@ public:
     KRVector3 getRimColor();
     float getRimPower();
     
+    void setLightMap(const std::string &name);
+    std::string getLightMap();
+    
 private:
     std::vector<KRMesh *> m_models;
     unordered_map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
