@@ -47,10 +47,10 @@ void KRAmbientZone::loadXML(tinyxml2::XMLElement *e)
         m_gradient_distance = 0.25f;
     }
     
-    m_ambient = e->Attribute("ambient");
+    m_ambient = e->Attribute("sample");
     
     m_ambient_gain = 1.0f;
-    if(e->QueryFloatAttribute("ambient_gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
+    if(e->QueryFloatAttribute("gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
         m_ambient_gain = 1.0f;
     }
 }
