@@ -46,10 +46,10 @@ void KRReverbZone::loadXML(tinyxml2::XMLElement *e)
         m_gradient_distance = 0.25f;
     }
     
-    m_reverb = e->Attribute("reverb");
+    m_reverb = e->Attribute("sample");
     
     m_reverb_gain = 1.0f;
-    if(e->QueryFloatAttribute("reverb_gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
+    if(e->QueryFloatAttribute("gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
         m_reverb_gain = 1.0f;
     }
 }
