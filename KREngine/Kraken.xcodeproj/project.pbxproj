@@ -1792,10 +1792,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					"$(SRCROOT)/3rdparty/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/local/include/;
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1815,10 +1812,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					"$(SRCROOT)/3rdparty/**",
-				);
+				HEADER_SEARCH_PATHS = /usr/local/include/;
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
@@ -1838,6 +1832,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kraken_ios/Kraken-Prefix.pch";
+				HEADER_SEARCH_PATHS = /usr/local/include/;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1847,6 +1842,7 @@
 				PRODUCT_NAME = kraken;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = /usr/local/include;
 			};
 			name = Debug;
 		};
@@ -1862,6 +1858,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "kraken_ios/Kraken-Prefix.pch";
+				HEADER_SEARCH_PATHS = /usr/local/include/;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1871,6 +1868,7 @@
 				PRODUCT_NAME = kraken;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = /usr/local/include;
 			};
 			name = Release;
 		};
