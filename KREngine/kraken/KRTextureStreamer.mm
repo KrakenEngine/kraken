@@ -47,11 +47,11 @@ void KRTextureStreamer::startStreamer()
         
         NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
         {
-            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
             0
         };
         NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
-        gTextureStreamerContext = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ] autorelease];
+        gTextureStreamerContext = [[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ];
         
 #else
         

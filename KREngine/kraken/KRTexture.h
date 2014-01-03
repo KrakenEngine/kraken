@@ -59,7 +59,7 @@ public:
     virtual void resetPoolExpiry();
     virtual bool isAnimated();
     
-    KRTexture *compress();
+    virtual KRTexture *compress();
     int getCurrentLodMaxDim();
     int getMaxMipMap();
     int getMinMipMap();

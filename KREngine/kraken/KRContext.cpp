@@ -219,6 +219,8 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
         m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+    } else if(extension.compare("ktx") == 0) {
+        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
         m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("vsh") == 0) {

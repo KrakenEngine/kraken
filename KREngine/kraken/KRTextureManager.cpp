@@ -35,6 +35,7 @@
 #include "KRTexture2D.h"
 #include "KRTexturePVR.h"
 #include "KRTextureTGA.h"
+#include "KRTextureKTX.h"
 #include "KRTextureCube.h"
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
@@ -127,6 +128,8 @@ KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szExten
         pTexture = new KRTexturePVR(getContext(), data, szName);
     } else if(strcmp(szExtension, "tga") == 0) {
         pTexture = new KRTextureTGA(getContext(), data, szName);
+    } else if(strcmp(szExtension, "ktx") == 0) {
+        pTexture = new KRTextureKTX(getContext(), data, szName);
     }
     
     if(pTexture) {

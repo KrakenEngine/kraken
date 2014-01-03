@@ -9,6 +9,7 @@
 #include "KRTextureTGA.h"
 #include "KREngine-common.h"
 #include "KRContext.h"
+#include "KRTextureKTX.h"
 
 typedef struct {
     char  idlength;
@@ -69,11 +70,20 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim)
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress)
 {
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
+    
+    
+    GLenum base_internal_format = pHeader->bitsperpixel == 24 ? GL_BGR : GL_BGRA;
+    
+    GLenum internal_format = 0;
+    if(compress) {
+        internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
+    
 
     if(pHeader->colourmaptype != 0) {
         m_pData->unlock();
@@ -104,7 +114,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             pSource += 3;
                         }
 //#endif
-                        glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGR, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
                         free(converted_image);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
@@ -116,7 +126,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     break;
                 case 32:
                     {
-                        glTexImage2D(target, 0, GL_RGBA, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
+                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
                             m_pData->unlock();
@@ -137,6 +147,72 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 
     m_pData->unlock();
     return true;
+}
+
+KRTexture *KRTextureTGA::compress()
+{
+    m_pData->lock();
+    
+    std::list<KRDataBlock *> blocks;
+    
+    getContext().getTextureManager()->_setActiveTexture(0);
+    
+    GLuint compressed_handle = 0;
+    GLDEBUG(glGenTextures(1, &compressed_handle));
+    
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
+    
+    int current_max_dim = 0;
+    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, 0, true)) {
+        assert(false); // Failed to upload the texture
+    }
+    GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));
+    
+    GLint width = 0, height = 0, internal_format, base_internal_format = GL_BGRA;
+    GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width));
+    GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
+    GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
+
+    
+    GLuint lod_level = 0;
+    GLint compressed_size = 0;
+    GLenum err = GL_NO_ERROR;
+    while(err == GL_NO_ERROR) {
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed_size);
+        err = glGetError();
+        if(err == GL_NO_ERROR) {
+            KRDataBlock *new_block = new KRDataBlock();
+            new_block->expand(compressed_size);
+            new_block->lock();
+            GLDEBUG(glGetCompressedTexImage(GL_TEXTURE_2D, lod_level, new_block->getStart()));
+            new_block->unlock();
+            blocks.push_back(new_block);
+            
+            lod_level++;
+        }
+    }
+    if(err != GL_INVALID_VALUE) {
+        // err will equal GL_INVALID_VALUE when
+        // assert(false); // Unexpected error
+    }
+    
+    
+    GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
+    getContext().getTextureManager()->selectTexture(0, NULL);
+    GLDEBUG(glDeleteTextures(1, &compressed_handle));
+    
+    KRTextureKTX *new_texture = new KRTextureKTX(getContext(), getName(), internal_format, base_internal_format, width, height, blocks);
+    
+    KRResource *test_resource = new_texture;
+    
+    m_pData->unlock();
+    
+    for(auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
+        KRDataBlock *block = *block_itr;
+        delete block;
+    }
+    
+    return new_texture;
 }
 
 long KRTextureTGA::getMemRequiredForSize(int max_dim)
