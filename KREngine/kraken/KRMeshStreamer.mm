@@ -42,11 +42,11 @@ void KRMeshStreamer::startStreamer()
 #elif TARGET_OS_MAC
         NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
         {
-            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
             0
         };
         NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
-        gMeshStreamerContext = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ] autorelease];
+        gMeshStreamerContext = [[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: [NSOpenGLContext currentContext] ];
 #else
         #error Unsupported Platform
 #endif
