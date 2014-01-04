@@ -114,7 +114,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             pSource += 3;
                         }
 //#endif
-                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGR, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
                         free(converted_image);
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
@@ -168,10 +168,24 @@ KRTexture *KRTextureTGA::compress()
     }
     GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));
     
-    GLint width = 0, height = 0, internal_format, base_internal_format = GL_BGRA;
+    GLint width = 0, height = 0, internal_format, base_internal_format;
+    
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
+    
+    switch(internal_format)
+    {
+        case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+            base_internal_format = GL_BGRA;
+            break;
+        case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+            base_internal_format = GL_BGRA;
+            break;
+        default:
+            assert(false); // Not yet supported
+            break;
+    }
 
     
     GLuint lod_level = 0;
