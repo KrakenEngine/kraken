@@ -59,9 +59,10 @@ KRTextureKTX::KRTextureKTX(KRContext &context, KRDataBlock *data, std::string na
     uint32_t blockStart = sizeof(KTXHeader) + m_header.bytesOfKeyValueData;
     uint32_t width = m_header.pixelWidth, height = m_header.pixelHeight;
     
-    for(int mipmap_level=0; mipmap_level < KRMIN(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
+    for(int mipmap_level=0; mipmap_level < KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
         uint32_t blockLength;
         data->copy(&blockLength, blockStart, 4);
+        blockStart += 4;
         
         m_blocks.push_back(m_pData->getSubBlock(blockStart, blockLength));
         
@@ -84,7 +85,7 @@ KRTextureKTX::KRTextureKTX(KRContext &context, KRDataBlock *data, std::string na
 
 KRTextureKTX::KRTextureKTX(KRContext &context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock *> &blocks) : KRTexture2D(context, new KRDataBlock(), name)
 {
-    memcpy(_KTXFileIdentifier, m_header.identifier, 12);
+    memcpy(m_header.identifier, _KTXFileIdentifier, 12);
     m_header.endianness = 0x04030201;
     m_header.glType = 0;
     m_header.glTypeSize = 1;

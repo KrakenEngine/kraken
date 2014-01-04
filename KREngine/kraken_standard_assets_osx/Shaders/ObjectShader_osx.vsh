@@ -29,13 +29,17 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute highp vec3	vertex_position, vertex_normal, vertex_tangent;
+
+attribute highp vec3	vertex_position, vertex_normal;
+#if HAS_NORMAL_MAP == 1
+    attribute highp vec3    vertex_tangent;
+#endif
 attribute mediump vec2	vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 
 #if BONE_COUNT > 0
     attribute highp vec4 bone_weights;
-    attribute mediump vec4 bone_indexes;
+    attribute highp vec4 bone_indexes;
     uniform highp mat4 bone_transforms[BONE_COUNT];
 #else
     #define vertex_position_skinned vertex_position
@@ -134,16 +138,23 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         varying mediump float   specularFactor;
     #endif
 
+    #if ENABLE_RIM_COLOR == 1
+        #define NEED_EYEVEC
+    #endif
 
     #if HAS_REFLECTION_CUBE_MAP == 1
         #if HAS_NORMAL_MAP == 1
+            #define NEED_EYEVEC
             uniform highp mat4 model_inverse_transpose_matrix;
-            varying mediump vec3 eyeVec;
             varying highp mat3 tangent_to_world_matrix;
         #else
             uniform highp mat4 model_matrix;
             varying mediump vec3 reflectionVec;
         #endif
+    #endif
+
+    #ifdef NEED_EYEVEC
+        varying mediump vec3 eyeVec;
     #endif
 
     #if HAS_DIFFUSE_MAP_SCALE == 1
@@ -168,30 +179,28 @@ void main()
     mediump vec4 scaled_bone_indexes = bone_indexes;
     mediump vec4 scaled_bone_weights = bone_weights;
     
-    // scaled_bone_indexes = vec4(1.0, 0.0, 0.0, 0.0);
-    // scaled_bone_weights = vec4(1.0, 0.0, 0.0, 0.0);
-    highp vec3 vertex_position_skinned =
-        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_position, 1.0)).xyz * scaled_bone_weights.x) +
-        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_position, 1.0)).xyz * scaled_bone_weights.y) +
-        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_position, 1.0)).xyz * scaled_bone_weights.z) +
-        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_position, 1.0)).xyz * scaled_bone_weights.w);
-
-    highp vec3 vertex_normal_skinned = normalize(
-        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_normal, 1.0)).xyz * scaled_bone_weights.x) +
-        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_normal, 1.0)).xyz * scaled_bone_weights.y) +
-        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_normal, 1.0)).xyz * scaled_bone_weights.z) +
-        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_normal, 1.0)).xyz * scaled_bone_weights.w));
-                                                 
-    highp vec3 vertex_tangent_skinned = normalize(
-        ((bone_transforms[ int(scaled_bone_indexes.x) ] * vec4(vertex_tangent, 1.0)).xyz * scaled_bone_weights.x) +
-        ((bone_transforms[ int(scaled_bone_indexes.y) ] * vec4(vertex_tangent, 1.0)).xyz * scaled_bone_weights.y) +
-        ((bone_transforms[ int(scaled_bone_indexes.z) ] * vec4(vertex_tangent, 1.0)).xyz * scaled_bone_weights.z) +
-        ((bone_transforms[ int(scaled_bone_indexes.w) ] * vec4(vertex_tangent, 1.0)).xyz * scaled_bone_weights.w));
-#endif
+    //scaled_bone_indexes = vec4(0.0, 0.0, 0.0, 0.0);
+    //scaled_bone_weights = vec4(1.0, 0.0, 0.0, 0.0);
     
+    highp mat4 skin_matrix =
+        bone_transforms[ int(scaled_bone_indexes.x) ] * scaled_bone_weights.x +
+        bone_transforms[ int(scaled_bone_indexes.y) ] * scaled_bone_weights.y +
+        bone_transforms[ int(scaled_bone_indexes.z) ] * scaled_bone_weights.z +
+        bone_transforms[ int(scaled_bone_indexes.w) ] * scaled_bone_weights.w;
+    //skin_matrix = bone_transforms[0];
+    highp vec3 vertex_position_skinned = (skin_matrix * vec4(vertex_position, 1)).xyz;
+
+    highp vec3 vertex_normal_skinned = normalize(mat3(skin_matrix) * vertex_normal);
+    #if HAS_NORMAL_MAP == 1
+        highp vec3 vertex_tangent_skinned = normalize(mat3(skin_matrix) * vertex_tangent);
+    #endif
+    
+#endif
     
     // Transform position
     gl_Position = mvp_matrix * vec4(vertex_position_skinned,1.0);
+
+
     
     #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_REFLECTION_MAP == 1 && ENABLE_PER_PIXEL == 1)
         // Pass UV co-ordinates
@@ -244,7 +253,7 @@ void main()
 
         #if HAS_REFLECTION_CUBE_MAP == 1
             #if HAS_NORMAL_MAP == 1
-                eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
+    
             #else
                 // Calculate reflection vector as I - 2.0 * dot(N, I) * N
                 mediump vec3 eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
@@ -253,6 +262,9 @@ void main()
             #endif
         #endif
     
+        #ifdef NEED_EYEVEC
+            eyeVec = normalize(camera_position_model_space - vertex_position_skinned);
+        #endif
     
         #if HAS_LIGHT_MAP == 1
             // Pass shadow UV co-ordinates

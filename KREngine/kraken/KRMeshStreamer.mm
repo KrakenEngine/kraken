@@ -42,7 +42,7 @@ void KRMeshStreamer::startStreamer()
 #elif TARGET_OS_MAC
         NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
         {
-            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
+//            NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
             0
         };
         NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes] autorelease];
