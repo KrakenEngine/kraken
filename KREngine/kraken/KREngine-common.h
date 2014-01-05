@@ -103,6 +103,7 @@ using std::hash;
 #define glBeginQueryEXT glBeginQuery
 #define glEndQueryEXT glEndQuery
 #define glGetQueryObjectuivEXT glGetQueryObjectuiv
+#define glTexStorage2DEXT glTexStorage2D
 #define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
 #define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
 
