@@ -195,8 +195,8 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                 height = 1;
             }
         }
-        width = m_iWidth;
-        height = m_iHeight;
+        width = m_header.pixelWidth;
+        height = m_header.pixelHeight;
         
         if(target == GL_TEXTURE_CUBE_MAP_POSITIVE_X) {
             glTexStorage2DEXT(GL_TEXTURE_CUBE_MAP, level_count, (GLenum)m_header.glInternalFormat, max_lod_width, max_lod_height);
