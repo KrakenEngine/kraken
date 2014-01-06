@@ -75,16 +75,23 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
-    
-    
+
+//
+// FINDME - many of the GL constants in here are not defined in GLES2
+#ifdef TARGET_OS_IPHONE
+    GLenum base_internal_format = GL_BGRA;
+#else
     GLenum base_internal_format = pHeader->bitsperpixel == 24 ? GL_BGR : GL_BGRA;
+#endif
     
     GLenum internal_format = 0;
+    
+#ifndef TARGET_OS_IPHONE
     if(compress) {
         internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
+#endif
     
-
     if(pHeader->colourmaptype != 0) {
         m_pData->unlock();
         return false; // Mapped colors not supported
@@ -169,7 +176,8 @@ KRTexture *KRTextureTGA::compress()
     GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));
     
     GLint width = 0, height = 0, internal_format, base_internal_format;
-    
+
+#ifndef TARGET_OS_IPHONE
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
@@ -186,7 +194,6 @@ KRTexture *KRTextureTGA::compress()
             assert(false); // Not yet supported
             break;
     }
-
     
     GLuint lod_level = 0;
     GLint compressed_size = 0;
@@ -209,7 +216,7 @@ KRTexture *KRTextureTGA::compress()
         // err will equal GL_INVALID_VALUE when
         // assert(false); // Unexpected error
     }
-    
+#endif
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     getContext().getTextureManager()->selectTexture(0, NULL);
