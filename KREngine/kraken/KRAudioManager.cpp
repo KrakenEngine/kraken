@@ -215,8 +215,11 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     
     uint64_t end_time = mach_absolute_time();
 //    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
+//    double ms = duration;
+//    ms = ms / 1000000.0;
 //    uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
 //    fprintf(stderr, "audio load: %5.1f%% hrtf channels: %li\n", (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
+//    printf("ms %2.3f frames %ld audio load: %5.1f%% hrtf channels: %li\n", ms, (unsigned long) inNumberFrames, (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 }
 
 float *KRAudioManager::getBlockAddress(int block_offset)

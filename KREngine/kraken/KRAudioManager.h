@@ -44,7 +44,10 @@ const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
-const int KRENGINE_AUDIO_BLOCK_LENGTH = 128; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
+const int KRENGINE_AUDIO_BLOCK_LENGTH = 1024; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
+    // the AUGraph works in 1024 sample chunks. If we put a value of less then 1024 in here then we are making mutliple calls to our render functions without any
+    // improvement in latency and our audio render perfomance goes down significantly
+
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
 const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
