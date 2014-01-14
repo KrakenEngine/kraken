@@ -44,7 +44,7 @@ const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
-const int KRENGINE_AUDIO_BLOCK_LOG2N = 7;   // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
+const int KRENGINE_AUDIO_BLOCK_LOG2N = 10;   // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
     // 7 is 128, 8 -> 256, 9 -> 512, 10 -> 1024 (the size of the hardware (AUgraph) framebuffer)
     // NOTE: the hrtf code use magic numbers everywhere and is hardcoded to 128 samples per frame
 
@@ -218,7 +218,8 @@ private:
     void renderBlock();
     void renderReverb();
     void renderAmbient();
-    void renderHRTF();
+    void renderHRTF();          // render full HRTF
+    void renderHRTFbypass();    // render gain changes and panning relative to direction, but don't render HRTF
     void renderITD();
     void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
     
