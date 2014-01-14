@@ -41,7 +41,7 @@
 #include "KRAudioSource.h"
 
 const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
-const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
+const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;     // this is the buffer for our decoded audio (not the source file data)
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7;   // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
@@ -133,6 +133,7 @@ public:
     
     KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
+    void mute(bool onNotOff);
 
     void startFrame(float deltaTime);
     
@@ -221,6 +222,7 @@ private:
     void renderHRTF();
     void renderITD();
     void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
+    void renderLimiter();
     
     std::vector<KRVector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
