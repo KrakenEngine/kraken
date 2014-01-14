@@ -393,12 +393,11 @@ void KRAudioManager::renderBlock()
     
     if(m_enable_audio) {
         // ----====---- Render Direct / HRTF audio ----====----
-//        if(m_enable_hrtf) {
-//            renderHRTF();
-//        } else {
-//            renderITD();
-//        }
-        renderHRTFbypass();
+        if(m_enable_hrtf) {
+            renderHRTF();
+        } else {
+            renderITD();
+        }
         
         // ----====---- Render Indirect / Reverb channel ----====----
         if(m_enable_reverb) {
@@ -834,7 +833,7 @@ void KRAudioManager::initHRTF()
             sample->sample(0, 128, channel, spectral.realp, 1.0f, false);
             memset(spectral.realp + 128, 0, sizeof(float) * 128);
             memset(spectral.imagp, 0, sizeof(float) * 256);
-//****            vDSP_fft_zip(m_fft_setup[8 - KRENGINE_AUDIO_BLOCK_LOG2N], &spectral, 1, 8, kFFTDirection_Forward);
+            vDSP_fft_zip(m_fft_setup[8 - KRENGINE_AUDIO_BLOCK_LOG2N], &spectral, 1, 8, kFFTDirection_Forward);
             m_hrtf_spectral[channel][pos] = spectral;
         }
         sample_index++;
@@ -1777,71 +1776,6 @@ void KRAudioManager::renderHRTF()
             }
         }
     }
-}
-
-void KRAudioManager::renderHRTFbypass()
-{
-    static float buffer[KRENGINE_AUDIO_BLOCK_LENGTH];
-    
-    bool hack = true;
-    
-    unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
-    while(itr != m_mapped_sources.end()) {
-        // Get the info for each sound source that should be run through the HRTF algorythm
-        KRVector2 source_direction = (*itr).first;
-        KRAudioSource *source = (*itr).second.first;
-        float gain_anticlick = (*itr).second.second.first;      // this is the gain that we have at the start of the buffer
-        float gain = (*itr).second.second.second;               // this is the gain that we want at the end of the buffer
-        
-        const char *unique = source->getSample().c_str();       // a unique identifier for a sound source
-//        printf("%s\n", unique);
-        
-        //??? Does the gain need to be stored into gain_anticlick when we are done? or is this done by the sound state update loop?
-        
-        source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, buffer, 1.0);
-        float *input = buffer;
-        
-        // Get pointers to the left and right channels of our stereo interleaved output buffer
-        int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
-        float *left = m_output_accumulation + output_offset;
-        float *right = left + 1;
-        
-        // panning
-//       if (hack) printf("Direction vector = %2.3f, %2.3f\n", source_direction.x, source_direction.y);
-        hack = false;
-        
-        // I think that -ve y is left, +ve y is right.
-        // Do the panning as a linear function since the distance gain is already set
-        double x = source_direction.x;
-        double y = source_direction.y;
-        double r = sqrt(x * x + y * y);
-        x = x / r;  // normalized x
-        y = y / r;
-        
-        float vol_left = (-y + 1.0) / 1.5; if (vol_left < 0.05) vol_left = 0.05; if (vol_left > 1.0) vol_left = 1.0;
-        float vol_right = (y + 1.0) / 1.5; if (vol_right < 0.05) vol_right = 0.05; if (vol_right > 1.0) vol_right = 1.0;
-        
-//        vol_left = 1.0;
-//        vol_right = 1.0;
-//        printf("vol left = %2.3f, vol right = %2.3f for %2.3f, %2.3f\n", vol_left, vol_right, x, y);
-        
-        // Setup volume curve
-        float vol_start = gain_anticlick;
-        float vol_delta = (gain - gain_anticlick) / ((float) KRENGINE_AUDIO_BLOCK_LENGTH);
-        float mono = 0.0;
-        
-        for (long i = 0; i < KRENGINE_AUDIO_BLOCK_LENGTH; i++) {
-            mono = *input * vol_start;
-            *left += (mono * vol_left);
-            *right += (mono * vol_right);
-            vol_start += vol_delta;
-            left += 2;
-            right += 2;
-            input += 1;
-        }
-        
-        itr++;
-    } // end of while(itr)
 }
 
 void KRAudioManager::renderITD()
