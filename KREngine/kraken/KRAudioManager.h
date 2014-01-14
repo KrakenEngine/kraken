@@ -133,7 +133,7 @@ public:
     
     KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
-    void mute(bool onNotOff);
+    static void mute(bool onNotOff);
 
     void startFrame(float deltaTime);
     
