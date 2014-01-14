@@ -40,18 +40,27 @@
 #include "KRMat4.h"
 #include "KRAudioSource.h"
 
-const int KRENGINE_AUDIO_MAX_POOL_SIZE = 32;
-const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;     // this is the buffer for our decoded audio (not the source file data)
+const int KRENGINE_AUDIO_MAX_POOL_SIZE = 40; //32;
+    // for Circa we play a maximum of 7 mono audio streams at once + cross fading with ambient
+    // so we could safely say a maximum of 10 streams, which would be 33 buffers
+
+const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 5120;  // in bytes
+    // this is the buffer for our decoded audio (not the source file data)
+    // it should be greater then 1152 samples (the size of an mp3 frame in samples)
+    // so it should be greater then 2304 bytes and also a multiple of 128 samples (to make
+    // the data flow efficient) but it shouldn't be too large or it will cause
+    // the render loop to stall out decoding large chunks of mp3 data.
+    // 2560 bytes would be the smallest size for mono sources, and 5120 would be smallest for stereo.
+
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7;   // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
-    // 7 is 128, 8 -> 256, 9 -> 512, 10 -> 1024 (the size of the hardware (AUgraph) framebuffer)
-    // NOTE: the hrtf code use magic numbers everywhere and is hardcoded to 128 samples per frame
+    // 7 is 128 .. NOTE: the hrtf code uses magic numbers everywhere and is hardcoded to 128 samples per frame
 
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 1 << KRENGINE_AUDIO_BLOCK_LOG2N;
     // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
-    // the AUGraph works in 1024 sample chunks. If we put a value of less then 1024 in here then we are making mutliple calls to our render functions without any
-    // improvement in latency and our audio render perfomance goes down significantly
+    // the AUGraph works in 1024 sample chunks. At 128 we are making 8 consecutive calls to the renderBlock method for each
+    // render initiated by the AUGraph.
 
 const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
 const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
