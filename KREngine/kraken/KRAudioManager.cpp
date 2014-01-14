@@ -1983,7 +1983,7 @@ void audioLimit_Stereo(float *stereo_buffer, unsigned long framesize)
     // (1) get the limiting parameters for the incoming audio data
 	float previouslimitvol = limit_value;
 	float peak;
-	unsigned long attack_sample_position;
+	unsigned long attack_sample_position = framesize;
 
     // (1a) check for a mute or unmute state then get the next limit volume
     float nextlimitvol = 0.0;
