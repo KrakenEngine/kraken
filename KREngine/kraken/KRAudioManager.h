@@ -45,6 +45,7 @@ const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 64*1024;
 const int KRENGINE_AUDIO_BUFFERS_PER_SOURCE = 3;
 
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 128; // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
+
 const int KRENGINE_AUDIO_BLOCK_LOG2N = 7; // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = KRENGINE_AUDIO_BLOCK_LENGTH
 
 const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;

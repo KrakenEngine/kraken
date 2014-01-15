@@ -231,6 +231,11 @@ void KRAudioSample::openFile()
 {
     //    AudioFileInitializeWithCallbacks
     if(m_fileRef == NULL) {
+        
+//        printf("Call to KRAudioSample::openFile() with extension: %s\n", m_extension.c_str());
+// The m_extension is valid (it's either wav or mp3 for the files in Circa project)
+// so we can key off the extension and use a different data handler for mp3 files if we want to
+//
 
         // Temp variables
         UInt32 propertySize;

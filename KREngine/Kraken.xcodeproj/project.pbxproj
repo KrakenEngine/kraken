@@ -15,7 +15,7 @@
 		E404702018695DD200F01F42 /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
 		E404702118695DD200F01F42 /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
 		E404702218695DD200F01F42 /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; };
-		E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; };
+		E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45615EFF79500D7C3DD /* KRAABB.h in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45315EFF79500D7C3DD /* KRAABB.h */; settings = {ATTRIBUTES = (); }; };
@@ -45,11 +45,11 @@
 		E416AA9C1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E416E4881879111300FC2EEB /* Recast.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4851879111300FC2EEB /* Recast.h */; };
-		E416E4891879111300FC2EEB /* Recast.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4851879111300FC2EEB /* Recast.h */; };
+		E416E4891879111300FC2EEB /* Recast.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4851879111300FC2EEB /* Recast.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E416E48A1879111300FC2EEB /* RecastAlloc.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4861879111300FC2EEB /* RecastAlloc.h */; };
-		E416E48B1879111300FC2EEB /* RecastAlloc.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4861879111300FC2EEB /* RecastAlloc.h */; };
+		E416E48B1879111300FC2EEB /* RecastAlloc.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4861879111300FC2EEB /* RecastAlloc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E416E48C1879111300FC2EEB /* RecastAssert.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4871879111300FC2EEB /* RecastAssert.h */; };
-		E416E48D1879111300FC2EEB /* RecastAssert.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4871879111300FC2EEB /* RecastAssert.h */; };
+		E416E48D1879111300FC2EEB /* RecastAssert.h in Headers */ = {isa = PBXBuildFile; fileRef = E416E4871879111300FC2EEB /* RecastAssert.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E416E4981879112700FC2EEB /* Recast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416E48E1879112700FC2EEB /* Recast.cpp */; };
 		E416E4991879112700FC2EEB /* Recast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416E48E1879112700FC2EEB /* Recast.cpp */; };
 		E416E49A1879112700FC2EEB /* RecastAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416E48F1879112700FC2EEB /* RecastAlloc.cpp */; };
@@ -138,28 +138,28 @@
 		E45134B91746A4A300443C21 /* KRBehavior.h in Headers */ = {isa = PBXBuildFile; fileRef = E45134B51746A4A300443C21 /* KRBehavior.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040316C30CC5002B00A0 /* AudioUnit.framework */; };
 		E459040616C30CD9002B00A0 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E459040516C30CD9002B00A0 /* AudioUnit.framework */; };
-		E45E03B118790DD1006DA23F /* PVRTArray.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A418790DD1006DA23F /* PVRTArray.h */; };
-		E45E03B218790DD1006DA23F /* PVRTDecompress.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A518790DD1006DA23F /* PVRTDecompress.h */; };
-		E45E03B318790DD1006DA23F /* PVRTError.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A618790DD1006DA23F /* PVRTError.h */; };
-		E45E03B418790DD1006DA23F /* PVRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A718790DD1006DA23F /* PVRTexture.h */; };
-		E45E03B518790DD1006DA23F /* PVRTextureDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A818790DD1006DA23F /* PVRTextureDefines.h */; };
-		E45E03B618790DD1006DA23F /* PVRTextureFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A918790DD1006DA23F /* PVRTextureFormat.h */; };
-		E45E03B718790DD1006DA23F /* PVRTextureHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AA18790DD1006DA23F /* PVRTextureHeader.h */; };
-		E45E03B818790DD1006DA23F /* PVRTextureUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AB18790DD1006DA23F /* PVRTextureUtilities.h */; };
-		E45E03B918790DD1006DA23F /* PVRTextureVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AC18790DD1006DA23F /* PVRTextureVersion.h */; };
-		E45E03BA18790DD1006DA23F /* PVRTGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AD18790DD1006DA23F /* PVRTGlobal.h */; };
-		E45E03BB18790DD1006DA23F /* PVRTMap.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AE18790DD1006DA23F /* PVRTMap.h */; };
-		E45E03BC18790DD1006DA23F /* PVRTString.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AF18790DD1006DA23F /* PVRTString.h */; };
-		E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03B018790DD1006DA23F /* PVRTTexture.h */; };
+		E45E03B118790DD1006DA23F /* PVRTArray.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A418790DD1006DA23F /* PVRTArray.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B218790DD1006DA23F /* PVRTDecompress.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A518790DD1006DA23F /* PVRTDecompress.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B318790DD1006DA23F /* PVRTError.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A618790DD1006DA23F /* PVRTError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B418790DD1006DA23F /* PVRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A718790DD1006DA23F /* PVRTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B518790DD1006DA23F /* PVRTextureDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A818790DD1006DA23F /* PVRTextureDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B618790DD1006DA23F /* PVRTextureFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03A918790DD1006DA23F /* PVRTextureFormat.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B718790DD1006DA23F /* PVRTextureHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AA18790DD1006DA23F /* PVRTextureHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B818790DD1006DA23F /* PVRTextureUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AB18790DD1006DA23F /* PVRTextureUtilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03B918790DD1006DA23F /* PVRTextureVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AC18790DD1006DA23F /* PVRTextureVersion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03BA18790DD1006DA23F /* PVRTGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AD18790DD1006DA23F /* PVRTGlobal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03BB18790DD1006DA23F /* PVRTMap.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AE18790DD1006DA23F /* PVRTMap.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03BC18790DD1006DA23F /* PVRTString.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AF18790DD1006DA23F /* PVRTString.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03B018790DD1006DA23F /* PVRTTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E45E03C018790DF5006DA23F /* libPVRTexLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E45E03BF18790DF5006DA23F /* libPVRTexLib.a */; };
 		E45E03C718790EC0006DA23F /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; };
 		E45E03C818790EC0006DA23F /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; };
 		E45E03C918790EC0006DA23F /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03C518790EC0006DA23F /* tinyxml2.h */; };
-		E45E03CA18790EC0006DA23F /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03C518790EC0006DA23F /* tinyxml2.h */; };
+		E45E03CA18790EC0006DA23F /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03C518790EC0006DA23F /* tinyxml2.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E45E03CD18790EFF006DA23F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; };
 		E45E03CE18790EFF006DA23F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; };
 		E45E03CF18790EFF006DA23F /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03CC18790EFF006DA23F /* forsyth.h */; };
-		E45E03D018790EFF006DA23F /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03CC18790EFF006DA23F /* forsyth.h */; };
+		E45E03D018790EFF006DA23F /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03CC18790EFF006DA23F /* forsyth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E460292616681CFF00261BB9 /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; settings = {ATTRIBUTES = (); }; };
 		E460292816681D1000261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
 		E460292B16682BF700261BB9 /* libfbxsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk.a */; };
@@ -1469,14 +1469,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */,
 				E497B948151BB89D00D3DC67 /* KRVector2.h in Headers */,
 				E4D0683F1512A790005FFBEB /* KRVector3.h in Headers */,
 				E461A177152E5C6600F2044A /* KRMat4.h in Headers */,
 				E4F975461536327C00FD60B2 /* KRMeshManager.h in Headers */,
-				E45E03B618790DD1006DA23F /* PVRTextureFormat.h in Headers */,
 				E497B94B151BCEE900D3DC67 /* KRResource.h in Headers */,
-				E45E03B318790DD1006DA23F /* PVRTError.h in Headers */,
 				E43B0AD915DDCA0F00A5CB9F /* KRContextObject.h in Headers */,
 				E4F975331536220900FD60B2 /* KRNode.h in Headers */,
 				E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */,
@@ -1488,7 +1485,6 @@
 				E46DBE851512B9FA00D59F86 /* KREngine-common.h in Headers */,
 				E488399715F928CA00BD66D5 /* KRBundle.h in Headers */,
 				E4F9754C153632F000FD60B2 /* KRCamera.h in Headers */,
-				E45E03BA18790DD1006DA23F /* PVRTGlobal.h in Headers */,
 				E4F975501536333500FD60B2 /* KRMesh.h in Headers */,
 				E488399F15F92BE000BD66D5 /* KRBundleManager.h in Headers */,
 				E4AFC6BC15F7C95D00DDB4C8 /* KRSceneManager.h in Headers */,
@@ -1502,59 +1498,63 @@
 				E428C3051669627900A16EDF /* KRAnimationCurve.h in Headers */,
 				E48C697015374F5B00232E28 /* KRContext.h in Headers */,
 				E46F4A10155E004100CCF8B8 /* KRDataBlock.cpp in Headers */,
-				E45E03B418790DD1006DA23F /* PVRTexture.h in Headers */,
 				E4D13365153767FF0070068C /* KRShaderManager.h in Headers */,
 				E40BA45715EFF79500D7C3DD /* KRAABB.h in Headers */,
 				E428C312166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
-				E45E03B818790DD1006DA23F /* PVRTextureUtilities.h in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
-				E416E48D1879111300FC2EEB /* RecastAssert.h in Headers */,
-				E45E03B918790DD1006DA23F /* PVRTextureVersion.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
 				E46A6B701559EF0A000DBD37 /* KRResource+blend.h in Headers */,
 				E416AA9A16713749000F6786 /* KRAnimationCurveManager.h in Headers */,
-				E416E4891879111300FC2EEB /* Recast.h in Headers */,
 				E42CB1ED158446940066E0D8 /* KRQuaternion.h in Headers */,
 				E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */,
 				E4B175AF161F5A1000B8FB80 /* KRTexture.h in Headers */,
 				E480BE691671C641004EC8AD /* KRBone.h in Headers */,
 				E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */,
-				E45E03B118790DD1006DA23F /* PVRTArray.h in Headers */,
-				E45E03CA18790EC0006DA23F /* tinyxml2.h in Headers */,
 				E4CA10E61637BD0A005D9400 /* KRTexturePVR.h in Headers */,
 				E4CA10ED1637BD47005D9400 /* KRTextureTGA.h in Headers */,
-				E45E03D018790EFF006DA23F /* forsyth.h in Headers */,
 				E4CA11751639CBD6005D9400 /* KRViewport.h in Headers */,
 				E461A15D152E563100F2044A /* KRDirectionalLight.h in Headers */,
 				E461A169152E570700F2044A /* KRSpotLight.h in Headers */,
-				E45E03B218790DD1006DA23F /* PVRTDecompress.h in Headers */,
 				E4C454B9167BD236003586CD /* KRHitInfo.h in Headers */,
 				E4324BA516444C0D0043185B /* KRParticleSystem.h in Headers */,
 				E4324BAC16444DEF0043185B /* KRParticleSystemNewtonian.h in Headers */,
-				E45E03B518790DD1006DA23F /* PVRTextureDefines.h in Headers */,
 				E4C454AD167BB8EC003586CD /* KRMeshCube.h in Headers */,
-				E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */,
 				E414F9A91694D977000B3D58 /* KRUnknownManager.h in Headers */,
 				E48B68181697794F00D99917 /* KRAudioSource.h in Headers */,
 				E4F027CA16979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D116979CE200D4427D /* KRAudioSample.h in Headers */,
-				E45E03B718790DD1006DA23F /* PVRTextureHeader.h in Headers */,
 				E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
 				E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
+				E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */,
+				E45E03B618790DD1006DA23F /* PVRTextureFormat.h in Headers */,
+				E45E03B318790DD1006DA23F /* PVRTError.h in Headers */,
+				E45E03BA18790DD1006DA23F /* PVRTGlobal.h in Headers */,
+				E45E03B418790DD1006DA23F /* PVRTexture.h in Headers */,
+				E45E03B818790DD1006DA23F /* PVRTextureUtilities.h in Headers */,
+				E416E48D1879111300FC2EEB /* RecastAssert.h in Headers */,
+				E45E03B918790DD1006DA23F /* PVRTextureVersion.h in Headers */,
+				E416E4891879111300FC2EEB /* Recast.h in Headers */,
+				E45E03B118790DD1006DA23F /* PVRTArray.h in Headers */,
+				E45E03CA18790EC0006DA23F /* tinyxml2.h in Headers */,
+				E45E03D018790EFF006DA23F /* forsyth.h in Headers */,
+				E45E03B218790DD1006DA23F /* PVRTDecompress.h in Headers */,
+				E45E03B518790DD1006DA23F /* PVRTextureDefines.h in Headers */,
+				E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */,
+				E45E03B718790DD1006DA23F /* PVRTextureHeader.h in Headers */,
+				E45E03BB18790DD1006DA23F /* PVRTMap.h in Headers */,
+				E45E03BC18790DD1006DA23F /* PVRTString.h in Headers */,
+				E416E48B1879111300FC2EEB /* RecastAlloc.h in Headers */,
 				E499BF2216AE760F007FCDBE /* krengine_osx.h in Headers */,
 				E4C454B3167BC04C003586CD /* KRMeshSphere.h in Headers */,
 				E450273C16E0491D00FDEC5C /* KRReverbZone.h in Headers */,
-				E45E03BB18790DD1006DA23F /* PVRTMap.h in Headers */,
 				E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */,
-				E45E03BC18790DD1006DA23F /* PVRTString.h in Headers */,
 				E499BF1D16AE74FF007FCDBE /* KRTextureAnimated.h in Headers */,
 				E4EC73C41720B1FF0065299F /* KRVector4.h in Headers */,
 				E468448217FFDF51001F1FA1 /* KRLocator.h in Headers */,
 				E43F70DF181B20E400136169 /* KRLODSet.h in Headers */,
-				E416E48B1879111300FC2EEB /* RecastAlloc.h in Headers */,
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E45134B91746A4A300443C21 /* KRBehavior.h in Headers */,
 				E43F71021824E73100136169 /* KRMeshStreamer.h in Headers */,
