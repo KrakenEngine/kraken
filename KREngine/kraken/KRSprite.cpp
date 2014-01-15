@@ -28,7 +28,6 @@ KRSprite::KRSprite(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_spriteTexture = "";
     m_pSpriteTexture = NULL;
-    m_spriteSize = 0.0f;
     m_spriteAlpha = 1.0f;
 }
 
@@ -43,7 +42,6 @@ std::string KRSprite::getElementName() {
 tinyxml2::XMLElement *KRSprite::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("sprite_size", m_spriteSize);
     e->SetAttribute("sprite_texture", m_spriteTexture.c_str());
     e->SetAttribute("sprite_alpha", m_spriteAlpha);
     return e;
@@ -52,9 +50,6 @@ tinyxml2::XMLElement *KRSprite::saveXML( tinyxml2::XMLNode *parent)
 void KRSprite::loadXML(tinyxml2::XMLElement *e) {
     KRNode::loadXML(e);
 
-    if(e->QueryFloatAttribute("sprite_size", &m_spriteSize) != tinyxml2::XML_SUCCESS) {
-        m_spriteSize = 0.0f;
-    }
     if(e->QueryFloatAttribute("sprite_alpha", &m_spriteAlpha) != tinyxml2::XML_SUCCESS) {
         m_spriteAlpha = 1.0f;
     }
@@ -73,11 +68,6 @@ void KRSprite::setSpriteTexture(std::string sprite_texture) {
     m_pSpriteTexture = NULL;
 }
 
-void KRSprite::setSpriteSize(float sprite_size) {
-    // TODO - Deprecated - This should come from the localScale
-    m_spriteSize = sprite_size;
-}
-
 void KRSprite::setSpriteAlpha(float alpha)
 {
     m_spriteAlpha = alpha;
@@ -89,7 +79,7 @@ float KRSprite::getSpriteAlpha() const
 }
 
 KRAABB KRSprite::getBounds() {
-    return KRAABB(KRVector3(-m_spriteSize), KRVector3(m_spriteSize), getModelMatrix());
+    return KRAABB(-KRVector3::One() * 0.5f, KRVector3::One() * 0.5f, getModelMatrix());
 }
 
 
@@ -99,7 +89,7 @@ void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
-        if(m_spriteTexture.size() && m_spriteSize > 0.0f && m_spriteAlpha > 0.0f) {
+        if(m_spriteTexture.size() && m_spriteAlpha > 0.0f) {
             
 
             if(!m_pSpriteTexture && m_spriteTexture.size()) {
@@ -128,7 +118,6 @@ void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
                 KRVector3 rim_color;
                 if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, 0.0f)) {
                     pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
-                    pShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, m_spriteSize);
                     m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture);
                     m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

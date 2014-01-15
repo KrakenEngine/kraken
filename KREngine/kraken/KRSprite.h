@@ -23,7 +23,6 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     void setSpriteTexture(std::string sprite_texture);
-    void setSpriteSize(float sprite_size);
     void setSpriteAlpha(float alpha);
     float getSpriteAlpha() const;
     
@@ -35,7 +34,6 @@ protected:
     
     std::string m_spriteTexture;
     KRTexture *m_pSpriteTexture;
-    float m_spriteSize;
     float m_spriteAlpha;
 };
 
