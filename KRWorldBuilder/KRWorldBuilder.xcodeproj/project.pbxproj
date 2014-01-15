@@ -24,7 +24,7 @@
 		E440D974155E46DB00C4887B /* KRWBFileSystemItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRWBFileSystemItem.h; sourceTree = "<group>"; };
 		E440D975155E46DB00C4887B /* KRWBFileSystemItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KRWBFileSystemItem.m; sourceTree = "<group>"; };
 		E46F4A06155DF5E500CCF8B8 /* krengine_osx.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = krengine_osx.framework; path = ../KREngine/build/Release/krengine_osx.framework; sourceTree = "<group>"; };
-		E474D77014E5BBF70017DCEC /* KRWorldBuilder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KRWorldBuilder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E474D77014E5BBF70017DCEC /* Kraken World Builder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kraken World Builder.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E474D77414E5BBF70017DCEC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E474D77714E5BBF70017DCEC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		E474D77814E5BBF70017DCEC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -68,7 +68,7 @@
 		E474D77114E5BBF70017DCEC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E474D77014E5BBF70017DCEC /* KRWorldBuilder.app */,
+				E474D77014E5BBF70017DCEC /* Kraken World Builder.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,7 +131,7 @@
 			);
 			name = "Kraken World Builder";
 			productName = KRWorldBuilder;
-			productReference = E474D77014E5BBF70017DCEC /* KRWorldBuilder.app */;
+			productReference = E474D77014E5BBF70017DCEC /* Kraken World Builder.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
