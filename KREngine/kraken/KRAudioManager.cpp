@@ -1491,7 +1491,19 @@ void KRAudioManager::setGlobalAmbientGain(float gain)
 
 void KRAudioManager::startFrame(float deltaTime)
 {
-    m_mutex.lock();
+    static unsigned long trackCount = 0;
+    static unsigned long trackMissed = 0;
+    trackCount++;
+    if (trackCount > 200) {
+//        printf("Missed %ld out of 200 try_lock attempts on audio startFrame\n", trackMissed);
+        trackCount = 0;
+        trackMissed = 0;
+    }
+    
+    if (!m_mutex.try_lock()) {
+        trackMissed++;
+        return;     // if we are rendering audio don't update audio state
+    }               // NOTE: this misses anywhere from 0 to to 30 times out of 200 on the iPad2
     
     // ----====---- Determine Ambient Zone Contributions ----====----
     m_ambient_zone_weights.clear();

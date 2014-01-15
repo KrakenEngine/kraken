@@ -40,9 +40,10 @@
 #include "KRMat4.h"
 #include "KRAudioSource.h"
 
-const int KRENGINE_AUDIO_MAX_POOL_SIZE = 40; //32;
-    // for Circa we play a maximum of 7 mono audio streams at once + cross fading with ambient
-    // so we could safely say a maximum of 10 streams, which would be 33 buffers
+const int KRENGINE_AUDIO_MAX_POOL_SIZE = 60; //32;
+    // for Circa we play a maximum of 11 mono audio streams at once + cross fading with ambient
+    // so we could safely say a maximum of 12 or 13 streams, which would be 39 buffers
+    // do the WAV files for the reverb use the same buffer pool ???
 
 const int KRENGINE_AUDIO_MAX_BUFFER_SIZE = 5120;  // in bytes
     // this is the buffer for our decoded audio (not the source file data)
