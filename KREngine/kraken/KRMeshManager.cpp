@@ -233,7 +233,10 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
                 }
                 m_vboMemUsed -= firstVBO.size;
                 m_vbosPool.erase(first_itr);
+#if defined(DEBUG)
+                // If you receive this message multiple times per frame, then there are too many vertices.  Consider using LOD models or optimizing for occlusion culling.
                 fprintf(stderr, "VBO Swapping...\n");
+#endif
             }
             
             m_currentVBO.vao_handle = -1;
