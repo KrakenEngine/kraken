@@ -68,11 +68,11 @@ const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
 
 const float KRENGINE_AUDIO_CUTOFF = 0.02f; // Cutoff gain level, to cull out processing of very quiet sounds
 
-const int KRENGINE_REVERB_MAX_SAMPLES = 435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
-const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 16; // Maximum number of impulse response filters that can be mixed simultaneously
+const int KRENGINE_REVERB_MAX_SAMPLES = 128000; // 2.9 seconds //435200; // At least 10s reverb impulse response length, divisible by KRENGINE_AUDIO_BLOCK_LENGTH
+const int KRENGINE_MAX_REVERB_IMPULSE_MIX = 8; // Maximum number of impulse response filters that can be mixed simultaneously
 const int KRENGINE_MAX_OUTPUT_CHANNELS = 2;
 
-const int KRENGINE_MAX_ACTIVE_SOURCES = 24;
+const int KRENGINE_MAX_ACTIVE_SOURCES = 16;
 const int KRENGINE_AUDIO_ANTICLICK_SAMPLES = 64;
 
 
