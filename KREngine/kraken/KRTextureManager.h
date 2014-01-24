@@ -66,7 +66,7 @@ public:
     
     unordered_map<std::string, KRTexture *> &getTextures();
     
-    void compress();
+    void compress(bool premultiply_alpha = false);
     
     std::set<KRTexture *> &getActiveTextures();
     std::set<KRTexture *> &getPoolTextures();

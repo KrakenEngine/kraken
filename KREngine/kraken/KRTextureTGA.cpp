@@ -36,6 +36,7 @@ KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string na
     m_min_lod_max_dim = m_max_lod_max_dim; // Mipmaps not yet supported for TGA images
     switch(pHeader->imagetype) {
         case 2: // rgb
+        case 10: // rgb + rle
             switch(pHeader->bitsperpixel) {
                 case 24:
                 {
@@ -70,7 +71,7 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress)
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
@@ -133,7 +134,26 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     break;
                 case 32:
                     {
-                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
+                        if(premultiply_alpha) {
+                            unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
+                            
+                            unsigned char *pSource = pData;
+                            unsigned char *pDest = converted_image;
+                            unsigned char *pEnd = pData + pHeader->height * pHeader->width * 3;
+                            while(pSource < pEnd) {
+                                *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
+                                *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                *pDest++ = pSource[3];
+                                pSource += 4;
+                            }
+                            
+                            glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                            free(converted_image);
+                        } else {
+                            glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
+                        }
+                        
                         err = glGetError();
                         if (err != GL_NO_ERROR) {
                             m_pData->unlock();
@@ -141,6 +161,120 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         }
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
+                    break;
+                default:
+                    m_pData->unlock();
+                    return false; // 16-bit images not yet supported
+            }
+            break;
+        case 10: // rgb + rle
+            switch(pHeader->bitsperpixel) {
+                case 24:
+                {
+                    unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
+                    unsigned char *pSource = pData;
+                    unsigned char *pDest = converted_image;
+                    unsigned char *pEnd = converted_image + pHeader->height * pHeader->width * 4;
+                    if(premultiply_alpha) {
+                        while(pDest < pEnd) {
+                            int count = *pSource & 0x7f + 1;
+                            if(*pSource & 0x80) {
+                                // RLE Packet
+                                pSource++;
+                                while(count--) {
+                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = pSource[3];
+                                }
+                                pSource += 4;
+                            } else {
+                                // RAW Packet
+                                pSource++;
+                                while(count--) {
+                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = pSource[3];
+                                    pSource += 4;
+                                }
+                            }
+                        }
+                    } else {
+                        while(pDest < pEnd) {
+                            int count = *pSource & 0x7f + 1;
+                            if(*pSource & 0x80) {
+                                // RLE Packet
+                                pSource++;
+                                while(count--) {
+                                    *pDest++ = pSource[0];
+                                    *pDest++ = pSource[1];
+                                    *pDest++ = pSource[2];
+                                    *pDest++ = pSource[3];
+                                }
+                                pSource += 4;
+                            } else {
+                                // RAW Packet
+                                pSource++;
+                                while(count--) {
+                                    *pDest++ = pSource[0];
+                                    *pDest++ = pSource[1];
+                                    *pDest++ = pSource[2];
+                                    *pDest++ = pSource[3];
+                                    pSource += 4;
+                                }
+                            }
+                        }
+                    }
+                    glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                    free(converted_image);
+                    err = glGetError();
+                    if (err != GL_NO_ERROR) {
+                        m_pData->unlock();
+                        return false;
+                    }
+                    current_lod_max_dim = m_max_lod_max_dim;
+                }
+                break;
+                case 32:
+                {
+                    unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
+                    unsigned char *pSource = pData;
+                    unsigned char *pDest = converted_image;
+                    unsigned char *pEnd = converted_image + pHeader->height * pHeader->width * 4;
+                    while(pDest < pEnd) {
+                        int count = *pSource & 0x7f + 1;
+                        if(*pSource & 0x80) {
+                            // RLE Packet
+                            pSource++;
+                            while(count--) {
+                                *pDest++ = pSource[0];
+                                *pDest++ = pSource[1];
+                                *pDest++ = pSource[2];
+                                *pDest++ = 0xff;
+                            }
+                            pSource += 3;
+                        } else {
+                            // RAW Packet
+                            pSource++;
+                            while(count--) {
+                                *pDest++ = pSource[0];
+                                *pDest++ = pSource[1];
+                                *pDest++ = pSource[2];
+                                *pDest++ = 0xff;
+                                pSource += 3;
+                            }
+                        }
+                    }
+                    glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                    free(converted_image);
+                    err = glGetError();
+                    if (err != GL_NO_ERROR) {
+                        m_pData->unlock();
+                        return false;
+                    }
+                    current_lod_max_dim = m_max_lod_max_dim;
+                }
                     break;
                 default:
                     m_pData->unlock();
@@ -156,7 +290,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     return true;
 }
 
-KRTexture *KRTextureTGA::compress()
+KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
 {
     m_pData->lock();
     
@@ -170,7 +304,7 @@ KRTexture *KRTextureTGA::compress()
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
     
     int current_max_dim = 0;
-    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, 0, true)) {
+    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, 0, true, premultiply_alpha)) {
         assert(false); // Failed to upload the texture
     }
     GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));

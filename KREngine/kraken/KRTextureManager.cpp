@@ -393,14 +393,14 @@ unordered_map<std::string, KRTexture *> &KRTextureManager::getTextures()
     return m_textures;
 }
 
-void KRTextureManager::compress()
+void KRTextureManager::compress(bool premultiply_alpha)
 {
     std::vector<KRTexture *> textures_to_remove;
     std::vector<KRTexture *> textures_to_add;
     
     for(unordered_map<std::string, KRTexture *>::iterator itr=m_textures.begin(); itr != m_textures.end(); itr++) {
         KRTexture *texture = (*itr).second;
-        KRTexture *compressed_texture = texture->compress();
+        KRTexture *compressed_texture = texture->compress(premultiply_alpha);
         if(compressed_texture) {
             textures_to_remove.push_back(texture);
             textures_to_add.push_back(compressed_texture);

@@ -111,7 +111,7 @@ bool KRTexture::isAnimated()
     return false;
 }
 
-KRTexture *KRTexture::compress()
+KRTexture *KRTexture::compress(bool premultiply_alpha)
 {
     return NULL;
 }
