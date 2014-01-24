@@ -19,7 +19,10 @@ public:
     virtual std::string getExtension();
     
     bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress = false, bool premultiply_alpha = false);
+    
+#if !TARGET_OS_IPHONE
     virtual KRTexture *compress(bool premultiply_alpha = false);
+#endif
     
     virtual long getMemRequiredForSize(int max_dim);
 private:

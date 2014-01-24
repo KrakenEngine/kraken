@@ -329,10 +329,6 @@ void KRTextureManager::balanceTextureMemory()
         }
     }
     
-    if (maxDimActive > 512) maxDimActive = 512;     // FINDME - hack to stop the texture resizer from blowing out its brains ..
-                                                    // when the texture quality goes up to 1024, the app runs for about 2 mins and then
-                                                    // runs out of memory.
-    
     // Resize active textures to balance the memory usage and mipmap levels
     for(std::set<KRTexture *>::iterator itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end() && memory_available > 0; itr++) {
         KRTexture *activeTexture = *itr;

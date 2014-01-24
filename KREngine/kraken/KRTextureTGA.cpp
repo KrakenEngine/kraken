@@ -77,17 +77,15 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 
-//
-// FINDME - many of the GL constants in here are not defined in GLES2
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONEz
     GLenum base_internal_format = GL_BGRA;
 #else
     GLenum base_internal_format = pHeader->bitsperpixel == 24 ? GL_BGR : GL_BGRA;
 #endif
     
-    GLenum internal_format = 0;
+    GLenum internal_format = GL_RGBA;
     
-#ifndef TARGET_OS_IPHONE
+#if !TARGET_OS_IPHONE
     if(compress) {
         internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
@@ -169,7 +167,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             break;
         case 10: // rgb + rle
             switch(pHeader->bitsperpixel) {
-                case 24:
+                case 32:
                 {
                     unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
                     unsigned char *pSource = pData;
@@ -177,7 +175,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     unsigned char *pEnd = converted_image + pHeader->height * pHeader->width * 4;
                     if(premultiply_alpha) {
                         while(pDest < pEnd) {
-                            int count = *pSource & 0x7f + 1;
+                            int count = (*pSource & 0x7f) + 1;
                             if(*pSource & 0x80) {
                                 // RLE Packet
                                 pSource++;
@@ -202,7 +200,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         }
                     } else {
                         while(pDest < pEnd) {
-                            int count = *pSource & 0x7f + 1;
+                            int count = (*pSource & 0x7f) + 1;
                             if(*pSource & 0x80) {
                                 // RLE Packet
                                 pSource++;
@@ -236,14 +234,14 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
                 break;
-                case 32:
+                case 24:
                 {
                     unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
                     unsigned char *pSource = pData;
                     unsigned char *pDest = converted_image;
                     unsigned char *pEnd = converted_image + pHeader->height * pHeader->width * 4;
                     while(pDest < pEnd) {
-                        int count = *pSource & 0x7f + 1;
+                        int count = (*pSource & 0x7f) + 1;
                         if(*pSource & 0x80) {
                             // RLE Packet
                             pSource++;
@@ -290,6 +288,8 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     return true;
 }
 
+#if !TARGET_OS_IPHONE
+
 KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
 {
     m_pData->lock();
@@ -311,7 +311,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     
     GLint width = 0, height = 0, internal_format, base_internal_format;
 
-#ifndef TARGET_OS_IPHONE
+
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
@@ -350,7 +350,6 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
         // err will equal GL_INVALID_VALUE when
         // assert(false); // Unexpected error
     }
-#endif
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     getContext().getTextureManager()->selectTexture(0, NULL);
@@ -369,6 +368,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     
     return new_texture;
 }
+#endif
 
 long KRTextureTGA::getMemRequiredForSize(int max_dim)
 {

@@ -79,9 +79,7 @@ void KRTexture::resize(int max_dim)
                     if(!createGLTexture(target_dim)) {
                         getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
                         m_newTextureMemUsed = 0;
-//                       assert(false);
-// FINDME - assert commented out .. this crashes the app when running in the debug UI and changing 'Debug-Display' to show the framerate
-//          the FPS doesn't draw anymore either (the drop shadow draws but the text doesn't)
+                        assert(false);  // Failed to create the texture
                     }
                 }
             }
