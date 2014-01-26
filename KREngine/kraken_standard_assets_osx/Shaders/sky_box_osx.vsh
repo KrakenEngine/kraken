@@ -42,8 +42,8 @@ uniform mediump vec4 viewport;
 void main()
 {
 	gl_Position = vec4(vertex_position.xy, 1.0, 1.0);
-
+    
     vec4 t = inv_mvp_matrix_no_translate * vec4(vertex_position.xy, 1.0, 1.0);
-    t /= t.w;
+    t *= 1.0 / t.w;
     texCoord = vec3(t);
 }

@@ -77,7 +77,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
 
-#if TARGET_OS_IPHONEz
+#if TARGET_OS_IPHONE
     GLenum base_internal_format = GL_BGRA;
 #else
     GLenum base_internal_format = pHeader->bitsperpixel == 24 ? GL_BGR : GL_BGRA;
