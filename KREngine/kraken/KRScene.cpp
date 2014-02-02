@@ -479,8 +479,8 @@ void KRScene::updateOctree(const KRViewport &viewport)
 {
     m_pRootNode->updateLODVisibility(viewport);
     
-    std::set<KRNode *> newNodes = m_newNodes;
-    std::set<KRNode *> modifiedNodes = m_modifiedNodes;
+    std::set<KRNode *> newNodes = std::move(m_newNodes);
+    std::set<KRNode *> modifiedNodes = std::move(m_modifiedNodes);
     m_newNodes.clear();
     m_modifiedNodes.clear();
     

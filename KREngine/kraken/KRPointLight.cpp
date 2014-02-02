@@ -34,7 +34,7 @@ std::string KRPointLight::getElementName() {
 }
 
 KRAABB KRPointLight::getBounds() {
-    float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;
+    float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
@@ -56,7 +56,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
 
         KRVector3 light_position = getLocalTranslation();
         
-        float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;
+        float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
         
         KRMat4 sphereModelMatrix = KRMat4();
         sphereModelMatrix.scale(influence_radius);

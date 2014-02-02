@@ -49,3 +49,13 @@ void KRSpotLight::setInnerAngle(float innerAngle) {
 void KRSpotLight::setOuterAngle(float outerAngle) {
     m_outerAngle = outerAngle;
 }
+
+KRAABB KRSpotLight::getBounds() {
+    float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
+    if(influence_radius < m_flareOcclusionSize) {
+        influence_radius = m_flareOcclusionSize;
+    }
+    return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
+}
+
+
