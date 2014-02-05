@@ -120,13 +120,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             pSource += 3;
                         }
 //#endif
-                        glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                        GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                         free(converted_image);
-                        err = glGetError();
-                        if (err != GL_NO_ERROR) {
-                            m_pData->unlock();
-                            return false;
-                        }
+
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
@@ -146,17 +142,12 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 pSource += 4;
                             }
                             
-                            glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                             free(converted_image);
                         } else {
-                            glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData);
+                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
                         }
                         
-                        err = glGetError();
-                        if (err != GL_NO_ERROR) {
-                            m_pData->unlock();
-                            return false;
-                        }
                         current_lod_max_dim = m_max_lod_max_dim;
                     }
                     break;
@@ -224,13 +215,8 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             }
                         }
                     }
-                    glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     free(converted_image);
-                    err = glGetError();
-                    if (err != GL_NO_ERROR) {
-                        m_pData->unlock();
-                        return false;
-                    }
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
                 break;
@@ -264,13 +250,8 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             }
                         }
                     }
-                    glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image);
+                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     free(converted_image);
-                    err = glGetError();
-                    if (err != GL_NO_ERROR) {
-                        m_pData->unlock();
-                        return false;
-                    }
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
                     break;
@@ -333,18 +314,15 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     GLint compressed_size = 0;
     GLenum err = GL_NO_ERROR;
     while(err == GL_NO_ERROR) {
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed_size);
-        err = glGetError();
-        if(err == GL_NO_ERROR) {
-            KRDataBlock *new_block = new KRDataBlock();
-            new_block->expand(compressed_size);
-            new_block->lock();
-            GLDEBUG(glGetCompressedTexImage(GL_TEXTURE_2D, lod_level, new_block->getStart()));
-            new_block->unlock();
-            blocks.push_back(new_block);
-            
-            lod_level++;
-        }
+        GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed_size));
+        KRDataBlock *new_block = new KRDataBlock();
+        new_block->expand(compressed_size);
+        new_block->lock();
+        GLDEBUG(glGetCompressedTexImage(GL_TEXTURE_2D, lod_level, new_block->getStart()));
+        new_block->unlock();
+        blocks.push_back(new_block);
+        
+        lod_level++;
     }
     if(err != GL_INVALID_VALUE) {
         // err will equal GL_INVALID_VALUE when
