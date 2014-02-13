@@ -279,6 +279,42 @@ bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 	return true;				/* ray hits box */
 }
 
+bool KRAABB::intersectsSphere(const KRVector3 &center, float radius) const
+{
+    // Arvo's Algorithm
+    
+    float squaredDistance = 0;
+    
+    // process X
+    if (center.x < min.x) {
+        float diff = center.x - min.x;
+        squaredDistance += diff * diff;
+    } else if (center.x > max.x) {
+        float diff = center.x - max.x;
+        squaredDistance += diff * diff;
+    }
+    
+    // process Y
+    if (center.y < min.y) {
+        float diff = center.y - min.y;
+        squaredDistance += diff * diff;
+    } else if (center.y > max.y) {
+        float diff = center.y - max.y;
+        squaredDistance += diff * diff;
+    }
+    
+    // process Z
+    if (center.z < min.z) {
+        float diff = center.z - min.z;
+        squaredDistance += diff * diff;
+    } else if (center.z > max.z) {
+        float diff = center.z - max.z;
+        squaredDistance += diff * diff;
+    }
+    
+    return squaredDistance <= radius;
+}
+
 void KRAABB::encapsulate(const KRAABB & b)
 {
     if(b.min.x < min.x) min.x = b.min.x;

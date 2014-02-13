@@ -552,3 +552,9 @@ bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hiti
     return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }
 
+bool KRScene::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+{
+    return m_nodeTree.sphereCast(v0, v1, radius, hitinfo, layer_mask);
+}
+
+

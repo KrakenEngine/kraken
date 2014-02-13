@@ -1,5 +1,5 @@
 //
-//  KRHitInfo.cpp
+//  KRTriangle.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,68 +29,35 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRHitInfo.h"
-#include "KRContext.h"
+#ifndef KRTRIANGLE3_H
+#define KRTRIANGLE3_H
 
-KRHitInfo::KRHitInfo()
-{
-    m_position = KRVector3::Zero();
-    m_normal = KRVector3::Zero();
-    m_distance = 0.0f;
-    m_node = NULL;
-}
+#include "KRVector3.h"
 
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance, KRNode *node)
+class KRTriangle3
 {
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = node;
-}
-
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance)
-{
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = NULL;
-}
-
-KRHitInfo::~KRHitInfo()
-{
+public:
+    KRTriangle3(const KRTriangle3 &tri);
+    KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3);
+    ~KRTriangle3();
     
-}
+    KRVector3 calculateNormal() const;
+    
+    bool operator ==(const KRTriangle3& b) const;
+    bool operator !=(const KRTriangle3& b) const;
+    KRTriangle3& operator =(const KRTriangle3& b);
+    KRVector3& operator[](unsigned i);
+    KRVector3 operator[](unsigned i) const;
+    
+    
+    bool rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const;
+    bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
+    
+    bool containsPoint(const KRVector3 &p) const;
+    KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
+private:
+    
+    KRVector3 m_c[3];
+};
 
-bool KRHitInfo::didHit() const
-{
-    return m_normal != KRVector3::Zero();
-}
-
-KRVector3 KRHitInfo::getPosition() const
-{
-    return m_position;
-}
-
-KRVector3 KRHitInfo::getNormal() const
-{
-    return m_normal;
-}
-
-float KRHitInfo::getDistance() const
-{
-    return m_distance;
-}
-
-KRNode *KRHitInfo::getNode() const
-{
-    return m_node;
-}
-
-KRHitInfo& KRHitInfo::operator =(const KRHitInfo& b)
-{
-    m_position = b.m_position;
-    m_normal = b.m_normal;
-    m_distance = b.m_distance;
-    m_node = b.m_node;
-    return *this;
-}
+#endif // KRTRIANGLE3_H

@@ -35,6 +35,7 @@
 #include "KRMesh.h"
 
 #include "KRVector3.h"
+#include "KRTriangle3.h"
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
@@ -981,94 +982,41 @@ KRMesh::model_format_t KRMesh::getModelFormat() const
     return f;
 }
 
-bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
 {
-    // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
-    const float SMALL_NUM = 0.00000001; // anything that avoids division overflow
-    KRVector3   u, v, n;              // triangle vectors
-    KRVector3   w0, w;           // ray vectors
-    float       r, a, b;              // params to calc ray-plane intersect
-    
-    // get triangle edge vectors and plane normal
-    u = tri_v1 - tri_v0;
-    v = tri_v2 - tri_v0;
-    n = KRVector3::Cross(u, v); // cross product
-    if (n == KRVector3::Zero())             // triangle is degenerate
-        return false;                  // do not deal with this case
-    
-    w0 = line_v0 - tri_v0;
-    a = -KRVector3::Dot(n, w0);
-    b = KRVector3::Dot(n,dir);
-    if (fabs(b) < SMALL_NUM) {     // ray is  parallel to triangle plane
-        if (a == 0)                 
-            return false; // ray lies in triangle plane
-        else {
-            return false; // ray disjoint from plane
+    KRVector3 hit_point;
+    if(tri.rayCast(start, dir, hit_point)) {
+        // ---===--- hit_point is in triangle ---===---
+        
+        float new_hit_distance = (hit_point - start).magnitude();
+        if(new_hit_distance < hitinfo.getDistance() || !hitinfo.didHit()) {
+            // Update the hitinfo object if this hit is closer than the prior hit
+            
+            // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
+            float distance_v0 = (tri[0] - hit_point).magnitude();
+            float distance_v1 = (tri[1] - hit_point).magnitude();
+            float distance_v2 = (tri[2] - hit_point).magnitude();
+            float distance_total = distance_v0 + distance_v1 + distance_v2;
+            distance_v0 /= distance_total;
+            distance_v1 /= distance_total;
+            distance_v2 /= distance_total;
+            KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
+            
+            hitinfo = KRHitInfo(hit_point, normal, new_hit_distance);
+            return true;
+        } else {
+            return false; // The hit was farther than an existing hit
         }
-    }
-    
-    // get intersect point of ray with triangle plane
-    r = a / b;
-    if (r < 0.0)                    // ray goes away from triangle
-        return false;                   // => no intersect
-    // for a segment, also test if (r > 1.0) => no intersect
-    
-    
-    KRVector3 hit_point = line_v0 + dir * r;            // intersect point of ray and plane
-    
-    // is hit_point inside triangle?
-    float    uu, uv, vv, wu, wv, D;
-    uu = KRVector3::Dot(u,u);
-    uv = KRVector3::Dot(u,v);
-    vv = KRVector3::Dot(v,v);
-    w = hit_point - tri_v0;
-    wu = KRVector3::Dot(w,u);
-    wv = KRVector3::Dot(w,v);
-    D = uv * uv - uu * vv;
-    
-    // get and test parametric coords
-    float s, t;
-    s = (uv * wv - vv * wu) / D;
-    if (s < 0.0 || s > 1.0)         // hit_point is outside triangle
-        return false;
-    t = (uv * wu - uu * wv) / D;
-    if (t < 0.0 || (s + t) > 1.0)  // hit_point is outside triangle
-        return false;
-    
-    float new_hit_distance_sqr = (hit_point - line_v0).sqrMagnitude();
-    float prev_hit_distance_sqr = (hitinfo.getPosition() - line_v0).sqrMagnitude();
 
-    // ---===--- hit_point is in triangle ---===---
-    
-    
-    if(new_hit_distance_sqr < prev_hit_distance_sqr || !hitinfo.didHit()) {
-        // Update the hitinfo object if this hit is closer than the prior hit
-        
-        // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
-        float distance_v0 = (tri_v0 - hit_point).magnitude();
-        float distance_v1 = (tri_v1 - hit_point).magnitude();
-        float distance_v2 = (tri_v2 - hit_point).magnitude();
-        float distance_total = distance_v0 + distance_v1 + distance_v2;
-        distance_v0 /= distance_total;
-        distance_v1 /= distance_total;
-        distance_v2 /= distance_total;
-        KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
-        
-        hitinfo = KRHitInfo(hit_point, normal);
-        return true;
     } else {
-        return false; // Either no hit, or the hit was farther than an existing hit
+        // Dit not hit the triangle
+        return false;
     }
+
 }
 
-/*
-bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
-{
-    return rayCast(line_v0, dir, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
-}
- */
 
-bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const
+bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
     bool hit_found = false;
@@ -1084,7 +1032,9 @@ bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitin
                     tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
                     tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
                     
-                    if(rayCast(v0, dir, getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]), getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
+                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(rayCast(start, dir, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
                 }
                 break;
             /*
@@ -1109,6 +1059,94 @@ bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitin
     }
     m_pData->unlock();
     return hit_found;
+}
+
+
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const
+{
+    m_pData->lock();
+    KRHitInfo new_hitinfo;
+    KRVector3 dir = KRVector3::Normalize(v1 - v0);
+    
+    bool hit_found = false;
+    for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
+        int vertex_count = getVertexCount(submesh_index);
+        switch(getModelFormat()) {
+            case KRENGINE_MODEL_FORMAT_TRIANGLES:
+            case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
+                    int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
+                    tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index*3);
+                    tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
+                    tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
+                    
+                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(sphereCast(model_to_world, v0, dir, radius, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), new_hitinfo)) hit_found = true;
+                }
+                break;
+                /*
+                 
+                 NOTE: Not yet supported:
+                 
+                 case KRENGINE_MODEL_FORMAT_STRIP:
+                 case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
+                 int tri_vert_index[3];
+                 tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
+                 tri_vert_index[1] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 1);
+                 tri_vert_index[2] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 2);
+                 
+                 if(sphereCast(model_to_world, v0, v1, getVertexPosition(vertex_start + triangle_index), getVertexPosition(vertex_start + triangle_index+1), getVertexPosition(vertex_start + triangle_index+2), getVertexNormal(vertex_start + triangle_index), getVertexNormal(vertex_start + triangle_index+1), getVertexNormal(vertex_start + triangle_index+2), new_hitinfo)) hit_found = true;
+                 }
+                 break;
+                 */
+            default:
+                break;
+        }
+    }
+    m_pData->unlock();
+    
+    
+    if(hit_found) {
+        if(new_hitinfo.getDistance() <= (v1 - v0).magnitude()) {
+            // The hit was between v1 and v2
+            hitinfo = new_hitinfo;
+            return true;
+        }
+    }
+    return false; // Either no hit, or the hit was beyond v1
+}
+
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &start, const KRVector3 &dir, float radius, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+{
+    
+    // bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
+    
+    KRVector3 new_hit_point;
+    float new_hit_distance;
+    
+    KRTriangle3 world_tri = KRTriangle3(KRMat4::Dot(model_to_world, tri[0]), KRMat4::Dot(model_to_world, tri[1]), KRMat4::Dot(model_to_world, tri[2]));
+    
+    if(world_tri.sphereCast(start, dir, radius, new_hit_point, new_hit_distance)) {
+        if(!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) {
+            
+            // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
+            float distance_v0 = (tri[0] - new_hit_point).magnitude();
+            float distance_v1 = (tri[1] - new_hit_point).magnitude();
+            float distance_v2 = (tri[2] - new_hit_point).magnitude();
+            float distance_total = distance_v0 + distance_v1 + distance_v2;
+            distance_v0 /= distance_total;
+            distance_v1 /= distance_total;
+            distance_v2 /= distance_total;
+            KRVector3 normal = KRVector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
+            
+            hitinfo = KRHitInfo(new_hit_point, normal, new_hit_distance);
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const

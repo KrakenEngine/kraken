@@ -388,6 +388,10 @@
 		E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027DD1697BFFF00D4427D /* KRAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F027F71698115600D4427D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027F61698115600D4427D /* AudioToolbox.framework */; };
 		E4F027FA1698116000D4427D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027F91698116000D4427D /* AudioToolbox.framework */; };
+		E4F89BB418A6DB1200015637 /* KRTriangle3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */; };
+		E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */; };
+		E4F89BB618A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; };
+		E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; };
 		E4F975321536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (); }; };
 		E4F975331536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975361536221C00FD60B2 /* KRNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F975351536221C00FD60B2 /* KRNode.cpp */; };
@@ -685,6 +689,8 @@
 		E4F027DD1697BFFF00D4427D /* KRAudioBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRAudioBuffer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4F027F61698115600D4427D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
 		E4F027F91698116000D4427D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTriangle3.cpp; sourceTree = "<group>"; };
+		E4F89BB318A6DB1200015637 /* KRTriangle3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTriangle3.h; sourceTree = "<group>"; };
 		E4F975311536220900FD60B2 /* KRNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4F975351536221C00FD60B2 /* KRNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 /* End PBXFileReference section */
@@ -948,6 +954,8 @@
 				E4EC73C01720B1FF0065299F /* KRVector4.h */,
 				E48CF940173453990005EBBB /* KRFloat.cpp */,
 				E48CF941173453990005EBBB /* KRFloat.h */,
+				E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */,
+				E4F89BB318A6DB1200015637 /* KRTriangle3.h */,
 			);
 			name = Math;
 			sourceTree = "<group>";
@@ -1369,6 +1377,7 @@
 				E48B68171697794F00D99917 /* KRAudioSource.h in Headers */,
 				E4F027C916979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027E01697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
+				E4F89BB618A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E4943233169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E499BF1B16AE747C007FCDBE /* KRVector2.h in Headers */,
 				E499BF1E16AE751E007FCDBE /* KRSceneManager.h in Headers */,
@@ -1447,6 +1456,7 @@
 				E4F027CA16979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D116979CE200D4427D /* KRAudioSample.h in Headers */,
 				E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
+				E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
 				E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */,
@@ -1717,6 +1727,7 @@
 				E4924C2B15EE96AB00B965C6 /* KROctreeNode.cpp in Sources */,
 				E404702018695DD200F01F42 /* KRTextureKTX.cpp in Sources */,
 				E40BA45415EFF79500D7C3DD /* KRAABB.cpp in Sources */,
+				E4F89BB418A6DB1200015637 /* KRTriangle3.cpp in Sources */,
 				E488399415F928CA00BD66D5 /* KRBundle.cpp in Sources */,
 				E488399C15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */,
 				E4B175AC161F5A1000B8FB80 /* KRTexture.cpp in Sources */,
@@ -1808,6 +1819,7 @@
 				E40F9833184A7BAC00CFA4D8 /* KRSprite.cpp in Sources */,
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
+				E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
 				E41843921678704000DBD6CF /* KRCollider.cpp in Sources */,
 				E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,

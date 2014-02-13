@@ -132,3 +132,25 @@ bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hit
     }
     return hit_found;
 }
+
+bool KROctree::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+{
+    bool hit_found = false;
+    std::vector<KRCollider *> outer_colliders;
+    
+    for(std::set<KRNode *>::iterator outer_nodes_itr=m_outerSceneNodes.begin(); outer_nodes_itr != m_outerSceneNodes.end(); outer_nodes_itr++) {
+        KRCollider *collider = dynamic_cast<KRCollider *>(*outer_nodes_itr);
+        if(collider) {
+            outer_colliders.push_back(collider);
+        }
+    }
+    for(std::vector<KRCollider *>::iterator itr=outer_colliders.begin(); itr != outer_colliders.end(); itr++) {
+        if((*itr)->sphereCast(v0, v1, radius, hitinfo, layer_mask)) hit_found = true;
+    }
+    
+    if(m_pRootNode) {
+        if(m_pRootNode->sphereCast(v0, v1, radius, hitinfo, layer_mask)) hit_found = true;
+    }
+    return hit_found;
+}
+

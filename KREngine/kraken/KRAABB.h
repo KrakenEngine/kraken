@@ -35,6 +35,7 @@ public:
     
     bool intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const;
     bool intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const;
+    bool intersectsSphere(const KRVector3 &center, float radius) const;
     void encapsulate(const KRAABB & b);
     
     KRAABB& operator =(const KRAABB& b);

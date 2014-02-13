@@ -54,6 +54,7 @@
 
 class KRMaterial;
 class KRNode;
+class KRTriangle3;
 
 
 class KRMesh : public KRResource {
@@ -208,6 +209,7 @@ public:
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const;
+    bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const;
     
     static int GetLODCoverage(const std::string &name);
 private:
@@ -217,8 +219,8 @@ private:
     
     void getSubmeshes();
     
-//    bool rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const;
-    static bool rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &start, const KRVector3 &dir, float radius, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;
