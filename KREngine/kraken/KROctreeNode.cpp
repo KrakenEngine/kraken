@@ -263,6 +263,7 @@ bool KROctreeNode::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float ra
         hit_found = sphereCast(v0, hitinfo.getPosition(), radius, hitinfo, layer_mask);
     } else {
     */
+    
         KRAABB swept_bounds = KRAABB(KRVector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), KRVector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
         // FINDME, TODO - Investigate AABB - swept sphere intersections or OBB - AABB intersections: "if(getBounds().intersectsSweptSphere(v0, v1, radius)) {"
         if(getBounds().intersects(swept_bounds)) {

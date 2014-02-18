@@ -126,24 +126,33 @@ KRVector3 KRTriangle3::calculateNormal() const
     return KRVector3::Normalize(KRVector3::Cross(v1, v2));
 }
 
-bool _intersectSphere(const KRVector3 &rO, const KRVector3 &rV, const KRVector3 &sO, float sR, float &distance)
+bool _intersectSphere(const KRVector3 &start, const KRVector3 &dir, const KRVector3 &sphere_center, float sphere_radius, float &distance)
 {
+    // dir must be normalized
+
     // From: http://archive.gamedev.net/archive/reference/articles/article1026.html
     
     // TODO - Move to another class?
-    KRVector3 Q = sO - rO;
+    KRVector3 Q = sphere_center - start;
     float c = Q.magnitude();
-    float v = KRVector3::Dot(Q, rV);
-    float d = sR * sR - (c * c - v * v);
+    float v = KRVector3::Dot(Q, dir);
+    float d = sphere_radius * sphere_radius - (c * c - v * v);
     
-    // If there was no intersection, return -1
+
     
-    if(d < 0.0) return false;
+    if(d < 0.0) {
+        // No intersection
+        return false;
+    }
     
     // Return the distance to the [first] intersecting point
     
     distance = v - sqrt(d);
+    if(distance < 0.0f) {
+        return false;
+    }
     return true;
+
 }
 
 bool _sameSide(const KRVector3 &p1, const KRVector3 &p2, const KRVector3 &a, const KRVector3 &b)
@@ -196,9 +205,9 @@ KRVector3 KRTriangle3::closestPointOnTriangle(const KRVector3 &p) const
     if(sd_Rab < sd_Rbc && sd_Rab < sd_Rca) {
         return Rab;
     } else if(sd_Rbc < sd_Rab && sd_Rbc < sd_Rca) {
-        return sd_Rbc;
+        return Rbc;
     } else {
-        return sd_Rca;
+        return Rca;
     }
 }
 
@@ -216,6 +225,12 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
     KRVector3 plane_intersect;
     float plane_intersect_distance;
     
+    float denom = KRVector3::Dot(tri_normal, dir);
+    
+    if(denom > -SMALL_NUM) {
+        return false; // dir is co-planar with the triangle or going in the direction of the normal; no intersection
+    }
+
     // Detect an embedded plane, caused by a sphere that is already intersecting the plane.
     if(cotangent_distance <= 0 && cotangent_distance >= -radius * 2.0f) {
         // Embedded plane - Sphere is already intersecting the plane.
@@ -225,15 +240,13 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
     } else {
         // Sphere is not intersecting the plane
         // Determine the first point hit by the swept sphere on the triangle's plane
-
-        float denom = KRVector3::Dot(tri_normal, dir);
-        
-        if(fabs(denom) < SMALL_NUM) {
-            return false; // dir is co-planar with the triangle; no intersection
-        }
         
         plane_intersect_distance = -(cotangent_distance / denom);
         plane_intersect = start + dir * plane_intersect_distance;
+    }
+    
+    if(plane_intersect_distance < 0.0f) {
+        return false;
     }
     
     if(containsPoint(plane_intersect)) {
@@ -243,12 +256,12 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
         return true;
     } else {
         // Triangle does not contain point, cast ray back to sphere from closest point on triangle edge or vertice
-        KRVector3 closest_point = closestPointOnTriangle(hit_point);
+        KRVector3 closest_point = closestPointOnTriangle(plane_intersect);
         float reverse_hit_distance;
         if(_intersectSphere(closest_point, -dir, start, radius, reverse_hit_distance)) {
             // Reverse cast hit sphere
             hit_distance = reverse_hit_distance;
-            hit_point = closest_point - dir * reverse_hit_distance;
+            hit_point = closest_point;
             return true;
         } else {
             // Reverse cast did not hit sphere
@@ -260,6 +273,7 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
 
 bool KRTriangle3::containsPoint(const KRVector3 &p) const
 {
+    /*
     // From: http://stackoverflow.com/questions/995445/determine-if-a-3d-point-is-within-a-triangle
     
     const float SMALL_NUM = 0.00000001f;     // anything that avoids division overflow
@@ -272,6 +286,41 @@ bool KRTriangle3::containsPoint(const KRVector3 &p) const
     }
     
     return false;
+    */
+    
+    // From: http://blogs.msdn.com/b/rezanour/archive/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests.aspx
+    
+    KRVector3 A = m_c[0];
+    KRVector3 B = m_c[1];
+    KRVector3 C = m_c[2];
+    KRVector3 P = p;
+    
+    // Prepare our barycentric variables
+    KRVector3 u = B - A;
+    KRVector3 v = C - A;
+    KRVector3 w = P - A;
+    
+    KRVector3 vCrossW = KRVector3::Cross(v, w);
+    KRVector3 vCrossU = KRVector3::Cross(v, u);
+    
+    // Test sign of r
+    if (KRVector3::Dot(vCrossW, vCrossU) < 0)
+        return false;
+    
+    KRVector3 uCrossW = KRVector3::Cross(u, w);
+    KRVector3 uCrossV = KRVector3::Cross(u, v);
+    
+    // Test sign of t
+    if (KRVector3::Dot(uCrossW, uCrossV) < 0)
+        return false;
+    
+    // At this point, we know that r and t and both > 0.
+    // Therefore, as long as their sum is <= 1, each must be less <= 1
+    float denom = uCrossV.magnitude();
+    float r = vCrossW.magnitude() / denom;
+    float t = uCrossW.magnitude() / denom;
+    
+    return (r + t <= 1);
 }
 
 

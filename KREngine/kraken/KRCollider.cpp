@@ -129,7 +129,7 @@ bool KRCollider::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &h
                 KRHitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) {
                     KRVector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition()), KRVector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    hitinfo_model_space = KRHitInfo(hit_position_model_space, KRVector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
@@ -148,7 +148,7 @@ bool KRCollider::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radi
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
-            KRAABB sphereCastBounds = KRAABB(
+            KRAABB sphereCastBounds = KRAABB( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
                 KRVector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
                 KRVector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
             );

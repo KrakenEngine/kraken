@@ -1065,9 +1065,7 @@ bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, KRHitInfo &hi
 bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
-    KRHitInfo new_hitinfo;
-    KRVector3 dir = KRVector3::Normalize(v1 - v0);
-    
+
     bool hit_found = false;
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
         int vertex_count = getVertexCount(submesh_index);
@@ -1082,7 +1080,13 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const
                     
                     KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
                     
-                    if(sphereCast(model_to_world, v0, dir, radius, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), new_hitinfo)) hit_found = true;
+                    if(sphereCast(model_to_world, v0, v1, radius, tri, hitinfo)) hit_found = true;
+                    
+                    /*
+                    KRTriangle3 tri2 = KRTriangle3(getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(sphereCast(model_to_world, v0, v1, radius, tri2, new_hitinfo)) hit_found = true;
+                    */
                 }
                 break;
                 /*
@@ -1107,21 +1111,14 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const
     }
     m_pData->unlock();
     
-    
-    if(hit_found) {
-        if(new_hitinfo.getDistance() <= (v1 - v0).magnitude()) {
-            // The hit was between v1 and v2
-            hitinfo = new_hitinfo;
-            return true;
-        }
-    }
-    return false; // Either no hit, or the hit was beyond v1
+    return hit_found;
 }
 
-bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &start, const KRVector3 &dir, float radius, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
 {
     
-    // bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
+    KRVector3 dir = KRVector3::Normalize(v1 - v0);
+    KRVector3 start = v0;
     
     KRVector3 new_hit_point;
     float new_hit_distance;
@@ -1129,8 +1126,9 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &start, co
     KRTriangle3 world_tri = KRTriangle3(KRMat4::Dot(model_to_world, tri[0]), KRMat4::Dot(model_to_world, tri[1]), KRMat4::Dot(model_to_world, tri[2]));
     
     if(world_tri.sphereCast(start, dir, radius, new_hit_point, new_hit_distance)) {
-        if(!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) {
+        if((!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) && new_hit_distance <= (v1 - v0).magnitude()) {
             
+            /*
             // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
             float distance_v0 = (tri[0] - new_hit_point).magnitude();
             float distance_v1 = (tri[1] - new_hit_point).magnitude();
@@ -1140,8 +1138,8 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &start, co
             distance_v1 /= distance_total;
             distance_v2 /= distance_total;
             KRVector3 normal = KRVector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
-            
-            hitinfo = KRHitInfo(new_hit_point, normal, new_hit_distance);
+            */
+            hitinfo = KRHitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
             return true;
         }
     }
