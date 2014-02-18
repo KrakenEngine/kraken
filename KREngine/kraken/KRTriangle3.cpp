@@ -214,7 +214,7 @@ KRVector3 KRTriangle3::closestPointOnTriangle(const KRVector3 &p) const
 bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const
 {
     // Dir must be normalized
-    const float SMALL_NUM = 0.00000001f;     // anything that avoids division overflow
+    const float SMALL_NUM = 0.001f;     // anything that avoids division overflow
     
     KRVector3 tri_normal = calculateNormal();
     
@@ -242,7 +242,7 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
         // Determine the first point hit by the swept sphere on the triangle's plane
         
         plane_intersect_distance = -(cotangent_distance / denom);
-        plane_intersect = start + dir * plane_intersect_distance;
+        plane_intersect = start + dir * plane_intersect_distance - tri_normal * radius;
     }
     
     if(plane_intersect_distance < 0.0f) {
