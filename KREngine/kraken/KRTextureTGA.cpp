@@ -119,8 +119,10 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             *pDest++ = 0xff;
                             pSource += 3;
                         }
+                        assert(pSource <= m_pData->getEnd());
 //#endif
                         GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                        GLDEBUG(glFinish());
                         free(converted_image);
 
                         current_lod_max_dim = m_max_lod_max_dim;
@@ -141,11 +143,14 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 *pDest++ = pSource[3];
                                 pSource += 4;
                             }
+                            assert(pSource <= m_pData->getEnd());
                             
                             GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                            GLDEBUG(glFinish());
                             free(converted_image);
                         } else {
                             GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
+                            GLDEBUG(glFinish());
                         }
                         
                         current_lod_max_dim = m_max_lod_max_dim;
@@ -189,6 +194,8 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 }
                             }
                         }
+                        assert(pSource <= m_pData->getEnd());
+                        assert(pDest == pEnd);
                     } else {
                         while(pDest < pEnd) {
                             int count = (*pSource & 0x7f) + 1;
@@ -214,8 +221,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 }
                             }
                         }
+                        assert(pSource <= m_pData->getEnd());
+                        assert(pDest == pEnd);
                     }
                     GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                    GLDEBUG(glFinish());
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
@@ -250,7 +260,10 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             }
                         }
                     }
+                    assert(pSource <= m_pData->getEnd());
+                    assert(pDest == pEnd);
                     GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                    GLDEBUG(glFinish());
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
@@ -297,6 +310,12 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
     
+    /*
+    int texture_base_level = 0;
+    int texture_max_level = 0;
+    GLDEBUG(glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, &texture_base_level));
+    GLDEBUG(glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, &texture_max_level));
+    */
     switch(internal_format)
     {
         case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
@@ -312,8 +331,9 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     
     GLuint lod_level = 0;
     GLint compressed_size = 0;
-    GLenum err = GL_NO_ERROR;
-    while(err == GL_NO_ERROR) {
+    int lod_width = width;
+    while(lod_width > 1) {
+        GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_WIDTH, &lod_width));
         GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed_size));
         KRDataBlock *new_block = new KRDataBlock();
         new_block->expand(compressed_size);
@@ -324,18 +344,13 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
         
         lod_level++;
     }
-    if(err != GL_INVALID_VALUE) {
-        // err will equal GL_INVALID_VALUE when
-        // assert(false); // Unexpected error
-    }
+    assert(lod_width == 1);
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     getContext().getTextureManager()->selectTexture(0, NULL);
     GLDEBUG(glDeleteTextures(1, &compressed_handle));
     
     KRTextureKTX *new_texture = new KRTextureKTX(getContext(), getName(), internal_format, base_internal_format, width, height, blocks);
-    
-    KRResource *test_resource = new_texture;
     
     m_pData->unlock();
     

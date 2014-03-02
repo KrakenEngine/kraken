@@ -171,7 +171,7 @@ KRTexture *KRTextureManager::getTexture(const std::string &name) {
             return pTexture;
         } else {
             // Not found
-            //fprintf(stderr, "ERROR: Texture not found: %s\n", szName);
+            // fprintf(stderr, "ERROR: Texture not found: %s\n", name.c_str());
             return NULL;
         }
     } else {
@@ -400,6 +400,8 @@ void KRTextureManager::compress(bool premultiply_alpha)
         if(compressed_texture) {
             textures_to_remove.push_back(texture);
             textures_to_add.push_back(compressed_texture);
+        } else {
+            assert(false);
         }
     }
     
