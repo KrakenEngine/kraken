@@ -34,7 +34,7 @@
 
 #include "KREngine-common.h"
 
-
+class KRVector2;
 class KRVector4;
 
 class KRVector3 {
@@ -56,6 +56,24 @@ public:
     KRVector3(const KRVector4 &v);
 	~KRVector3();
     
+    // KRVector2 swizzle getters
+    KRVector2 xx() const;
+    KRVector2 xy() const;
+    KRVector2 xz() const;
+    KRVector2 yx() const;
+    KRVector2 yy() const;
+    KRVector2 yz() const;
+    KRVector2 zx() const;
+    KRVector2 zy() const;
+    KRVector2 zz() const;
+    
+    // KRVector2 swizzle setters
+    void xy(const KRVector2 &v);
+    void xz(const KRVector2 &v);
+    void yx(const KRVector2 &v);
+    void yz(const KRVector2 &v);
+    void zx(const KRVector2 &v);
+    void zy(const KRVector2 &v);
     
     KRVector3& operator =(const KRVector3& b);
     KRVector3& operator =(const KRVector4& b);

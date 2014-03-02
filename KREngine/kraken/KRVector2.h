@@ -51,6 +51,12 @@ public:
     KRVector2(const KRVector2 &v);
     ~KRVector2();
     
+    // KRVector2 swizzle getters
+    KRVector2 yx() const;
+    
+    // KRVector2 swizzle setters
+    void yx(const KRVector2 &v);
+    
     KRVector2& operator =(const KRVector2& b);
     KRVector2 operator +(const KRVector2& b) const;
     KRVector2 operator -(const KRVector2& b) const;

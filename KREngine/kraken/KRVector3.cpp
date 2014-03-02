@@ -65,6 +65,87 @@ KRVector3::KRVector3(double *v) {
     z = (float)v[2];
 }
 
+KRVector2 KRVector3::xx() const
+{
+    return KRVector2(x,x);
+}
+
+KRVector2 KRVector3::xy() const
+{
+    return KRVector2(x,y);
+}
+
+KRVector2 KRVector3::xz() const
+{
+    return KRVector2(x,z);
+}
+
+KRVector2 KRVector3::yx() const
+{
+    return KRVector2(y,x);
+}
+
+KRVector2 KRVector3::yy() const
+{
+    return KRVector2(y,y);
+}
+
+KRVector2 KRVector3::yz() const
+{
+    return KRVector2(y,z);
+}
+
+KRVector2 KRVector3::zx() const
+{
+    return KRVector2(z,x);
+}
+
+KRVector2 KRVector3::zy() const
+{
+    return KRVector2(z,y);
+}
+
+KRVector2 KRVector3::zz() const
+{
+    return KRVector2(z,z);
+}
+
+void KRVector3::xy(const KRVector2 &v)
+{
+    x = v.x;
+    y = v.y;
+}
+
+void KRVector3::xz(const KRVector2 &v)
+{
+    x = v.x;
+    z = v.y;
+}
+
+void KRVector3::yx(const KRVector2 &v)
+{
+    y = v.x;
+    x = v.y;
+}
+
+void KRVector3::yz(const KRVector2 &v)
+{
+    y = v.x;
+    z = v.y;
+}
+
+void KRVector3::zx(const KRVector2 &v)
+{
+    z = v.x;
+    x = v.y;
+}
+
+void KRVector3::zy(const KRVector2 &v)
+{
+    z = v.x;
+    y = v.y;
+}
+
 KRVector3 KRVector3::Min() {
     return KRVector3(-std::numeric_limits<float>::max());
 }
