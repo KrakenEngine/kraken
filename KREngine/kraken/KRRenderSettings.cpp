@@ -37,7 +37,7 @@ KRRenderSettings::KRRenderSettings()
     light_intensity = KRVector3::One();
     
     perspective_fov = 45.0 * D2R;
-    perspective_nearz = 0.05f;
+    perspective_nearz = 0.8f;     // was 0.05f
     perspective_farz = 1000.0f;
     
     dof_quality = 0;
