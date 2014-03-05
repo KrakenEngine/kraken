@@ -61,7 +61,7 @@ public:
     
     virtual KRAABB getBounds();
     
-    void setRimColor(const const KRVector3 &rim_color);
+    void setRimColor(const KRVector3 &rim_color);
     void setRimPower(float rim_power);
     KRVector3 getRimColor();
     float getRimPower();
