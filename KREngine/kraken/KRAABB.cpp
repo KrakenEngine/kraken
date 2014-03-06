@@ -131,7 +131,7 @@ bool KRAABB::operator <(const KRAABB& b) const
 bool KRAABB::intersects(const KRAABB& b) const
 {
     // Return true if the two volumes intersect
-    return min.x <= b.max.x && min.y <= b.max.y && min.z <= b.max.z && max.x >= b.min.x && max.y >= b.min.y && max.z >= b.max.z;
+    return min.x <= b.max.x && min.y <= b.max.y && min.z <= b.max.z && max.x >= b.min.x && max.y >= b.min.y && max.z >= b.min.z;
 }
 
 bool KRAABB::contains(const KRAABB &b) const
