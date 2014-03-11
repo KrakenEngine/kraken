@@ -12,6 +12,8 @@
 #include "KRResource.h"
 #include "KRNode.h"
 
+class KRLODGroup;
+
 class KRLODSet : public KRNode {
 public:
     KRLODSet(KRScene &scene, std::string name);
@@ -20,6 +22,18 @@ public:
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
     
+    virtual void updateLODVisibility(const KRViewport &viewport);
+    
+    KRLODGroup *getActiveLODGroup() const;
+    
+    virtual void showLOD();
+    virtual void hideLOD();
+    virtual void childDeleted(KRNode *child_node);
+    
+    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    
+private:
+    KRLODGroup *m_activeLODGroup;
 };
 
 

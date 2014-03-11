@@ -1102,7 +1102,7 @@ std::string KRCamera::getDebugText()
 }
 
 
-const KRViewport &KRCamera::getViewport()
+const KRViewport &KRCamera::getViewport() const
 {
     return m_viewport;
 }

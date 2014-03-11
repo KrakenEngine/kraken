@@ -88,6 +88,8 @@ public:
     
     bool needsVertexTangents();
     
+    kraken_stream_level getStreamLevel(bool prime = true);
+    
 private:
     std::string m_name;
     
@@ -129,6 +131,8 @@ private:
     GLfloat m_ns; // Shininess
     
     alpha_mode_type m_alpha_mode;
+    
+    void getTextures();
 };
 
 #endif

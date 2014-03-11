@@ -38,7 +38,6 @@
 
 #include "KRScene.h"
 #include "KRNode.h"
-#include "KRLODGroup.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
@@ -49,7 +48,7 @@ const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
-    m_pRootNode = new KRLODGroup(*this, "scene_root");
+    m_pRootNode = new KRNode(*this, "scene_root");
     notify_sceneGraphCreate(m_pRootNode);
     
     m_skyBoxName = name + "_skybox";
@@ -96,6 +95,11 @@ std::set<KRReverbZone *> &KRScene::getReverbZones()
 std::set<KRLocator *> &KRScene::getLocators()
 {
     return m_locatorNodes;
+}
+
+std::set<KRLight *> &KRScene::getLights()
+{
+    return m_lights;
 }
 
 void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
@@ -469,6 +473,10 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
     if(locator) {
         m_locatorNodes.erase(locator);
     }
+    KRLight *light = dynamic_cast<KRLight *>(pNode);
+    if(light) {
+        m_lights.erase(light);
+    }
     m_modifiedNodes.erase(pNode);
     if(!m_newNodes.erase(pNode)) {
         m_nodeTree.remove(pNode);
@@ -477,6 +485,7 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
 
 void KRScene::updateOctree(const KRViewport &viewport)
 {
+    m_pRootNode->showLOD();
     m_pRootNode->updateLODVisibility(viewport);
     
     std::set<KRNode *> newNodes = std::move(m_newNodes);
@@ -501,6 +510,10 @@ void KRScene::updateOctree(const KRViewport &viewport)
         KRLocator *locatorNode = dynamic_cast<KRLocator *>(node);
         if(locatorNode) {
             m_locatorNodes.insert(locatorNode);
+        }
+        KRLight *light = dynamic_cast<KRLight *>(node);
+        if(light) {
+            m_lights.insert(light);
         }
         
     }
@@ -558,3 +571,13 @@ bool KRScene::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius,
 }
 
 
+kraken_stream_level KRScene::getStreamLevel(bool prime)
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    
+    if(m_pRootNode) {
+        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(prime));
+    }
+    
+    return stream_level;
+}

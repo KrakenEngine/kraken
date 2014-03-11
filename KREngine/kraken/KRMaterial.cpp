@@ -118,7 +118,7 @@ bool KRMaterial::save(KRDataBlock &data) {
         stream << "\n# map_Reflection filename.pvr -s 1.0 1.0 -o 0.0 0.0";
     }
     if(m_reflectionCube.size()) {
-        stream << "map_ReflectionCube " << m_reflectionCube << ".pvr";
+        stream << "\nmap_ReflectionCube " << m_reflectionCube << ".pvr";
     } else {
         stream << "\n# map_ReflectionCube cubemapname";
     }
@@ -217,9 +217,41 @@ bool KRMaterial::isTransparent() {
     return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power) {
-    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
+kraken_stream_level KRMaterial::getStreamLevel(bool prime)
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     
+    getTextures();
+    
+    if(m_pAmbientMap) {
+        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(prime));
+    }
+
+    if(m_pDiffuseMap) {
+        stream_level = KRMIN(stream_level, m_pDiffuseMap->getStreamLevel(prime));
+    }
+
+    if(m_pNormalMap) {
+        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(prime));
+    }
+
+    if(m_pSpecularMap) {
+        stream_level = KRMIN(stream_level, m_pSpecularMap->getStreamLevel(prime));
+    }
+
+    if(m_pReflectionMap) {
+        stream_level = KRMIN(stream_level, m_pReflectionMap->getStreamLevel(prime));
+    }
+
+    if(m_pReflectionCube) {
+        stream_level = KRMIN(stream_level, m_pReflectionCube->getStreamLevel(prime));
+    }
+    
+    return stream_level;
+}
+
+void KRMaterial::getTextures()
+{
     if(!m_pAmbientMap && m_ambientMap.size()) {
         m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap);
     }
@@ -238,6 +270,12 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     if(!m_pReflectionCube && m_reflectionCube.size()) {
         m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
+}
+
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power) {
+    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
+    
+    getTextures();
     
     KRVector2 default_scale = KRVector2::One();
     KRVector2 default_offset = KRVector2::Zero();

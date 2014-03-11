@@ -38,8 +38,8 @@
 #include "KRContextObject.h"
 #include "KRResource.h"
 
-
 class KRDataBlock;
+class KRCamera;
 
 class KRTexture : public KRResource {
 public:
@@ -66,6 +66,7 @@ public:
     bool hasMipmaps();
 
     bool canStreamOut() const;
+    kraken_stream_level getStreamLevel(bool prime = true);
     
     void _swapHandles();
 protected:

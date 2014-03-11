@@ -165,6 +165,12 @@ public:
     void setAnimationEnabled(node_attribute_type attrib, bool enable);
     bool getAnimationEnabled(node_attribute_type attrib) const;
     
+    
+    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    
+    virtual void hideLOD();
+    virtual void showLOD();
+    
 protected:
     KRVector3 m_localTranslation;
     KRVector3 m_localScale;
@@ -189,10 +195,6 @@ protected:
     KRVector3 m_initialPostRotation;
     
     bool m_lod_visible;
-    void hideLOD();
-    void showLOD();
-    float m_lod_min_coverage;
-    float m_lod_max_coverage;
     
     KRNode *m_parentNode;
     std::set<KRNode *> m_childNodes;
@@ -240,7 +242,7 @@ public:
     }
     void removeFromOctreeNodes();
     void addToOctreeNode(KROctreeNode *octree_node);
-    void childDeleted(KRNode *child_node);
+    virtual void childDeleted(KRNode *child_node);
     
     template <class T> T *find()
     {

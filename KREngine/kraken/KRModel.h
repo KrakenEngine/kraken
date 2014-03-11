@@ -69,6 +69,8 @@ public:
     void setLightMap(const std::string &name);
     std::string getLightMap();
     
+    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    
 private:
     std::vector<KRMesh *> m_models;
     unordered_map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones

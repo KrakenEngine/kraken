@@ -417,13 +417,15 @@ void KRVector3::setUniform(GLint location) const
     if(location != -1) GLDEBUG(glUniform3f(location, x, y, z));
 }
 
-void KRVector3::setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e)
+void KRVector3::setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value)
 {
     // TODO - Increase number of digits after the decimal in floating point format (6 -> 12?)
     // FINDME, TODO - This needs optimization...
-    e->SetAttribute((base_name + "_x").c_str(), x);
-    e->SetAttribute((base_name + "_y").c_str(), y);
-    e->SetAttribute((base_name + "_z").c_str(), z);
+    if(*this != default_value) {
+        e->SetAttribute((base_name + "_x").c_str(), x);
+        e->SetAttribute((base_name + "_y").c_str(), y);
+        e->SetAttribute((base_name + "_z").c_str(), z);
+    }
 }
 
 void KRVector3::getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value)

@@ -67,6 +67,8 @@ public:
     KRMesh(KRContext &context, std::string name);
     virtual ~KRMesh();
     
+    kraken_stream_level getStreamLevel(bool prime = true);
+    
     bool hasTransparency();
     
     typedef enum {
@@ -218,6 +220,7 @@ private:
     KRDataBlock *m_pIndexBaseData;
     
     void getSubmeshes();
+    void getMaterials();
     
     static bool rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
     static bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);

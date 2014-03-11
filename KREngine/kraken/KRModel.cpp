@@ -80,7 +80,7 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
     e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
-    m_rim_color.setXMLAttribute("rim_color", e);
+    m_rim_color.setXMLAttribute("rim_color", e, KRVector3::Zero());
     e->SetAttribute("rim_power", m_rim_power);
     return e;
 }
@@ -197,6 +197,20 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
             }
         }
     }
+}
+
+
+kraken_stream_level KRModel::getStreamLevel(bool prime)
+{
+    kraken_stream_level stream_level = KRNode::getStreamLevel(prime);
+    
+    loadModel();
+    
+    for(auto itr = m_models.begin(); itr != m_models.end(); itr++) {
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime));
+    }
+    
+    return stream_level;
 }
 
 KRAABB KRModel::getBounds() {

@@ -88,7 +88,6 @@ public:
     static void SetLogCallback(log_callback *log_callback, void *user_data);
     static void Log(log_level level, const std::string &message_format, ...);
     
-    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;

@@ -64,6 +64,8 @@ public:
     KRNode *getRootNode();
     KRLight *getFirstLight();
     
+    kraken_stream_level getStreamLevel(bool prime = true);
+    
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask);
     bool sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask);
@@ -87,6 +89,7 @@ public:
     std::set<KRAmbientZone *> &getAmbientZones();
     std::set<KRReverbZone *> &getReverbZones();
     std::set<KRLocator *> &getLocators();
+    std::set<KRLight *> &getLights();
     
 private:
 
@@ -102,6 +105,7 @@ private:
     std::set<KRAmbientZone *> m_ambientZoneNodes;
     std::set<KRReverbZone *> m_reverbZoneNodes;
     std::set<KRLocator *> m_locatorNodes;
+    std::set<KRLight *> m_lights;
     
     KROctree m_nodeTree;
     

@@ -28,6 +28,7 @@
 #include "KRBundle.h"
 #include "KRModel.h"
 #include "KRLODGroup.h"
+#include "KRLODSet.h"
 #include "KRCollider.h"
 
 #ifdef IOS_REF
@@ -947,6 +948,9 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
             group_max_distance = fbx_lod_group->MinDistance.Get();
         }
         
+        KRLODSet *lod_set = new KRLODSet(parent_node->getScene(), name);
+        parent_node->addChild(lod_set);
+        
         KRAABB reference_bounds;
         // Create a lod_group node for each fbx child node
         int child_count = pNode->GetChildCount();
@@ -1006,7 +1010,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
             new_node->setPostRotation(node_post_rotation);
             
             new_node->setUseWorldUnits(use_world_space_units);
-            parent_node->addChild(new_node);
+            lod_set->addChild(new_node);
             
             LoadNode(pFbxScene, new_node, pGeometryConverter, pNode->GetChild(i));
             
@@ -1049,19 +1053,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                         if(pNode->GetChildCount() > 0) {
                             // Create an empty node, for inheritence of transforms
                             std::string name = GetFbxObjectName(pNode);
-
-                            
-                            /*
-                             if(min_distance == 0.0f && max_distance == 0.0f) {
-                                // Regular node for grouping children together under one transform
-                                new_node = new KRNode(parent_node->getScene(), name);
-                            } else {
-                             */
-                                // LOD Enabled group node
-                                KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
-                                lod_group->setMinDistance(0.0f);
-                                lod_group->setMaxDistance(0.0f);
-                                new_node = lod_group;
+                            new_node = new KRNode(parent_node->getScene(), name);
                         }
                     }
                 }

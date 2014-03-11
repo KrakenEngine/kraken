@@ -161,33 +161,51 @@ void KRMesh::loadPack(KRDataBlock *data) {
     updateAttributeOffsets();
 }
 
+void KRMesh::getMaterials()
+{
+    if(m_materials.size() == 0) {
+        
+        for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
+            const char *szMaterialName = (*itr)->szMaterialName;
+            KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
+            m_materials.push_back(pMaterial);
+            if(pMaterial) {
+                m_uniqueMaterials.insert(pMaterial);
+            } else {
+                KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
+            }
+        }
+        
+        m_hasTransparency = false;
+        for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+            if((*mat_itr)->isTransparent()) {
+                m_hasTransparency = true;
+                break;
+            }
+        }
+    }
+}
+
+kraken_stream_level KRMesh::getStreamLevel(bool prime)
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    getSubmeshes();
+    getMaterials();
+    
+    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel(prime));
+    }
+    
+    return stream_level;
+}
+
 void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power) {
     
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
         getSubmeshes();
-        if(m_materials.size() == 0) {
-            
-            for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
-                const char *szMaterialName = (*itr)->szMaterialName;
-                KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
-                m_materials.push_back(pMaterial);
-                if(pMaterial) {
-                    m_uniqueMaterials.insert(pMaterial);
-                } else {
-                    KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
-                }
-            }
-            
-            m_hasTransparency = false;
-            for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-                if((*mat_itr)->isTransparent()) {
-                    m_hasTransparency = true;
-                    break;
-                }
-            }
-        }
+        getMaterials();
         
         int cSubmeshes = m_submeshes.size();
         if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {

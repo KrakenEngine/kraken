@@ -99,11 +99,26 @@ void KRTexture::resetPoolExpiry()
     m_last_frame_used = getContext().getCurrentFrame();
 }
 
+
+kraken_stream_level KRTexture::getStreamLevel(bool prime)
+{
+    if(prime) {
+        resetPoolExpiry();
+    }
+    
+    if(m_current_lod_max_dim == 0) {
+        return kraken_stream_level::STREAM_LEVEL_OUT;
+    } else if(m_current_lod_max_dim == m_max_lod_max_dim) {
+        return kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    } else {
+        return kraken_stream_level::STREAM_LEVEL_IN_LQ;
+    }
+}
+
 long KRTexture::getLastFrameUsed()
 {
     return m_last_frame_used;
 }
-
 bool KRTexture::isAnimated()
 {
     return false;

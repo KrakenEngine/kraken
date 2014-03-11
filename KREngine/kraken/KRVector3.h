@@ -126,7 +126,7 @@ public:
     
     void setUniform(GLint location) const;
     
-    void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e);
+    void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value);
     void getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value);
 };
 

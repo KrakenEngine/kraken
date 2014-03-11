@@ -7,6 +7,7 @@
 //
 
 #include "KRLODGroup.h"
+#include "KRLODSet.h"
 #include "KRContext.h"
 
 KRLODGroup::KRLODGroup(KRScene &scene, std::string name) : KRNode(scene, name)
@@ -125,22 +126,6 @@ bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
         float sqr_min_distance = m_min_distance * m_min_distance;
         float sqr_max_distance = m_max_distance * m_max_distance;
         return ((sqr_distance >= sqr_min_distance || m_min_distance == 0) && (sqr_distance < sqr_max_distance || m_max_distance == 0));
-    }
-}
-
-void KRLODGroup::updateLODVisibility(const KRViewport &viewport)
-{
-    bool new_visibility = getLODVisibility(viewport);
-    if(!new_visibility) {
-        hideLOD();
-    } else {
-        if(!m_lod_visible) {
-            getScene().notify_sceneGraphCreate(this);
-            m_lod_visible = true;
-        }
-        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-            (*itr)->updateLODVisibility(viewport);
-        }
     }
 }
 

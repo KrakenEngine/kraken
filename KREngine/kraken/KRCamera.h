@@ -59,7 +59,7 @@ public:
     
     KRRenderSettings settings;
     
-    const KRViewport &getViewport();
+    const KRViewport &getViewport() const;
     
     
     virtual std::string getElementName();

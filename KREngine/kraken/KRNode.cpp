@@ -10,6 +10,7 @@
 
 #include "KRNode.h"
 #include "KRLODGroup.h"
+#include "KRLODSet.h"
 #include "KRPointLight.h"
 #include "KRSpotLight.h"
 #include "KRDirectionalLight.h"
@@ -126,17 +127,17 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     tinyxml2::XMLElement *e = doc->NewElement(getElementName().c_str());
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
     e->SetAttribute("name", m_name.c_str());
-    m_localTranslation.setXMLAttribute("translate", e);
-    m_localScale.setXMLAttribute("scale", e);
-    (m_localRotation * (180.0f / M_PI)).setXMLAttribute("rotate", e);
+    m_localTranslation.setXMLAttribute("translate", e, KRVector3::Zero());
+    m_localScale.setXMLAttribute("scale", e, KRVector3::One());
+    (m_localRotation * (180.0f / M_PI)).setXMLAttribute("rotate", e, KRVector3::Zero());
     
     
-    m_rotationOffset.setXMLAttribute("rotate_offset", e);
-    m_scalingOffset.setXMLAttribute("scale_offset", e);
-    m_rotationPivot.setXMLAttribute("rotate_pivot", e);
-    m_scalingPivot.setXMLAttribute("scale_pivot", e);
-    (m_preRotation * (180.0f / M_PI)).setXMLAttribute("pre_rotate", e);
-    (m_postRotation * (180.0f / M_PI)).setXMLAttribute("post_rotate", e);
+    m_rotationOffset.setXMLAttribute("rotate_offset", e, KRVector3::Zero());
+    m_scalingOffset.setXMLAttribute("scale_offset", e, KRVector3::Zero());
+    m_rotationPivot.setXMLAttribute("rotate_pivot", e, KRVector3::Zero());
+    m_scalingPivot.setXMLAttribute("scale_pivot", e, KRVector3::Zero());
+    (m_preRotation * (180.0f / M_PI)).setXMLAttribute("pre_rotate", e, KRVector3::Zero());
+    (m_postRotation * (180.0f / M_PI)).setXMLAttribute("post_rotate", e, KRVector3::Zero());
     
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
@@ -395,6 +396,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
         new_node = new KRNode(scene, szName);
+    } if(strcmp(szElementName, "lod_set") == 0) {
+        new_node = new KRLODSet(scene, szName);
     } if(strcmp(szElementName, "lod_group") == 0) {
         new_node = new KRLODGroup(scene, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
@@ -879,8 +882,11 @@ void KRNode::addToOctreeNode(KROctreeNode *octree_node)
 
 void KRNode::updateLODVisibility(const KRViewport &viewport)
 {
-    // If we aren't an LOD group node, then we just add ourselves and all our children to the octree
-    showLOD();
+    if(m_lod_visible) {
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+            (*itr)->updateLODVisibility(viewport);
+        }
+    }
 }
 
 void KRNode::hideLOD()
@@ -931,4 +937,15 @@ void KRNode::addBehavior(KRBehavior *behavior)
 std::set<KRBehavior *> &KRNode::getBehaviors()
 {
     return m_behaviors;
+}
+
+kraken_stream_level KRNode::getStreamLevel(bool prime)
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime));
+    }
+    
+    return stream_level;
 }
