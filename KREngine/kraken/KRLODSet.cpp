@@ -56,10 +56,10 @@ void KRLODSet::updateLODVisibility(const KRViewport &viewport)
             m_activeLODGroup = new_active_lod_group;
         } else if(new_active_lod_group != m_activeLODGroup) {
             if(new_active_lod_group->getStreamLevel(true) >= kraken_stream_level::STREAM_LEVEL_IN_LQ) {
-                fprintf(stderr, "LOD %s -> %s\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
+                // fprintf(stderr, "LOD %s -> %s\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
                 m_activeLODGroup = new_active_lod_group;
             } else {
-                fprintf(stderr, "LOD %s -> %s - waiting for streaming...\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
+                // fprintf(stderr, "LOD %s -> %s - waiting for streaming...\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
             }
         }
 
