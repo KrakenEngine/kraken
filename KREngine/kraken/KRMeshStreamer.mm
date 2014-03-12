@@ -39,6 +39,7 @@ void KRMeshStreamer::startStreamer()
         
 #if TARGET_OS_IPHONE
         gMeshStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
+        gMeshStreamerContext.multiThreaded = TRUE;
 #elif TARGET_OS_MAC
         NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
         {
