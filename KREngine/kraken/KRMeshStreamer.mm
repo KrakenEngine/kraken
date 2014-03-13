@@ -38,8 +38,9 @@ void KRMeshStreamer::startStreamer()
         m_running = true;
         
 #if TARGET_OS_IPHONE
+        // FIXME: need to add code check for iOS 7 and also this appears to cause crashing
         gMeshStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
-        gMeshStreamerContext.multiThreaded = TRUE;
+        //gMeshStreamerContext.multiThreaded = TRUE;
 #elif TARGET_OS_MAC
         NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
         {

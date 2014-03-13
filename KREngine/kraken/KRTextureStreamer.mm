@@ -41,7 +41,9 @@ void KRTextureStreamer::startStreamer()
 #if TARGET_OS_IPHONE
         
         gTextureStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: [EAGLContext currentContext].sharegroup];
-        gTextureStreamerContext.multiThreaded = TRUE;
+        // FIXME: need to add code check for iOS 7 and also this appears to cause crashing
+
+        //gTextureStreamerContext.multiThreaded = TRUE;
 
         
 #elif TARGET_OS_MAC
