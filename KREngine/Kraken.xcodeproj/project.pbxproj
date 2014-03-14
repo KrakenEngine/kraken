@@ -10,6 +10,8 @@
 		104A335E1672D31C001C8BA6 /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		104A335F1672D31C001C8BA6 /* KRCollider.h in Headers */ = {isa = PBXBuildFile; fileRef = 104A335D1672D31C001C8BA6 /* KRCollider.h */; settings = {ATTRIBUTES = (); }; };
 		10CC33A5168534F000BB9846 /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
+		5035BF3E18D2BBDD00252924 /* flare.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559AA184DD4490081BB20 /* flare.fsh */; };
+		5035BF3F18D2BBDD00252924 /* flare.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559AC184DD45A0081BB20 /* flare.vsh */; };
 		E4030E4C160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (); }; };
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E404702018695DD200F01F42 /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
@@ -1610,6 +1612,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5035BF3E18D2BBDD00252924 /* flare.fsh in Resources */,
+				5035BF3F18D2BBDD00252924 /* flare.vsh in Resources */,
 				E4409D2916FA748700310F76 /* font.tga in Resources */,
 				E437849816C4884F0037FD43 /* hrtf_kemar.krbundle in Resources */,
 				E4E6F68516BA5DF700E410F8 /* sky_box.fsh in Resources */,
