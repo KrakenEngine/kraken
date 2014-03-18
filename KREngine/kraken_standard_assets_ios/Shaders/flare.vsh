@@ -38,5 +38,5 @@ varying mediump vec2 texCoord;
 
 void main() {
     texCoord = vertex_uv;
-    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 0.75, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
 }
