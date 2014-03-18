@@ -237,14 +237,14 @@ void kraken::set_debug_text(const std::string &print_text)
     NSString *bundlePath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"bundle"];
     NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
     if(bundle == nil) {
-        NSLog(@"ERROR - Standard asset bundle could not be found.");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "%s", "ERROR - Standard asset bundle could not be found.");
     } else {
         NSEnumerator *bundleEnumerator = [[bundle pathsForResourcesOfType: nil inDirectory: nil] objectEnumerator];
         NSString * p = nil;
         while (p = [bundleEnumerator nextObject]) {
             NSString *file_name = [p lastPathComponent];
             if([file_name hasSuffix: @".vsh"] || [file_name hasSuffix: @".fsh"] || [file_name hasSuffix: @".krbundle"] ||[file_name hasPrefix:@"font."]) {
-                NSLog(@"  %@\n", file_name);
+                KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "%s", [file_name UTF8String]);
                 [self loadResource:p];
             }
         }

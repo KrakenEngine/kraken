@@ -126,8 +126,8 @@ void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBound
     std::vector<KRDirectionalLight *>directional_lights;
     std::vector<KRSpotLight *>spot_lights;
     
-    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
-    
+//    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
+// NOTE: the skybox is now selected in the CircaViewController
     
     std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
     

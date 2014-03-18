@@ -67,6 +67,8 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     std::string getDebugText();
+    
+    void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
 
 private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
