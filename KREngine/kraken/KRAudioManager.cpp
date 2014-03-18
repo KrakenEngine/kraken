@@ -2057,3 +2057,8 @@ void KRAudioManager::renderLimiter()
     unsigned long numframes = KRENGINE_AUDIO_BLOCK_LENGTH;
     audioLimit_Stereo(output, numframes);
 }
+
+void KRAudioManager::goToSleep()
+{
+    cleanupAudio();
+}

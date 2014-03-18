@@ -144,6 +144,7 @@ public:
     KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
     
     static void mute(bool onNotOff);
+    void goToSleep();
 
     void startFrame(float deltaTime);
     
@@ -191,7 +192,6 @@ private:
     void cleanupAudio();
     void cleanupOpenAL();
     void cleanupSiren();
-    
 
     
     audio_engine_t m_audio_engine;
