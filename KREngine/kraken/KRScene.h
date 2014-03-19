@@ -76,6 +76,7 @@ public:
     void render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
     
     void updateOctree(const KRViewport &viewport);
+    void buildOctreeForTheFirstTime();
     
     void notify_sceneGraphCreate(KRNode *pNode);
     void notify_sceneGraphDelete(KRNode *pNode);

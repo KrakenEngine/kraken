@@ -515,7 +515,6 @@ void KRScene::updateOctree(const KRViewport &viewport)
         if(light) {
             m_lights.insert(light);
         }
-        
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
@@ -526,6 +525,35 @@ void KRScene::updateOctree(const KRViewport &viewport)
             m_physicsNodes.insert(node);
         } else if(!node->hasPhysics()) {
             m_physicsNodes.erase(node);
+        }
+    }
+}
+
+void KRScene::buildOctreeForTheFirstTime()
+{
+    std::set<KRNode *> newNodes = std::move(m_newNodes);
+    m_newNodes.clear();
+    for(std::set<KRNode *>::iterator itr=newNodes.begin(); itr != newNodes.end(); itr++) {
+        KRNode *node = *itr;
+        m_nodeTree.add(node);
+        if(node->hasPhysics()) {
+            m_physicsNodes.insert(node);
+        }
+        KRAmbientZone *ambientZoneNode = dynamic_cast<KRAmbientZone *>(node);
+        if(ambientZoneNode) {
+            m_ambientZoneNodes.insert(ambientZoneNode);
+        }
+        KRReverbZone *reverbZoneNode = dynamic_cast<KRReverbZone *>(node);
+        if(reverbZoneNode) {
+            m_reverbZoneNodes.insert(reverbZoneNode);
+        }
+        KRLocator *locatorNode = dynamic_cast<KRLocator *>(node);
+        if(locatorNode) {
+            m_locatorNodes.insert(locatorNode);
+        }
+        KRLight *light = dynamic_cast<KRLight *>(node);
+        if(light) {
+            m_lights.insert(light);
         }
     }
 }
