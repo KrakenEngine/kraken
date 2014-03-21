@@ -1954,12 +1954,20 @@ static bool audioShouldBecomeUnmuted = false;
 
 void audioLimit_Mute(bool onNotOff) {
     if (onNotOff) {
-        if (audioIsMuted) return;
+        if (audioIsMuted) {
+            audioShouldBecomeMuted = false;
+            audioShouldBecomeUnmuted = false;
+            return;
+        }
         audioShouldBecomeMuted = true;
         audioShouldBecomeUnmuted = false;
     }
     else {
-        if (!audioIsMuted) return;
+        if (!audioIsMuted) {
+            audioShouldBecomeMuted = false;
+            audioShouldBecomeUnmuted = false;
+            return;
+        }
         audioShouldBecomeMuted = false;
         audioShouldBecomeUnmuted = true;
     }
