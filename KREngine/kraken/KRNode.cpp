@@ -65,6 +65,7 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_activePoseMatrix = KRMat4();
     m_lod_visible = false;
     m_scale_compensation = false;
+    m_boundsValid = false;
     
     m_lastRenderFrame = -1000;
     for(int i=0; i < KRENGINE_NODE_ATTRIBUTE_COUNT; i++) {
@@ -108,7 +109,7 @@ bool KRNode::getScaleCompensation()
 void KRNode::childDeleted(KRNode *child_node)
 {
     m_childNodes.erase(child_node);
-    // InvalidateBounds();
+    invalidateBounds();
     getScene().notify_sceneGraphModify(this);
 }
 
@@ -475,22 +476,26 @@ KRScene &KRNode::getScene() {
 }
 
 KRAABB KRNode::getBounds() {
-    KRAABB bounds = KRAABB::Zero();
+    if(!m_boundsValid) {
+        KRAABB bounds = KRAABB::Zero();
 
-    bool first_child = true;
-    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-        KRNode *child = (*itr);
-        if(child->getBounds() != KRAABB::Zero()) {
-            if(first_child) {
-                first_child = false;
-                bounds = child->getBounds();
-            } else {
-                bounds.encapsulate(child->getBounds());
+        bool first_child = true;
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+            KRNode *child = (*itr);
+            if(child->getBounds() != KRAABB::Zero()) {
+                if(first_child) {
+                    first_child = false;
+                    bounds = child->getBounds();
+                } else {
+                    bounds.encapsulate(child->getBounds());
+                }
             }
         }
+        
+        m_bounds = bounds;
+        m_boundsValid = true;
     }
-
-    return bounds;
+    return m_bounds;
 }
 
 void KRNode::invalidateModelMatrix()
@@ -503,7 +508,7 @@ void KRNode::invalidateModelMatrix()
         child->invalidateModelMatrix();
     }
     
-    // InvalidateBounds
+    invalidateBounds();
     getScene().notify_sceneGraphModify(this);
 }
 
@@ -948,4 +953,12 @@ kraken_stream_level KRNode::getStreamLevel(bool prime)
     }
     
     return stream_level;
+}
+
+void KRNode::invalidateBounds() const
+{
+    m_boundsValid = false;
+    if(m_parentNode) {
+        m_parentNode->invalidateBounds();
+    }
 }

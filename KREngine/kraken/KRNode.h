@@ -110,6 +110,7 @@ public:
     void setWorldRotation(const KRVector3 &v);
     
     virtual KRAABB getBounds();
+    void invalidateBounds() const;
     const KRMat4 &getModelMatrix();
     const KRMat4 &getInverseModelMatrix();
     const KRMat4 &getBindPoseMatrix();
@@ -215,6 +216,9 @@ private:
     bool m_bindPoseMatrixValid;
     bool m_activePoseMatrixValid;
     bool m_inverseBindPoseMatrixValid;
+    
+    mutable KRAABB m_bounds;
+    mutable bool m_boundsValid;
     
     std::string m_name;
     

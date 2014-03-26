@@ -141,6 +141,8 @@ void KRModel::loadModel() {
                 m_bones = bones;
                 getScene().notify_sceneGraphModify(this);
             }
+            
+            invalidateBounds();
         }
     }
 }
