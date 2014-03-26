@@ -57,10 +57,10 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
         KRVector3 light_position = getLocalTranslation();
         
         float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
-
+        
         KRMat4 sphereModelMatrix = KRMat4();
-        sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
         sphereModelMatrix.scale(influence_radius);
+        sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
 
         if(viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
 
