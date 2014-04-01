@@ -79,9 +79,7 @@ void KRCamera::loadXML(tinyxml2::XMLElement *e)
 
 void KRCamera::flushSkybox()
 {
-    KRTexture *tobedeleted = m_pSkyBoxTexture;
-    m_pSkyBoxTexture = NULL;
-//    delete tobedeleted;       // FINDME - this delete is not thread safe .. it crashes the texture streamer
+    m_pSkyBoxTexture = NULL;    // NOTE: the streamer manages the loading and unloading of the skybox textures
 }
 
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
