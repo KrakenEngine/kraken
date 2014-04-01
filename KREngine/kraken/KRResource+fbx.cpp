@@ -946,7 +946,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
         float group_max_distance = 0.0f;
         if(fbx_lod_group->MinMaxDistance.Get()) {
             group_min_distance = fbx_lod_group->MinDistance.Get();
-            group_max_distance = fbx_lod_group->MinDistance.Get();
+            group_max_distance = fbx_lod_group->MaxDistance.Get();
         }
         
         KRLODSet *lod_set = new KRLODSet(parent_node->getScene(), name);
