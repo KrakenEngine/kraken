@@ -689,8 +689,8 @@ void kraken::set_debug_text(const std::string &print_text)
 -(float)getParameterMaxWithIndex: (int)i
 {
     float maxValues[54] = {
-             PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
-           1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
+             PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 2.0f,
+           1.0f,   5.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
         1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 10.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1),
@@ -760,6 +760,9 @@ void kraken::set_debug_text(const std::string &print_text)
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
     );
+#ifdef TEST4REL    
+    printf("Sun Intensity = %f \n", i);
+#endif
 }
 
 -(float) getSunIntensity
@@ -803,6 +806,9 @@ void kraken::set_debug_text(const std::string &print_text)
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
     );
+#ifdef TEST4REL
+    printf("ambient Intensity = %f \n", i);
+#endif
 }
 
 -(float) getAmbientIntensity
