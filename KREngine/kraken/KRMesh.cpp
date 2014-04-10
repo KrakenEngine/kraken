@@ -71,7 +71,7 @@ void KRMesh::setName(const std::string name) {
     if(last_underscore_pos != std::string::npos) {
         // Found an underscore
         std::string suffix = name.substr(last_underscore_pos + 1);
-        if(suffix.find_first_of("lod") == 0) {
+        if(suffix.find("lod") == 0) {
             std::string lod_level_string = suffix.substr(3);
             char *end = NULL;
             int c = (int)strtol(lod_level_string.c_str(), &end, 10);
@@ -91,7 +91,7 @@ int KRMesh::GetLODCoverage(const std::string &name)
     if(last_underscore_pos != std::string::npos) {
         // Found an underscore
         std::string suffix = name.substr(last_underscore_pos + 1);
-        if(suffix.find_first_of("lod") == 0) {
+        if(suffix.find("lod") == 0) {
             std::string lod_level_string = suffix.substr(3);
             char *end = NULL;
             int c = (int)strtol(lod_level_string.c_str(), &end, 10);
