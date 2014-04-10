@@ -266,6 +266,21 @@ void KRTextureManager::balanceTextureMemory()
     // Balance texture memory by reducing and increasing the maximum mip-map level of both active and inactive textures
     // Favour performance over maximum texture resolution when memory is insufficient for textures at full resolution.
     
+    /*
+     NEW ALGORITHM:
+     
+     The “fixed” textures will be assigned to the skybox and the animated character flares
+     The rest of the textures are assigned a “weight” by tuneable criteria:
+     - Area of screen coverage taken by objects containing material (more accurate and generic than distance)
+     - Type of texture (separate weight for normal, diffuse, spec maps)
+     - Last used time (to keep textures loaded for recently seen objects that are outside of the view frustum)
+     Those factors combine together to give a “weight”, which represents a proportion relative to all other textures weights
+     Mipmap levels are stripped off of each texture until they occupy the amount of memory they should proportionally have
+     This is in contrast to the global ceiling of texture resolution that slowly drops until the textures fit
+     
+     */
+
+    
     // Determine the additional amount of memory required in order to resize all active textures to the maximum size
     long wantedTextureMem = 0;
     for(std::set<KRTexture *>::iterator itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end(); itr++) {
