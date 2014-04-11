@@ -64,7 +64,7 @@ public:
     KRNode *getRootNode();
     KRLight *getFirstLight();
     
-    kraken_stream_level getStreamLevel(bool prime = true);
+    kraken_stream_level getStreamLevel();
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask);

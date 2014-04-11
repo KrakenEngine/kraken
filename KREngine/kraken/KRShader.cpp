@@ -372,7 +372,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
             if(light_directional_count == 0) {
                 int cShadowBuffers = directional_light->getShadowBufferCount();
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-                    m_pContext->getTextureManager()->selectTexture(3, NULL);
+                    m_pContext->getTextureManager()->selectTexture(3, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(3);
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
                     GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -383,7 +383,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
-                    m_pContext->getTextureManager()->selectTexture(4, NULL);
+                    m_pContext->getTextureManager()->selectTexture(4, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(4);
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
                     GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -393,7 +393,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
-                    m_pContext->getTextureManager()->selectTexture(5, NULL);
+                    m_pContext->getTextureManager()->selectTexture(5, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(5);
                     GLDEBUG(glActiveTexture(GL_TEXTURE5));
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));

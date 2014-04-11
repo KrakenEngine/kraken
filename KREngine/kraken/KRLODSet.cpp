@@ -55,7 +55,7 @@ void KRLODSet::updateLODVisibility(const KRViewport &viewport)
         } else if(m_activeLODGroup == NULL) {
             m_activeLODGroup = new_active_lod_group;
         } else if(new_active_lod_group != m_activeLODGroup) {
-            if(true || new_active_lod_group->getStreamLevel(true) >= kraken_stream_level::STREAM_LEVEL_IN_LQ) {
+            if(new_active_lod_group->getStreamLevel(true, viewport) >= kraken_stream_level::STREAM_LEVEL_IN_LQ) {
                 // fprintf(stderr, "LOD %s -> %s\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
                 m_activeLODGroup = new_active_lod_group;
             } else {
@@ -104,10 +104,10 @@ void KRLODSet::showLOD()
     }
 }
 
-kraken_stream_level KRLODSet::getStreamLevel(bool prime)
+kraken_stream_level KRLODSet::getStreamLevel(bool prime, const KRViewport &viewport)
 {
     if(m_activeLODGroup) {
-        return m_activeLODGroup->getStreamLevel(prime);
+        return m_activeLODGroup->getStreamLevel(prime, viewport);
     } else {
         return kraken_stream_level::STREAM_LEVEL_IN_HQ;
     }

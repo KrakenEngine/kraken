@@ -64,7 +64,7 @@ void KRTextureManager::_clearGLState()
         m_wrapModeS[i] = 0;
         m_wrapModeT[i] = 0;
         m_maxAnisotropy[i] = -1.0f;
-        selectTexture(i, NULL);
+        selectTexture(i, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     }
     
     m_iActiveTexture = -1;
@@ -179,33 +179,23 @@ KRTexture *KRTextureManager::getTexture(const std::string &name) {
     }
 }
 
-void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture) {
+void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage) {
     bool is_animated = false;
     if(pTexture) {
+        pTexture->resetPoolExpiry(lod_coverage, textureUsage);
         if(pTexture->isAnimated()) is_animated = true;
     }
     
     if(m_boundTextures[iTextureUnit] != pTexture || is_animated) {
         _setActiveTexture(iTextureUnit);
         if(pTexture != NULL) {
-            primeTexture(pTexture);
-
             pTexture->bind(iTextureUnit);
-
         } else {
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         }
         m_boundTextures[iTextureUnit] = pTexture;
     }
 
-}
-
-void KRTextureManager::primeTexture(KRTexture *pTexture)
-{
-    m_poolTextures.erase(pTexture);
-    if(m_activeTextures.find(pTexture) == m_activeTextures.end()) {
-        m_activeTextures.insert(pTexture);
-    }
 }
 
 long KRTextureManager::getMemUsed() {
@@ -234,7 +224,6 @@ void KRTextureManager::startFrame(float deltaTime)
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
     m_activeTextures_streamer_copy = m_activeTextures;
-    m_poolTextures_streamer_copy = m_poolTextures;
     m_streamerFenceMutex.unlock();
     
     m_memoryTransferredThisFrame = 0;
@@ -245,7 +234,7 @@ void KRTextureManager::endFrame(float deltaTime)
 {
     for(int iTexture=0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         if(m_boundTextures[iTexture]) {
-            m_boundTextures[iTexture]->resetPoolExpiry(); // Even if the same texture is bound, ensure that they don't expire from the texture pool while in use
+            m_boundTextures[iTexture]->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // Even if the same texture is bound, ensure that they don't expire from the texture pool while in use
         }
     }
 }
@@ -255,7 +244,6 @@ void KRTextureManager::doStreaming()
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
     m_activeTextures_streamer = m_activeTextures_streamer_copy;
-    m_poolTextures_streamer = m_poolTextures_streamer_copy;
     m_streamerFenceMutex.unlock();
     
     balanceTextureMemory();
@@ -269,8 +257,7 @@ void KRTextureManager::balanceTextureMemory()
     /*
      NEW ALGORITHM:
      
-     The “fixed” textures will be assigned to the skybox and the animated character flares
-     The rest of the textures are assigned a “weight” by tuneable criteria:
+     Textures are assigned a “weight” by tuneable criteria:
      - Area of screen coverage taken by objects containing material (more accurate and generic than distance)
      - Type of texture (separate weight for normal, diffuse, spec maps)
      - Last used time (to keep textures loaded for recently seen objects that are outside of the view frustum)
@@ -280,6 +267,69 @@ void KRTextureManager::balanceTextureMemory()
      
      */
 
+    // ---------------
+    
+    // TODO - Would this be faster with int's for weights?
+    std::vector<std::pair<float, KRTexture *>> sortedTextures;
+    for(auto itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end(); itr++) {
+        KRTexture *texture = *itr;
+        float priority = texture->getStreamPriority();
+        sortedTextures.push_back(std::pair<float, KRTexture *>(priority, texture));
+    }
+    
+    std::sort(sortedTextures.begin(), sortedTextures.end(), std::greater<std::pair<float, KRTexture *>>());
+    
+    long memoryRemaining = getContext().KRENGINE_TARGET_TEXTURE_MEM_MAX;
+    long memoryRemainingThisFrame = KRMIN(getContext().KRENGINE_TARGET_TEXTURE_MEM_MAX - getMemUsed(), getContext().KRENGINE_TARGET_TEXTURE_MEM_MAX);
+    
+    for(auto itr=sortedTextures.begin(); itr != sortedTextures.end(); itr++) {
+        KRTexture *texture = (*itr).second;
+        int min_mip_level = KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, texture->getMinMipMap());
+        long minLodMem = texture->getMemRequiredForSize(min_mip_level);
+        memoryRemaining -= minLodMem;
+        
+        if(memoryRemainingThisFrame > minLodMem && texture->getCurrentLodMaxDim() < min_mip_level) {
+            memoryRemainingThisFrame -= minLodMem;
+            texture->resize(min_mip_level);
+        }
+    }
+    
+    std::vector<int> mipPercents = {75, 75, 50, 50, 50};
+    int mip_drop = -1;
+    auto mip_itr = mipPercents.begin();
+    long memoryRemainingThisMip = 0;
+
+    for(auto itr=sortedTextures.begin(); itr != sortedTextures.end(); itr++) {
+        if(memoryRemainingThisMip <= 0) {
+            if(mip_itr == mipPercents.end()) {
+                break;
+            } else {
+                memoryRemainingThisMip = memoryRemaining * (*mip_itr) / 100;
+                mip_drop++;
+                mip_itr++;
+            }
+        }
+        
+        KRTexture *texture = (*itr).second;
+        int min_mip_level = KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, texture->getMinMipMap());
+        int max_mip_level = KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, texture->getMaxMipMap());
+        int target_mip_level = (max_mip_level >> mip_drop);
+        long targetMem = texture->getMemRequiredForSize(target_mip_level);
+        long additionalMemRequired = targetMem - texture->getMemRequiredForSize(min_mip_level);
+        memoryRemainingThisMip -= additionalMemRequired;
+        memoryRemaining -= additionalMemRequired;
+        if(memoryRemainingThisMip > 0 && memoryRemainingThisFrame > targetMem) {
+            if(texture->getCurrentLodMaxDim() != target_mip_level) {
+                memoryRemainingThisFrame -= targetMem;
+                texture->resize(target_mip_level);
+            }
+        }
+    }
+    
+
+    
+    // ---------------
+    /*
     
     // Determine the additional amount of memory required in order to resize all active textures to the maximum size
     long wantedTextureMem = 0;
@@ -356,8 +406,7 @@ void KRTextureManager::balanceTextureMemory()
             }
         }
     }
-    
-    //fprintf(stderr, "Active mipmap size: %i    Inactive mapmap size: %i\n", (int)maxDimActive, (int)maxDimInactive);
+    */
 }
 
 void KRTextureManager::rotateBuffers()
@@ -366,21 +415,16 @@ void KRTextureManager::rotateBuffers()
     
     // ----====---- Expire textures that haven't been used in a long time ----====----
     std::set<KRTexture *> expiredTextures;
-    for(std::set<KRTexture *>::iterator itr=m_poolTextures.begin(); itr != m_poolTextures.end(); itr++) {
-        KRTexture *poolTexture = *itr;
-        if(poolTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
-            expiredTextures.insert(poolTexture);
-            poolTexture->releaseHandles();
+    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+        KRTexture *activeTexture = *itr;
+        if(activeTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
+            expiredTextures.insert(activeTexture);
+            activeTexture->releaseHandles();
         }
     }
     for(std::set<KRTexture *>::iterator itr=expiredTextures.begin(); itr != expiredTextures.end(); itr++) {
-        m_poolTextures.erase(*itr);
+        m_activeTextures.erase(*itr);
     }
-    
-    // ----====---- Swap the buffers ----====----
-
-    m_poolTextures.insert(m_activeTextures.begin(), m_activeTextures.end());
-    m_activeTextures.clear();
 }
 
 long KRTextureManager::getMemoryTransferedThisFrame()
@@ -444,8 +488,10 @@ std::set<KRTexture *> &KRTextureManager::getActiveTextures()
     return m_activeTextures;
 }
 
-std::set<KRTexture *> &KRTextureManager::getPoolTextures()
+void KRTextureManager::primeTexture(KRTexture *texture)
 {
-    return m_poolTextures;
+    if(m_activeTextures.find(texture) == m_activeTextures.end()) {
+        m_activeTextures.insert(texture);
+    }
 }
 

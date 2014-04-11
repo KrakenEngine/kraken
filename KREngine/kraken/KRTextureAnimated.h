@@ -45,7 +45,7 @@ public:
     
     virtual void bind(GLuint texture_unit);
     virtual long getMemRequiredForSize(int max_dim);
-    virtual void resetPoolExpiry();
+    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
     
     virtual long getReferencedMemSize();
     

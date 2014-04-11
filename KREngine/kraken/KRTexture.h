@@ -56,7 +56,26 @@ public:
     
     long getLastFrameUsed();
     
-    virtual void resetPoolExpiry();
+    typedef enum {
+        TEXTURE_USAGE_NONE = 0x00,
+        TEXTURE_USAGE_UI = 0x01,
+        TEXTURE_USAGE_SKY_CUBE = 0x02,
+        TEXTURE_USAGE_LIGHT_MAP = 0x04,
+        TEXTURE_USAGE_DIFFUSE_MAP = 0x08,
+        TEXTURE_USAGE_AMBIENT_MAP = 0x10,
+        TEXTURE_USAGE_SPECULAR_MAP = 0x20,
+        TEXTURE_USAGE_NORMAL_MAP = 0x40,
+        TEXTURE_USAGE_REFLECTION_MAP = 0x80,
+        TEXTURE_USAGE_REFECTION_CUBE = 0x100,
+        TEXTURE_USAGE_LIGHT_FLARE = 0x200,
+        TEXTURE_USAGE_SHADOW_DEPTH = 0x400,
+        TEXTURE_USAGE_PARTICLE = 0x800,
+        TEXTURE_USAGE_SPRITE = 0x1000
+    } texture_usage_t;
+    
+    float getStreamPriority();
+    
+    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
     virtual bool isAnimated();
     
     virtual KRTexture *compress(bool premultiply_alpha = false);
@@ -66,9 +85,11 @@ public:
     bool hasMipmaps();
 
     bool canStreamOut() const;
-    kraken_stream_level getStreamLevel(bool prime = true);
+    kraken_stream_level getStreamLevel(bool prime, float lodCoverage, KRTexture::texture_usage_t textureUsage);
+    float getLastFrameLodCoverage() const;
     
     void _swapHandles();
+    
 protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;
     GLuint getHandle();
@@ -85,6 +106,8 @@ protected:
     
     long m_last_frame_used;
     long m_last_frame_bound;
+    float m_last_frame_max_lod_coverage;
+    texture_usage_t m_last_frame_usage;
     
 private:
     std::atomic<long> m_textureMemUsed;

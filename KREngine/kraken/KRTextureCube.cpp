@@ -115,14 +115,14 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
 }
 
 
-void KRTextureCube::resetPoolExpiry()
+void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
 {
-    KRTexture::resetPoolExpiry();
+    KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
         KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(faceTexture) {
-            faceTexture->resetPoolExpiry(); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
+            faceTexture->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
         }
     }
 }

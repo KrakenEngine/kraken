@@ -30,7 +30,7 @@ public:
     virtual void hideLOD();
     virtual void childDeleted(KRNode *child_node);
     
-    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    virtual kraken_stream_level getStreamLevel(bool prime, const KRViewport &viewport);
     
 private:
     KRLODGroup *m_activeLODGroup;

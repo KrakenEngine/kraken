@@ -118,7 +118,7 @@ void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
                 KRVector3 rim_color;
                 if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, 0.0f)) {
                     pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
-                    m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture);
+                    m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
                     m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 }

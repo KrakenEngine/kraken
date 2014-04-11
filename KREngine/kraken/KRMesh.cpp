@@ -186,20 +186,20 @@ void KRMesh::getMaterials()
     }
 }
 
-kraken_stream_level KRMesh::getStreamLevel(bool prime)
+kraken_stream_level KRMesh::getStreamLevel(bool prime, float lodCoverage)
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     getSubmeshes();
     getMaterials();
     
     for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel(prime));
+        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel(prime, lodCoverage));
     }
     
     return stream_level;
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power) {
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
     
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
@@ -233,7 +233,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                             for(int i=0; i < bones.size(); i++) {
                                 bone_bind_poses.push_back(getBoneBindPose(i));
                             }
-                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power)) {
+                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power, lod_coverage)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials

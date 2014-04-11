@@ -944,12 +944,12 @@ std::set<KRBehavior *> &KRNode::getBehaviors()
     return m_behaviors;
 }
 
-kraken_stream_level KRNode::getStreamLevel(bool prime)
+kraken_stream_level KRNode::getStreamLevel(bool prime, const KRViewport &viewport)
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime));
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime, viewport));
     }
     
     return stream_level;

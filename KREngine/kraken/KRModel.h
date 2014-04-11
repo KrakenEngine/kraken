@@ -69,7 +69,7 @@ public:
     void setLightMap(const std::string &name);
     std::string getLightMap();
     
-    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    virtual kraken_stream_level getStreamLevel(bool prime, const KRViewport &viewport);
     
 private:
     std::vector<KRMesh *> m_models;

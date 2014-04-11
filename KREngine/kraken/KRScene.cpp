@@ -599,12 +599,13 @@ bool KRScene::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius,
 }
 
 
-kraken_stream_level KRScene::getStreamLevel(bool prime)
+kraken_stream_level KRScene::getStreamLevel()
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     
     if(m_pRootNode) {
-        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(prime));
+        KRViewport viewport; // This isn't used when prime is false
+        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(false, viewport));
     }
     
     return stream_level;

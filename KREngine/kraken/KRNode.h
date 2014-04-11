@@ -167,7 +167,7 @@ public:
     bool getAnimationEnabled(node_attribute_type attrib) const;
     
     
-    virtual kraken_stream_level getStreamLevel(bool prime = true);
+    virtual kraken_stream_level getStreamLevel(bool prime, const KRViewport &viewport);
     
     virtual void hideLOD();
     virtual void showLOD();

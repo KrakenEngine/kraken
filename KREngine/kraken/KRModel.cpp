@@ -157,13 +157,17 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
         
         if(m_models.size() > 0) {
             // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
-        
+            
+            /*
             float lod_coverage = 0.0f;
             if(m_models.size() > 1) {
                 lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
             } else if(viewport.visible(getBounds())) {
                 lod_coverage = 1.0f;
             }
+            */
+            
+            float lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
             
             if(lod_coverage > m_min_lod_coverage) {
                 
@@ -185,7 +189,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 }
                 
                 if(m_pLightMap && pCamera->settings.bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
-                    m_pContext->getTextureManager()->selectTexture(5, m_pLightMap);
+                    m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
                 }
                 
                 KRMat4 matModel = getModelMatrix();
@@ -195,21 +199,25 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                     matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power);
+                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
             }
         }
     }
 }
 
 
-kraken_stream_level KRModel::getStreamLevel(bool prime)
+kraken_stream_level KRModel::getStreamLevel(bool prime, const KRViewport &viewport)
 {
-    kraken_stream_level stream_level = KRNode::getStreamLevel(prime);
+    kraken_stream_level stream_level = KRNode::getStreamLevel(prime, viewport);
     
     loadModel();
+    float lod_coverage = 0.0f;
+    if(prime) {
+         lod_coverage = viewport.coverage(getBounds()); // This is only used when prime is true
+    }
     
     for(auto itr = m_models.begin(); itr != m_models.end(); itr++) {
-        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime));
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime, lod_coverage));
     }
     
     return stream_level;
