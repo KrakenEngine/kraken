@@ -35,7 +35,7 @@ KRVector3 KRDirectionalLight::getWorldLightDirection() {
 }
 
 KRVector3 KRDirectionalLight::getLocalLightDirection() {
-   return KRVector3::Forward();
+    return KRVector3::Up();           //&KRF HACK changed from KRVector3::Forward(); - to compensate for the way Maya handles post rotation.
 }
 
 
