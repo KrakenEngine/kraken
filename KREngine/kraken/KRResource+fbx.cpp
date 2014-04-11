@@ -926,7 +926,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     KRVector3 node_pre_rotation, node_post_rotation;
     if(rotation_active) {
         node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
-        node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;  
+        //node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;  
         //&KRF HACK removing this line (above) to prevent the post rotation from corrupting the default light values; the FBX is importing a post rotation and setting it to -90 degrees											
     } else {
         node_pre_rotation = KRVector3::Zero();
