@@ -314,7 +314,7 @@ void KRTextureManager::balanceTextureMemory()
             if(mip_itr == mipPercents.end()) {
                 break;
             } else {
-                memoryRemainingThisMip = memoryRemaining * (*mip_itr) / 100;
+                memoryRemainingThisMip = memoryRemaining / 100L * (long)(*mip_itr);
                 mip_drop++;
                 mip_itr++;
             }
