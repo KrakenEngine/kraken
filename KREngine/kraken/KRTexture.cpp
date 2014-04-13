@@ -62,7 +62,7 @@ long KRTexture::getReferencedMemSize() {
 
 void KRTexture::resize(int max_dim)
 {
-    if(!m_handle_lock.test_and_set())
+    while(m_handle_lock.test_and_set()); // Spin lock
     {
         if(m_iHandle == m_iNewHandle) {
             if(max_dim == 0) {
@@ -197,6 +197,7 @@ bool KRTexture::canStreamOut() const {
 
 void KRTexture::_swapHandles()
 {
+    //while(m_handle_lock.test_and_set()); // Spin lock
     if(!m_handle_lock.test_and_set()) {
         if(m_iHandle != m_iNewHandle) {
             if(m_iHandle != 0) {
