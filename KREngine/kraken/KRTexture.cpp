@@ -145,7 +145,7 @@ float KRTexture::getStreamPriority()
             priority += 100000.0f;
         }
         if(m_last_frame_usage & (TEXTURE_USAGE_REFECTION_CUBE)) {
-            priority += 1000.0f;
+            priority += 100000.0f;
         }
         priority += m_last_frame_max_lod_coverage * 10.0f;
         return priority;

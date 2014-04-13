@@ -347,7 +347,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     assert(lod_width == 1);
     
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
-    getContext().getTextureManager()->selectTexture(0, NULL);
+    getContext().getTextureManager()->selectTexture(0, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     GLDEBUG(glDeleteTextures(1, &compressed_handle));
     
     KRTextureKTX *new_texture = new KRTextureKTX(getContext(), getName(), internal_format, base_internal_format, width, height, blocks);

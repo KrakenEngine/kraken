@@ -1150,10 +1150,10 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         lKFbxDouble1 =((FbxSurfacePhong *) pMaterial)->ReflectionFactor;
         
         // Reflection color
-        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
+        //lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
         
         // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
-        new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
+        new_material->setReflection(KRVector3(/*lKFbxDouble3.Get()[0] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[1] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[2] * */lKFbxDouble1.Get()));
         
     } else if(pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) ) {
         // We found a Lambert material.
@@ -1371,6 +1371,8 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
         }
     }
     
+    pMesh->GenerateTangentsDataForAllUVSets(true);
+    
     int polygon_count = pMesh->GetPolygonCount();
     int uv_count = pMesh->GetElementUVCount();
     int normal_count = pMesh->GetElementNormalCount();
@@ -1487,36 +1489,38 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             mi.normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
                         
-                        
+                        /*
+                         TODO - Tangent vectors imported from maya appear incorrectly...  Only calculating them in Kraken for now
+                         
                         // ----====---- Read Tangents ----====----
-                        for(int l = 0; l < tangent_count; ++l)
-                        {
-                            FbxVector4 new_tangent;
-                            FbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
-                            
-                            if(leTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
-                                switch (leTangent->GetReferenceMode()) {
-                                    case FbxGeometryElement::eDirect:
-                                        new_tangent = leTangent->GetDirectArray().GetAt(lControlPointIndex);
-                                        break;
-                                    case FbxGeometryElement::eIndexToDirect:
-                                    {
-                                        int id = leTangent->GetIndexArray().GetAt(lControlPointIndex);
-                                        new_tangent = leTangent->GetDirectArray().GetAt(id);
+                        if(need_tangents) {
+                            for(int l = 0; l < tangent_count; ++l)
+                            {
+                                FbxVector4 new_tangent;
+                                FbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
+                                
+                                if(leTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
+                                    switch (leTangent->GetReferenceMode()) {
+                                        case FbxGeometryElement::eDirect:
+                                            new_tangent = leTangent->GetDirectArray().GetAt(lControlPointIndex);
+                                            break;
+                                        case FbxGeometryElement::eIndexToDirect:
+                                        {
+                                            int id = leTangent->GetIndexArray().GetAt(lControlPointIndex);
+                                            new_tangent = leTangent->GetDirectArray().GetAt(id);
+                                        }
+                                            break;
+                                        default:
+                                            break; // other reference modes not shown here!
                                     }
-                                        break;
-                                    default:
-                                        break; // other reference modes not shown here!
                                 }
+                                if(l == 0) {
+                                    mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
+                                }
+                                
                             }
-                            if(l == 0) {
-                                mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
-                            }
-                            
                         }
-                        
-                        
-                        
+                        */
                         
                         source_vertex_id++;
                         dest_vertex_id++;

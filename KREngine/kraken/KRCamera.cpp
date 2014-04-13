@@ -335,7 +335,11 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 //    
 //    // Disable backface culling
 //    GLDEBUG(glDisable(GL_CULL_FACE));
-//    
+//
+    // Enable backface culling
+    GLDEBUG(glCullFace(GL_BACK));
+    GLDEBUG(glEnable(GL_CULL_FACE));
+    
     // Disable z-buffer write
     GLDEBUG(glDepthMask(GL_FALSE));
 //    

@@ -372,9 +372,9 @@ void main()
                 mediump vec3 reflectionVec = mat3(model_matrix) * (incidenceVec - 2.0 * dot(world_space_normal, incidenceVec) * world_space_normal);
             #endif
             #if HAS_REFLECTION_MAP == 1
-                gl_FragColor += vec4(material_reflection, 0.0) * texture2D(reflectionTexture, reflection_uv) * textureCube(reflectionCubeTexture, reflectionVec);
+                gl_FragColor += vec4(material_reflection, 0.0) * texture2D(reflectionTexture, reflection_uv) * vec4(textureCube(reflectionCubeTexture, reflectionVec).rgb, 1.0);
             #else
-                gl_FragColor += vec4(material_reflection, 0.0) * textureCube(reflectionCubeTexture, reflectionVec);
+                gl_FragColor += vec4(material_reflection, 0.0) * vec4(textureCube(reflectionCubeTexture, reflectionVec).rgb, 1.0);
             #endif
         #endif
     

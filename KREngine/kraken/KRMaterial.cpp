@@ -370,11 +370,11 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
         m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
     }
     
-    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
         m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
     }
     
-    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
         // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
         m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     }

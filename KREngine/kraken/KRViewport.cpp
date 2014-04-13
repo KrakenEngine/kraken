@@ -176,6 +176,17 @@ float KRViewport::coverage(const KRAABB &b) const
     if(!visible(b)) {
         return 0.0f; // Culled out by view frustrum
     } else {
+        KRVector3 nearest_point = b.nearestPoint(getCameraPosition());
+        float distance = (nearest_point - getCameraPosition()).magnitude();
+        
+        KRVector3 v = KRMat4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
+        
+        float screen_depth = distance / 1000.0f;
+        
+        return KRCLAMP(1.0f - screen_depth, 0.01f, 1.0f);
+        
+        /*
+        
         KRVector2 screen_min;
         KRVector2 screen_max;
         // Loop through all corners and transform them to screen space
@@ -199,6 +210,7 @@ float KRViewport::coverage(const KRAABB &b) const
         
         float c = (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
         return KRCLAMP(c, 0.01f, 1.0f);
+        */
     }
 }
 
