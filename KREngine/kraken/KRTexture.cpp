@@ -124,8 +124,10 @@ kraken_stream_level KRTexture::getStreamLevel(bool prime, float lodCoverage, KRT
         return kraken_stream_level::STREAM_LEVEL_OUT;
     } else if(m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, m_max_lod_max_dim)) {
         return kraken_stream_level::STREAM_LEVEL_IN_HQ;
-    } else {
+    } else if(m_current_lod_max_dim >= KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, m_min_lod_max_dim)) {
         return kraken_stream_level::STREAM_LEVEL_IN_LQ;
+    } else {
+        return kraken_stream_level::STREAM_LEVEL_OUT;
     }
 }
 

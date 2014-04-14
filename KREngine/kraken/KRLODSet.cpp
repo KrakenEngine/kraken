@@ -106,8 +106,19 @@ void KRLODSet::showLOD()
 
 kraken_stream_level KRLODSet::getStreamLevel(bool prime, const KRViewport &viewport)
 {
-    if(m_activeLODGroup) {
-        return m_activeLODGroup->getStreamLevel(prime, viewport);
+    KRLODGroup *new_active_lod_group = NULL;
+
+    // Upgrade and downgrade LOD groups as needed
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+        KRLODGroup *lod_group = dynamic_cast<KRLODGroup *>(*itr);
+        assert(lod_group != NULL);
+        if(lod_group->getLODVisibility(viewport)) {
+            new_active_lod_group = lod_group;
+        }
+    }
+    
+    if(new_active_lod_group) {
+        return new_active_lod_group->getStreamLevel(prime, viewport);
     } else {
         return kraken_stream_level::STREAM_LEVEL_IN_HQ;
     }
