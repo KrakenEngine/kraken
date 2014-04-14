@@ -80,6 +80,7 @@ public:
     
     virtual KRTexture *compress(bool premultiply_alpha = false);
     int getCurrentLodMaxDim();
+    int getNewLodMaxDim(); // For use by streamer only
     int getMaxMipMap();
     int getMinMipMap();
     bool hasMipmaps();
@@ -100,6 +101,7 @@ protected:
     std::atomic_flag m_handle_lock;
     
     int m_current_lod_max_dim;
+    int m_new_lod_max_dim;
     
     uint32_t m_max_lod_max_dim;
     uint32_t m_min_lod_max_dim;

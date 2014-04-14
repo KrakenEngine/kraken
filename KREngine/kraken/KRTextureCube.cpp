@@ -46,6 +46,8 @@ KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(c
         if(m_textures[i]) {
             if(m_textures[i]->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
             if(m_textures[i]->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
+        } else {
+            assert(false);
         }
     }
 }
@@ -59,21 +61,12 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
     assert(m_iNewHandle == m_iHandle); // Only allow one resize per frame
     
     bool success = true;
-    int prev_lod_max_dim = 0;
-#if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
-    
-    if(m_iHandle != 0) {
-        prev_lod_max_dim = m_current_lod_max_dim;
-    }
-    
-    
-#endif
     
     m_iNewHandle = 0;
     GLDEBUG(glGenTextures(1, &m_iNewHandle));
     assert(m_iNewHandle != 0);
     
-    m_current_lod_max_dim = 0;
+    m_new_lod_max_dim = 0;
     GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, m_iNewHandle));
     
     bool bMipMaps = false;
@@ -82,7 +75,7 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
         std::string faceName = getName() + SUFFIXES[i];
         if(m_textures[i]) {
             if(m_textures[i]->hasMipmaps()) bMipMaps = true;
-            m_textures[i]->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim);
+            m_textures[i]->uploadTexture(TARGETS[i], lod_max_dim, m_new_lod_max_dim);
         }
     }
     
@@ -112,7 +105,7 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-
+/*
 void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
 {
     KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
@@ -122,6 +115,7 @@ void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUs
         }
     }
 }
+*/
 
 void KRTextureCube::bind(GLuint texture_unit)
 {

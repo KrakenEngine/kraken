@@ -145,10 +145,42 @@ KRTexture *KRTextureManager::getTextureCube(const char *szName) {
     
     unordered_map<std::string, KRTexture *>::iterator itr = m_textures.find(lowerName);
     if(itr == m_textures.end()) {
-        KRTextureCube *pTexture = new KRTextureCube(getContext(), lowerName);
         
-        m_textures[lowerName] = pTexture;
-        return pTexture;
+        // Defer resolving the texture cube until its referenced textures are ready
+        const GLenum TARGETS[6] = {
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+        };
+        
+        const char *SUFFIXES[6] = {
+            "_positive_x",
+            "_negative_x",
+            "_positive_y",
+            "_negative_y",
+            "_positive_z",
+            "_negative_z"
+        };
+        bool found_all = true;
+        for(int i=0; i<6; i++) {
+            std::string faceName = lowerName + SUFFIXES[i];
+            KRTexture *faceTexture = dynamic_cast<KRTexture2D *>(getContext().getTextureManager()->getTexture(faceName));
+            if(faceTexture == NULL) {
+                found_all = false;
+            }
+        }
+        
+        if(found_all) {
+            KRTextureCube *pTexture = new KRTextureCube(getContext(), lowerName);
+            
+            m_textures[lowerName] = pTexture;
+            return pTexture;
+        } else {
+            return NULL;
+        }
     } else {
         return (*itr).second;
     }
@@ -251,7 +283,7 @@ void KRTextureManager::doStreaming()
 {
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
-    m_activeTextures_streamer = m_activeTextures_streamer_copy;
+    m_activeTextures_streamer = std::move(m_activeTextures_streamer_copy);
     m_streamerFenceMutex.unlock();
     
     balanceTextureMemory();
@@ -277,15 +309,8 @@ void KRTextureManager::balanceTextureMemory()
 
     // ---------------
     
-    /*
-    // TODO - Would this be faster with int's for weights?
-    std::vector<std::pair<float, KRTexture *> > sortedTextures;
-    for(auto itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end(); itr++) {
-        KRTexture *texture = *itr;
-        float priority = texture->getStreamPriority();
-        sortedTextures.push_back(std::pair<float, KRTexture *>(priority, texture));
-    }
-     */
+    //long MAX_STREAM_TIME = 66;
+    //long startTime = getContext().getAbsoluteTimeMilliseconds();
     
     std::sort(m_activeTextures_streamer.begin(), m_activeTextures_streamer.end(), std::greater<std::pair<float, KRTexture *>>());
     
@@ -298,11 +323,13 @@ void KRTextureManager::balanceTextureMemory()
         long minLodMem = texture->getMemRequiredForSize(min_mip_level);
         memoryRemaining -= minLodMem;
         
-        if(memoryRemainingThisFrame > minLodMem && texture->getCurrentLodMaxDim() < min_mip_level) {
+        if(memoryRemainingThisFrame > minLodMem && texture->getNewLodMaxDim() < min_mip_level) {
             memoryRemainingThisFrame -= minLodMem;
             texture->resize(min_mip_level);
         }
     }
+    
+    //long minMipTime = getContext().getAbsoluteTimeMilliseconds() - startTime;
     
     std::vector<int> mipPercents = {75, 75, 50, 50, 50};
     int mip_drop = -1;
@@ -329,13 +356,26 @@ void KRTextureManager::balanceTextureMemory()
         memoryRemainingThisMip -= additionalMemRequired;
         memoryRemaining -= additionalMemRequired;
         if(memoryRemainingThisMip > 0 && memoryRemainingThisFrame > targetMem) {
-            if(texture->getCurrentLodMaxDim() != target_mip_level) {
+            int current_mip_level = texture->getNewLodMaxDim();
+            if(current_mip_level == (target_mip_level >> 1) || target_mip_level < current_mip_level) {
                 memoryRemainingThisFrame -= targetMem;
                 texture->resize(target_mip_level);
+            } else if(current_mip_level == (target_mip_level >> 2)) {
+                memoryRemainingThisFrame -= texture->getMemRequiredForSize(target_mip_level >> 1);
+                texture->resize(target_mip_level >> 1);
+            } else if(current_mip_level < (target_mip_level >> 2)) {
+                memoryRemainingThisFrame -= texture->getMemRequiredForSize(target_mip_level >> 2);
+                texture->resize(target_mip_level >> 2);
             }
         }
+        
+        //if(getContext().getAbsoluteTimeMilliseconds() - startTime > MAX_STREAM_TIME) {
+        //    return; // Bail out early if we spend too long
+        //}
     }
     
+    //long streamerTime = getContext().getAbsoluteTimeMilliseconds() - startTime;
+    //fprintf(stderr, "%i / %i\n", (int)minMipTime, (int)streamerTime);
 
 }
 

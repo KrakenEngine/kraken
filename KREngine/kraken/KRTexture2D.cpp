@@ -34,7 +34,6 @@
 #include "KRTextureManager.h"
 
 KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data, std::string name) : KRTexture(context, name) {
-    m_current_lod_max_dim = 0;
     m_pData = data;
 }                
 
@@ -48,16 +47,11 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     }
     
     bool success = true;
-    int prev_lod_max_dim = 0;
-#if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
-    
-    if(m_iHandle != 0) {
-        prev_lod_max_dim = m_current_lod_max_dim;
-    }
-#endif
+    int prev_lod_max_dim = m_new_lod_max_dim;
+
     
     m_iNewHandle = 0;
-    m_current_lod_max_dim = 0;
+    m_new_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iNewHandle));
     
     if(m_iNewHandle == 0) {
@@ -71,10 +65,10 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         }
 
-        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim)) {
+        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_new_lod_max_dim)) {
             GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
             m_iNewHandle = m_iHandle;
-            m_current_lod_max_dim = prev_lod_max_dim;
+            m_new_lod_max_dim = prev_lod_max_dim;
             success = false;
         }
     }

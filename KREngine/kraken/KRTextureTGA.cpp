@@ -71,7 +71,7 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
@@ -298,7 +298,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
     
     int current_max_dim = 0;
-    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, 0, true, premultiply_alpha)) {
+    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, true, premultiply_alpha)) {
         assert(false); // Failed to upload the texture
     }
     GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));

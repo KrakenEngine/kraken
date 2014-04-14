@@ -14,6 +14,8 @@
 
 KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context, name)
 {
+    m_current_lod_max_dim = 0;
+    m_new_lod_max_dim = 0;
     m_iHandle = 0;
     m_iNewHandle = 0;
     m_textureMemUsed = 0;
@@ -45,6 +47,8 @@ void KRTexture::releaseHandles() {
         m_iHandle = 0;
         m_textureMemUsed = 0;
     }
+    m_current_lod_max_dim = 0;
+    m_new_lod_max_dim = 0;
     
     m_handle_lock.clear();
     
@@ -71,7 +75,7 @@ void KRTexture::resize(int max_dim)
                 int target_dim = max_dim;
                 if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
-                if(m_current_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
+                if(m_new_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
                     assert(m_newTextureMemUsed == 0);
                     m_newTextureMemUsed = getMemRequiredForSize(target_dim);
                     
@@ -175,6 +179,10 @@ int KRTexture::getCurrentLodMaxDim() {
     return m_current_lod_max_dim;
 }
 
+int KRTexture::getNewLodMaxDim() {
+    return m_new_lod_max_dim;
+}
+
 int KRTexture::getMaxMipMap() {
     return m_max_lod_max_dim;
 }
@@ -207,6 +215,7 @@ void KRTexture::_swapHandles()
             m_textureMemUsed = (long)m_newTextureMemUsed;
             m_newTextureMemUsed = 0;
             m_iHandle = m_iNewHandle;
+            m_current_lod_max_dim = m_new_lod_max_dim;
         }
         m_handle_lock.clear();
     }
