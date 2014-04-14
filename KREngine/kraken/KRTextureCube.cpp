@@ -40,11 +40,12 @@ KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(c
     m_min_lod_max_dim = 64;
     
     for(int i=0; i<6; i++) {
+        m_textures[i] = NULL;
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-        if(faceTexture) {
-            if(faceTexture->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = faceTexture->getMaxMipMap();
-            if(faceTexture->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = faceTexture->getMinMipMap();
+        m_textures[i] = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
+        if(m_textures[i]) {
+            if(m_textures[i]->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
+            if(m_textures[i]->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
         }
     }
 }
@@ -79,10 +80,9 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
 
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-        if(faceTexture) {
-            if(faceTexture->hasMipmaps()) bMipMaps = true;
-            faceTexture->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim);
+        if(m_textures[i]) {
+            if(m_textures[i]->hasMipmaps()) bMipMaps = true;
+            m_textures[i]->uploadTexture(TARGETS[i], lod_max_dim, m_current_lod_max_dim, prev_lod_max_dim);
         }
     }
     
@@ -105,10 +105,8 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
     
     long memoryRequired = 0;
     for(int i=0; i<6; i++) {
-        std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-        if(faceTexture) {
-            memoryRequired += faceTexture->getMemRequiredForSize(target_dim);
+        if(m_textures[i]) {
+            memoryRequired += m_textures[i]->getMemRequiredForSize(target_dim);
         }
     }
     return memoryRequired;
@@ -119,10 +117,8 @@ void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUs
 {
     KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
     for(int i=0; i<6; i++) {
-        std::string faceName = getName() + SUFFIXES[i];
-        KRTexture2D *faceTexture = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-        if(faceTexture) {
-            faceTexture->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
+        if(m_textures[i]) {
+            m_textures[i]->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
         }
     }
 }

@@ -34,6 +34,8 @@
 
 #include "KRTexture.h"
 
+class KRTexture2D;
+
 class KRTextureCube : public KRTexture {
 public:
     KRTextureCube(KRContext &context, std::string name);
@@ -66,6 +68,8 @@ private:
         "_positive_z",
         "_negative_z"
     };
+    
+    KRTexture2D *m_textures[6];
 };
 
 
