@@ -97,6 +97,7 @@ private:
     
     std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer;
     std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer_copy;
+    bool m_streamerComplete;
     
     std::atomic<long> m_textureMemUsed;
     

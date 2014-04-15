@@ -47,7 +47,7 @@ KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context
         m_boundTextures[iTexture] = NULL;
     }
     m_memoryTransferredThisFrame = 0;
-    
+    m_streamerComplete = true;
     
     _clearGLState();
 }
@@ -248,20 +248,36 @@ void KRTextureManager::startFrame(float deltaTime)
 {
     m_streamer.startStreamer();
     _clearGLState();
-    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
-        KRTexture *activeTexture = *itr;
-        activeTexture->_swapHandles();
-    }
     
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
     
-    
-    m_activeTextures_streamer_copy.clear();
-    for(auto itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
-        KRTexture *texture = *itr;
-        float priority = texture->getStreamPriority();
-        m_activeTextures_streamer_copy.push_back(std::pair<float, KRTexture *>(priority, texture));
+    if(m_streamerComplete) {
+        assert(m_activeTextures_streamer_copy.size() == 0); // The streamer should have emptied this if it really did complete
+        
+        const long KRENGINE_TEXTURE_EXPIRY_FRAMES = 10;
+        
+
+        std::set<KRTexture *> expiredTextures;
+        for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
+            KRTexture *activeTexture = *itr;
+            activeTexture->_swapHandles();
+            if(activeTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
+                // Expire textures that haven't been used in a long time
+                expiredTextures.insert(activeTexture);
+                activeTexture->releaseHandles();
+            } else {
+                float priority = activeTexture->getStreamPriority();
+                m_activeTextures_streamer_copy.push_back(std::pair<float, KRTexture *>(priority, activeTexture));
+            }
+        }
+        for(std::set<KRTexture *>::iterator itr=expiredTextures.begin(); itr != expiredTextures.end(); itr++) {
+            m_activeTextures.erase(*itr);
+        }
+        
+        if(m_activeTextures_streamer_copy.size() > 0) {
+            m_streamerComplete = false;
+        }
     }
 
     m_streamerFenceMutex.unlock();
@@ -286,7 +302,13 @@ void KRTextureManager::doStreaming()
     m_activeTextures_streamer = std::move(m_activeTextures_streamer_copy);
     m_streamerFenceMutex.unlock();
     
-    balanceTextureMemory();
+    if(m_activeTextures_streamer.size() > 0) {
+        balanceTextureMemory();
+        
+        m_streamerFenceMutex.lock();
+        m_streamerComplete = true;
+        m_streamerFenceMutex.unlock();
+    }
 }
 
 void KRTextureManager::balanceTextureMemory()
@@ -374,6 +396,8 @@ void KRTextureManager::balanceTextureMemory()
         //}
     }
     
+    glFlush();
+    
     //long streamerTime = getContext().getAbsoluteTimeMilliseconds() - startTime;
     //fprintf(stderr, "%i / %i\n", (int)minMipTime, (int)streamerTime);
 
@@ -381,20 +405,7 @@ void KRTextureManager::balanceTextureMemory()
 
 void KRTextureManager::rotateBuffers()
 {
-    const long KRENGINE_TEXTURE_EXPIRY_FRAMES = 10;
-    
-    // ----====---- Expire textures that haven't been used in a long time ----====----
-    std::set<KRTexture *> expiredTextures;
-    for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
-        KRTexture *activeTexture = *itr;
-        if(activeTexture->getLastFrameUsed() + KRENGINE_TEXTURE_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
-            expiredTextures.insert(activeTexture);
-            activeTexture->releaseHandles();
-        }
-    }
-    for(std::set<KRTexture *>::iterator itr=expiredTextures.begin(); itr != expiredTextures.end(); itr++) {
-        m_activeTextures.erase(*itr);
-    }
+
 }
 
 long KRTextureManager::getMemoryTransferedThisFrame()
