@@ -43,7 +43,14 @@ public:
         RENDER_PASS_ADDITIVE_PARTICLES,
         RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
         RENDER_PASS_GENERATE_SHADOWMAPS,
-        RENDER_PASS_SHADOWMAP
+        RENDER_PASS_SHADOWMAP,
+        RENDER_PASS_PRESTREAM
+    };
+    
+    enum LodVisibility {
+        LOD_VISIBILITY_HIDDEN,
+        LOD_VISIBILITY_PRESTREAM,
+        LOD_VISIBILITY_VISIBLE
     };
     
     KRNode(KRScene &scene, std::string name);
@@ -159,7 +166,7 @@ public:
     virtual bool hasPhysics();
     
     virtual void updateLODVisibility(const KRViewport &viewport);
-    bool lodIsVisible();
+    LodVisibility getLODVisibility();
     
     void setScaleCompensation(bool scale_compensation);
     bool getScaleCompensation();
@@ -167,10 +174,9 @@ public:
     bool getAnimationEnabled(node_attribute_type attrib) const;
     
     
-    virtual kraken_stream_level getStreamLevel(bool prime, const KRViewport &viewport);
+    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
     
-    virtual void hideLOD();
-    virtual void showLOD();
+    virtual void setLODVisibility(LodVisibility lod_visibility);
     
 protected:
     KRVector3 m_localTranslation;
@@ -195,7 +201,7 @@ protected:
     KRVector3 m_initialPreRotation;
     KRVector3 m_initialPostRotation;
     
-    bool m_lod_visible;
+    LodVisibility m_lod_visible;
     
     KRNode *m_parentNode;
     std::set<KRNode *> m_childNodes;
@@ -246,7 +252,7 @@ public:
     }
     void removeFromOctreeNodes();
     void addToOctreeNode(KROctreeNode *octree_node);
-    virtual void childDeleted(KRNode *child_node);
+    void childDeleted(KRNode *child_node);
     
     template <class T> T *find()
     {

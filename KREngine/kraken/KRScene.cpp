@@ -485,7 +485,7 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
 
 void KRScene::updateOctree(const KRViewport &viewport)
 {
-    m_pRootNode->showLOD();
+    m_pRootNode->setLODVisibility(KRNode::LOD_VISIBILITY_VISIBLE);
     m_pRootNode->updateLODVisibility(viewport);
     
     std::set<KRNode *> newNodes = std::move(m_newNodes);
@@ -518,7 +518,7 @@ void KRScene::updateOctree(const KRViewport &viewport)
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
-        if(node->lodIsVisible()) {
+        if(node->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
             m_nodeTree.update(node);
         }
         if(node->hasPhysics()) {
@@ -605,7 +605,7 @@ kraken_stream_level KRScene::getStreamLevel()
     
     if(m_pRootNode) {
         KRViewport viewport; // This isn't used when prime is false
-        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(false, viewport));
+        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(viewport));
     }
     
     return stream_level;

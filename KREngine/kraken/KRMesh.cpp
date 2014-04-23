@@ -186,21 +186,30 @@ void KRMesh::getMaterials()
     }
 }
 
-kraken_stream_level KRMesh::getStreamLevel(bool prime, float lodCoverage)
+void KRMesh::preStream(float lodCoverage)
+{
+    getSubmeshes();
+    getMaterials();
+    
+    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        (*mat_itr)->preStream(lodCoverage);
+    }
+}
+
+kraken_stream_level KRMesh::getStreamLevel()
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     getSubmeshes();
     getMaterials();
     
     for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel(prime, lodCoverage));
+        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel());
     }
     
     return stream_level;
 }
 
 void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
-    
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {

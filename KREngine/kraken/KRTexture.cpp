@@ -21,7 +21,6 @@ KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context,
     m_textureMemUsed = 0;
     m_newTextureMemUsed = 0;
     m_last_frame_used = 0;
-    m_last_frame_bound = 0;
     m_last_frame_max_lod_coverage = 0.0f;
     m_last_frame_usage = TEXTURE_USAGE_NONE;
     m_handle_lock.clear();
@@ -114,12 +113,8 @@ void KRTexture::resetPoolExpiry(float lodCoverage, KRTexture::texture_usage_t te
     m_last_frame_usage = static_cast<texture_usage_t>(static_cast<int>(m_last_frame_usage) | static_cast<int>(textureUsage));
 }
 
-kraken_stream_level KRTexture::getStreamLevel(bool prime, float lodCoverage, KRTexture::texture_usage_t textureUsage)
+kraken_stream_level KRTexture::getStreamLevel(KRTexture::texture_usage_t textureUsage)
 {
-    if(prime) {
-        resetPoolExpiry(lodCoverage, textureUsage);
-    }
-    
     if(m_current_lod_max_dim == 0) {
         return kraken_stream_level::STREAM_LEVEL_OUT;
     } else if(m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, m_max_lod_max_dim)) {
@@ -198,11 +193,7 @@ bool KRTexture::hasMipmaps() {
 }
 
 void KRTexture::bind(GLuint texture_unit) {
-    m_last_frame_bound = getContext().getCurrentFrame();
-}
-
-bool KRTexture::canStreamOut() const {
-    return (m_last_frame_bound + 2 > getContext().getCurrentFrame());
+    
 }
 
 void KRTexture::_swapHandles()

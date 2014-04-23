@@ -115,11 +115,14 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     scene.updateOctree(m_viewport);
     
+    // ----====---- Pre-stream resources ----====----
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
+    
     // ----====---- Generate Shadowmaps for Lights ----====----
     if(settings.m_cShadowBuffers > 0) {
         GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
         
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, settings.bEnableDeferredLighting);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         GL_POP_GROUP_MARKER;
     }
@@ -158,7 +161,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, true);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
         
         
         GL_POP_GROUP_MARKER;
@@ -280,7 +283,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, true);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
         
         GL_POP_GROUP_MARKER;
     }

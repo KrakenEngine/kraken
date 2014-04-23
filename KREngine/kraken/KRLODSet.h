@@ -24,16 +24,9 @@ public:
     
     virtual void updateLODVisibility(const KRViewport &viewport);
     
-    KRLODGroup *getActiveLODGroup() const;
+    virtual void setLODVisibility(LodVisibility lod_visibility);
     
-    virtual void showLOD();
-    virtual void hideLOD();
-    virtual void childDeleted(KRNode *child_node);
-    
-    virtual kraken_stream_level getStreamLevel(bool prime, const KRViewport &viewport);
-    
-private:
-    KRLODGroup *m_activeLODGroup;
+    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
 };
 
 

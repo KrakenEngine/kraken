@@ -102,15 +102,17 @@ void KRLODGroup::setReference(const KRAABB &reference)
     m_reference = reference;
 }
 
-bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
+KRNode::LodVisibility KRLODGroup::calcLODVisibility(const KRViewport &viewport)
 {
     if(m_min_distance == 0 && m_max_distance == 0) {
-        return true;
+        return LOD_VISIBILITY_VISIBLE;
     } else {
         float lod_bias = viewport.getLODBias();
         lod_bias = pow(2.0f, -lod_bias);
         
-        float sqr_distance; // Compare using squared distances as sqrt is expensive
+        // Compare using squared distances as sqrt is expensive
+        float sqr_distance;
+        float sqr_prestream_distance;
         
         KRVector3 world_camera_position = viewport.getCameraPosition();
         KRVector3 local_camera_position = worldToLocal(world_camera_position);
@@ -119,13 +121,24 @@ bool KRLODGroup::getLODVisibility(const KRViewport &viewport)
         if(m_use_world_units) {
             KRVector3 world_reference_point = localToWorld(local_reference_point);
             sqr_distance = (world_camera_position - world_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
+            sqr_prestream_distance = getContext().KRENGINE_PRESTREAM_DISTANCE * getContext().KRENGINE_PRESTREAM_DISTANCE;
         } else {
             sqr_distance = (local_camera_position - local_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
+            
+            KRVector3 world_reference_point = localToWorld(local_reference_point);
+            sqr_prestream_distance = worldToLocal(KRVector3::Normalize(world_reference_point - world_camera_position) * getContext().KRENGINE_PRESTREAM_DISTANCE).sqrMagnitude(); // TODO, FINDME - Optimize with precalc?
+            
         }
         
-        float sqr_min_distance = m_min_distance * m_min_distance;
-        float sqr_max_distance = m_max_distance * m_max_distance;
-        return ((sqr_distance >= sqr_min_distance || m_min_distance == 0) && (sqr_distance < sqr_max_distance || m_max_distance == 0));
+        float sqr_min_visible_distance = m_min_distance * m_min_distance;
+        float sqr_max_visible_distance = m_max_distance * m_max_distance;
+        if((sqr_distance >= sqr_min_visible_distance || m_min_distance == 0) && (sqr_distance < sqr_max_visible_distance || m_max_distance == 0)) {
+            return LOD_VISIBILITY_VISIBLE;
+        } else if((sqr_distance >= sqr_min_visible_distance - sqr_prestream_distance || m_min_distance == 0) && (sqr_distance < sqr_max_visible_distance + sqr_prestream_distance || m_max_distance == 0)) {
+            return LOD_VISIBILITY_PRESTREAM;
+        } else {
+            return LOD_VISIBILITY_HIDDEN;
+        }
     }
 }
 

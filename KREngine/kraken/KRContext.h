@@ -32,6 +32,7 @@ public:
     static int KRENGINE_MAX_TEXTURE_DIM;
     static int KRENGINE_MIN_TEXTURE_DIM;
     static int KRENGINE_MAX_TEXTURE_THROUGHPUT;
+    static int KRENGINE_PRESTREAM_DISTANCE;
     
     
     KRContext();

@@ -217,34 +217,64 @@ bool KRMaterial::isTransparent() {
     return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-kraken_stream_level KRMaterial::getStreamLevel(bool prime, float lodCoverage)
+void KRMaterial::preStream(float lodCoverage)
+{
+    getTextures();
+    
+    if(m_pAmbientMap) {
+        m_pAmbientMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
+    }
+    
+    if(m_pDiffuseMap) {
+        m_pDiffuseMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
+    }
+    
+    if(m_pNormalMap) {
+        m_pNormalMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
+    }
+    
+    if(m_pSpecularMap) {
+        m_pSpecularMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
+    }
+    
+    if(m_pReflectionMap) {
+        m_pReflectionMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
+    }
+    
+    if(m_pReflectionCube) {
+        m_pReflectionCube->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
+    }
+}
+
+
+kraken_stream_level KRMaterial::getStreamLevel()
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
     
     getTextures();
     
     if(m_pAmbientMap) {
-        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_AMBIENT_MAP));
+        stream_level = KRMIN(stream_level, m_pAmbientMap->getStreamLevel(KRTexture::TEXTURE_USAGE_AMBIENT_MAP));
     }
 
     if(m_pDiffuseMap) {
-        stream_level = KRMIN(stream_level, m_pDiffuseMap->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP));
+        stream_level = KRMIN(stream_level, m_pDiffuseMap->getStreamLevel(KRTexture::TEXTURE_USAGE_DIFFUSE_MAP));
     }
 
     if(m_pNormalMap) {
-        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP));
+        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(KRTexture::TEXTURE_USAGE_NORMAL_MAP));
     }
 
     if(m_pSpecularMap) {
-        stream_level = KRMIN(stream_level, m_pSpecularMap->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP));
+        stream_level = KRMIN(stream_level, m_pSpecularMap->getStreamLevel(KRTexture::TEXTURE_USAGE_SPECULAR_MAP));
     }
 
     if(m_pReflectionMap) {
-        stream_level = KRMIN(stream_level, m_pReflectionMap->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP));
+        stream_level = KRMIN(stream_level, m_pReflectionMap->getStreamLevel(KRTexture::TEXTURE_USAGE_REFLECTION_MAP));
     }
 
     if(m_pReflectionCube) {
-        stream_level = KRMIN(stream_level, m_pReflectionCube->getStreamLevel(prime, lodCoverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE));
+        stream_level = KRMIN(stream_level, m_pReflectionCube->getStreamLevel(KRTexture::TEXTURE_USAGE_REFECTION_CUBE));
     }
     
     return stream_level;

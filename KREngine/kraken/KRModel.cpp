@@ -149,10 +149,15 @@ void KRModel::loadModel() {
 
 void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
+    if(m_lod_visible == LOD_VISIBILITY_PRESTREAM && renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+        preStream(viewport);
+    }
+    
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
+    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && renderPass != KRNode::RENDER_PASS_PRESTREAM) {
         loadModel();
         
         if(m_models.size() > 0) {
@@ -205,19 +210,33 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
     }
 }
 
-
-kraken_stream_level KRModel::getStreamLevel(bool prime, const KRViewport &viewport)
+void KRModel::preStream(const KRViewport &viewport)
 {
-    kraken_stream_level stream_level = KRNode::getStreamLevel(prime, viewport);
-    
     loadModel();
-    float lod_coverage = 0.0f;
-    if(prime) {
-         lod_coverage = viewport.coverage(getBounds()); // This is only used when prime is true
-    }
+    float lod_coverage = viewport.coverage(getBounds());
     
     for(auto itr = m_models.begin(); itr != m_models.end(); itr++) {
-        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(prime, lod_coverage));
+        (*itr)->preStream(lod_coverage);
+    }
+    
+    if(m_pLightMap == NULL && m_lightMap.size()) {
+        m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
+    }
+    
+    if(m_pLightMap) {
+        m_pLightMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+    }
+}
+
+
+kraken_stream_level KRModel::getStreamLevel(const KRViewport &viewport)
+{
+    kraken_stream_level stream_level = KRNode::getStreamLevel(viewport);
+    
+    loadModel();
+    
+    for(auto itr = m_models.begin(); itr != m_models.end(); itr++) {
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel());
     }
     
     return stream_level;

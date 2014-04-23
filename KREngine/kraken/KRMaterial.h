@@ -88,7 +88,8 @@ public:
     
     bool needsVertexTangents();
     
-    kraken_stream_level getStreamLevel(bool prime, float lodCoverage);
+    kraken_stream_level getStreamLevel();
+    void preStream(float lodCoverage);
     
 private:
     std::string m_name;

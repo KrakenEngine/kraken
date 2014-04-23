@@ -176,6 +176,8 @@ float KRLight::getDecayStart() {
 
 void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+    
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->settings.volumetric_environment_enable || pCamera->settings.dust_particle_enable || (pCamera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {

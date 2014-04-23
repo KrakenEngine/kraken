@@ -12,7 +12,7 @@
 
 KRLODSet::KRLODSet(KRScene &scene, std::string name) : KRNode(scene, name)
 {
-    m_activeLODGroup = NULL;
+
 }
 
 KRLODSet::~KRLODSet()
@@ -38,37 +38,38 @@ void KRLODSet::loadXML(tinyxml2::XMLElement *e)
 
 void KRLODSet::updateLODVisibility(const KRViewport &viewport)
 {
-    if(m_lod_visible) {
+    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
         KRLODGroup *new_active_lod_group = NULL;
         
         // Upgrade and downgrade LOD groups as needed
         for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
             KRLODGroup *lod_group = dynamic_cast<KRLODGroup *>(*itr);
             assert(lod_group != NULL);
-            if(lod_group->getLODVisibility(viewport)) {
+            LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
+            if(group_lod_visibility == LOD_VISIBILITY_VISIBLE) {
                 new_active_lod_group = lod_group;
             }
+            lod_group->setLODVisibility(group_lod_visibility);
         }
         
+        /*
+        // FINDME, TODO, HACK - Disabled streamer delayed LOD load due to performance issues:
+        bool streamer_ready = false;
         if(new_active_lod_group == NULL) {
-            m_activeLODGroup = NULL;
-        } else if(m_activeLODGroup == NULL) {
-            m_activeLODGroup = new_active_lod_group;
-        } else if(new_active_lod_group != m_activeLODGroup) {
-            if(true || new_active_lod_group->getStreamLevel(true, viewport) >= kraken_stream_level::STREAM_LEVEL_IN_LQ) { // FINDME, HACK!  Disabled due to performance issues.
-                // fprintf(stderr, "LOD %s -> %s\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
-                m_activeLODGroup = new_active_lod_group;
-            } else {
-                // fprintf(stderr, "LOD %s -> %s - waiting for streaming...\n", m_activeLODGroup->getName().c_str(), new_active_lod_group->getName().c_str());
-            }
+            streamer_ready = true;
+        } else if(new_active_lod_group->getStreamLevel(viewport) >= kraken_stream_level::STREAM_LEVEL_IN_LQ) {
+            streamer_ready = true;
         }
-
-        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-            KRNode *child = *itr;
-            if(child == m_activeLODGroup) {
-                child->showLOD();
-            } else {
-                child->hideLOD();
+        */
+        bool streamer_ready = true;
+        
+        if(streamer_ready) {
+            // Upgrade and downgrade LOD groups as needed
+            for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+                KRLODGroup *lod_group = dynamic_cast<KRLODGroup *>(*itr);
+                assert(lod_group != NULL);
+                LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
+                lod_group->setLODVisibility(group_lod_visibility);
             }
         }
         
@@ -76,35 +77,20 @@ void KRLODSet::updateLODVisibility(const KRViewport &viewport)
     }
 }
 
-KRLODGroup *KRLODSet::getActiveLODGroup() const
+void KRLODSet::setLODVisibility(KRNode::LodVisibility lod_visibility)
 {
-    return m_activeLODGroup;
-}
-
-void KRLODSet::childDeleted(KRNode *child_node)
-{
-    KRNode::childDeleted(child_node);
-    if(m_activeLODGroup == child_node) {
-        m_activeLODGroup = NULL;
+    if(lod_visibility == LOD_VISIBILITY_HIDDEN) {
+        KRNode::setLODVisibility(lod_visibility);
+    } else if(m_lod_visible != lod_visibility) {
+        // Don't automatically recurse into our children, as only one of those will be activated, by updateLODVisibility
+        if(m_lod_visible == LOD_VISIBILITY_HIDDEN && lod_visibility >= LOD_VISIBILITY_PRESTREAM) {
+            getScene().notify_sceneGraphCreate(this);
+        }
+        m_lod_visible = lod_visibility;
     }
 }
 
-void KRLODSet::hideLOD()
-{
-    KRNode::hideLOD();
-    m_activeLODGroup = NULL; // Ensure that the streamer will wait for the group to load in next time
-}
-
-void KRLODSet::showLOD()
-{
-    // Don't automatically recurse into our children, as only one of those will be activated, by updateLODVisibility
-    if(!m_lod_visible) {
-        getScene().notify_sceneGraphCreate(this);
-        m_lod_visible = true;
-    }
-}
-
-kraken_stream_level KRLODSet::getStreamLevel(bool prime, const KRViewport &viewport)
+kraken_stream_level KRLODSet::getStreamLevel(const KRViewport &viewport)
 {
     KRLODGroup *new_active_lod_group = NULL;
 
@@ -112,13 +98,13 @@ kraken_stream_level KRLODSet::getStreamLevel(bool prime, const KRViewport &viewp
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRLODGroup *lod_group = dynamic_cast<KRLODGroup *>(*itr);
         assert(lod_group != NULL);
-        if(lod_group->getLODVisibility(viewport)) {
+        if(lod_group->calcLODVisibility(viewport) == LOD_VISIBILITY_VISIBLE) {
             new_active_lod_group = lod_group;
         }
     }
     
     if(new_active_lod_group) {
-        return new_active_lod_group->getStreamLevel(prime, viewport);
+        return new_active_lod_group->getStreamLevel(viewport);
     } else {
         return kraken_stream_level::STREAM_LEVEL_IN_HQ;
     }

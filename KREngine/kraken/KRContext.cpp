@@ -20,6 +20,7 @@ int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 int KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT;
+int KRContext::KRENGINE_PRESTREAM_DISTANCE;
 
 const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
     "GL_EXT_texture_storage"

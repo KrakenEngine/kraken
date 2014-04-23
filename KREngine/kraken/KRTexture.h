@@ -85,8 +85,7 @@ public:
     int getMinMipMap();
     bool hasMipmaps();
 
-    bool canStreamOut() const;
-    kraken_stream_level getStreamLevel(bool prime, float lodCoverage, KRTexture::texture_usage_t textureUsage);
+    kraken_stream_level getStreamLevel(KRTexture::texture_usage_t textureUsage);
     float getLastFrameLodCoverage() const;
     
     void _swapHandles();
@@ -107,7 +106,6 @@ protected:
     uint32_t m_min_lod_max_dim;
     
     long m_last_frame_used;
-    long m_last_frame_bound;
     float m_last_frame_max_lod_coverage;
     texture_usage_t m_last_frame_usage;
     

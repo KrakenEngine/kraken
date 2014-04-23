@@ -30,7 +30,7 @@ public:
     void setUseWorldUnits(bool use_world_units);
     bool getUseWorldUnits() const;
     
-    bool getLODVisibility(const KRViewport &viewport);
+    LodVisibility calcLODVisibility(const KRViewport &viewport);
     
 private:
     float m_min_distance;

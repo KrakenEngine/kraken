@@ -187,6 +187,7 @@ void KRCollider::setAudioOcclusion(float audio_occlusion)
 
 void KRCollider::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
