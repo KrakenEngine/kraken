@@ -64,6 +64,7 @@ const char *KRShader::KRENGINE_UNIFORM_NAMES[] = {
     "projection_matrix", //    KRENGINE_UNIFORM_PROJECTION_MATRIX
     "camera_position_model_space", //    KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE
     "viewport", //    KRENGINE_UNIFORM_VIEWPORT
+    "viewport_downsample", //     KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE
     "diffuseTexture", //    KRENGINE_UNIFORM_DIFFUSETEXTURE
     "specularTexture", //    KRENGINE_UNIFORM_SPECULARTEXTURE
     "reflectionCubeTexture", //    KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE
@@ -502,12 +503,16 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     
     if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT, KRVector4(
-            (GLfloat)0.0,
-            (GLfloat)0.0,
-            (GLfloat)viewport.getSize().x,
-            (GLfloat)viewport.getSize().y
+                (GLfloat)0.0,
+                (GLfloat)0.0,
+                (GLfloat)viewport.getSize().x,
+                (GLfloat)viewport.getSize().y
             )
         );
+    }
+    
+    if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE] != -1) {
+        setUniform(KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
     }
     
     // Rim highlighting parameters
