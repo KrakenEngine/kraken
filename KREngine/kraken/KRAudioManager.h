@@ -160,6 +160,9 @@ public:
     float getReverbMaxLength();
     void setReverbMaxLength(float max_length);
     
+    void _registerOpenAudioSample(KRAudioSample *audioSample);
+    void _registerCloseAudioSample(KRAudioSample *audioSample);
+    
 private:
     bool m_enable_audio;
     bool m_enable_hrtf;
@@ -183,6 +186,8 @@ private:
     std::vector<KRAudioBuffer *> m_bufferCache;
     
     std::set<KRAudioSource *> m_activeAudioSources;
+    
+    std::set<KRAudioSample *> m_openAudioSamples;
     
     void initAudio();
     void initOpenAL();

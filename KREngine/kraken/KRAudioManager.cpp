@@ -414,6 +414,13 @@ void KRAudioManager::renderBlock()
     // ----====---- Advance audio sources ----====----
     m_audio_frame += KRENGINE_AUDIO_BLOCK_LENGTH;
     
+    std::set<KRAudioSample *> open_samples = m_openAudioSamples;
+    
+    for(auto itr=open_samples.begin(); itr != open_samples.end(); itr++) {
+        KRAudioSample *sample = *itr;
+        sample->_endFrame();
+    }
+    
     m_anticlick_block = false;
     m_mutex.unlock();
 }
@@ -1427,6 +1434,16 @@ void KRAudioManager::activateAudioSource(KRAudioSource *audioSource)
 void KRAudioManager::deactivateAudioSource(KRAudioSource *audioSource)
 {
     m_activeAudioSources.erase(audioSource);
+}
+
+void KRAudioManager::_registerOpenAudioSample(KRAudioSample *audioSample)
+{
+    m_openAudioSamples.insert(audioSample);
+}
+
+void KRAudioManager::_registerCloseAudioSample(KRAudioSample *audioSample)
+{
+    m_openAudioSamples.erase(audioSample);
 }
 
 __int64_t KRAudioManager::getAudioFrame()
