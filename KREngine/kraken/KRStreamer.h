@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTURESTREAMER_H
-#define KRTEXTURESTREAMER_H
+#ifndef KRSTREAMER_H
+#define KRSTREAMER_H
 
 #include "KREngine-common.h"
 
@@ -39,11 +39,11 @@
 
 class KRContext;
 
-class KRTextureStreamer
+class KRStreamer
 {
 public:
-    KRTextureStreamer(KRContext &context);
-    ~KRTextureStreamer();
+    KRStreamer(KRContext &context);
+    ~KRStreamer();
     
     void startStreamer();
     
@@ -57,4 +57,4 @@ private:
     void run();
 };
 
-#endif /* defined(KRTEXTURESTREAMER_H) */
+#endif /* defined(KRSTREAMER_H) */

@@ -1,5 +1,5 @@
 //
-//  KRTextureStreamer.cpp
+//  KRStreamer.cpp
 //  Kraken
 //
 //  Created by Kearwood Gilbert on 11/1/2013.
@@ -8,7 +8,7 @@
 
 #include "KREngine-common.h"
 
-#include "KRTextureStreamer.h"
+#include "KRStreamer.h"
 #include "KRContext.h"
 
 #include <chrono>
@@ -27,13 +27,13 @@ NSOpenGLContext *gTextureStreamerContext = nil;
 #error Unsupported Platform
 #endif
 
-KRTextureStreamer::KRTextureStreamer(KRContext &context) : m_context(context)
+KRStreamer::KRStreamer(KRContext &context) : m_context(context)
 {
     m_running = false;
     m_stop = false;
 }
 
-void KRTextureStreamer::startStreamer()
+void KRStreamer::startStreamer()
 {
     if(!m_running) {
         m_running = true;
@@ -61,11 +61,11 @@ void KRTextureStreamer::startStreamer()
     #error Unsupported Platform
 #endif
         
-        m_thread = std::thread(&KRTextureStreamer::run, this);
+        m_thread = std::thread(&KRStreamer::run, this);
     }
 }
 
-KRTextureStreamer::~KRTextureStreamer()
+KRStreamer::~KRStreamer()
 {
     if(m_running) {
         m_stop = true;
@@ -76,10 +76,10 @@ KRTextureStreamer::~KRTextureStreamer()
     [gTextureStreamerContext release];
 }
 
-void KRTextureStreamer::run()
+void KRStreamer::run()
 {
-    pthread_setname_np("Kraken - Texture Streamer");
-    
+    pthread_setname_np("Kraken - Streamer");
+
     std::chrono::microseconds sleep_duration( 100 );
     
 #if TARGET_OS_IPHONE
@@ -92,9 +92,7 @@ void KRTextureStreamer::run()
 
     while(!m_stop)
     {
-        if(m_context.getStreamingEnabled()) {
-            m_context.getTextureManager()->doStreaming();
-        }
+        m_context.doStreaming();
         std::this_thread::sleep_for( sleep_duration );
     }
 }
