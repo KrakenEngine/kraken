@@ -77,7 +77,7 @@ void KRCollider::loadXML(tinyxml2::XMLElement *e) {
 
 void KRCollider::loadModel() {
     if(m_models.size() == 0) {
-        m_models = m_pContext->getModelManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
+        m_models = m_pContext->getMeshManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
         if(m_models.size() > 0) {
             getScene().notify_sceneGraphModify(this);
         }

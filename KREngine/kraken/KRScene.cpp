@@ -281,7 +281,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+                    getContext().getMeshManager()->bindVBO(getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -301,7 +301,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     
                     if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
-                        m_pContext->getModelManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
+                        m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
                     
                     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||

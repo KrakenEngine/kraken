@@ -40,7 +40,7 @@
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
 
-KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
+KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
     m_textureMemUsed = 0;
 
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
@@ -246,7 +246,6 @@ long KRTextureManager::getMemActive() {
 
 void KRTextureManager::startFrame(float deltaTime)
 {
-    m_streamer.startStreamer();
     _clearGLState();
     
     // TODO - Implement proper double-buffering to reduce copy operations
@@ -295,15 +294,16 @@ void KRTextureManager::endFrame(float deltaTime)
     }
 }
 
-void KRTextureManager::doStreaming()
+void KRTextureManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
 {
+    
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
     m_activeTextures_streamer = std::move(m_activeTextures_streamer_copy);
     m_streamerFenceMutex.unlock();
     
     if(m_activeTextures_streamer.size() > 0) {
-        balanceTextureMemory();
+        balanceTextureMemory(memoryRemaining, memoryRemainingThisFrame);
         
         m_streamerFenceMutex.lock();
         m_streamerComplete = true;
@@ -311,7 +311,7 @@ void KRTextureManager::doStreaming()
     }
 }
 
-void KRTextureManager::balanceTextureMemory()
+void KRTextureManager::balanceTextureMemory(long &memoryRemaining, long &memoryRemainingThisFrame)
 {
     // Balance texture memory by reducing and increasing the maximum mip-map level of both active and inactive textures
     // Favour performance over maximum texture resolution when memory is insufficient for textures at full resolution.
@@ -335,9 +335,6 @@ void KRTextureManager::balanceTextureMemory()
     //long startTime = getContext().getAbsoluteTimeMilliseconds();
     
     std::sort(m_activeTextures_streamer.begin(), m_activeTextures_streamer.end(), std::greater<std::pair<float, KRTexture *>>());
-    
-    long memoryRemaining = getContext().KRENGINE_TARGET_TEXTURE_MEM_MAX;
-    long memoryRemainingThisFrame = getContext().KRENGINE_MAX_TEXTURE_MEM - getMemUsed();
     
     for(auto itr=m_activeTextures_streamer.begin(); itr != m_activeTextures_streamer.end(); itr++) {
         KRTexture *texture = (*itr).second;

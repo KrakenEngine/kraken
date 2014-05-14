@@ -20,6 +20,7 @@
 #include "KRAnimationCurveManager.h"
 #include "KRAudioManager.h"
 #include "KRUnknownManager.h"
+#include "KRStreamer.h"
 
 class KRContext {
 public:
@@ -31,7 +32,6 @@ public:
     static int KRENGINE_TARGET_TEXTURE_MEM_MAX;
     static int KRENGINE_MAX_TEXTURE_DIM;
     static int KRENGINE_MIN_TEXTURE_DIM;
-    static int KRENGINE_MAX_TEXTURE_THROUGHPUT;
     static int KRENGINE_PRESTREAM_DISTANCE;
     
     
@@ -46,7 +46,7 @@ public:
     KRTextureManager *getTextureManager();
     KRMaterialManager *getMaterialManager();
     KRShaderManager *getShaderManager();
-    KRMeshManager *getModelManager();
+    KRMeshManager *getMeshManager();
     KRAnimationManager *getAnimationManager();
     KRAnimationCurveManager *getAnimationCurveManager();
     KRAudioManager *getAudioManager();
@@ -89,13 +89,15 @@ public:
     static void SetLogCallback(log_callback *log_callback, void *user_data);
     static void Log(log_level level, const std::string &message_format, ...);
     
+    void doStreaming();
+    
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
     KRShaderManager *m_pShaderManager;
-    KRMeshManager *m_pModelManager;
+    KRMeshManager *m_pMeshManager;
     KRAnimationManager *m_pAnimationManager;
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;
@@ -114,6 +116,8 @@ private:
     
     static log_callback *s_log_callback;
     static void *s_log_callback_user_data;
+    
+    KRStreamer m_streamer;
 };
 
 #endif

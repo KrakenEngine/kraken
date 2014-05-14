@@ -19,7 +19,6 @@ int KRContext::KRENGINE_MAX_TEXTURE_MEM;
 int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
-int KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT;
 int KRContext::KRENGINE_PRESTREAM_DISTANCE;
 
 const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
@@ -29,7 +28,8 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 
-KRContext::KRContext() {
+KRContext::KRContext() : m_streamer(*this)
+{
     m_streamingEnabled = false;
     mach_timebase_info(&m_timebase_info);
     
@@ -41,7 +41,7 @@ KRContext::KRContext() {
     m_pShaderManager = new KRShaderManager(*this);
     m_pTextureManager = new KRTextureManager(*this);
     m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
-    m_pModelManager = new KRMeshManager(*this);
+    m_pMeshManager = new KRMeshManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
@@ -59,9 +59,9 @@ KRContext::~KRContext() {
         m_pSceneManager = NULL;
     }
     
-    if(m_pModelManager) {
-        delete m_pModelManager;
-        m_pModelManager = NULL;
+    if(m_pMeshManager) {
+        delete m_pMeshManager;
+        m_pMeshManager = NULL;
     }
     
     if(m_pTextureManager) {
@@ -147,8 +147,8 @@ KRMaterialManager *KRContext::getMaterialManager() {
 KRShaderManager *KRContext::getShaderManager() {
     return m_pShaderManager;
 }
-KRMeshManager *KRContext::getModelManager() {
-    return m_pModelManager;
+KRMeshManager *KRContext::getMeshManager() {
+    return m_pMeshManager;
 }
 KRAnimationManager *KRContext::getAnimationManager() {
     return m_pAnimationManager;
@@ -177,7 +177,7 @@ std::vector<KRResource *> KRContext::getResources()
     for(unordered_map<std::string, KRMaterial *>::iterator itr = m_pMaterialManager->getMaterials().begin(); itr != m_pMaterialManager->getMaterials().end(); itr++) {
         resources.push_back((*itr).second);
     }
-    for(unordered_multimap<std::string, KRMesh *>::iterator itr = m_pModelManager->getModels().begin(); itr != m_pModelManager->getModels().end(); itr++) {
+    for(unordered_multimap<std::string, KRMesh *>::iterator itr = m_pMeshManager->getModels().begin(); itr != m_pMeshManager->getModels().end(); itr++) {
         resources.push_back((*itr).second);
     }
     for(unordered_map<std::string, KRAnimation *>::iterator itr = m_pAnimationManager->getAnimations().begin(); itr != m_pAnimationManager->getAnimations().end(); itr++) {
@@ -211,7 +211,7 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     if(extension.compare("krbundle") == 0) {
         m_pBundleManager->loadBundle(name.c_str(), data);
     } else if(extension.compare("krmesh") == 0) {
-        m_pModelManager->loadModel(name.c_str(), data);
+        m_pMeshManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
         m_pSceneManager->loadScene(name.c_str(), data);
     } else if(extension.compare("kranimation") == 0) {
@@ -263,7 +263,7 @@ void KRContext::rotateBuffers(bool new_frame) {
     //fprintf(stderr, "Rotating Buffers...\n");
     if(!new_frame) GLDEBUG(glFinish());
 
-    m_pModelManager->rotateBuffers(new_frame);
+    m_pMeshManager->rotateBuffers(new_frame);
 }
 
 void KRContext::detectExtensions() {
@@ -273,17 +273,18 @@ void KRContext::detectExtensions() {
 
 void KRContext::startFrame(float deltaTime)
 {
+    m_streamer.startStreamer();
     m_pTextureManager->startFrame(deltaTime);
     m_pAnimationManager->startFrame(deltaTime);
     m_pSoundManager->startFrame(deltaTime);
-    m_pModelManager->startFrame(deltaTime);
+    m_pMeshManager->startFrame(deltaTime);
 }
 
 void KRContext::endFrame(float deltaTime)
 {
     m_pTextureManager->endFrame(deltaTime);
     m_pAnimationManager->endFrame(deltaTime);
-    m_pModelManager->endFrame(deltaTime);
+    m_pMeshManager->endFrame(deltaTime);
     rotateBuffers(true);
     m_current_frame++;
     m_absolute_time += deltaTime;
@@ -336,4 +337,14 @@ void KRContext::getMemoryStats(long &free_memory)
 #else
 #error Unsupported Platform
 #endif
+}
+
+void KRContext::doStreaming()
+{
+    if(m_streamingEnabled) {
+        long memoryRemaining = KRENGINE_TARGET_TEXTURE_MEM_MAX;
+        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM - m_pTextureManager->getMemUsed();
+        m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+        m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+    }
 }

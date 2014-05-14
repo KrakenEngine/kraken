@@ -39,7 +39,7 @@
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
-#include "KRTextureStreamer.h"
+#include "KRStreamer.h"
 
 class KRTextureManager : public KRContextObject {
 public:
@@ -77,7 +77,7 @@ public:
     void _clearGLState();
     void setMaxAnisotropy(float max_anisotropy);
     
-    void doStreaming();
+    void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
     void primeTexture(KRTexture *texture);
     
 private:
@@ -102,9 +102,7 @@ private:
     std::atomic<long> m_textureMemUsed;
     
     void rotateBuffers();
-    void balanceTextureMemory();
-    
-    KRTextureStreamer m_streamer;
+    void balanceTextureMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
     
     std::mutex m_streamerFenceMutex;
 };

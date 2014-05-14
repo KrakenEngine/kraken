@@ -1544,7 +1544,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
     new_mesh->LoadData(mi, true, need_tangents);
     
-    context.getModelManager()->addModel(new_mesh);
+    context.getMeshManager()->addModel(new_mesh);
 }
 
 KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode) {

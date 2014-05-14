@@ -37,8 +37,6 @@
 #include "KRDataBlock.h"
 #include "KRNode.h"
 
-#include "KRMeshStreamer.h"
-
 class KRContext;
 class KRMesh;
 
@@ -116,6 +114,9 @@ public:
     KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
     __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
     
+    
+    void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
+    
 private:
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
@@ -141,8 +142,6 @@ private:
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
-    
-    KRMeshStreamer m_streamer;
 
 };
 

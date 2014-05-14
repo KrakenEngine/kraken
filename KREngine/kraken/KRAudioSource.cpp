@@ -226,7 +226,7 @@ void KRAudioSource::render(KRCamera *pCamera, std::vector<KRPointLight *> &point
             GLDEBUG(glEnable(GL_DEPTH_TEST));
             GLDEBUG(glDepthFunc(GL_LEQUAL));
             GLDEBUG(glDepthRangef(0.0, 1.0));
-            std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
+            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
                     sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay");

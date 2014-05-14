@@ -342,15 +342,15 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             }
             vbo_index++;
             
-            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, vertex_attrib_flags, true);
-            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
+            //m_pContext->getMeshManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, vertex_attrib_flags, true);
+            m_pContext->getMeshManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
             
             
             int vertex_draw_count = cVertexes;
             if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
             
             glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
-            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
+            m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
             cVertexes -= vertex_draw_count;
             index_group_offset = 0;
         }
@@ -375,8 +375,8 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             }
             vbo_index++;
             
-            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, vertex_attrib_flags, true);
-            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
+            //m_pContext->getMeshManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, vertex_attrib_flags, true);
+            m_pContext->getMeshManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
             
             
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -397,7 +397,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
                     default:
                         break;
                 }
-                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
+                m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
                 
                 cVertexes -= (MAX_VBO_SIZE - iVertex);
                 iVertex = 0;
@@ -415,7 +415,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
                     default:
                         break;
                 }
-                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
+                m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
                 
                 cVertexes = 0;
             }

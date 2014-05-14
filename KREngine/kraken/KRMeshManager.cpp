@@ -38,7 +38,7 @@
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context), m_streamer(context) {
+KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO.vbo_handle = -1;
     m_currentVBO.vbo_handle_indexes = -1;
     m_currentVBO.vao_handle = -1;
@@ -525,4 +525,9 @@ std::vector<KRMeshManager::draw_call_info> KRMeshManager::getDrawCalls()
 {
     m_draw_call_log_used = true;
     return m_draw_calls;
+}
+
+void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
+{
+    
 }
