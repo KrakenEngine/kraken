@@ -65,7 +65,7 @@ public:
     long getMemUsed();
     long getMemActive();
     
-    void configureAttribs(__int32_t attributes);
+    static void configureAttribs(__int32_t attributes);
     
     typedef struct {
         GLfloat x;
@@ -120,19 +120,36 @@ public:
 private:
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
-    typedef struct vbo_info {
-        GLuint vbo_handle;
-        GLuint vbo_handle_indexes;
-        GLuint vao_handle;
-        GLsizeiptr size;
-        KRDataBlock *data;
-    } vbo_info_type;
+    class KRVBOData {
+        
+    public:
+        
+        KRVBOData();
+        ~KRVBOData();
+
+        GLsizeiptr m_size;
+        KRDataBlock *m_data;
+        
+        void load(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
+        void unload();
+        void bind();
+        
+        // Disable copy constructors
+        KRVBOData(const KRVBOData& o) = delete;
+        KRVBOData(KRVBOData& o) = delete;
+        
+    private:
+        int m_vertex_attrib_flags;
+        GLuint m_vbo_handle;
+        GLuint m_vbo_handle_indexes;
+        GLuint m_vao_handle;
+    };
     
     long m_vboMemUsed;
-    vbo_info_type m_currentVBO;
+    KRVBOData *m_currentVBO;
     
-    unordered_map<KRDataBlock *, vbo_info_type> m_vbosActive;
-    unordered_map<KRDataBlock *, vbo_info_type> m_vbosPool;
+    unordered_map<KRDataBlock *, KRVBOData *> m_vbosActive;
+    unordered_map<KRDataBlock *, KRVBOData *> m_vbosPool;
     
     KRDataBlock m_randomParticleVertexData;
     KRDataBlock m_volumetricLightingVertexData;
