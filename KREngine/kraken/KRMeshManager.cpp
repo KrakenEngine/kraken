@@ -76,6 +76,10 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, false);
+    
+    
+    
     static const GLfloat _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
@@ -87,6 +91,9 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
     memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
+    
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, false);
+    
 }
 
 KRMeshManager::~KRMeshManager() {
@@ -167,35 +174,37 @@ void KRMeshManager::releaseVBO(KRDataBlock &data)
     }
     
     if(vbo_to_release) {
-        m_vboMemUsed -= vbo_to_release->m_size;
+        m_vboMemUsed -= vbo_to_release->getSize();
         
         vbo_to_release->unload();
-        delete vbo_to_release;
+        if(vbo_to_release->isTemporary()) {
+            delete vbo_to_release;
+        }
     }
 }
 
-
-
-void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo)
+void KRMeshManager::bindVBO(KRVBOData *vbo_data)
 {
     bool vbo_changed = false;
     if(m_currentVBO == NULL) {
         vbo_changed = true;
-    } else if(m_currentVBO->m_data != &data) {
+    } else if(m_currentVBO->m_data != vbo_data->m_data) {
         vbo_changed = true;
     }
     
+    bool used_vbo_data = false;
+    
     if(vbo_changed) {
         
-        if(m_vbosActive.find(&data) != m_vbosActive.end()) {
-            m_currentVBO = m_vbosActive[&data];
+        if(m_vbosActive.find(vbo_data->m_data) != m_vbosActive.end()) {
+            m_currentVBO = m_vbosActive[vbo_data->m_data];
             
             m_currentVBO->bind();
             
-        } else if(m_vbosPool.find(&data) != m_vbosPool.end()) {
-            m_currentVBO = m_vbosPool[&data];
-            m_vbosPool.erase(&data);
-            m_vbosActive[&data] = m_currentVBO;
+        } else if(m_vbosPool.find(vbo_data->m_data) != m_vbosPool.end()) {
+            m_currentVBO = m_vbosPool[vbo_data->m_data];
+            m_vbosPool.erase(vbo_data->m_data);
+            m_vbosActive[vbo_data->m_data] = m_currentVBO;
             
             m_currentVBO->bind();
             
@@ -203,7 +212,7 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
         } else {
             
             
-            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + data.getSize() + index_data.getSize() >= KRContext::KRENGINE_MAX_VBO_MEM) {
+            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + vbo_data->getSize() >= KRContext::KRENGINE_MAX_VBO_MEM) {
                 if(m_vbosPool.empty()) {
                     KRContext::Log(KRContext::LOG_LEVEL_WARNING, "flushBuffers due to VBO exhaustion...");
                     m_pContext->rotateBuffers(false);
@@ -212,22 +221,34 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
                 KRVBOData *firstVBO = first_itr->second;
                 m_vbosPool.erase(first_itr);
                 
-                m_vboMemUsed -= firstVBO->m_size;
+                m_vboMemUsed -= firstVBO->getSize();
                 firstVBO->unload();
-                
-                delete firstVBO;
+                if(firstVBO->isTemporary()) {
+                    delete firstVBO;
+                }
                 // fprintf(stderr, "VBO Swapping...\n");
             }
             
-            m_currentVBO = new KRVBOData();
+            used_vbo_data = true;
+            m_currentVBO = vbo_data;
             
-            m_currentVBO->load(data, index_data, vertex_attrib_flags, static_vbo);
-            m_memoryTransferredThisFrame += m_currentVBO->m_size;
-            m_vboMemUsed += m_currentVBO->m_size;
+            m_currentVBO->load();
+            m_memoryTransferredThisFrame += m_currentVBO->getSize();
+            m_vboMemUsed += m_currentVBO->getSize();
             
-            m_vbosActive[&data] = m_currentVBO;
+            m_vbosActive[vbo_data->m_data] = m_currentVBO;
         }
     }
+    
+    if(!used_vbo_data && vbo_data->isTemporary()) {
+        delete vbo_data;
+    }
+}
+
+void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo)
+{
+    KRVBOData *vbo_data = new KRVBOData(data, index_data, vertex_attrib_flags, static_vbo, true);
+    bindVBO(vbo_data);
 }
 
 void KRMeshManager::configureAttribs(__int32_t attributes)
@@ -308,7 +329,7 @@ long KRMeshManager::getMemActive()
 {
     long mem_active = 0;
     for(unordered_map<KRDataBlock *, KRVBOData *>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
-        mem_active += (*itr).second->m_size;
+        mem_active += (*itr).second->getSize();
     }
     return mem_active;
 }
@@ -466,10 +487,38 @@ void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThis
 
 KRMeshManager::KRVBOData::KRVBOData()
 {
+    m_temp_vbo = false;
+    m_static_vbo = false;
+    m_data = NULL;
+    m_index_data = NULL;
+    m_vertex_attrib_flags = 0;
     m_vbo_handle = -1;
     m_vbo_handle_indexes = -1;
     m_vao_handle = -1;
-    m_data = NULL;
+    m_size = 0;
+}
+
+KRMeshManager::KRVBOData::KRVBOData(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+{
+    init(data,index_data,vertex_attrib_flags, static_vbo, temp_vbo);
+}
+
+void KRMeshManager::KRVBOData::init(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+{
+    m_temp_vbo = temp_vbo;
+    m_static_vbo = static_vbo;
+    m_data = &data;
+    m_index_data = &index_data;
+    m_vertex_attrib_flags = vertex_attrib_flags;
+    
+    m_vbo_handle = -1;
+    m_vbo_handle_indexes = -1;
+    m_vao_handle = -1;
+    
+    m_size = m_data->getSize();
+    if(m_index_data != NULL) {
+        m_size += m_index_data->getSize();
+    }
 }
 
 KRMeshManager::KRVBOData::~KRVBOData()
@@ -477,14 +526,76 @@ KRMeshManager::KRVBOData::~KRVBOData()
     
 }
 
+
+
+void KRMeshManager::KRVBOData::load()
+{
+    m_vao_handle = -1;
+    m_vbo_handle = -1;
+    m_vbo_handle_indexes = -1;
+    
+    GLDEBUG(glGenBuffers(1, &m_vbo_handle));
+    if(m_index_data->getSize() > 0) {
+        GLDEBUG(glGenBuffers(1, &m_vbo_handle_indexes));
+    }
+    
+    
+    
+#if GL_OES_vertex_array_object
+    GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
+    GLDEBUG(glBindVertexArrayOES(m_vao_handle));
+#endif
+    
+    GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
+#if GL_OES_mapbuffer
+    
+    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+    GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+    m_data->copy(map_ptr);
+    GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
+#else
+    m_data->lock();
+    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), m_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+    m_data->unlock();
+#endif
+    
+    configureAttribs(m_vertex_attrib_flags);
+    
+    if(m_index_data->getSize() == 0) {
+        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    } else {
+        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
+        
+#if GL_OES_mapbuffer
+        
+        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+        GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+        m_index_data->copy(map_ptr);
+        GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
+#else
+        m_index_data->lock();
+        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), m_index_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+        m_index_data->unlock();
+#endif
+    }
+}
+
 void KRMeshManager::KRVBOData::unload()
 {
 #if GL_OES_vertex_array_object
-    GLDEBUG(glDeleteVertexArraysOES(1, &m_vao_handle));
+    if(m_vao_handle != -1) {
+        GLDEBUG(glDeleteVertexArraysOES(1, &m_vao_handle));
+        m_vao_handle = -1;
+    }
 #endif
-    GLDEBUG(glDeleteBuffers(1, &m_vbo_handle));
+    if(m_vbo_handle != -1) {
+        GLDEBUG(glDeleteBuffers(1, &m_vbo_handle));
+        m_vbo_handle = -1;
+    }
+    
     if(m_vbo_handle_indexes != -1) {
         GLDEBUG(glDeleteBuffers(1, &m_vbo_handle_indexes));
+        m_vbo_handle_indexes = -1;
     }
 }
 
@@ -501,61 +612,4 @@ void KRMeshManager::KRVBOData::bind()
         GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
     }
 #endif
-}
-
-void KRMeshManager::KRVBOData::load(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo)
-{
-    m_vertex_attrib_flags = vertex_attrib_flags;
-    m_vao_handle = -1;
-    m_vbo_handle = -1;
-    m_vbo_handle_indexes = -1;
-    
-    GLDEBUG(glGenBuffers(1, &m_vbo_handle));
-    if(index_data.getSize() > 0) {
-        GLDEBUG(glGenBuffers(1, &m_vbo_handle_indexes));
-    }
-    
-    
-    
-#if GL_OES_vertex_array_object
-    GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
-    GLDEBUG(glBindVertexArrayOES(m_vao_handle));
-#endif
-    
-    GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
-#if GL_OES_mapbuffer
-    
-    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, data.getSize(), NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-    GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-    data.copy(map_ptr);
-    GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
-#else
-    data.lock();
-    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, data.getSize(), data.getStart(), static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-    data.unlock();
-#endif
-    
-    configureAttribs(vertex_attrib_flags);
-    
-    m_size = data.getSize();
-    m_data = &data;
-    
-    if(index_data.getSize() == 0) {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    } else {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
-        
-#if GL_OES_mapbuffer
-        
-        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.getSize(), NULL, static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-        index_data.copy(map_ptr);
-        GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
-#else
-        index_data.lock();
-        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.getSize(), index_data.getStart(), static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        index_data.unlock();
-#endif
-        m_size += index_data.getSize();
-    }
 }

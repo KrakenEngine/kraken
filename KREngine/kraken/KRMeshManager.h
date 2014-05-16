@@ -59,6 +59,42 @@ public:
     std::vector<std::string> getModelNames();
     unordered_multimap<std::string, KRMesh *> &getModels();
     
+    class KRVBOData {
+        
+    public:
+        
+        KRVBOData();
+        KRVBOData(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        void init(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        ~KRVBOData();
+        
+        
+        KRDataBlock *m_data;
+        KRDataBlock *m_index_data;
+        
+        
+        void load();
+        void unload();
+        void bind();
+        
+        // Disable copy constructors
+        KRVBOData(const KRVBOData& o) = delete;
+        KRVBOData(KRVBOData& o) = delete;
+        
+        bool isTemporary() { return m_temp_vbo; }
+        bool getSize() { return m_size; }
+        
+    private:
+        int m_vertex_attrib_flags;
+        GLuint m_vbo_handle;
+        GLuint m_vbo_handle_indexes;
+        GLuint m_vao_handle;
+        bool m_static_vbo;
+        bool m_temp_vbo;
+        GLsizeiptr m_size;
+    };
+    
+    void bindVBO(KRVBOData *vbo_data);
     void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
     void releaseVBO(KRDataBlock &data);
     void unbindVBO();
@@ -108,42 +144,19 @@ public:
     std::vector<draw_call_info> getDrawCalls();
     
     
-    KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
-    __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
-    
-    KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
-    __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
-    
+
+    KRVBOData KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
+    KRVBOData KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
     
     void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
     
 private:
-    unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
+    KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
+    __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
+    KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
+    __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
     
-    class KRVBOData {
-        
-    public:
-        
-        KRVBOData();
-        ~KRVBOData();
-
-        GLsizeiptr m_size;
-        KRDataBlock *m_data;
-        
-        void load(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
-        void unload();
-        void bind();
-        
-        // Disable copy constructors
-        KRVBOData(const KRVBOData& o) = delete;
-        KRVBOData(KRVBOData& o) = delete;
-        
-    private:
-        int m_vertex_attrib_flags;
-        GLuint m_vbo_handle;
-        GLuint m_vbo_handle_indexes;
-        GLuint m_vao_handle;
-    };
+    unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
     long m_vboMemUsed;
     KRVBOData *m_currentVBO;

@@ -342,7 +342,6 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             }
             vbo_index++;
             
-            //m_pContext->getMeshManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, vertex_attrib_flags, true);
             m_pContext->getMeshManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
             
             
@@ -375,7 +374,6 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             }
             vbo_index++;
             
-            //m_pContext->getMeshManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, vertex_attrib_flags, true);
             m_pContext->getMeshManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
             
             

@@ -321,7 +321,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
         // Render a full screen quad
-        m_pContext->getMeshManager()->bindVBO(getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -482,7 +482,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getMeshManager()->bindVBO(getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getMeshManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES);
         for(unordered_map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() * 0.5f);
@@ -716,7 +716,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getMeshManager()->bindVBO(getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+    m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -738,7 +738,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getMeshManager()->bindVBO(KRENGINE_VBO_2D_SQUARE_INDICES, KRENGINE_VBO_2D_SQUARE_VERTEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+//            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
 //            m_pContext->getTextureManager()->_setActiveTexture(0);
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
@@ -907,7 +907,6 @@ void KRCamera::renderPost()
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
         KRDataBlock index_data;
-        //m_pContext->getMeshManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
         m_pContext->getMeshManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));

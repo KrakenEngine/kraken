@@ -341,7 +341,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                             pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                             pShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-                            m_pContext->getMeshManager()->bindVBO(getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getMeshManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+                            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
                             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                         }
                     }

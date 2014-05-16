@@ -79,7 +79,6 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
             if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, 0.0f)) {
                 pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
-                //m_pContext->getMeshManager()->bindVBO((void *)m_pContext->getMeshManager()->getRandomParticles(), particle_count * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false);
                 KRDataBlock index_data;
                 m_pContext->getMeshManager()->bindVBO(m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false);
                 GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
@@ -87,31 +86,3 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
         }
     }
 }
-
-//
-
-//
-
-//
-//        KRMat4 particleModelMatrix = KRMat4();
-////                particleModelMatrix.scale(particleBlockScale);
-////
-////                KRVector3 particleBlockOrigin = KRVector3(m_viewport.getCameraPosition().x - fmod(m_viewport.getCameraPosition().x + x * particleBlockScale, particleBlockScale), m_viewport.getCameraPosition().y - fmod(m_viewport.getCameraPosition().y + y * particleBlockScale, particleBlockScale),m_viewport.getCameraPosition().z - fmod(m_viewport.getCameraPosition().z + z * particleBlockScale, particleBlockScale));
-////
-////                particleModelMatrix.translate(particleBlockOrigin);
-////                particleModelMatrix.translate(sin(m_particlesAbsoluteTime * 0.0523f) * 10.0f, sin(m_particlesAbsoluteTime * 0.0553f) * 10.0f, sin(m_particlesAbsoluteTime * 0.0521f) * 10.0f);
-//
-//                int particle_count = 10000;
-//
-//                if(getContext().getShaderManager()->selectShader(pParticleShader, m_viewport, particleModelMatrix, lightDirection, shadowmvpmatrix, shadowDepthTexture, m_cShadowBuffers, KRNode::RENDER_PASS_ADDITIVE_PARTICLES)) {
-//                    GLDEBUG(glUniform1f(
-//                                        pParticleShader->m_uniforms[KRShader::KRENGINE_UNIFORM_FLARE_SIZE],
-//                                        1.0f
-//                                        ));
-//
-//                    m_pContext->getMeshManager()->bindVBO((void *)m_pContext->getMeshManager()->getRandomParticles(), particle_count * 3 * sizeof(KRMeshManager::RandomParticleVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false);
-//                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
-//                }
-////            }
-////        }
-////    }

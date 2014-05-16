@@ -121,7 +121,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    void LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<KRMat4> bone_bind_poses, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, */const mesh_info &mi, bool calculate_normals, bool calculate_tangents);
+    void LoadData(const mesh_info &mi, bool calculate_normals, bool calculate_tangents);
     void loadPack(KRDataBlock *data);
     
     void convertToIndexed();
