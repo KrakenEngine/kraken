@@ -34,6 +34,7 @@
 #include "KRMat4.h"
 #include "KRContext.h"
 #include "KRBone.h"
+#include "KRMeshManager.h"
 
 #include "KREngine-common.h"
 
@@ -141,10 +142,13 @@ public:
     public:
         Submesh() {};
         ~Submesh() {
-            for(std::vector<KRDataBlock *>::iterator itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
+            for(auto itr = vbo_data_blocks.begin(); itr != vbo_data_blocks.end(); itr++) {
                 delete (*itr);
             }
-            for(std::vector<KRDataBlock *>::iterator itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
+            for(auto itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
+                delete (*itr);
+            }
+            for(auto itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
                 delete (*itr);
             }
         };
@@ -154,6 +158,7 @@ public:
         char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
         vector<KRDataBlock *> vertex_data_blocks;
         vector<KRDataBlock *> index_data_blocks;
+        vector<KRMeshManager::KRVBOData *> vbo_data_blocks;
     };
 
     typedef struct {
