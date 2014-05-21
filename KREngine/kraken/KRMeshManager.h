@@ -72,7 +72,7 @@ public:
         KRDataBlock *m_data;
         KRDataBlock *m_index_data;
         
-        
+        bool isLoaded() { return m_vbo_handle != -1; }
         void load();
         void unload();
         void bind();

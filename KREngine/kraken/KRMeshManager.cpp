@@ -530,6 +530,9 @@ KRMeshManager::KRVBOData::~KRVBOData()
 
 void KRMeshManager::KRVBOData::load()
 {
+    if(isLoaded()) {
+        return;
+    }
     m_vao_handle = -1;
     m_vbo_handle = -1;
     m_vbo_handle_indexes = -1;
