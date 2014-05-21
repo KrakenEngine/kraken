@@ -11,6 +11,6 @@
       location = "group:objview/KRObjView.xcodeproj">
    </FileRef>
    <FileRef
-      location = "container:KREngine/KREngine.xcodeproj">
+      location = "group:KREngine/Kraken.xcodeproj">
    </FileRef>
 </Workspace>
