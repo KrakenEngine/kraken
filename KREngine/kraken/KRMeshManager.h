@@ -37,8 +37,6 @@
 #include "KRDataBlock.h"
 #include "KRNode.h"
 
-#include "KRMeshStreamer.h"
-
 class KRContext;
 class KRMesh;
 
@@ -61,13 +59,49 @@ public:
     std::vector<std::string> getModelNames();
     unordered_multimap<std::string, KRMesh *> &getModels();
     
+    class KRVBOData {
+        
+    public:
+        
+        KRVBOData();
+        KRVBOData(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        void init(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        ~KRVBOData();
+        
+        
+        KRDataBlock *m_data;
+        KRDataBlock *m_index_data;
+        
+        bool isLoaded() { return m_vbo_handle != -1; }
+        void load();
+        void unload();
+        void bind();
+        
+        // Disable copy constructors
+        KRVBOData(const KRVBOData& o) = delete;
+        KRVBOData(KRVBOData& o) = delete;
+        
+        bool isTemporary() { return m_temp_vbo; }
+        bool getSize() { return m_size; }
+        
+    private:
+        int m_vertex_attrib_flags;
+        GLuint m_vbo_handle;
+        GLuint m_vbo_handle_indexes;
+        GLuint m_vao_handle;
+        bool m_static_vbo;
+        bool m_temp_vbo;
+        GLsizeiptr m_size;
+    };
+    
+    void bindVBO(KRVBOData *vbo_data);
     void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
     void releaseVBO(KRDataBlock &data);
     void unbindVBO();
     long getMemUsed();
     long getMemActive();
     
-    void configureAttribs(__int32_t attributes);
+    static void configureAttribs(__int32_t attributes);
     
     typedef struct {
         GLfloat x;
@@ -110,28 +144,25 @@ public:
     std::vector<draw_call_info> getDrawCalls();
     
     
+
+    KRVBOData KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
+    KRVBOData KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+    
+    void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
+    
+private:
     KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
     __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
-    
     KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
     __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
     
-private:
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
     
-    typedef struct vbo_info {
-        GLuint vbo_handle;
-        GLuint vbo_handle_indexes;
-        GLuint vao_handle;
-        GLsizeiptr size;
-        KRDataBlock *data;
-    } vbo_info_type;
-    
     long m_vboMemUsed;
-    vbo_info_type m_currentVBO;
+    KRVBOData *m_currentVBO;
     
-    unordered_map<KRDataBlock *, vbo_info_type> m_vbosActive;
-    unordered_map<KRDataBlock *, vbo_info_type> m_vbosPool;
+    unordered_map<KRDataBlock *, KRVBOData *> m_vbosActive;
+    unordered_map<KRDataBlock *, KRVBOData *> m_vbosPool;
     
     KRDataBlock m_randomParticleVertexData;
     KRDataBlock m_volumetricLightingVertexData;
@@ -141,8 +172,6 @@ private:
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
-    
-    KRMeshStreamer m_streamer;
 
 };
 

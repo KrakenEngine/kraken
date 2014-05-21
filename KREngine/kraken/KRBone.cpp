@@ -41,6 +41,7 @@ KRAABB KRBone::getBounds() {
 
 void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
@@ -64,7 +65,7 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
         
         KRVector3 rim_color;
         if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, 0.0f)) {
-            std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
+            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
                     sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay");

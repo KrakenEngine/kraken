@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:KREngine/Kraken.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:KRWorldBuilder/KRWorldBuilder.xcodeproj">
    </FileRef>
    <FileRef
@@ -12,5 +9,8 @@
    </FileRef>
    <FileRef
       location = "group:objview/KRObjView.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "container:KREngine/KREngine.xcodeproj">
    </FileRef>
 </Workspace>

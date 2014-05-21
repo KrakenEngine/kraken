@@ -176,16 +176,25 @@ float KRViewport::coverage(const KRAABB &b) const
     if(!visible(b)) {
         return 0.0f; // Culled out by view frustrum
     } else {
+        KRVector3 nearest_point = b.nearestPoint(getCameraPosition());
+        float distance = (nearest_point - getCameraPosition()).magnitude();
+        
+        KRVector3 v = KRMat4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
+        
+        float screen_depth = distance / 1000.0f;
+        
+        return KRCLAMP(1.0f - screen_depth, 0.01f, 1.0f);
+        
+        /*
+        
         KRVector2 screen_min;
         KRVector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
             KRVector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, KRVector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
             if(i==0) {
-                screen_min.x = screen_pos.x;
-                screen_min.y = screen_pos.y;
-                screen_max.x = screen_pos.x;
-                screen_max.y = screen_pos.y;
+                screen_min = screen_pos.xy();
+                screen_max = screen_pos.xy();
             } else {
                 if(screen_pos.x < screen_min.x) screen_min.x = screen_pos.x;
                 if(screen_pos.y < screen_min.y) screen_min.y = screen_pos.y;
@@ -194,7 +203,14 @@ float KRViewport::coverage(const KRAABB &b) const
             }
         }
         
-        return (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
+        screen_min.x = KRCLAMP(screen_min.x, 0.0f, 1.0f);
+        screen_min.y = KRCLAMP(screen_min.y, 0.0f, 1.0f);
+        screen_max.x = KRCLAMP(screen_max.x, 0.0f, 1.0f);
+        screen_max.y = KRCLAMP(screen_max.y, 0.0f, 1.0f);
+        
+        float c = (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
+        return KRCLAMP(c, 0.01f, 1.0f);
+        */
     }
 }
 

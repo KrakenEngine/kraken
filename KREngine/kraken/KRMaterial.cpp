@@ -118,7 +118,7 @@ bool KRMaterial::save(KRDataBlock &data) {
         stream << "\n# map_Reflection filename.pvr -s 1.0 1.0 -o 0.0 0.0";
     }
     if(m_reflectionCube.size()) {
-        stream << "map_ReflectionCube " << m_reflectionCube << ".pvr";
+        stream << "\nmap_ReflectionCube " << m_reflectionCube << ".pvr";
     } else {
         stream << "\n# map_ReflectionCube cubemapname";
     }
@@ -217,9 +217,71 @@ bool KRMaterial::isTransparent() {
     return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power) {
-    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
+void KRMaterial::preStream(float lodCoverage)
+{
+    getTextures();
     
+    if(m_pAmbientMap) {
+        m_pAmbientMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
+    }
+    
+    if(m_pDiffuseMap) {
+        m_pDiffuseMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
+    }
+    
+    if(m_pNormalMap) {
+        m_pNormalMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
+    }
+    
+    if(m_pSpecularMap) {
+        m_pSpecularMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
+    }
+    
+    if(m_pReflectionMap) {
+        m_pReflectionMap->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
+    }
+    
+    if(m_pReflectionCube) {
+        m_pReflectionCube->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
+    }
+}
+
+
+kraken_stream_level KRMaterial::getStreamLevel()
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    
+    getTextures();
+    
+    if(m_pAmbientMap) {
+        stream_level = KRMIN(stream_level, m_pAmbientMap->getStreamLevel(KRTexture::TEXTURE_USAGE_AMBIENT_MAP));
+    }
+
+    if(m_pDiffuseMap) {
+        stream_level = KRMIN(stream_level, m_pDiffuseMap->getStreamLevel(KRTexture::TEXTURE_USAGE_DIFFUSE_MAP));
+    }
+
+    if(m_pNormalMap) {
+        stream_level = KRMIN(stream_level, m_pNormalMap->getStreamLevel(KRTexture::TEXTURE_USAGE_NORMAL_MAP));
+    }
+
+    if(m_pSpecularMap) {
+        stream_level = KRMIN(stream_level, m_pSpecularMap->getStreamLevel(KRTexture::TEXTURE_USAGE_SPECULAR_MAP));
+    }
+
+    if(m_pReflectionMap) {
+        stream_level = KRMIN(stream_level, m_pReflectionMap->getStreamLevel(KRTexture::TEXTURE_USAGE_REFLECTION_MAP));
+    }
+
+    if(m_pReflectionCube) {
+        stream_level = KRMIN(stream_level, m_pReflectionCube->getStreamLevel(KRTexture::TEXTURE_USAGE_REFECTION_CUBE));
+    }
+    
+    return stream_level;
+}
+
+void KRMaterial::getTextures()
+{
     if(!m_pAmbientMap && m_ambientMap.size()) {
         m_pAmbientMap = getContext().getTextureManager()->getTexture(m_ambientMap);
     }
@@ -238,6 +300,12 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     if(!m_pReflectionCube && m_reflectionCube.size()) {
         m_pReflectionCube = getContext().getTextureManager()->getTextureCube(m_reflectionCube.c_str());
     }
+}
+
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
+    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
+    
+    getTextures();
     
     KRVector2 default_scale = KRVector2::One();
     KRVector2 default_offset = KRVector2::Zero();
@@ -321,24 +389,24 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_tr);
     
     if(bDiffuseMap) {
-        m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap);
+        m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap, lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
     }
     
     if(bSpecMap) {
-        m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap);
+        m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap, lod_coverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
     }
 
     if(bNormalMap) {
-        m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap);
+        m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
     }
     
-    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-        m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube);
+    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+        m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
     }
     
-    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
         // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-        m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap);
+        m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     }
 
     

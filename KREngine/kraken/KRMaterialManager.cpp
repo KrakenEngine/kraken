@@ -153,7 +153,7 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             } else if(strcmp(szSymbol[1], "blendoneside") == 0) {
                                 pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
                             } else if(strcmp(szSymbol[1], "blendtwoside") == 0) {
-                                pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
+                                pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
                             } else {
                                 pMaterial->setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE);
                             }

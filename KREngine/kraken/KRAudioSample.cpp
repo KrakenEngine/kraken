@@ -49,7 +49,7 @@ KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string e
     m_frameRate = 0;
     m_bufferCount = 0;
     
-    openFile();
+    m_last_frame_used = 0;
 }
 
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
@@ -64,8 +64,7 @@ KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string e
     m_frameRate = 0;
     m_bufferCount = 0;
     
-    openFile();
-
+    m_last_frame_used = 0;
 }
 
 KRAudioSample::~KRAudioSample()
@@ -76,18 +75,21 @@ KRAudioSample::~KRAudioSample()
 
 int KRAudioSample::getChannelCount()
 {
-    openFile();
+    loadInfo();
     return m_channelsPerFrame;
 }
 
 int KRAudioSample::getFrameCount()
 {
+    loadInfo();
     //return (int)((__int64_t)m_totalFrames * (__int64_t)frame_rate / (__int64_t)m_frameRate);
     return m_totalFrames;
 }
 
 float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
 {
+    loadInfo();
+    
     int c = KRMIN(channel, m_channelsPerFrame - 1);
 
     if(frame_offset < 0) {
@@ -123,6 +125,10 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
 
 void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel, float *buffer, float amplitude, bool loop)
 {
+    loadInfo();
+    
+    m_last_frame_used = getContext().getAudioManager()->getAudioFrame();
+    
     if(loop) {
         int buffer_offset = 0;
         int frames_left = frame_count;
@@ -231,6 +237,11 @@ void KRAudioSample::openFile()
 {
     //    AudioFileInitializeWithCallbacks
     if(m_fileRef == NULL) {
+        
+//        printf("Call to KRAudioSample::openFile() with extension: %s\n", m_extension.c_str());
+// The m_extension is valid (it's either wav or mp3 for the files in Circa project)
+// so we can key off the extension and use a different data handler for mp3 files if we want to
+//
 
         // Temp variables
         UInt32 propertySize;
@@ -270,6 +281,8 @@ void KRAudioSample::openFile()
         
         m_dataFormat = (outputFormat.mChannelsPerFrame > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
         m_channelsPerFrame = outputFormat.mChannelsPerFrame;
+        
+        getContext().getAudioManager()->_registerOpenAudioSample(this);
     }
 }
 
@@ -283,6 +296,16 @@ void KRAudioSample::closeFile()
     if(m_audio_file_id) {
         AudioFileClose(m_audio_file_id);
         m_audio_file_id = 0;
+    }
+    
+    getContext().getAudioManager()->_registerCloseAudioSample(this);
+}
+
+void KRAudioSample::loadInfo()
+{
+    if(m_frameRate == 0) {
+        openFile();
+        closeFile();
     }
 }
 
@@ -299,13 +322,13 @@ bool KRAudioSample::save(KRDataBlock &data)
 
 float KRAudioSample::getDuration()
 {
-    openFile();
+    loadInfo();
     return (float)m_totalFrames / (float)m_frameRate;
 }
 
 int KRAudioSample::getBufferCount()
 {
-    openFile();
+    loadInfo();
     return m_bufferCount;
 }
 
@@ -343,3 +366,11 @@ KRAudioBuffer *KRAudioSample::getBuffer(int index)
     return buffer;
 }
 
+void KRAudioSample::_endFrame()
+{
+    const __int64_t AUDIO_SAMPLE_EXPIRY_FRAMES = 500;
+    long current_frame = getContext().getAudioManager()->getAudioFrame();
+    if(current_frame > m_last_frame_used + AUDIO_SAMPLE_EXPIRY_FRAMES) {
+        closeFile();
+    }
+}

@@ -38,7 +38,6 @@
 
 #include "KRScene.h"
 #include "KRNode.h"
-#include "KRLODGroup.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
@@ -49,7 +48,7 @@ const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
 
 KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, name) {
     m_pFirstLight = NULL;
-    m_pRootNode = new KRLODGroup(*this, "scene_root");
+    m_pRootNode = new KRNode(*this, "scene_root");
     notify_sceneGraphCreate(m_pRootNode);
     
     m_skyBoxName = name + "_skybox";
@@ -98,6 +97,11 @@ std::set<KRLocator *> &KRScene::getLocators()
     return m_locatorNodes;
 }
 
+std::set<KRLight *> &KRScene::getLights()
+{
+    return m_lights;
+}
+
 void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
@@ -122,8 +126,8 @@ void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBound
     std::vector<KRDirectionalLight *>directional_lights;
     std::vector<KRSpotLight *>spot_lights;
     
-    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
-    
+//    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
+// NOTE: the skybox is now selected in the CircaViewController
     
     std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
     
@@ -277,7 +281,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+                    getContext().getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -297,7 +301,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     
                     if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f)) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
-                        m_pContext->getModelManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
+                        m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
                     
                     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
@@ -469,6 +473,10 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
     if(locator) {
         m_locatorNodes.erase(locator);
     }
+    KRLight *light = dynamic_cast<KRLight *>(pNode);
+    if(light) {
+        m_lights.erase(light);
+    }
     m_modifiedNodes.erase(pNode);
     if(!m_newNodes.erase(pNode)) {
         m_nodeTree.remove(pNode);
@@ -477,10 +485,11 @@ void KRScene::notify_sceneGraphDelete(KRNode *pNode)
 
 void KRScene::updateOctree(const KRViewport &viewport)
 {
+    m_pRootNode->setLODVisibility(KRNode::LOD_VISIBILITY_VISIBLE);
     m_pRootNode->updateLODVisibility(viewport);
     
-    std::set<KRNode *> newNodes = m_newNodes;
-    std::set<KRNode *> modifiedNodes = m_modifiedNodes;
+    std::set<KRNode *> newNodes = std::move(m_newNodes);
+    std::set<KRNode *> modifiedNodes = std::move(m_modifiedNodes);
     m_newNodes.clear();
     m_modifiedNodes.clear();
     
@@ -502,17 +511,49 @@ void KRScene::updateOctree(const KRViewport &viewport)
         if(locatorNode) {
             m_locatorNodes.insert(locatorNode);
         }
-        
+        KRLight *light = dynamic_cast<KRLight *>(node);
+        if(light) {
+            m_lights.insert(light);
+        }
     }
     for(std::set<KRNode *>::iterator itr=modifiedNodes.begin(); itr != modifiedNodes.end(); itr++) {
         KRNode *node = *itr;
-        if(node->lodIsVisible()) {
+        if(node->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
             m_nodeTree.update(node);
         }
         if(node->hasPhysics()) {
             m_physicsNodes.insert(node);
         } else if(!node->hasPhysics()) {
             m_physicsNodes.erase(node);
+        }
+    }
+}
+
+void KRScene::buildOctreeForTheFirstTime()
+{
+    std::set<KRNode *> newNodes = std::move(m_newNodes);
+    m_newNodes.clear();
+    for(std::set<KRNode *>::iterator itr=newNodes.begin(); itr != newNodes.end(); itr++) {
+        KRNode *node = *itr;
+        m_nodeTree.add(node);
+        if(node->hasPhysics()) {
+            m_physicsNodes.insert(node);
+        }
+        KRAmbientZone *ambientZoneNode = dynamic_cast<KRAmbientZone *>(node);
+        if(ambientZoneNode) {
+            m_ambientZoneNodes.insert(ambientZoneNode);
+        }
+        KRReverbZone *reverbZoneNode = dynamic_cast<KRReverbZone *>(node);
+        if(reverbZoneNode) {
+            m_reverbZoneNodes.insert(reverbZoneNode);
+        }
+        KRLocator *locatorNode = dynamic_cast<KRLocator *>(node);
+        if(locatorNode) {
+            m_locatorNodes.insert(locatorNode);
+        }
+        KRLight *light = dynamic_cast<KRLight *>(node);
+        if(light) {
+            m_lights.insert(light);
         }
     }
 }
@@ -552,3 +593,20 @@ bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hiti
     return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }
 
+bool KRScene::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+{
+    return m_nodeTree.sphereCast(v0, v1, radius, hitinfo, layer_mask);
+}
+
+
+kraken_stream_level KRScene::getStreamLevel()
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    
+    if(m_pRootNode) {
+        KRViewport viewport; // This isn't used when prime is false
+        stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(viewport));
+    }
+    
+    return stream_level;
+}

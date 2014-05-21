@@ -91,21 +91,20 @@ long KRTextureAnimated::getMemRequiredForSize(int max_dim)
 }
 
 
-void KRTextureAnimated::resetPoolExpiry()
+void KRTextureAnimated::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
 {
-    KRTexture::resetPoolExpiry();
+    KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
     for(int i=0; i<m_frame_count; i++) {
         KRTexture2D *frame_texture = textureForFrame(i);
         if(frame_texture) {
-            frame_texture->resetPoolExpiry(); // Ensure that frames of animated textures do not expire from the texture pool prematurely, as they are referenced indirectly
-            getContext().getTextureManager()->primeTexture(frame_texture);
+            frame_texture->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that frames of animated textures do not expire from the texture pool prematurely, as they are referenced indirectly
         }
     }
 }
 
 void KRTextureAnimated::bind(GLuint texture_unit)
 {
-    resetPoolExpiry();
+    resetPoolExpiry(0.0f, TEXTURE_USAGE_NONE); // TODO - Need to set parameters here for streaming priority?
     KRTexture::bind(texture_unit);
     int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate,m_frame_count));
     KRTexture2D *frame_texture = textureForFrame(frame_number);

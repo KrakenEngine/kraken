@@ -34,6 +34,8 @@
 
 #include "KRTexture.h"
 
+class KRTexture2D;
+
 class KRTextureCube : public KRTexture {
 public:
     KRTextureCube(KRContext &context, std::string name);
@@ -44,7 +46,7 @@ public:
     
     virtual void bind(GLuint texture_unit);
     virtual long getMemRequiredForSize(int max_dim);
-    virtual void resetPoolExpiry();
+//    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
     
 private:
     virtual bool createGLTexture(int lod_max_dim);
@@ -66,6 +68,8 @@ private:
         "_positive_z",
         "_negative_z"
     };
+    
+    KRTexture2D *m_textures[6];
 };
 
 

@@ -215,8 +215,11 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     
     uint64_t end_time = mach_absolute_time();
 //    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
+//    double ms = duration;
+//    ms = ms / 1000000.0;
 //    uint64_t max_duration = (uint64_t)inNumberFrames * 1000000000 / 44100;
 //    fprintf(stderr, "audio load: %5.1f%% hrtf channels: %li\n", (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
+//    printf("ms %2.3f frames %ld audio load: %5.1f%% hrtf channels: %li\n", ms, (unsigned long) inNumberFrames, (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 }
 
 float *KRAudioManager::getBlockAddress(int block_offset)
@@ -403,10 +406,20 @@ void KRAudioManager::renderBlock()
         
         // ----====---- Render Ambient Sound ----====----
         renderAmbient();
+        
+        // ----====---- Render Ambient Sound ----====----
+        renderLimiter();
     }
     
     // ----====---- Advance audio sources ----====----
     m_audio_frame += KRENGINE_AUDIO_BLOCK_LENGTH;
+    
+    std::set<KRAudioSample *> open_samples = m_openAudioSamples;
+    
+    for(auto itr=open_samples.begin(); itr != open_samples.end(); itr++) {
+        KRAudioSample *sample = *itr;
+        sample->_endFrame();
+    }
     
     m_anticlick_block = false;
     m_mutex.unlock();
@@ -1423,6 +1436,16 @@ void KRAudioManager::deactivateAudioSource(KRAudioSource *audioSource)
     m_activeAudioSources.erase(audioSource);
 }
 
+void KRAudioManager::_registerOpenAudioSample(KRAudioSample *audioSample)
+{
+    m_openAudioSamples.insert(audioSample);
+}
+
+void KRAudioManager::_registerCloseAudioSample(KRAudioSample *audioSample)
+{
+    m_openAudioSamples.erase(audioSample);
+}
+
 __int64_t KRAudioManager::getAudioFrame()
 {
     return m_audio_frame;
@@ -1485,7 +1508,19 @@ void KRAudioManager::setGlobalAmbientGain(float gain)
 
 void KRAudioManager::startFrame(float deltaTime)
 {
-    m_mutex.lock();
+    static unsigned long trackCount = 0;
+    static unsigned long trackMissed = 0;
+    trackCount++;
+    if (trackCount > 200) {
+//        printf("Missed %ld out of 200 try_lock attempts on audio startFrame\n", trackMissed);
+        trackCount = 0;
+        trackMissed = 0;
+    }
+    
+    if (!m_mutex.try_lock()) {
+        trackMissed++;
+        return;     // if we are rendering audio don't update audio state
+    }               // NOTE: this misses anywhere from 0 to to 30 times out of 200 on the iPad2
     
     // ----====---- Determine Ambient Zone Contributions ----====----
     m_ambient_zone_weights.clear();
@@ -1928,4 +1963,127 @@ void KRAudioManager::renderITD()
      
      
      */
+}
+
+static bool audioIsMuted = false;
+static bool audioShouldBecomeMuted = false;
+static bool audioShouldBecomeUnmuted = false;
+
+void audioLimit_Mute(bool onNotOff) {
+    if (onNotOff) {
+        if (audioIsMuted) {
+            audioShouldBecomeMuted = false;
+            audioShouldBecomeUnmuted = false;
+            return;
+        }
+        audioShouldBecomeMuted = true;
+        audioShouldBecomeUnmuted = false;
+    }
+    else {
+        if (!audioIsMuted) {
+            audioShouldBecomeMuted = false;
+            audioShouldBecomeUnmuted = false;
+            return;
+        }
+        audioShouldBecomeMuted = false;
+        audioShouldBecomeUnmuted = true;
+    }
+}
+
+float audioGetLimitParameters_Stereo(float *buffer, unsigned long framesize,
+                                  unsigned long *attack_sample_position, float *peak)
+{
+	float limitvol = 1.0;
+	long attack_position = -1;
+	*peak = 0.0;
+	float max = 0.0;
+	float amplitude = 0.0;
+	
+	float *src = buffer;
+	for (unsigned long i = 0; i < framesize * 2; i++) {
+		amplitude = fabs(*src); src++;
+		if (amplitude > max) max = amplitude;
+		if (amplitude > 0.995) if (attack_position < 0) attack_position = (i+1) / 2;
+    }
+	if (max > 0.995) limitvol = 0.995 / max;
+	*peak = max;
+	
+	if (attack_position < 0) attack_position = framesize;
+	*attack_sample_position = (unsigned long) attack_position;
+	return limitvol;
+} // returns the new limit volume, *attack_sample_position tells how fast we need to reach the new limit
+
+void audioLimit_Stereo(float *stereo_buffer, unsigned long framesize)
+{
+    static float limit_value = 1.0;
+
+    // (1) get the limiting parameters for the incoming audio data
+	float previouslimitvol = limit_value;
+	float peak;
+	unsigned long attack_sample_position = framesize;
+
+    // (1a) check for a mute or unmute state then get the next limit volume
+    float nextlimitvol = 0.0;
+    if (audioIsMuted && audioShouldBecomeUnmuted) { audioIsMuted = false; audioShouldBecomeUnmuted = false; }
+    if (audioShouldBecomeMuted) { audioIsMuted = true; audioShouldBecomeMuted = false; }
+	if (!audioIsMuted) nextlimitvol = audioGetLimitParameters_Stereo(stereo_buffer, framesize, &attack_sample_position, &peak);
+
+    // (1b) if no limiting is needed then return
+	if ((1.0 == nextlimitvol) && (1.0 == previouslimitvol)) { return; }	// no limiting necessary
+    
+    // (2) calculate limiting factors
+	float deltavol = 0.0;
+	if (previouslimitvol != nextlimitvol) {
+		deltavol = (nextlimitvol - previouslimitvol) / (float) attack_sample_position;
+    }
+
+    // (3) do the limiting
+	float *src = stereo_buffer;
+    
+	if (0.0 == deltavol) {	// fixed volume
+		for (unsigned long i=0; i < framesize; i++) {
+			*src = *src * nextlimitvol;
+            src++;
+			*src = *src * nextlimitvol;
+            src++;
+        }
+    }
+	else {
+		for (unsigned long i=0; i < attack_sample_position; i++) {	// attack phase
+			*src = *src * previouslimitvol;
+			src++;
+			*src = *src * previouslimitvol;
+			src++;
+			previouslimitvol += deltavol;
+        }
+		if (nextlimitvol < 1.0) {	// plateau phase
+			for (unsigned long i = attack_sample_position; i < framesize; i++) {
+				*src = *src * nextlimitvol;
+				src++;
+				*src = *src * nextlimitvol;
+				src++;
+            }
+        }
+    }
+        
+    // (4) save our limit level for next time
+    limit_value = nextlimitvol;
+}
+
+void KRAudioManager::mute(bool onNotOff)
+{
+    audioLimit_Mute(onNotOff);
+}
+
+void KRAudioManager::renderLimiter()
+{
+    int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
+    float *output = m_output_accumulation + output_offset;
+    unsigned long numframes = KRENGINE_AUDIO_BLOCK_LENGTH;
+    audioLimit_Stereo(output, numframes);
+}
+
+void KRAudioManager::goToSleep()
+{
+    cleanupAudio();
 }

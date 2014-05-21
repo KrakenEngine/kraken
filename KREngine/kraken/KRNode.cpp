@@ -10,6 +10,7 @@
 
 #include "KRNode.h"
 #include "KRLODGroup.h"
+#include "KRLODSet.h"
 #include "KRPointLight.h"
 #include "KRSpotLight.h"
 #include "KRDirectionalLight.h"
@@ -62,8 +63,9 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_modelMatrix = KRMat4();
     m_bindPoseMatrix = KRMat4();
     m_activePoseMatrix = KRMat4();
-    m_lod_visible = false;
+    m_lod_visible = LOD_VISIBILITY_HIDDEN;
     m_scale_compensation = false;
+    m_boundsValid = false;
     
     m_lastRenderFrame = -1000;
     for(int i=0; i < KRENGINE_NODE_ATTRIBUTE_COUNT; i++) {
@@ -107,7 +109,7 @@ bool KRNode::getScaleCompensation()
 void KRNode::childDeleted(KRNode *child_node)
 {
     m_childNodes.erase(child_node);
-    // InvalidateBounds();
+    invalidateBounds();
     getScene().notify_sceneGraphModify(this);
 }
 
@@ -115,10 +117,7 @@ void KRNode::addChild(KRNode *child) {
     assert(child->m_parentNode == NULL);
     child->m_parentNode = this;
     m_childNodes.insert(child);
-    if(m_lod_visible) {
-        // Child node inherits LOD visibility status from parent
-        child->showLOD();
-    }
+    child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 
 tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
@@ -126,17 +125,17 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     tinyxml2::XMLElement *e = doc->NewElement(getElementName().c_str());
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
     e->SetAttribute("name", m_name.c_str());
-    m_localTranslation.setXMLAttribute("translate", e);
-    m_localScale.setXMLAttribute("scale", e);
-    (m_localRotation * (180.0f / M_PI)).setXMLAttribute("rotate", e);
+    m_localTranslation.setXMLAttribute("translate", e, KRVector3::Zero());
+    m_localScale.setXMLAttribute("scale", e, KRVector3::One());
+    (m_localRotation * (180.0f / M_PI)).setXMLAttribute("rotate", e, KRVector3::Zero());
     
     
-    m_rotationOffset.setXMLAttribute("rotate_offset", e);
-    m_scalingOffset.setXMLAttribute("scale_offset", e);
-    m_rotationPivot.setXMLAttribute("rotate_pivot", e);
-    m_scalingPivot.setXMLAttribute("scale_pivot", e);
-    (m_preRotation * (180.0f / M_PI)).setXMLAttribute("pre_rotate", e);
-    (m_postRotation * (180.0f / M_PI)).setXMLAttribute("post_rotate", e);
+    m_rotationOffset.setXMLAttribute("rotate_offset", e, KRVector3::Zero());
+    m_scalingOffset.setXMLAttribute("scale_offset", e, KRVector3::Zero());
+    m_rotationPivot.setXMLAttribute("rotate_pivot", e, KRVector3::Zero());
+    m_scalingPivot.setXMLAttribute("scale_pivot", e, KRVector3::Zero());
+    (m_preRotation * (180.0f / M_PI)).setXMLAttribute("pre_rotate", e, KRVector3::Zero());
+    (m_postRotation * (180.0f / M_PI)).setXMLAttribute("post_rotate", e, KRVector3::Zero());
     
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
@@ -395,6 +394,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
         new_node = new KRNode(scene, szName);
+    } if(strcmp(szElementName, "lod_set") == 0) {
+        new_node = new KRLODSet(scene, szName);
     } if(strcmp(szElementName, "lod_group") == 0) {
         new_node = new KRLODGroup(scene, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
@@ -452,6 +453,8 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
 
 void KRNode::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, RenderPass renderPass)
 {
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+    
     m_lastRenderFrame = getContext().getCurrentFrame();
 }
 
@@ -472,22 +475,26 @@ KRScene &KRNode::getScene() {
 }
 
 KRAABB KRNode::getBounds() {
-    KRAABB bounds = KRAABB::Zero();
+    if(!m_boundsValid) {
+        KRAABB bounds = KRAABB::Zero();
 
-    bool first_child = true;
-    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-        KRNode *child = (*itr);
-        if(child->getBounds() != KRAABB::Zero()) {
-            if(first_child) {
-                first_child = false;
-                bounds = child->getBounds();
-            } else {
-                bounds.encapsulate(child->getBounds());
+        bool first_child = true;
+        for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+            KRNode *child = (*itr);
+            if(child->getBounds() != KRAABB::Zero()) {
+                if(first_child) {
+                    first_child = false;
+                    bounds = child->getBounds();
+                } else {
+                    bounds.encapsulate(child->getBounds());
+                }
             }
         }
+        
+        m_bounds = bounds;
+        m_boundsValid = true;
     }
-
-    return bounds;
+    return m_bounds;
 }
 
 void KRNode::invalidateModelMatrix()
@@ -500,7 +507,7 @@ void KRNode::invalidateModelMatrix()
         child->invalidateModelMatrix();
     }
     
-    // InvalidateBounds
+    invalidateBounds();
     getScene().notify_sceneGraphModify(this);
 }
 
@@ -879,34 +886,31 @@ void KRNode::addToOctreeNode(KROctreeNode *octree_node)
 
 void KRNode::updateLODVisibility(const KRViewport &viewport)
 {
-    // If we aren't an LOD group node, then we just add ourselves and all our children to the octree
-    showLOD();
-}
-
-void KRNode::hideLOD()
-{
-    if(m_lod_visible) {
-        m_lod_visible = false;
-        getScene().notify_sceneGraphDelete(this);
+    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
         for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-            (*itr)->hideLOD();
+            (*itr)->updateLODVisibility(viewport);
         }
     }
 }
 
-void KRNode::showLOD()
+void KRNode::setLODVisibility(KRNode::LodVisibility lod_visibility)
 {
-    if(!m_lod_visible) {
-        getScene().notify_sceneGraphCreate(this);
-        m_lod_visible = true;
+    if(m_lod_visible != lod_visibility) {
+        if(m_lod_visible == LOD_VISIBILITY_HIDDEN && lod_visibility >= LOD_VISIBILITY_PRESTREAM) {
+            getScene().notify_sceneGraphCreate(this);
+        } else if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && lod_visibility == LOD_VISIBILITY_HIDDEN) {
+            getScene().notify_sceneGraphDelete(this);
+        }
+        
+        m_lod_visible = lod_visibility;
+        
         for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-            (*itr)->showLOD();
+            (*itr)->setLODVisibility(lod_visibility);
         }
     }
 }
 
-
-bool KRNode::lodIsVisible()
+KRNode::LodVisibility KRNode::getLODVisibility()
 {
     return m_lod_visible;
 }
@@ -931,4 +935,23 @@ void KRNode::addBehavior(KRBehavior *behavior)
 std::set<KRBehavior *> &KRNode::getBehaviors()
 {
     return m_behaviors;
+}
+
+kraken_stream_level KRNode::getStreamLevel(const KRViewport &viewport)
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    
+    for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+        stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(viewport));
+    }
+    
+    return stream_level;
+}
+
+void KRNode::invalidateBounds() const
+{
+    m_boundsValid = false;
+    if(m_parentNode) {
+        m_parentNode->invalidateBounds();
+    }
 }

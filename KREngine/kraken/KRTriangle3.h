@@ -1,5 +1,5 @@
 //
-//  KRTextureManager.h
+//  KRTriangle.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,32 +29,35 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTURESTREAMER_H
-#define KRTEXTURESTREAMER_H
+#ifndef KRTRIANGLE3_H
+#define KRTRIANGLE3_H
 
-#include "KREngine-common.h"
+#include "KRVector3.h"
 
-#include <thread>
-#include <atomic>
-
-class KRContext;
-
-class KRTextureStreamer
+class KRTriangle3
 {
 public:
-    KRTextureStreamer(KRContext &context);
-    ~KRTextureStreamer();
+    KRTriangle3(const KRTriangle3 &tri);
+    KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3);
+    ~KRTriangle3();
     
-    void startStreamer();
+    KRVector3 calculateNormal() const;
     
+    bool operator ==(const KRTriangle3& b) const;
+    bool operator !=(const KRTriangle3& b) const;
+    KRTriangle3& operator =(const KRTriangle3& b);
+    KRVector3& operator[](unsigned i);
+    KRVector3 operator[](unsigned i) const;
+    
+    
+    bool rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const;
+    bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
+    
+    bool containsPoint(const KRVector3 &p) const;
+    KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
 private:
-    KRContext &m_context;
     
-    std::thread m_thread;
-    std::atomic<bool> m_stop;
-    std::atomic<bool> m_running;
-    
-    void run();
+    KRVector3 m_c[3];
 };
 
-#endif /* defined(KRTEXTURESTREAMER_H) */
+#endif // KRTRIANGLE3_H

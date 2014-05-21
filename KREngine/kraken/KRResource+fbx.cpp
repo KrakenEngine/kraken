@@ -28,6 +28,7 @@
 #include "KRBundle.h"
 #include "KRModel.h"
 #include "KRLODGroup.h"
+#include "KRLODSet.h"
 #include "KRCollider.h"
 
 #ifdef IOS_REF
@@ -392,6 +393,8 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
     int frame_start = time_span.GetStart().GetSecondDouble() * dest_frame_rate;
     int frame_count = (time_span.GetStop().GetSecondDouble() * dest_frame_rate) - frame_start;
     
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "    animation start %d and frame count %d", frame_start, frame_count);
+    
     KRAnimationCurve *new_curve = new KRAnimationCurve(context, name);
     new_curve->setFrameRate(dest_frame_rate);
     new_curve->setFrameStart(frame_start);
@@ -404,7 +407,11 @@ KRAnimationCurve *LoadAnimationCurve(KRContext &context, FbxAnimCurve* pAnimCurv
         FbxTime frame_time;
         frame_time.SetSecondDouble(frame_seconds);
         float frame_value = pAnimCurve->Evaluate(frame_time, &last_frame);
+//        printf("  Frame %i / %i: %.6f\n", frame_number, frame_count, frame_value);
+        if (0 == frame_number) KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Value at starting key frame = %3.3f", frame_value);
         new_curve->setValue(frame_number+frame_start, frame_value);
+            // BUG FIX Dec 2, 2013 .. changed frame_number to frame_number+frame_start
+            // setValue(frame_number, frame_value) clamps the frame_number range between frame_start : frame_start+frame_count
     }
 
     return new_curve;
@@ -580,6 +587,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
+    int node_has_n_points = 0; // this will be 3 if the node_frame_key_position is complete after the import animated properties loop
+    KRVector3 node_key_frame_position = KRVector3(0.0, 0.0, 0.0);
+        // ADDED 3, 2013 by Peter to store the key frame (start location) of an animation
+        // the x, y, z translation position of the animation will be extracted from the curves
+        // as they are added to the animation layer in the loop below ..
+    
     // Import animated properties
     int animation_count = pFbxScene->GetSrcObjectCount<FbxAnimStack>();
     for(int i = 0; i < animation_count; i++) {
@@ -626,7 +639,13 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X);
-                    pAnimationLayer->addAttribute(new_attribute);
+ 
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.x = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
+                   pAnimationLayer->addAttribute(new_attribute);
                 }
                 
                 pAnimCurve = pNode->LclTranslation.GetCurve(pFbxAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -635,6 +654,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y);
+                    
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.y = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
                     pAnimationLayer->addAttribute(new_attribute);
                 }
                 
@@ -644,6 +669,12 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                     new_attribute->setCurveName(GetFbxObjectName(pAnimCurve));
                     new_attribute->setTargetName(GetFbxObjectName(pNode));
                     new_attribute->setTargetAttribute(KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z);
+                    
+                    KRAnimationCurve *curve = new_attribute->getCurve();
+                    node_key_frame_position.z = curve->getValue(curve->getFrameStart());
+                    node_has_n_points++;
+                        // ADDED Dec 3, 2013 by Peter to extract start location key frame
+                    
                     pAnimationLayer->addAttribute(new_attribute);
                 }
                 
@@ -867,6 +898,22 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     warning((geometric_translation == lZero), "Geometric Rotation not supported .. 3DSMax file??");
     warning((geometric_scaling == lOne), "Geometric Rotation not supported .. 3DSMax file??");
     warning((rotation_order == eEulerXYZ), "Geometric Rotation not supported .. 3DSMax file??");
+    
+    // FINDME - node_key_frame_position contains the key frame (start location) for an animation node
+    // node_has_n_points
+    // node_key_frame_position
+    if (3 == node_has_n_points)
+        KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "key frame at %2.3f,  %2.3f, %2.3f",
+               node_key_frame_position.x,
+               node_key_frame_position.y,
+               node_key_frame_position.z);
+    //
+    // The animation curve data is output to the KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_ X, Y, Z attribute targets
+    // The actor scripts 'move' command modifies the node's world translations using setWorldTranslation()
+    //
+    // QUESTION - where should we store the key frame within the node to make sure it is output into the KRBundle ??
+    //              do we store it as node_local or store it as the world translation? or somewhere else ??
+    //
 
     KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
     KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
@@ -879,7 +926,8 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     KRVector3 node_pre_rotation, node_post_rotation;
     if(rotation_active) {
         node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
-        node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;
+        node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;  
+        //&KRF HACK removing this line (above) to prevent the post rotation from corrupting the default light values; the FBX is importing a post rotation and setting it to -90 degrees											
     } else {
         node_pre_rotation = KRVector3::Zero();
         node_post_rotation = KRVector3::Zero();
@@ -898,8 +946,11 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
         float group_max_distance = 0.0f;
         if(fbx_lod_group->MinMaxDistance.Get()) {
             group_min_distance = fbx_lod_group->MinDistance.Get();
-            group_max_distance = fbx_lod_group->MinDistance.Get();
+            group_max_distance = fbx_lod_group->MaxDistance.Get();
         }
+        
+        KRLODSet *lod_set = new KRLODSet(parent_node->getScene(), name);
+        parent_node->addChild(lod_set);
         
         KRAABB reference_bounds;
         // Create a lod_group node for each fbx child node
@@ -960,7 +1011,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
             new_node->setPostRotation(node_post_rotation);
             
             new_node->setUseWorldUnits(use_world_space_units);
-            parent_node->addChild(new_node);
+            lod_set->addChild(new_node);
             
             LoadNode(pFbxScene, new_node, pGeometryConverter, pNode->GetChild(i));
             
@@ -1003,19 +1054,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                         if(pNode->GetChildCount() > 0) {
                             // Create an empty node, for inheritence of transforms
                             std::string name = GetFbxObjectName(pNode);
-
-                            
-                            /*
-                             if(min_distance == 0.0f && max_distance == 0.0f) {
-                                // Regular node for grouping children together under one transform
-                                new_node = new KRNode(parent_node->getScene(), name);
-                            } else {
-                             */
-                                // LOD Enabled group node
-                                KRLODGroup *lod_group = new KRLODGroup(parent_node->getScene(), name);
-                                lod_group->setMinDistance(0.0f);
-                                lod_group->setMaxDistance(0.0f);
-                                new_node = lod_group;
+                            new_node = new KRNode(parent_node->getScene(), name);
                         }
                     }
                 }
@@ -1111,10 +1150,10 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         lKFbxDouble1 =((FbxSurfacePhong *) pMaterial)->ReflectionFactor;
         
         // Reflection color
-        lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
+        //lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
         
         // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
-        new_material->setReflection(KRVector3(lKFbxDouble3.Get()[0] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[1] * lKFbxDouble1.Get(), lKFbxDouble3.Get()[2] * lKFbxDouble1.Get()));
+        new_material->setReflection(KRVector3(/*lKFbxDouble3.Get()[0] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[1] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[2] * */lKFbxDouble1.Get()));
         
     } else if(pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) ) {
         // We found a Lambert material.
@@ -1332,6 +1371,8 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
         }
     }
     
+    pMesh->GenerateTangentsDataForAllUVSets(true);
+    
     int polygon_count = pMesh->GetPolygonCount();
     int uv_count = pMesh->GetElementUVCount();
     int normal_count = pMesh->GetElementNormalCount();
@@ -1448,36 +1489,38 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             mi.normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
                         
-                        
+                        /*
+                         TODO - Tangent vectors imported from maya appear incorrectly...  Only calculating them in Kraken for now
+                         
                         // ----====---- Read Tangents ----====----
-                        for(int l = 0; l < tangent_count; ++l)
-                        {
-                            FbxVector4 new_tangent;
-                            FbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
-                            
-                            if(leTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
-                                switch (leTangent->GetReferenceMode()) {
-                                    case FbxGeometryElement::eDirect:
-                                        new_tangent = leTangent->GetDirectArray().GetAt(lControlPointIndex);
-                                        break;
-                                    case FbxGeometryElement::eIndexToDirect:
-                                    {
-                                        int id = leTangent->GetIndexArray().GetAt(lControlPointIndex);
-                                        new_tangent = leTangent->GetDirectArray().GetAt(id);
+                        if(need_tangents) {
+                            for(int l = 0; l < tangent_count; ++l)
+                            {
+                                FbxVector4 new_tangent;
+                                FbxGeometryElementTangent* leTangent = pMesh->GetElementTangent(l);
+                                
+                                if(leTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex) {
+                                    switch (leTangent->GetReferenceMode()) {
+                                        case FbxGeometryElement::eDirect:
+                                            new_tangent = leTangent->GetDirectArray().GetAt(lControlPointIndex);
+                                            break;
+                                        case FbxGeometryElement::eIndexToDirect:
+                                        {
+                                            int id = leTangent->GetIndexArray().GetAt(lControlPointIndex);
+                                            new_tangent = leTangent->GetDirectArray().GetAt(id);
+                                        }
+                                            break;
+                                        default:
+                                            break; // other reference modes not shown here!
                                     }
-                                        break;
-                                    default:
-                                        break; // other reference modes not shown here!
                                 }
+                                if(l == 0) {
+                                    mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
+                                }
+                                
                             }
-                            if(l == 0) {
-                                mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
-                            }
-                            
                         }
-                        
-                        
-                        
+                        */
                         
                         source_vertex_id++;
                         dest_vertex_id++;
@@ -1501,7 +1544,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
     new_mesh->LoadData(mi, true, need_tangents);
     
-    context.getModelManager()->addModel(new_mesh);
+    context.getMeshManager()->addModel(new_mesh);
 }
 
 KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode) {
@@ -1596,9 +1639,7 @@ KRNode *LoadLocator(KRNode *parent_node, FbxScene* pFbxScene, FbxNode* pNode) {
                 break;
             default:
             {
-#if defined( DEBUG )
-                fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
-#endif
+           //     fprintf(stderr, "FBX property not imported due to unsupported data type: %s.%s\n", name.c_str(), property_name.c_str());
             }
             break;
         }

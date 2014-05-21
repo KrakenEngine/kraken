@@ -64,6 +64,7 @@ const char *KRShader::KRENGINE_UNIFORM_NAMES[] = {
     "projection_matrix", //    KRENGINE_UNIFORM_PROJECTION_MATRIX
     "camera_position_model_space", //    KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE
     "viewport", //    KRENGINE_UNIFORM_VIEWPORT
+    "viewport_downsample", //     KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE
     "diffuseTexture", //    KRENGINE_UNIFORM_DIFFUSETEXTURE
     "specularTexture", //    KRENGINE_UNIFORM_SPECULARTEXTURE
     "reflectionCubeTexture", //    KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE
@@ -372,7 +373,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
             if(light_directional_count == 0) {
                 int cShadowBuffers = directional_light->getShadowBufferCount();
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-                    m_pContext->getTextureManager()->selectTexture(3, NULL);
+                    m_pContext->getTextureManager()->selectTexture(3, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(3);
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
                     GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -383,7 +384,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
-                    m_pContext->getTextureManager()->selectTexture(4, NULL);
+                    m_pContext->getTextureManager()->selectTexture(4, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(4);
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
                     GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -393,7 +394,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
-                    m_pContext->getTextureManager()->selectTexture(5, NULL);
+                    m_pContext->getTextureManager()->selectTexture(5, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
                     m_pContext->getTextureManager()->_setActiveTexture(5);
                     GLDEBUG(glActiveTexture(GL_TEXTURE5));
                     GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
@@ -502,12 +503,16 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     
     if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT, KRVector4(
-            (GLfloat)0.0,
-            (GLfloat)0.0,
-            (GLfloat)viewport.getSize().x,
-            (GLfloat)viewport.getSize().y
+                (GLfloat)0.0,
+                (GLfloat)0.0,
+                (GLfloat)viewport.getSize().x,
+                (GLfloat)viewport.getSize().y
             )
         );
+    }
+    
+    if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE] != -1) {
+        setUniform(KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
     }
     
     // Rim highlighting parameters

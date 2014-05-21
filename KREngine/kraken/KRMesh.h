@@ -34,6 +34,7 @@
 #include "KRMat4.h"
 #include "KRContext.h"
 #include "KRBone.h"
+#include "KRMeshManager.h"
 
 #include "KREngine-common.h"
 
@@ -54,6 +55,7 @@
 
 class KRMaterial;
 class KRNode;
+class KRTriangle3;
 
 
 class KRMesh : public KRResource {
@@ -65,6 +67,9 @@ public:
     KRMesh(KRContext &context, std::string name, KRDataBlock *data);
     KRMesh(KRContext &context, std::string name);
     virtual ~KRMesh();
+    
+    kraken_stream_level getStreamLevel();
+    void preStream(float lodCoverage);
     
     bool hasTransparency();
     
@@ -109,7 +114,7 @@ public:
         std::vector<std::vector<float> > bone_weights;
     } mesh_info;
     
-    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power);
+    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
     
     std::string m_lodBaseName;
     
@@ -117,7 +122,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    void LoadData(/*std::vector<__uint16_t> vertex_indexes, std::vector<std::pair<int, int> > vertex_index_bases, std::vector<KRVector3> vertices, std::vector<KRVector2> uva, std::vector<KRVector2> uvb, std::vector<KRVector3> normals, std::vector<KRVector3> tangents, std::vector<int> submesh_starts, std::vector<int> submesh_lengths, std::vector<std::string> material_names, std::vector<std::string> bone_names, std::vector<KRMat4> bone_bind_poses, std::vector<std::vector<int> > bone_indexes, std::vector<std::vector<float> > bone_weights, model_format_t model_format, */const mesh_info &mi, bool calculate_normals, bool calculate_tangents);
+    void LoadData(const mesh_info &mi, bool calculate_normals, bool calculate_tangents);
     void loadPack(KRDataBlock *data);
     
     void convertToIndexed();
@@ -137,10 +142,13 @@ public:
     public:
         Submesh() {};
         ~Submesh() {
-            for(std::vector<KRDataBlock *>::iterator itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
+            for(auto itr = vbo_data_blocks.begin(); itr != vbo_data_blocks.end(); itr++) {
                 delete (*itr);
             }
-            for(std::vector<KRDataBlock *>::iterator itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
+            for(auto itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
+                delete (*itr);
+            }
+            for(auto itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
                 delete (*itr);
             }
         };
@@ -150,6 +158,7 @@ public:
         char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
         vector<KRDataBlock *> vertex_data_blocks;
         vector<KRDataBlock *> index_data_blocks;
+        vector<KRMeshManager::KRVBOData *> vbo_data_blocks;
     };
 
     typedef struct {
@@ -208,6 +217,7 @@ public:
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
     bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const;
+    bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const;
     
     static int GetLODCoverage(const std::string &name);
 private:
@@ -216,9 +226,10 @@ private:
     KRDataBlock *m_pIndexBaseData;
     
     void getSubmeshes();
+    void getMaterials();
     
-//    bool rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const;
-    static bool rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;

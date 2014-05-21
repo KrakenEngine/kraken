@@ -94,8 +94,7 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
-    
-    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 4000000;
+    KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
     
 
     KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
@@ -116,7 +115,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000 * 2;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
-        KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     } else {
         KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
         KRContext::KRENGINE_MAX_VBO_MEM = 128000000;
@@ -126,7 +124,6 @@ void kraken::set_debug_text(const std::string &print_text)
         KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
-        KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 32000000;
     }
      */
 #else
@@ -138,7 +135,7 @@ void kraken::set_debug_text(const std::string &print_text)
     KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 192000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 8192;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
-    KRContext::KRENGINE_MAX_TEXTURE_THROUGHPUT = 128000000;
+    KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
 #endif
     
     _context = NULL;
@@ -237,14 +234,14 @@ void kraken::set_debug_text(const std::string &print_text)
     NSString *bundlePath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"bundle"];
     NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
     if(bundle == nil) {
-        NSLog(@"ERROR - Standard asset bundle could not be found.");
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "%s", "ERROR - Standard asset bundle could not be found.");
     } else {
         NSEnumerator *bundleEnumerator = [[bundle pathsForResourcesOfType: nil inDirectory: nil] objectEnumerator];
         NSString * p = nil;
         while (p = [bundleEnumerator nextObject]) {
             NSString *file_name = [p lastPathComponent];
             if([file_name hasSuffix: @".vsh"] || [file_name hasSuffix: @".fsh"] || [file_name hasSuffix: @".krbundle"] ||[file_name hasPrefix:@"font."]) {
-                NSLog(@"  %@\n", file_name);
+                KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "%s", [file_name UTF8String]);
                 [self loadResource:p];
             }
         }
@@ -689,8 +686,8 @@ void kraken::set_debug_text(const std::string &print_text)
 -(float)getParameterMaxWithIndex: (int)i
 {
     float maxValues[54] = {
-             PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 10.0f,
-           1.0f,   10.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
+             PI,    3.0f,     1.0f,    1.0,  1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 2.0f,
+           1.0f,   5.0f,    2.0f,     1.0f, 1.0f, 1.0f,    5.0f, 1.0f, 0.5f,  1.0f,
            2.0f,    2.0f,    1.0f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
            1.0f,    1.0f,   10.0f, 1000.0f,  1.0f, 5.0f, 1000.0f, 1.0f, 5.0f,  3.0f,
         1000.0f, 1000.0f,    0.01f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 10.0f, 1.0f, (float)(KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER - 1),
@@ -760,6 +757,9 @@ void kraken::set_debug_text(const std::string &print_text)
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
     );
+#ifdef TEST4REL    
+    printf("Sun Intensity = %f \n", i);
+#endif
 }
 
 -(float) getSunIntensity
@@ -803,6 +803,9 @@ void kraken::set_debug_text(const std::string &print_text)
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
     );
+#ifdef TEST4REL
+    printf("ambient Intensity = %f \n", i);
+#endif
 }
 
 -(float) getAmbientIntensity

@@ -237,6 +237,8 @@ void KRAnimation::setLooping(bool looping)
     m_loop = looping;
 }
 
+
+
 KRAnimation *KRAnimation::split(const std::string &name, float start_time, float duration, bool strip_unchanging_attributes, bool clone_curves)
 {
     KRAnimation *new_animation = new KRAnimation(getContext(), name);
@@ -255,15 +257,37 @@ KRAnimation *KRAnimation::split(const std::string &name, float start_time, float
         new_animation->m_layers[new_layer->getName()] = new_layer;
         for(std::vector<KRAnimationAttribute *>::iterator attribute_itr = layer->getAttributes().begin(); attribute_itr != layer->getAttributes().end(); attribute_itr++) {
             KRAnimationAttribute *attribute = *attribute_itr;
-            KRAnimationCurve *curve = attribute->getCurve();
-            if(curve != NULL) {
+            
+            // Updated Dec 9, 2013 by Peter to change the way that attributes are stripped.
+            //
+            // If we have been asked to strip_unchanging_attributes then we only want to strip those attributes that don't havechanges
+            // in any of their components (x, y, z). This means that we have to group the attributes before we check for valueChanges().
+            // The attributes won't come through in order, but they do come through in group order (each group of 3 arrives as x, y, z)
+            // 
+            // Since this method isn't designed to handle groups, this is a bit of a hack. We simply take whatever channel is coming
+            // through and then check the other associated curves.
+            //
+            int targetAttribute = attribute->getTargetAttribute();
+            if (targetAttribute > 0) {  // we have a valid target that fits within a group of 3
+                targetAttribute--;      // this is now group relative 0,1,2 is the first group .. 3,4,5 is the second group, etc.
+                
+                KRAnimationCurve *curve = attribute->getCurve();    // this is the curve we are currently handling
+                
+                int placeInGroup = targetAttribute % 3;     // this will be 0, 1 or 2
+                static long placeLookup[] = { 1, 2, -1, 1, -2, -1 };
+                
+                KRAnimationAttribute *attribute2 = *(attribute_itr + placeLookup[placeInGroup*2]);
+                KRAnimationAttribute *attribute3 = *(attribute_itr + placeLookup[placeInGroup*2+1]);
+                KRAnimationCurve *curve2 = attribute2->getCurve();
+                KRAnimationCurve *curve3 = attribute3->getCurve();
+
                 bool include_attribute = true;
                 if(strip_unchanging_attributes) {
-                    if(!curve->valueChanges(start_time, duration)) {
-                        include_attribute = false;
+                    include_attribute = curve->valueChanges(start_time, duration) |
+                                         curve2->valueChanges(start_time, duration) |
+                                         curve3->valueChanges(start_time, duration);
                     }
-                }
-                
+                    
                 if(include_attribute) {
                     KRAnimationAttribute *new_attribute = new KRAnimationAttribute(getContext());
                     KRAnimationCurve *new_curve = curve;

@@ -35,6 +35,20 @@ KRVector2::KRVector2(const KRVector2 &v) {
     y = v.y;
 }
 
+
+// KRVector2 swizzle getters
+KRVector2 KRVector2::yx() const
+{
+    return KRVector2(y,x);
+}
+
+// KRVector2 swizzle setters
+void KRVector2::yx(const KRVector2 &v)
+{
+    y = v.x;
+    x = v.y;
+}
+
 KRVector2 KRVector2::Min() {
     return KRVector2(-std::numeric_limits<float>::max());
 }

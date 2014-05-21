@@ -84,9 +84,12 @@ public:
     bool isTransparent();
     const std::string &getName() const;
     
-    bool bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power);
+    bool bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
     
     bool needsVertexTangents();
+    
+    kraken_stream_level getStreamLevel();
+    void preStream(float lodCoverage);
     
 private:
     std::string m_name;
@@ -129,6 +132,8 @@ private:
     GLfloat m_ns; // Shininess
     
     alpha_mode_type m_alpha_mode;
+    
+    void getTextures();
 };
 
 #endif

@@ -60,7 +60,10 @@ public:
     float sample(int frame_offset, int frame_rate, int channel);
     void sample(__int64_t frame_offset, int frame_count, int channel, float *buffer, float amplitude, bool loop);
     
+    void _endFrame();
 private:
+    
+    long m_last_frame_used;
     
     std::string m_extension;
     KRDataBlock *m_pData;
@@ -78,6 +81,7 @@ private:
     
     void openFile();
     void closeFile();
+    void loadInfo();
     
     static OSStatus ReadProc( // AudioFile_ReadProc
         void *		inClientData,

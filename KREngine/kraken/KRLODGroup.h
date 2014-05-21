@@ -20,8 +20,6 @@ public:
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
     
-    virtual void updateLODVisibility(const KRViewport &viewport);
-    
     float getMinDistance();
     float getMaxDistance();
     void setMinDistance(float min_distance);
@@ -32,8 +30,9 @@ public:
     void setUseWorldUnits(bool use_world_units);
     bool getUseWorldUnits() const;
     
+    LodVisibility calcLODVisibility(const KRViewport &viewport);
+    
 private:
-    bool getLODVisibility(const KRViewport &viewport);
     float m_min_distance;
     float m_max_distance;
     KRAABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center

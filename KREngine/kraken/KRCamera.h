@@ -59,7 +59,7 @@ public:
     
     KRRenderSettings settings;
     
-    const KRViewport &getViewport();
+    const KRViewport &getViewport() const;
     
     
     virtual std::string getElementName();
@@ -67,11 +67,15 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     
     std::string getDebugText();
+    
+    void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
+    KRVector2 getDownsample();
+    void setDownsample(float v);
 
 private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
     
-    GLint backingWidth, backingHeight;
+    GLint m_backingWidth, m_backingHeight;
     GLint volumetricBufferWidth, volumetricBufferHeight;
     
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
@@ -89,7 +93,7 @@ private:
     
     float m_particlesAbsoluteTime;
     
-    
+    KRVector2 m_downsample;
     
     typedef struct {
         GLfloat x;

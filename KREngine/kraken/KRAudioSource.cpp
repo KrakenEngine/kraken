@@ -200,6 +200,8 @@ void KRAudioSource::queueBuffer()
 void KRAudioSource::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+    
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     bool bVisualize = false;
@@ -224,7 +226,7 @@ void KRAudioSource::render(KRCamera *pCamera, std::vector<KRPointLight *> &point
             GLDEBUG(glEnable(GL_DEPTH_TEST));
             GLDEBUG(glDepthFunc(GL_LEQUAL));
             GLDEBUG(glDepthRangef(0.0, 1.0));
-            std::vector<KRMesh *> sphereModels = getContext().getModelManager()->getModel("__sphere");
+            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
                     sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay");

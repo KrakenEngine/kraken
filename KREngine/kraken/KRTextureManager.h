@@ -39,15 +39,14 @@
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
-#include "KRTextureStreamer.h"
+#include "KRStreamer.h"
 
 class KRTextureManager : public KRContextObject {
 public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
     
-    void primeTexture(KRTexture *pTexture);
-    void selectTexture(int iTextureUnit, KRTexture *pTexture);
+    void selectTexture(int iTextureUnit, KRTexture *pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage);
     
     KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
     KRTexture *getTextureCube(const char *szName);
@@ -66,10 +65,9 @@ public:
     
     unordered_map<std::string, KRTexture *> &getTextures();
     
-    void compress();
+    void compress(bool premultiply_alpha = false);
     
     std::set<KRTexture *> &getActiveTextures();
-    std::set<KRTexture *> &getPoolTextures();
     
     void _setActiveTexture(int i);
     void _setWrapModeS(GLuint i, GLuint wrap_mode);
@@ -79,7 +77,8 @@ public:
     void _clearGLState();
     void setMaxAnisotropy(float max_anisotropy);
     
-    void doStreaming();
+    void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
+    void primeTexture(KRTexture *texture);
     
 private:
     int m_iActiveTexture;
@@ -95,19 +94,15 @@ private:
     
     
     std::set<KRTexture *> m_activeTextures;
-    std::set<KRTexture *> m_poolTextures;
     
-    std::set<KRTexture *> m_activeTextures_streamer;
-    std::set<KRTexture *> m_poolTextures_streamer;
-    std::set<KRTexture *> m_activeTextures_streamer_copy;
-    std::set<KRTexture *> m_poolTextures_streamer_copy;
+    std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer;
+    std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer_copy;
+    bool m_streamerComplete;
     
     std::atomic<long> m_textureMemUsed;
     
     void rotateBuffers();
-    void balanceTextureMemory();
-    
-    KRTextureStreamer m_streamer;
+    void balanceTextureMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
     
     std::mutex m_streamerFenceMutex;
 };

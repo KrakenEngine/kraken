@@ -183,6 +183,12 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #define KRCLAMP(x, min, max) (KRMAX(KRMIN(x, max), min))
 #define KRALIGN(x) ((x + 3) & ~0x03)
 
+typedef enum {
+    STREAM_LEVEL_OUT,
+    STREAM_LEVEL_IN_LQ,
+    STREAM_LEVEL_IN_HQ
+} kraken_stream_level;
+
 #include "KRVector4.h"
 #include "KRVector3.h"
 #include "KRVector2.h"

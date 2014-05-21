@@ -25,6 +25,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+uniform mediump vec2 viewport_downsample;
 attribute vec4 vertex_position;
 attribute lowp vec4 vertex_uv;
 
@@ -33,5 +34,5 @@ varying mediump vec2 textureCoordinate;
 void main()
 {
 	gl_Position = vertex_position;
-	textureCoordinate = vertex_uv.xy;
+	textureCoordinate = vertex_uv.xy * viewport_downsample.xy;
 }

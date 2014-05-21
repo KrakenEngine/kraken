@@ -35,7 +35,7 @@ KRVector3 KRDirectionalLight::getWorldLightDirection() {
 }
 
 KRVector3 KRDirectionalLight::getLocalLightDirection() {
-   return KRVector3::Forward();
+    return KRVector3::Up();           //&KRF HACK changed from KRVector3::Forward(); - to compensate for the way Maya handles post rotation.
 }
 
 
@@ -89,6 +89,8 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
 
 void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+    
     KRLight::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
 
     if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
@@ -121,7 +123,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             // Render a full screen quad
-            m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
     }

@@ -61,6 +61,7 @@ public:
     
     bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
     bool rayCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask);
+    bool sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask);
     
     unsigned int getLayerMask();
     void setLayerMask(unsigned int layer_mask);

@@ -61,7 +61,7 @@ public:
     
     virtual KRAABB getBounds();
     
-    void setRimColor(const const KRVector3 &rim_color);
+    void setRimColor(const KRVector3 &rim_color);
     void setRimPower(float rim_power);
     KRVector3 getRimColor();
     float getRimPower();
@@ -69,7 +69,11 @@ public:
     void setLightMap(const std::string &name);
     std::string getLightMap();
     
+    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
+    
 private:
+    void preStream(const KRViewport &viewport);
+    
     std::vector<KRMesh *> m_models;
     unordered_map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
     KRTexture *m_pLightMap;

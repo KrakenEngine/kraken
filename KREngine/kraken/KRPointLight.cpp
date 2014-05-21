@@ -34,7 +34,7 @@ std::string KRPointLight::getElementName() {
 }
 
 KRAABB KRPointLight::getBounds() {
-    float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;
+    float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
@@ -43,6 +43,7 @@ KRAABB KRPointLight::getBounds() {
 
 void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
+    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
     KRLight::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
@@ -56,7 +57,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
 
         KRVector3 light_position = getLocalTranslation();
         
-        float influence_radius = sqrt((m_intensity / 100.0) / KRLIGHT_MIN_INFLUENCE - 1.0) + m_decayStart;
+        float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
         
         KRMat4 sphereModelMatrix = KRMat4();
         sphereModelMatrix.scale(influence_radius);
@@ -96,13 +97,13 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
                     GLDEBUG(glDisable(GL_DEPTH_TEST));
                     
                     // Render a full screen quad
-                    m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+                    m_pContext->getMeshManager()->bindVBO(&m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
 #if GL_OES_vertex_array_object
                     GLDEBUG(glBindVertexArrayOES(0));
 #endif
-                    m_pContext->getModelManager()->configureAttribs(1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
+                    m_pContext->getMeshManager()->configureAttribs(1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
                     // Render sphere of light's influence
                     generateMesh();
                 

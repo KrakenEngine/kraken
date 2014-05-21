@@ -35,6 +35,7 @@
 #include "KRMesh.h"
 
 #include "KRVector3.h"
+#include "KRTriangle3.h"
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
@@ -70,7 +71,7 @@ void KRMesh::setName(const std::string name) {
     if(last_underscore_pos != std::string::npos) {
         // Found an underscore
         std::string suffix = name.substr(last_underscore_pos + 1);
-        if(suffix.find_first_of("lod") == 0) {
+        if(suffix.find("lod") == 0) {
             std::string lod_level_string = suffix.substr(3);
             char *end = NULL;
             int c = (int)strtol(lod_level_string.c_str(), &end, 10);
@@ -90,7 +91,7 @@ int KRMesh::GetLODCoverage(const std::string &name)
     if(last_underscore_pos != std::string::npos) {
         // Found an underscore
         std::string suffix = name.substr(last_underscore_pos + 1);
-        if(suffix.find_first_of("lod") == 0) {
+        if(suffix.find("lod") == 0) {
             std::string lod_level_string = suffix.substr(3);
             char *end = NULL;
             int c = (int)strtol(lod_level_string.c_str(), &end, 10);
@@ -160,33 +161,60 @@ void KRMesh::loadPack(KRDataBlock *data) {
     updateAttributeOffsets();
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power) {
+void KRMesh::getMaterials()
+{
+    if(m_materials.size() == 0) {
+        
+        for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
+            const char *szMaterialName = (*itr)->szMaterialName;
+            KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
+            m_materials.push_back(pMaterial);
+            if(pMaterial) {
+                m_uniqueMaterials.insert(pMaterial);
+            } else {
+                KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
+            }
+        }
+        
+        m_hasTransparency = false;
+        for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+            if((*mat_itr)->isTransparent()) {
+                m_hasTransparency = true;
+                break;
+            }
+        }
+    }
+}
+
+void KRMesh::preStream(float lodCoverage)
+{
+    getSubmeshes();
+    getMaterials();
     
+    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        (*mat_itr)->preStream(lodCoverage);
+    }
+}
+
+kraken_stream_level KRMesh::getStreamLevel()
+{
+    kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
+    getSubmeshes();
+    getMaterials();
+    
+    for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel());
+    }
+    
+    return stream_level;
+}
+
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
         getSubmeshes();
-        if(m_materials.size() == 0) {
-            
-            for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
-                const char *szMaterialName = (*itr)->szMaterialName;
-                KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
-                m_materials.push_back(pMaterial);
-                if(pMaterial) {
-                    m_uniqueMaterials.insert(pMaterial);
-                } else {
-                    KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
-                }
-            }
-            
-            m_hasTransparency = false;
-            for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-                if((*mat_itr)->isTransparent()) {
-                    m_hasTransparency = true;
-                    break;
-                }
-            }
-        }
+        getMaterials();
         
         int cSubmeshes = m_submeshes.size();
         if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
@@ -214,7 +242,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                             for(int i=0; i < bones.size(); i++) {
                                 bone_bind_poses.push_back(getBoneBindPose(i));
                             }
-                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power)) {
+                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power, lod_coverage)) {
                             
                                 switch(pMaterial->getAlphaMode()) {
                                     case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
@@ -301,28 +329,27 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             int start_index_offset, start_vertex_offset, index_count, vertex_count;
             getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            KRDataBlock *vertex_data_block = NULL;
-            KRDataBlock *index_data_block = NULL;
+            KRMeshManager::KRVBOData *vbo_data_block = NULL;
             if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
-                vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
-                index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
+                KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
+                KRDataBlock *index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
+                vbo_data_block = new KRMeshManager::KRVBOData(*vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
                 m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
                 m_submeshes[iSubmesh]->index_data_blocks.push_back(index_data_block);
+                m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
             } else {
-                vertex_data_block = m_submeshes[iSubmesh]->vertex_data_blocks[vbo_index];
-                index_data_block = m_submeshes[iSubmesh]->index_data_blocks[vbo_index];
+                vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index];
             }
             vbo_index++;
             
-            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size, index_data + start_index_offset, index_count * 2, vertex_attrib_flags, true);
-            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
+            m_pContext->getMeshManager()->bindVBO(vbo_data_block);
             
             
             int vertex_draw_count = cVertexes;
             if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
             
             glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
-            m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
+            m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
             cVertexes -= vertex_draw_count;
             index_group_offset = 0;
         }
@@ -336,19 +363,20 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
             int vertex_size = m_vertex_size;
             
-            KRDataBlock *vertex_data_block = NULL;
-            KRDataBlock *index_data_block = NULL;
+            
+            KRMeshManager::KRVBOData *vbo_data_block = NULL;
             if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
-                vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-                
+                KRDataBlock *index_data_block = NULL;
+                KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
+                vbo_data_block = new KRMeshManager::KRVBOData(*vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
                 m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
+                m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
             } else {
-                vertex_data_block = m_submeshes[iSubmesh]->vertex_data_blocks[vbo_index];
+                vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index];
             }
             vbo_index++;
             
-            //m_pContext->getModelManager()->bindVBO((unsigned char *)pVertexData + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes, NULL, 0, vertex_attrib_flags, true);
-            m_pContext->getModelManager()->bindVBO(*vertex_data_block, *index_data_block, vertex_attrib_flags, true);
+            m_pContext->getMeshManager()->bindVBO(vbo_data_block);
             
             
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -369,7 +397,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
                     default:
                         break;
                 }
-                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
+                m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
                 
                 cVertexes -= (MAX_VBO_SIZE - iVertex);
                 iVertex = 0;
@@ -387,7 +415,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
                     default:
                         break;
                 }
-                m_pContext->getModelManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
+                m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
                 
                 cVertexes = 0;
             }
@@ -981,94 +1009,41 @@ KRMesh::model_format_t KRMesh::getModelFormat() const
     return f;
 }
 
-bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, const KRVector3 &tri_v0, const KRVector3 &tri_v1, const KRVector3 &tri_v2, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
 {
-    // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
-    const float SMALL_NUM = 0.00000001; // anything that avoids division overflow
-    KRVector3   u, v, n;              // triangle vectors
-    KRVector3   w0, w;           // ray vectors
-    float       r, a, b;              // params to calc ray-plane intersect
-    
-    // get triangle edge vectors and plane normal
-    u = tri_v1 - tri_v0;
-    v = tri_v2 - tri_v0;
-    n = KRVector3::Cross(u, v); // cross product
-    if (n == KRVector3::Zero())             // triangle is degenerate
-        return false;                  // do not deal with this case
-    
-    w0 = line_v0 - tri_v0;
-    a = -KRVector3::Dot(n, w0);
-    b = KRVector3::Dot(n,dir);
-    if (fabs(b) < SMALL_NUM) {     // ray is  parallel to triangle plane
-        if (a == 0)                 
-            return false; // ray lies in triangle plane
-        else {
-            return false; // ray disjoint from plane
+    KRVector3 hit_point;
+    if(tri.rayCast(start, dir, hit_point)) {
+        // ---===--- hit_point is in triangle ---===---
+        
+        float new_hit_distance = (hit_point - start).magnitude();
+        if(new_hit_distance < hitinfo.getDistance() || !hitinfo.didHit()) {
+            // Update the hitinfo object if this hit is closer than the prior hit
+            
+            // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
+            float distance_v0 = (tri[0] - hit_point).magnitude();
+            float distance_v1 = (tri[1] - hit_point).magnitude();
+            float distance_v2 = (tri[2] - hit_point).magnitude();
+            float distance_total = distance_v0 + distance_v1 + distance_v2;
+            distance_v0 /= distance_total;
+            distance_v1 /= distance_total;
+            distance_v2 /= distance_total;
+            KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
+            
+            hitinfo = KRHitInfo(hit_point, normal, new_hit_distance);
+            return true;
+        } else {
+            return false; // The hit was farther than an existing hit
         }
-    }
-    
-    // get intersect point of ray with triangle plane
-    r = a / b;
-    if (r < 0.0)                    // ray goes away from triangle
-        return false;                   // => no intersect
-    // for a segment, also test if (r > 1.0) => no intersect
-    
-    
-    KRVector3 hit_point = line_v0 + dir * r;            // intersect point of ray and plane
-    
-    // is hit_point inside triangle?
-    float    uu, uv, vv, wu, wv, D;
-    uu = KRVector3::Dot(u,u);
-    uv = KRVector3::Dot(u,v);
-    vv = KRVector3::Dot(v,v);
-    w = hit_point - tri_v0;
-    wu = KRVector3::Dot(w,u);
-    wv = KRVector3::Dot(w,v);
-    D = uv * uv - uu * vv;
-    
-    // get and test parametric coords
-    float s, t;
-    s = (uv * wv - vv * wu) / D;
-    if (s < 0.0 || s > 1.0)         // hit_point is outside triangle
-        return false;
-    t = (uv * wu - uu * wv) / D;
-    if (t < 0.0 || (s + t) > 1.0)  // hit_point is outside triangle
-        return false;
-    
-    float new_hit_distance_sqr = (hit_point - line_v0).sqrMagnitude();
-    float prev_hit_distance_sqr = (hitinfo.getPosition() - line_v0).sqrMagnitude();
 
-    // ---===--- hit_point is in triangle ---===---
-    
-    
-    if(new_hit_distance_sqr < prev_hit_distance_sqr || !hitinfo.didHit()) {
-        // Update the hitinfo object if this hit is closer than the prior hit
-        
-        // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
-        float distance_v0 = (tri_v0 - hit_point).magnitude();
-        float distance_v1 = (tri_v1 - hit_point).magnitude();
-        float distance_v2 = (tri_v2 - hit_point).magnitude();
-        float distance_total = distance_v0 + distance_v1 + distance_v2;
-        distance_v0 /= distance_total;
-        distance_v1 /= distance_total;
-        distance_v2 /= distance_total;
-        KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
-        
-        hitinfo = KRHitInfo(hit_point, normal);
-        return true;
     } else {
-        return false; // Either no hit, or the hit was farther than an existing hit
+        // Dit not hit the triangle
+        return false;
     }
+
 }
 
-/*
-bool KRMesh::rayCast(const KRVector3 &line_v0, const KRVector3 &dir, int tri_index0, int tri_index1, int tri_index2, KRHitInfo &hitinfo) const
-{
-    return rayCast(line_v0, dir, getVertexPosition(tri_index0), getVertexPosition(tri_index1), getVertexPosition(tri_index2), getVertexNormal(tri_index0), getVertexNormal(tri_index1), getVertexNormal(tri_index2), hitinfo);
-}
- */
 
-bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const
+bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
     bool hit_found = false;
@@ -1084,7 +1059,9 @@ bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitin
                     tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
                     tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
                     
-                    if(rayCast(v0, dir, getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]), getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
+                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(rayCast(start, dir, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
                 }
                 break;
             /*
@@ -1109,6 +1086,92 @@ bool KRMesh::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitin
     }
     m_pData->unlock();
     return hit_found;
+}
+
+
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const
+{
+    m_pData->lock();
+
+    bool hit_found = false;
+    for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
+        int vertex_count = getVertexCount(submesh_index);
+        switch(getModelFormat()) {
+            case KRENGINE_MODEL_FORMAT_TRIANGLES:
+            case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
+                    int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
+                    tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index*3);
+                    tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
+                    tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
+                    
+                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(sphereCast(model_to_world, v0, v1, radius, tri, hitinfo)) hit_found = true;
+                    
+                    /*
+                    KRTriangle3 tri2 = KRTriangle3(getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[2]));
+                    
+                    if(sphereCast(model_to_world, v0, v1, radius, tri2, new_hitinfo)) hit_found = true;
+                    */
+                }
+                break;
+                /*
+                 
+                 NOTE: Not yet supported:
+                 
+                 case KRENGINE_MODEL_FORMAT_STRIP:
+                 case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
+                 int tri_vert_index[3];
+                 tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
+                 tri_vert_index[1] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 1);
+                 tri_vert_index[2] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 2);
+                 
+                 if(sphereCast(model_to_world, v0, v1, getVertexPosition(vertex_start + triangle_index), getVertexPosition(vertex_start + triangle_index+1), getVertexPosition(vertex_start + triangle_index+2), getVertexNormal(vertex_start + triangle_index), getVertexNormal(vertex_start + triangle_index+1), getVertexNormal(vertex_start + triangle_index+2), new_hitinfo)) hit_found = true;
+                 }
+                 break;
+                 */
+            default:
+                break;
+        }
+    }
+    m_pData->unlock();
+    
+    return hit_found;
+}
+
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
+{
+    
+    KRVector3 dir = KRVector3::Normalize(v1 - v0);
+    KRVector3 start = v0;
+    
+    KRVector3 new_hit_point;
+    float new_hit_distance;
+    
+    KRTriangle3 world_tri = KRTriangle3(KRMat4::Dot(model_to_world, tri[0]), KRMat4::Dot(model_to_world, tri[1]), KRMat4::Dot(model_to_world, tri[2]));
+    
+    if(world_tri.sphereCast(start, dir, radius, new_hit_point, new_hit_distance)) {
+        if((!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) && new_hit_distance <= (v1 - v0).magnitude()) {
+            
+            /*
+            // Interpolate between the three vertex normals, performing a 3-way lerp of tri_n0, tri_n1, and tri_n2
+            float distance_v0 = (tri[0] - new_hit_point).magnitude();
+            float distance_v1 = (tri[1] - new_hit_point).magnitude();
+            float distance_v2 = (tri[2] - new_hit_point).magnitude();
+            float distance_total = distance_v0 + distance_v1 + distance_v2;
+            distance_v0 /= distance_total;
+            distance_v1 /= distance_total;
+            distance_v2 /= distance_total;
+            KRVector3 normal = KRVector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
+            */
+            hitinfo = KRHitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const

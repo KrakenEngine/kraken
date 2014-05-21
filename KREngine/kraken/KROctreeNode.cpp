@@ -251,3 +251,40 @@ bool KROctreeNode::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo 
 
     return hit_found;
 }
+
+bool KROctreeNode::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+{
+    bool hit_found = false;
+    /*
+     // FINDME, TODO - Adapt this optimization to work with sphereCasts
+     
+    if(hitinfo.didHit() && v1 != hitinfo.getPosition()) {
+        // Optimization: If we already have a hit, only search for hits that are closer
+        hit_found = sphereCast(v0, hitinfo.getPosition(), radius, hitinfo, layer_mask);
+    } else {
+    */
+    
+        KRAABB swept_bounds = KRAABB(KRVector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), KRVector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
+        // FINDME, TODO - Investigate AABB - swept sphere intersections or OBB - AABB intersections: "if(getBounds().intersectsSweptSphere(v0, v1, radius)) {"
+        if(getBounds().intersects(swept_bounds)) {
+        
+            for(std::set<KRNode *>::iterator nodes_itr=m_sceneNodes.begin(); nodes_itr != m_sceneNodes.end(); nodes_itr++) {
+                KRCollider *collider = dynamic_cast<KRCollider *>(*nodes_itr);
+                if(collider) {
+                    if(collider->sphereCast(v0, v1, radius, hitinfo, layer_mask)) hit_found = true;
+                }
+            }
+            
+            for(int i=0; i<8; i++) {
+                if(m_children[i]) {
+                    if(m_children[i]->sphereCast(v0, v1, radius, hitinfo, layer_mask)) {
+                        hit_found = true;
+                    }
+                }
+            }
+        }
+    // }
+    
+    return hit_found;
+}
+

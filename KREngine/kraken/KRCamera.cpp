@@ -39,8 +39,8 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_last_frame_start = 0;
     
     m_particlesAbsoluteTime = 0.0f;
-    backingWidth = 0;
-    backingHeight = 0;
+    m_backingWidth = 0;
+    m_backingHeight = 0;
     volumetricBufferWidth = 0;
     volumetricBufferHeight = 0;
     m_pSkyBoxTexture = NULL;
@@ -54,6 +54,7 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
     m_frame_times_filled = 0;
+    m_downsample = KRVector2::One();
 }
 
 KRCamera::~KRCamera() {
@@ -77,8 +78,13 @@ void KRCamera::loadXML(tinyxml2::XMLElement *e)
     KRNode::loadXML(e);
 }
 
+void KRCamera::flushSkybox()
+{
+    m_pSkyBoxTexture = NULL; // NOTE: the texture manager manages the loading and unloading of the skybox textures
+}
+
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
-{    
+{
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
     if(m_last_frame_start != 0) {
@@ -99,7 +105,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     //KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
-    settings.setViewportSize(KRVector2(backingWidth, backingHeight));
+    settings.setViewportSize(KRVector2(m_backingWidth, m_backingHeight));
     KRMat4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
@@ -110,11 +116,14 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     scene.updateOctree(m_viewport);
     
+    // ----====---- Pre-stream resources ----====----
+    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
+    
     // ----====---- Generate Shadowmaps for Lights ----====----
     if(settings.m_cShadowBuffers > 0) {
         GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
         
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, settings.bEnableDeferredLighting);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
         GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
         GL_POP_GROUP_MARKER;
     }
@@ -153,7 +162,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, true);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
         
         
         GL_POP_GROUP_MARKER;
@@ -167,6 +176,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
+        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x * m_downsample.x, m_viewport.getSize().y * m_downsample.y));
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
@@ -178,10 +188,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glDepthMask(GL_FALSE));
         
         // Set source to buffers from pass 1
-        m_pContext->getTextureManager()->selectTexture(6, NULL);
+        m_pContext->getTextureManager()->selectTexture(6, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
-        m_pContext->getTextureManager()->selectTexture(7, NULL);
+        m_pContext->getTextureManager()->selectTexture(7, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(7);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
         
@@ -206,7 +216,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
         // Set source to buffers from pass 2
-        m_pContext->getTextureManager()->selectTexture(6, NULL);
+        m_pContext->getTextureManager()->selectTexture(6, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, lightAccumulationTexture));
         
@@ -227,10 +237,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
         
         // Deactivate source buffer texture units
-        m_pContext->getTextureManager()->selectTexture(6, NULL);
+        m_pContext->getTextureManager()->selectTexture(6, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(6);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
-        m_pContext->getTextureManager()->selectTexture(7, NULL);
+        m_pContext->getTextureManager()->selectTexture(7, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(7);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
         
@@ -243,7 +253,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
+        GLDEBUG(glViewport(0, 0, m_viewport.getSize().x * m_downsample.x, m_viewport.getSize().y * m_downsample.y));
         
         // Disable alpha blending
         GLDEBUG(glDisable(GL_BLEND));
@@ -275,7 +285,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, true);
+        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
         
         GL_POP_GROUP_MARKER;
     }
@@ -308,10 +318,10 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         KRVector3 rim_color;
         getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE, rim_color, 0.0f);
 
-        getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture);
+        getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
         // Render a full screen quad
-        m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -330,7 +340,11 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 //    
 //    // Disable backface culling
 //    GLDEBUG(glDisable(GL_CULL_FACE));
-//    
+//
+    // Enable backface culling
+    GLDEBUG(glCullFace(GL_BACK));
+    GLDEBUG(glEnable(GL_CULL_FACE));
+    
     // Disable z-buffer write
     GLDEBUG(glDepthMask(GL_FALSE));
 //    
@@ -420,7 +434,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
             // Disable z-buffer test
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
-            m_pContext->getTextureManager()->selectTexture(0, NULL);
+            m_pContext->getTextureManager()->selectTexture(0, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
             m_pContext->getTextureManager()->_setActiveTexture(0);
             GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
             
@@ -468,7 +482,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_3D_CUBE_ATTRIBS, true);
+        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES);
         for(unordered_map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             KRMat4 matModel = KRMat4();
             matModel.scale((*itr).first.size() * 0.5f);
@@ -486,12 +500,12 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     GL_POP_GROUP_MARKER;
     
 
-//    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getModelManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
+//    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
     GL_PUSH_GROUP_MARKER("Post Processing");
     
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
-    m_pContext->getModelManager()->unbindVBO();
+    m_pContext->getMeshManager()->unbindVBO();
     
     GL_POP_GROUP_MARKER;
     
@@ -505,9 +519,9 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 
 void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) {
     
-    if(renderBufferWidth != backingWidth || renderBufferHeight != backingHeight) {
-        backingWidth = renderBufferWidth;
-        backingHeight = renderBufferHeight;
+    if(renderBufferWidth != m_backingWidth || renderBufferHeight != m_backingHeight) {
+        m_backingWidth = renderBufferWidth;
+        m_backingHeight = renderBufferHeight;
         
         if (compositeDepthTexture) {
             GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));
@@ -546,7 +560,7 @@ void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) 
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_backingWidth, m_backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, compositeColorTexture, 0));
         
         // ----- Create Depth Texture for compositeFramebuffer -----
@@ -556,9 +570,9 @@ void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) 
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
-        //GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, backingWidth, backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
-        //GLDEBUG(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, backingWidth, backingHeight));
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_backingWidth, m_backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+        //GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_backingWidth, m_backingHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+        //GLDEBUG(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24_OES, m_backingWidth, m_backingHeight));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
         
         // ===== Create offscreen compositing framebuffer object =====
@@ -572,7 +586,7 @@ void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) 
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
         GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)); // This is necessary for non-power-of-two textures
-        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backingWidth, backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+        GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_backingWidth, m_backingHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightAccumulationTexture, 0));
     }
     
@@ -680,37 +694,37 @@ void KRCamera::renderPost()
     }};
 	
 
-	
+	GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
     GLDEBUG(glDisable(GL_DEPTH_TEST));
     KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     KRVector3 rim_color;
     getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f);
     
-    m_pContext->getTextureManager()->selectTexture(0, NULL);
+    m_pContext->getTextureManager()->selectTexture(0, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     m_pContext->getTextureManager()->_setActiveTexture(0);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeDepthTexture));
     
-    m_pContext->getTextureManager()->selectTexture(1, NULL);
+    m_pContext->getTextureManager()->selectTexture(1, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     m_pContext->getTextureManager()->_setActiveTexture(1);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compositeColorTexture));
     
     if(settings.volumetric_environment_enable) {
-        m_pContext->getTextureManager()->selectTexture(2, NULL);
+        m_pContext->getTextureManager()->selectTexture(2, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
         m_pContext->getTextureManager()->_setActiveTexture(2);
         GLDEBUG(glBindTexture(GL_TEXTURE_2D, volumetricLightAccumulationTexture));
     }
 	
 	// Update attribute values.
-    m_pContext->getModelManager()->bindVBO(getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_VERTICES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_INDEXES, getContext().getModelManager()->KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+    m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
-    m_pContext->getTextureManager()->selectTexture(0, NULL);
+    m_pContext->getTextureManager()->selectTexture(0, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     m_pContext->getTextureManager()->_setActiveTexture(0);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
-    m_pContext->getTextureManager()->selectTexture(1, NULL);
+    m_pContext->getTextureManager()->selectTexture(1, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     m_pContext->getTextureManager()->_setActiveTexture(1);
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
     
@@ -724,7 +738,7 @@ void KRCamera::renderPost()
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
 //            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
-//            m_pContext->getModelManager()->bindVBO(KRENGINE_VBO_2D_SQUARE_INDICES, KRENGINE_VBO_2D_SQUARE_VERTEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, true);
+//            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
 //            m_pContext->getTextureManager()->_setActiveTexture(0);
 //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
 //#if GL_EXT_shadow_samplers
@@ -744,7 +758,7 @@ void KRCamera::renderPost()
     
     
     if(m_debug_text_vertices.getSize()) {
-        m_pContext->getModelManager()->releaseVBO(m_debug_text_vertices);
+        m_pContext->getMeshManager()->releaseVBO(m_debug_text_vertices);
     }
     
     const char *szText = settings.m_debug_text.c_str();
@@ -890,11 +904,10 @@ void KRCamera::renderPost()
         KRVector3 rim_color;
         getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f);
         
-        m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"));
+        m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
         KRDataBlock index_data;
-        //m_pContext->getModelManager()->bindVBO((void *)m_debug_text_vertices, vertex_count * sizeof(DebugTextVertexData), NULL, 0, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
-        m_pContext->getModelManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
+        m_pContext->getMeshManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true);
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
         
@@ -978,17 +991,16 @@ std::string KRCamera::getDebugText()
                 
             // ---- GPU Memory ----
             int texture_count_active = m_pContext->getTextureManager()->getActiveTextures().size();
-            int texture_count_pooled = m_pContext->getTextureManager()->getPoolTextures().size();
-            int texture_count = texture_count_active + texture_count_pooled;
+            int texture_count = texture_count_active;
             long texture_mem_active = m_pContext->getTextureManager()->getMemActive();
             long texture_mem_used = m_pContext->getTextureManager()->getMemUsed();
             long texture_mem_throughput = m_pContext->getTextureManager()->getMemoryTransferedThisFrame();
             
-            int vbo_count_active = m_pContext->getModelManager()->getActiveVBOCount();
-            int vbo_count_pooled = m_pContext->getModelManager()->getPoolVBOCount();
-            long vbo_mem_active = m_pContext->getModelManager()->getMemActive();
-            long vbo_mem_used = m_pContext->getModelManager()->getMemUsed();
-            long vbo_mem_throughput = m_pContext->getModelManager()->getMemoryTransferedThisFrame();
+            int vbo_count_active = m_pContext->getMeshManager()->getActiveVBOCount();
+            int vbo_count_pooled = m_pContext->getMeshManager()->getPoolVBOCount();
+            long vbo_mem_active = m_pContext->getMeshManager()->getMemActive();
+            long vbo_mem_used = m_pContext->getMeshManager()->getMemUsed();
+            long vbo_mem_throughput = m_pContext->getMeshManager()->getMemoryTransferedThisFrame();
             
             long total_mem_active = texture_mem_active + vbo_mem_active;
             long total_mem_used = texture_mem_used + vbo_mem_used;
@@ -1037,7 +1049,7 @@ std::string KRCamera::getDebugText()
     
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_DRAW_CALLS: // ----====---- List Draw Calls ----====----
         {
-            std::vector<KRMeshManager::draw_call_info> draw_calls = m_pContext->getModelManager()->getDrawCalls();
+            std::vector<KRMeshManager::draw_call_info> draw_calls = m_pContext->getMeshManager()->getDrawCalls();
             
             long draw_call_count = 0;
             long vertex_count = 0;
@@ -1102,7 +1114,18 @@ std::string KRCamera::getDebugText()
 }
 
 
-const KRViewport &KRCamera::getViewport()
+const KRViewport &KRCamera::getViewport() const
 {
     return m_viewport;
+}
+
+
+KRVector2 KRCamera::getDownsample()
+{
+    return m_downsample;
+}
+
+void KRCamera::setDownsample(float v)
+{
+    m_downsample = v;
 }

@@ -43,7 +43,14 @@ public:
         RENDER_PASS_ADDITIVE_PARTICLES,
         RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
         RENDER_PASS_GENERATE_SHADOWMAPS,
-        RENDER_PASS_SHADOWMAP
+        RENDER_PASS_SHADOWMAP,
+        RENDER_PASS_PRESTREAM
+    };
+    
+    enum LodVisibility {
+        LOD_VISIBILITY_HIDDEN,
+        LOD_VISIBILITY_PRESTREAM,
+        LOD_VISIBILITY_VISIBLE
     };
     
     KRNode(KRScene &scene, std::string name);
@@ -110,6 +117,7 @@ public:
     void setWorldRotation(const KRVector3 &v);
     
     virtual KRAABB getBounds();
+    void invalidateBounds() const;
     const KRMat4 &getModelMatrix();
     const KRMat4 &getInverseModelMatrix();
     const KRMat4 &getBindPoseMatrix();
@@ -158,12 +166,17 @@ public:
     virtual bool hasPhysics();
     
     virtual void updateLODVisibility(const KRViewport &viewport);
-    bool lodIsVisible();
+    LodVisibility getLODVisibility();
     
     void setScaleCompensation(bool scale_compensation);
     bool getScaleCompensation();
     void setAnimationEnabled(node_attribute_type attrib, bool enable);
     bool getAnimationEnabled(node_attribute_type attrib) const;
+    
+    
+    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
+    
+    virtual void setLODVisibility(LodVisibility lod_visibility);
     
 protected:
     KRVector3 m_localTranslation;
@@ -188,11 +201,7 @@ protected:
     KRVector3 m_initialPreRotation;
     KRVector3 m_initialPostRotation;
     
-    bool m_lod_visible;
-    void hideLOD();
-    void showLOD();
-    float m_lod_min_coverage;
-    float m_lod_max_coverage;
+    LodVisibility m_lod_visible;
     
     KRNode *m_parentNode;
     std::set<KRNode *> m_childNodes;
@@ -213,6 +222,9 @@ private:
     bool m_bindPoseMatrixValid;
     bool m_activePoseMatrixValid;
     bool m_inverseBindPoseMatrixValid;
+    
+    mutable KRAABB m_bounds;
+    mutable bool m_boundsValid;
     
     std::string m_name;
     

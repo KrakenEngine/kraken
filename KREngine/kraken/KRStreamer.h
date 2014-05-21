@@ -1,5 +1,5 @@
 //
-//  KRMeshManager.h
+//  KRTextureManager.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMESHSTREAMER_H
-#define KRMESHSTREAMER_H
+#ifndef KRSTREAMER_H
+#define KRSTREAMER_H
 
 #include "KREngine-common.h"
 
@@ -39,11 +39,11 @@
 
 class KRContext;
 
-class KRMeshStreamer
+class KRStreamer
 {
 public:
-    KRMeshStreamer(KRContext &context);
-    ~KRMeshStreamer();
+    KRStreamer(KRContext &context);
+    ~KRStreamer();
     
     void startStreamer();
     
@@ -57,4 +57,4 @@ private:
     void run();
 };
 
-#endif /* defined(KRMESHSTREAMER_H) */
+#endif /* defined(KRSTREAMER_H) */

@@ -153,7 +153,7 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, int prev_lod_max_dim, bool compress)
+bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     int target_dim = lod_max_dim;
     if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -220,7 +220,7 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                 current_lod_max_dim = height;
             }
 #if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
-            if(target == GL_TEXTURE_2D && width <= prev_lod_max_dim && height <= prev_lod_max_dim) {
+            if(target == GL_TEXTURE_2D && width <= m_current_lod_max_dim && height <= m_current_lod_max_dim) {
                 //GLDEBUG(glCompressedTexImage2D(target, i, (GLenum)m_header.glInternalFormat, width, height, 0, block.length, NULL)); // Allocate, but don't copy
                 //                GLDEBUG(glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
                 GLDEBUG(glCopyTextureLevelsAPPLE(m_iNewHandle, m_iHandle, source_level, 1));
@@ -253,7 +253,7 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             destination_level++;
         }
         
-        if(width <= prev_lod_max_dim && height <= prev_lod_max_dim) {
+        if(width <= m_current_lod_max_dim && height <= m_current_lod_max_dim) {
             source_level++;
         }
 		
