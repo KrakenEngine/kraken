@@ -64,8 +64,8 @@ public:
     public:
         
         KRVBOData();
-        KRVBOData(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
-        void init(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
         ~KRVBOData();
         
         
@@ -84,7 +84,10 @@ public:
         bool isTemporary() { return m_temp_vbo; }
         bool getSize() { return m_size; }
         
+        void resetPoolExpiry(float lodCoverage);
+        
     private:
+        KRMeshManager *m_manager;
         int m_vertex_attrib_flags;
         GLuint m_vbo_handle;
         GLuint m_vbo_handle_indexes;
@@ -92,6 +95,9 @@ public:
         bool m_static_vbo;
         bool m_temp_vbo;
         GLsizeiptr m_size;
+        
+        long m_last_frame_used;
+        float m_last_frame_max_lod_coverage;
     };
     
     void bindVBO(KRVBOData *vbo_data);

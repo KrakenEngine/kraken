@@ -333,7 +333,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
                 KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
                 KRDataBlock *index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
-                vbo_data_block = new KRMeshManager::KRVBOData(*vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
+                vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
                 m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
                 m_submeshes[iSubmesh]->index_data_blocks.push_back(index_data_block);
                 m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
@@ -368,7 +368,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
                 KRDataBlock *index_data_block = NULL;
                 KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-                vbo_data_block = new KRMeshManager::KRVBOData(*vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
+                vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
                 m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
                 m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
             } else {

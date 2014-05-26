@@ -76,7 +76,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, false);
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, false);
     
     
     
@@ -92,7 +92,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, false);
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, false);
     
 }
 
@@ -247,7 +247,7 @@ void KRMeshManager::bindVBO(KRVBOData *vbo_data)
 
 void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo)
 {
-    KRVBOData *vbo_data = new KRVBOData(data, index_data, vertex_attrib_flags, static_vbo, true);
+    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, true);
     bindVBO(vbo_data);
 }
 
@@ -487,6 +487,7 @@ void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThis
 
 KRMeshManager::KRVBOData::KRVBOData()
 {
+    m_manager = NULL;
     m_temp_vbo = false;
     m_static_vbo = false;
     m_data = NULL;
@@ -496,15 +497,19 @@ KRMeshManager::KRVBOData::KRVBOData()
     m_vbo_handle_indexes = -1;
     m_vao_handle = -1;
     m_size = 0;
+    
+    m_last_frame_used = 0;
+    m_last_frame_max_lod_coverage = 0.0f;
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
 {
-    init(data,index_data,vertex_attrib_flags, static_vbo, temp_vbo);
+    init(manager, data,index_data,vertex_attrib_flags, static_vbo, temp_vbo);
 }
 
-void KRMeshManager::KRVBOData::init(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
 {
+    m_manager = manager;
     m_temp_vbo = temp_vbo;
     m_static_vbo = static_vbo;
     m_data = &data;
@@ -615,4 +620,14 @@ void KRMeshManager::KRVBOData::bind()
         GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
     }
 #endif
+}
+
+void KRMeshManager::KRVBOData::resetPoolExpiry(float lodCoverage)
+{
+    long current_frame = m_manager->getContext().getCurrentFrame();
+    if(current_frame != m_last_frame_used) {
+        m_last_frame_used = current_frame;
+        m_last_frame_max_lod_coverage = 0.0f;
+    }
+    m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
 }
