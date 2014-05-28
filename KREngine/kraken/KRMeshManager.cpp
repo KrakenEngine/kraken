@@ -563,6 +563,8 @@ KRMeshManager::KRVBOData::KRVBOData()
 
 KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
 {
+    m_is_vbo_loaded = false;
+    m_is_vbo_ready = false;
     init(manager, data,index_data,vertex_attrib_flags, static_vbo, t);
 }
 
@@ -595,9 +597,9 @@ void KRMeshManager::KRVBOData::load()
     if(isVBOLoaded()) {
         return;
     }
-    m_vao_handle = -1;
-    m_vbo_handle = -1;
-    m_vbo_handle_indexes = -1;
+    assert(m_vao_handle == -1);
+    assert(m_vbo_handle == -1);
+    assert(m_vbo_handle_indexes == -1);
     
     GLDEBUG(glGenBuffers(1, &m_vbo_handle));
     if(m_index_data->getSize() > 0) {
@@ -605,11 +607,12 @@ void KRMeshManager::KRVBOData::load()
     }
     
     
-    
+    /*
 #if GL_OES_vertex_array_object
     GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
     GLDEBUG(glBindVertexArrayOES(m_vao_handle));
 #endif
+     */
     
     GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
 #if GL_OES_mapbuffer
@@ -646,7 +649,7 @@ void KRMeshManager::KRVBOData::load()
     
     m_is_vbo_loaded = true;
     if(m_type == CONSTANT) {
-        m_is_vbo_ready = true;
+        _swapHandles();
     }
 }
 
@@ -712,6 +715,25 @@ float KRMeshManager::KRVBOData::getStreamPriority()
 
 void KRMeshManager::KRVBOData::_swapHandles()
 {
+    if(m_is_vbo_loaded) {
+        assert(m_vbo_handle != -1);
+    }
+    
+#if GL_OES_vertex_array_object
+    if(m_is_vbo_loaded && m_vao_handle == -1) {
+        GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
+        GLDEBUG(glBindVertexArrayOES(m_vao_handle));
+        
+        GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
+        KRMeshManager::configureAttribs(m_vertex_attrib_flags);
+        if(m_vbo_handle_indexes == -1) {
+            GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        } else {
+            GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
+        }
+    }
+#endif
+    
     m_is_vbo_ready = m_is_vbo_loaded;
 }
 
