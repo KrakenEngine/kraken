@@ -101,7 +101,6 @@ private:
     
     std::atomic<long> m_textureMemUsed;
     
-    void rotateBuffers();
     void balanceTextureMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
     
     std::mutex m_streamerFenceMutex;

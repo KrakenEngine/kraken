@@ -129,14 +129,12 @@ public:
     void optimize();
     void optimizeIndexes();
     
-    void renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name);
+    void renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage);
     
     GLfloat getMaxDimension();
     
     KRVector3 getMinPoint() const;
     KRVector3 getMaxPoint() const;
-    
-
     
     class Submesh {
     public:
@@ -220,6 +218,12 @@ public:
     bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const;
     
     static int GetLODCoverage(const std::string &name);
+    
+    void load(); // Load immediately into the GPU rather than passing through the streamer
+    
+protected:
+    bool m_constant; // TRUE if this should be always loaded and should not be passed through the streamer
+    
 private:
     KRDataBlock *m_pData;
     KRDataBlock *m_pMetaData;
@@ -279,6 +283,9 @@ private:
     void getIndexedRange(int index_group, int &start_index_offset, int &start_vertex_offset, int &index_count, int &vertex_count) const;
     
     void releaseData();
+    
+    void createDataBlocks(KRMeshManager::KRVBOData::vbo_type t);
+
     
 };
 

@@ -68,7 +68,7 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
             std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                    sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay");
+                    sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay", 1.0f);
                 }
             }
 

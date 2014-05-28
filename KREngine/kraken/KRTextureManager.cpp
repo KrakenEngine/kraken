@@ -256,7 +256,6 @@ void KRTextureManager::startFrame(float deltaTime)
         
         const long KRENGINE_TEXTURE_EXPIRY_FRAMES = 10;
         
-
         std::set<KRTexture *> expiredTextures;
         for(std::set<KRTexture *>::iterator itr=m_activeTextures.begin(); itr != m_activeTextures.end(); itr++) {
             KRTexture *activeTexture = *itr;
@@ -282,7 +281,6 @@ void KRTextureManager::startFrame(float deltaTime)
     m_streamerFenceMutex.unlock();
     
     m_memoryTransferredThisFrame = 0;
-    rotateBuffers();
 }
 
 void KRTextureManager::endFrame(float deltaTime)
@@ -397,11 +395,6 @@ void KRTextureManager::balanceTextureMemory(long &memoryRemaining, long &memoryR
     
     //long streamerTime = getContext().getAbsoluteTimeMilliseconds() - startTime;
     //fprintf(stderr, "%i / %i\n", (int)minMipTime, (int)streamerTime);
-
-}
-
-void KRTextureManager::rotateBuffers()
-{
 
 }
 

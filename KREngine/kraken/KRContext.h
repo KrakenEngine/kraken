@@ -54,8 +54,6 @@ public:
     
     KRCamera *createCamera(int width, int height);
     
-    void rotateBuffers(bool new_frame);
-    
     enum {
         KRENGINE_GL_EXT_texture_storage,
         KRENGINE_NUM_EXTENSIONS

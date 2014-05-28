@@ -34,8 +34,9 @@
 
 KRMeshCube::KRMeshCube(KRContext &context) : KRMesh(context, "__cube")
 {
-    KRMesh::mesh_info mi;
+    m_constant = true;
     
+    KRMesh::mesh_info mi;
     
     mi.vertices.push_back(KRVector3(1.0, 1.0, 1.0));
     mi.vertices.push_back(KRVector3(-1.0, 1.0, 1.0));

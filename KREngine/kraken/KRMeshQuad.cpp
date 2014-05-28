@@ -34,6 +34,8 @@
 
 KRMeshQuad::KRMeshQuad(KRContext &context) : KRMesh(context, "__quad")
 {
+    m_constant = true;
+    
     KRMesh::mesh_info mi;
     
     mi.vertices.push_back(KRVector3(-1.0f, -1.0f, 0.0f));
@@ -51,7 +53,6 @@ KRMeshQuad::KRMeshQuad(KRContext &context) : KRMesh(context, "__quad")
     mi.submesh_lengths.push_back(mi.vertices.size());
     mi.material_names.push_back("");
     mi.format = KRENGINE_MODEL_FORMAT_STRIP;
-    
     
     LoadData(mi, true, true);
 }

@@ -80,7 +80,7 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
                 pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 KRDataBlock index_data;
-                m_pContext->getMeshManager()->bindVBO(m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false);
+                m_pContext->getMeshManager()->bindVBO(m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f);
                 GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
             }
         }

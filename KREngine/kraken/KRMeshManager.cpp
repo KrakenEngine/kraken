@@ -42,6 +42,8 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     m_currentVBO = NULL;
     m_vboMemUsed = 0;
     m_memoryTransferredThisFrame = 0;
+    m_first_frame = true;
+    m_streamerComplete = true;
     
     addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
     addModel(new KRMeshQuad(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
@@ -76,7 +78,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, false);
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT);
     
     
     
@@ -92,7 +94,7 @@ KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
     memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, false);
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT);
     
 }
 
@@ -151,6 +153,7 @@ void KRMeshManager::unbindVBO() {
     }
 }
 
+/*
 void KRMeshManager::releaseVBO(KRDataBlock &data)
 {
     if(m_currentVBO) {
@@ -159,32 +162,34 @@ void KRMeshManager::releaseVBO(KRDataBlock &data)
         }
     }
 
-    KRVBOData *vbo_to_release = NULL;
     if(m_vbosActive.find(&data) != m_vbosActive.end()) {
         KRContext::Log(KRContext::LOG_LEVEL_WARNING, "glFinish called due to releasing a VBO that is active in the current frame.");
         GLDEBUG(glFinish());
         
         // The VBO is active
-        vbo_to_release = m_vbosActive[&data];
+        KRVBOData *vbo_to_release = m_vbosActive[&data];
         m_vbosActive.erase(&data);
-    } else {
-        // The VBO is inactive
-        vbo_to_release = m_vbosPool[&data];
-        m_vbosPool.erase(&data);
-    }
-    
-    if(vbo_to_release) {
+
         m_vboMemUsed -= vbo_to_release->getSize();
-        
-        vbo_to_release->unload();
-        if(vbo_to_release->isTemporary()) {
-            delete vbo_to_release;
+        switch(vbo_to_release->getType()) {
+            case KRVBOData::STREAMING:
+                vbo_to_release->unload();
+                break;
+            case KRVBOData::TEMPORARY:
+                delete vbo_to_release;
+                break;
+            case KRVBOData::CONSTANT:
+                // CONSTANT VBO's are not unloaded
+                break;
         }
     }
 }
+*/
 
-void KRMeshManager::bindVBO(KRVBOData *vbo_data)
+void KRMeshManager::bindVBO(KRVBOData *vbo_data, float lodCoverage)
 {
+    vbo_data->resetPoolExpiry(lodCoverage);
+    
     bool vbo_changed = false;
     if(m_currentVBO == NULL) {
         vbo_changed = true;
@@ -198,57 +203,148 @@ void KRMeshManager::bindVBO(KRVBOData *vbo_data)
         
         if(m_vbosActive.find(vbo_data->m_data) != m_vbosActive.end()) {
             m_currentVBO = m_vbosActive[vbo_data->m_data];
-            
-            m_currentVBO->bind();
-            
-        } else if(m_vbosPool.find(vbo_data->m_data) != m_vbosPool.end()) {
-            m_currentVBO = m_vbosPool[vbo_data->m_data];
-            m_vbosPool.erase(vbo_data->m_data);
-            m_vbosActive[vbo_data->m_data] = m_currentVBO;
-            
-            m_currentVBO->bind();
-            
-            
         } else {
-            
-            
-            while(m_vbosPool.size() + m_vbosActive.size() + 1 >= KRContext::KRENGINE_MAX_VBO_HANDLES || m_vboMemUsed + vbo_data->getSize() >= KRContext::KRENGINE_MAX_VBO_MEM) {
-                if(m_vbosPool.empty()) {
-                    KRContext::Log(KRContext::LOG_LEVEL_WARNING, "flushBuffers due to VBO exhaustion...");
-                    m_pContext->rotateBuffers(false);
-                }
-                unordered_map<KRDataBlock *, KRVBOData *>::iterator first_itr = m_vbosPool.begin();
-                KRVBOData *firstVBO = first_itr->second;
-                m_vbosPool.erase(first_itr);
-                
-                m_vboMemUsed -= firstVBO->getSize();
-                firstVBO->unload();
-                if(firstVBO->isTemporary()) {
-                    delete firstVBO;
-                }
-                // fprintf(stderr, "VBO Swapping...\n");
-            }
-            
             used_vbo_data = true;
             m_currentVBO = vbo_data;
             
-            m_currentVBO->load();
-            m_memoryTransferredThisFrame += m_currentVBO->getSize();
-            m_vboMemUsed += m_currentVBO->getSize();
-            
             m_vbosActive[vbo_data->m_data] = m_currentVBO;
         }
+        
+        m_currentVBO->bind();
     }
     
-    if(!used_vbo_data && vbo_data->isTemporary()) {
+    if(!used_vbo_data && vbo_data->getType() == KRVBOData::TEMPORARY) {
         delete vbo_data;
     }
 }
 
-void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo)
+void KRMeshManager::startFrame(float deltaTime)
 {
-    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, true);
-    bindVBO(vbo_data);
+    m_memoryTransferredThisFrame = 0;
+    if(m_draw_call_log_used) {
+        // Only log draw calls on the next frame if the draw call log was used on last frame
+        m_draw_call_log_used = false;
+        m_draw_call_logging_enabled = true;
+    }
+    m_draw_calls.clear();
+    
+    if(m_first_frame) {
+        m_first_frame = false;
+        firstFrame();
+    }
+    
+    // TODO - Implement proper double-buffering to reduce copy operations
+    m_streamerFenceMutex.lock();
+    
+    if(m_streamerComplete) {
+        assert(m_activeVBOs_streamer_copy.size() == 0); // The streamer should have emptied this if it really did complete
+        
+        const long KRENGINE_VBO_EXPIRY_FRAMES = 30;
+        
+        std::set<KRVBOData *> expiredVBOs;
+        for(auto itr=m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
+            KRVBOData *activeVBO = (*itr).second;
+            activeVBO->_swapHandles();
+            if(activeVBO->getLastFrameUsed() + KRENGINE_VBO_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
+                // Expire VBO's that haven't been used in a long time
+                
+                switch(activeVBO->getType()) {
+                    case KRVBOData::STREAMING:
+                        // TODO - Move to KRVBOData::unload()
+                        if(activeVBO->isVBOLoaded()) {
+                            m_vboMemUsed -= activeVBO->getSize();
+                        }
+                        activeVBO->unload();
+                        break;
+                    case KRVBOData::TEMPORARY:
+                        // TODO - Move to KRVBOData::unload()
+                        if(activeVBO->isVBOLoaded()) {
+                            m_vboMemUsed -= activeVBO->getSize();
+                        }
+                        delete activeVBO;
+                        break;
+                    case KRVBOData::CONSTANT:
+                        // CONSTANT VBO's are not unloaded
+                        break;
+                }
+                
+                expiredVBOs.insert(activeVBO);
+            } else {
+                if(activeVBO->getType() == KRVBOData::STREAMING) {
+                    float priority = activeVBO->getStreamPriority();
+                    m_activeVBOs_streamer_copy.push_back(std::pair<float, KRVBOData *>(priority, activeVBO));
+                }
+            }
+        }
+        for(std::set<KRVBOData *>::iterator itr=expiredVBOs.begin(); itr != expiredVBOs.end(); itr++) {
+            m_vbosActive.erase((*itr)->m_data);
+        }
+        
+        if(m_activeVBOs_streamer_copy.size() > 0) {
+            m_streamerComplete = false;
+        }
+    }
+    m_streamerFenceMutex.unlock();
+    
+}
+
+void KRMeshManager::endFrame(float deltaTime)
+{
+    
+}
+
+void KRMeshManager::firstFrame()
+{
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.load();
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.load();
+    
+    getModel("__sphere")[0]->load();
+    getModel("__cube")[0]->load();
+    getModel("__quad")[0]->load();
+}
+
+void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
+{
+    
+    // TODO - Implement proper double-buffering to reduce copy operations
+    m_streamerFenceMutex.lock();
+    m_activeVBOs_streamer = std::move(m_activeVBOs_streamer_copy);
+    m_streamerFenceMutex.unlock();
+    
+    if(m_activeVBOs_streamer.size() > 0) {
+        balanceVBOMemory(memoryRemaining, memoryRemainingThisFrame);
+        
+        m_streamerFenceMutex.lock();
+        m_streamerComplete = true;
+        m_streamerFenceMutex.unlock();
+    }
+}
+
+void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainingThisFrame)
+{
+    std::sort(m_activeVBOs_streamer.begin(), m_activeVBOs_streamer.end(), std::greater<std::pair<float, KRVBOData *>>());
+    
+
+    for(auto vbo_itr = m_activeVBOs_streamer.begin(); memoryRemainingThisFrame > 0 && vbo_itr != m_activeVBOs_streamer.end(); vbo_itr++) {
+        KRVBOData *vbo_data = (*vbo_itr).second;
+        if(!vbo_data->isVBOLoaded()) {
+            long vbo_size = vbo_data->getSize();
+            if(memoryRemainingThisFrame > vbo_size) {
+                vbo_data->load();
+                memoryRemainingThisFrame -= vbo_size;
+                memoryRemaining -= vbo_size;
+            }
+        }
+    }
+    
+    glFinish();
+}
+
+void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage)
+{
+    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::TEMPORARY);
+    vbo_data->load();
+    bindVBO(vbo_data, lodCoverage);
 }
 
 void KRMeshManager::configureAttribs(__int32_t attributes)
@@ -332,17 +428,6 @@ long KRMeshManager::getMemActive()
         mem_active += (*itr).second->getSize();
     }
     return mem_active;
-}
-
-void KRMeshManager::rotateBuffers(bool new_frame)
-{
-    m_vbosPool.insert(m_vbosActive.begin(), m_vbosActive.end());
-    m_vbosActive.clear();
-    if(m_currentVBO != NULL) {
-        // Ensure that the currently active VBO does not get flushed to free memory
-        m_vbosPool.erase(m_currentVBO->m_data);
-        m_vbosActive[m_currentVBO->m_data] = m_currentVBO;
-    }
 }
 
 KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
@@ -429,23 +514,6 @@ KRDataBlock &KRMeshManager::getRandomParticles()
     return m_randomParticleVertexData;
 }
 
-void KRMeshManager::startFrame(float deltaTime)
-{
-    m_memoryTransferredThisFrame = 0;
-    if(m_draw_call_log_used) {
-        // Only log draw calls on the next frame if the draw call log was used on last frame
-        m_draw_call_log_used = false;
-        m_draw_call_logging_enabled = true;
-    }
-    m_draw_calls.clear();
-    
-}
-
-void KRMeshManager::endFrame(float deltaTime)
-{
-
-}
-
 long KRMeshManager::getMemoryTransferedThisFrame()
 {
     return m_memoryTransferredThisFrame;
@@ -455,11 +523,6 @@ long KRMeshManager::getMemoryTransferedThisFrame()
 int KRMeshManager::getActiveVBOCount()
 {
     return m_vbosActive.size();
-}
-
-int KRMeshManager::getPoolVBOCount()
-{
-    return m_vbosPool.size();
 }
 
 void KRMeshManager::log_draw_call(KRNode::RenderPass pass, const std::string &object_name, const std::string &material_name, int vertex_count)
@@ -480,16 +543,12 @@ std::vector<KRMeshManager::draw_call_info> KRMeshManager::getDrawCalls()
     return m_draw_calls;
 }
 
-void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
-{
-    
-}
-
 KRMeshManager::KRVBOData::KRVBOData()
 {
+    m_is_vbo_loaded = false;
+    m_is_vbo_ready = false;
     m_manager = NULL;
-    m_temp_vbo = false;
-    m_static_vbo = false;
+    m_type = STREAMING;
     m_data = NULL;
     m_index_data = NULL;
     m_vertex_attrib_flags = 0;
@@ -502,15 +561,15 @@ KRMeshManager::KRVBOData::KRVBOData()
     m_last_frame_max_lod_coverage = 0.0f;
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
 {
-    init(manager, data,index_data,vertex_attrib_flags, static_vbo, temp_vbo);
+    init(manager, data,index_data,vertex_attrib_flags, static_vbo, t);
 }
 
-void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo)
+void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
 {
     m_manager = manager;
-    m_temp_vbo = temp_vbo;
+    m_type = t;
     m_static_vbo = static_vbo;
     m_data = &data;
     m_index_data = &index_data;
@@ -528,14 +587,12 @@ void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, K
 
 KRMeshManager::KRVBOData::~KRVBOData()
 {
-    
+    unload();
 }
-
-
 
 void KRMeshManager::KRVBOData::load()
 {
-    if(isLoaded()) {
+    if(isVBOLoaded()) {
         return;
     }
     m_vao_handle = -1;
@@ -586,6 +643,11 @@ void KRMeshManager::KRVBOData::load()
         m_index_data->unlock();
 #endif
     }
+    
+    m_is_vbo_loaded = true;
+    if(m_type == CONSTANT) {
+        m_is_vbo_ready = true;
+    }
 }
 
 void KRMeshManager::KRVBOData::unload()
@@ -605,6 +667,9 @@ void KRMeshManager::KRVBOData::unload()
         GLDEBUG(glDeleteBuffers(1, &m_vbo_handle_indexes));
         m_vbo_handle_indexes = -1;
     }
+    
+    m_is_vbo_loaded = false;
+    m_is_vbo_ready = false;
 }
 
 void KRMeshManager::KRVBOData::bind()
@@ -628,6 +693,31 @@ void KRMeshManager::KRVBOData::resetPoolExpiry(float lodCoverage)
     if(current_frame != m_last_frame_used) {
         m_last_frame_used = current_frame;
         m_last_frame_max_lod_coverage = 0.0f;
+        
+        m_manager->primeVBO(this);
     }
     m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
+}
+
+
+float KRMeshManager::KRVBOData::getStreamPriority()
+{
+    long current_frame = m_manager->getContext().getCurrentFrame();
+    if(current_frame > m_last_frame_used + 5) {
+        return 1.0f - KRCLAMP((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
+    } else {
+        return 10000.0f + m_last_frame_max_lod_coverage * 10.0f;
+    }
+}
+
+void KRMeshManager::KRVBOData::_swapHandles()
+{
+    m_is_vbo_ready = m_is_vbo_loaded;
+}
+
+void KRMeshManager::primeVBO(KRVBOData *vbo_data)
+{
+    if(m_vbosActive.find(vbo_data->m_data) == m_vbosActive.end()) {
+        m_vbosActive[vbo_data->m_data] = vbo_data;
+    }
 }

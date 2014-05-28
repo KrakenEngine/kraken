@@ -49,6 +49,7 @@ KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)
     m_pData = NULL;
     m_pMetaData = NULL;
     m_pIndexBaseData = NULL;
+    m_constant = false;
     
 }
 
@@ -59,6 +60,7 @@ KRMesh::KRMesh(KRContext &context, std::string name, KRDataBlock *data) : KRReso
     m_pData = NULL;
     m_pMetaData = NULL;
     m_pIndexBaseData = NULL;
+    m_constant = false;
     
     loadPack(data);
 }
@@ -194,6 +196,28 @@ void KRMesh::preStream(float lodCoverage)
     for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
         (*mat_itr)->preStream(lodCoverage);
     }
+    
+    int cSubmeshes = m_submeshes.size();
+    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+        for(auto vbo_data_itr = m_submeshes[iSubmesh]->vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh]->vbo_data_blocks.end(); vbo_data_itr++) {
+            (*vbo_data_itr)->resetPoolExpiry(lodCoverage);
+        }
+    }
+}
+
+void KRMesh::load()
+{
+    // Load immediately into the GPU rather than passing through the streamer
+    getSubmeshes();
+    getMaterials();
+    
+    int cSubmeshes = m_submeshes.size();
+    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+        for(auto vbo_data_itr = m_submeshes[iSubmesh]->vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh]->vbo_data_blocks.end(); vbo_data_itr++) {
+            (*vbo_data_itr)->resetPoolExpiry(1.0f);
+            (*vbo_data_itr)->load();
+        }
+    }
 }
 
 kraken_stream_level KRMesh::getStreamLevel()
@@ -205,6 +229,22 @@ kraken_stream_level KRMesh::getStreamLevel()
     for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
         stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel());
     }
+    bool all_vbo_data_loaded = true;
+    bool vbo_data_loaded = false;
+    int cSubmeshes = m_submeshes.size();
+    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+        for(auto vbo_data_itr = m_submeshes[iSubmesh]->vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh]->vbo_data_blocks.end(); vbo_data_itr++) {
+            if((*vbo_data_itr)->isVBOReady()) {
+                vbo_data_loaded = true;
+            } else {
+                all_vbo_data_loaded = false;
+            }
+        }
+    }
+    
+    if(!vbo_data_loaded || !all_vbo_data_loaded) {
+        stream_level = kraken_stream_level::STREAM_LEVEL_OUT;
+    }
     
     return stream_level;
 }
@@ -213,58 +253,61 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-        getSubmeshes();
-        getMaterials();
-        
-        int cSubmeshes = m_submeshes.size();
-        if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
-            for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
-                KRMaterial *pMaterial = m_materials[iSubmesh];
-                
-                if(pMaterial != NULL) {
-
-                    if(!pMaterial->isTransparent()) {
-                        // Exclude transparent and semi-transparent meshes from shadow maps
-                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
-                    }
-                }
-                
-            }
+        if(getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
+            preStream(lod_coverage);
         } else {
-            // Apply submeshes in per-material batches to reduce number of state changes
-            for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+        
+            getSubmeshes();
+            getMaterials();
+            
+            int cSubmeshes = m_submeshes.size();
+            if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
                 for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
                     KRMaterial *pMaterial = m_materials[iSubmesh];
                     
-                    if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                        if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                            std::vector<KRMat4> bone_bind_poses;
-                            for(int i=0; i < bones.size(); i++) {
-                                bone_bind_poses.push_back(getBoneBindPose(i));
-                            }
-                            if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power, lod_coverage)) {
-                            
-                                switch(pMaterial->getAlphaMode()) {
-                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
-                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
-                                        break;
-                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
-                                        break;
-                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
-                                        // Render back faces first
-                                        GLDEBUG(glCullFace(GL_FRONT));
-                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
+                    if(pMaterial != NULL) {
 
-                                        // Render front faces second
-                                        GLDEBUG(glCullFace(GL_BACK));
-                                        renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName());
-                                        break;
+                        if(!pMaterial->isTransparent()) {
+                            // Exclude transparent and semi-transparent meshes from shadow maps
+                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                        }
+                    }
+                    
+                }
+            } else {
+                // Apply submeshes in per-material batches to reduce number of state changes
+                for(std::set<KRMaterial *>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+                    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
+                        KRMaterial *pMaterial = m_materials[iSubmesh];
+                        
+                        if(pMaterial != NULL && pMaterial == (*mat_itr)) {
+                            if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                                std::vector<KRMat4> bone_bind_poses;
+                                for(int i=0; i < bones.size(); i++) {
+                                    bone_bind_poses.push_back(getBoneBindPose(i));
+                                }
+                                if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power, lod_coverage)) {
+                                
+                                    switch(pMaterial->getAlphaMode()) {
+                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
+                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            break;
+                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
+                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            break;
+                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+                                            // Render back faces first
+                                            GLDEBUG(glCullFace(GL_FRONT));
+                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+
+                                            // Render front faces second
+                                            GLDEBUG(glCullFace(GL_BACK));
+                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            break;
+                                    }
                                 }
                             }
-                            
-                           
                         }
                     }
                 }
@@ -303,21 +346,90 @@ void KRMesh::getSubmeshes() {
             //fprintf(stderr, "Submesh material: \"%s\"\n", pSubmesh->szMaterialName);
             m_submeshes.push_back(pSubmesh);
         }
+        createDataBlocks(m_constant ? KRMeshManager::KRVBOData::CONSTANT : KRMeshManager::KRVBOData::STREAMING);
     }
 }
 
-void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name) {
-    //m_pData->lock();
+void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
+{
+    int cSubmeshes = m_submeshes.size();
+    for(int iSubmesh=0; iSubmesh < cSubmeshes; iSubmesh++) {
+    
+        Submesh *pSubmesh = m_submeshes[iSubmesh];
+        int cVertexes = pSubmesh->vertex_count;
+        int vertex_data_offset = getVertexDataOffset();
+        int index_data_offset = getIndexDataOffset();
+        pack_header *pHeader = getHeader();
+        int32_t vertex_attrib_flags = pHeader->vertex_attrib_flags;
+        int32_t vertex_count = pHeader->vertex_count;
+        
+        int vbo_index=0;
+        if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+            
+            int index_group = getSubmesh(iSubmesh)->index_group;
+            int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
+            while(cVertexes > 0) {
+                
+                int start_index_offset, start_vertex_offset, index_count, vertex_count;
+                getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
+                
+                if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
+                    KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
+                    KRDataBlock *index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
+                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, t);
+                    m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
+                    m_submeshes[iSubmesh]->index_data_blocks.push_back(index_data_block);
+                    m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
+                }
+                vbo_index++;
+                
+                int vertex_draw_count = cVertexes;
+                if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
+                
+                cVertexes -= vertex_draw_count;
+                index_group_offset = 0;
+            }
+            
+        } else {
+            int cBuffers = (vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
+            int iVertex = pSubmesh->start_vertex;
+            int iBuffer = iVertex / MAX_VBO_SIZE;
+            iVertex = iVertex % MAX_VBO_SIZE;
+            while(cVertexes > 0) {
+                GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
+                int vertex_size = m_vertex_size;
+                
+                if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
+                    KRDataBlock *index_data_block = NULL;
+                    KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
+                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, t);
+                    m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
+                    m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
+                }
+                vbo_index++;
+                
+                if(iVertex + cVertexes >= MAX_VBO_SIZE) {
+                    assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
+
+                    cVertexes -= (MAX_VBO_SIZE - iVertex);
+                    iVertex = 0;
+                    iBuffer++;
+                } else {
+                    assert(iVertex + cVertexes <= cBufferVertexes);
+                    
+                    cVertexes = 0;
+                }
+                
+            }
+        }
+    }
+}
+
+void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage) {
     getSubmeshes();
+    
     Submesh *pSubmesh = m_submeshes[iSubmesh];
     int cVertexes = pSubmesh->vertex_count;
-    // fprintf(stderr, "start - object: %s material: %s vertices: %i\n", object_name.c_str(), material_name.c_str(), cVertexes);
-    int vertex_data_offset = getVertexDataOffset();
-    int index_data_offset = getIndexDataOffset();
-    pack_header *pHeader = getHeader();
-    int32_t vertex_attrib_flags = pHeader->vertex_attrib_flags;
-    int32_t vertex_count = pHeader->vertex_count;
-    
     
     int vbo_index=0;
     if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
@@ -329,20 +441,10 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             int start_index_offset, start_vertex_offset, index_count, vertex_count;
             getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
             
-            KRMeshManager::KRVBOData *vbo_data_block = NULL;
-            if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
-                KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
-                KRDataBlock *index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
-                vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
-                m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
-                m_submeshes[iSubmesh]->index_data_blocks.push_back(index_data_block);
-                m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
-            } else {
-                vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index];
-            }
-            vbo_index++;
+            KRMeshManager::KRVBOData *vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index++];
+            assert(vbo_data_block->isVBOReady());
             
-            m_pContext->getMeshManager()->bindVBO(vbo_data_block);
+            m_pContext->getMeshManager()->bindVBO(vbo_data_block, lodCoverage);
             
             
             int vertex_draw_count = cVertexes;
@@ -355,28 +457,16 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
         }
         
     } else {
-        int cBuffers = (vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
+        int cBuffers = (cVertexes + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
         int iVertex = pSubmesh->start_vertex;
         int iBuffer = iVertex / MAX_VBO_SIZE;
         iVertex = iVertex % MAX_VBO_SIZE;
         while(cVertexes > 0) {
-            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
-            int vertex_size = m_vertex_size;
+            GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : cVertexes % MAX_VBO_SIZE;
             
-            
-            KRMeshManager::KRVBOData *vbo_data_block = NULL;
-            if(m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
-                KRDataBlock *index_data_block = NULL;
-                KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-                vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, false);
-                m_submeshes[iSubmesh]->vertex_data_blocks.push_back(vertex_data_block);
-                m_submeshes[iSubmesh]->vbo_data_blocks.push_back(vbo_data_block);
-            } else {
-                vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index];
-            }
-            vbo_index++;
-            
-            m_pContext->getMeshManager()->bindVBO(vbo_data_block);
+            KRMeshManager::KRVBOData *vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index++];
+            assert(vbo_data_block->isVBOReady());
+            m_pContext->getMeshManager()->bindVBO(vbo_data_block, lodCoverage);
             
             
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
@@ -422,7 +512,6 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             
         }
     }
-    //m_pData->unlock();
 }
 
 void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool calculate_tangents) {

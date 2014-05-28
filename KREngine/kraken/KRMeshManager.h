@@ -48,9 +48,9 @@ public:
     KRMeshManager(KRContext &context);
     virtual ~KRMeshManager();
     
-    void rotateBuffers(bool new_frame);
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
+    void firstFrame();
     
     KRMesh *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRMesh *> getModel(const char *szName);
@@ -63,16 +63,23 @@ public:
         
     public:
         
+        typedef enum {
+            STREAMING,
+            CONSTANT,
+            TEMPORARY
+        } vbo_type;
+        
         KRVBOData();
-        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
-        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, bool temp_vbo);
+        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t);
+        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t);
         ~KRVBOData();
         
         
         KRDataBlock *m_data;
         KRDataBlock *m_index_data;
         
-        bool isLoaded() { return m_vbo_handle != -1; }
+        bool isVBOLoaded() { return m_is_vbo_loaded; }
+        bool isVBOReady() { return m_is_vbo_ready; }
         void load();
         void unload();
         void bind();
@@ -81,10 +88,16 @@ public:
         KRVBOData(const KRVBOData& o) = delete;
         KRVBOData(KRVBOData& o) = delete;
         
-        bool isTemporary() { return m_temp_vbo; }
         bool getSize() { return m_size; }
         
         void resetPoolExpiry(float lodCoverage);
+        long getLastFrameUsed() { return m_last_frame_used; }
+        
+        vbo_type getType() { return m_type; }
+        
+        float getStreamPriority();
+        
+        void _swapHandles();
         
     private:
         KRMeshManager *m_manager;
@@ -92,17 +105,18 @@ public:
         GLuint m_vbo_handle;
         GLuint m_vbo_handle_indexes;
         GLuint m_vao_handle;
-        bool m_static_vbo;
-        bool m_temp_vbo;
         GLsizeiptr m_size;
         
         long m_last_frame_used;
         float m_last_frame_max_lod_coverage;
+        vbo_type m_type;
+        bool m_static_vbo;
+        bool m_is_vbo_loaded;
+        bool m_is_vbo_ready;
     };
     
-    void bindVBO(KRVBOData *vbo_data);
-    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo);
-    void releaseVBO(KRDataBlock &data);
+    void bindVBO(KRVBOData *vbo_data, float lodCoverage);
+    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage);
     void unbindVBO();
     long getMemUsed();
     long getMemActive();
@@ -137,7 +151,6 @@ public:
     long getMemoryTransferedThisFrame();
 
     int getActiveVBOCount();
-    int getPoolVBOCount();
     
     struct draw_call_info {
         KRNode::RenderPass pass;
@@ -168,7 +181,8 @@ private:
     KRVBOData *m_currentVBO;
     
     unordered_map<KRDataBlock *, KRVBOData *> m_vbosActive;
-    unordered_map<KRDataBlock *, KRVBOData *> m_vbosPool;
+    std::vector<std::pair<float, KRVBOData *> > m_activeVBOs_streamer;
+    std::vector<std::pair<float, KRVBOData *> > m_activeVBOs_streamer_copy;
     
     KRDataBlock m_randomParticleVertexData;
     KRDataBlock m_volumetricLightingVertexData;
@@ -178,6 +192,15 @@ private:
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
+    
+    bool m_first_frame;
+    
+    std::mutex m_streamerFenceMutex;
+    bool m_streamerComplete;
+    
+    void balanceVBOMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
+    
+    void primeVBO(KRVBOData *vbo_data);
 
 };
 

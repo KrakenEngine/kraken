@@ -259,13 +259,6 @@ void KRContext::loadResource(std::string path) {
     }
 }
 
-void KRContext::rotateBuffers(bool new_frame) {
-    //fprintf(stderr, "Rotating Buffers...\n");
-    if(!new_frame) GLDEBUG(glFinish());
-
-    m_pMeshManager->rotateBuffers(new_frame);
-}
-
 void KRContext::detectExtensions() {
     m_bDetectedExtensions = true;
     
@@ -285,7 +278,6 @@ void KRContext::endFrame(float deltaTime)
     m_pTextureManager->endFrame(deltaTime);
     m_pAnimationManager->endFrame(deltaTime);
     m_pMeshManager->endFrame(deltaTime);
-    rotateBuffers(true);
     m_current_frame++;
     m_absolute_time += deltaTime;
 }
@@ -343,7 +335,7 @@ void KRContext::doStreaming()
 {
     if(m_streamingEnabled) {
         long memoryRemaining = KRENGINE_TARGET_TEXTURE_MEM_MAX;
-        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM - m_pTextureManager->getMemUsed();
+        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
         m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
     }

@@ -34,6 +34,8 @@
 
 KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
 {
+    m_constant = true;
+    
     KRMesh::mesh_info mi;
     
     // Create a triangular facet approximation to a sphere
