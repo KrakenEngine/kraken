@@ -334,8 +334,8 @@ void KRContext::getMemoryStats(long &free_memory)
 void KRContext::doStreaming()
 {
     if(m_streamingEnabled) {
-        long memoryRemaining = KRENGINE_TARGET_TEXTURE_MEM_MAX;
-        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
+        long memoryRemaining = KRENGINE_TARGET_TEXTURE_MEM_MAX + KRENGINE_MAX_VBO_MEM;
+        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM  + KRENGINE_MAX_VBO_MEM - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
         m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
     }

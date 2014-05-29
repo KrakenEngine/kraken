@@ -606,13 +606,12 @@ void KRMeshManager::KRVBOData::load()
         GLDEBUG(glGenBuffers(1, &m_vbo_handle_indexes));
     }
     
-    
-    /*
 #if GL_OES_vertex_array_object
-    GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
-    GLDEBUG(glBindVertexArrayOES(m_vao_handle));
+    if(m_type == CONSTANT) {
+        GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
+        GLDEBUG(glBindVertexArrayOES(m_vao_handle));
+    }
 #endif
-     */
     
     GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
 #if GL_OES_mapbuffer

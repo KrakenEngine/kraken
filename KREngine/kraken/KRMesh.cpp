@@ -253,8 +253,9 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+        preStream(lod_coverage);
         if(getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
-            preStream(lod_coverage);
+            
         } else {
         
             getSubmeshes();
