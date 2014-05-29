@@ -213,8 +213,15 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                 pOctreeNode->m_occlusionQuery = 0;
             }
         } else {
-            
-            if(viewport.visible(pOctreeNode->getBounds())) {
+            bool in_viewport = false;
+            if(renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+                // When pre-streaming, objects are streamed in behind and in-front of the camera
+                KRAABB viewportExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + KRVector3(pCamera->settings.getPerspectiveFarZ()));
+                in_viewport = octreeBounds.intersects(viewportExtents);
+            } else {
+                in_viewport = viewport.visible(pOctreeNode->getBounds());
+            }
+            if(in_viewport) {
 
                 // ----====---- Rendering and occlusion test pass ----====----
                 bool bVisible = false;

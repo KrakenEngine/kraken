@@ -153,39 +153,6 @@ void KRMeshManager::unbindVBO() {
     }
 }
 
-/*
-void KRMeshManager::releaseVBO(KRDataBlock &data)
-{
-    if(m_currentVBO) {
-        if(m_currentVBO->m_data == &data) {
-            unbindVBO();
-        }
-    }
-
-    if(m_vbosActive.find(&data) != m_vbosActive.end()) {
-        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "glFinish called due to releasing a VBO that is active in the current frame.");
-        GLDEBUG(glFinish());
-        
-        // The VBO is active
-        KRVBOData *vbo_to_release = m_vbosActive[&data];
-        m_vbosActive.erase(&data);
-
-        m_vboMemUsed -= vbo_to_release->getSize();
-        switch(vbo_to_release->getType()) {
-            case KRVBOData::STREAMING:
-                vbo_to_release->unload();
-                break;
-            case KRVBOData::TEMPORARY:
-                delete vbo_to_release;
-                break;
-            case KRVBOData::CONSTANT:
-                // CONSTANT VBO's are not unloaded
-                break;
-        }
-    }
-}
-*/
-
 void KRMeshManager::bindVBO(KRVBOData *vbo_data, float lodCoverage)
 {
     vbo_data->resetPoolExpiry(lodCoverage);
@@ -239,7 +206,7 @@ void KRMeshManager::startFrame(float deltaTime)
     if(m_streamerComplete) {
         assert(m_activeVBOs_streamer_copy.size() == 0); // The streamer should have emptied this if it really did complete
         
-        const long KRENGINE_VBO_EXPIRY_FRAMES = 30;
+        const long KRENGINE_VBO_EXPIRY_FRAMES = 3;
         
         std::set<KRVBOData *> expiredVBOs;
         for(auto itr=m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
