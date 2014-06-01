@@ -267,10 +267,9 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 #if GL_EXT_discard_framebuffer
         GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
         GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
-        GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
-#else
-        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 #endif
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
