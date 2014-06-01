@@ -89,17 +89,14 @@ void kraken::set_debug_text(const std::string &print_text)
     }
     
     
-    KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
     KRContext::KRENGINE_MAX_SHADER_HANDLES = 4000;
-    KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
     
 
-    KRContext::KRENGINE_MAX_VBO_MEM = total_ram * 2 / 4;
-    KRContext::KRENGINE_MAX_TEXTURE_MEM = total_ram * 1 / 8;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = KRContext::KRENGINE_MAX_TEXTURE_MEM * 3 / 4;
+    KRContext::KRENGINE_GPU_MEM_MAX = total_ram * 1 / 8;
+    KRContext::KRENGINE_GPU_MEM_TARGET = KRContext::KRENGINE_GPU_MEM_MAX * 3 / 4;
 
 
     
@@ -107,32 +104,23 @@ void kraken::set_debug_text(const std::string &print_text)
     BOOL isIpad = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
     BOOL isRetina = [[UIScreen mainScreen] scale] >= 2.0;
     if(isIpad && isRetina) {
-        KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
-        KRContext::KRENGINE_MAX_VBO_MEM = 128000000 * 2;
         KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
-        KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
-        KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000 * 2;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000 * 2;
+        KRContext::KRENGINE_GPU_MEM_MAX = 64000000 * 2;
+        KRContext::KRENGINE_GPU_MEM_TARGET = 48000000 * 2;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     } else {
-        KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
-        KRContext::KRENGINE_MAX_VBO_MEM = 128000000;
         KRContext::KRENGINE_MAX_SHADER_HANDLES = 100;
-        KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
-        KRContext::KRENGINE_MAX_TEXTURE_MEM = 64000000;
-        KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 48000000;
+        KRContext::KRENGINE_GPU_MEM_MAX = 64000000;
+        KRContext::KRENGINE_GPU_MEM_TARGET = 48000000;
         KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
         KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     }
      */
 #else
-    KRContext::KRENGINE_MAX_VBO_HANDLES = 10000;
-    KRContext::KRENGINE_MAX_VBO_MEM = 256000000;
     KRContext::KRENGINE_MAX_SHADER_HANDLES = 4000;
-    KRContext::KRENGINE_MAX_TEXTURE_HANDLES = 10000;
-    KRContext::KRENGINE_MAX_TEXTURE_MEM = 256000000;
-    KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX = 192000000;
+    KRContext::KRENGINE_GPU_MEM_MAX = 256000000;
+    KRContext::KRENGINE_GPU_MEM_TARGET = 192000000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 8192;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;

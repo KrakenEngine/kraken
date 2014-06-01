@@ -425,7 +425,7 @@ void KRTextureManager::addMemoryTransferredThisFrame(long memoryTransferred)
 void KRTextureManager::memoryChanged(long memoryDelta)
 {
     m_textureMemUsed += memoryDelta;
-    //fprintf(stderr, "Texture Memory: %ld / %i\n", (long)m_textureMemUsed, KRContext::KRENGINE_MAX_TEXTURE_MEM);
+    //fprintf(stderr, "Texture Memory: %ld / %i\n", (long)m_textureMemUsed, KRContext::KRENGINE_GPU_MEM_MAX);
 }
 
 unordered_map<std::string, KRTexture *> &KRTextureManager::getTextures()

@@ -24,12 +24,9 @@
 
 class KRContext {
 public:
-    static int KRENGINE_MAX_VBO_HANDLES;
-    static int KRENGINE_MAX_VBO_MEM;
     static int KRENGINE_MAX_SHADER_HANDLES;
-    static int KRENGINE_MAX_TEXTURE_HANDLES;
-    static int KRENGINE_MAX_TEXTURE_MEM;
-    static int KRENGINE_TARGET_TEXTURE_MEM_MAX;
+    static int KRENGINE_GPU_MEM_MAX;
+    static int KRENGINE_GPU_MEM_TARGET;
     static int KRENGINE_MAX_TEXTURE_DIM;
     static int KRENGINE_MIN_TEXTURE_DIM;
     static int KRENGINE_PRESTREAM_DISTANCE;

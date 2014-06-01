@@ -206,7 +206,7 @@ void KRMeshManager::startFrame(float deltaTime)
     if(m_streamerComplete) {
         assert(m_activeVBOs_streamer_copy.size() == 0); // The streamer should have emptied this if it really did complete
         
-        const long KRENGINE_VBO_EXPIRY_FRAMES = 3;
+        const long KRENGINE_VBO_EXPIRY_FRAMES = 1;
         
         std::set<KRVBOData *> expiredVBOs;
         for(auto itr=m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
@@ -581,17 +581,22 @@ void KRMeshManager::KRVBOData::load()
 #endif
     
     GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
-#if GL_OES_mapbuffer
     
-    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-    GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-    m_data->copy(map_ptr);
-    GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
-#else
-    m_data->lock();
-    GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), m_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-    m_data->unlock();
+    bool use_mapbuffer = true;
+#if GL_OES_mapbuffer
+    if(use_mapbuffer) {
+        GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+        GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+        m_data->copy(map_ptr);
+        GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
+    }
+    else
 #endif
+    {
+        m_data->lock();
+        GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), m_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+        m_data->unlock();
+    }
     
     configureAttribs(m_vertex_attrib_flags);
     
@@ -601,16 +606,19 @@ void KRMeshManager::KRVBOData::load()
         GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
         
 #if GL_OES_mapbuffer
-        
-        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-        m_index_data->copy(map_ptr);
-        GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
-#else
-        m_index_data->lock();
-        GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), m_index_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        m_index_data->unlock();
+        if(use_mapbuffer) {
+            GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
+            m_index_data->copy(map_ptr);
+            GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
+        }
+        else
 #endif
+        {
+            m_index_data->lock();
+            GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), m_index_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+            m_index_data->unlock();
+        }
     }
     
     m_is_vbo_loaded = true;

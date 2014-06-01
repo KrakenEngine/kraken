@@ -11,12 +11,9 @@
 #include "KRContext.h"
 #include "KRCamera.h"
 
-int KRContext::KRENGINE_MAX_VBO_HANDLES;
-int KRContext::KRENGINE_MAX_VBO_MEM;
 int KRContext::KRENGINE_MAX_SHADER_HANDLES;
-int KRContext::KRENGINE_MAX_TEXTURE_HANDLES;
-int KRContext::KRENGINE_MAX_TEXTURE_MEM;
-int KRContext::KRENGINE_TARGET_TEXTURE_MEM_MAX;
+int KRContext::KRENGINE_GPU_MEM_MAX;
+int KRContext::KRENGINE_GPU_MEM_TARGET;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 int KRContext::KRENGINE_PRESTREAM_DISTANCE;
@@ -334,8 +331,8 @@ void KRContext::getMemoryStats(long &free_memory)
 void KRContext::doStreaming()
 {
     if(m_streamingEnabled) {
-        long memoryRemaining = KRENGINE_TARGET_TEXTURE_MEM_MAX/* + KRENGINE_MAX_VBO_MEM*/;
-        long memoryRemainingThisFrame = KRENGINE_MAX_TEXTURE_MEM/*  + KRENGINE_MAX_VBO_MEM */ - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
+        long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
+        long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
         m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
     }
