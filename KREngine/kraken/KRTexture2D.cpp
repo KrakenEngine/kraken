@@ -80,11 +80,12 @@ void KRTexture2D::bind(GLuint texture_unit) {
     KRTexture::bind(texture_unit);
     GLuint handle = getHandle();
     
-    GLDEBUG(glBindTexture(GL_TEXTURE_2D, handle));
-    if(handle) {
-        // TODO - These texture parameters should be assigned by the material or texture parameters
-        m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
-        m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
+    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, texture_unit, handle)) {
+        if(handle) {
+            // TODO - These texture parameters should be assigned by the material or texture parameters
+            m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
+            m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
+        }
     }
 }
 

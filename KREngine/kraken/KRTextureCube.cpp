@@ -121,10 +121,11 @@ void KRTextureCube::bind(GLuint texture_unit)
 {
     KRTexture::bind(texture_unit);
     GLuint handle = getHandle();
-    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, handle));
-    if(handle) {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_CUBE_MAP, texture_unit, handle)) {
+        if(handle) {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+        }
     }
 }
 

@@ -373,33 +373,29 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
             if(light_directional_count == 0) {
                 int cShadowBuffers = directional_light->getShadowBufferCount();
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-                    m_pContext->getTextureManager()->selectTexture(3, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
-                    m_pContext->getTextureManager()->_setActiveTexture(3);
-                    GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[0]));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    }
                     
                     m_pContext->getTextureManager()->_setWrapModeS(3, GL_CLAMP_TO_EDGE);
                     m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
-                    m_pContext->getTextureManager()->selectTexture(4, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
-                    m_pContext->getTextureManager()->_setActiveTexture(4);
-                    GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[1]));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    }
                     m_pContext->getTextureManager()->_setWrapModeS(4, GL_CLAMP_TO_EDGE);
                     m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
-                    m_pContext->getTextureManager()->selectTexture(5, NULL, 0.0f, KRTexture::TEXTURE_USAGE_SHADOW_DEPTH);
-                    m_pContext->getTextureManager()->_setActiveTexture(5);
-                    GLDEBUG(glActiveTexture(GL_TEXTURE5));
-                    GLDEBUG(glBindTexture(GL_TEXTURE_2D, directional_light->getShadowTextures()[2]));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                    GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+                    }
                     m_pContext->getTextureManager()->_setWrapModeS(5, GL_CLAMP_TO_EDGE);
                     m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
                 }

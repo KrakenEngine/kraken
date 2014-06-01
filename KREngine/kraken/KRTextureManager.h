@@ -47,6 +47,7 @@ public:
     virtual ~KRTextureManager();
     
     void selectTexture(int iTextureUnit, KRTexture *pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage);
+    bool selectTexture(GLenum target, int iTextureUnit, int iTextureHandle);
     
     KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
     KRTexture *getTextureCube(const char *szName);
@@ -88,6 +89,7 @@ private:
     unordered_map<std::string, KRTexture *> m_textures;
     
     KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
+    int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
     float m_maxAnisotropy[KRENGINE_MAX_TEXTURE_UNITS];

@@ -45,6 +45,7 @@ KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context
 
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
         m_boundTextures[iTexture] = NULL;
+        m_boundTextureHandles[iTexture] = 0;
     }
     m_memoryTransferredThisFrame = 0;
     m_streamerComplete = true;
@@ -219,15 +220,28 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture *pTexture, floa
     }
     
     if(m_boundTextures[iTextureUnit] != pTexture || is_animated) {
-        _setActiveTexture(iTextureUnit);
+        
         if(pTexture != NULL) {
+            _setActiveTexture(iTextureUnit);
             pTexture->bind(iTextureUnit);
         } else {
-            GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
+            selectTexture(GL_TEXTURE_2D, iTextureUnit, 0);
         }
         m_boundTextures[iTextureUnit] = pTexture;
     }
 
+}
+
+bool KRTextureManager::selectTexture(GLenum target, int iTextureUnit, int iTextureHandle)
+{
+    if(m_boundTextureHandles[iTextureUnit] != iTextureHandle) {
+        m_boundTextureHandles[iTextureUnit] = iTextureHandle;
+        _setActiveTexture(iTextureUnit);
+        glBindTexture(target, iTextureHandle);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 long KRTextureManager::getMemUsed() {
