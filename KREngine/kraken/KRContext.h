@@ -85,6 +85,7 @@ public:
     static void Log(log_level level, const std::string &message_format, ...);
     
     void doStreaming();
+    void receivedMemoryWarning();
     
 private:
     KRBundleManager *m_pBundleManager;
@@ -102,6 +103,7 @@ private:
     bool m_bDetectedExtensions;
     
     long m_current_frame;
+    long m_last_memory_warning_frame;
     float m_absolute_time;
     
     mach_timebase_info_data_t    m_timebase_info;
