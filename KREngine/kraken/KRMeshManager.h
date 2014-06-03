@@ -88,7 +88,7 @@ public:
         KRVBOData(const KRVBOData& o) = delete;
         KRVBOData(KRVBOData& o) = delete;
         
-        bool getSize() { return m_size; }
+        long getSize() { return m_size; }
         
         void resetPoolExpiry(float lodCoverage);
         long getLastFrameUsed() { return m_last_frame_used; }

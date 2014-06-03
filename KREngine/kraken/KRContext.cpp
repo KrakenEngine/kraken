@@ -322,7 +322,7 @@ void KRContext::getMemoryStats(long &free_memory)
     } else {
         total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
         
-        free_memory = vm_stat.free_count * pagesize;
+        free_memory = (vm_stat.free_count + vm_stat.inactive_count) * pagesize;
     }
 #else
 #error Unsupported Platform
@@ -332,17 +332,52 @@ void KRContext::getMemoryStats(long &free_memory)
 void KRContext::doStreaming()
 {
     if(m_streamingEnabled) {
-        const long MEMORY_WARNING_THROTTLE_FRAMES = 15;
+        /*
+        long free_memory = KRENGINE_GPU_MEM_TARGET;
+        long total_memory = KRENGINE_GPU_MEM_MAX;
+        */
+        /*
+#if TARGET_OS_IPHONE
+        // FINDME, TODO, HACK! - Experimental code, need to expose through engine parameters
+        const long KRENGINE_RESERVE_MEMORY = 0x4000000; // 64MB
         
+        getMemoryStats(free_memory);
+        free_memory = KRCLAMP(free_memory - KRENGINE_RESERVE_MEMORY, 0, KRENGINE_GPU_MEM_TARGET);
+        total_memory = KRMIN(KRENGINE_GPU_MEM_MAX, free_memory * 3 / 4 + m_pTextureManager->getMemUsed() + m_pMeshManager->getMemUsed());
+        
+#endif
+        */
+        /*
+        // FINDME, TODO - Experimental code, need to expose through engine parameters
+        const long MEMORY_WARNING_THROTTLE_FRAMES = 5;
         bool memory_warning_throttle = m_last_memory_warning_frame != 0 && m_current_frame - m_last_memory_warning_frame < MEMORY_WARNING_THROTTLE_FRAMES;
+        if(memory_warning_throttle) {
+            free_memory = 0;
+        }
+        */
+        
+        /*
+        // FINDME, TODO - Experimental code, need to expose through engine parameters
+        const long MEMORY_WARNING_THROTTLE2_FRAMES = 30;
+        bool memory_warning_throttle2 = m_last_memory_warning_frame != 0 && m_current_frame - m_last_memory_warning_frame < MEMORY_WARNING_THROTTLE2_FRAMES;
+        if(memory_warning_throttle2) {
+            total_memory /= 2;
+            free_memory /= 2;
+        }
+        */
+        
+        /*
+        m_pMeshManager->doStreaming(total_memory, free_memory);
+        m_pTextureManager->doStreaming(total_memory, free_memory);
+        */
+        
         
         long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
         long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
+
+        m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+        m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         
-        if(!memory_warning_throttle) {
-            m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-            m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-        }
     }
 }
 

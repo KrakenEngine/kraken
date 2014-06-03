@@ -89,7 +89,7 @@ void kraken::set_debug_text(const std::string &print_text)
     }
     
     
-    KRContext::KRENGINE_MAX_SHADER_HANDLES = 4000;
+    KRContext::KRENGINE_MAX_SHADER_HANDLES = 1000;
     KRContext::KRENGINE_MAX_TEXTURE_DIM = 2048;
     KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
     KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;

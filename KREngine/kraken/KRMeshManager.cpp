@@ -217,17 +217,9 @@ void KRMeshManager::startFrame(float deltaTime)
                 
                 switch(activeVBO->getType()) {
                     case KRVBOData::STREAMING:
-                        // TODO - Move to KRVBOData::unload()
-                        if(activeVBO->isVBOLoaded()) {
-                            m_vboMemUsed -= activeVBO->getSize();
-                        }
                         activeVBO->unload();
                         break;
                     case KRVBOData::TEMPORARY:
-                        // TODO - Move to KRVBOData::unload()
-                        if(activeVBO->isVBOLoaded()) {
-                            m_vboMemUsed -= activeVBO->getSize();
-                        }
                         delete activeVBO;
                         break;
                     case KRVBOData::CONSTANT:
@@ -299,8 +291,8 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
             if(memoryRemainingThisFrame > vbo_size) {
                 vbo_data->load();
                 memoryRemainingThisFrame -= vbo_size;
-                memoryRemaining -= vbo_size;
             }
+            memoryRemaining -= vbo_size;
         }
     }
     
@@ -622,6 +614,10 @@ void KRMeshManager::KRVBOData::load()
     }
     
     m_is_vbo_loaded = true;
+
+    m_manager->m_vboMemUsed += getSize();
+    m_manager->m_memoryTransferredThisFrame += getSize();
+    
     if(m_type == CONSTANT) {
         _swapHandles();
     }
@@ -629,6 +625,10 @@ void KRMeshManager::KRVBOData::load()
 
 void KRMeshManager::KRVBOData::unload()
 {
+    if(isVBOLoaded()) {
+        m_manager->m_vboMemUsed -= getSize();
+    }
+    
 #if GL_OES_vertex_array_object
     if(m_vao_handle != -1) {
         GLDEBUG(glDeleteVertexArraysOES(1, &m_vao_handle));
