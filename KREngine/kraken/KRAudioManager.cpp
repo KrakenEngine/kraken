@@ -400,7 +400,7 @@ void KRAudioManager::renderBlock()
         }
         
         // ----====---- Render Indirect / Reverb channel ----====----
-        if(m_enable_reverb) {
+        if(m_enable_reverb && m_reverb_max_length > 0.0f) {
             renderReverb();
         }
         
