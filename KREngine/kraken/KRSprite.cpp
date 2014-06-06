@@ -85,6 +85,19 @@ KRAABB KRSprite::getBounds() {
 
 void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
+    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+        // Pre-stream sprites, even if the alpha is zero
+        if(m_spriteTexture.size() && m_pSpriteTexture == NULL) {
+            if(!m_pSpriteTexture && m_spriteTexture.size()) {
+                m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
+            }
+        }
+        
+        if(m_pSpriteTexture) {
+            m_pSpriteTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+        }
+    }
+    
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
     KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
