@@ -71,6 +71,9 @@ public:
     void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
     KRVector2 getDownsample();
     void setDownsample(float v);
+    
+    void setFadeColor(const KRVector4 &fade_color);
+    KRVector4 getFadeColor();
 
 private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
@@ -94,6 +97,8 @@ private:
     float m_particlesAbsoluteTime;
     
     KRVector2 m_downsample;
+    
+    KRVector4 m_fade_color;
     
     typedef struct {
         GLfloat x;

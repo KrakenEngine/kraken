@@ -70,6 +70,8 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         iShadowQuality = pCamera->settings.m_cShadowBuffers;
     }
     
+    bool bFadeColorEnabled = pCamera->getFadeColor().w >= 0.0f;
+    
     std::pair<std::string, std::vector<int> > key;
     key.first = shader_name;
     key.second.push_back(light_directional_count);
@@ -115,6 +117,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     key.second.push_back(pCamera->settings.vignette_radius * 1000.0f);
     key.second.push_back(pCamera->settings.vignette_falloff * 1000.0f);
     key.second.push_back(bRimColor);
+    key.second.push_back(bFadeColorEnabled);
               
                          
     KRShader *pShader = m_shaders[key];
@@ -182,6 +185,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stream << "\n#define ENABLE_DIFFUSE " << (pCamera->settings.bEnableDiffuse ? "1" : "0");
         stream << "\n#define ENABLE_SPECULAR " << (pCamera->settings.bEnableSpecular ? "1" : "0");
         stream << "\n#define ENABLE_RIM_COLOR " << (bRimColor ? "1" : "0");
+        stream << "\n#define ENABLE_FADE_COLOR " << (bFadeColorEnabled ? "1" : "0");
         stream << "\n#define FOG_TYPE " << pCamera->settings.fog_type;
         switch(renderPass) {
             case KRNode::RENDER_PASS_DEFERRED_GBUFFER:
@@ -202,7 +206,6 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         stream << "\n#define ENABLE_FLASH " << (pCamera->settings.bEnableFlash ? "1" : "0");
         stream << "\n#define ENABLE_VIGNETTE " << (pCamera->settings.bEnableVignette ? "1" : "0");
         stream << "\n#define VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED " << (pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0 ? "1" : "0");
-
         
         
         stream.setf(ios::fixed,ios::floatfield);
@@ -230,8 +233,10 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Fragment Shader Missing: %s", platform_shader_name.c_str());
         }
         
+        KRVector4 fade_color = pCamera->getFadeColor();
+        
         char szKey[256];
-        sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff);
+        sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff, fade_color.x, fade_color.y, fade_color.z, fade_color.w);
         
         pShader = new KRShader(getContext(), szKey, options, vertShaderSource, fragShaderSource);
 
@@ -240,16 +245,16 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     return pShader;
 }
 
-bool KRShaderManager::selectShader(const std::string &shader_name, KRCamera &camera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRViewport &viewport, const KRMat4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power)
+bool KRShaderManager::selectShader(const std::string &shader_name, KRCamera &camera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRViewport &viewport, const KRMat4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, const KRVector4 &fade_color)
 {
     KRShader *pShader = getShader(shader_name, &camera, point_lights, directional_lights, spot_lights, bone_count, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bReflectionMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, bReflectionMapOffset, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
-    return selectShader(camera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, bone_count, renderPass, rim_color, rim_power);
+    return selectShader(camera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, bone_count, renderPass, rim_color, rim_power, fade_color);
 }
 
-bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power)
+bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power, const KRVector4 &fade_color)
 {
     if(pShader) {
-        return pShader->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass, rim_color, rim_power);
+        return pShader->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass, rim_color, rim_power, fade_color);
     } else {
         return false;
     }

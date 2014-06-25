@@ -63,6 +63,7 @@ public:
     void endFrame(float deltaTime);
     
     long getCurrentFrame() const;
+    long getLastFullyStreamedFrame() const;
     float getAbsoluteTime() const;
     
     long getAbsoluteTimeMilliseconds();
@@ -102,8 +103,9 @@ private:
     void detectExtensions();
     bool m_bDetectedExtensions;
     
-    long m_current_frame;
-    long m_last_memory_warning_frame;
+    long m_current_frame; // TODO - Does this need to be atomic?
+    long m_last_memory_warning_frame; // TODO - Does this need to be atomic?
+    long m_last_fully_streamed_frame; // TODO - Does this need to be atomic?
     float m_absolute_time;
     
     mach_timebase_info_data_t    m_timebase_info;

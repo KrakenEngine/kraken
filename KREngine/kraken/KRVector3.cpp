@@ -33,6 +33,8 @@
 #include "KRVector3.h"
 #include "tinyxml2.h"
 
+const KRVector3 KRVECTOR3_ZERO(0.0f, 0.0f, 0.0f);
+
 //default constructor
 KRVector3::KRVector3()
 {
@@ -154,8 +156,8 @@ KRVector3 KRVector3::Max() {
     return KRVector3(std::numeric_limits<float>::max());
 }
 
-KRVector3 KRVector3::Zero() {
-    return KRVector3(0.0f, 0.0f, 0.0f);
+const KRVector3 &KRVector3::Zero() {
+    return KRVECTOR3_ZERO;
 }
 
 KRVector3 KRVector3::One() {

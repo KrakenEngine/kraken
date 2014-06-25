@@ -33,6 +33,7 @@ KRContext::KRContext() : m_streamer(*this)
     m_bDetectedExtensions = false;
     m_current_frame = 0;
     m_last_memory_warning_frame = 0;
+    m_last_fully_streamed_frame = 0;
     m_absolute_time = 0.0f;
     
     m_pBundleManager = new KRBundleManager(*this);
@@ -285,6 +286,11 @@ long KRContext::getCurrentFrame() const
     return m_current_frame;
 }
 
+long KRContext::getLastFullyStreamedFrame() const
+{
+    return m_last_fully_streamed_frame;
+}
+
 float KRContext::getAbsoluteTime() const
 {
     return m_absolute_time;
@@ -372,11 +378,17 @@ void KRContext::doStreaming()
         */
         
         
+        long streaming_start_frame = m_current_frame;
+        
         long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
         long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
-
+        long memoryRemainingThisFrameStart = memoryRemainingThisFrame;
         m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+        
+        if(memoryRemainingThisFrame != memoryRemainingThisFrame && memoryRemainingThisFrame > 0) {
+            m_last_fully_streamed_frame = streaming_start_frame;
+        }
         
     }
 }
@@ -385,3 +397,5 @@ void KRContext::receivedMemoryWarning()
 {
     m_last_memory_warning_frame = m_current_frame;
 }
+
+

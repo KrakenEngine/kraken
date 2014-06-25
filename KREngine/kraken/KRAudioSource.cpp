@@ -211,8 +211,7 @@ void KRAudioSource::render(KRCamera *pCamera, std::vector<KRPointLight *> &point
         
         KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
         
-        KRVector3 rim_light;
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, rim_light, 0.0f)) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
             
             // Enable additive blending
             GLDEBUG(glEnable(GL_BLEND));

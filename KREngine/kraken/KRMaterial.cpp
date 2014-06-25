@@ -321,7 +321,9 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_reflectionMapScale != default_scale && bReflectionMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, m_reflectionMapOffset != default_offset && bReflectionMap, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
 
-    if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, rim_power)) {
+    
+    KRVector4 fade_color;
+    if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {
         return false;
     }
     

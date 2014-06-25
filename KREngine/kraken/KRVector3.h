@@ -111,7 +111,7 @@ public:
     static float Dot(const KRVector3 &v1, const KRVector3 &v2);
     static KRVector3 Min();
     static KRVector3 Max();
-    static KRVector3 Zero();
+    static const KRVector3 &Zero();
     static KRVector3 One();
     static KRVector3 Forward();
     static KRVector3 Backward();

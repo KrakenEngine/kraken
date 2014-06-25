@@ -34,8 +34,12 @@
 varying mediump vec2 textureCoordinate;
 precision lowp float;
 
-#if ENABLE_VIDEO_BG == 0
+#if ENABLE_VIDEO_BG == 1
 uniform lowp sampler2D videoFrame;
+#endif
+
+#if ENABLE_FADE_COLOR == 1
+uniform lowp vec4 fade_color;
 #endif
 
 uniform lowp sampler2D renderFrame;
@@ -171,10 +175,14 @@ void main()
     
     // Render vignette effect
     
-#if ENABLE_VIGNETTE
+#if ENABLE_VIGNETTE == 1
     pixelColor *= vec4(vec3(clamp(1.0 - (distance(textureCoordinate, vec2(0.5, 0.5)) - VIGNETTE_RADIUS) / VIGNETTE_FALLOFF, 0.0, 1.0)), 1.0);
 #endif
     // ---- VIGNETTE END ----
+    
+#if ENABLE_FADE_COLOR == 1
+    pixelColor.rgb = mix(pixelColor.rgb, fade_color.rgb, fade_color.a);
+#endif
     
     gl_FragColor = pixelColor;
     

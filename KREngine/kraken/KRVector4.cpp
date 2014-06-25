@@ -32,6 +32,8 @@
 #include "KREngine-common.h"
 #include "KRVector4.h"
 
+const KRVector4 KRVECTOR4_ZERO(0.0f, 0.0f, 0.0f, 0.0f);
+
 //default constructor
 KRVector4::KRVector4()
 {
@@ -70,8 +72,8 @@ KRVector4 KRVector4::Max() {
     return KRVector4(std::numeric_limits<float>::max());
 }
 
-KRVector4 KRVector4::Zero() {
-    return KRVector4(0.0f, 0.0f, 0.0f, 0.0f);
+const KRVector4 &KRVector4::Zero() {
+    return KRVECTOR4_ZERO;
 }
 
 KRVector4 KRVector4::One() {

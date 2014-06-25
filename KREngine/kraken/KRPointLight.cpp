@@ -70,8 +70,7 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
             KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            KRVector3 rim_color;
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, rim_color, 0.0f)) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
                 
                 
                 pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

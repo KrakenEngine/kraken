@@ -88,7 +88,7 @@ public:
     static float Dot(const KRVector4 &v1, const KRVector4 &v2);
     static KRVector4 Min();
     static KRVector4 Max();
-    static KRVector4 Zero();
+    static const KRVector4 &Zero();
     static KRVector4 One();
     static KRVector4 Forward();
     static KRVector4 Backward();

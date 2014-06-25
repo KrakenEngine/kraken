@@ -104,7 +104,8 @@ const char *KRShader::KRENGINE_UNIFORM_NAMES[] = {
     "particle_origin", //    KRENGINE_UNIFORM_PARTICLE_ORIGIN
     "bone_transforms", //    KRENGINE_UNIFORM_BONE_TRANSFORMS
     "rim_color", // KRENGINE_UNIFORM_RIM_COLOR
-    "rim_power" // KRENGINE_UNIFORM_RIM_POWER
+    "rim_power", // KRENGINE_UNIFORM_RIM_POWER
+    "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
 KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
@@ -346,7 +347,7 @@ void KRShader::setUniform(int location, const KRMat4 &value)
     }
 }
 
-bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power) {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power, const KRVector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -514,6 +515,9 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     // Rim highlighting parameters
     setUniform(KRENGINE_UNIFORM_RIM_COLOR, rim_color);
     setUniform(KRENGINE_UNIFORM_RIM_POWER, rim_power);
+    
+    // Fade parameters
+    setUniform(KRENGINE_UNIFORM_FADE_COLOR, fade_color);
     
     // Fog parameters
     setUniform(KRENGINE_UNIFORM_FOG_NEAR, camera.settings.fog_near);
