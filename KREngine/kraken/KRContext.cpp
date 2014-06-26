@@ -386,7 +386,7 @@ void KRContext::doStreaming()
         m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
         
-        if(memoryRemainingThisFrame != memoryRemainingThisFrame && memoryRemainingThisFrame > 0) {
+        if(memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
             m_last_fully_streamed_frame = streaming_start_frame;
         }
         
