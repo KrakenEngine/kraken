@@ -9,7 +9,7 @@
 #ifndef KRBEHAVIOR_H
 #define KRBEHAVIOR_H
 
-
+#include "tinyxml2.h"
 
 /*
 
@@ -26,9 +26,12 @@ public:
     virtual ~KRBehavior();
     KRNode *getNode() const;
     
+    virtual void init();
     virtual void update(float deltaTime) = 0;
     virtual void visibleUpdate(float deltatime) = 0;
     void __setNode(KRNode *node);
+    
+    static KRBehavior *LoadXML(KRNode *node, tinyxml2::XMLElement *e);
 private:
     KRNode *__node;
 };

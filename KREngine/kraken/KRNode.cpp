@@ -180,13 +180,21 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_inverseModelMatrixValid = false;
     
     for(tinyxml2::XMLElement *child_element=e->FirstChildElement(); child_element != NULL; child_element = child_element->NextSiblingElement()) {
-        KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
-        if(child_node) {
-            addChild(child_node);
+        const char *szElementName = child_element->Name();
+        if(strcmp(szElementName, "behavior") == 0) {
+            KRBehavior *behavior = KRBehavior::LoadXML(this, child_element);
+            if(behavior) {
+                addBehavior(behavior);
+                behavior->init();
+            }
+        } else {
+            KRNode *child_node = KRNode::LoadXML(getScene(), child_element);
+            
+            if(child_node) {
+                addChild(child_node);
+            }
         }
     }
-    
-   
 }
 
 void KRNode::setLocalTranslation(const KRVector3 &v, bool set_original) {
