@@ -10,6 +10,7 @@
 #define KRBEHAVIOR_H
 
 #include "tinyxml2.h"
+#include <map>
 
 /*
 
@@ -17,11 +18,18 @@
  
 */
 
+class KRBehavior;
 class KRNode;
+
+typedef KRBehavior *(*KRBehaviorFactoryFunction)(std::map<std::string, std::string> attributes);
+typedef std::map<std::string, KRBehaviorFactoryFunction> KRBehaviorFactoryFunctionMap;
 
 class KRBehavior
 {
 public:
+    static void RegisterFactoryCTOR(std::string behaviorName, KRBehaviorFactoryFunction fnFactory);
+    static void UnregisterFactoryCTOR(std::string behaviorName);
+    
     KRBehavior();
     virtual ~KRBehavior();
     KRNode *getNode() const;
