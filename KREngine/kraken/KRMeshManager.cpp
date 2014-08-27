@@ -284,16 +284,16 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
     std::sort(m_activeVBOs_streamer.begin(), m_activeVBOs_streamer.end(), std::greater<std::pair<float, KRVBOData *>>());
     
 
-    for(auto vbo_itr = m_activeVBOs_streamer.begin(); memoryRemainingThisFrame > 0 && vbo_itr != m_activeVBOs_streamer.end(); vbo_itr++) {
+    for(auto vbo_itr = m_activeVBOs_streamer.begin(); vbo_itr != m_activeVBOs_streamer.end(); vbo_itr++) {
         KRVBOData *vbo_data = (*vbo_itr).second;
+        long vbo_size = vbo_data->getSize();
         if(!vbo_data->isVBOLoaded()) {
-            long vbo_size = vbo_data->getSize();
             if(memoryRemainingThisFrame > vbo_size) {
                 vbo_data->load();
                 memoryRemainingThisFrame -= vbo_size;
             }
-            memoryRemaining -= vbo_size;
         }
+        memoryRemaining -= vbo_size;
     }
     
     glFinish();
