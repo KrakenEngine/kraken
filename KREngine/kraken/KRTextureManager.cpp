@@ -320,6 +320,8 @@ void KRTextureManager::doStreaming(long &memoryRemaining, long &memoryRemainingT
         m_streamerFenceMutex.lock();
         m_streamerComplete = true;
         m_streamerFenceMutex.unlock();
+    } else {
+        memoryRemaining -= getMemUsed();
     }
 }
 
