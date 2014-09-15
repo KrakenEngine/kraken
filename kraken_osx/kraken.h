@@ -1,6 +1,6 @@
 //
-//  krengine_osx.h
-//  krengine_osx
+//  kraken.h
+//  Kraken OSX Framework
 //
 //  Created by Kearwood Gilbert on 12-03-15.
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
@@ -8,6 +8,6 @@
 
 #include <Foundation/Foundation.h>
 
-@interface krengine_osx : NSObject
+@interface kraken : NSObject
 
 @end

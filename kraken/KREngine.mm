@@ -218,9 +218,12 @@ void kraken::set_debug_text(const std::string &print_text)
     NSString *bundleName = @"kraken_standard_assets_osx";
 #endif
 
-//    NSString *bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:bundleName];
-    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"bundle"];
+    NSBundle *frameworkBundle = [NSBundle bundleWithIdentifier: @"com.krakenengine.kraken"];
+    
+    //NSString *bundlePath = [[frameworkBundle bundlePath] stringByAppendingPathComponent:bundleName];
+    NSString *bundlePath = [frameworkBundle pathForResource:bundleName ofType:@"bundle"];
     NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+    
     if(bundle == nil) {
         KRContext::Log(KRContext::LOG_LEVEL_ERROR, "%s", "ERROR - Standard asset bundle could not be found.");
     } else {
