@@ -252,7 +252,10 @@ void main()
                 #if GBUFFER_PASS == 3
                     specularFactor = gbuffer_specular_factor;   
                 #else
-                    specularFactor = max(0.0,pow(dot(halfVec,normal), material_shininess));
+                    mediump float halfVecDot = dot(halfVec,normal);
+                    if(halfVecDot > 0.0) {
+                        specularFactor = max(0.0,pow(halfVecDot, material_shininess));
+                    }
                 #endif
             }
 
