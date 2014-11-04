@@ -80,7 +80,7 @@ void KRStreamer::run()
 {
     pthread_setname_np("Kraken - Streamer");
 
-    std::chrono::microseconds sleep_duration( 100 );
+    std::chrono::microseconds sleep_duration( 15000 );
     
 #if TARGET_OS_IPHONE
     [EAGLContext setCurrentContext: gTextureStreamerContext];
