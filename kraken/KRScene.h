@@ -110,8 +110,6 @@ private:
     
     KROctree m_nodeTree;
     
-    std::string m_skyBoxName;
-    
 public:
     
     template <class T> T *find()

@@ -50,8 +50,6 @@ KRScene::KRScene(KRContext &context, std::string name) : KRResource(context, nam
     m_pFirstLight = NULL;
     m_pRootNode = new KRNode(*this, "scene_root");
     notify_sceneGraphCreate(m_pRootNode);
-    
-    m_skyBoxName = name + "_skybox";
 }
 
 KRScene::~KRScene() {
@@ -125,9 +123,6 @@ void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBound
     std::vector<KRPointLight *> point_lights;
     std::vector<KRDirectionalLight *>directional_lights;
     std::vector<KRSpotLight *>spot_lights;
-    
-//    pCamera->settings.setSkyBox(m_skyBoxName); // This is temporary until the camera is moved into the scene graph
-// NOTE: the skybox is now selected in the CircaViewController
     
     std::set<KRNode *> outerNodes = std::set<KRNode *>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
     
@@ -409,7 +404,6 @@ bool KRScene::save(KRDataBlock &data) {
     tinyxml2::XMLElement *scene_node =  doc.NewElement( "scene" );
     doc.InsertEndChild(scene_node);
     m_pRootNode->saveXML(scene_node);
-    scene_node->SetAttribute("skybox", m_skyBoxName.c_str());  // This is temporary until the camera is moved into the scene graph
     
     tinyxml2::XMLPrinter p;
     doc.Print(&p);
@@ -427,8 +421,6 @@ KRScene *KRScene::Load(KRContext &context, const std::string &name, KRDataBlock 
     KRScene *new_scene = new KRScene(context, name);
     
     tinyxml2::XMLElement *scene_element = doc.RootElement();
-    const char *szSkyBoxName = scene_element->Attribute("skybox");
-    new_scene->m_skyBoxName = szSkyBoxName ? szSkyBoxName : "";  // This is temporary until the camera is moved into the scene graph
     
     KRNode *n = KRNode::LoadXML(*new_scene, scene_element->FirstChildElement());
     if(n) {

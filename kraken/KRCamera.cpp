@@ -70,6 +70,7 @@ std::string KRCamera::getElementName() {
 tinyxml2::XMLElement *KRCamera::saveXML( tinyxml2::XMLNode *parent)
 {
     tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+    e->SetAttribute("skybox", m_skyBox.c_str());
     
     return e;
 }
@@ -78,11 +79,20 @@ tinyxml2::XMLElement *KRCamera::saveXML( tinyxml2::XMLNode *parent)
 void KRCamera::loadXML(tinyxml2::XMLElement *e)
 {
     KRNode::loadXML(e);
+    const char *szSkyBoxName = e->Attribute("skybox");
+    m_skyBox = szSkyBoxName ? szSkyBoxName : "";
 }
 
-void KRCamera::flushSkybox()
+void KRCamera::setSkyBox(const std::string &skyBox)
 {
-    m_pSkyBoxTexture = NULL; // NOTE: the texture manager manages the loading and unloading of the skybox textures
+    m_pSkyBoxTexture = NULL;
+    m_skyBox = skyBox;
+    
+}
+
+const std::string KRCamera::getSkyBox() const
+{
+    return m_skyBox;
 }
 
 void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
@@ -301,8 +311,8 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     GLDEBUG(glDepthFunc(GL_LEQUAL));
     GLDEBUG(glDepthRangef(0.0, 1.0));
     
-    if(!m_pSkyBoxTexture && settings.m_skyBoxName.length()) {
-        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(settings.m_skyBoxName.c_str());
+    if(!m_pSkyBoxTexture && m_skyBox.length()) {
+        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBox.c_str());
     }
     
     if(m_pSkyBoxTexture) {

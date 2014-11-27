@@ -56,11 +56,6 @@ KRRenderSettings::KRRenderSettings()
     
     
     m_cShadowBuffers = 0;
-
-    
-    m_skyBoxName = "";
-    
-    
     
     volumetric_environment_enable = false;
     volumetric_environment_downsample = 2;
@@ -148,8 +143,6 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     dust_particle_enable=s.dust_particle_enable;
     perspective_nearz=s.perspective_nearz;
     perspective_farz=s.perspective_farz;
-    
-    m_skyBoxName=s.m_skyBoxName;
     debug_display = s.debug_display;
     
     m_lodBias = s.m_lodBias;
@@ -166,10 +159,6 @@ const KRVector2 &KRRenderSettings::getViewportSize() {
 
 void KRRenderSettings::setViewportSize(const KRVector2 &size) {
     m_viewportSize = size;
-}
-
-void KRRenderSettings::setSkyBox(const std::string &skyBoxName) {
-    m_skyBoxName = skyBoxName;
 }
 
 float KRRenderSettings::getPerspectiveNearZ()

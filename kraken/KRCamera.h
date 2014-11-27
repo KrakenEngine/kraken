@@ -74,6 +74,9 @@ public:
     
     void setFadeColor(const KRVector4 &fade_color);
     KRVector4 getFadeColor();
+    
+    void setSkyBox(const std::string &skyBox);
+    const std::string getSkyBox() const;
 
 private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
@@ -92,6 +95,7 @@ private:
     void destroyBuffers();
     
     KRTexture *m_pSkyBoxTexture;
+    std::string m_skyBox;
     KRViewport m_viewport;
     
     float m_particlesAbsoluteTime;

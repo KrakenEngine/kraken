@@ -21,7 +21,6 @@ public:
     
     const KRVector2 &getViewportSize();
     void setViewportSize(const KRVector2 &size);
-    void setSkyBox(const std::string &skyBoxName);
     
     float getPerspectiveNearZ();
     float getPerspectiveFarZ();
@@ -84,8 +83,6 @@ public:
     bool dust_particle_enable;
     float perspective_nearz;
     float perspective_farz;
-    
-    std::string m_skyBoxName;
     
     enum debug_display_type{
         KRENGINE_DEBUG_DISPLAY_NONE = 0,
