@@ -30,12 +30,9 @@
 //
 //
 
-attribute vec4 vertex_position;
-//attribute lowp vec4 vertex_uv;
-//
-//varying mediump vec2 textureCoordinate;
+in vec4 vertex_position;
 
-varying mediump vec3    texCoord;
+out mediump vec3    texCoord;
 uniform highp mat4      inv_mvp_matrix_no_translate; // Inverse of the model-view-projection matrix, without view translation component
 uniform mediump vec4 viewport;
 

@@ -25,10 +25,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-varying mediump vec2    textureCoordinate;
+out mediump vec2    textureCoordinate;
 
-attribute vec4          vertex_position;
-attribute lowp vec4     vertex_uv;
+in vec4          vertex_position;
+in lowp vec4     vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
 void main()

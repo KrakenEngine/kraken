@@ -31,32 +31,33 @@
 #define PIXEL_SHIFT_3 0.003
 #define PIXEL_SHIFT_4 0.004
 
-varying mediump vec2 textureCoordinate;
-//precision lowp float;
+in vec2 textureCoordinate;
 
 #if ENABLE_VIDEO_BG == 1
-uniform lowp sampler2D videoFrame;
+uniform sampler2D videoFrame;
 #endif
 
 #if ENABLE_FADE_COLOR == 1
-uniform lowp vec4 fade_color;
+uniform vec4 fade_color;
 #endif
 
-uniform lowp sampler2D renderFrame;
-uniform lowp sampler2D depthFrame;
+uniform sampler2D renderFrame;
+uniform sampler2D depthFrame;
 
 #if VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED == 1
-uniform lowp sampler2D volumetricEnvironmentFrame;
+uniform sampler2D volumetricEnvironmentFrame;
 #endif
+
+out vec4 colorOut;
 
 void main()
 {
     
-    lowp vec4 renderColor = texture2D(renderFrame, textureCoordinate);
+    vec4 renderColor = texture(renderFrame, textureCoordinate);
 #if DOF_QUALITY > 0 || ENABLE_FLASH == 1
-    mediump float depth = texture2D(depthFrame, textureCoordinate).r;
+    float depth = texture(depthFrame, textureCoordinate).r;
 #endif
-    mediump vec4 pixelColor = renderColor;
+    vec4 pixelColor = renderColor;
     
     
 #if DOF_QUALITY == 2
@@ -67,43 +68,43 @@ void main()
     // _XXXXX_
     // _XXXXX_
     // __XXX__
-    mediump float cf1 = PIXEL_SHIFT_1;
-    mediump float cf2 = PIXEL_SHIFT_2;
+    float cf1 = PIXEL_SHIFT_1;
+    float cf2 = PIXEL_SHIFT_2;
     
-    mediump float bx1 = textureCoordinate.s + cf1;
-    mediump float bx2 = textureCoordinate.s + cf2;
-    mediump float bxm1 = textureCoordinate.s - cf1;
-    mediump float bxm2 = textureCoordinate.s - cf2;
+    float bx1 = textureCoordinate.s + cf1;
+    float bx2 = textureCoordinate.s + cf2;
+    float bxm1 = textureCoordinate.s - cf1;
+    float bxm2 = textureCoordinate.s - cf2;
     
-    mediump float by1 = textureCoordinate.t + cf1;
-    mediump float by2 = textureCoordinate.t + cf2;
-    mediump float bym1 = textureCoordinate.t - cf1;
-    mediump float bym2 = textureCoordinate.t - cf2;
+    float by1 = textureCoordinate.t + cf1;
+    float by2 = textureCoordinate.t + cf2;
+    float bym1 = textureCoordinate.t - cf1;
+    float bym2 = textureCoordinate.t - cf2;
     
-    pixelColor += texture2D(renderFrame, vec2(bx1, textureCoordinate.t));
-    pixelColor += texture2D(renderFrame, vec2(bxm1, textureCoordinate.t));
-    pixelColor += texture2D(renderFrame, vec2(bx2, textureCoordinate.t));
-    pixelColor += texture2D(renderFrame, vec2(bxm2, textureCoordinate.t));
+    pixelColor += texture(renderFrame, vec2(bx1, textureCoordinate.t));
+    pixelColor += texture(renderFrame, vec2(bxm1, textureCoordinate.t));
+    pixelColor += texture(renderFrame, vec2(bx2, textureCoordinate.t));
+    pixelColor += texture(renderFrame, vec2(bxm2, textureCoordinate.t));
     
-    pixelColor += texture2D(renderFrame, vec2(textureCoordinate.s, by1));
-    pixelColor += texture2D(renderFrame, vec2(bx1, by1));
-    pixelColor += texture2D(renderFrame, vec2(bxm1, by1));
-    pixelColor += texture2D(renderFrame, vec2(bx2, by1));
-    pixelColor += texture2D(renderFrame, vec2(bxm2, by1));
+    pixelColor += texture(renderFrame, vec2(textureCoordinate.s, by1));
+    pixelColor += texture(renderFrame, vec2(bx1, by1));
+    pixelColor += texture(renderFrame, vec2(bxm1, by1));
+    pixelColor += texture(renderFrame, vec2(bx2, by1));
+    pixelColor += texture(renderFrame, vec2(bxm2, by1));
     
-    pixelColor += texture2D(renderFrame, vec2(textureCoordinate.s, by2));
-    pixelColor += texture2D(renderFrame, vec2(bx1, by2));
-    pixelColor += texture2D(renderFrame, vec2(bxm1, by2));
+    pixelColor += texture(renderFrame, vec2(textureCoordinate.s, by2));
+    pixelColor += texture(renderFrame, vec2(bx1, by2));
+    pixelColor += texture(renderFrame, vec2(bxm1, by2));
     
-    pixelColor += texture2D(renderFrame, vec2(textureCoordinate.s,bym1));
-    pixelColor += texture2D(renderFrame, vec2(bx1,bym1));
-    pixelColor += texture2D(renderFrame, vec2(bxm1,bym1));
-    pixelColor += texture2D(renderFrame, vec2(bx2,bym1));
-    pixelColor += texture2D(renderFrame, vec2(bxm2,bym1));
+    pixelColor += texture(renderFrame, vec2(textureCoordinate.s,bym1));
+    pixelColor += texture(renderFrame, vec2(bx1,bym1));
+    pixelColor += texture(renderFrame, vec2(bxm1,bym1));
+    pixelColor += texture(renderFrame, vec2(bx2,bym1));
+    pixelColor += texture(renderFrame, vec2(bxm2,bym1));
     
-    pixelColor += texture2D(renderFrame, vec2(bx1, bym2));
-    pixelColor += texture2D(renderFrame, vec2(bx1, bym2));  
-    pixelColor += texture2D(renderFrame, vec2(bxm1, bym2));
+    pixelColor += texture(renderFrame, vec2(bx1, bym2));
+    pixelColor += texture(renderFrame, vec2(bx1, bym2));  
+    pixelColor += texture(renderFrame, vec2(bxm1, bym2));
     pixelColor /= 21.0;
 
 #endif
@@ -117,26 +118,26 @@ void main()
     // _XXXXX_
     // __XXX__
     // ___X___
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_2));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_2, 0));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, 0));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, 0));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_2, 0));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
-    pixelColor += texture2D(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_2));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_2));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_2, 0));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, 0));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, 0));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_2, 0));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(-PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(+PIXEL_SHIFT_1, -PIXEL_SHIFT_1));
+    pixelColor += texture(renderFrame, textureCoordinate + vec2(0, -PIXEL_SHIFT_2));
     pixelColor /= 13.0;
      
 #endif
 // DOF_QUALITY == 1
     
 #if DOF_QUALITY > 0
-    mediump float focusDepth = texture2D(depthFrame, vec2(0.5, 0.5)).r;
-    mediump float blurAmount = clamp((depth - DOF_DEPTH - focusDepth) / DOF_FALLOFF, 0.0, 1.0);
+    float focusDepth = texture(depthFrame, vec2(0.5, 0.5)).r;
+    float blurAmount = clamp((depth - DOF_DEPTH - focusDepth) / DOF_FALLOFF, 0.0, 1.0);
     pixelColor = pixelColor * blurAmount + renderColor * (1.0 - blurAmount);
 #endif
     
@@ -160,7 +161,7 @@ void main()
     // ---- VIDEO_BG END ----
 
 #if VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED == 1
-    pixelColor += texture2D(volumetricEnvironmentFrame, textureCoordinate);
+    pixelColor += texture(volumetricEnvironmentFrame, textureCoordinate);
 #endif
     
 
@@ -177,13 +178,13 @@ void main()
     pixelColor.rgb = mix(pixelColor.rgb, fade_color.rgb, fade_color.a);
 #endif
     
-    gl_FragColor = pixelColor;
-    
+    colorOut = pixelColor;
     
      //PASSTHROUGH STATEMENT
-    // gl_FragColor = texture2D(depthFrame, textureCoordinate);
+    // colorOut = texture(depthFrame, textureCoordinate);
     
-    //gl_FragColor = vec4(vec3(blurAmount), 1.0);
-     
+    //colorOut = vec4(vec3(blurAmount), 1.0);
+    
+    colorOut = vec4(0.0, 0.0, 1.0, 1.0); // FINDME, KIP!!, HACK!!
 }
 

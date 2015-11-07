@@ -180,6 +180,9 @@
 		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E41843921678704000DBD6CF /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41B6BA916BE437800B510EB /* CoreAudio.framework */; };
+		E41CAB8D1B75D8DF00F3387D /* KrakenView.h in Headers */ = {isa = PBXBuildFile; fileRef = E41CAB8B1B75D8DF00F3387D /* KrakenView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E41CAB8E1B75D8DF00F3387D /* KrakenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */; };
+		E41CAB921B75DFF100F3387D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41CAB911B75DFF100F3387D /* QuartzCore.framework */; };
 		E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F61669611600A16EDF /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
 		E428C2F91669612500A16EDF /* KRAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F71669612500A16EDF /* KRAnimation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -283,6 +286,8 @@
 		E499BF2216AE760F007FCDBE /* kraken.h in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8C1512A40300F43B5B /* kraken.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8B1512A40300F43B5B /* kraken-prefix.pch */; };
 		E499BF2516AE8C20007FCDBE /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
+		E4A0B8201B2007130059018B /* flare_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559B0184DD48B0081BB20 /* flare_osx.vsh */; };
+		E4A0B8211B2007160059018B /* flare_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559AE184DD4730081BB20 /* flare_osx.fsh */; };
 		E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
 		E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -297,6 +302,8 @@
 		E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
+		E4B74A621AD79F9600067A78 /* KRContext_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4B74A611AD79F9600067A78 /* KRContext_osx.mm */; };
+		E4B74A641AD7A02C00067A78 /* KRContext_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
 		E4BBBB8E1512A40300F43B5B /* kraken.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* kraken.mm */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
@@ -393,7 +400,7 @@
 		E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027DD1697BFFF00D4427D /* KRAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F027F71698115600D4427D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027F61698115600D4427D /* AudioToolbox.framework */; };
 		E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */; };
-		E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; };
+		E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975331536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975371536221C00FD60B2 /* KRNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F975351536221C00FD60B2 /* KRNode.cpp */; };
 		E4F9754015362CD400FD60B2 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
@@ -456,9 +463,12 @@
 		E41AE1DD16B124CA00980428 /* font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.tga; sourceTree = "<group>"; };
 		E41B6BA716BE436100B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		E41B6BA916BE437800B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreAudio.framework; sourceTree = DEVELOPER_DIR; };
+		E41CAB8B1B75D8DF00F3387D /* KrakenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrakenView.h; sourceTree = "<group>"; };
+		E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KrakenView.mm; sourceTree = "<group>"; };
+		E41CAB911B75DFF100F3387D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		E42559AA184DD4490081BB20 /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.fsh; sourceTree = "<group>"; };
 		E42559AC184DD45A0081BB20 /* flare.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.vsh; sourceTree = "<group>"; };
-		E42559AE184DD4730081BB20 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.fsh; sourceTree = "<group>"; };
+		E42559AE184DD4730081BB20 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = flare_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E42559B0184DD48B0081BB20 /* flare_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.vsh; sourceTree = "<group>"; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimationManager.h; sourceTree = "<group>"; };
 		E428C2F41669611600A16EDF /* KRAnimationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAnimationManager.cpp; sourceTree = "<group>"; };
@@ -588,12 +598,16 @@
 		E497B952151BEDA600D3DC67 /* KRResource+fbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = "KRResource+fbx.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E497B95C151BF05F00D3DC67 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		E497B95E151BF09600D3DC67 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		E4A5C33E1BEDD6CC00CA40E5 /* kraken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kraken.h; sourceTree = "<group>"; };
+		E4A5C3401BEDD6CC00CA40E5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRLODGroup.cpp; sourceTree = "<group>"; };
 		E4AE635C1704FB0A00B460CD /* KRLODGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRLODGroup.h; sourceTree = "<group>"; };
 		E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTexture.cpp; sourceTree = "<group>"; };
 		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTextureCube.cpp; sourceTree = "<group>"; };
 		E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTextureCube.h; sourceTree = "<group>"; };
+		E4B74A611AD79F9600067A78 /* KRContext_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KRContext_osx.mm; sourceTree = "<group>"; };
+		E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KRContext_ios.mm; sourceTree = "<group>"; };
 		E4BBBB7E1512A40300F43B5B /* kraken.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = kraken.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4BBBB871512A40300F43B5B /* Kraken-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Kraken-Info.plist"; sourceTree = "<group>"; };
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -623,24 +637,24 @@
 		E4CA11731639CBD1005D9400 /* KRViewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRViewport.h; sourceTree = "<group>"; };
 		E4CA11771639CC8E005D9400 /* KRViewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRViewport.cpp; sourceTree = "<group>"; };
 		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.pvr; sourceTree = "<group>"; };
-		E4E6F60D16BA5D8300E410F8 /* PostShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = PostShader_osx.fsh; sourceTree = "<group>"; };
+		E4E6F60D16BA5D8300E410F8 /* PostShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = PostShader_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F60E16BA5D8300E410F8 /* PostShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = PostShader_osx.vsh; sourceTree = "<group>"; };
-		E4E6F60F16BA5D8300E410F8 /* sky_box_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sky_box_osx.fsh; sourceTree = "<group>"; };
-		E4E6F61016BA5D8300E410F8 /* debug_font_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font_osx.fsh; sourceTree = "<group>"; };
+		E4E6F60F16BA5D8300E410F8 /* sky_box_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = sky_box_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		E4E6F61016BA5D8300E410F8 /* debug_font_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = debug_font_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61116BA5D8300E410F8 /* debug_font_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font_osx.vsh; sourceTree = "<group>"; };
 		E4E6F61216BA5D8300E410F8 /* dust_particle_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.fsh; sourceTree = "<group>"; };
 		E4E6F61316BA5D8300E410F8 /* dust_particle_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = sprite_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61516BA5D8300E410F8 /* sprite_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_directional_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61716BA5D8300E410F8 /* light_directional_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_point_inside_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61916BA5D8300E410F8 /* light_point_inside_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61A16BA5D8300E410F8 /* light_point_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61A16BA5D8300E410F8 /* light_point_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_point_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61B16BA5D8300E410F8 /* light_point_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61C16BA5D8300E410F8 /* ObjectShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ObjectShader_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61C16BA5D8300E410F8 /* ObjectShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = ObjectShader_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61D16BA5D8300E410F8 /* ObjectShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ObjectShader_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61E16BA5D8300E410F8 /* occlusion_test_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = occlusion_test_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61E16BA5D8300E410F8 /* occlusion_test_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = occlusion_test_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61F16BA5D8300E410F8 /* occlusion_test_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = occlusion_test_osx.vsh; sourceTree = "<group>"; };
 		E4E6F62016BA5D8300E410F8 /* ShadowShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ShadowShader_osx.fsh; sourceTree = "<group>"; };
 		E4E6F62116BA5D8300E410F8 /* ShadowShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ShadowShader_osx.vsh; sourceTree = "<group>"; };
@@ -719,6 +733,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E41CAB921B75DFF100F3387D /* QuartzCore.framework in Frameworks */,
 				E45E03C018790DF5006DA23F /* libPVRTexLib.a in Frameworks */,
 				E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */,
 				E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */,
@@ -1158,6 +1173,7 @@
 				E4C8E4E616B9B2D50031DDCB /* kraken_standard_assets_ios */,
 				E4C8E4F616B9B2E20031DDCB /* kraken_standard_assets_osx */,
 				E48C528519C570C50062E439 /* krakenTests */,
+				E4A5C33D1BEDD6CB00CA40E5 /* kraken */,
 				E491016213C99B9E0098455B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1182,6 +1198,8 @@
 				E45134B41746A4A300443C21 /* KRBehavior.cpp */,
 				E45134B51746A4A300443C21 /* KRBehavior.h */,
 				E48C697115374F7E00232E28 /* KRContext.cpp */,
+				E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */,
+				E4B74A611AD79F9600067A78 /* KRContext_osx.mm */,
 				E48C696E15374F5A00232E28 /* KRContext.h */,
 				E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */,
 				E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */,
@@ -1207,11 +1225,22 @@
 			path = kraken;
 			sourceTree = "<group>";
 		};
+		E4A5C33D1BEDD6CB00CA40E5 /* kraken */ = {
+			isa = PBXGroup;
+			children = (
+				E4A5C33E1BEDD6CC00CA40E5 /* kraken.h */,
+				E4A5C3401BEDD6CC00CA40E5 /* Info.plist */,
+			);
+			path = kraken;
+			sourceTree = "<group>";
+		};
 		E4BBBB851512A40300F43B5B /* kraken_osx */ = {
 			isa = PBXGroup;
 			children = (
 				E4BBBB8C1512A40300F43B5B /* kraken.h */,
 				E4BBBB8D1512A40300F43B5B /* kraken.mm */,
+				E41CAB8B1B75D8DF00F3387D /* KrakenView.h */,
+				E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */,
 				E4BBBB861512A40300F43B5B /* Supporting Files */,
 				E4BBBB931512A41500F43B5B /* Frameworks */,
 			);
@@ -1231,6 +1260,7 @@
 		E4BBBB931512A41500F43B5B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E41CAB911B75DFF100F3387D /* QuartzCore.framework */,
 				E459040316C30CC5002B00A0 /* AudioUnit.framework */,
 				E41B6BA916BE437800B510EB /* CoreAudio.framework */,
 				E460292916682BD900261BB9 /* libfbxsdk.a */,
@@ -1478,7 +1508,6 @@
 				E4F027CA16979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D116979CE200D4427D /* KRAudioSample.h in Headers */,
 				E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
-				E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
 				E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */,
@@ -1508,7 +1537,9 @@
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E45134B91746A4A300443C21 /* KRBehavior.h in Headers */,
 				E43F70E81824D9AB00136169 /* KRStreamer.h in Headers */,
+				E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E40F982F184A7A2700CFA4D8 /* KRMeshQuad.h in Headers */,
+				E41CAB8D1B75D8DF00F3387D /* KrakenView.h in Headers */,
 				E40F9835184A7BAC00CFA4D8 /* KRSprite.h in Headers */,
 				E48CF945173453990005EBBB /* KRFloat.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
@@ -1695,6 +1726,7 @@
 				E4E6F6A616BA5E0A00E410F8 /* debug_font_osx.fsh in Resources */,
 				E4E6F6A716BA5E0A00E410F8 /* debug_font_osx.vsh in Resources */,
 				E4E6F6A816BA5E0A00E410F8 /* dust_particle_osx.fsh in Resources */,
+				E4A0B8201B2007130059018B /* flare_osx.vsh in Resources */,
 				E4E6F6A916BA5E0A00E410F8 /* dust_particle_osx.vsh in Resources */,
 				E4E6F6AA16BA5E0A00E410F8 /* sprite_osx.fsh in Resources */,
 				E4E6F6AB16BA5E0A00E410F8 /* sprite_osx.vsh in Resources */,
@@ -1714,6 +1746,7 @@
 				E4E6F6B916BA5E0A00E410F8 /* simple_blit_osx.vsh in Resources */,
 				E4E6F6BA16BA5E0A00E410F8 /* sky_box_osx.vsh in Resources */,
 				E4E6F6BB16BA5E0A00E410F8 /* visualize_overlay_osx.fsh in Resources */,
+				E4A0B8211B2007160059018B /* flare_osx.fsh in Resources */,
 				E4E6F6BC16BA5E0A00E410F8 /* visualize_overlay_osx.vsh in Resources */,
 				E4E6F6BD16BA5E0A00E410F8 /* volumetric_fog_downsampled_osx.fsh in Resources */,
 				E4E6F6BE16BA5E0A00E410F8 /* volumetric_fog_downsampled_osx.vsh in Resources */,
@@ -1754,6 +1787,7 @@
 				E4159BA319C5762F00622D1E /* KRMeshQuad.cpp in Sources */,
 				E4159BA419C5762F00622D1E /* KRTextureManager.cpp in Sources */,
 				E4159BA519C5762F00622D1E /* KRTexture2D.cpp in Sources */,
+				E4B74A641AD7A02C00067A78 /* KRContext_ios.mm in Sources */,
 				E4159BA619C5762F00622D1E /* KRTexture.cpp in Sources */,
 				E4159BA719C5762F00622D1E /* KRTextureCube.cpp in Sources */,
 				E4159BA819C5762F00622D1E /* KRTexturePVR.cpp in Sources */,
@@ -1840,6 +1874,7 @@
 				E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */,
 				E4AFC6B915F7C7B200DDB4C8 /* KROctree.cpp in Sources */,
 				E46C214C15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
+				E4B74A621AD79F9600067A78 /* KRContext_osx.mm in Sources */,
 				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
 				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
 				E40F982D184A7A2700CFA4D8 /* KRMeshQuad.cpp in Sources */,
@@ -1857,6 +1892,7 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */,
+				E41CAB8E1B75D8DF00F3387D /* KrakenView.mm in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
 				E41843921678704000DBD6CF /* KRCollider.cpp in Sources */,
 				E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,
@@ -1944,6 +1980,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1971,6 +2008,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1990,6 +2028,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2012,6 +2051,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2068,6 +2108,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (

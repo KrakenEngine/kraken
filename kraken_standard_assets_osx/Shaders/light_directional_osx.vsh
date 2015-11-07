@@ -25,7 +25,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute vec4 vertex_position;
+in vec4 vertex_position;
 
 void main()
 {

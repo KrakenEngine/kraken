@@ -29,10 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+out vec4 colorOut;
+
 uniform samplerCube diffuseTexture;
 
-varying mediump vec3 texCoord;
+in mediump vec3 texCoord;
 
 void main() {
-    gl_FragColor = textureCube(diffuseTexture, normalize(texCoord));
+    colorOut = textureCube(diffuseTexture, normalize(texCoord));
 }

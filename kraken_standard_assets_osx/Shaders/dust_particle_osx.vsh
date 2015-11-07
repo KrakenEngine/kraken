@@ -29,19 +29,19 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute mediump vec2	vertex_uv;
+in mediump vec2	vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 uniform mediump vec4    viewport;
 uniform mediump float   flare_size;
-attribute vec4          vertex_position;
+in vec4          vertex_position;
 uniform highp vec3      particle_origin;
 
 uniform highp mat4      shadow_mvp1;
-varying mediump vec4	shadowMapCoord1;
+out mediump vec4	shadowMapCoord1;
 
-varying mediump vec2    texCoord;
+out mediump vec2    texCoord;
 uniform highp float     time_absolute;
-varying lowp float      intensity_modulate;
+out lowp float      intensity_modulate;
 
 void main() {
     highp vec4 offset_center = vertex_position + vec4(particle_origin, 0.0);

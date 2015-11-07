@@ -29,12 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute mediump vec2	vertex_uv;
-uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
-uniform mediump vec4    viewport;
-uniform mediump float   flare_size;
+in vec2	vertex_uv;
+uniform mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+uniform vec4    viewport;
+uniform float   flare_size;
 
-varying mediump vec2 texCoord;
+out vec2 texCoord;
 
 void main() {
     texCoord = vertex_uv;

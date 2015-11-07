@@ -25,7 +25,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute vec4 vertex_position;
+in vec4 vertex_position;
 uniform highp mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 
 void main()
