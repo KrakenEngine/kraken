@@ -15,7 +15,7 @@ KRRenderSettings::KRRenderSettings()
     siren_enable_hrtf = true;
     siren_reverb_max_length = 2.0f;
     
-    m_enable_realtime_occlusion = true;
+    m_enable_realtime_occlusion = false;
     bShowShadowBuffer = false;
     bShowOctree = false;
     bShowDeferred = false;
