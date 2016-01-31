@@ -28,7 +28,7 @@
 #define SHADOW_BIAS 0.01
 
 
-attribute highp vec4	vertex_position;
+in highp vec4	vertex_position;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
 void main()

@@ -18,6 +18,19 @@ int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 int KRContext::KRENGINE_PRESTREAM_DISTANCE;
 
+#if TARGET_OS_IPHONE
+
+
+#elif TARGET_OS_MAC
+
+
+#else
+
+#error Unsupported Platform
+
+#endif
+
+
 const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
     "GL_EXT_texture_storage"
 };
@@ -48,7 +61,7 @@ KRContext::KRContext() : m_streamer(*this)
     m_pUnknownManager = new KRUnknownManager(*this);
     m_streamingEnabled = true;
     
-
+    createDeviceContexts();
 }
 
 KRContext::~KRContext() {
@@ -103,6 +116,8 @@ KRContext::~KRContext() {
         delete m_pBundleManager;
         m_pBundleManager = NULL;
     }
+    
+    destroyDeviceContexts();
 }
 
 void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)

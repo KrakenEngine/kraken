@@ -87,6 +87,13 @@ public:
     
     void doStreaming();
     void receivedMemoryWarning();
+
+    static void activateStreamerContext();
+    static void activateRenderContext();
+    
+#if TARGET_OS_MAC
+    static void attachToView(void *view);
+#endif
     
 private:
     KRBundleManager *m_pBundleManager;
@@ -117,6 +124,9 @@ private:
     static void *s_log_callback_user_data;
     
     KRStreamer m_streamer;
+    
+    static void createDeviceContexts();
+    void destroyDeviceContexts();
 };
 
 #endif

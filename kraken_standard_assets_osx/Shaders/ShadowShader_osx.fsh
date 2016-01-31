@@ -25,9 +25,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-//varying mediump vec2	texCoord;
+//in mediump vec2	texCoord;
+
+out vec4 colorOut;
 
 void main()
 {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    colorOut = vec4(1.0, 1.0, 1.0, 1.0);
 }

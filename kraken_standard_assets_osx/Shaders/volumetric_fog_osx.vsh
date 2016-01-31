@@ -25,13 +25,13 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-attribute highp vec4	vertex_position;
+in highp vec4	vertex_position;
 uniform highp mat4      inv_mvp_matrix;
 
 uniform highp vec2      slice_depth_scale; // First component is the depth for the nearest plane, in view space.  Second component is the distance between planes, in view space
 
 uniform highp mat4      shadow_mvp1;
-varying mediump vec4	shadowMapCoord1;
+out mediump vec4	shadowMapCoord1;
 
 uniform highp mat4  projection_matrix;
 

@@ -25,11 +25,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-uniform mediump vec2 viewport_downsample;
-attribute vec4 vertex_position;
-attribute lowp vec4 vertex_uv;
+uniform vec2 viewport_downsample;
+in vec4 vertex_position;
+in vec4 vertex_uv;
 
-varying mediump vec2 textureCoordinate;
+out vec2 textureCoordinate;
 
 void main()
 {

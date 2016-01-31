@@ -105,7 +105,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     }
     m_last_frame_start = current_time;
     
-    GLint defaultFBO;
+    GLint defaultFBO = -1;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
     
     createBuffers(renderBufferWidth, renderBufferHeight);

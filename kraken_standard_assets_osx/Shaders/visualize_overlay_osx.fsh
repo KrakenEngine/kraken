@@ -29,7 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+out vec4 colorOut;
+
 void main() {
-    gl_FragColor = vec4(0.0, 0.05, 0.05, 0.0);
+    colorOut = vec4(0.0, 0.05, 0.05, 0.0);
 }
 

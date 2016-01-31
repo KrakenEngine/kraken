@@ -25,11 +25,13 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-varying mediump vec4        shadowMapCoord1;
+out vec4 colorOut;
+
+in mediump vec4        shadowMapCoord1;
 uniform sampler2DShadow     shadowTexture1;
 uniform mediump vec3        light_color;
 
 void main()
 {
-    gl_FragColor = vec4(light_color, 1.0) * shadow2DProj(shadowTexture1, shadowMapCoord1);
+    colorOut = vec4(light_color, 1.0) * shadow2DProj(shadowTexture1, shadowMapCoord1);
 }

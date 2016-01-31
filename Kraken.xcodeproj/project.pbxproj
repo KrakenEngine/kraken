@@ -180,6 +180,166 @@
 		E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
 		E41843921678704000DBD6CF /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
 		E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41B6BA916BE437800B510EB /* CoreAudio.framework */; };
+		E41CAB8D1B75D8DF00F3387D /* KrakenView.h in Headers */ = {isa = PBXBuildFile; fileRef = E41CAB8B1B75D8DF00F3387D /* KrakenView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E41CAB8E1B75D8DF00F3387D /* KrakenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */; };
+		E41CAB921B75DFF100F3387D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41CAB911B75DFF100F3387D /* QuartzCore.framework */; };
+		E423D6901BEDEE2D0021812E /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; };
+		E423D6911BEDEE2D0021812E /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; };
+		E423D6921BEDEE2D0021812E /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
+		E423D6931BEDEE2D0021812E /* KRAudioSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027CC16979CE200D4427D /* KRAudioSample.cpp */; };
+		E423D6941BEDEE2D0021812E /* KRAudioBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027DC1697BFFF00D4427D /* KRAudioBuffer.cpp */; };
+		E423D6951BEDEE2D0021812E /* KRUnknownManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9A41694D977000B3D58 /* KRUnknownManager.cpp */; };
+		E423D6961BEDEE2D0021812E /* KRUnknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414F9AA1694DA37000B3D58 /* KRUnknown.cpp */; };
+		E423D6971BEDEE2D0021812E /* KRAnimationCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C3061669628A00A16EDF /* KRAnimationCurve.cpp */; };
+		E423D6981BEDEE2D0021812E /* KRAnimationCurveManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E416AA9B1671375C000F6786 /* KRAnimationCurveManager.cpp */; };
+		E423D6991BEDEE2D0021812E /* KRAnimationLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C310166971FE00A16EDF /* KRAnimationLayer.cpp */; };
+		E423D69A1BEDEE2D0021812E /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
+		E423D69B1BEDEE2D0021812E /* KRAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2FA1669613200A16EDF /* KRAnimation.cpp */; };
+		E423D69C1BEDEE2D0021812E /* KRAnimationAttribute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C3181669A25D00A16EDF /* KRAnimationAttribute.cpp */; };
+		E423D69D1BEDEE2D0021812E /* KRBundleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */; };
+		E423D69E1BEDEE2D0021812E /* KRBundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399215F928CA00BD66D5 /* KRBundle.cpp */; };
+		E423D69F1BEDEE2D0021812E /* KRMaterialManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017B13C99BDC0098455B /* KRMaterialManager.cpp */; };
+		E423D6A01BEDEE2D0021812E /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
+		E423D6A11BEDEE2D0021812E /* KRMeshManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018213C99BDC0098455B /* KRMeshManager.cpp */; };
+		E423D6A21BEDEE2D0021812E /* KRMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017913C99BDC0098455B /* KRMesh.cpp */; };
+		E423D6A31BEDEE2D0021812E /* KRMeshCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454AE167BB8FC003586CD /* KRMeshCube.cpp */; };
+		E423D6A41BEDEE2D0021812E /* KRMeshSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454B4167BC05C003586CD /* KRMeshSphere.cpp */; };
+		E423D6A51BEDEE2D0021812E /* KRMeshQuad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40F982A184A7A2700CFA4D8 /* KRMeshQuad.cpp */; };
+		E423D6A61BEDEE2D0021812E /* KRTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018013C99BDC0098455B /* KRTextureManager.cpp */; };
+		E423D6A71BEDEE2D0021812E /* KRTexture2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491018113C99BDC0098455B /* KRTexture2D.cpp */; };
+		E423D6A81BEDEE2D0021812E /* KRContext_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */; };
+		E423D6A91BEDEE2D0021812E /* KRTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175AA161F5A1000B8FB80 /* KRTexture.cpp */; };
+		E423D6AA1BEDEE2D0021812E /* KRTextureCube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */; };
+		E423D6AB1BEDEE2D0021812E /* KRTexturePVR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10E81637BD2B005D9400 /* KRTexturePVR.cpp */; };
+		E423D6AC1BEDEE2D0021812E /* KRTextureTGA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA10EE1637BD58005D9400 /* KRTextureTGA.cpp */; };
+		E423D6AD1BEDEE2D0021812E /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
+		E423D6AE1BEDEE2D0021812E /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
+		E423D6AF1BEDEE2D0021812E /* KRShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A613F4F6AB00FF4370 /* KRShaderManager.cpp */; };
+		E423D6B01BEDEE2D0021812E /* KRShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E47C25A813F4F6DD00FF4370 /* KRShader.cpp */; };
+		E423D6B11BEDEE2D0021812E /* KRSceneManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46C214A15364DEC009CABF3 /* KRSceneManager.cpp */; };
+		E423D6B21BEDEE2D0021812E /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
+		E423D6B31BEDEE2D0021812E /* KRCollider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 104A335C1672D31B001C8BA6 /* KRCollider.cpp */; };
+		E423D6B41BEDEE2D0021812E /* KRAudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B68131697794F00D99917 /* KRAudioSource.cpp */; };
+		E423D6B51BEDEE2D0021812E /* KRAmbientZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E494322F169E08D200BCB891 /* KRAmbientZone.cpp */; };
+		E423D6B61BEDEE2D0021812E /* KRReverbZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E450273716E0491D00FDEC5C /* KRReverbZone.cpp */; };
+		E423D6B71BEDEE2D0021812E /* KRCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */; };
+		E423D6B81BEDEE2D0021812E /* KRParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BA716444C230043185B /* KRParticleSystem.cpp */; };
+		E423D6B91BEDEE2D0021812E /* KRParticleSystemNewtonian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4324BAD16444E120043185B /* KRParticleSystemNewtonian.cpp */; };
+		E423D6BA1BEDEE2D0021812E /* KRModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE41435558800A668C4 /* KRModel.cpp */; };
+		E423D6BB1BEDEE2D0021812E /* KRLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A155152E54F700F2044A /* KRLight.cpp */; };
+		E423D6BC1BEDEE2D0021812E /* KRPointLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A158152E557E00F2044A /* KRPointLight.cpp */; };
+		E423D6BD1BEDEE2D0021812E /* KRDirectionalLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A15E152E565700F2044A /* KRDirectionalLight.cpp */; };
+		E423D6BE1BEDEE2D0021812E /* KRSpotLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E461A164152E56C000F2044A /* KRSpotLight.cpp */; };
+		E423D6BF1BEDEE2D0021812E /* KRNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F975351536221C00FD60B2 /* KRNode.cpp */; };
+		E423D6C01BEDEE2D0021812E /* KRBone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E480BE6B1671C653004EC8AD /* KRBone.cpp */; };
+		E423D6C11BEDEE2D0021812E /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
+		E423D6C21BEDEE2D0021812E /* KRLocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E468447D17FFDF51001F1FA1 /* KRLocator.cpp */; };
+		E423D6C31BEDEE2D0021812E /* KRLODSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43F70DA181B20E300136169 /* KRLODSet.cpp */; };
+		E423D6C41BEDEE2D0021812E /* KRSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40F9830184A7BAC00CFA4D8 /* KRSprite.cpp */; };
+		E423D6C51BEDEE2D0021812E /* KRMat4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017713C99BDC0098455B /* KRMat4.cpp */; };
+		E423D6C61BEDEE2D0021812E /* KRVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017F13C99BDC0098455B /* KRVector3.cpp */; };
+		E423D6C71BEDEE2D0021812E /* KRVector2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B945151BA99400D3DC67 /* KRVector2.cpp */; };
+		E423D6C81BEDEE2D0021812E /* KRQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E42CB1EF158446AB0066E0D8 /* KRQuaternion.cpp */; };
+		E423D6C91BEDEE2D0021812E /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
+		E423D6CA1BEDEE2D0021812E /* KRVector4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4EC73BF1720B1FF0065299F /* KRVector4.cpp */; };
+		E423D6CB1BEDEE2D0021812E /* KRFloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48CF940173453990005EBBB /* KRFloat.cpp */; };
+		E423D6CC1BEDEE2D0021812E /* KRTriangle3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */; };
+		E423D6CD1BEDEE2D0021812E /* KRResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B94C151BCF2500D3DC67 /* KRResource.cpp */; };
+		E423D6CE1BEDEE2D0021812E /* KRResource+obj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E497B94F151BD2CE00D3DC67 /* KRResource+obj.cpp */; };
+		E423D6CF1BEDEE2D0021812E /* KRBehavior.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45134B41746A4A300443C21 /* KRBehavior.cpp */; };
+		E423D6D01BEDEE2D0021812E /* KRContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48C697115374F7E00232E28 /* KRContext.cpp */; };
+		E423D6D11BEDEE2D0021812E /* KRContextObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */; };
+		E423D6D21BEDEE2D0021812E /* KRDataBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E46F4A0D155E003000CCF8B8 /* KRDataBlock.cpp */; };
+		E423D6D31BEDEE2D0021812E /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
+		E423D6D41BEDEE2D0021812E /* KRHitInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C454BA167BD248003586CD /* KRHitInfo.cpp */; };
+		E423D6D51BEDEE2D0021812E /* KROctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2415EE95E700B965C6 /* KROctree.cpp */; };
+		E423D6D61BEDEE2D0021812E /* KROctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4924C2915EE96AA00B965C6 /* KROctreeNode.cpp */; };
+		E423D6D71BEDEE2D0021812E /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
+		E423D6D81BEDEE2D0021812E /* KRStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70E31824D9AB00136169 /* KRStreamer.mm */; };
+		E423D6D91BEDEE2D0021812E /* KRViewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CA11771639CC8E005D9400 /* KRViewport.cpp */; };
+		E423D6DB1BEDEE2D0021812E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491016413C99B9E0098455B /* Foundation.framework */; };
+		E423D6DC1BEDEE2D0021812E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E491019F13C99BF50098455B /* OpenGLES.framework */; };
+		E423D6DD1BEDEE2D0021812E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4CA10F51638BCAE005D9400 /* Accelerate.framework */; };
+		E423D6DE1BEDEE2D0021812E /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027D21697A01300D4427D /* OpenAL.framework */; };
+		E423D6DF1BEDEE2D0021812E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027F91698116000D4427D /* AudioToolbox.framework */; };
+		E423D6E01BEDEE2D0021812E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41B6BA716BE436100B510EB /* CoreAudio.framework */; };
+		E423D6E31BEDEE2D0021812E /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03C518790EC0006DA23F /* tinyxml2.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E41BEDEE2D0021812E /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03CC18790EFF006DA23F /* forsyth.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E51BEDEE2D0021812E /* KRAudioManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027C616979CCD00D4427D /* KRAudioManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E61BEDEE2D0021812E /* KRAudioSample.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027CD16979CE200D4427D /* KRAudioSample.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E71BEDEE2D0021812E /* KRAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027DD1697BFFF00D4427D /* KRAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E81BEDEE2D0021812E /* KRUnknownManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9A51694D977000B3D58 /* KRUnknownManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6E91BEDEE2D0021812E /* KRUnknown.h in Headers */ = {isa = PBXBuildFile; fileRef = E414F9AB1694DA37000B3D58 /* KRUnknown.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6EA1BEDEE2D0021812E /* KRAnimationCurve.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C3031669627900A16EDF /* KRAnimationCurve.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6EB1BEDEE2D0021812E /* KRAnimationCurveManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E416AA9816713749000F6786 /* KRAnimationCurveManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6EC1BEDEE2D0021812E /* KRAnimationLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C30F166971FE00A16EDF /* KRAnimationLayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6ED1BEDEE2D0021812E /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6EE1BEDEE2D0021812E /* KRAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F71669612500A16EDF /* KRAnimation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6EF1BEDEE2D0021812E /* KRAnimationAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C3151669A24B00A16EDF /* KRAnimationAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F01BEDEE2D0021812E /* KRBundleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399B15F92BE000BD66D5 /* KRBundleManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F11BEDEE2D0021812E /* KRBundle.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399315F928CA00BD66D5 /* KRBundle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F21BEDEE2D0021812E /* KRMaterialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018413C99BDC0098455B /* KRMaterialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F31BEDEE2D0021812E /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F41BEDEE2D0021812E /* KRMeshManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018313C99BDC0098455B /* KRMeshManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F51BEDEE2D0021812E /* KRMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017A13C99BDC0098455B /* KRMesh.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F61BEDEE2D0021812E /* KRMeshCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454AB167BB8EC003586CD /* KRMeshCube.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F71BEDEE2D0021812E /* KRMeshSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B1167BC04B003586CD /* KRMeshSphere.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F81BEDEE2D0021812E /* KRMeshQuad.h in Headers */ = {isa = PBXBuildFile; fileRef = E40F982B184A7A2700CFA4D8 /* KRMeshQuad.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6F91BEDEE2D0021812E /* KRTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018513C99BDC0098455B /* KRTextureManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FA1BEDEE2D0021812E /* KRTexture2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FB1BEDEE2D0021812E /* KRTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175AB161F5A1000B8FB80 /* KRTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FC1BEDEE2D0021812E /* KRTextureCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FD1BEDEE2D0021812E /* KRTexturePVR.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10E41637BD0A005D9400 /* KRTexturePVR.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FE1BEDEE2D0021812E /* KRTextureTGA.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA10EB1637BD47005D9400 /* KRTextureTGA.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D6FF1BEDEE2D0021812E /* KRTextureAnimated.h in Headers */ = {isa = PBXBuildFile; fileRef = E460292516681CFE00261BB9 /* KRTextureAnimated.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7001BEDEE2D0021812E /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7011BEDEE2D0021812E /* KRShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A113F4F65A00FF4370 /* KRShaderManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7021BEDEE2D0021812E /* KRShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E47C25A413F4F66F00FF4370 /* KRShader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7031BEDEE2D0021812E /* KRSceneManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E46C214915364DDB009CABF3 /* KRSceneManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7041BEDEE2D0021812E /* KRScene.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAE6143557D200A668C4 /* KRScene.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7051BEDEE2D0021812E /* KRCollider.h in Headers */ = {isa = PBXBuildFile; fileRef = 104A335D1672D31C001C8BA6 /* KRCollider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7061BEDEE2D0021812E /* KRAudioSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B68141697794F00D99917 /* KRAudioSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7071BEDEE2D0021812E /* KRAmbientZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E4943230169E08D200BCB891 /* KRAmbientZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7081BEDEE2D0021812E /* KRReverbZone.h in Headers */ = {isa = PBXBuildFile; fileRef = E450273816E0491D00FDEC5C /* KRReverbZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7091BEDEE2D0021812E /* KRCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B3CBC14393DF5000C50E2 /* KRCamera.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70A1BEDEE2D0021812E /* KRParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BA316444C0D0043185B /* KRParticleSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70B1BEDEE2D0021812E /* KRParticleSystemNewtonian.h in Headers */ = {isa = PBXBuildFile; fileRef = E4324BAA16444DEF0043185B /* KRParticleSystemNewtonian.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70C1BEDEE2D0021812E /* KRModel.h in Headers */ = {isa = PBXBuildFile; fileRef = E414BAE11435557300A668C4 /* KRModel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70D1BEDEE2D0021812E /* KRLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A151152E54B500F2044A /* KRLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70E1BEDEE2D0021812E /* KRPointLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A157152E555400F2044A /* KRPointLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D70F1BEDEE2D0021812E /* KRDirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A15B152E563000F2044A /* KRDirectionalLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7101BEDEE2D0021812E /* KRSpotLight.h in Headers */ = {isa = PBXBuildFile; fileRef = E461A167152E570500F2044A /* KRSpotLight.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7111BEDEE2D0021812E /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7121BEDEE2D0021812E /* KRBone.h in Headers */ = {isa = PBXBuildFile; fileRef = E480BE671671C641004EC8AD /* KRBone.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7131BEDEE2D0021812E /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7141BEDEE2D0021812E /* KRLocator.h in Headers */ = {isa = PBXBuildFile; fileRef = E468447E17FFDF51001F1FA1 /* KRLocator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7151BEDEE2D0021812E /* KRLODSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70DB181B20E400136169 /* KRLODSet.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7161BEDEE2D0021812E /* KRSprite.h in Headers */ = {isa = PBXBuildFile; fileRef = E40F9831184A7BAC00CFA4D8 /* KRSprite.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7171BEDEE2D0021812E /* KRMat4.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017613C99BDC0098455B /* KRMat4.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7181BEDEE2D0021812E /* KRVector3.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017E13C99BDC0098455B /* KRVector3.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7191BEDEE2D0021812E /* KRVector2.h in Headers */ = {isa = PBXBuildFile; fileRef = E497B943151BA93400D3DC67 /* KRVector2.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71A1BEDEE2D0021812E /* KRQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = E42CB1EB158446940066E0D8 /* KRQuaternion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71B1BEDEE2D0021812E /* KRAABB.h in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45315EFF79500D7C3DD /* KRAABB.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71C1BEDEE2D0021812E /* KRVector4.h in Headers */ = {isa = PBXBuildFile; fileRef = E4EC73C01720B1FF0065299F /* KRVector4.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71D1BEDEE2D0021812E /* KRFloat.h in Headers */ = {isa = PBXBuildFile; fileRef = E48CF941173453990005EBBB /* KRFloat.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71E1BEDEE2D0021812E /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D71F1BEDEE2D0021812E /* KRResource.h in Headers */ = {isa = PBXBuildFile; fileRef = E497B949151BCEE900D3DC67 /* KRResource.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7201BEDEE2D0021812E /* KRBehavior.h in Headers */ = {isa = PBXBuildFile; fileRef = E45134B51746A4A300443C21 /* KRBehavior.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7211BEDEE2D0021812E /* KRContext.h in Headers */ = {isa = PBXBuildFile; fileRef = E48C696E15374F5A00232E28 /* KRContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7221BEDEE2D0021812E /* KRContextObject.h in Headers */ = {isa = PBXBuildFile; fileRef = E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7231BEDEE2D0021812E /* KRDataBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = E46F4A0A155E002100CCF8B8 /* KRDataBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7241BEDEE2D0021812E /* KREngine-common.h in Headers */ = {isa = PBXBuildFile; fileRef = E46DBE841512B9E200D59F86 /* KREngine-common.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7251BEDEE2D0021812E /* KREngine.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017213C99BDC0098455B /* KREngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7261BEDEE2D0021812E /* KRHitInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4C454B7167BD235003586CD /* KRHitInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7271BEDEE2D0021812E /* KROctree.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2515EE95E800B965C6 /* KROctree.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7281BEDEE2D0021812E /* KROctreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4924C2A15EE96AA00B965C6 /* KROctreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D7291BEDEE2D0021812E /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D72A1BEDEE2D0021812E /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D72B1BEDEE2D0021812E /* KRStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRStreamer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D72C1BEDEE2D0021812E /* KRViewport.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA11731639CBD1005D9400 /* KRViewport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E423D72E1BEDEE2D0021812E /* kraken_standard_assets_ios.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E4C8E4E416B9B2D50031DDCB /* kraken_standard_assets_ios.bundle */; };
+		E423D7361BEDEFBF0021812E /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E423D7351BEDEFBF0021812E /* info.plist */; };
+		E423D73B1BEDF0560021812E /* kraken.h in Headers */ = {isa = PBXBuildFile; fileRef = E423D7391BEDF0500021812E /* kraken.h */; };
 		E428C2F31669610500A16EDF /* KRAnimationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F11669610500A16EDF /* KRAnimationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E428C2F61669611600A16EDF /* KRAnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E428C2F41669611600A16EDF /* KRAnimationManager.cpp */; };
 		E428C2F91669612500A16EDF /* KRAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = E428C2F71669612500A16EDF /* KRAnimation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -283,6 +443,8 @@
 		E499BF2216AE760F007FCDBE /* kraken.h in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8C1512A40300F43B5B /* kraken.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E499BF2316AE7636007FCDBE /* kraken-prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = E4BBBB8B1512A40300F43B5B /* kraken-prefix.pch */; };
 		E499BF2516AE8C20007FCDBE /* KREngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = E491016F13C99BDC0098455B /* KREngine.mm */; };
+		E4A0B8201B2007130059018B /* flare_osx.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559B0184DD48B0081BB20 /* flare_osx.vsh */; };
+		E4A0B8211B2007160059018B /* flare_osx.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E42559AE184DD4730081BB20 /* flare_osx.fsh */; };
 		E4AE635E1704FB0A00B460CD /* KRLODGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4AE635B1704FB0A00B460CD /* KRLODGroup.cpp */; };
 		E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = E4AE635C1704FB0A00B460CD /* KRLODGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -297,6 +459,8 @@
 		E4B175B5161F5FAF00B8FB80 /* KRTextureCube.h in Headers */ = {isa = PBXBuildFile; fileRef = E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A4391523B027004CB0EC /* KRMaterial.h in Headers */ = {isa = PBXBuildFile; fileRef = E491017D13C99BDC0098455B /* KRMaterial.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E491017C13C99BDC0098455B /* KRMaterial.cpp */; };
+		E4B74A621AD79F9600067A78 /* KRContext_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4B74A611AD79F9600067A78 /* KRContext_osx.mm */; };
+		E4B74A641AD7A02C00067A78 /* KRContext_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
 		E4BBBB8E1512A40300F43B5B /* kraken.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* kraken.mm */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
@@ -393,7 +557,7 @@
 		E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F027DD1697BFFF00D4427D /* KRAudioBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F027F71698115600D4427D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4F027F61698115600D4427D /* AudioToolbox.framework */; };
 		E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F89BB218A6DB1200015637 /* KRTriangle3.cpp */; };
-		E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; };
+		E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F89BB318A6DB1200015637 /* KRTriangle3.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975331536220900FD60B2 /* KRNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F975311536220900FD60B2 /* KRNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4F975371536221C00FD60B2 /* KRNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F975351536221C00FD60B2 /* KRNode.cpp */; };
 		E4F9754015362CD400FD60B2 /* KRScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E414BAE81435585A00A668C4 /* KRScene.cpp */; };
@@ -415,6 +579,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E423D68E1BEDEE2D0021812E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E491015813C99B9D0098455B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E4C8E4E316B9B2D50031DDCB;
+			remoteInfo = "Kraken Standard Assets - iOS";
+		};
 		E445244D19C580C7006BB64C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E491015813C99B9D0098455B /* Project object */;
@@ -456,9 +627,16 @@
 		E41AE1DD16B124CA00980428 /* font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.tga; sourceTree = "<group>"; };
 		E41B6BA716BE436100B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		E41B6BA916BE437800B510EB /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreAudio.framework; sourceTree = DEVELOPER_DIR; };
+		E41CAB8B1B75D8DF00F3387D /* KrakenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrakenView.h; sourceTree = "<group>"; };
+		E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KrakenView.mm; sourceTree = "<group>"; };
+		E41CAB911B75DFF100F3387D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
+		E423D7321BEDEE2D0021812E /* kraken.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = kraken.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E423D7351BEDEFBF0021812E /* info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		E423D7371BEDF0310021812E /* Kraken-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Kraken-Prefix.pch"; sourceTree = "<group>"; };
+		E423D7391BEDF0500021812E /* kraken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kraken.h; sourceTree = "<group>"; };
 		E42559AA184DD4490081BB20 /* flare.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.fsh; sourceTree = "<group>"; };
 		E42559AC184DD45A0081BB20 /* flare.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare.vsh; sourceTree = "<group>"; };
-		E42559AE184DD4730081BB20 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.fsh; sourceTree = "<group>"; };
+		E42559AE184DD4730081BB20 /* flare_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = flare_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E42559B0184DD48B0081BB20 /* flare_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flare_osx.vsh; sourceTree = "<group>"; };
 		E428C2F11669610500A16EDF /* KRAnimationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRAnimationManager.h; sourceTree = "<group>"; };
 		E428C2F41669611600A16EDF /* KRAnimationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRAnimationManager.cpp; sourceTree = "<group>"; };
@@ -594,6 +772,8 @@
 		E4B175AB161F5A1000B8FB80 /* KRTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRTexture.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E4B175B0161F5FAE00B8FB80 /* KRTextureCube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRTextureCube.cpp; sourceTree = "<group>"; };
 		E4B175B1161F5FAF00B8FB80 /* KRTextureCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRTextureCube.h; sourceTree = "<group>"; };
+		E4B74A611AD79F9600067A78 /* KRContext_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KRContext_osx.mm; sourceTree = "<group>"; };
+		E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KRContext_ios.mm; sourceTree = "<group>"; };
 		E4BBBB7E1512A40300F43B5B /* kraken.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = kraken.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4BBBB871512A40300F43B5B /* Kraken-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Kraken-Info.plist"; sourceTree = "<group>"; };
 		E4BBBB891512A40300F43B5B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -623,24 +803,24 @@
 		E4CA11731639CBD1005D9400 /* KRViewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRViewport.h; sourceTree = "<group>"; };
 		E4CA11771639CC8E005D9400 /* KRViewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRViewport.cpp; sourceTree = "<group>"; };
 		E4CE184815FEEDA200F80870 /* font.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = font.pvr; sourceTree = "<group>"; };
-		E4E6F60D16BA5D8300E410F8 /* PostShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = PostShader_osx.fsh; sourceTree = "<group>"; };
+		E4E6F60D16BA5D8300E410F8 /* PostShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = PostShader_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F60E16BA5D8300E410F8 /* PostShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = PostShader_osx.vsh; sourceTree = "<group>"; };
-		E4E6F60F16BA5D8300E410F8 /* sky_box_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sky_box_osx.fsh; sourceTree = "<group>"; };
-		E4E6F61016BA5D8300E410F8 /* debug_font_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font_osx.fsh; sourceTree = "<group>"; };
+		E4E6F60F16BA5D8300E410F8 /* sky_box_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = sky_box_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		E4E6F61016BA5D8300E410F8 /* debug_font_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = debug_font_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61116BA5D8300E410F8 /* debug_font_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = debug_font_osx.vsh; sourceTree = "<group>"; };
 		E4E6F61216BA5D8300E410F8 /* dust_particle_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.fsh; sourceTree = "<group>"; };
 		E4E6F61316BA5D8300E410F8 /* dust_particle_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = dust_particle_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61416BA5D8300E410F8 /* sprite_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = sprite_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61516BA5D8300E410F8 /* sprite_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = sprite_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61616BA5D8300E410F8 /* light_directional_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_directional_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61716BA5D8300E410F8 /* light_directional_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_directional_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61816BA5D8300E410F8 /* light_point_inside_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_point_inside_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61916BA5D8300E410F8 /* light_point_inside_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_inside_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61A16BA5D8300E410F8 /* light_point_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61A16BA5D8300E410F8 /* light_point_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = light_point_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61B16BA5D8300E410F8 /* light_point_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = light_point_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61C16BA5D8300E410F8 /* ObjectShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ObjectShader_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61C16BA5D8300E410F8 /* ObjectShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = ObjectShader_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61D16BA5D8300E410F8 /* ObjectShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ObjectShader_osx.vsh; sourceTree = "<group>"; };
-		E4E6F61E16BA5D8300E410F8 /* occlusion_test_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = occlusion_test_osx.fsh; sourceTree = "<group>"; };
+		E4E6F61E16BA5D8300E410F8 /* occlusion_test_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; lineEnding = 0; path = occlusion_test_osx.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		E4E6F61F16BA5D8300E410F8 /* occlusion_test_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = occlusion_test_osx.vsh; sourceTree = "<group>"; };
 		E4E6F62016BA5D8300E410F8 /* ShadowShader_osx.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ShadowShader_osx.fsh; sourceTree = "<group>"; };
 		E4E6F62116BA5D8300E410F8 /* ShadowShader_osx.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ShadowShader_osx.vsh; sourceTree = "<group>"; };
@@ -702,6 +882,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E423D6DA1BEDEE2D0021812E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E423D6DB1BEDEE2D0021812E /* Foundation.framework in Frameworks */,
+				E423D6DC1BEDEE2D0021812E /* OpenGLES.framework in Frameworks */,
+				E423D6DD1BEDEE2D0021812E /* Accelerate.framework in Frameworks */,
+				E423D6DE1BEDEE2D0021812E /* OpenAL.framework in Frameworks */,
+				E423D6DF1BEDEE2D0021812E /* AudioToolbox.framework in Frameworks */,
+				E423D6E01BEDEE2D0021812E /* CoreAudio.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E48C527619C570C50062E439 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -719,6 +912,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E41CAB921B75DFF100F3387D /* QuartzCore.framework in Frameworks */,
 				E45E03C018790DF5006DA23F /* libPVRTexLib.a in Frameworks */,
 				E459040416C30CC5002B00A0 /* AudioUnit.framework in Frameworks */,
 				E41B6BAA16BE437800B510EB /* CoreAudio.framework in Frameworks */,
@@ -812,6 +1006,24 @@
 				E42559AC184DD45A0081BB20 /* flare.vsh */,
 			);
 			path = Shaders;
+			sourceTree = "<group>";
+		};
+		E423D7341BEDEF100021812E /* kraken_tvos */ = {
+			isa = PBXGroup;
+			children = (
+				E423D73E1BEDF1630021812E /* Frameworks */,
+				E423D7391BEDF0500021812E /* kraken.h */,
+				E423D7371BEDF0310021812E /* Kraken-Prefix.pch */,
+				E423D7351BEDEFBF0021812E /* info.plist */,
+			);
+			path = kraken_tvos;
+			sourceTree = "<group>";
+		};
+		E423D73E1BEDF1630021812E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		E428C2EF166960ED00A16EDF /* Animation */ = {
@@ -1155,6 +1367,7 @@
 				E491016613C99B9E0098455B /* kraken */,
 				E4C8E50C16B9B5ED0031DDCB /* kraken_ios */,
 				E4BBBB851512A40300F43B5B /* kraken_osx */,
+				E423D7341BEDEF100021812E /* kraken_tvos */,
 				E4C8E4E616B9B2D50031DDCB /* kraken_standard_assets_ios */,
 				E4C8E4F616B9B2E20031DDCB /* kraken_standard_assets_osx */,
 				E48C528519C570C50062E439 /* krakenTests */,
@@ -1169,6 +1382,7 @@
 				E4C8E4E416B9B2D50031DDCB /* kraken_standard_assets_ios.bundle */,
 				E4C8E4F416B9B2E20031DDCB /* kraken_standard_assets_osx.bundle */,
 				E48C527A19C570C50062E439 /* kraken.framework */,
+				E423D7321BEDEE2D0021812E /* kraken.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1182,6 +1396,8 @@
 				E45134B41746A4A300443C21 /* KRBehavior.cpp */,
 				E45134B51746A4A300443C21 /* KRBehavior.h */,
 				E48C697115374F7E00232E28 /* KRContext.cpp */,
+				E4B74A631AD7A02C00067A78 /* KRContext_ios.mm */,
+				E4B74A611AD79F9600067A78 /* KRContext_osx.mm */,
 				E48C696E15374F5A00232E28 /* KRContext.h */,
 				E43B0AD415DDCA0C00A5CB9F /* KRContextObject.cpp */,
 				E43B0AD515DDCA0D00A5CB9F /* KRContextObject.h */,
@@ -1212,6 +1428,8 @@
 			children = (
 				E4BBBB8C1512A40300F43B5B /* kraken.h */,
 				E4BBBB8D1512A40300F43B5B /* kraken.mm */,
+				E41CAB8B1B75D8DF00F3387D /* KrakenView.h */,
+				E41CAB8C1B75D8DF00F3387D /* KrakenView.mm */,
 				E4BBBB861512A40300F43B5B /* Supporting Files */,
 				E4BBBB931512A41500F43B5B /* Frameworks */,
 			);
@@ -1231,6 +1449,7 @@
 		E4BBBB931512A41500F43B5B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E41CAB911B75DFF100F3387D /* QuartzCore.framework */,
 				E459040316C30CC5002B00A0 /* AudioUnit.framework */,
 				E41B6BA916BE437800B510EB /* CoreAudio.framework */,
 				E460292916682BD900261BB9 /* libfbxsdk.a */,
@@ -1335,6 +1554,88 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		E423D6E11BEDEE2D0021812E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E423D6E31BEDEE2D0021812E /* tinyxml2.h in Headers */,
+				E423D6E41BEDEE2D0021812E /* forsyth.h in Headers */,
+				E423D6E51BEDEE2D0021812E /* KRAudioManager.h in Headers */,
+				E423D6E61BEDEE2D0021812E /* KRAudioSample.h in Headers */,
+				E423D6E71BEDEE2D0021812E /* KRAudioBuffer.h in Headers */,
+				E423D6E81BEDEE2D0021812E /* KRUnknownManager.h in Headers */,
+				E423D6E91BEDEE2D0021812E /* KRUnknown.h in Headers */,
+				E423D6EA1BEDEE2D0021812E /* KRAnimationCurve.h in Headers */,
+				E423D6EB1BEDEE2D0021812E /* KRAnimationCurveManager.h in Headers */,
+				E423D6EC1BEDEE2D0021812E /* KRAnimationLayer.h in Headers */,
+				E423D6ED1BEDEE2D0021812E /* KRAnimationManager.h in Headers */,
+				E423D6EE1BEDEE2D0021812E /* KRAnimation.h in Headers */,
+				E423D6EF1BEDEE2D0021812E /* KRAnimationAttribute.h in Headers */,
+				E423D6F01BEDEE2D0021812E /* KRBundleManager.h in Headers */,
+				E423D6F11BEDEE2D0021812E /* KRBundle.h in Headers */,
+				E423D6F21BEDEE2D0021812E /* KRMaterialManager.h in Headers */,
+				E423D6F31BEDEE2D0021812E /* KRMaterial.h in Headers */,
+				E423D6F41BEDEE2D0021812E /* KRMeshManager.h in Headers */,
+				E423D6F51BEDEE2D0021812E /* KRMesh.h in Headers */,
+				E423D6F61BEDEE2D0021812E /* KRMeshCube.h in Headers */,
+				E423D6F71BEDEE2D0021812E /* KRMeshSphere.h in Headers */,
+				E423D6F81BEDEE2D0021812E /* KRMeshQuad.h in Headers */,
+				E423D6F91BEDEE2D0021812E /* KRTextureManager.h in Headers */,
+				E423D6FA1BEDEE2D0021812E /* KRTexture2D.h in Headers */,
+				E423D6FB1BEDEE2D0021812E /* KRTexture.h in Headers */,
+				E423D6FC1BEDEE2D0021812E /* KRTextureCube.h in Headers */,
+				E423D6FD1BEDEE2D0021812E /* KRTexturePVR.h in Headers */,
+				E423D6FE1BEDEE2D0021812E /* KRTextureTGA.h in Headers */,
+				E423D6FF1BEDEE2D0021812E /* KRTextureAnimated.h in Headers */,
+				E423D7001BEDEE2D0021812E /* KRTextureKTX.h in Headers */,
+				E423D7011BEDEE2D0021812E /* KRShaderManager.h in Headers */,
+				E423D7021BEDEE2D0021812E /* KRShader.h in Headers */,
+				E423D7031BEDEE2D0021812E /* KRSceneManager.h in Headers */,
+				E423D7041BEDEE2D0021812E /* KRScene.h in Headers */,
+				E423D7051BEDEE2D0021812E /* KRCollider.h in Headers */,
+				E423D7061BEDEE2D0021812E /* KRAudioSource.h in Headers */,
+				E423D7071BEDEE2D0021812E /* KRAmbientZone.h in Headers */,
+				E423D7081BEDEE2D0021812E /* KRReverbZone.h in Headers */,
+				E423D7091BEDEE2D0021812E /* KRCamera.h in Headers */,
+				E423D70A1BEDEE2D0021812E /* KRParticleSystem.h in Headers */,
+				E423D70B1BEDEE2D0021812E /* KRParticleSystemNewtonian.h in Headers */,
+				E423D70C1BEDEE2D0021812E /* KRModel.h in Headers */,
+				E423D70D1BEDEE2D0021812E /* KRLight.h in Headers */,
+				E423D70E1BEDEE2D0021812E /* KRPointLight.h in Headers */,
+				E423D70F1BEDEE2D0021812E /* KRDirectionalLight.h in Headers */,
+				E423D73B1BEDF0560021812E /* kraken.h in Headers */,
+				E423D7101BEDEE2D0021812E /* KRSpotLight.h in Headers */,
+				E423D7111BEDEE2D0021812E /* KRNode.h in Headers */,
+				E423D7121BEDEE2D0021812E /* KRBone.h in Headers */,
+				E423D7131BEDEE2D0021812E /* KRLODGroup.h in Headers */,
+				E423D7141BEDEE2D0021812E /* KRLocator.h in Headers */,
+				E423D7151BEDEE2D0021812E /* KRLODSet.h in Headers */,
+				E423D7161BEDEE2D0021812E /* KRSprite.h in Headers */,
+				E423D7171BEDEE2D0021812E /* KRMat4.h in Headers */,
+				E423D7181BEDEE2D0021812E /* KRVector3.h in Headers */,
+				E423D7191BEDEE2D0021812E /* KRVector2.h in Headers */,
+				E423D71A1BEDEE2D0021812E /* KRQuaternion.h in Headers */,
+				E423D71B1BEDEE2D0021812E /* KRAABB.h in Headers */,
+				E423D71C1BEDEE2D0021812E /* KRVector4.h in Headers */,
+				E423D71D1BEDEE2D0021812E /* KRFloat.h in Headers */,
+				E423D71E1BEDEE2D0021812E /* KRTriangle3.h in Headers */,
+				E423D71F1BEDEE2D0021812E /* KRResource.h in Headers */,
+				E423D7201BEDEE2D0021812E /* KRBehavior.h in Headers */,
+				E423D7211BEDEE2D0021812E /* KRContext.h in Headers */,
+				E423D7221BEDEE2D0021812E /* KRContextObject.h in Headers */,
+				E423D7231BEDEE2D0021812E /* KRDataBlock.h in Headers */,
+				E423D7241BEDEE2D0021812E /* KREngine-common.h in Headers */,
+				E423D7251BEDEE2D0021812E /* KREngine.h in Headers */,
+				E423D7261BEDEE2D0021812E /* KRHitInfo.h in Headers */,
+				E423D7271BEDEE2D0021812E /* KROctree.h in Headers */,
+				E423D7281BEDEE2D0021812E /* KROctreeNode.h in Headers */,
+				E423D7291BEDEE2D0021812E /* KRRenderSettings.h in Headers */,
+				E423D72A1BEDEE2D0021812E /* KRStockGeometry.h in Headers */,
+				E423D72B1BEDEE2D0021812E /* KRStreamer.h in Headers */,
+				E423D72C1BEDEE2D0021812E /* KRViewport.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E48C527719C570C50062E439 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1478,7 +1779,6 @@
 				E4F027CA16979CCD00D4427D /* KRAudioManager.h in Headers */,
 				E4F027D116979CE200D4427D /* KRAudioSample.h in Headers */,
 				E4F027E11697BFFF00D4427D /* KRAudioBuffer.h in Headers */,
-				E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E4943234169E08D200BCB891 /* KRAmbientZone.h in Headers */,
 				E414F9AF1694DA37000B3D58 /* KRUnknown.h in Headers */,
 				E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */,
@@ -1508,7 +1808,9 @@
 				E4AE63601704FB0A00B460CD /* KRLODGroup.h in Headers */,
 				E45134B91746A4A300443C21 /* KRBehavior.h in Headers */,
 				E43F70E81824D9AB00136169 /* KRStreamer.h in Headers */,
+				E4F89BB718A6DB1200015637 /* KRTriangle3.h in Headers */,
 				E40F982F184A7A2700CFA4D8 /* KRMeshQuad.h in Headers */,
+				E41CAB8D1B75D8DF00F3387D /* KrakenView.h in Headers */,
 				E40F9835184A7BAC00CFA4D8 /* KRSprite.h in Headers */,
 				E48CF945173453990005EBBB /* KRFloat.h in Headers */,
 				E499BF1F16AE753E007FCDBE /* KRCollider.h in Headers */,
@@ -1519,6 +1821,25 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		E423D68C1BEDEE2D0021812E /* kraken - tvos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E423D72F1BEDEE2D0021812E /* Build configuration list for PBXNativeTarget "kraken - tvos" */;
+			buildPhases = (
+				E423D68F1BEDEE2D0021812E /* Sources */,
+				E423D6DA1BEDEE2D0021812E /* Frameworks */,
+				E423D6E11BEDEE2D0021812E /* Headers */,
+				E423D72D1BEDEE2D0021812E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E423D68D1BEDEE2D0021812E /* PBXTargetDependency */,
+			);
+			name = "kraken - tvos";
+			productName = kraken;
+			productReference = E423D7321BEDEE2D0021812E /* kraken.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		E48C527919C570C50062E439 /* kraken - ios */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E48C528E19C570C60062E439 /* Build configuration list for PBXNativeTarget "kraken - ios" */;
@@ -1619,6 +1940,7 @@
 			targets = (
 				E4BBBB7D1512A40300F43B5B /* Kraken - osx */,
 				E48C527919C570C50062E439 /* kraken - ios */,
+				E423D68C1BEDEE2D0021812E /* kraken - tvos */,
 				E4C8E4E316B9B2D50031DDCB /* Kraken Standard Assets - iOS */,
 				E4C8E4F316B9B2E20031DDCB /* Kraken Standard Assets - OSX */,
 			);
@@ -1626,6 +1948,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E423D72D1BEDEE2D0021812E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E423D72E1BEDEE2D0021812E /* kraken_standard_assets_ios.bundle in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E48C527819C570C50062E439 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1640,6 +1970,7 @@
 			files = (
 				E445244F19C580D3006BB64C /* kraken_standard_assets_osx.bundle in Resources */,
 				E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */,
+				E423D7361BEDEFBF0021812E /* info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1695,6 +2026,7 @@
 				E4E6F6A616BA5E0A00E410F8 /* debug_font_osx.fsh in Resources */,
 				E4E6F6A716BA5E0A00E410F8 /* debug_font_osx.vsh in Resources */,
 				E4E6F6A816BA5E0A00E410F8 /* dust_particle_osx.fsh in Resources */,
+				E4A0B8201B2007130059018B /* flare_osx.vsh in Resources */,
 				E4E6F6A916BA5E0A00E410F8 /* dust_particle_osx.vsh in Resources */,
 				E4E6F6AA16BA5E0A00E410F8 /* sprite_osx.fsh in Resources */,
 				E4E6F6AB16BA5E0A00E410F8 /* sprite_osx.vsh in Resources */,
@@ -1714,6 +2046,7 @@
 				E4E6F6B916BA5E0A00E410F8 /* simple_blit_osx.vsh in Resources */,
 				E4E6F6BA16BA5E0A00E410F8 /* sky_box_osx.vsh in Resources */,
 				E4E6F6BB16BA5E0A00E410F8 /* visualize_overlay_osx.fsh in Resources */,
+				E4A0B8211B2007160059018B /* flare_osx.fsh in Resources */,
 				E4E6F6BC16BA5E0A00E410F8 /* visualize_overlay_osx.vsh in Resources */,
 				E4E6F6BD16BA5E0A00E410F8 /* volumetric_fog_downsampled_osx.fsh in Resources */,
 				E4E6F6BE16BA5E0A00E410F8 /* volumetric_fog_downsampled_osx.vsh in Resources */,
@@ -1726,6 +2059,87 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E423D68F1BEDEE2D0021812E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E423D6901BEDEE2D0021812E /* tinyxml2.cpp in Sources */,
+				E423D6911BEDEE2D0021812E /* forsyth.cpp in Sources */,
+				E423D6921BEDEE2D0021812E /* KRAudioManager.cpp in Sources */,
+				E423D6931BEDEE2D0021812E /* KRAudioSample.cpp in Sources */,
+				E423D6941BEDEE2D0021812E /* KRAudioBuffer.cpp in Sources */,
+				E423D6951BEDEE2D0021812E /* KRUnknownManager.cpp in Sources */,
+				E423D6961BEDEE2D0021812E /* KRUnknown.cpp in Sources */,
+				E423D6971BEDEE2D0021812E /* KRAnimationCurve.cpp in Sources */,
+				E423D6981BEDEE2D0021812E /* KRAnimationCurveManager.cpp in Sources */,
+				E423D6991BEDEE2D0021812E /* KRAnimationLayer.cpp in Sources */,
+				E423D69A1BEDEE2D0021812E /* KRAnimationManager.cpp in Sources */,
+				E423D69B1BEDEE2D0021812E /* KRAnimation.cpp in Sources */,
+				E423D69C1BEDEE2D0021812E /* KRAnimationAttribute.cpp in Sources */,
+				E423D69D1BEDEE2D0021812E /* KRBundleManager.cpp in Sources */,
+				E423D69E1BEDEE2D0021812E /* KRBundle.cpp in Sources */,
+				E423D69F1BEDEE2D0021812E /* KRMaterialManager.cpp in Sources */,
+				E423D6A01BEDEE2D0021812E /* KRMaterial.cpp in Sources */,
+				E423D6A11BEDEE2D0021812E /* KRMeshManager.cpp in Sources */,
+				E423D6A21BEDEE2D0021812E /* KRMesh.cpp in Sources */,
+				E423D6A31BEDEE2D0021812E /* KRMeshCube.cpp in Sources */,
+				E423D6A41BEDEE2D0021812E /* KRMeshSphere.cpp in Sources */,
+				E423D6A51BEDEE2D0021812E /* KRMeshQuad.cpp in Sources */,
+				E423D6A61BEDEE2D0021812E /* KRTextureManager.cpp in Sources */,
+				E423D6A71BEDEE2D0021812E /* KRTexture2D.cpp in Sources */,
+				E423D6A81BEDEE2D0021812E /* KRContext_ios.mm in Sources */,
+				E423D6A91BEDEE2D0021812E /* KRTexture.cpp in Sources */,
+				E423D6AA1BEDEE2D0021812E /* KRTextureCube.cpp in Sources */,
+				E423D6AB1BEDEE2D0021812E /* KRTexturePVR.cpp in Sources */,
+				E423D6AC1BEDEE2D0021812E /* KRTextureTGA.cpp in Sources */,
+				E423D6AD1BEDEE2D0021812E /* KRTextureAnimated.cpp in Sources */,
+				E423D6AE1BEDEE2D0021812E /* KRTextureKTX.cpp in Sources */,
+				E423D6AF1BEDEE2D0021812E /* KRShaderManager.cpp in Sources */,
+				E423D6B01BEDEE2D0021812E /* KRShader.cpp in Sources */,
+				E423D6B11BEDEE2D0021812E /* KRSceneManager.cpp in Sources */,
+				E423D6B21BEDEE2D0021812E /* KRScene.cpp in Sources */,
+				E423D6B31BEDEE2D0021812E /* KRCollider.cpp in Sources */,
+				E423D6B41BEDEE2D0021812E /* KRAudioSource.cpp in Sources */,
+				E423D6B51BEDEE2D0021812E /* KRAmbientZone.cpp in Sources */,
+				E423D6B61BEDEE2D0021812E /* KRReverbZone.cpp in Sources */,
+				E423D6B71BEDEE2D0021812E /* KRCamera.cpp in Sources */,
+				E423D6B81BEDEE2D0021812E /* KRParticleSystem.cpp in Sources */,
+				E423D6B91BEDEE2D0021812E /* KRParticleSystemNewtonian.cpp in Sources */,
+				E423D6BA1BEDEE2D0021812E /* KRModel.cpp in Sources */,
+				E423D6BB1BEDEE2D0021812E /* KRLight.cpp in Sources */,
+				E423D6BC1BEDEE2D0021812E /* KRPointLight.cpp in Sources */,
+				E423D6BD1BEDEE2D0021812E /* KRDirectionalLight.cpp in Sources */,
+				E423D6BE1BEDEE2D0021812E /* KRSpotLight.cpp in Sources */,
+				E423D6BF1BEDEE2D0021812E /* KRNode.cpp in Sources */,
+				E423D6C01BEDEE2D0021812E /* KRBone.cpp in Sources */,
+				E423D6C11BEDEE2D0021812E /* KRLODGroup.cpp in Sources */,
+				E423D6C21BEDEE2D0021812E /* KRLocator.cpp in Sources */,
+				E423D6C31BEDEE2D0021812E /* KRLODSet.cpp in Sources */,
+				E423D6C41BEDEE2D0021812E /* KRSprite.cpp in Sources */,
+				E423D6C51BEDEE2D0021812E /* KRMat4.cpp in Sources */,
+				E423D6C61BEDEE2D0021812E /* KRVector3.cpp in Sources */,
+				E423D6C71BEDEE2D0021812E /* KRVector2.cpp in Sources */,
+				E423D6C81BEDEE2D0021812E /* KRQuaternion.cpp in Sources */,
+				E423D6C91BEDEE2D0021812E /* KRAABB.cpp in Sources */,
+				E423D6CA1BEDEE2D0021812E /* KRVector4.cpp in Sources */,
+				E423D6CB1BEDEE2D0021812E /* KRFloat.cpp in Sources */,
+				E423D6CC1BEDEE2D0021812E /* KRTriangle3.cpp in Sources */,
+				E423D6CD1BEDEE2D0021812E /* KRResource.cpp in Sources */,
+				E423D6CE1BEDEE2D0021812E /* KRResource+obj.cpp in Sources */,
+				E423D6CF1BEDEE2D0021812E /* KRBehavior.cpp in Sources */,
+				E423D6D01BEDEE2D0021812E /* KRContext.cpp in Sources */,
+				E423D6D11BEDEE2D0021812E /* KRContextObject.cpp in Sources */,
+				E423D6D21BEDEE2D0021812E /* KRDataBlock.cpp in Sources */,
+				E423D6D31BEDEE2D0021812E /* KREngine.mm in Sources */,
+				E423D6D41BEDEE2D0021812E /* KRHitInfo.cpp in Sources */,
+				E423D6D51BEDEE2D0021812E /* KROctree.cpp in Sources */,
+				E423D6D61BEDEE2D0021812E /* KROctreeNode.cpp in Sources */,
+				E423D6D71BEDEE2D0021812E /* KRRenderSettings.cpp in Sources */,
+				E423D6D81BEDEE2D0021812E /* KRStreamer.mm in Sources */,
+				E423D6D91BEDEE2D0021812E /* KRViewport.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E48C527519C570C50062E439 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1754,6 +2168,7 @@
 				E4159BA319C5762F00622D1E /* KRMeshQuad.cpp in Sources */,
 				E4159BA419C5762F00622D1E /* KRTextureManager.cpp in Sources */,
 				E4159BA519C5762F00622D1E /* KRTexture2D.cpp in Sources */,
+				E4B74A641AD7A02C00067A78 /* KRContext_ios.mm in Sources */,
 				E4159BA619C5762F00622D1E /* KRTexture.cpp in Sources */,
 				E4159BA719C5762F00622D1E /* KRTextureCube.cpp in Sources */,
 				E4159BA819C5762F00622D1E /* KRTexturePVR.cpp in Sources */,
@@ -1840,6 +2255,7 @@
 				E4D13364153767ED0070068C /* KRShaderManager.cpp in Sources */,
 				E4AFC6B915F7C7B200DDB4C8 /* KROctree.cpp in Sources */,
 				E46C214C15364DEC009CABF3 /* KRSceneManager.cpp in Sources */,
+				E4B74A621AD79F9600067A78 /* KRContext_osx.mm in Sources */,
 				E48C697315374F7E00232E28 /* KRContext.cpp in Sources */,
 				E46A6B6D1559E97D000DBD37 /* KRResource+blend.cpp in Sources */,
 				E40F982D184A7A2700CFA4D8 /* KRMeshQuad.cpp in Sources */,
@@ -1857,6 +2273,7 @@
 				E4CA10EA1637BD2B005D9400 /* KRTexturePVR.cpp in Sources */,
 				E4CA10F01637BD58005D9400 /* KRTextureTGA.cpp in Sources */,
 				E4F89BB518A6DB1200015637 /* KRTriangle3.cpp in Sources */,
+				E41CAB8E1B75D8DF00F3387D /* KrakenView.mm in Sources */,
 				E4CA11791639CC90005D9400 /* KRViewport.cpp in Sources */,
 				E41843921678704000DBD6CF /* KRCollider.cpp in Sources */,
 				E4324BAF16444E120043185B /* KRParticleSystemNewtonian.cpp in Sources */,
@@ -1906,6 +2323,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E423D68D1BEDEE2D0021812E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E4C8E4E316B9B2D50031DDCB /* Kraken Standard Assets - iOS */;
+			targetProxy = E423D68E1BEDEE2D0021812E /* PBXContainerItemProxy */;
+		};
 		E445244E19C580C7006BB64C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E4C8E4E316B9B2D50031DDCB /* Kraken Standard Assets - iOS */;
@@ -1930,6 +2352,96 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		E423D7301BEDEE2D0021812E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREFIX_HEADER = "kraken_tvos/Kraken-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = kraken_tvos/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/debug\"";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = kraken;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		E423D7311BEDEE2D0021812E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREFIX_HEADER = "kraken_tvos/Kraken-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = kraken_tvos/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/release\"";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = kraken;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		E48C528A19C570C50062E439 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1971,6 +2483,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -2012,6 +2525,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TVOS_DEPLOYMENT_TARGET = 9.1;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2036,7 +2550,7 @@
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				SDKROOT = iphoneos;
+				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -2057,7 +2571,7 @@
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				SDKROOT = iphoneos;
+				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -2283,6 +2797,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E423D72F1BEDEE2D0021812E /* Build configuration list for PBXNativeTarget "kraken - tvos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E423D7301BEDEE2D0021812E /* Debug */,
+				E423D7311BEDEE2D0021812E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E48C528E19C570C60062E439 /* Build configuration list for PBXNativeTarget "kraken - ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

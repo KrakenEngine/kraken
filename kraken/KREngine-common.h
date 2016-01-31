@@ -107,6 +107,16 @@ using std::hash;
 #define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
 #define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
 
+#define GL_OES_mapbuffer 1
+#define glMapBufferOES glMapBuffer
+#define glUnmapBufferOES glUnmapBuffer
+#define GL_WRITE_ONLY_OES GL_WRITE_ONLY
+
+#define GL_OES_vertex_array_object 1
+#define glGenVertexArraysOES glGenVertexArrays
+#define glBindVertexArrayOES glBindVertexArray
+#define glDeleteVertexArraysOES glDeleteVertexArrays
+
 #endif
 
 #include <Accelerate/Accelerate.h>

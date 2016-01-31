@@ -30,16 +30,16 @@
 //
 
 
-attribute highp vec3	vertex_position, vertex_normal;
+in highp vec3	vertex_position, vertex_normal;
 #if HAS_NORMAL_MAP == 1
-    attribute highp vec3    vertex_tangent;
+    in highp vec3    vertex_tangent;
 #endif
-attribute mediump vec2	vertex_uv;
+in mediump vec2	vertex_uv;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 
 #if BONE_COUNT > 0
-    attribute highp vec4 bone_weights;
-    attribute highp vec4 bone_indexes;
+    in highp vec4 bone_weights;
+    in highp vec4 bone_indexes;
     uniform highp mat4 bone_transforms[BONE_COUNT];
 #else
     #define vertex_position_skinned vertex_position
@@ -51,7 +51,7 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
     #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
-        varying highp vec2 texCoord;
+        out highp vec2 texCoord;
     #endif
     #if HAS_NORMAL_MAP == 1
         #if HAS_NORMAL_MAP_SCALE == 1
@@ -63,22 +63,22 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         #endif
 
         #if HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1
-            varying highp vec2 normal_uv;
+            out highp vec2 normal_uv;
         #endif
     #else
-        varying mediump vec3 normal;
+        out mediump vec3 normal;
     #endif
 #else
     uniform mediump float material_shininess;
     #if HAS_DIFFUSE_MAP == 1
-        varying highp vec2 texCoord;
+        out highp vec2 texCoord;
     #endif
 #endif
 
 #if GBUFFER_PASS == 1
     #if HAS_NORMAL_MAP == 1
         uniform highp mat4 model_view_inverse_transpose_matrix;
-        varying highp mat3 tangent_to_view_matrix;
+        out highp mat3 tangent_to_view_matrix;
     #endif
 #else
 
@@ -86,16 +86,16 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
     uniform highp vec3  camera_position_model_space;
 
     #if HAS_LIGHT_MAP == 1
-        attribute mediump vec2  vertex_lightmap_uv;
-        varying mediump vec2    lightmap_uv;
+        in mediump vec2  vertex_lightmap_uv;
+        out mediump vec2    lightmap_uv;
     #endif
 
     #if ENABLE_PER_PIXEL == 1
-        varying mediump vec3    lightVec;
-        varying mediump vec3    halfVec;
+        out mediump vec3    lightVec;
+        out mediump vec3    halfVec;
 
         #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
-            varying highp vec2 spec_uv;
+            out highp vec2 spec_uv;
         #endif
 
         #if HAS_SPEC_MAP_SCALE == 1
@@ -107,7 +107,7 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         #endif
 
         #if HAS_REFLECTION_MAP_OFFSET == 1 || HAS_REFLECTION_MAP_SCALE == 1
-            varying highp vec2 reflection_uv;
+            out highp vec2 reflection_uv;
         #endif
 
         #if HAS_REFLECTION_MAP_SCALE == 1
@@ -120,22 +120,22 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
 
         #if SHADOW_QUALITY >= 1
             uniform highp mat4  shadow_mvp1;
-            varying highp vec4	shadowMapCoord1;
+            out highp vec4	shadowMapCoord1;
         #endif
 
         #if SHADOW_QUALITY >= 2
             uniform highp mat4  shadow_mvp2;
-            varying highp vec4	shadowMapCoord2;
+            out highp vec4	shadowMapCoord2;
         #endif
 
         #if SHADOW_QUALITY >= 3
             uniform highp mat4  shadow_mvp3;
-            varying highp vec4	shadowMapCoord3;
+            out highp vec4	shadowMapCoord3;
         #endif
 
     #else
-        varying mediump float   lamberFactor;
-        varying mediump float   specularFactor;
+        out mediump float   lamberFactor;
+        out mediump float   specularFactor;
     #endif
 
     #if ENABLE_RIM_COLOR == 1
@@ -146,15 +146,15 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
         #if HAS_NORMAL_MAP == 1
             #define NEED_EYEVEC
             uniform highp mat4 model_inverse_transpose_matrix;
-            varying highp mat3 tangent_to_world_matrix;
+            out highp mat3 tangent_to_world_matrix;
         #else
             uniform highp mat4 model_matrix;
-            varying mediump vec3 reflectionVec;
+            out mediump vec3 reflectionVec;
         #endif
     #endif
 
     #ifdef NEED_EYEVEC
-        varying mediump vec3 eyeVec;
+        out mediump vec3 eyeVec;
     #endif
 
     #if HAS_DIFFUSE_MAP_SCALE == 1
@@ -166,7 +166,7 @@ uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying t
     #endif
 
     #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-        varying highp vec2  diffuse_uv;
+        out highp vec2  diffuse_uv;
     #endif
 
 #endif

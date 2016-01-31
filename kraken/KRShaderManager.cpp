@@ -145,7 +145,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
 
 #if TARGET_OS_IPHONE
 #else
-        stream << "\n#version 120";
+        stream << "\n#version 150";
         stream << "\n#define lowp";
         stream << "\n#define mediump";
         stream << "\n#define highp";

@@ -25,12 +25,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-varying mediump vec2    textureCoordinate;
+out vec4 colorOut;
+
+in mediump vec2    textureCoordinate;
 
 uniform sampler2D 		diffuseTexture;
 
 void main()
 {
-    vec4 font_color = texture2D(diffuseTexture, textureCoordinate);
-    gl_FragColor = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
+    vec4 font_color = texture(diffuseTexture, textureCoordinate);
+    colorOut = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
 }

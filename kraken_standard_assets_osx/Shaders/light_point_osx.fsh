@@ -25,6 +25,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+out vec4 colorOut;
 
 uniform sampler2D gbuffer_frame;
 uniform sampler2D gbuffer_depth;
@@ -43,14 +44,14 @@ void main()
 {
     
     lowp vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);  // FINDME, TODO - Dependent Texture Read adding latency, due to calculation of texture UV within fragment -- move to vertex shader?
-    lowp vec4 gbuffer_sample = texture2D(gbuffer_frame, gbuffer_uv);
+    lowp vec4 gbuffer_sample = texture(gbuffer_frame, gbuffer_uv);
     
     mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
     mediump float gbuffer_specular_exponent = gbuffer_sample.a * 100.0;
     
     mediump vec4 clip_space_vertex_position = vec4(
        gl_FragCoord.xy / viewport.zw * 2.0 - 1.0,
-       texture2D(gbuffer_depth, gbuffer_uv).r * 2.0 - 1.0,
+       texture(gbuffer_depth, gbuffer_uv).r * 2.0 - 1.0,
        1.0
     );
 
@@ -69,5 +70,5 @@ void main()
         specularFactor = pow(dot(halfVec,gbuffer_normal), gbuffer_specular_exponent);
     //}
 
-    gl_FragColor = vec4(light_color * lamberFactor, specularFactor) * light_attenuation;
+    colorOut = vec4(light_color * lamberFactor, specularFactor) * light_attenuation;
 }
