@@ -218,8 +218,8 @@ void kraken::set_debug_text(const std::string &print_text)
     NSString *bundleName = @"kraken_standard_assets_osx";
 #endif
 
-    NSBundle *frameworkBundle = [NSBundle bundleWithIdentifier: @"com.krakenengine.kraken"];
-    
+    //NSBundle *frameworkBundle = [NSBundle bundleWithIdentifier: @"com.krakenengine.standardassets"];
+    NSBundle *frameworkBundle = [NSBundle bundleForClass: [self class]];
     //NSString *bundlePath = [[frameworkBundle bundlePath] stringByAppendingPathComponent:bundleName];
     NSString *bundlePath = [frameworkBundle pathForResource:bundleName ofType:@"bundle"];
     NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
