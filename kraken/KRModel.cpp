@@ -85,7 +85,7 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
     return e;
 }
 
-void KRModel::setRimColor(const const KRVector3 &rim_color)
+void KRModel::setRimColor(const KRVector3 &rim_color)
 {
     m_rim_color = rim_color;
 }

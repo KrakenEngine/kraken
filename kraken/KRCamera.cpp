@@ -931,7 +931,7 @@ std::string KRCamera::getDebugText()
             
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_MEMORY: // ----====---- Memory Utilization ----=====----
         {
-            
+#if defined(__APPLE__)
             // ---- CPU Memory ----
             
             struct task_basic_info info;
@@ -965,7 +965,8 @@ std::string KRCamera::getDebugText()
                 stream << (vm_stat.free_count * pagesize / 1024 / 1024) << " MB\t";
                 stream << ((vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count) * pagesize / 1024 / 1024) << " MB";
             }
-                
+#endif // defined(__APPLE__)
+
             // ---- GPU Memory ----
             int texture_count_active = m_pContext->getTextureManager()->getActiveTextures().size();
             int texture_count = texture_count_active;

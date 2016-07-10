@@ -557,7 +557,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     setUniform(KRENGINE_UNIFORM_RENDER_FRAME, 1);
     setUniform(KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME, 2);
     
-#if DEBUG
+#if defined(DEBUG)
     if(shander_changed) { // FINDME!! KIP!! HACK!!
         GLint logLength;
         

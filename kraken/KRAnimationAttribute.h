@@ -34,7 +34,6 @@
 
 #include "KRContextObject.h"
 #include "KREngine-common.h"
-#include "tinyxml2.h"
 #include "KRNode.h"
 #include "KRAnimationCurve.h"
 

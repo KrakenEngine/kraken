@@ -35,8 +35,7 @@
 #include "KRContext.h"
 #include "KRNode.h"
 #include "KRAnimationCurve.h"
-
-#include "tinyxml2.h"
+#include "KREngine-common.h"
 
 KRAnimation::KRAnimation(KRContext &context, std::string name) : KRResource(context, name)
 {

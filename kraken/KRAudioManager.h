@@ -34,7 +34,6 @@
 
 #include "KREngine-common.h"
 
-#include "KRAudioSample.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRMat4.h"

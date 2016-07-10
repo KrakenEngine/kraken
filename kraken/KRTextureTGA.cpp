@@ -11,6 +11,8 @@
 #include "KRContext.h"
 #include "KRTextureKTX.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#pragma pack(1)
 typedef struct {
     char  idlength;
     char  colourmaptype;
@@ -24,7 +26,24 @@ typedef struct {
     short height;
     char  bitsperpixel;
     char  imagedescriptor;
+} TGA_HEADER;
+#pragma pack()
+#else
+typedef struct {
+  char  idlength;
+  char  colourmaptype;
+  char  imagetype;
+  short int colourmaporigin;
+  short int colourmaplength;
+  char  colourmapdepth;
+  short int x_origin;
+  short int y_origin;
+  short width;
+  short height;
+  char  bitsperpixel;
+  char  imagedescriptor;
 } __attribute__((packed)) TGA_HEADER;
+#endif
 
 
 KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name)

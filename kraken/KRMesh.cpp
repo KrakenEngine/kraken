@@ -39,7 +39,11 @@
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
+#if defined(_WIN32) || defined(_WIN64)
+#include "../3rdparty/forsyth/forsyth.h"
+#else
 #include "forsyth.h"
+#endif
 
 
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)  {
@@ -1454,7 +1458,7 @@ void KRMesh::convertToIndexed()
     
     delete szKey;
     
-    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i \(%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
     
     mi.format = KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;

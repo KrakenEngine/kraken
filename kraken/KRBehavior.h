@@ -9,7 +9,6 @@
 #ifndef KRBEHAVIOR_H
 #define KRBEHAVIOR_H
 
-#include "tinyxml2.h"
 #include <map>
 
 /*
@@ -20,6 +19,9 @@
 
 class KRBehavior;
 class KRNode;
+namespace tinyxml2 {
+class XMLElement;
+} // namespace tinyxml2
 
 typedef KRBehavior *(*KRBehaviorFactoryFunction)(std::map<std::string, std::string> attributes);
 typedef std::map<std::string, KRBehaviorFactoryFunction> KRBehaviorFactoryFunctionMap;

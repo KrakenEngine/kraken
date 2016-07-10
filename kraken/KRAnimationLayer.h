@@ -34,8 +34,12 @@
 
 #include "KRContextObject.h"
 #include "KREngine-common.h"
-#include "tinyxml2.h"
 #include "KRAnimationAttribute.h"
+
+namespace tinyxml2 {
+  class XMLNode;
+  class XMLAttribute;
+}
 
 class KRAnimationLayer : public KRContextObject {
 public:

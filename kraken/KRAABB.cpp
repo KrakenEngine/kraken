@@ -232,11 +232,11 @@ bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 		if(v1.c[i] < min.c[i]) {
 			quadrant[i] = LEFT;
 			candidatePlane[i] = min.c[i];
-			inside = FALSE;
+			inside = false;
 		}else if (v1.c[i] > max.c[i]) {
 			quadrant[i] = RIGHT;
 			candidatePlane[i] = max.c[i];
-			inside = FALSE;
+			inside = false;
 		}else	{
 			quadrant[i] = MIDDLE;
 		}
@@ -275,7 +275,7 @@ bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 		} else {
 			coord[i] = candidatePlane[i];
 		}
-    }
+  }
 	return true;				/* ray hits box */
 }
 

@@ -34,7 +34,7 @@
 
 #include "KREngine-common.h"
 
-Byte _KTXFileIdentifier[12] = {
+__uint8_t _KTXFileIdentifier[12] = {
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
 
@@ -97,18 +97,18 @@ KRTextureKTX::KRTextureKTX(KRContext &context, std::string name, GLenum internal
     m_header.pixelDepth = 0;
     m_header.numberOfArrayElements = 0;
     m_header.numberOfFaces = 1;
-    m_header.numberOfMipmapLevels = (UInt32)blocks.size();
+    m_header.numberOfMipmapLevels = (__uint32_t)blocks.size();
     m_header.bytesOfKeyValueData = 0;
     
     m_pData->append(&m_header, sizeof(m_header));
     for(auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
         KRDataBlock *source_block = *block_itr;
-        UInt32 block_size = (UInt32)source_block->getSize();
+        __uint32_t block_size = (__uint32_t)source_block->getSize();
         m_pData->append(&block_size, 4);
         m_pData->append(*source_block);
         m_blocks.push_back(m_pData->getSubBlock((int)m_pData->getSize() - (int)block_size, (int)block_size));
         size_t alignment_padding_size = KRALIGN(m_pData->getSize()) - m_pData->getSize();
-        Byte alignment_padding[4] = {0, 0, 0, 0};
+        __uint8_t alignment_padding[4] = {0, 0, 0, 0};
         if(alignment_padding_size > 0) {
             m_pData->append(&alignment_padding, alignment_padding_size);
         }

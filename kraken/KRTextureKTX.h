@@ -29,20 +29,20 @@ protected:
     
     typedef struct _KTXHeader
     {
-        Byte identifier[12];
-        UInt32 endianness;
-        UInt32 glType;
-        UInt32 glTypeSize;
-        UInt32 glFormat;
-        UInt32 glInternalFormat;
-        UInt32 glBaseInternalFormat;
-        UInt32 pixelWidth;
-        UInt32 pixelHeight;
-        UInt32 pixelDepth;
-        UInt32 numberOfArrayElements;
-        UInt32 numberOfFaces;
-        UInt32 numberOfMipmapLevels;
-        UInt32 bytesOfKeyValueData;
+        __uint8_t identifier[12];
+        __uint32_t endianness;
+        __uint32_t glType;
+        __uint32_t glTypeSize;
+        __uint32_t glFormat;
+        __uint32_t glInternalFormat;
+        __uint32_t glBaseInternalFormat;
+        __uint32_t pixelWidth;
+        __uint32_t pixelHeight;
+        __uint32_t pixelDepth;
+        __uint32_t numberOfArrayElements;
+        __uint32_t numberOfFaces;
+        __uint32_t numberOfMipmapLevels;
+        __uint32_t bytesOfKeyValueData;
     } KTXHeader;
     
     KTXHeader m_header;

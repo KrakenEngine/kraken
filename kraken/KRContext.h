@@ -18,9 +18,10 @@
 #include "KRMeshManager.h"
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
-#include "KRAudioManager.h"
 #include "KRUnknownManager.h"
 #include "KRStreamer.h"
+
+class KRAudioManager;
 
 class KRContext {
 public:
@@ -72,8 +73,11 @@ public:
     bool getStreamingEnabled();
     void setStreamingEnabled(bool enable);
     
+#if TARGET_OS_IPHONE || TARGET_OS_MAC
+    // XXX This doesn't belong here, and might not actually be needed at all
     void getMemoryStats(long &free_memory);
-    
+#endif
+
     typedef enum {
         LOG_LEVEL_INFORMATION,
         LOG_LEVEL_WARNING,
@@ -115,8 +119,10 @@ private:
     long m_last_fully_streamed_frame; // TODO - Does this need to be atomic?
     float m_absolute_time;
     
+#ifdef __APPLE__
     mach_timebase_info_data_t    m_timebase_info;
-    
+#endif
+
     std::atomic<bool> m_streamingEnabled;
     
     

@@ -31,7 +31,6 @@
 
 #include "KREngine-common.h"
 #include "KRVector3.h"
-#include "tinyxml2.h"
 
 const KRVector3 KRVECTOR3_ZERO(0.0f, 0.0f, 0.0f);
 

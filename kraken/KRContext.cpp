@@ -10,6 +10,8 @@
 
 #include "KRContext.h"
 #include "KRCamera.h"
+#include "KRAudioManager.h"
+#include "KRAudioSample.h"
 
 int KRContext::KRENGINE_MAX_SHADER_HANDLES;
 int KRContext::KRENGINE_GPU_MEM_MAX;
@@ -23,6 +25,7 @@ int KRContext::KRENGINE_PRESTREAM_DISTANCE;
 
 #elif TARGET_OS_MAC
 
+#elif defined(_WIN32) || defined(_WIN64)
 
 #else
 
@@ -327,10 +330,13 @@ void KRContext::setStreamingEnabled(bool enable)
     m_streamingEnabled = enable;
 }
 
+
+#if TARGET_OS_IPHONE || TARGET_OS_MAC
+
 void KRContext::getMemoryStats(long &free_memory)
 {
     free_memory = 0;
-#if TARGET_OS_IPHONE || TARGET_OS_MAC
+
     mach_port_t host_port = mach_host_self();
     mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     vm_size_t pagesize = 0;
@@ -345,10 +351,9 @@ void KRContext::getMemoryStats(long &free_memory)
         
         free_memory = (vm_stat.free_count + vm_stat.inactive_count) * pagesize;
     }
-#else
-#error Unsupported Platform
-#endif
 }
+
+#endif
 
 void KRContext::doStreaming()
 {

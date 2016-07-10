@@ -12,7 +12,6 @@
 #include "KRResource.h"
 #include "KRVector3.h"
 #include "KRViewport.h"
-#include "tinyxml2.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
 
@@ -29,6 +28,10 @@ class KRNode;
 class KRPointLight;
 class KRSpotLight;
 class KRDirectionalLight;
+namespace tinyxml2 {
+  class XMLNode;
+  class XMLAttribute;
+}
 
 class KRNode : public KRContextObject
 {

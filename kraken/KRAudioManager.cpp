@@ -162,7 +162,7 @@ void KRAudioManager::setListenerScene(KRScene *scene)
 
 void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
-    uint64_t start_time = mach_absolute_time();
+  // uint64_t start_time = mach_absolute_time();
     
     
 	AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
@@ -213,7 +213,7 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
     }
     
     
-    uint64_t end_time = mach_absolute_time();
+//    uint64_t end_time = mach_absolute_time();
 //    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
 //    double ms = duration;
 //    ms = ms / 1000000.0;

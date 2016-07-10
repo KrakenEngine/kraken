@@ -1,0 +1,4 @@
+syntax: glob
+kraken_win\kraken.VC.db
+kraken_win/build/
+build/
