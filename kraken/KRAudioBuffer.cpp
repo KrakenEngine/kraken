@@ -10,11 +10,9 @@
 #include "KRAudioManager.h"
 
 
-KRAudioBuffer::KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int index, ALenum dataFormat, int frameCount, int frameRate, int bytesPerFrame, void (*fn_populate)(KRAudioSample *, int, void *))
+KRAudioBuffer::KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int index, int frameCount, int frameRate, int bytesPerFrame, void (*fn_populate)(KRAudioSample *, int, void *))
 {
-    m_bufferID = 0;
     m_pSoundManager = manager;
-    m_dataFormat = dataFormat;
     m_frameCount = frameCount;
     m_frameRate = frameRate;
     m_bytesPerFrame = bytesPerFrame;
@@ -25,31 +23,16 @@ KRAudioBuffer::KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int 
     m_pSoundManager->makeCurrentContext();
     m_pData = m_pSoundManager->getBufferData(m_frameCount * m_bytesPerFrame);
     fn_populate(sound, index, m_pData->getStart());
-    
-    if(manager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        ALDEBUG(alGenBuffers(1, &m_bufferID));
-        ALDEBUG(alBufferData(m_bufferID, m_dataFormat, m_pData->getStart(), m_frameCount * m_bytesPerFrame, m_frameRate));
-    }
 }
 
 KRAudioBuffer::~KRAudioBuffer()
-{
-    if(m_bufferID) {
-        ALDEBUG(alDeleteBuffers(1, &m_bufferID));
-        m_bufferID = 0;
-    }
-    
+{   
     m_pSoundManager->recycleBufferData(m_pData);
 }
 
 KRAudioSample *KRAudioBuffer::getAudioSample()
 {
     return m_audioSample;
-}
-
-unsigned int KRAudioBuffer::getBufferID()
-{
-    return m_bufferID;
 }
 
 int KRAudioBuffer::getFrameCount()

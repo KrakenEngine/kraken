@@ -67,45 +67,46 @@ private:
     
     std::string m_extension;
     KRDataBlock *m_pData;
-    
+
+#ifdef __APPLE__
+    // Apple Audio Toolbox
     AudioFileID m_audio_file_id;
     ExtAudioFileRef m_fileRef;
+
+    static OSStatus ReadProc( // AudioFile_ReadProc
+      void *		inClientData,
+      SInt64		inPosition,
+      UInt32	requestCount,
+      void *		buffer,
+      UInt32 *	actualCount);
+
+    static OSStatus WriteProc( // AudioFile_WriteProc
+      void * 		inClientData,
+      SInt64		inPosition,
+      UInt32		requestCount,
+      const void *buffer,
+      UInt32    * actualCount);
+
+    static SInt64 GetSizeProc( // AudioFile_GetSizeProc
+      void * 		inClientData);
+
+
+    static OSStatus SetSizeProc( // AudioFile_SetSizeProc
+      void *		inClientData,
+      SInt64		inSize);
+#endif
     
     int m_bufferCount;
     
-    SInt64 m_totalFrames;
+    __int64_t m_totalFrames;
     int m_frameRate;
     int m_bytesPerFrame;
     int m_channelsPerFrame;
-    ALenum m_dataFormat;
     
     void openFile();
     void closeFile();
     void loadInfo();
-    
-    static OSStatus ReadProc( // AudioFile_ReadProc
-        void *		inClientData,
-        SInt64		inPosition,
-        UInt32	requestCount,
-        void *		buffer,
-        UInt32 *	actualCount);
-    
-    static OSStatus WriteProc( // AudioFile_WriteProc
-        void * 		inClientData,
-        SInt64		inPosition,
-        UInt32		requestCount,
-        const void *buffer,
-        UInt32    * actualCount);
-    
-    static SInt64 GetSizeProc( // AudioFile_GetSizeProc
-        void * 		inClientData);
-    
-    
-    static OSStatus SetSizeProc( // AudioFile_SetSizeProc
-        void *		inClientData,
-        SInt64		inSize);
-    
-    
+
     static void PopulateBuffer(KRAudioSample *sound, int index, void *data);
 };
 

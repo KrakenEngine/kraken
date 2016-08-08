@@ -35,8 +35,6 @@
 #include "KRAudioSample.h"
 #include "KRAudioBuffer.h"
 
-OSStatus alcASASetSourceProc(const ALuint property, ALuint source, ALvoid *data, ALuint dataSize);
-
 KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_currentBufferFrame = 0;
@@ -44,7 +42,6 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
     m_is3d = true;
     m_isPrimed = false;
     m_audioFile = NULL;
-    m_sourceID = 0;
     m_gain = 1.0f;
     m_pitch = 1.0f;
     m_looping = false;
@@ -61,11 +58,6 @@ KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, n
 
 KRAudioSource::~KRAudioSource()
 {
-    if(m_sourceID) {
-        getContext().getAudioManager()->makeCurrentContext();
-        ALDEBUG(alDeleteSources(1, &m_sourceID));
-        m_sourceID = 0;
-    }
     while(m_audioBuffers.size()) {
         delete m_audioBuffers.front();
         m_audioBuffers.pop();
@@ -164,20 +156,6 @@ void KRAudioSource::prime()
                 queueBuffer();
             }
             
-            if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-                
-                // Initialize audio source
-                getContext().getAudioManager()->makeCurrentContext();
-                
-                m_sourceID = 0;
-                ALDEBUG(alGenSources(1, &m_sourceID));
-                
-                //alSourcei(_sourceID, AL_BUFFER, firstBuffer.bufferID);
-                ALDEBUG(alSourcef(m_sourceID, AL_PITCH, m_pitch));
-                ALDEBUG(alSourcei(m_sourceID, AL_LOOPING, m_looping && m_audioFile->getBufferCount() == 1));
-                ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
-            }
-            
             m_isPrimed = true;
         }
     }
@@ -187,13 +165,6 @@ void KRAudioSource::queueBuffer()
 {
     KRAudioBuffer *buffer = m_audioFile->getBuffer(m_nextBufferIndex);
     m_audioBuffers.push(buffer);
-    ALuint buffer_ids[1];
-    buffer_ids[0] = buffer->getBufferID();
-    
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        ALDEBUG(alSourceQueueBuffers(m_sourceID, 1, buffer_ids));
-    }
-    
     m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
 }
 
@@ -242,12 +213,6 @@ void KRAudioSource::render(KRCamera *pCamera, std::vector<KRPointLight *> &point
 void KRAudioSource::setGain(float gain)
 {
     m_gain = gain;
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        if(m_isPrimed) {
-            getContext().getAudioManager()->makeCurrentContext();
-            ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
-        }
-    }
 }
 
 float KRAudioSource::getGain()
@@ -258,12 +223,6 @@ float KRAudioSource::getGain()
 void KRAudioSource::setPitch(float pitch)
 {
     m_pitch = pitch;
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        if(m_isPrimed ) {
-            getContext().getAudioManager()->makeCurrentContext();
-            ALDEBUG(alSourcef(m_sourceID, AL_PITCH, m_pitch));
-        }
-    }
 }
 
 
@@ -274,12 +233,6 @@ float KRAudioSource::getReferenceDistance()
 void KRAudioSource::setReferenceDistance(float reference_distance)
 {
     m_referenceDistance = reference_distance;
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        if(m_isPrimed && m_is3d) {
-            getContext().getAudioManager()->makeCurrentContext();
-            ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
-        }
-    }
 }
 
 float KRAudioSource::getReverb()
@@ -290,14 +243,7 @@ float KRAudioSource::getReverb()
 void KRAudioSource::setReverb(float reverb)
 {
     m_reverb = reverb;
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        if(m_isPrimed && m_is3d) {
-            getContext().getAudioManager()->makeCurrentContext();
-            ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
-        }
-    }
 }
-
 
 float KRAudioSource::getRolloffFactor()
 {
@@ -307,12 +253,6 @@ float KRAudioSource::getRolloffFactor()
 void KRAudioSource::setRolloffFactor(float rolloff_factor)
 {
     m_rolloffFactor = rolloff_factor;
-    if(getContext().getAudioManager()->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        if(m_isPrimed && m_is3d) {
-            getContext().getAudioManager()->makeCurrentContext();
-            ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
-        }
-    }
 }
 
 void KRAudioSource::setLooping(bool looping)
@@ -357,15 +297,6 @@ void KRAudioSource::setIs3D(bool is3D)
     m_is3d = is3D;
 }
 
-bool KRAudioSource::hasPhysics()
-{
-    if(KRNode::hasPhysics()) {
-        return true;
-    }
-    KRAudioManager *audioManager = getContext().getAudioManager();
-    return audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL;
-}
-
 void KRAudioSource::advanceBuffer()
 {
     if(m_audioBuffers.size()) {
@@ -381,25 +312,6 @@ void KRAudioSource::physicsUpdate(float deltaTime)
     
     KRAudioManager *audioManager = getContext().getAudioManager();
     audioManager->activateAudioSource(this);
-    if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-        
-        if(m_isPrimed && m_playing) {
-            getContext().getAudioManager()->makeCurrentContext();
-            updatePosition();
-            ALint processed_count = 0;
-            ALDEBUG(alGetSourcei(m_sourceID, AL_BUFFERS_PROCESSED, &processed_count));
-            while(processed_count-- > 0) {
-                ALuint finished_buffer = 0;
-                ALDEBUG(alSourceUnqueueBuffers(m_sourceID, 1, &finished_buffer));
-                advanceBuffer();
-            }
-            
-            ALint val;
-            // Make sure the source is still playing, and restart it if needed.
-            ALDEBUG(alGetSourcei(m_sourceID, AL_SOURCE_STATE, &val));
-            ALDEBUG(if(val != AL_PLAYING) alSourcePlay(m_sourceID));
-        }
-    }
 }
 
 void KRAudioSource::play()
@@ -414,23 +326,6 @@ void KRAudioSource::play()
         m_start_audio_frame = audioManager->getAudioFrame() - m_paused_audio_frame;
         m_paused_audio_frame = -1;
         audioManager->activateAudioSource(this);
-        if(audioManager->getAudioEngine() == KRAudioManager::KRAKEN_AUDIO_OPENAL) {
-            getContext().getAudioManager()->makeCurrentContext();
-            prime();
-            updatePosition();
-
-            if(m_is3d) {
-                ALDEBUG(alSource3f(m_sourceID, AL_VELOCITY, 0.0f, 0.0f, 0.0f));
-                ALDEBUG(alSourcef(m_sourceID, AL_REFERENCE_DISTANCE, m_referenceDistance));
-                ALDEBUG(alSourcef(m_sourceID, AL_ROLLOFF_FACTOR, m_rolloffFactor));
-                ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
-                ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_FALSE));
-            } else {
-                ALDEBUG(alSourcei(m_sourceID, AL_SOURCE_RELATIVE, AL_TRUE));
-                ALDEBUG(alSource3f(m_sourceID, AL_POSITION, 0.0, 0.0, 0.0));
-            }
-            ALDEBUG(alSourcePlay(m_sourceID));
-        }
     }
     m_playing = true;
 }
@@ -472,24 +367,6 @@ KRAudioSample *KRAudioSource::getAudioSample()
         m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
     }
     return m_audioFile;
-}
-
-void KRAudioSource::updatePosition()
-{
-    if(m_is3d) {
-        ALfloat occlusion = 0.0f; // type ALfloat	-100.0 db (most occlusion) - 0.0 db (no occlusion, 0.0 default)
-        ALfloat obstruction = 0.0f; // type ALfloat	-100.0 db (most obstruction) - 0.0 db (no obstruction, 0.0 default)
-        
-        KRVector3 worldPosition = getWorldTranslation();
-        ALDEBUG(alSource3f(m_sourceID, AL_POSITION, worldPosition.x, worldPosition.y, worldPosition.z));
-        ALDEBUG(alSourcef(m_sourceID, AL_GAIN, m_gain));
-        ALDEBUG(alSourcef(m_sourceID, AL_MIN_GAIN, 0.0));
-        ALDEBUG(alSourcef(m_sourceID, AL_MAX_GAIN, 1.0));
-        
-        ALDEBUG(alcASASetSourceProc(ALC_ASA_OCCLUSION, m_sourceID, &occlusion, sizeof(occlusion)));
-        ALDEBUG(alcASASetSourceProc(ALC_ASA_OBSTRUCTION, m_sourceID, &obstruction, sizeof(obstruction)));
-        ALDEBUG(alcASASetSourceProc(ALC_ASA_REVERB_SEND_LEVEL, m_sourceID, &m_reverb, sizeof(m_reverb)));
-    }
 }
 
 void KRAudioSource::advanceFrames(int frame_count)
@@ -571,18 +448,4 @@ void KRAudioSource::sample(int frame_count, int channel, float *buffer, float ga
     } else {
         memset(buffer, 0, sizeof(float) * frame_count);
     }
-}
-
-OSStatus alcASASetSourceProc(const ALuint property, ALuint source, ALvoid *data, ALuint dataSize)
-{
-    OSStatus	err = noErr;
-	static	alcASASetSourceProcPtr	proc = NULL;
-    
-    if (proc == NULL) {
-        proc = (alcASASetSourceProcPtr) alcGetProcAddress(NULL, (const ALCchar*) "alcASASetSource");
-    }
-    
-    if (proc)
-        err = proc(property, source, data, dataSize);
-    return (err);
 }

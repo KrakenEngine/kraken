@@ -37,12 +37,13 @@
 #include "KRContext.h"
 #include "KRVector2.h"
 #include "KRCollider.h"
+#ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
+#endif
 
-OSStatus  alcASASetListenerProc(const ALuint property, ALvoid *data, ALuint dataSize);
-ALvoid  alcMacOSXRenderingQualityProc(const ALint value);
-
-KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
+KRAudioManager::KRAudioManager(KRContext &context)
+    : KRContextObject(context)
+    , m_initialized(false)
 {
     m_enable_audio = true;
     m_enable_hrtf = true;
@@ -50,9 +51,10 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     m_reverb_max_length = 8.0f;
     
     m_anticlick_block = true;
+#ifdef __APPLE__
     mach_timebase_info(&m_timebase_info);
+#endif
     
-    m_audio_engine = KRAKEN_AUDIO_SIREN;
     m_high_quality_hrtf = false;
     
     m_listener_scene = NULL;
@@ -60,23 +62,22 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
     m_global_gain = 0.20f;
     m_global_reverb_send_level = 1.0f;
     m_global_ambient_gain = 1.0f;
-   
     
-    // OpenAL
-    m_alDevice = 0;
-    m_alContext = 0;
-    
-    // Siren
+#ifdef __APPLE__
+    // Apple Core Audio
     m_auGraph = NULL;
     m_auMixer = NULL;
+
+    // Apple vDSP
+    for (int i = KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
+      m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
+    }
+#endif
     
     m_audio_frame = 0;
     
-
     m_output_sample = 0;
-    for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
-        m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
-    }
+
     
     m_reverb_input_samples = NULL;
     m_reverb_input_next_sample = 0;
@@ -91,20 +92,6 @@ KRAudioManager::KRAudioManager(KRContext &context) : KRContextObject(context)
         m_reverb_impulse_responses_weight[i] = 0.0f;
     }
     m_output_accumulation = NULL;
-}
-
-void KRAudioManager::initAudio()
-{
-    switch(m_audio_engine) {
-        case KRAKEN_AUDIO_OPENAL:
-            initOpenAL();
-            break;
-        case KRAKEN_AUDIO_SIREN:
-            initSiren();
-            break;
-        case KRAKEN_AUDIO_NONE:
-            break;
-    }
 }
 
 unordered_map<std::string, KRAudioSample *> &KRAudioManager::getSounds()
@@ -160,12 +147,12 @@ void KRAudioManager::setListenerScene(KRScene *scene)
     m_listener_scene = scene;
 }
 
+#ifdef __APPLE__
+// Apple Core Audio
 void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
-  // uint64_t start_time = mach_absolute_time();
-    
-    
-	AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
+    // uint64_t start_time = mach_absolute_time();
+	  AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
     AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
     
     int output_frame = 0;
@@ -208,10 +195,8 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
             outB[output_frame] = (Float32)right_channel;
 #endif
             output_frame++;
-            
         }
     }
-    
     
 //    uint64_t end_time = mach_absolute_time();
 //    uint64_t duration = (end_time - start_time) * m_timebase_info.numer / m_timebase_info.denom; // Nanoseconds
@@ -221,6 +206,7 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 //    fprintf(stderr, "audio load: %5.1f%% hrtf channels: %li\n", (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 //    printf("ms %2.3f frames %ld audio load: %5.1f%% hrtf channels: %li\n", ms, (unsigned long) inNumberFrames, (float)(duration * 1000 / max_duration) / 10.0f, m_mapped_sources.size());
 }
+#endif
 
 float *KRAudioManager::getBlockAddress(int block_offset)
 {
@@ -229,14 +215,13 @@ float *KRAudioManager::getBlockAddress(int block_offset)
 
 void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2)
 {
-    
     int frame_count = 1 << frame_count_log2;
     int fft_size = frame_count * 2;
     int fft_size_log2 = frame_count_log2 + 1;
     
-    DSPSplitComplex reverb_sample_data_complex = m_workspace[0];
-    DSPSplitComplex impulse_block_data_complex = m_workspace[1];
-    DSPSplitComplex conv_data_complex = m_workspace[2];
+    SplitComplex reverb_sample_data_complex = m_workspace[0];
+    SplitComplex impulse_block_data_complex = m_workspace[1];
+    SplitComplex conv_data_complex = m_workspace[2];
     
     int reverb_offset = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH - frame_count);
     if(reverb_offset < 0) {
@@ -425,13 +410,15 @@ void KRAudioManager::renderBlock()
     m_mutex.unlock();
 }
 
+#ifdef __APPLE__
+// Apple Core Audio
+
 // audio render procedure, don't allocate memory, don't take any locks, don't waste time
 OSStatus KRAudioManager::renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData)
 {
     ((KRAudioManager*)inRefCon)->renderAudio(inNumberFrames, ioData);
-	return noErr;
+	  return noErr;
 }
-
 
 void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool interleaved)
 {
@@ -451,6 +438,7 @@ void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool 
         desc.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
     }
 }
+#endif // Apple Core Audio
 
 void KRAudioManager::initHRTF()
 {
@@ -837,7 +825,7 @@ void KRAudioManager::initHRTF()
         KRVector2 pos = *itr;
         KRAudioSample *sample = getHRTFSample(pos);
         for(int channel=0; channel < 2; channel++) {
-            DSPSplitComplex spectral;
+            SplitComplex spectral;
             spectral.realp = m_hrtf_data + sample_index * 1024 + channel * 512;
             spectral.imagp = m_hrtf_data + sample_index * 1024 + channel * 512 + 256;
             sample->sample(0, 128, channel, spectral.realp, 1.0f, false);
@@ -860,7 +848,7 @@ KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir)
     return get(szName);
 }
 
-DSPSplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
+KRAudioManager::SplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
 {
     KRVector2 dir = hrtf_dir;
     int sample_channel = channel;
@@ -1024,10 +1012,10 @@ void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2
     mix4 = azim_blend2           *  elev_blend;
 }
 
-void KRAudioManager::initSiren()
+void KRAudioManager::initAudio()
 {
-    if(m_auGraph == NULL) {
-        
+    if(!m_initialized == NULL) {
+        m_initialized = true;
         m_output_sample = KRENGINE_AUDIO_BLOCK_LENGTH;
         
         // initialize double-buffer for reverb input
@@ -1052,7 +1040,12 @@ void KRAudioManager::initSiren()
         for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
             m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = vDSP_create_fftsetup( KRENGINE_REVERB_MAX_FFT_LOG2, kFFTRadix2);
         }
-    
+
+        // ----====---- Initialize HRTF Engine ----====----
+        initHRTF();
+
+#ifdef __APPLE__
+        // Apple Core Audio
         // ----====---- Initialize Core Audio Objects ----====----
         OSDEBUG(NewAUGraph(&m_auGraph));
         
@@ -1095,8 +1088,8 @@ void KRAudioManager::initSiren()
         
         // ---- Attach render function to channel ----
         AURenderCallbackStruct renderCallbackStruct;
-		renderCallbackStruct.inputProc = &renderInput;
-		renderCallbackStruct.inputProcRefCon = this;
+		    renderCallbackStruct.inputProc = &renderInput;
+		    renderCallbackStruct.inputProcRefCon = this;
         OSDEBUG(AUGraphSetNodeInputCallback(m_auGraph, mixerNode, 0, &renderCallbackStruct)); // 0 = mixer input number
         
         AudioStreamBasicDescription desc;
@@ -1104,7 +1097,7 @@ void KRAudioManager::initSiren()
         
         UInt32 size = sizeof(desc);
         memset(&desc, 0, sizeof(desc));
-		OSDEBUG(AudioUnitGetProperty(  m_auMixer,
+		    OSDEBUG(AudioUnitGetProperty(  m_auMixer,
                                       kAudioUnitProperty_StreamFormat,
                                       kAudioUnitScope_Input,
                                       0, // 0 = mixer input number
@@ -1161,26 +1154,26 @@ void KRAudioManager::initSiren()
         
         OSDEBUG(AUGraphInitialize(m_auGraph));
         
-        // ----====---- Initialize HRTF Engine ----====----
-        
-        initHRTF();
-        
         // ----====---- Start the audio system ----====---- 
         OSDEBUG(AUGraphStart(m_auGraph));
         
 //        CAShow(m_auGraph);
+#endif // Core Audio
     }
 }
 
 
-void KRAudioManager::cleanupSiren()
+void KRAudioManager::cleanupAudio()
 {
+#ifdef __APPLE__
+  // Apple Core Audio
     if(m_auGraph) {
         OSDEBUG(AUGraphStop(m_auGraph));
         OSDEBUG(DisposeAUGraph(m_auGraph));
         m_auGraph = NULL;
         m_auMixer = NULL;
     }
+#endif
     
     if(m_reverb_input_samples) {
         free(m_reverb_input_samples);
@@ -1207,73 +1200,15 @@ void KRAudioManager::cleanupSiren()
         m_reverb_impulse_responses_weight[i] = 0.0f;
     }
     
+#ifdef __APPLE__
+    // Apple vDSP
     for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
         if(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]) {
             vDSP_destroy_fftsetup(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]);
             m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
         }
     }
-}
-
-void KRAudioManager::initOpenAL()
-{
-    if(m_alDevice == 0) {
-        // ----- Initialize OpenAL -----
-        ALDEBUG(m_alDevice = alcOpenDevice(NULL));
-        ALDEBUG(m_alContext=alcCreateContext(m_alDevice,NULL));
-        ALDEBUG(alcMakeContextCurrent(m_alContext));
-        
-        // ----- Configure listener -----
-        ALDEBUG(alDistanceModel(AL_EXPONENT_DISTANCE));
-        ALDEBUG(alSpeedOfSound(1116.43701f)); // 1116.43701 feet per second
-        
-         /*
-          // BROKEN IN IOS 6!!
-    #if TARGET_OS_IPHONE
-        ALDEBUG(alcMacOSXRenderingQualityProc(ALC_IPHONE_SPATIAL_RENDERING_QUALITY_HEADPHONES));
-    #else
-        ALDEBUG(alcMacOSXRenderingQualityProc(ALC_MAC_OSX_SPATIAL_RENDERING_QUALITY_HIGH));
-    #endif
-          */
-        bool enable_reverb = false;
-        if(enable_reverb) {
-            UInt32 setting = 1;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ON, &setting, sizeof(setting)));
-            ALfloat global_reverb_level = -5.0f;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_GLOBAL_LEVEL, &global_reverb_level, sizeof(global_reverb_level)));
-            
-            setting = ALC_ASA_REVERB_ROOM_TYPE_SmallRoom; // ALC_ASA_REVERB_ROOM_TYPE_MediumHall2;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_ROOM_TYPE, &setting, sizeof(setting)));
-            
-            
-            ALfloat global_reverb_eq_gain = 0.0f;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_GAIN, &global_reverb_eq_gain, sizeof(global_reverb_eq_gain)));
-            
-            ALfloat global_reverb_eq_bandwidth = 0.0f;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_BANDWITH, &global_reverb_eq_bandwidth, sizeof(global_reverb_eq_bandwidth)));
-            
-            ALfloat global_reverb_eq_freq = 0.0f;
-            ALDEBUG(alcASASetListenerProc(ALC_ASA_REVERB_EQ_FREQ, &global_reverb_eq_freq, sizeof(global_reverb_eq_freq)));
-        }
-    }
-}
-
-void KRAudioManager::cleanupAudio()
-{
-    cleanupOpenAL();
-    cleanupSiren();
-}
-
-void KRAudioManager::cleanupOpenAL()
-{
-    if(m_alContext) {
-        ALDEBUG(alcDestroyContext(m_alContext));
-        m_alContext = 0;
-    }
-    if(m_alDevice) {
-        ALDEBUG(alcCloseDevice(m_alDevice));
-        m_alDevice = 0;
-    }
+#endif
 }
 
 KRAudioManager::~KRAudioManager()
@@ -1292,11 +1227,6 @@ KRAudioManager::~KRAudioManager()
 void KRAudioManager::makeCurrentContext()
 {
     initAudio();
-    if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
-        if(m_alContext != 0) {
-            ALDEBUG(alcMakeContextCurrent(m_alContext));
-        }
-    }
 }
 
 void KRAudioManager::setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix)
@@ -1330,11 +1260,6 @@ void KRAudioManager::setListenerOrientation(const KRVector3 &position, const KRV
     m_listener_up = up;
 
     makeCurrentContext();
-    if(m_audio_engine == KRAKEN_AUDIO_OPENAL) {
-        ALDEBUG(alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z));
-        ALfloat orientation[] = {m_listener_forward.x, m_listener_forward.y, m_listener_forward.z, m_listener_up.x, m_listener_up.y, m_listener_up.z};
-        ALDEBUG(alListenerfv(AL_ORIENTATION, orientation));
-    }
 }
 
 void KRAudioManager::add(KRAudioSample *sound)
@@ -1391,39 +1316,6 @@ void KRAudioManager::recycleBufferData(KRDataBlock *data)
             delete data;
         }
     }
-}
-
-OSStatus alcASASetListenerProc(const ALuint property, ALvoid *data, ALuint dataSize)
-{
-    OSStatus    err = noErr;
-    static  alcASASetListenerProcPtr    proc = NULL;
-    
-    if (proc == NULL) {
-        proc = (alcASASetListenerProcPtr) alcGetProcAddress(NULL, "alcASASetListener");
-    }
-    
-    if (proc)
-        err = proc(property, data, dataSize);
-    return (err);
-}
-
-ALvoid alcMacOSXRenderingQualityProc(const ALint value)
-{
-    static  alcMacOSXRenderingQualityProcPtr    proc = NULL;
-    
-    if (proc == NULL) {
-        proc = (alcMacOSXRenderingQualityProcPtr) alcGetProcAddress(NULL, (const ALCchar*) "alcMacOSXRenderingQuality");
-    }
-    
-    if (proc)
-        proc(value);
-    
-    return;
-}
-
-KRAudioManager::audio_engine_t KRAudioManager::getAudioEngine()
-{
-    return m_audio_engine;
 }
 
 void KRAudioManager::activateAudioSource(KRAudioSource *audioSource)
@@ -1685,10 +1577,10 @@ void KRAudioManager::renderAmbient()
 
 void KRAudioManager::renderHRTF()
 {
-    DSPSplitComplex *hrtf_accum = m_workspace + 0;
-    DSPSplitComplex *hrtf_impulse = m_workspace + 1;
-    DSPSplitComplex *hrtf_convolved = m_workspace + 1; // We only need hrtf_impulse or hrtf_convolved at once; we can recycle the buffer
-    DSPSplitComplex *hrtf_sample = m_workspace + 2;
+    SplitComplex *hrtf_accum = m_workspace + 0;
+    SplitComplex *hrtf_impulse = m_workspace + 1;
+    SplitComplex *hrtf_convolved = m_workspace + 1; // We only need hrtf_impulse or hrtf_convolved at once; we can recycle the buffer
+    SplitComplex *hrtf_sample = m_workspace + 2;
     
     int impulse_response_channels = 2;
     int hrtf_frames = 128;
@@ -1749,11 +1641,11 @@ void KRAudioManager::renderHRTF()
                 memset(hrtf_sample->realp + hrtf_frames, 0, sizeof(float) * hrtf_frames);
                 memset(hrtf_sample->imagp, 0, sizeof(float) * fft_size);
                 
-                DSPSplitComplex hrtf_spectral;
+                SplitComplex hrtf_spectral;
                 
                 if(m_high_quality_hrtf) {
                     // High quality, interpolated HRTF
-                    hrtf_spectral= *hrtf_accum;
+                    hrtf_spectral = *hrtf_accum;
                     
                     float mix[4];
                     KRVector2 dir[4];
@@ -1766,7 +1658,7 @@ void KRAudioManager::renderHRTF()
                     
                     for(int i=0; i < 1 /*4 */; i++) {
                         if(mix[i] > 0.0f) {
-                            DSPSplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
+                            SplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
                             vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
                             vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
                             vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);

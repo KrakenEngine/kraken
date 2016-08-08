@@ -13,6 +13,10 @@
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 int KRContext::KRENGINE_MAX_SHADER_HANDLES;
 int KRContext::KRENGINE_GPU_MEM_MAX;
 int KRContext::KRENGINE_GPU_MEM_TARGET;
@@ -44,7 +48,9 @@ void *KRContext::s_log_callback_user_data = NULL;
 KRContext::KRContext() : m_streamer(*this)
 {
     m_streamingEnabled = false;
+#ifdef __APPLE__
     mach_timebase_info(&m_timebase_info);
+#endif
     
     m_bDetectedExtensions = false;
     m_current_frame = 0;
@@ -317,7 +323,11 @@ float KRContext::getAbsoluteTime() const
 
 long KRContext::getAbsoluteTimeMilliseconds()
 {
+#ifdef __APPLE__
     return (long)(mach_absolute_time() / 1000 * m_timebase_info.numer / m_timebase_info.denom); // Division done first to avoid potential overflow
+#else
+    return (long)GetTickCount64();
+#endif
 }
 
 bool KRContext::getStreamingEnabled()

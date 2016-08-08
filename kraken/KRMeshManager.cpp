@@ -449,9 +449,9 @@ KRDataBlock &KRMeshManager::getRandomParticles()
         
         int iVertex=0;
         for(int iParticle=0; iParticle < KRENGINE_MAX_RANDOM_PARTICLES; iParticle++) {
-            vertex_data[iVertex].vertex.x = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
-            vertex_data[iVertex].vertex.y = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
-            vertex_data[iVertex].vertex.z = (float)(arc4random() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].vertex.x = (float)(rand() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].vertex.y = (float)(rand() % 2000) / 1000.0f - 1000.0f;
+            vertex_data[iVertex].vertex.z = (float)(rand() % 2000) / 1000.0f - 1000.0f;
             vertex_data[iVertex].uva.u = -0.5f;
             vertex_data[iVertex].uva.v = -inscribed_circle_radius;
             iVertex++;

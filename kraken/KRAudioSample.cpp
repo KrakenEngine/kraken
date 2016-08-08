@@ -34,16 +34,20 @@
 #include "KRDataBlock.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-
+#ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
+#endif
 
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
 {
     m_pData = new KRDataBlock();
     m_extension = extension;
-    
+
+#ifdef __APPLE__
+    // Apple Audio Toolbox
     m_audio_file_id = 0;
     m_fileRef = NULL;
+#endif
     m_totalFrames = 0;
     m_bytesPerFrame = 0;
     m_frameRate = 0;
@@ -57,8 +61,11 @@ KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string e
     m_pData = data;
     m_extension = extension;
     
+#ifdef __APPLE__
+    // Apple Audio Toolbox
     m_audio_file_id = 0;
     m_fileRef = NULL;
+#endif
     m_totalFrames = 0;
     m_bytesPerFrame = 0;
     m_frameRate = 0;
@@ -194,6 +201,8 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
     }
 }
 
+#ifdef __APPLE__
+// Apple Audio Toolbox
 OSStatus KRAudioSample::ReadProc( // AudioFile_ReadProc
                                        void *		inClientData,
                                        SInt64		inPosition,
@@ -231,10 +240,13 @@ OSStatus KRAudioSample::WriteProc( // AudioFile_WriteProc
 {
     return -1; // Writing not supported
 }
-
+#endif // Apple Audio Toolbox
 
 void KRAudioSample::openFile()
 {
+#ifdef __APPLE__
+// Apple Audio Toolbox
+
     //    AudioFileInitializeWithCallbacks
     if(m_fileRef == NULL) {
         
@@ -279,15 +291,19 @@ void KRAudioSample::openFile()
         int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
         m_bufferCount = (m_totalFrames+maxFramesPerBuffer-1)/maxFramesPerBuffer; // CEIL(_totalFrames / maxFramesPerBuffer)
         
-        m_dataFormat = (outputFormat.mChannelsPerFrame > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
         m_channelsPerFrame = outputFormat.mChannelsPerFrame;
         
         getContext().getAudioManager()->_registerOpenAudioSample(this);
     }
+#else
+#pragma message ( "TODO - implement for Windows" )
+#endif
 }
 
 void KRAudioSample::closeFile()
 {
+#ifdef __APPLE__
+  // Apple Audio Toolbox
     if(m_fileRef) {
         ExtAudioFileDispose(m_fileRef);
         m_fileRef = NULL;
@@ -297,6 +313,7 @@ void KRAudioSample::closeFile()
         AudioFileClose(m_audio_file_id);
         m_audio_file_id = 0;
     }
+#endif
     
     getContext().getAudioManager()->_registerCloseAudioSample(this);
 }
@@ -336,9 +353,10 @@ void KRAudioSample::PopulateBuffer(KRAudioSample *sound, int index, void *data)
 {
     int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / sound->m_bytesPerFrame;
     int startFrame = index * maxFramesPerBuffer;
-    UInt32 frameCount = (UInt32)KRMIN(sound->m_totalFrames - startFrame, maxFramesPerBuffer);
-    
-    
+    __uint32_t frameCount = (__uint32_t)KRMIN(sound->m_totalFrames - startFrame, maxFramesPerBuffer);
+
+#ifdef __APPLE__
+    // Apple Audio Toolbox
     AudioBufferList outputBufferInfo;
     outputBufferInfo.mNumberBuffers = 1;
     outputBufferInfo.mBuffers[0].mDataByteSize = frameCount * sound->m_bytesPerFrame;
@@ -348,6 +366,7 @@ void KRAudioSample::PopulateBuffer(KRAudioSample *sound, int index, void *data)
     // Read the data into an AudioBufferList
     ExtAudioFileSeek(sound->m_fileRef, startFrame);
     ExtAudioFileRead(sound->m_fileRef, (UInt32*)&frameCount, &outputBufferInfo);
+#endif
 }
 
 KRAudioBuffer *KRAudioSample::getBuffer(int index)
@@ -356,9 +375,9 @@ KRAudioBuffer *KRAudioSample::getBuffer(int index)
 
     int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
     int startFrame = index * maxFramesPerBuffer;
-    UInt32 frameCount = (UInt32)KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
+    __uint32_t frameCount = (__uint32_t)KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
     
-    KRAudioBuffer *buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, m_dataFormat, frameCount, m_frameRate, m_bytesPerFrame, PopulateBuffer);
+    KRAudioBuffer *buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, frameCount, m_frameRate, m_bytesPerFrame, PopulateBuffer);
         
     if(m_bufferCount == 1) {
 //        [self closeFile]; // We don't need to hold on to a file handle if not streaming

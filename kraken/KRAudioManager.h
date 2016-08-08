@@ -127,14 +127,6 @@ public:
     KRDataBlock *getBufferData(int size);
     void recycleBufferData(KRDataBlock *data);
     
-    enum audio_engine_t {
-        KRAKEN_AUDIO_NONE,
-        KRAKEN_AUDIO_OPENAL,
-        KRAKEN_AUDIO_SIREN
-    };
-    
-    audio_engine_t getAudioEngine();
-    
     void activateAudioSource(KRAudioSource *audioSource);
     void deactivateAudioSource(KRAudioSource *audioSource);
     
@@ -189,27 +181,32 @@ private:
     std::set<KRAudioSample *> m_openAudioSamples;
     
     void initAudio();
-    void initOpenAL();
-    void initSiren();
     void initHRTF();
-    
+   
     void cleanupAudio();
-    void cleanupOpenAL();
-    void cleanupSiren();
+    
+    bool m_initialized;
 
-    
-    audio_engine_t m_audio_engine;
-    
-    // OpenAL Handles
-    ALCcontext* m_alContext;
-    ALCdevice* m_alDevice;
-    
-    // Siren Handles
+#ifdef __APPLE__
+    // Apple Core Audio
     AUGraph m_auGraph;
     AudioUnit m_auMixer;
+
     static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
     void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
-    
+#endif
+
+#ifdef __APPLE__
+    // Apple vDSP
+    FFTSetup m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
+    typedef DSPSplitComplex SplitComplex;
+#else
+    typedef struct {
+        float *realp;
+        float *imagp;
+    } SplitComplex;
+#endif
+
     __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
     
     float *m_reverb_input_samples; // Circular-buffered reverb input, single channel
@@ -223,11 +220,8 @@ private:
     int m_output_accumulation_block_start;
     int m_output_sample;
     
-    FFTSetup m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
     float *m_workspace_data;
-    DSPSplitComplex m_workspace[3];
-    
-    
+    SplitComplex m_workspace[3];
     
     float *getBlockAddress(int block_offset);
     void renderBlock();
@@ -240,12 +234,12 @@ private:
     
     std::vector<KRVector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
-    unordered_map<KRVector2, DSPSplitComplex> m_hrtf_spectral[2];
+    unordered_map<KRVector2, SplitComplex> m_hrtf_spectral[2];
     
     KRVector2 getNearestHRTFSample(const KRVector2 &dir);
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
     KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
-    DSPSplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
+    SplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
     
     
     unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
@@ -255,7 +249,9 @@ private:
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
     boost::signals2::mutex m_mutex;
+#ifdef __APPLE__
     mach_timebase_info_data_t m_timebase_info;
+#endif
     
     
     unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;

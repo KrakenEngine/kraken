@@ -47,7 +47,6 @@ public:
     virtual std::string getElementName();
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
     virtual void loadXML(tinyxml2::XMLElement *e);
-    virtual bool hasPhysics();
     virtual void physicsUpdate(float deltaTime);
     
     void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
@@ -154,8 +153,6 @@ private:
     float m_rolloffFactor;
     bool m_enable_occlusion;
     bool m_enable_obstruction;
-    
-    void updatePosition();
 };
 
 #endif /* defined(KRAUDIOSOURCE_H) */
