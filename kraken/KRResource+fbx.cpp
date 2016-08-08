@@ -47,7 +47,7 @@ KRAnimationLayer *LoadAnimationLayer(KRContext &context, FbxAnimLayer *pAnimLaye
 void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode);
 //void BakeNode(KFbxNode* pNode);
 void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial);
-void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pSourceMesh);
+void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pMesh);
 KRNode *LoadMesh(KRNode *parent_node, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxNode* pNode);
 KRNode *LoadLight(KRNode *parent_node, FbxNode* pNode);
 KRNode *LoadSkeleton(KRNode *parent_node, FbxScene* pScene, FbxNode* pNode);
@@ -114,6 +114,9 @@ void KRResource::LoadFbx(KRContext &context, const std::string& path)
     
     // Load the scene.
     lResult = LoadScene(lSdkManager, pFbxScene, path.c_str());
+
+    // Triangulate the scene.
+    lResult = pGeometryConverter->Triangulate(pFbxScene, true);
     
     FbxNode* pNode = pFbxScene->GetRootNode();
     
@@ -216,7 +219,7 @@ void InitializeSdkObjects(FbxManager*& pSdkManager, FbxScene*& pScene)
     
 	// Load plugins from the executable directory
 	FbxString lPath = FbxGetApplicationDirectory();
-#if TARGET_OS_WIN32
+#if defined(_WIN32) || defined(_WIN64)
 	FbxString lExtension = "dll";
 #elif TARGET_OS_MAC
 	FbxString lExtension = "dylib";
@@ -1182,21 +1185,19 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Unable to convert material: %s", pMaterial->GetName());
     }
     
-    
-    
     FbxProperty pProperty;
     
     // Diffuse Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
+    if(pProperty.GetSrcObjectCount(FbxCriteria::ObjectType(FbxLayeredTexture::ClassId)) > 0) {
         KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Layered textures not supported.");
     }
     
-    int texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
+    int texture_count = pProperty.GetSrcObjectCount(FbxCriteria::ObjectType(FbxTexture::ClassId));
     if(texture_count > 1) {
         KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Multiple diffuse textures not supported.");
     } else if(texture_count == 1) {
-        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
+        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxCriteria::ObjectType(FbxTexture::ClassId),0));
         assert(!pTexture->GetSwapUV());
         assert(pTexture->GetCroppingTop() == 0);
         assert(pTexture->GetCroppingLeft() == 0);
@@ -1217,14 +1218,14 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     
     // Specular Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sSpecular);
-    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
+    if(pProperty.GetSrcObjectCount(FbxCriteria::ObjectType(FbxLayeredTexture::ClassId)) > 0) {
         KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Layered textures not supported.");
     }
-    texture_count = pProperty.GetSrcObjectCount(FbxTexture::ClassId);
+    texture_count = pProperty.GetSrcObjectCount(FbxCriteria::ObjectType(FbxTexture::ClassId));
     if(texture_count > 1) {
         KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Multiple specular textures not supported.");
     } else if(texture_count == 1) {
-        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxTexture::ClassId,0));
+        FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxCriteria::ObjectType(FbxTexture::ClassId),0));
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
             new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
@@ -1233,7 +1234,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
     
     // Normal Map Texture
     pProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
-    if(pProperty.GetSrcObjectCount(FbxLayeredTexture::ClassId) > 0) {
+    if(pProperty.GetSrcObjectCount(FbxCriteria::ObjectType(FbxLayeredTexture::ClassId)) > 0) {
         KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Layered textures not supported.");
     }
     
@@ -1260,9 +1261,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
 
 
 
-void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pSourceMesh) {
-    FbxMesh* pMesh = pGeometryConverter->TriangulateMesh(pSourceMesh);
-    
+void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pMesh) {   
     KRMesh::mesh_info mi;
     mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
     
@@ -1378,7 +1377,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     int normal_count = pMesh->GetElementNormalCount();
     int tangent_count = pMesh->GetElementTangentCount();
     int elementmaterial_count = pMesh->GetElementMaterialCount();
-    int material_count = pSourceMesh->GetNode()->GetMaterialCount(); // FINDME, TODO - To support instancing, material names should be stored in the instance rather than the mesh
+    int material_count = pMesh->GetNode()->GetMaterialCount(); // FINDME, TODO - To support instancing, material names should be stored in the instance rather than the mesh
     
 //    std::vector<std::vector<float> > bone_weights;
 //    std::vector<std::vector<int> > bone_indexes;
@@ -1397,7 +1396,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     bool need_tangents = false;
     
     for(int iMaterial=0; iMaterial < material_count; iMaterial++) {
-        FbxSurfaceMaterial *pMaterial = pSourceMesh->GetNode()->GetMaterial(iMaterial);
+        FbxSurfaceMaterial *pMaterial = pMesh->GetNode()->GetMaterial(iMaterial);
         
         KRMaterial *material =  context.getMaterialManager()->getMaterial(pMaterial->GetName());
         if(material) {
@@ -1541,7 +1540,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
     
     delete control_point_weights;
     
-    KRMesh *new_mesh = new KRMesh(context, pSourceMesh->GetNode()->GetName());
+    KRMesh *new_mesh = new KRMesh(context, pMesh->GetNode()->GetName());
     new_mesh->LoadData(mi, true, need_tangents);
     
     context.getMeshManager()->addModel(new_mesh);
