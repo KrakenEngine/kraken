@@ -34,6 +34,10 @@
 
 #include "KREngine-common.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#endif
+
 #define KRENGINE_MIN_MMAP 32768
 
 class KRDataBlock {
@@ -99,7 +103,12 @@ private:
     size_t m_data_offset;
     
     // For memory mapped objects:
+#if defined(_WIN32) || defined(_WIN64)
+    HANDLE m_hPackFile;
+#else
     int m_fdPackFile;
+#endif
+    
     std::string m_fileName;
     KRDataBlock *m_fileOwnerDataBlock;
     void *m_mmapData;
