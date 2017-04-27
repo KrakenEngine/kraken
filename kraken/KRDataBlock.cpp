@@ -50,7 +50,12 @@ KRDataBlock::KRDataBlock() {
     m_data = NULL;
     m_data_size = 0;
     m_data_offset = 0;
+#if defined(_WIN32) || defined(_WIN64)
+    m_hPackFile = INVALID_HANDLE_VALUE;
+#else
     m_fdPackFile = 0;
+#endif
+
     m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
@@ -63,7 +68,11 @@ KRDataBlock::KRDataBlock(void *data, size_t size) {
     m_data = NULL;
     m_data_size = 0;
     m_data_offset = 0;
+#if defined(_WIN32) || defined(_WIN64)
+    m_hPackFile = INVALID_HANDLE_VALUE;
+#else
     m_fdPackFile = 0;
+#endif
     m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
@@ -87,16 +96,20 @@ void KRDataBlock::unload()
         if(m_fileOwnerDataBlock == this) {
             close(m_fdPackFile);
         }
+        m_fdPackFile = 0;
     } else if(m_data != NULL && m_bMalloced) {
         // Malloc'ed data
         free(m_data);
     }
+
+#if defined(_WIN32) || defined(_WIN64)
+    m_hPackFile = INVALID_HANDLE_VALUE;
+#endif
     
     m_bMalloced = false;
     m_data = NULL;
     m_data_size = 0;
     m_data_offset = 0;
-    m_fdPackFile = 0;
     m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
