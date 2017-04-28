@@ -72,8 +72,8 @@ namespace kraken {
 -(void)setParameterValueWithName: (NSString *)name Value: (float)v;
 -(int)getParameterIndexWithName: (NSString *)name;
 
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height;
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime;
+- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height AndDefaultFBO: (GLint)defaultFBO;
+//- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime;
 - (void)setNearZ: (float)dNearZ;
 - (void)setFarZ: (float)dFarZ;
 

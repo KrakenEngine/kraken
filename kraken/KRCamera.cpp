@@ -95,7 +95,7 @@ const std::string KRCamera::getSkyBox() const
     return m_skyBox;
 }
 
-void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint renderBufferHeight)
+void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
 {
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
@@ -104,9 +104,6 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
         if(m_frame_times_filled < KRAKEN_FPS_AVERAGE_FRAME_COUNT) m_frame_times_filled++;
     }
     m_last_frame_start = current_time;
-    
-    GLint defaultFBO = -1;
-    GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
 
     createBuffers(renderBufferWidth, renderBufferHeight);
     
