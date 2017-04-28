@@ -128,11 +128,12 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         GLDEBUG(glCompileShader(vertexShader));
         
         // Report any compile issues to stderr
-        GLint logLength;
+        GLint logLength = 0;
         GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength + 1);
             assert(log != NULL);
+            log[0] = '\0'; // In case glGetShaderInfoLog fails
             GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
             log[logLength] = '\0';
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
@@ -146,10 +147,12 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         GLDEBUG(glCompileShader(fragShader));
         
         // Report any compile issues to stderr
+        logLength = 0; // In case glGetShaderiv fails
         GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
         if (logLength > 0) {
             GLchar *log = (GLchar *)malloc(logLength + 1);
             assert(log != NULL);
+            log[0] = '\0'; // In case glGetShaderInfoLog fails
             GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
             log[logLength] = '\0';
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
@@ -181,12 +184,13 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
         if(link_success != GL_TRUE) {
             // Report any linking issues to stderr
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to link shader program: %s", szKey);
-                    
+            logLength = 0; // In case glGetProgramiv fails
             GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
             if (logLength > 0)
             {
                 GLchar *log = (GLchar *)malloc(logLength + 1);
                 assert(log != NULL);
+                log[0] = '\0'; // In case glGetProgramInfoLog fails
                 GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
                 log[logLength] = '\0';
                 KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program link log:\n%s", log);
@@ -363,8 +367,8 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     setUniform(KRENGINE_UNIFORM_ABSOLUTE_TIME, getContext().getAbsoluteTime());
     
     int light_directional_count = 0;
-    int light_point_count = 0;
-    int light_spot_count = 0;
+    //int light_point_count = 0;
+    //int light_spot_count = 0;
     // TODO - Need to support multiple lights and more light types in forward rendering
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         
@@ -422,8 +426,8 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
             light_directional_count++;
         }
 
-        light_point_count = point_lights.size();
-        light_spot_count = spot_lights.size();
+        //light_point_count = point_lights.size();
+        //light_spot_count = spot_lights.size();
     }
     
 
@@ -566,11 +570,13 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         GLDEBUG(glGetProgramiv(m_iProgram, GL_VALIDATE_STATUS, &validate_status));
         if(validate_status != GL_TRUE) {
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to validate shader program: %s", m_szKey);
+            logLength = 0; // In case glGetProgramiv fails
             GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
             if (logLength > 0)
             {
                 GLchar *log = (GLchar *)malloc(logLength + 1);
                 assert(log != NULL);
+                log[0] = '\0'; // In case glGetProgramInfoLog fails
                 GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
                 log[logLength] = '\0';
                 KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program validate log:\n%s", log);

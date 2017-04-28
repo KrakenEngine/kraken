@@ -173,11 +173,14 @@ void KRMesh::getMaterials()
         
         for(std::vector<KRMesh::Submesh *>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
             const char *szMaterialName = (*itr)->szMaterialName;
-            KRMaterial *pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
+            KRMaterial *pMaterial = nullptr;
+            if(*szMaterialName != '\0') {
+              pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
+            }
             m_materials.push_back(pMaterial);
             if(pMaterial) {
                 m_uniqueMaterials.insert(pMaterial);
-            } else {
+            } else if(*szMaterialName != '\0') {
                 KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
             }
         }
@@ -1456,7 +1459,7 @@ void KRMesh::convertToIndexed()
         }
     }
     
-    delete szKey;
+    delete[] szKey;
     
     KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
@@ -1533,7 +1536,7 @@ void KRMesh::optimizeIndexes()
         pack_header *header = getHeader();
         
         __uint16_t *index_data = getIndexData();
-        unsigned char *vertex_data = getVertexData();
+        // unsigned char *vertex_data = getVertexData(); // Uncomment when re-enabling Step 2 below
         
         for(int submesh_index=0; submesh_index < header->submesh_count; submesh_index++) {
             pack_material *submesh = getSubmesh(submesh_index);

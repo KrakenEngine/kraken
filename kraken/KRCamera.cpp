@@ -107,7 +107,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     GLint defaultFBO = -1;
     GLDEBUG(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO));
-    
+
     createBuffers(renderBufferWidth, renderBufferHeight);
     
     KRScene &scene = getScene();
@@ -498,7 +498,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getShaderManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
     GL_PUSH_GROUP_MARKER("Post Processing");
-    
+
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
     renderPost();
     m_pContext->getMeshManager()->unbindVBO();
@@ -507,6 +507,7 @@ void KRCamera::renderFrame(float deltaTime, GLint renderBufferWidth, GLint rende
     
     
 #if GL_EXT_discard_framebuffer
+
     GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
     GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
 #endif
@@ -671,7 +672,9 @@ void KRCamera::renderPost()
     GLDEBUG(glDisable(GL_BLEND));
     
 
-    
+/*
+   FINDME - Determine if we still need this...
+
     static const GLfloat squareVerticesShadow[3][8] = {{
         -1.0f, -1.0f,
         -0.60f, -1.0f,
@@ -688,6 +691,7 @@ void KRCamera::renderPost()
         0.00f,  -0.60f,
         0.40f,  -0.60f,
     }};
+ */
 	
 
 	GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));

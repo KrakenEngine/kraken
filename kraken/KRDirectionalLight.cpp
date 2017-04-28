@@ -44,11 +44,15 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
     const float KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE = 1.25f; // Scale to apply to view frustrum bounds so that we don't need to refresh shadows on every frame
     int cShadows = 1;
     for(int iShadow=0; iShadow < cShadows; iShadow++) {
+        /*
+           TODO - Determine if we still need this...
+         
         GLfloat shadowMinDepths[3][3] = {{0.0f, 0.0f, 0.0f},{0.0f, 0.0f, 0.0f},{0.0f, 0.05f, 0.3f}};
         GLfloat shadowMaxDepths[3][3] = {{0.0f, 0.0f, 1.0f},{0.1f, 0.0f, 0.0f},{0.1f, 0.3f, 1.0f}};
         
         float min_depth = 0.0f;
         float max_depth = 1.0f;
+        */
         
         KRAABB worldSpacefrustrumSliceBounds = KRAABB(KRVector3(-1.0f, -1.0f, -1.0f), KRVector3(1.0f, 1.0f, 1.0f), KRMat4::Invert(viewport.getViewProjectionMatrix()));
         worldSpacefrustrumSliceBounds.scale(KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
