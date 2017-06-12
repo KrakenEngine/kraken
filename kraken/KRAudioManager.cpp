@@ -220,9 +220,9 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
     int fft_size = frame_count * 2;
     int fft_size_log2 = frame_count_log2 + 1;
     
-    SplitComplex reverb_sample_data_complex = m_workspace[0];
-    SplitComplex impulse_block_data_complex = m_workspace[1];
-    SplitComplex conv_data_complex = m_workspace[2];
+    KRDSP::SplitComplex reverb_sample_data_complex = m_workspace[0];
+    KRDSP::SplitComplex impulse_block_data_complex = m_workspace[1];
+    KRDSP::SplitComplex conv_data_complex = m_workspace[2];
     
     int reverb_offset = (m_reverb_input_next_sample + KRENGINE_AUDIO_BLOCK_LENGTH - frame_count);
     if(reverb_offset < 0) {
@@ -274,7 +274,9 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
 
         
         vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &impulse_block_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
-        vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, fft_size, 1);
+        vDSP_zvmul(&reverb_sample_data_complex, 1,
+                   &impulse_block_data_complex, 1,
+                   &conv_data_complex, 1, fft_size, 1);
         vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &conv_data_complex, 1, fft_size_log2, kFFTDirection_Inverse);
         KRDSP::Scale(conv_data_complex.realp, scale, fft_size);
         
@@ -828,7 +830,7 @@ void KRAudioManager::initHRTF()
         KRVector2 pos = *itr;
         KRAudioSample *sample = getHRTFSample(pos);
         for(int channel=0; channel < 2; channel++) {
-            SplitComplex spectral;
+            KRDSP::SplitComplex spectral;
             spectral.realp = m_hrtf_data + sample_index * 1024 + channel * 512;
             spectral.imagp = m_hrtf_data + sample_index * 1024 + channel * 512 + 256;
             sample->sample(0, 128, channel, spectral.realp, 1.0f, false);
@@ -851,7 +853,7 @@ KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir)
     return get(szName);
 }
 
-KRAudioManager::SplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
+KRDSP::SplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
 {
     KRVector2 dir = hrtf_dir;
     int sample_channel = channel;
@@ -1582,10 +1584,10 @@ void KRAudioManager::renderAmbient()
 
 void KRAudioManager::renderHRTF()
 {
-    SplitComplex *hrtf_accum = m_workspace + 0;
-    SplitComplex *hrtf_impulse = m_workspace + 1;
-    SplitComplex *hrtf_convolved = m_workspace + 1; // We only need hrtf_impulse or hrtf_convolved at once; we can recycle the buffer
-    SplitComplex *hrtf_sample = m_workspace + 2;
+    KRDSP::SplitComplex *hrtf_accum = m_workspace + 0;
+    KRDSP::SplitComplex *hrtf_impulse = m_workspace + 1;
+    KRDSP::SplitComplex *hrtf_convolved = m_workspace + 1; // We only need hrtf_impulse or hrtf_convolved at once; we can recycle the buffer
+    KRDSP::SplitComplex *hrtf_sample = m_workspace + 2;
     
     int impulse_response_channels = 2;
     int hrtf_frames = 128;
@@ -1663,7 +1665,7 @@ void KRAudioManager::renderHRTF()
                     
                     for(int i=0; i < 1 /*4 */; i++) {
                         if(mix[i] > 0.0f) {
-                            SplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
+                            KRDSP::SplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
                             KRDSP::ScaleCopy(hrtf_impulse_sample.realp, mix[i], hrtf_impulse->realp, fft_size);
                             KRDSP::ScaleCopy(hrtf_impulse_sample.imagp, mix[i], hrtf_impulse->imagp, fft_size);
                             vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
@@ -1676,9 +1678,16 @@ void KRAudioManager::renderHRTF()
                 
                 float scale = 0.5f / fft_size;
                 
-                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
-                vDSP_zvmul(hrtf_sample, 1, &hrtf_spectral, 1, hrtf_convolved, 1, fft_size, 1);
-                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
+                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N],
+                             hrtf_sample, 1,
+                             fft_size_log2, kFFTDirection_Forward);
+                vDSP_zvmul(hrtf_sample, 1,
+                           &hrtf_spectral, 1,
+                           hrtf_convolved, 1,
+                           fft_size, 1);
+                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N],
+                             hrtf_convolved, 1,
+                             fft_size_log2, kFFTDirection_Inverse);
                 KRDSP::Scale(hrtf_convolved->realp, scale, fft_size);
                 
                 int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);

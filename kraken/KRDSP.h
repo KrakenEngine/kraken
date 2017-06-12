@@ -32,17 +32,17 @@
 #ifndef _KRDSP_H
 #define _KRDSP_H
 
-#ifdef __APPLE__
-// Apple vDSP
-typedef DSPSplitComplex SplitComplex;
-#else
-typedef struct {
-  float *realp;
-  float *imagp;
-} SplitComplex;
-#endif
-
 namespace KRDSP {
+
+#ifdef __APPLE__
+  // Apple vDSP
+  typedef DSPSplitComplex SplitComplex;
+#else
+  typedef struct {
+    float *realp;
+    float *imagp;
+  } SplitComplex;
+#endif
 
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count);
 void Scale(float *buffer, float scale, size_t count);
@@ -53,4 +53,3 @@ void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t
 } // namespace KRDSP
 
 #endif // _KRDSP_H
-

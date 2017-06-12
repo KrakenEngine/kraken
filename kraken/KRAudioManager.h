@@ -216,7 +216,7 @@ private:
     int m_output_sample;
     
     float *m_workspace_data;
-    SplitComplex m_workspace[3];
+    KRDSP::SplitComplex m_workspace[3];
     
     float *getBlockAddress(int block_offset);
     void renderBlock();
@@ -229,13 +229,12 @@ private:
     
     std::vector<KRVector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
-    unordered_map<KRVector2, SplitComplex> m_hrtf_spectral[2];
+    unordered_map<KRVector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
     
     KRVector2 getNearestHRTFSample(const KRVector2 &dir);
     void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
     KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
-    SplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
-    
+    KRDSP::SplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
     
     unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
     float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
