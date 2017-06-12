@@ -38,6 +38,7 @@
 #include "KRDataBlock.h"
 #include "KRMat4.h"
 #include "KRAudioSource.h"
+#include "KRDSP.h"
 
 const int KRENGINE_AUDIO_MAX_POOL_SIZE = 60; //32;
     // for Circa we play a maximum of 11 mono audio streams at once + cross fading with ambient
@@ -199,12 +200,6 @@ private:
 #ifdef __APPLE__
     // Apple vDSP
     FFTSetup m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
-    typedef DSPSplitComplex SplitComplex;
-#else
-    typedef struct {
-        float *realp;
-        float *imagp;
-    } SplitComplex;
 #endif
 
     __int64_t m_audio_frame; // Number of audio frames processed since the start of the application

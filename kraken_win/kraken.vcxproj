@@ -219,6 +219,7 @@
     <ClInclude Include="..\kraken\KRContextObject.h" />
     <ClInclude Include="..\kraken\KRDataBlock.h" />
     <ClInclude Include="..\kraken\KRDirectionalLight.h" />
+    <ClInclude Include="..\kraken\KRDSP.h" />
     <ClInclude Include="..\kraken\KREngine-common.h" />
     <ClInclude Include="..\kraken\KREngine.h" />
     <ClInclude Include="..\kraken\KRFloat.h" />

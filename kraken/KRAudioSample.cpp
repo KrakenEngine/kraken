@@ -34,9 +34,7 @@
 #include "KRDataBlock.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#endif
+#include "KRDSP.h"
 
 KRAudioSample::KRAudioSample(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
 {
@@ -186,7 +184,7 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
                     if(frames_to_copy > frames_left) frames_to_copy = frames_left;
                     if(frames_to_copy > 0) {
                         signed short *source_data = source_buffer->getFrameData() + buffer_offset * m_channelsPerFrame + c;
-                        vDSP_vflt16(source_data, m_channelsPerFrame, buffer + processed_frames, 1, frames_to_copy);
+                        KRDSP::Int16ToFloat(source_data, m_channelsPerFrame, buffer + processed_frames, 1, frames_to_copy);
                         //memcpy(buffer + processed_frames, source_buffer->getFrameData() + buffer_offset, frames_to_copy * m_channelsPerFrame * sizeof(float));
                         processed_frames += frames_to_copy;
                     }
@@ -197,7 +195,7 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
         }
         
         float scale = amplitude / 32768.0f;
-        vDSP_vsmul(buffer, 1, &scale, buffer, 1, frame_count);
+        KRDSP::Scale(buffer, scale, frame_count);
     }
 }
 

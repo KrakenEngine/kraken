@@ -37,6 +37,7 @@
 #include "KRContext.h"
 #include "KRVector2.h"
 #include "KRCollider.h"
+#include "KRDSP.h"
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
 #endif
@@ -261,7 +262,7 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
                     } else {
                         // Subsequent samples write to the second half of the FFT input buffer, which is then added to the first half (the second half will be zero'ed out anyways and works as a convenient temporary buffer)
                         zi.reverb_sample->sample(impulse_response_offset, frame_count, channel, impulse_block_data_complex.realp + frame_count, zi.weight, false);
-                        vDSP_vadd(impulse_block_data_complex.realp, 1, impulse_block_data_complex.realp + frame_count, 1, impulse_block_data_complex.realp, 1, frame_count);
+                        KRDSP::Accumulate(impulse_block_data_complex.realp, 1, impulse_block_data_complex.realp + frame_count, 1, frame_count);
                     }
                 }
                 
@@ -275,7 +276,7 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
         vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &impulse_block_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
         vDSP_zvmul(&reverb_sample_data_complex, 1, &impulse_block_data_complex, 1, &conv_data_complex, 1, fft_size, 1);
         vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &conv_data_complex, 1, fft_size_log2, kFFTDirection_Inverse);
-        vDSP_vsmul(conv_data_complex.realp, 1, &scale, conv_data_complex.realp, 1, fft_size);
+        KRDSP::Scale(conv_data_complex.realp, scale, fft_size);
         
         
         int output_offset = (m_output_accumulation_block_start + impulse_response_offset * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
@@ -283,7 +284,9 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
         while(frames_left) {
             int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - output_offset) / KRENGINE_MAX_OUTPUT_CHANNELS;
             if(frames_to_process > frames_left) frames_to_process = frames_left;
-            vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, conv_data_complex.realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
+            KRDSP::Accumulate(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS,
+                              conv_data_complex.realp + fft_size - frames_left, 1,
+                              frames_to_process);
             frames_left -= frames_to_process;
             output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
         }
@@ -314,7 +317,7 @@ void KRAudioManager::renderReverb()
             float reverb_send_level = m_global_reverb_send_level * m_global_gain * source->getReverb() * containment_factor;
             if(reverb_send_level > 0.0f) {
                 source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, reverb_data, reverb_send_level);
-                vDSP_vadd(reverb_accum, 1, reverb_data, 1, reverb_accum, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
+                KRDSP::Accumulate(reverb_accum, 1, reverb_data, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
             }
         }
     }
@@ -1567,8 +1570,10 @@ void KRAudioManager::renderAmbient()
             KRAudioSample *source_sample = zi.ambient_sample;
             if(source_sample) {
                 for(int channel=0; channel < KRENGINE_MAX_OUTPUT_CHANNELS; channel++) {
-                    source_sample->sample(getContext().getAudioManager()->getAudioFrame(), KRENGINE_AUDIO_BLOCK_LENGTH, channel, buffer, gain, true);            
-                    vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, buffer, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, KRENGINE_AUDIO_BLOCK_LENGTH);
+                    source_sample->sample(getContext().getAudioManager()->getAudioFrame(), KRENGINE_AUDIO_BLOCK_LENGTH, channel, buffer, gain, true);
+                    KRDSP::Accumulate(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS,
+                                      buffer, 1,
+                                      KRENGINE_AUDIO_BLOCK_LENGTH);
                 }
             }
         }
@@ -1608,9 +1613,9 @@ void KRAudioManager::renderHRTF()
                 source->sample(KRENGINE_AUDIO_BLOCK_LENGTH, 0, sample_buffer, 1.0);
                 float ramp_gain = gain_anticlick;
                 float ramp_step = (gain - gain_anticlick) / KRENGINE_AUDIO_ANTICLICK_SAMPLES;
-                vDSP_vrampmul(sample_buffer, 1, &ramp_gain, &ramp_step, sample_buffer, 1, KRENGINE_AUDIO_ANTICLICK_SAMPLES);
+                KRDSP::ScaleRamp(sample_buffer, ramp_gain, ramp_step, KRENGINE_AUDIO_ANTICLICK_SAMPLES);
                 if(KRENGINE_AUDIO_BLOCK_LENGTH > KRENGINE_AUDIO_ANTICLICK_SAMPLES) {
-                    vDSP_vsmul(sample_buffer + KRENGINE_AUDIO_ANTICLICK_SAMPLES, 1, &gain, sample_buffer + KRENGINE_AUDIO_ANTICLICK_SAMPLES, 1, KRENGINE_AUDIO_BLOCK_LENGTH - KRENGINE_AUDIO_ANTICLICK_SAMPLES);
+                    KRDSP::Scale(sample_buffer + KRENGINE_AUDIO_ANTICLICK_SAMPLES, gain, KRENGINE_AUDIO_BLOCK_LENGTH - KRENGINE_AUDIO_ANTICLICK_SAMPLES);
                 }
             } else {
                 // Don't need to perform anti-click filtering, so just sample
@@ -1621,7 +1626,7 @@ void KRAudioManager::renderHRTF()
                 first_source = false;
             } else {
                 // Accumulate samples on subsequent sources
-                vDSP_vadd(hrtf_sample->realp, 1, sample_buffer, 1, hrtf_sample->realp, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
+                KRDSP::Accumulate(hrtf_sample->realp, 1, sample_buffer, 1, KRENGINE_AUDIO_BLOCK_LENGTH);
             }
             
             itr++;
@@ -1659,8 +1664,8 @@ void KRAudioManager::renderHRTF()
                     for(int i=0; i < 1 /*4 */; i++) {
                         if(mix[i] > 0.0f) {
                             SplitComplex hrtf_impulse_sample = getHRTFSpectral(dir[i], channel);
-                            vDSP_vsmul(hrtf_impulse_sample.realp, 1, mix+i, hrtf_impulse->realp, 1, fft_size);
-                            vDSP_vsmul(hrtf_impulse_sample.imagp, 1, mix+i, hrtf_impulse->imagp, 1, fft_size);
+                            KRDSP::ScaleCopy(hrtf_impulse_sample.realp, mix[i], hrtf_impulse->realp, fft_size);
+                            KRDSP::ScaleCopy(hrtf_impulse_sample.imagp, mix[i], hrtf_impulse->imagp, fft_size);
                             vDSP_zvadd(hrtf_impulse, 1, hrtf_accum, 1, hrtf_accum, 1, fft_size);
                         }
                     }
@@ -1674,14 +1679,16 @@ void KRAudioManager::renderHRTF()
                 vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_sample, 1, fft_size_log2, kFFTDirection_Forward);
                 vDSP_zvmul(hrtf_sample, 1, &hrtf_spectral, 1, hrtf_convolved, 1, fft_size, 1);
                 vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_convolved, 1, fft_size_log2, kFFTDirection_Inverse);
-                vDSP_vsmul(hrtf_convolved->realp, 1, &scale, hrtf_convolved->realp, 1, fft_size);
+                KRDSP::Scale(hrtf_convolved->realp, scale, fft_size);
                 
                 int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
                 int frames_left = fft_size;
                 while(frames_left) {
                     int frames_to_process = (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS - output_offset) / KRENGINE_MAX_OUTPUT_CHANNELS;
                     if(frames_to_process > frames_left) frames_to_process = frames_left;
-                    vDSP_vadd(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, hrtf_convolved->realp + fft_size - frames_left, 1, m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS, frames_to_process);
+                    KRDSP::Accumulate(m_output_accumulation + output_offset + channel, KRENGINE_MAX_OUTPUT_CHANNELS,
+                                      hrtf_convolved->realp + fft_size - frames_left, 1,
+                                      frames_to_process);
                     frames_left -= frames_to_process;
                     output_offset = (output_offset + frames_to_process * KRENGINE_MAX_OUTPUT_CHANNELS) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);
                 }
