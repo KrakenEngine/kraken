@@ -151,7 +151,7 @@ ffts_plan_t *ffts_init_nd_real(int rank, size_t *Ns, int sign) {
 		bufsize = 2 * (Ns[0] * ((vol / Ns[0]) / 2 + 1) + vol);
 	}
 
-	p->buf = valloc(sizeof(float) * bufsize);
+	p->buf = (void *)valloc(sizeof(float) * bufsize);
 
 	for(i=0;i<rank;i++) {
 		p->Ms[i] = vol / p->Ns[i];

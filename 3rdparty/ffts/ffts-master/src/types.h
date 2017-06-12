@@ -35,9 +35,15 @@
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
+#if defined(_WIN32) || defined(_WIN64)
+#define __INLINE static __forceinline
+#define __ALIGN64 __declspec(align(64))
+#else
+#define __ALIGN64 __attribute__((aligned(64)))
 #define __INLINE static inline __attribute__((always_inline))
+#endif
 
-#if defined(complex)
+#if defined(complex) && !defined(_WIN32) && !defined(_WIN64)
 	typedef complex float cdata_t;
 #else
 	typedef float cdata_t[2];

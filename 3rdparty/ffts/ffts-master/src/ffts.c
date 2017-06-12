@@ -40,10 +40,11 @@
 	#include "ffts_static.h"
 #else
 	#include "codegen.h"
+  #include <sys/mman.h>
 #endif
 
 #include <errno.h>
-  #include <sys/mman.h>
+
   #include <string.h>
   #include <limits.h>	   /* for PAGESIZE */
 
@@ -85,6 +86,7 @@ void ffts_free_1d(ffts_plan_t *p) {
 	//free(p->transforms);
 	if(p->transforms) free(p->transforms);
 
+#ifndef DYNAMIC_DISABLED
 	if(p->transform_base) {
 		if (mprotect(p->transform_base, p->transform_size, PROT_READ | PROT_WRITE)) {
 			perror("Couldn't mprotect");
@@ -93,6 +95,7 @@ void ffts_free_1d(ffts_plan_t *p) {
 		munmap(p->transform_base, p->transform_size);
 		//free(p->transform_base);
 	}
+#endif
 	free(p);
 }
 

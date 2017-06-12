@@ -78,7 +78,7 @@
     const data_t *din = (const data_t *)in;
     data_t *dout = (data_t *)out;
     V r0_1, r2_3, r4_5, r6_7;
-    float *LUT8 = p->ws + p->ws_is[0];
+    float *LUT8 = (float *)((size_t *)p->ws + p->ws_is[0]);
 
     L_4_2(0, din, din+8, din+4, din+12, &r0_1, &r2_3, &r4_5, &r6_7);
     K_N(0, VLD(LUT8), VLD(LUT8+4), &r0_1, &r2_3, &r4_5, &r6_7);
@@ -90,7 +90,7 @@
     const data_t *din = (const data_t *)in;
     data_t *dout = (data_t *)out;
     V r0_1, r2_3, r4_5, r6_7;
-    float *LUT8 = p->ws + p->ws_is[0];
+    float *LUT8 = (float *)((size_t *)p->ws + p->ws_is[0]);
 
     L_4_2(1, din, din+8, din+4, din+12, &r0_1, &r2_3, &r4_5, &r6_7);
     K_N(1, VLD(LUT8), VLD(LUT8+4), &r0_1, &r2_3, &r4_5, &r6_7);

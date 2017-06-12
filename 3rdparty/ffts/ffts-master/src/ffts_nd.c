@@ -33,6 +33,10 @@
 
 #include "ffts_nd.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include "emmintrin.h"
+#endif
+
 #ifdef HAVE_NEON
 #include "neon.h"
 #endif
@@ -163,7 +167,7 @@ void ffts_transpose(uint64_t *in, uint64_t *out, int w, int h, uint64_t *buf) {
 	}
 #else
 #ifdef HAVE_SSE
-	uint64_t tmp[TSIZE*TSIZE] __attribute__((aligned(64)));
+  __ALIGN64 uint64_t tmp[TSIZE*TSIZE];
 	int tx, ty;
 	int x, y;
 	int tw = w / TSIZE;
