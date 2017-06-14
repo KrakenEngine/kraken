@@ -244,7 +244,7 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
     memset(reverb_sample_data_complex.realp + frame_count, 0, frame_count * sizeof(float));
     memset(reverb_sample_data_complex.imagp, 0, fft_size * sizeof(float));
 
-    vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &reverb_sample_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
+    KRDSP::FFTForward(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &reverb_sample_data_complex, fft_size_log2);
     
     float scale = 0.5f / fft_size;
     
@@ -273,9 +273,9 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
         
 
         
-        vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &impulse_block_data_complex, 1, fft_size_log2, kFFTDirection_Forward);
+        KRDSP::FFTForward(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &impulse_block_data_complex, fft_size_log2);
         KRDSP::Multiply(&reverb_sample_data_complex, &impulse_block_data_complex, &conv_data_complex, fft_size);
-        vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &conv_data_complex, 1, fft_size_log2, kFFTDirection_Inverse);
+        KRDSP::FFTInverse(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], &conv_data_complex, fft_size_log2);
         KRDSP::Scale(conv_data_complex.realp, scale, fft_size);
         
         
@@ -834,7 +834,7 @@ void KRAudioManager::initHRTF()
             sample->sample(0, 128, channel, spectral.realp, 1.0f, false);
             memset(spectral.realp + 128, 0, sizeof(float) * 128);
             memset(spectral.imagp, 0, sizeof(float) * 256);
-            vDSP_fft_zip(m_fft_setup[8 - KRENGINE_AUDIO_BLOCK_LOG2N], &spectral, 1, 8, kFFTDirection_Forward);
+            KRDSP::FFTForward(m_fft_setup[8 - KRENGINE_AUDIO_BLOCK_LOG2N], &spectral, 8);
             m_hrtf_spectral[channel][pos] = spectral;
         }
         sample_index++;
@@ -1041,7 +1041,7 @@ void KRAudioManager::initAudio()
         
         m_reverb_sequence = 0;
         for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
-            m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = vDSP_create_fftsetup( KRENGINE_REVERB_MAX_FFT_LOG2, kFFTRadix2);
+            KRDSP::CreateFFTWorkspace(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N], KRENGINE_REVERB_MAX_FFT_LOG2);
         }
 
         // ----====---- Initialize HRTF Engine ----====----
@@ -1203,15 +1203,12 @@ void KRAudioManager::cleanupAudio()
         m_reverb_impulse_responses_weight[i] = 0.0f;
     }
     
-#ifdef __APPLE__
-    // Apple vDSP
     for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
         if(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]) {
-            vDSP_destroy_fftsetup(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]);
+            KRDSP::DestroyFFTWorkspace(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]);
             m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
         }
     }
-#endif
 }
 
 KRAudioManager::~KRAudioManager()
@@ -1359,7 +1356,11 @@ KRAudioBuffer *KRAudioManager::getBuffer(KRAudioSample &audio_sample, int buffer
     // ----====---- Make room in the cache for a new buffer ----====----
     if(m_bufferCache.size() >= KRENGINE_AUDIO_MAX_POOL_SIZE) {
         // delete a random entry from the cache
+#ifdef __APPLE__
         int index_to_delete = arc4random() % m_bufferCache.size();
+#else
+        int index_to_delete = rand() % m_bufferCache.size();
+#endif
         std::vector<KRAudioBuffer *>::iterator itr_to_delete = m_bufferCache.begin() + index_to_delete;
         delete *itr_to_delete;
         m_bufferCache.erase(itr_to_delete);
@@ -1675,13 +1676,9 @@ void KRAudioManager::renderHRTF()
                 
                 float scale = 0.5f / fft_size;
                 
-                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N],
-                             hrtf_sample, 1,
-                             fft_size_log2, kFFTDirection_Forward);
+                KRDSP::FFTForward(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_sample, fft_size_log2);
                 KRDSP::Multiply(hrtf_sample, &hrtf_spectral, hrtf_convolved, fft_size);
-                vDSP_fft_zip(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N],
-                             hrtf_convolved, 1,
-                             fft_size_log2, kFFTDirection_Inverse);
+                KRDSP::FFTInverse(m_fft_setup[fft_size_log2 - KRENGINE_AUDIO_BLOCK_LOG2N], hrtf_convolved, fft_size_log2);
                 KRDSP::Scale(hrtf_convolved->realp, scale, fft_size);
                 
                 int output_offset = (m_output_accumulation_block_start) % (KRENGINE_REVERB_MAX_SAMPLES * KRENGINE_MAX_OUTPUT_CHANNELS);

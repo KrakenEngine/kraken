@@ -197,10 +197,7 @@ private:
     void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
 #endif
 
-#ifdef __APPLE__
-    // Apple vDSP
-    FFTSetup m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
-#endif
+    KRDSP::FFTWorkspace m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
 
     __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
     

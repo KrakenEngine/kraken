@@ -37,13 +37,20 @@ namespace KRDSP {
 #ifdef __APPLE__
   // Apple vDSP
   typedef DSPSplitComplex SplitComplex;
+  typedef FFTSetup FFTWorkspace;
 #else
   typedef struct {
     float *realp;
     float *imagp;
   } SplitComplex;
+
+  typedef int FFTWorkspace; // FINDME!! KIP!! TODO!! IMPLEMENT
 #endif
 
+void CreateFFTWorkspace(FFTWorkspace &workspace, size_t length);
+void DestroyFFTWorkspace(FFTWorkspace &workspace);
+void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
+void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count);
 void Scale(float *buffer, float scale, size_t count);
 void ScaleCopy(const float *src, float scale, float *dest, size_t count);

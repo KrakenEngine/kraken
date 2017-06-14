@@ -38,6 +38,43 @@
 
 namespace KRDSP {
 
+
+void CreateFFTWorkspace(FFTWorkspace &workspace, size_t length)
+{
+#ifdef KRDSP_APPLE_VDSP
+  workspace = vDSP_create_fftsetup(length, kFFTRadix2);
+#else
+#error TODO - Implement
+#endif
+}
+
+void DestroyFFTWorkspace(FFTWorkspace &workspace)
+{
+#ifdef KRDSP_APPLE_VDSP
+  vDSP_destroy_fftsetup(workspace);
+#else
+#error TODO - Implement
+#endif
+}
+
+void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
+{
+#ifdef KRDSP_APPLE_VDSP
+  vDSP_fft_zip(workspace, src, 1, count, kFFTDirection_Forward);
+#else
+#error TODO - Implement
+#endif
+}
+
+void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
+{
+#ifdef KRDSP_APPLE_VDSP
+  vDSP_fft_zip(workspace, src, 1, count, kFFTDirection_Inverse);
+#else
+#error TODO - Implement
+#endif
+}
+
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count)
 {
 #ifdef KRDSP_APPLE_VDSP
