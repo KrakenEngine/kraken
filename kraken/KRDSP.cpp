@@ -65,6 +65,12 @@ void ScaleCopy(const float *src, float scale, float *dest, size_t count)
 #endif
 }
 
+void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count)
+{
+  ScaleCopy(src->realp, scale, dest->realp, count);
+  ScaleCopy(src->imagp, scale, dest->imagp, count);
+}
+
 void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count)
 {
 #ifdef KRDSP_APPLE_VDSP
@@ -81,6 +87,25 @@ void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t
 {
 #ifdef KRDSP_APPLE_VDSP
   vDSP_vadd(buffer, bufferStride, buffer2, buffer2Stride, buffer, bufferStride, count);
+#else
+#error TODO - Implement
+#endif
+}
+
+void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
+{
+#ifdef KRDSP_APPLE_VDSP
+  vDSP_zvadd(buffer2, 1, buffer, 1, buffer, 1, count);
+#else
+#error TODO - Implement
+#endif
+}
+
+
+void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count)
+{
+#ifdef KRDSP_APPLE_VDSP
+  vDSP_zvmul(a, 1, b, 1, c, 1, count, 1);
 #else
 #error TODO - Implement
 #endif

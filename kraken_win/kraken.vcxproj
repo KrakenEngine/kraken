@@ -143,6 +143,7 @@
     <ClCompile Include="..\kraken\KRContextObject.cpp" />
     <ClCompile Include="..\kraken\KRDataBlock.cpp" />
     <ClCompile Include="..\kraken\KRDirectionalLight.cpp" />
+    <ClCompile Include="..\kraken\KRDSP.cpp" />
     <ClCompile Include="..\kraken\KRFloat.cpp" />
     <ClCompile Include="..\kraken\KRHitInfo.cpp" />
     <ClCompile Include="..\kraken\KRLight.cpp" />
@@ -271,6 +272,9 @@
     <ClInclude Include="..\kraken\KRVector3.h" />
     <ClInclude Include="..\kraken\KRVector4.h" />
     <ClInclude Include="..\kraken\KRViewport.h" />
+    <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glew.h" />
+    <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glxew.h" />
+    <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\wglew.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

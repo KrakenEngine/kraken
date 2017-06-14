@@ -243,6 +243,9 @@
     <ClCompile Include="..\kraken\KRUnknownManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\kraken\KRDSP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\tinyxml2\tinyxml2.h">

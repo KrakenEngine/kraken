@@ -47,8 +47,11 @@ namespace KRDSP {
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count);
 void Scale(float *buffer, float scale, size_t count);
 void ScaleCopy(const float *src, float scale, float *dest, size_t count);
+void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count);
 void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count);
 void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t buffer2Stride, size_t count);
+void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count);
+void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count);
 
 } // namespace KRDSP
 
