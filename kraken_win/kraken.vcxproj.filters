@@ -243,7 +243,10 @@
     <ClCompile Include="..\kraken\KRUnknownManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\kraken\KRDSP.cpp">
+    <ClCompile Include="..\kraken\KRDSP_slow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\kraken\KRDSP_vDSP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

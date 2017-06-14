@@ -35,20 +35,44 @@
 namespace KRDSP {
 
 #ifdef __APPLE__
+#define KRDSP_APPLE_VDSP
+#else
+  // Slow, but portable fallback implementation
+#define KRDSP_SLOW
+#endif
+
+#if defined(KRDSP_APPLE_VDSP)
+
   // Apple vDSP
   typedef DSPSplitComplex SplitComplex;
-  typedef FFTSetup FFTWorkspace;
-#else
+  struct FFTWorkspace {
+    FFTSetup setup;
+
+    FFTWorkspace();
+    ~FFTWorkspace();
+  };
+
+#elif defined(KRDSP_SLOW)
+
   typedef struct {
     float *realp;
     float *imagp;
   } SplitComplex;
 
-  typedef int FFTWorkspace; // FINDME!! KIP!! TODO!! IMPLEMENT
+  struct FFTWorkspace {
+    float *sin_table;
+    float *cos_table;
+
+    void create(size_t length);
+    void destroy();
+    FFTWorkspace();
+    ~FFTWorkspace();
+  };
+
+#else
+#error Not Implemented
 #endif
 
-void CreateFFTWorkspace(FFTWorkspace &workspace, size_t length);
-void DestroyFFTWorkspace(FFTWorkspace &workspace);
 void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
 void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count);

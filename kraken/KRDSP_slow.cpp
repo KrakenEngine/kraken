@@ -31,75 +31,69 @@
 
 #include "KRDSP.h"
 
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#define KRDSP_APPLE_VDSP
-#endif
+#ifdef KRDSP_SLOW
+
+#include "KREngine-common.h"
 
 namespace KRDSP {
 
-
-void CreateFFTWorkspace(FFTWorkspace &workspace, size_t length)
+FFTWorkspace::FFTWorkspace()
 {
-#ifdef KRDSP_APPLE_VDSP
-  workspace = vDSP_create_fftsetup(length, kFFTRadix2);
-#else
-#error TODO - Implement
-#endif
+  sin_table = nullptr;
+  cos_table = nullptr;
 }
 
-void DestroyFFTWorkspace(FFTWorkspace &workspace)
+FFTWorkspace::~FFTWorkspace()
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_destroy_fftsetup(workspace);
-#else
-#error TODO - Implement
-#endif
+  destroy();
+}
+
+void FFTWorkspace::create(size_t length)
+{
+  size_t size = (length / 2);
+  cos_table = new float[size];
+  sin_table = new float[size];
+  for (int i = 0; i < size / 2; i++) {
+    cos_table[i] = cos(2 * M_PI * i / length);
+    sin_table[i] = sin(2 * M_PI * i / length);
+  }
+}
+
+void FFTWorkspace::destroy()
+{
+  if (sin_table) {
+    delete sin_table;
+    sin_table = nullptr;
+  }
+  if (cos_table) {
+    delete cos_table;
+    cos_table = nullptr;
+  }
 }
 
 void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_fft_zip(workspace, src, 1, count, kFFTDirection_Forward);
-#else
 #error TODO - Implement
-#endif
 }
 
 void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_fft_zip(workspace, src, 1, count, kFFTDirection_Inverse);
-#else
 #error TODO - Implement
-#endif
 }
 
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_vflt16(src, srcStride, dest, destStride, count);
-#else
 #error TODO - Implement
-#endif
 }
 
 void Scale(float *buffer, float scale, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_vsmul(buffer, 1, &scale, buffer, 1, count);
-#else
 #error TODO - Implement
-#endif
 }
 
 void ScaleCopy(const float *src, float scale, float *dest, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_vsmul(src, 1, scale, dest, 1, count);
-#else
 #error TODO - Implement
-#endif
 }
 
 void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count)
@@ -110,42 +104,25 @@ void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t 
 
 void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_vrampmul(buffer, 1,
-    &scaleStart, &scaleStep,
-    buffer, 1,
-    count);
-#else
 #error TODO - Implement
-#endif
 }
 
 void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t buffer2Stride, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_vadd(buffer, bufferStride, buffer2, buffer2Stride, buffer, bufferStride, count);
-#else
 #error TODO - Implement
-#endif
 }
 
 void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_zvadd(buffer2, 1, buffer, 1, buffer, 1, count);
-#else
 #error TODO - Implement
-#endif
 }
 
 
 void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count)
 {
-#ifdef KRDSP_APPLE_VDSP
-  vDSP_zvmul(a, 1, b, 1, c, 1, count, 1);
-#else
 #error TODO - Implement
-#endif
 }
 
 } // namespace KRDSP
+
+#endif // KRDSP_SLOW

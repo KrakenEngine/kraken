@@ -143,7 +143,8 @@
     <ClCompile Include="..\kraken\KRContextObject.cpp" />
     <ClCompile Include="..\kraken\KRDataBlock.cpp" />
     <ClCompile Include="..\kraken\KRDirectionalLight.cpp" />
-    <ClCompile Include="..\kraken\KRDSP.cpp" />
+    <ClCompile Include="..\kraken\KRDSP_slow.cpp" />
+    <ClCompile Include="..\kraken\KRDSP_vDSP.cpp" />
     <ClCompile Include="..\kraken\KRFloat.cpp" />
     <ClCompile Include="..\kraken\KRHitInfo.cpp" />
     <ClCompile Include="..\kraken\KRLight.cpp" />

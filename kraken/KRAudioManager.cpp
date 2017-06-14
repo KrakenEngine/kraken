@@ -68,11 +68,6 @@ KRAudioManager::KRAudioManager(KRContext &context)
     // Apple Core Audio
     m_auGraph = NULL;
     m_auMixer = NULL;
-
-    // Apple vDSP
-    for (int i = KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
-      m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
-    }
 #endif
     
     m_audio_frame = 0;
@@ -1041,7 +1036,9 @@ void KRAudioManager::initAudio()
         
         m_reverb_sequence = 0;
         for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
-            KRDSP::CreateFFTWorkspace(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N], KRENGINE_REVERB_MAX_FFT_LOG2);
+            m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N].create(i);
+            // FINDME, TODO..  Apple's vDSP only needs one
+            // KRDSP::FFTWorkspace, initialized with the maximum size
         }
 
         // ----====---- Initialize HRTF Engine ----====----
@@ -1204,10 +1201,7 @@ void KRAudioManager::cleanupAudio()
     }
     
     for(int i=KRENGINE_AUDIO_BLOCK_LOG2N; i <= KRENGINE_REVERB_MAX_FFT_LOG2; i++) {
-        if(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]) {
-            KRDSP::DestroyFFTWorkspace(m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N]);
-            m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N] = NULL;
-        }
+      m_fft_setup[i - KRENGINE_AUDIO_BLOCK_LOG2N].destroy();
     }
 }
 
