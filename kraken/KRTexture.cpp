@@ -66,32 +66,31 @@ long KRTexture::getReferencedMemSize() {
 void KRTexture::resize(int max_dim)
 {
     while(m_handle_lock.test_and_set()); // Spin lock
-    {
-        if(m_iHandle == m_iNewHandle) {
-            if(max_dim == 0) {
-                m_iNewHandle = 0;
-            } else {
-                int target_dim = max_dim;
-                if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+    
+    if(m_iHandle == m_iNewHandle) {
+        if(max_dim == 0) {
+            m_iNewHandle = 0;
+        } else {
+            int target_dim = max_dim;
+            if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
-                if(m_new_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
-                    assert(m_newTextureMemUsed == 0);
-                    m_newTextureMemUsed = getMemRequiredForSize(target_dim);
-                    
-                    getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
-                    getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
-                    
-                    if(!createGLTexture(target_dim)) {
-                        getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
-                        m_newTextureMemUsed = 0;
-                        assert(false);  // Failed to create the texture
-                    }
+            if(m_new_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
+                assert(m_newTextureMemUsed == 0);
+                m_newTextureMemUsed = getMemRequiredForSize(target_dim);
+                
+                getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
+                getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
+                
+                if(!createGLTexture(target_dim)) {
+                    getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
+                    m_newTextureMemUsed = 0;
+                    assert(false);  // Failed to create the texture
                 }
             }
         }
-        
-        m_handle_lock.clear();
     }
+    
+    m_handle_lock.clear();
 }
 
 GLuint KRTexture::getHandle() {

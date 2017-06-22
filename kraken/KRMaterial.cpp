@@ -34,7 +34,7 @@
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
 
-#include "KRcontext.h"
+#include "KRContext.h"
 
 KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(context, szName) {
     m_name = szName;

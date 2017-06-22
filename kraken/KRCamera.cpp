@@ -671,7 +671,7 @@ void KRCamera::renderPost()
     GLDEBUG(glDisable(GL_BLEND));
     
 
-    
+/*
     static const GLfloat squareVerticesShadow[3][8] = {{
         -1.0f, -1.0f,
         -0.60f, -1.0f,
@@ -688,6 +688,7 @@ void KRCamera::renderPost()
         0.00f,  -0.60f,
         0.40f,  -0.60f,
     }};
+*/
 	
 
 	GLDEBUG(glViewport(0, 0, m_viewport.getSize().x, m_viewport.getSize().y));
@@ -793,7 +794,7 @@ void KRCamera::renderPost()
         float dScaleX = 2.0 / (1024 / 16);
         float dScaleY = 2.0 / (768 / 16);
         float dTexScale = 1.0 / 16.0;
-        int iRow = row_count - 1; iCol = 0, iTab = 0;
+        int iRow = row_count - 1; iCol = 0; iTab = 0;
         while(*pChar) {
             char c = *pChar++;
             if(c == '\n') {

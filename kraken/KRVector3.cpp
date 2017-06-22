@@ -431,7 +431,9 @@ void KRVector3::setXMLAttribute(const std::string &base_name, tinyxml2::XMLEleme
 
 void KRVector3::getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value)
 {
-    float new_x,new_y,new_z;
+    float new_x = 0.0f;
+    float new_y = 0.0f;
+    float new_z = 0.0f;
     if(e->QueryFloatAttribute((base_name + "_x").c_str(), &new_x) == tinyxml2::XML_SUCCESS
         && e->QueryFloatAttribute((base_name + "_y").c_str(), &new_y) == tinyxml2::XML_SUCCESS
         && e->QueryFloatAttribute((base_name + "_z").c_str(), &new_z) == tinyxml2::XML_SUCCESS) {

@@ -1456,7 +1456,7 @@ void KRMesh::convertToIndexed()
         }
     }
     
-    delete szKey;
+    delete[] szKey;
     
     KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     

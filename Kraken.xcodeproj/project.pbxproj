@@ -103,8 +103,8 @@
 		E4159B8B19C5760900622D1E /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4159B8C19C5760900622D1E /* KRStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRStreamer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4159B8D19C5760900622D1E /* KRViewport.h in Headers */ = {isa = PBXBuildFile; fileRef = E4CA11731639CBD1005D9400 /* KRViewport.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E4159B8E19C5762F00622D1E /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; };
-		E4159B8F19C5762F00622D1E /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; };
+		E4159B8E19C5762F00622D1E /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		E4159B8F19C5762F00622D1E /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		E4159B9019C5762F00622D1E /* KRAudioManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027C516979CCD00D4427D /* KRAudioManager.cpp */; };
 		E4159B9119C5762F00622D1E /* KRAudioSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027CC16979CE200D4427D /* KRAudioSample.cpp */; };
 		E4159B9219C5762F00622D1E /* KRAudioBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F027DC1697BFFF00D4427D /* KRAudioBuffer.cpp */; };
@@ -387,9 +387,9 @@
 		E45E03BC18790DD1006DA23F /* PVRTString.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03AF18790DD1006DA23F /* PVRTString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E45E03BD18790DD1006DA23F /* PVRTTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03B018790DD1006DA23F /* PVRTTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E45E03C018790DF5006DA23F /* libPVRTexLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E45E03BF18790DF5006DA23F /* libPVRTexLib.a */; };
-		E45E03C818790EC0006DA23F /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; };
+		E45E03C818790EC0006DA23F /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03C418790EC0006DA23F /* tinyxml2.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		E45E03CA18790EC0006DA23F /* tinyxml2.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03C518790EC0006DA23F /* tinyxml2.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E45E03CE18790EFF006DA23F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; };
+		E45E03CE18790EFF006DA23F /* forsyth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45E03CB18790EFF006DA23F /* forsyth.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		E45E03D018790EFF006DA23F /* forsyth.h in Headers */ = {isa = PBXBuildFile; fileRef = E45E03CC18790EFF006DA23F /* forsyth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E460292B16682BF700261BB9 /* libfbxsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E460292916682BD900261BB9 /* libfbxsdk.a */; };
 		E460292C166834AB00261BB9 /* KRTextureAnimated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E460292716681D1000261BB9 /* KRTextureAnimated.cpp */; };
@@ -1988,7 +1988,7 @@
 		E491015813C99B9D0098455B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Kearwood Software";
 				TargetAttributes = {
 					E48C527919C570C50062E439 = {
@@ -2344,6 +2344,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E45E03C818790EC0006DA23F /* tinyxml2.cpp in Sources */,
+				E45E03CE18790EFF006DA23F /* forsyth.cpp in Sources */,
 				E499BF2516AE8C20007FCDBE /* KREngine.mm in Sources */,
 				10CC33A5168534F000BB9846 /* KRCamera.cpp in Sources */,
 				E460292C166834AB00261BB9 /* KRTextureAnimated.cpp in Sources */,
@@ -2359,7 +2361,6 @@
 				E497B954151BEDA600D3DC67 /* KRResource+fbx.cpp in Sources */,
 				E4F97551153633E200FD60B2 /* KRMaterialManager.cpp in Sources */,
 				E461A15A152E557E00F2044A /* KRPointLight.cpp in Sources */,
-				E45E03C818790EC0006DA23F /* tinyxml2.cpp in Sources */,
 				E4F9754F1536333200FD60B2 /* KRMesh.cpp in Sources */,
 				E4F9754B153632D800FD60B2 /* KRMeshManager.cpp in Sources */,
 				E461A160152E565700F2044A /* KRDirectionalLight.cpp in Sources */,
@@ -2367,7 +2368,6 @@
 				E4F9754015362CD400FD60B2 /* KRScene.cpp in Sources */,
 				E461A166152E56C000F2044A /* KRSpotLight.cpp in Sources */,
 				E4F9754315362D0F00FD60B2 /* KRModel.cpp in Sources */,
-				E45E03CE18790EFF006DA23F /* forsyth.cpp in Sources */,
 				E4F975371536221C00FD60B2 /* KRNode.cpp in Sources */,
 				E4F9754E1536331D00FD60B2 /* KRTextureManager.cpp in Sources */,
 				E4D13367153768610070068C /* KRShader.cpp in Sources */,
@@ -2485,6 +2485,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2505,11 +2506,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = kraken_tvos/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/debug\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 9.1;
@@ -2532,6 +2534,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2547,11 +2550,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = kraken_tvos/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/release\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 9.1;
@@ -2575,7 +2579,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2595,11 +2599,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = kraken_ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/debug\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2623,7 +2628,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -2638,11 +2643,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = kraken_ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "\"$(SYSTEM_APPS_DIR)/Autodesk/FBX SDK/2014.2/lib/ios-armv7/release\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2658,19 +2664,41 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_UNROLL_LOOPS = YES;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include/;
 				LLVM_VECTORIZE_LOOPS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 			};
@@ -2681,12 +2709,33 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_UNROLL_LOOPS = YES;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include/;
 				LLVM_VECTORIZE_LOOPS = YES;
@@ -2726,6 +2775,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_tvos;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
@@ -2758,6 +2808,7 @@
 				INFOPLIST_FILE = "kraken_standard_assets_tvos/Resources-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_tvos;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
@@ -2801,6 +2852,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";
@@ -2843,6 +2895,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.kraken;
 				PRODUCT_NAME = kraken;
 				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders_osx";
@@ -2879,6 +2932,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_ios;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2911,6 +2965,7 @@
 				INFOPLIST_FILE = "kraken_standard_assets_ios/Resources-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_ios;
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -2948,6 +3003,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_osx;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = bundle;
@@ -2978,6 +3034,7 @@
 				INFOPLIST_FILE = "kraken_standard_assets_osx/Resources-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_BUNDLE_IDENTIFIER = com.krakenengine.standardassets;
 				PRODUCT_NAME = kraken_standard_assets_osx;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = bundle;
