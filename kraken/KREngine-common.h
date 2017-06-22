@@ -204,7 +204,7 @@ fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i f
 OSStatus e = x; \
 if( e != noErr) \
 { \
-fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n",__LINE__, __FILE__, e, #x ); \
+fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n",__LINE__, __FILE__, (int)e, #x ); \
 } \
 }
 #else

@@ -1011,7 +1011,7 @@ void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2
 
 void KRAudioManager::initAudio()
 {
-    if(!m_initialized == NULL) {
+    if(!m_initialized) {
         m_initialized = true;
         m_output_sample = KRENGINE_AUDIO_BLOCK_LENGTH;
         
@@ -1490,7 +1490,7 @@ void KRAudioManager::startFrame(float deltaTime)
             
             
             
-            if(source->getEnableOcclusion() && false) {
+            if(source->getEnableOcclusion() && /* FINDME!! DISABLES CODE */ (false)) {
                 KRHitInfo hitinfo;
                 if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
                     gain = 0.0f;

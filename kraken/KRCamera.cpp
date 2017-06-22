@@ -794,7 +794,7 @@ void KRCamera::renderPost()
         float dScaleX = 2.0 / (1024 / 16);
         float dScaleY = 2.0 / (768 / 16);
         float dTexScale = 1.0 / 16.0;
-        int iRow = row_count - 1; iCol = 0, iTab = 0;
+        int iRow = row_count - 1; iCol = 0; iTab = 0;
         while(*pChar) {
             char c = *pChar++;
             if(c == '\n') {
