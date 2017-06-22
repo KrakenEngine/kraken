@@ -870,12 +870,11 @@ KRVector2 KRAudioManager::getNearestHRTFSample(const KRVector2 &dir)
     
     KRVector2 min_direction;
     bool first = true;
-    float min_distance;
+    float min_distance = 360.0f;
     for(std::vector<KRVector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
         if(first) {
             first = false;
             min_direction = (*itr);
-            min_distance = 360.0f;
         } else if((*itr).x == elevation) {
             float distance = fabs(dir_deg.y - (*itr).y);
             if(min_distance > distance) {

@@ -15,26 +15,29 @@ EAGLContext *gRenderContext = nil;
 
 void KRContext::destroyDeviceContexts()
 {
-    [gStreamerContext release];
-    [gRenderContext release];
 }
 
 void KRContext::createDeviceContexts()
 {
-    gRenderContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    gStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: gStreamerContext.sharegroup];
-    
-    // FIXME: need to add code check for iOS 7 and also this appears to cause crashing
-    
-    //gTextureStreamerContext.multiThreaded = TRUE;
+    if(!gRenderContext) {
+        gRenderContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        gStreamerContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup: gRenderContext.sharegroup];
+      
+        // FIXME: need to add code check for iOS 7 and also this appears to cause crashing
+      
+        //gTextureStreamerContext.multiThreaded = TRUE;
+    }
 }
 
 void KRContext::activateStreamerContext()
 {
+    createDeviceContexts();
     [EAGLContext setCurrentContext: gStreamerContext];
 }
 
 void KRContext::activateRenderContext()
 {
+    createDeviceContexts();
     [EAGLContext setCurrentContext: gRenderContext];
 }
+

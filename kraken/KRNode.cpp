@@ -402,9 +402,9 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     const char *szName = e->Attribute("name");
     if(strcmp(szElementName, "node") == 0) {
         new_node = new KRNode(scene, szName);
-    } if(strcmp(szElementName, "lod_set") == 0) {
+    } else if(strcmp(szElementName, "lod_set") == 0) {
         new_node = new KRLODSet(scene, szName);
-    } if(strcmp(szElementName, "lod_group") == 0) {
+    } else if(strcmp(szElementName, "lod_group") == 0) {
         new_node = new KRLODGroup(scene, szName);
     } else if(strcmp(szElementName, "point_light") == 0) {
         new_node = new KRPointLight(scene, szName);

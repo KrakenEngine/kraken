@@ -193,15 +193,16 @@ void kraken::set_debug_text(const std::string &print_text)
     return self;
 }
 
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height
+- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height AndDefaultFBO: (GLint)defaultFBO
 {
     KRCamera *camera = pScene->find<KRCamera>("default_camera");
     if(camera) {
         camera->settings = _settings;
     }
-    pScene->renderFrame(deltaTime, width, height);
+    pScene->renderFrame(defaultFBO, deltaTime, width, height);
 }
 
+/*
 - (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime
 {    
     GLint renderBufferWidth = 0, renderBufferHeight = 0;
@@ -209,6 +210,7 @@ void kraken::set_debug_text(const std::string &print_text)
     GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
     [self renderScene:pScene WithDeltaTime:deltaTime AndWidth:renderBufferWidth AndHeight:renderBufferHeight];
 }
+*/
 
 - (BOOL)loadShaders
 {
@@ -250,11 +252,10 @@ void kraken::set_debug_text(const std::string &print_text)
 
 - (void)dealloc
 {
-    [_parameter_names release]; _parameter_names = nil;
+    _parameter_names = nil;
     if(_context) {
         delete _context; _context = NULL;
     }
-    [super dealloc];
 }
 
 -(int)getParameterCount
@@ -721,9 +722,7 @@ void kraken::set_debug_text(const std::string &print_text)
 
 - (void)setDebug_text:(NSString *)value
 {
-    [_debug_text release];
     _debug_text = value;
-    [_debug_text retain];
     
     _settings.m_debug_text = value.UTF8String;
 }

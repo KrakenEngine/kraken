@@ -148,15 +148,6 @@ KRTexture *KRTextureManager::getTextureCube(const char *szName) {
     if(itr == m_textures.end()) {
         
         // Defer resolving the texture cube until its referenced textures are ready
-        const GLenum TARGETS[6] = {
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-        };
-        
         const char *SUFFIXES[6] = {
             "_positive_x",
             "_negative_x",
