@@ -49,7 +49,7 @@ FFTWorkspace::~FFTWorkspace()
   destroy();
 }
 
-void FFTWorkspace::Create(size_t length)
+void FFTWorkspace::create(size_t length)
 {
   setup = vDSP_create_fftsetup(length, kFFTRadix2);
 }
@@ -84,7 +84,7 @@ void Scale(float *buffer, float scale, size_t count)
 
 void ScaleCopy(const float *src, float scale, float *dest, size_t count)
 {
-  vDSP_vsmul(src, 1, scale, dest, 1, count);
+  vDSP_vsmul(src, 1, &scale, dest, 1, count);
 }
 
 void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count)

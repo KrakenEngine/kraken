@@ -38,9 +38,6 @@
 #include "KRVector2.h"
 #include "KRCollider.h"
 #include "KRDSP.h"
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#endif
 
 KRAudioManager::KRAudioManager(KRContext &context)
     : KRContextObject(context)

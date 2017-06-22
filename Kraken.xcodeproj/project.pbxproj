@@ -423,6 +423,15 @@
 		E488399715F928CA00BD66D5 /* KRBundle.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399315F928CA00BD66D5 /* KRBundle.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E488399D15F92BE000BD66D5 /* KRBundleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */; };
 		E488399F15F92BE000BD66D5 /* KRBundleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E488399B15F92BE000BD66D5 /* KRBundleManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E48A54F71EFBB61C00C12516 /* KRDSP.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A54F41EFBB61C00C12516 /* KRDSP.h */; };
+		E48A54F81EFBB61C00C12516 /* KRDSP.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A54F41EFBB61C00C12516 /* KRDSP.h */; };
+		E48A54F91EFBB61C00C12516 /* KRDSP.h in Headers */ = {isa = PBXBuildFile; fileRef = E48A54F41EFBB61C00C12516 /* KRDSP.h */; };
+		E48A54FA1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F51EFBB61C00C12516 /* KRDSP_vDSP.cpp */; };
+		E48A54FB1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F51EFBB61C00C12516 /* KRDSP_vDSP.cpp */; };
+		E48A54FC1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F51EFBB61C00C12516 /* KRDSP_vDSP.cpp */; };
+		E48A54FD1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F61EFBB61C00C12516 /* KRDSP_slow.cpp */; };
+		E48A54FE1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F61EFBB61C00C12516 /* KRDSP_slow.cpp */; };
+		E48A54FF1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A54F61EFBB61C00C12516 /* KRDSP_slow.cpp */; };
 		E48B68161697794F00D99917 /* KRAudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48B68131697794F00D99917 /* KRAudioSource.cpp */; };
 		E48B68181697794F00D99917 /* KRAudioSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E48B68141697794F00D99917 /* KRAudioSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E48B953016B9C8BA0042EE29 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
@@ -760,6 +769,9 @@
 		E488399315F928CA00BD66D5 /* KRBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRBundle.h; sourceTree = "<group>"; };
 		E488399A15F92BE000BD66D5 /* KRBundleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRBundleManager.cpp; sourceTree = "<group>"; };
 		E488399B15F92BE000BD66D5 /* KRBundleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRBundleManager.h; sourceTree = "<group>"; };
+		E48A54F41EFBB61C00C12516 /* KRDSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KRDSP.h; sourceTree = "<group>"; };
+		E48A54F51EFBB61C00C12516 /* KRDSP_vDSP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRDSP_vDSP.cpp; sourceTree = "<group>"; };
+		E48A54F61EFBB61C00C12516 /* KRDSP_slow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KRDSP_slow.cpp; sourceTree = "<group>"; };
 		E48B3CBC14393DF5000C50E2 /* KRCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = KRCamera.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		E48B3CBF14393E2F000C50E2 /* KRCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRCamera.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		E48B68131697794F00D99917 /* KRAudioSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRAudioSource.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1210,6 +1222,9 @@
 		E461A173152E59DF00F2044A /* Math */ = {
 			isa = PBXGroup;
 			children = (
+				E48A54F61EFBB61C00C12516 /* KRDSP_slow.cpp */,
+				E48A54F51EFBB61C00C12516 /* KRDSP_vDSP.cpp */,
+				E48A54F41EFBB61C00C12516 /* KRDSP.h */,
 				E491017613C99BDC0098455B /* KRMat4.h */,
 				E491017713C99BDC0098455B /* KRMat4.cpp */,
 				E491017E13C99BDC0098455B /* KRVector3.h */,
@@ -1682,6 +1697,7 @@
 				E423D7181BEDEE2D0021812E /* KRVector3.h in Headers */,
 				E423D7191BEDEE2D0021812E /* KRVector2.h in Headers */,
 				E423D71A1BEDEE2D0021812E /* KRQuaternion.h in Headers */,
+				E48A54F91EFBB61C00C12516 /* KRDSP.h in Headers */,
 				E423D71B1BEDEE2D0021812E /* KRAABB.h in Headers */,
 				E423D71C1BEDEE2D0021812E /* KRVector4.h in Headers */,
 				E423D71D1BEDEE2D0021812E /* KRFloat.h in Headers */,
@@ -1718,6 +1734,7 @@
 				E4159B4B19C5760600622D1E /* KRAnimationCurve.h in Headers */,
 				E4159B4C19C5760600622D1E /* KRAnimationCurveManager.h in Headers */,
 				E4159B4D19C5760600622D1E /* KRAnimationLayer.h in Headers */,
+				E48A54F81EFBB61C00C12516 /* KRDSP.h in Headers */,
 				E4159B4E19C5760600622D1E /* KRAnimationManager.h in Headers */,
 				E4159B4F19C5760600622D1E /* KRAnimation.h in Headers */,
 				E4159B5019C5760600622D1E /* KRAnimationAttribute.h in Headers */,
@@ -1823,6 +1840,7 @@
 				E40BA45715EFF79500D7C3DD /* KRAABB.h in Headers */,
 				E428C312166971FF00A16EDF /* KRAnimationLayer.h in Headers */,
 				E4AFC6B615F7C46800DDB4C8 /* KRAABB.cpp in Headers */,
+				E48A54F71EFBB61C00C12516 /* KRDSP.h in Headers */,
 				E428C3171669A24B00A16EDF /* KRAnimationAttribute.h in Headers */,
 				E4AFC6BE15F7C9E600DDB4C8 /* KROctreeNode.h in Headers */,
 				E4AFC6BD15F7C9DA00DDB4C8 /* KROctree.h in Headers */,
@@ -2197,6 +2215,7 @@
 				E423D6941BEDEE2D0021812E /* KRAudioBuffer.cpp in Sources */,
 				E423D6951BEDEE2D0021812E /* KRUnknownManager.cpp in Sources */,
 				E423D6961BEDEE2D0021812E /* KRUnknown.cpp in Sources */,
+				E48A54FF1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */,
 				E423D6971BEDEE2D0021812E /* KRAnimationCurve.cpp in Sources */,
 				E423D6981BEDEE2D0021812E /* KRAnimationCurveManager.cpp in Sources */,
 				E423D6991BEDEE2D0021812E /* KRAnimationLayer.cpp in Sources */,
@@ -2244,6 +2263,7 @@
 				E423D6C31BEDEE2D0021812E /* KRLODSet.cpp in Sources */,
 				E423D6C41BEDEE2D0021812E /* KRSprite.cpp in Sources */,
 				E423D6C51BEDEE2D0021812E /* KRMat4.cpp in Sources */,
+				E48A54FC1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */,
 				E423D6C61BEDEE2D0021812E /* KRVector3.cpp in Sources */,
 				E423D6C71BEDEE2D0021812E /* KRVector2.cpp in Sources */,
 				E423D6C81BEDEE2D0021812E /* KRQuaternion.cpp in Sources */,
@@ -2286,6 +2306,7 @@
 				E4159B9A19C5762F00622D1E /* KRAnimationAttribute.cpp in Sources */,
 				E4159B9B19C5762F00622D1E /* KRBundleManager.cpp in Sources */,
 				E4159B9C19C5762F00622D1E /* KRBundle.cpp in Sources */,
+				E48A54FE1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */,
 				E4159B9D19C5762F00622D1E /* KRMaterialManager.cpp in Sources */,
 				E4159B9E19C5762F00622D1E /* KRMaterial.cpp in Sources */,
 				E4159B9F19C5762F00622D1E /* KRMeshManager.cpp in Sources */,
@@ -2338,6 +2359,7 @@
 				E4159BCC19C5762F00622D1E /* KRBehavior.cpp in Sources */,
 				E4159BCD19C5762F00622D1E /* KRContext.cpp in Sources */,
 				E4159BCE19C5762F00622D1E /* KRContextObject.cpp in Sources */,
+				E48A54FB1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */,
 				E4159BCF19C5762F00622D1E /* KRDataBlock.cpp in Sources */,
 				E4159BD019C5762F00622D1E /* KREngine.mm in Sources */,
 				E4159BD119C5762F00622D1E /* KRHitInfo.cpp in Sources */,
@@ -2367,6 +2389,7 @@
 				E460292C166834AB00261BB9 /* KRTextureAnimated.cpp in Sources */,
 				E461A17A152E5C9100F2044A /* KRMat4.cpp in Sources */,
 				E461A175152E5C4800F2044A /* KRLight.cpp in Sources */,
+				E48A54FD1EFBB61C00C12516 /* KRDSP_slow.cpp in Sources */,
 				E4BBBBA71512A6DC00F43B5B /* KRVector3.cpp in Sources */,
 				E4B2A43B1523B02E004CB0EC /* KRMaterial.cpp in Sources */,
 				E4BBBB8E1512A40300F43B5B /* kraken.mm in Sources */,
@@ -2418,6 +2441,7 @@
 				E428C3081669628A00A16EDF /* KRAnimationCurve.cpp in Sources */,
 				E428C314166971FF00A16EDF /* KRAnimationLayer.cpp in Sources */,
 				E428C31A1669A25D00A16EDF /* KRAnimationAttribute.cpp in Sources */,
+				E48A54FA1EFBB61C00C12516 /* KRDSP_vDSP.cpp in Sources */,
 				E416AA9D1671375C000F6786 /* KRAnimationCurveManager.cpp in Sources */,
 				E480BE6D1671C653004EC8AD /* KRBone.cpp in Sources */,
 				E43F70E61824D9AB00136169 /* KRStreamer.mm in Sources */,
@@ -2680,7 +2704,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-                CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -2726,7 +2750,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-                CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;

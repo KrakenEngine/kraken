@@ -32,10 +32,13 @@
 #ifndef _KRDSP_H
 #define _KRDSP_H
 
+#include "KREngine-common.h"
+
 namespace KRDSP {
 
 #ifdef __APPLE__
 #define KRDSP_APPLE_VDSP
+#include <Accelerate/Accelerate.h>
 #else
   // Slow, but portable fallback implementation
 #define KRDSP_SLOW
@@ -48,6 +51,8 @@ namespace KRDSP {
   struct FFTWorkspace {
     FFTSetup setup;
 
+    void create(size_t length);
+    void destroy();
     FFTWorkspace();
     ~FFTWorkspace();
   };
