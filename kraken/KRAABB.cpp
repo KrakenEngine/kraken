@@ -208,26 +208,26 @@ bool KRAABB::intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const
 
 bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 {
-    /*
-     Fast Ray-Box Intersection
-     by Andrew Woo
-     from "Graphics Gems", Academic Press, 1990
-     */
-    
-    // FINDME, TODO - Perhaps there is a more efficient algorithm, as we don't actually need the exact coordinate of the intersection
-    
-    enum {
-        RIGHT = 0,
-        LEFT = 1,
-        MIDDLE = 2
-    } quadrant[3];
-    
-    bool inside = true;
-    KRVector3 maxT;
-    KRVector3 coord;
+  /*
+   Fast Ray-Box Intersection
+   by Andrew Woo
+   from "Graphics Gems", Academic Press, 1990
+   */
+
+  // FINDME, TODO - Perhaps there is a more efficient algorithm, as we don't actually need the exact coordinate of the intersection
+
+  enum {
+      RIGHT = 0,
+      LEFT = 1,
+      MIDDLE = 2
+  } quadrant[3];
+
+  bool inside = true;
+  KRVector3 maxT;
+  KRVector3 coord;
 	double candidatePlane[3];
-    
-    // Find candidate planes; this loop can be avoided if rays cast all from the eye(assume perpsective view)
+
+  // Find candidate planes; this loop can be avoided if rays cast all from the eye(assume perpsective view)
 	for (int i=0; i<3; i++)
 		if(v1.c[i] < min.c[i]) {
 			quadrant[i] = LEFT;
@@ -237,42 +237,45 @@ bool KRAABB::intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const
 			quadrant[i] = RIGHT;
 			candidatePlane[i] = max.c[i];
 			inside = false;
-		} else	{
+		} else {
 			quadrant[i] = MIDDLE;
 		}
     
 	/* Ray v1 inside bounding box */
-	if(inside) {
+	if (inside) {
 		coord = v1;
 		return true;
 	}
-    
-    
+
 	/* Calculate T distances to candidate planes */
 	for (int i = 0; i < 3; i++) {
-		if (quadrant[i] != MIDDLE && dir[i] !=0.) {
+		if (quadrant[i] != MIDDLE && dir[i] != 0.0f) {
 			maxT.c[i] = (candidatePlane[i]-v1.c[i]) / dir[i];
 		} else {
 			maxT.c[i] = -1.0f;
-        }
     }
+  }
     
 	/* Get largest of the maxT's for final choice of intersection */
 	int whichPlane = 0;
 	for (int i = 1; i < 3; i++) {
 		if (maxT.c[whichPlane] < maxT.c[i]) {
 			whichPlane = i;
-        }
     }
+  }
     
 	/* Check final candidate actually inside box */
-	if (maxT.c[whichPlane] < 0.0f) return false;
+  if (maxT.c[whichPlane] < 0.0f) {
+    return false;
+  }
 	for (int i = 0; i < 3; i++) {
 		if (whichPlane != i) {
 			coord[i] = v1.c[i] + maxT.c[whichPlane] *dir[i];
-			if (coord[i] < min.c[i] || coord[i] > max.c[i])
+      if (coord[i] < min.c[i] || coord[i] > max.c[i]) {
 				return false;
+      }
 		} else {
+      assert(quadrant[i] != MIDDLE); // This should not be possible
 			coord[i] = candidatePlane[i];
 		}
   }

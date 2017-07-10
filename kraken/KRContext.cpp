@@ -351,13 +351,13 @@ void KRContext::getMemoryStats(long &free_memory)
     mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     vm_size_t pagesize = 0;
     vm_statistics_data_t vm_stat;
-    int total_ram = 256 * 1024 * 1024;
+    // int total_ram = 256 * 1024 * 1024;
     if(host_page_size(host_port, &pagesize) != KERN_SUCCESS) {
         KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Could not get VM page size.");
     } else if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
         KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Could not get VM stats.");
     } else {
-        total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
+        // total_ram = (vm_stat.wire_count + vm_stat.active_count + vm_stat.inactive_count + vm_stat.free_count) * pagesize;
         
         free_memory = (vm_stat.free_count + vm_stat.inactive_count) * pagesize;
     }

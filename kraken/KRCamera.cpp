@@ -100,7 +100,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
     if(m_last_frame_start != 0) {
-        m_frame_times[m_pContext->getCurrentFrame() % KRAKEN_FPS_AVERAGE_FRAME_COUNT] = (current_time - m_last_frame_start);
+        m_frame_times[m_pContext->getCurrentFrame() % KRAKEN_FPS_AVERAGE_FRAME_COUNT] = (int)(current_time - m_last_frame_start);
         if(m_frame_times_filled < KRAKEN_FPS_AVERAGE_FRAME_COUNT) m_frame_times_filled++;
     }
     m_last_frame_start = current_time;
@@ -914,9 +914,8 @@ std::string KRCamera::getDebugText()
         for(int i=0; i < KRAKEN_FPS_AVERAGE_FRAME_COUNT; i++) {
             fps += m_frame_times[i];
         }
+        fps = 1000000 / (fps / KRAKEN_FPS_AVERAGE_FRAME_COUNT); // Order of division chosen to prevent overflow
     }
-    
-    fps = 1000000 / (fps / KRAKEN_FPS_AVERAGE_FRAME_COUNT); // Order of division chosen to prevent overflow
     
     switch(settings.debug_display) {
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NONE: // ----====---- No debug display ----====----

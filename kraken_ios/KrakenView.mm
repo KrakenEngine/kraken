@@ -164,7 +164,7 @@
 #endif
 
   GLDEBUG(glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer));
-  BOOL success = [self.context presentRenderbuffer:GL_RENDERBUFFER];
+  [self.context presentRenderbuffer:GL_RENDERBUFFER];
 
   if (self.delegate && delegateRespondsTo.postRender) {
     [self.delegate postRender:context withDeltaTime:deltaTime];
