@@ -13,6 +13,7 @@
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E404702118695DD200F01F42 /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
 		E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E407D2941F134F4A00A38096 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E48C527D19C570C50062E439 /* Info.plist */; };
 		E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45715EFF79500D7C3DD /* KRAABB.h in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45315EFF79500D7C3DD /* KRAABB.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E40F982D184A7A2700CFA4D8 /* KRMeshQuad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40F982A184A7A2700CFA4D8 /* KRMeshQuad.cpp */; };
@@ -364,8 +365,6 @@
 		E43F70E61824D9AB00136169 /* KRStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E43F70E31824D9AB00136169 /* KRStreamer.mm */; };
 		E43F70E81824D9AB00136169 /* KRStreamer.h in Headers */ = {isa = PBXBuildFile; fileRef = E43F70E41824D9AB00136169 /* KRStreamer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E4409D2916FA748700310F76 /* font.tga in Resources */ = {isa = PBXBuildFile; fileRef = E41AE1DD16B124CA00980428 /* font.tga */; };
-		E445244C19C580BF006BB64C /* kraken_standard_assets_ios.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E4C8E4E416B9B2D50031DDCB /* kraken_standard_assets_ios.bundle */; };
-		E445244F19C580D3006BB64C /* kraken_standard_assets_osx.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E4C8E4F416B9B2E20031DDCB /* kraken_standard_assets_osx.bundle */; };
 		E44F38251683B23000399B5D /* KRRenderSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = E44F38231683B22C00399B5D /* KRRenderSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E44F38291683B24800399B5D /* KRRenderSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44F38271683B24400399B5D /* KRRenderSettings.cpp */; };
 		E450273A16E0491D00FDEC5C /* KRReverbZone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E450273716E0491D00FDEC5C /* KRReverbZone.cpp */; };
@@ -507,7 +506,6 @@
 		E4B9AD701C606CAA0026CFED /* volumetric_fog_downsampled.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F66416BA5D9400E410F8 /* volumetric_fog_downsampled.vsh */; };
 		E4B9AD711C606CAA0026CFED /* volumetric_fog.fsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F66516BA5D9400E410F8 /* volumetric_fog.fsh */; };
 		E4B9AD721C606CAA0026CFED /* volumetric_fog.vsh in Resources */ = {isa = PBXBuildFile; fileRef = E4E6F66616BA5D9400E410F8 /* volumetric_fog.vsh */; };
-		E4B9AD831C6070630026CFED /* kraken_standard_assets_tvos.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E4B9AD761C606CAA0026CFED /* kraken_standard_assets_tvos.bundle */; };
 		E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E4BBBB881512A40300F43B5B /* InfoPlist.strings */; };
 		E4BBBB8E1512A40300F43B5B /* kraken.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4BBBB8D1512A40300F43B5B /* kraken.mm */; };
 		E4BBBB9C1512A4A900F43B5B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BBBB9A1512A48200F43B5B /* Foundation.framework */; };
@@ -625,29 +623,17 @@
 		E4F975541536340400FD60B2 /* KRTexture2D.h in Headers */ = {isa = PBXBuildFile; fileRef = E491018613C99BDC0098455B /* KRTexture2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		E445244D19C580C7006BB64C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E491015813C99B9D0098455B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E4C8E4E316B9B2D50031DDCB;
-			remoteInfo = "Kraken Standard Assets - iOS";
+/* Begin PBXBuildRule section */
+		E48A55001EFBBDB300C12516 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "";
 		};
-		E445245019C580D9006BB64C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E491015813C99B9D0098455B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E4C8E4F316B9B2E20031DDCB;
-			remoteInfo = "Kraken Standard Assets - OSX";
-		};
-		E4B9AD7D1C606E3C0026CFED /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E491015813C99B9D0098455B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E4B9AD4D1C606CAA0026CFED;
-			remoteInfo = "Kraken Standard Assets - tvOS";
-		};
-/* End PBXContainerItemProxy section */
+/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		104A335C1672D31B001C8BA6 /* KRCollider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = KRCollider.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1919,7 +1905,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E4B9AD7E1C606E3C0026CFED /* PBXTargetDependency */,
 			);
 			name = "kraken - tvos";
 			productName = kraken;
@@ -1938,7 +1923,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E445244E19C580C7006BB64C /* PBXTargetDependency */,
 			);
 			name = "kraken - ios";
 			productName = kraken;
@@ -1974,7 +1958,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E445245119C580D9006BB64C /* PBXTargetDependency */,
 			);
 			name = "Kraken - osx";
 			productName = krengine_osx;
@@ -1990,6 +1973,7 @@
 				E4C8E4E216B9B2D50031DDCB /* Resources */,
 			);
 			buildRules = (
+				E48A55001EFBBDB300C12516 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -2056,7 +2040,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4B9AD831C6070630026CFED /* kraken_standard_assets_tvos.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2064,7 +2047,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E445244C19C580BF006BB64C /* kraken_standard_assets_ios.bundle in Resources */,
+				E407D2941F134F4A00A38096 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2113,7 +2096,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E445244F19C580D3006BB64C /* kraken_standard_assets_osx.bundle in Resources */,
 				E4BBBB8A1512A40300F43B5B /* InfoPlist.strings in Resources */,
 				E423D7361BEDEFBF0021812E /* info.plist in Resources */,
 			);
@@ -2480,24 +2462,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		E445244E19C580C7006BB64C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E4C8E4E316B9B2D50031DDCB /* Kraken Standard Assets - iOS */;
-			targetProxy = E445244D19C580C7006BB64C /* PBXContainerItemProxy */;
-		};
-		E445245119C580D9006BB64C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E4C8E4F316B9B2E20031DDCB /* Kraken Standard Assets - OSX */;
-			targetProxy = E445245019C580D9006BB64C /* PBXContainerItemProxy */;
-		};
-		E4B9AD7E1C606E3C0026CFED /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E4B9AD4D1C606CAA0026CFED /* Kraken Standard Assets - tvOS */;
-			targetProxy = E4B9AD7D1C606E3C0026CFED /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E4BBBB881512A40300F43B5B /* InfoPlist.strings */ = {
