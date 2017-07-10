@@ -13,7 +13,6 @@
 		E4030E4D160A3CF000592648 /* KRStockGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = E4030E4B160A3CF000592648 /* KRStockGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E404702118695DD200F01F42 /* KRTextureKTX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E404701E18695DD200F01F42 /* KRTextureKTX.cpp */; };
 		E404702318695DD200F01F42 /* KRTextureKTX.h in Headers */ = {isa = PBXBuildFile; fileRef = E404701F18695DD200F01F42 /* KRTextureKTX.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		E407D2941F134F4A00A38096 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E48C527D19C570C50062E439 /* Info.plist */; };
 		E40BA45515EFF79500D7C3DD /* KRAABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40BA45215EFF79500D7C3DD /* KRAABB.cpp */; };
 		E40BA45715EFF79500D7C3DD /* KRAABB.h in Headers */ = {isa = PBXBuildFile; fileRef = E40BA45315EFF79500D7C3DD /* KRAABB.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E40F982D184A7A2700CFA4D8 /* KRMeshQuad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40F982A184A7A2700CFA4D8 /* KRMeshQuad.cpp */; };
@@ -2047,7 +2046,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E407D2941F134F4A00A38096 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2705,7 +2703,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = appletvos;
-				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -2748,7 +2745,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = appletvos;
-				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
