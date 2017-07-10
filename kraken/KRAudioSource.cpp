@@ -76,9 +76,9 @@ tinyxml2::XMLElement *KRAudioSource::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("pitch", m_pitch);
     e->SetAttribute("looping", m_looping ? "true" : "false");
     e->SetAttribute("is3d", m_is3d ? "true" : "false");
-    e->SetAttribute("reference_distance", &m_referenceDistance);
-    e->SetAttribute("reverb", &m_reverb);
-    e->SetAttribute("rolloff_factor", &m_rolloffFactor);
+    e->SetAttribute("reference_distance", m_referenceDistance);
+    e->SetAttribute("reverb", m_reverb);
+    e->SetAttribute("rolloff_factor", m_rolloffFactor);
     e->SetAttribute("enable_occlusion", m_enable_occlusion ? "true" : "false");
     e->SetAttribute("enable_obstruction", m_enable_obstruction ? "true" : "false");
     return e;
