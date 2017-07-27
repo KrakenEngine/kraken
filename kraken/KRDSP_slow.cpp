@@ -54,8 +54,9 @@ void FFTWorkspace::create(size_t length)
   cos_table = new float[size];
   sin_table = new float[size];
   for (int i = 0; i < size / 2; i++) {
-    cos_table[i] = cos(2 * M_PI * i / length);
-    sin_table[i] = sin(2 * M_PI * i / length);
+    float a = 2 * M_PI * i / length;
+    cos_table[i] = cos(a);
+    sin_table[i] = sin(a);
   }
 }
 
@@ -73,27 +74,88 @@ void FFTWorkspace::destroy()
 
 void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
 {
-#error TODO - Implement
+  // Radix-2 Decimation in Time FFT Algorithm
+  // http://en.dsplib.org/content/fft_dec_in_time.html
+
+  // Only power-of-two sizes supported
+  assert((count & (count - 1)) == 0);
+
+  int levels = 0;
+  while (1 << levels <= count) {
+    levels++;
+  }
+
+  for (size_t i = 0; i < count; i++) {
+    size_t j = 0;
+    for (int k = 0; k < levels; k++) {
+      j <<= 1;
+      j |= ((i >> k) & 1);
+    }
+    if (j > i) {
+      float temp = src->realp[i];
+      src->realp[i] = src->realp[j];
+      src->realp[j] = temp;
+      temp = src->imagp[i];
+      src->imagp[i] = src->imagp[j];
+      src->imagp[j] = temp;
+    }
+  }
+
+  for (size_t size = 2; size <= count; size *= 2) {
+    size_t halfsize = size / 2;
+    size_t step = count / size;
+    for (size_t i = 0; i < count; i += size) {
+      for (size_t j = i, k = 0; j < i + halfsize; j++, k += step) {
+        float temp_real = src->realp[j + halfsize] * workspace.cos_table[k];
+        temp_real += src->imagp[j + halfsize] * workspace.sin_table[k];
+        float temp_imag = -src->realp[j + halfsize] * workspace.sin_table[k];
+        temp_imag += src->imagp[j + halfsize] * workspace.cos_table[k];
+        src->realp[j + halfsize] = src->realp[j] - temp_real;
+        src->imagp[j + halfsize] = src->imagp[j] - temp_imag;
+        src->realp[j] += temp_real;
+        src->imagp[j] += temp_imag;
+      }
+    }
+  }
 }
 
 void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
 {
-#error TODO - Implement
+  SplitComplex swapped;
+  swapped.imagp = src->realp;
+  swapped.realp = src->imagp;
+  FFTForward(workspace, &swapped, count);
 }
 
 void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count)
 {
-#error TODO - Implement
+  const short *r = src;
+  float *w = dest;
+  while (w < dest + destStride * count) {
+    *w = (float)*r;
+    r += srcStride;
+    w += destStride;
+  }
 }
 
 void Scale(float *buffer, float scale, size_t count)
 {
-#error TODO - Implement
+  float *w = buffer;
+  while (w < buffer + count) {
+    *w *= scale;
+    w++;
+  }
 }
 
 void ScaleCopy(const float *src, float scale, float *dest, size_t count)
 {
-#error TODO - Implement
+  const float *r = src;
+  float *w = dest;
+  while (w < dest + count) {
+    *w = *r * scale;
+    w++;
+    r++;
+  }
 }
 
 void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count)
@@ -104,23 +166,40 @@ void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t 
 
 void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count)
 {
-#error TODO - Implement
+  float *w = buffer;
+  float s = scaleStart;
+  while (w < buffer + count) {
+    *w *= s;
+    w++;
+    s += scaleStep;
+  }
 }
 
 void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t buffer2Stride, size_t count)
 {
-#error TODO - Implement
+  float *w = buffer;
+  const float *r = buffer2;
+  while (w < buffer + bufferStride * count) {
+    *w *= *r;
+    w += bufferStride;
+    r += buffer2Stride;
+  }
 }
 
 void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
 {
-#error TODO - Implement
+  for (size_t i = 0; i < count; i++) {
+    buffer->imagp[i] += buffer2->imagp[i];
+    buffer->realp[i] += buffer2->realp[i];
+  }
 }
-
 
 void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count)
 {
-#error TODO - Implement
+  for (size_t i = 0; i < count; i++) {
+    c->realp[i] = a->realp[i] * b->realp[i] - a->imagp[i] * b->imagp[i];
+    c->imagp[i] = a->realp[i] * b->imagp[i] + a->imagp[i] * b->realp[i];
+  }
 }
 
 } // namespace KRDSP
