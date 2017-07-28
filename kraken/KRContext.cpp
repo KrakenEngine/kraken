@@ -155,7 +155,7 @@ void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)
     s_log_callback_user_data = user_data;
 }
 
-void KRContext::Log(log_level level, const std::string &message_format, ...)
+void KRContext::Log(log_level level, const std::string message_format, ...)
 {
     va_list args;
     va_start(args, message_format);
