@@ -23,6 +23,8 @@ int KRContext::KRENGINE_GPU_MEM_TARGET;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
 int KRContext::KRENGINE_MIN_TEXTURE_DIM;
 int KRContext::KRENGINE_PRESTREAM_DISTANCE;
+int KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY;
+int KRContext::KRENGINE_SYS_PAGE_SIZE;
 
 #if TARGET_OS_IPHONE
 
@@ -69,6 +71,24 @@ KRContext::KRContext() : m_streamer(*this)
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
     m_streamingEnabled = true;
+
+
+
+#if defined(_WIN32) || defined(_WIN64)
+
+    SYSTEM_INFO winSysInfo;
+    GetSystemInfo(&winSysInfo);
+    KRENGINE_SYS_ALLOCATION_GRANULARITY = winSysInfo.dwAllocationGranularity;
+    KRENGINE_SYS_PAGE_SIZE = winSysInfo.dwPageSize;
+
+#elif defined(__APPLE__)
+
+    KRENGINE_SYS_PAGE_SIZE = getpagesize();
+    KRENGINE_SYS_ALLOCATION_GRANULARITY = KRENGINE_SYS_PAGE_SIZE;
+
+#else
+#error Unsupported
+#endif
     
     createDeviceContexts();
 }
