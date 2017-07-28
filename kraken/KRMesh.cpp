@@ -1316,7 +1316,7 @@ void KRMesh::convertToIndexed()
         }
         
         if(submesh_index == 0 || vertex_index_offset + vertex_count > 0xffff) {
-            mi.vertex_index_bases.push_back(std::pair<int, int>(mi.vertex_indexes.size(), mi.vertices.size()));
+            mi.vertex_index_bases.push_back(std::pair<int, int>((int)mi.vertex_indexes.size(), (int)mi.vertices.size()));
             vertex_index_offset = 0;
             vertex_index_base_start_vertex = mi.vertices.size();
         }
@@ -1452,7 +1452,7 @@ void KRMesh::convertToIndexed()
             }
             
             if(vertex_index_offset + vertex_count > 0xffff) {
-                mi.vertex_index_bases.push_back(std::pair<int, int>(mi.vertex_indexes.size(), mi.vertices.size()));
+                mi.vertex_index_bases.push_back(std::pair<int, int>((int)mi.vertex_indexes.size(), (int)mi.vertices.size()));
                 vertex_index_offset = 0;
                 vertex_index_base_start_vertex = mi.vertices.size();
             }

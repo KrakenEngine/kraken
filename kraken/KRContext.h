@@ -89,7 +89,7 @@ public:
     typedef void log_callback(void *userdata, const std::string &message, log_level level);
     
     static void SetLogCallback(log_callback *log_callback, void *user_data);
-    static void Log(log_level level, const std::string &message_format, ...);
+    static void Log(log_level level, const std::string message_format, ...);
     
     void doStreaming();
     void receivedMemoryWarning();
