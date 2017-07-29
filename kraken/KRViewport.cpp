@@ -8,11 +8,9 @@
 
 #define KRENGINE_SWAP_INT(x,y) {int t;t=x;x=y;y=t;}
 
-#include "KRVector2.h"
-#include "KRMat4.h"
-#include "KRViewport.h"
-#include "KRLight.h"
+#include "KREngine-common.h"
 
+#include "KRViewport.h"
 
 KRViewport::KRViewport()
 {

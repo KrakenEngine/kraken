@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
-#include "KRVector4.h"
+#include "public/kraken.h"
 
 const KRVector4 KRVECTOR4_ZERO(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -297,9 +296,4 @@ bool KRVector4::operator <(const KRVector4& b) const
     if(z != b.z) return z < b.z;
     if(w != b.w) return w < b.w;
     return false;
-}
-
-void KRVector4::setUniform(GLint location) const
-{
-    if(location != -1) GLDEBUG(glUniform4f(location, x, y, z, w));
 }

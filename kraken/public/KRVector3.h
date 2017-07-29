@@ -1,8 +1,8 @@
 //
 //  KRVector3.h
-//  KREngine
+//  Kraken
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2017 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -29,10 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRVECTOR3
-#define KRVECTOR3
+#ifndef KRVECTOR3_H
+#define KRVECTOR3_H
 
-#include "KREngine-common.h"
+#include <functional> // for hash<>
 
 class KRVector2;
 class KRVector4;
@@ -48,13 +48,13 @@ public:
     };
     
     KRVector3();
-	KRVector3(float X, float Y, float Z);
+    KRVector3(float X, float Y, float Z);
     KRVector3(float v);
     KRVector3(float *v);
     KRVector3(double *v);
     KRVector3(const KRVector3 &v);
     KRVector3(const KRVector4 &v);
-	~KRVector3();
+    ~KRVector3();
     
     // KRVector2 swizzle getters
     KRVector2 xx() const;
@@ -123,11 +123,6 @@ public:
     static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
-    
-    void setUniform(GLint location) const;
-    
-    void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value);
-    void getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value);
 };
 
 namespace std {
@@ -144,4 +139,4 @@ namespace std {
     };
 };
 
-#endif
+#endif // KRVECTOR3_H

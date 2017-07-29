@@ -11,10 +11,12 @@
 #ifndef KRAABB_H
 #define KRAABB_H
 
+#include <functional> // for hash<>
+
+#include "KRVector2.h"
 #include "KRVector3.h"
 
 class KRMat4;
-class KRVector2;
 
 class KRAABB {
 public:

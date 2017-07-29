@@ -1,8 +1,8 @@
 //
-//  KRTriangle.h
-//  KREngine
+//  KRFloat.h
+//  Kraken
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2017 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -29,35 +29,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTRIANGLE3_H
-#define KRTRIANGLE3_H
+#ifndef KRFLOAT_H
+#define KRFLOAT_H
 
-#include "KRVector3.h"
-
-class KRTriangle3
-{
-public:
-    KRTriangle3(const KRTriangle3 &tri);
-    KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3);
-    ~KRTriangle3();
-    
-    KRVector3 calculateNormal() const;
-    
-    bool operator ==(const KRTriangle3& b) const;
-    bool operator !=(const KRTriangle3& b) const;
-    KRTriangle3& operator =(const KRTriangle3& b);
-    KRVector3& operator[](unsigned i);
-    KRVector3 operator[](unsigned i) const;
-    
-    
-    bool rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const;
-    bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
-    
-    bool containsPoint(const KRVector3 &p) const;
-    KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
-private:
-    
-    KRVector3 m_c[3];
+namespace KRFloat {
+    float SmoothStep(float a, float b, float t);
 };
 
-#endif // KRTRIANGLE3_H
+#endif /* defined(KRFLOAT_H) */

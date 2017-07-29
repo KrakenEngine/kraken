@@ -1,8 +1,8 @@
 //
 //  KRMat4.h
-//  KREngine
+//  Kraken
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2017 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -33,21 +33,8 @@
 #include "KRVector3.h"
 #include "KRVector4.h"
 
-#include "KREngine-common.h"
-
-#ifndef KRMAT4_I
-#define KRMAT4_I
-
-
-#define EMPTY_MATRIX4  { 0.0, 0.0, 0.0, 0.0,\
-0.0, 0.0, 0.0, 0.0,\
-0.0, 0.0, 0.0, 0.0,\
-0.0, 0.0, 0.0, 0.0 }
-
-#define IDENTITY_MATRIX4 { 1.0, 0.0, 0.0, 0.0,\
-0.0, 1.0, 0.0, 0.0,\
-0.0, 0.0, 1.0, 0.0,\
-0.0, 0.0, 0.0, 1.0 }
+#ifndef KRMAT4_H
+#define KRMAT4_H
 
 typedef enum {
     X_AXIS,
@@ -58,13 +45,9 @@ typedef enum {
 class KRQuaternion;
 
 class KRMat4 {
-    
-    
     public:
     
     float c[16]; // Matrix components, in column-major order
-    
-
     
     // Default constructor - Creates an identity matrix
     KRMat4();
@@ -123,8 +106,6 @@ class KRMat4 {
     static KRMat4 Translation(const KRVector3 &v);
     static KRMat4 Rotation(const KRVector3 &v);
     static KRMat4 Scaling(const KRVector3 &v);
-    
-    void setUniform(GLint location) const;
 };
 
-#endif // KRMAT4_I
+#endif // KRMAT4_H

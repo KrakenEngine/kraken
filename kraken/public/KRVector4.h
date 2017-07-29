@@ -1,8 +1,8 @@
 //
 //  KRVector4.h
-//  KREngine
+//  Kraken
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2017 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@
 #ifndef KRVECTOR4_H
 #define KRVECTOR4_H
 
-#include "KREngine-common.h"
+#include <functional> // for hash<>
 
 class KRVector3;
 
@@ -47,12 +47,12 @@ public:
     };
     
     KRVector4();
-	KRVector4(float X, float Y, float Z, float W);
+    KRVector4(float X, float Y, float Z, float W);
     KRVector4(float v);
     KRVector4(float *v);
     KRVector4(const KRVector4 &v);
     KRVector4(const KRVector3 &v, float W);
-	~KRVector4();
+    ~KRVector4();
     
     
     KRVector4& operator =(const KRVector4& b);
@@ -83,7 +83,6 @@ public:
     
     void normalize();
     static KRVector4 Normalize(const KRVector4 &v);
-
     
     static float Dot(const KRVector4 &v1, const KRVector4 &v2);
     static KRVector4 Min();
@@ -99,8 +98,6 @@ public:
     static KRVector4 Lerp(const KRVector4 &v1, const KRVector4 &v2, float d);
     static KRVector4 Slerp(const KRVector4 &v1, const KRVector4 &v2, float d);
     static void OrthoNormalize(KRVector4 &normal, KRVector4 &tangent); // Gram-Schmidt Orthonormalization
-    
-    void setUniform(GLint location) const;
 };
 
-#endif
+#endif // KRVECTOR4_H

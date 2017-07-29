@@ -1,8 +1,8 @@
 //
 //  KRVector2.h
-//  KREngine
+//  Kraken
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2017 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@
 #ifndef KRVECTOR2
 #define KRVECTOR2
 
-#include "KREngine-common.h"
+#include <functional> // for hash<>
 
 class KRVector2 {
     
@@ -93,12 +93,6 @@ public:
     static KRVector2 Max();
     static KRVector2 Zero();
     static KRVector2 One();
-    
-    void setUniform(GLint location) const;
-    
-private:
-    
-    
 };
 
 namespace std {
