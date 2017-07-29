@@ -6,10 +6,9 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
-#include "KRAABB.h"
-#include "KRMat4.h"
-#include "KRVector2.h"
+#include "public/kraken.h"
 #include "assert.h"
+#include "KRHelpers.h"
 
 KRAABB::KRAABB()
 {

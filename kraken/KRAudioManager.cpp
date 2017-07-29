@@ -35,7 +35,6 @@
 #include "KRDataBlock.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-#include "KRVector2.h"
 #include "KRCollider.h"
 #include "KRDSP.h"
 

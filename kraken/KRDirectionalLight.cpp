@@ -11,8 +11,6 @@
 #include "KRDirectionalLight.h"
 #include "KRShader.h"
 #include "KRContext.h"
-#include "KRMat4.h"
-#include "KRQuaternion.h"
 #include "assert.h"
 #include "KRStockGeometry.h"
 

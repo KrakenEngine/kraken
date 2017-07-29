@@ -34,8 +34,9 @@
 
 #include <functional> // for hash<>
 
-class KRVector2;
-class KRVector4;
+#include "KRVector4.h"
+
+namespace kraken {
 
 class KRVector3 {
 
@@ -125,18 +126,20 @@ public:
     static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
 };
 
+} // namespace kraken
+
 namespace std {
-    template<>
-    struct hash<KRVector3> {
-    public:
-        size_t operator()(const KRVector3 &s) const
-        {
-            size_t h1 = hash<float>()(s.x);
-            size_t h2 = hash<float>()(s.y);
-            size_t h3 = hash<float>()(s.z);
-            return h1 ^ ( h2 << 1 ) ^ (h3 << 2);
-        }
-    };
-};
+  template<>
+  struct hash<kraken::KRVector3> {
+  public:
+    size_t operator()(const kraken::KRVector3 &s) const
+    {
+      size_t h1 = hash<float>()(s.x);
+      size_t h2 = hash<float>()(s.y);
+      size_t h3 = hash<float>()(s.z);
+      return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+  };
+}
 
 #endif // KRVECTOR3_H

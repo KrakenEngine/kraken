@@ -22,7 +22,6 @@
 #include "KRSpotLight.h"
 #include "KRNode.h"
 #include "KRScene.h"
-#include "KRQuaternion.h"
 #include "KRBone.h"
 #include "KRLocator.h"
 #include "KRBundle.h"

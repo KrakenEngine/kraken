@@ -33,7 +33,6 @@
 #include "KRCollider.h"
 #include "KRContext.h"
 #include "KRMesh.h"
-#include "KRQuaternion.h"
 
 
 KRCollider::KRCollider(KRScene &scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion) : KRNode(scene, collider_name) {

@@ -30,7 +30,7 @@
 //
 
 #include "KREngine-common.h"
-#include "KRVector3.h"
+#include "public/kraken.h"
 
 const KRVector3 KRVECTOR3_ZERO(0.0f, 0.0f, 0.0f);
 
@@ -410,37 +410,5 @@ bool KRVector3::operator <(const KRVector3& b) const
         return true;
     } else {
         return false;
-    }
-}
-
-void KRVector3::setUniform(GLint location) const
-{
-    if(location != -1) GLDEBUG(glUniform3f(location, x, y, z));
-}
-
-void KRVector3::setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value)
-{
-    // TODO - Increase number of digits after the decimal in floating point format (6 -> 12?)
-    // FINDME, TODO - This needs optimization...
-    if(*this != default_value) {
-        e->SetAttribute((base_name + "_x").c_str(), x);
-        e->SetAttribute((base_name + "_y").c_str(), y);
-        e->SetAttribute((base_name + "_z").c_str(), z);
-    }
-}
-
-void KRVector3::getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const KRVector3 &default_value)
-{
-    float new_x = 0.0f;
-    float new_y = 0.0f;
-    float new_z = 0.0f;
-    if(e->QueryFloatAttribute((base_name + "_x").c_str(), &new_x) == tinyxml2::XML_SUCCESS
-        && e->QueryFloatAttribute((base_name + "_y").c_str(), &new_y) == tinyxml2::XML_SUCCESS
-        && e->QueryFloatAttribute((base_name + "_z").c_str(), &new_z) == tinyxml2::XML_SUCCESS) {
-            x = new_x;
-            y = new_y;
-            z = new_z;
-    } else {
-        *this = default_value;
     }
 }

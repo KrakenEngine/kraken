@@ -10,8 +10,6 @@
 #define KROCTREENODE_H
 
 #include "KREngine-common.h"
-#include "KRVector3.h"
-#include "KRAABB.h"
 #include "KRHitInfo.h"
 
 class KRNode;

@@ -9,8 +9,6 @@
 #include "KREngine-common.h"
 
 #include "KRPointLight.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRCamera.h"
 #include "KRContext.h"
 #include "KRStockGeometry.h"

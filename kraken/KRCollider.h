@@ -38,8 +38,6 @@
 #define KRAKEN_COLLIDER_AUDIO 2
 
 #include "KRMesh.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRModel.h"
 #include "KRCamera.h"
 #include "KRMeshManager.h"

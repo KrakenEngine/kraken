@@ -32,7 +32,9 @@
 #ifndef KRHITINFO_H
 #define KRHITINFO_H
 
-#include "KRVector3.h"
+#include "public/kraken.h"
+
+using namespace kraken;
 
 class KRNode;
 
@@ -50,7 +52,6 @@ public:
     bool didHit() const;
     
     KRHitInfo& operator =(const KRHitInfo& b);
-    
     
 private:
     KRNode *m_node;

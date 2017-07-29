@@ -35,7 +35,6 @@
 #include "KREngine-common.h"
 
 #include "KRModel.h"
-#include "KRMat4.h"
 #include "KRMesh.h"
 #include "KRCamera.h"
 #include "KRMeshManager.h"

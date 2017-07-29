@@ -10,7 +10,6 @@
 #define KRPOINTLIGHT_H
 
 #include "KRLight.h"
-#include "KRMat4.h"
 
 class KRPointLight : public KRLight {
     

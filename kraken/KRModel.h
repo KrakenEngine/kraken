@@ -29,16 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
-
 #include "KREngine-common.h"
 
 #ifndef KRMODEL_H
 #define KRMODEL_H
 
 #include "KRMesh.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRModel.h"
 #include "KRCamera.h"
 #include "KRMeshManager.h"

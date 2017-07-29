@@ -32,8 +32,10 @@
 #ifndef KRFLOAT_H
 #define KRFLOAT_H
 
-namespace KRFloat {
+namespace kraken {
+
     float SmoothStep(float a, float b, float t);
-};
+
+}; // namespace kraken
 
 #endif /* defined(KRFLOAT_H) */

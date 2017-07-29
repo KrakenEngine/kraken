@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Kearwood Software. All rights reserved.
 //
 
-#include "KRFloat.h"
+#include "public\kraken.h"
 
-float KRFloat::SmoothStep(float a, float b, float t)
+float kraken::SmoothStep(float a, float b, float t)
 {
     float d = (3.0 * t * t - 2.0 * t * t * t);
     return a * (1.0f - d) + b * d;

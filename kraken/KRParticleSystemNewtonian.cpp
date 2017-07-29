@@ -6,8 +6,9 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
+
+#include "KREngine-common.h"
 #include "KRParticleSystemNewtonian.h"
-#include "KRAABB.h"
 #include "KRTexture.h"
 #include "KRContext.h"
 

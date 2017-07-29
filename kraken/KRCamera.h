@@ -34,9 +34,6 @@
 
 #include "KREngine-common.h"
 
-#include "KRMat4.h"
-#include "KRVector2.h"
-#include "KRAABB.h"
 #include "KRShader.h"
 #include "KRContextObject.h"
 #include "KRTexture.h"

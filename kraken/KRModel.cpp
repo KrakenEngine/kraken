@@ -34,7 +34,6 @@
 #include "KRModel.h"
 #include "KRContext.h"
 #include "KRMesh.h"
-#include "KRQuaternion.h"
 
 KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, KRVector3 rim_color, float rim_power) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
@@ -80,7 +79,7 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
     e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
-    m_rim_color.setXMLAttribute("rim_color", e, KRVector3::Zero());
+    kraken::setXMLAttribute("rim_color", e, m_rim_color, KRVector3::Zero());
     e->SetAttribute("rim_power", m_rim_power);
     return e;
 }

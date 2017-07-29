@@ -30,8 +30,6 @@
 //
 
 #include "KREngine-common.h"
-#include "KRVector3.h"
-#include "KRMat4.h"
 
 #include "KRLight.h"
 
@@ -41,7 +39,6 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
-#include "KRQuaternion.h"
 #include "KRAudioManager.h"
 
 const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;

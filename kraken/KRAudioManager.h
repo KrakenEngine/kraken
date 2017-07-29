@@ -36,7 +36,6 @@
 
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
-#include "KRMat4.h"
 #include "KRAudioSource.h"
 #include "KRDSP.h"
 

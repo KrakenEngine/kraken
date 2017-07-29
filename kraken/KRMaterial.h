@@ -36,8 +36,6 @@
 #include "KRShader.h"
 #include "KRCamera.h"
 #include "KRResource.h"
-#include "KRVector2.h"
-#include "KRVector3.h"
 #include "KRScene.h"
 #include "KRBone.h"
 

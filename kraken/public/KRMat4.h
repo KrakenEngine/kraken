@@ -36,6 +36,8 @@
 #ifndef KRMAT4_H
 #define KRMAT4_H
 
+namespace kraken {
+
 typedef enum {
     X_AXIS,
     Y_AXIS,
@@ -107,5 +109,7 @@ class KRMat4 {
     static KRMat4 Rotation(const KRVector3 &v);
     static KRMat4 Scaling(const KRVector3 &v);
 };
+
+} // namespace kraken
 
 #endif // KRMAT4_H

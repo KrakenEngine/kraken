@@ -16,11 +16,11 @@
     <Filter Include="Header Files\3rdparty">
       <UniqueIdentifier>{1ccb2d2f-3dba-4fa4-a77f-5aef119ca916}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\3rdparty\ffts">
-      <UniqueIdentifier>{218ed471-6978-45cb-9a64-c25d07ecdcc1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\3rdparty\forsyth.h">
       <UniqueIdentifier>{b1389da0-01b5-4d0b-bb62-bf912979a845}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\public">
+      <UniqueIdentifier>{4ebfb66f-4752-486a-bfcf-8b438e8ad64b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -249,39 +249,18 @@
     <ClCompile Include="..\kraken\KRDSP_vDSP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\kraken\KRHelpers.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\tinyxml2\tinyxml2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\KRVector2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\kraken\KREngine-common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\KRVector3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRVector4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRMat4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRFloat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRTriangle3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRAABB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\kraken\KRViewport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\KRQuaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\KRDataBlock.h">
@@ -490,6 +469,36 @@
     </ClInclude>
     <ClInclude Include="..\kraken\KRDSP.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\KRHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRFloat.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRMat4.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRVector2.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRVector3.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRVector4.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\kraken.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRAABB.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRTriangle3.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\KRQuaternion.h">
+      <Filter>Header Files\public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

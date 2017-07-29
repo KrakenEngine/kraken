@@ -11,8 +11,6 @@
 #include "KRLight.h"
 
 #include "KRNode.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRCamera.h"
 #include "KRContext.h"
 

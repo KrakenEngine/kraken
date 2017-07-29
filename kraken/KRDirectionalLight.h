@@ -10,7 +10,6 @@
 #define KREngine_KRDirectionalLight_h
 
 #include "KRLight.h"
-#include "KRMat4.h"
 
 class KRDirectionalLight : public KRLight {
     

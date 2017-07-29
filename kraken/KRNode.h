@@ -10,20 +10,24 @@
 #define KRNODE_H
 
 #include "KRResource.h"
-#include "KRVector3.h"
 #include "KRViewport.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
 
+using namespace kraken;
+
+namespace kraken {
+class KRMat4;
+class KRAABB;
+} // namespace kraken
 class KRCamera;
 class KRShaderManager;
 class KRMeshManager;
 class KRMaterialManager;
-class KRMat4;
 class KRTextureManager;
 class KRContext;
 class KRScene;
-class KRAABB;
+
 class KRNode;
 class KRPointLight;
 class KRSpotLight;

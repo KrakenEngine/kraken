@@ -32,10 +32,9 @@
 #ifndef KRQUATERNION_H
 #define KRQUATERNION_H
 
-#include "KREngine-common.h"
-#include "KRMat4.h"
+#include "KRVector3.h"
 
-class KRVector3;
+namespace kraken {
 
 class KRQuaternion {
 public:
@@ -47,13 +46,13 @@ public:
     ~KRQuaternion();
     
     KRQuaternion& operator =( const KRQuaternion& p );
-	KRQuaternion operator +(const KRQuaternion &v) const;
-	KRQuaternion operator -(const KRQuaternion &v) const;
+    KRQuaternion operator +(const KRQuaternion &v) const;
+    KRQuaternion operator -(const KRQuaternion &v) const;
     KRQuaternion operator +() const;
     KRQuaternion operator -() const;
     
     KRQuaternion operator *(const KRQuaternion &v);
-	KRQuaternion operator *(float num) const;
+    KRQuaternion operator *(float num) const;
     KRQuaternion operator /(float num) const;
     
     KRQuaternion& operator +=(const KRQuaternion& v);
@@ -86,4 +85,6 @@ private:
     float m_val[4];
 };
 
-#endif
+} // namespace kraken
+
+#endif // KRQUATERNION_H

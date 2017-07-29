@@ -30,13 +30,13 @@
 //
 #include "KREngine-common.h"
 
-#include "KRVector2.h"
-#include "KRMat4.h"
 #include "KRContext.h"
 #include "KRBone.h"
 #include "KRMeshManager.h"
 
 #include "KREngine-common.h"
+
+using namespace kraken;
 
 #define MAX_VBO_SIZE 65535
 #define KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX 4
@@ -55,8 +55,6 @@
 
 class KRMaterial;
 class KRNode;
-class KRTriangle3;
-
 
 class KRMesh : public KRResource {
     

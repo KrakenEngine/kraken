@@ -36,7 +36,6 @@
 
 #include "KREngine-common.h"
 #include "KRShader.h"
-#include "KRMat4.h"
 #include "KRCamera.h"
 #include "KRNode.h"
 #include "KRViewport.h"

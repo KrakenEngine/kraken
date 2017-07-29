@@ -30,7 +30,6 @@
 //
 
 #include "KREngine-common.h"
-#include "KRVector2.h"
 #include "KRCamera.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"

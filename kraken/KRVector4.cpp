@@ -31,6 +31,8 @@
 
 #include "public/kraken.h"
 
+namespace kraken {
+
 const KRVector4 KRVECTOR4_ZERO(0.0f, 0.0f, 0.0f, 0.0f);
 
 //default constructor
@@ -297,3 +299,5 @@ bool KRVector4::operator <(const KRVector4& b) const
     if(w != b.w) return w < b.w;
     return false;
 }
+
+} // namespace kraken

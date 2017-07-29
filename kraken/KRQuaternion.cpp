@@ -29,8 +29,11 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRQuaternion.h"
-#include "KRVector3.h"
+#include "public/kraken.h"
+
+#include "KRHelpers.h"
+
+namespace kraken {
 
 KRQuaternion::KRQuaternion() {
     m_val[0] = 1.0;
@@ -358,3 +361,5 @@ KRQuaternion KRQuaternion::Slerp(const KRQuaternion &a, const KRQuaternion &b, f
     
     return (c * sin((1.0f - t) * halftheta) + b * sin(t * halftheta)) / sin(halftheta);
 }
+
+} // namespace kraken

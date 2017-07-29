@@ -16,6 +16,8 @@
 #include "KRVector2.h"
 #include "KRVector3.h"
 
+namespace kraken {
+
 class KRMat4;
 
 class KRAABB {
@@ -58,14 +60,16 @@ public:
     KRVector3 nearestPoint(const KRVector3 & v) const;
 };
 
+} // namespace kraken
+
 namespace std {
     template<>
-    struct hash<KRAABB> {
+    struct hash<kraken::KRAABB> {
     public:
-        size_t operator()(const KRAABB &s) const
+        size_t operator()(const kraken::KRAABB &s) const
         {
-            size_t h1 = hash<KRVector3>()(s.min);
-            size_t h2 = hash<KRVector3>()(s.max);
+            size_t h1 = hash<kraken::KRVector3>()(s.min);
+            size_t h2 = hash<kraken::KRVector3>()(s.max);
             return h1 ^ ( h2 << 1 );
         }
     };

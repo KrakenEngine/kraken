@@ -34,6 +34,8 @@
 
 #include <functional> // for hash<>
 
+namespace kraken {
+
 class KRVector2 {
     
 public:
@@ -95,18 +97,20 @@ public:
     static KRVector2 One();
 };
 
+} // namespace kraken
+
 namespace std {
-    template<>
-    struct hash<KRVector2> {
-    public:
-        size_t operator()(const KRVector2 &s) const
-        {
-            size_t h1 = hash<float>()(s.x);
-            size_t h2 = hash<float>()(s.y);
-            return h1 ^ ( h2 << 1 );
-        }
-    };
-};
+  template<>
+  struct hash<kraken::KRVector2> {
+  public:
+    size_t operator()(const kraken::KRVector2 &s) const
+    {
+      size_t h1 = hash<float>()(s.x);
+      size_t h2 = hash<float>()(s.y);
+      return h1 ^ (h2 << 1);
+    }
+  };
+}
 
+#endif // KRVECTOR2_H
 
-#endif

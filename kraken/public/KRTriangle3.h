@@ -34,6 +34,8 @@
 
 #include "KRVector3.h"
 
+namespace kraken {
+
 class KRTriangle3
 {
 public:
@@ -57,5 +59,7 @@ public:
     bool containsPoint(const KRVector3 &p) const;
     KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
 };
+
+} // namespace kraken
 
 #endif // KRTRIANGLE3_H

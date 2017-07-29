@@ -31,8 +31,7 @@
 
 #include "KREngine-common.h"
 
-#include "KRMat4.h"
-#include "KRQuaternion.h"
+#include "public/KRMat4.h"
 
 KRMat4::KRMat4() {
     // Default constructor - Initialize with an identity matrix
@@ -416,11 +415,6 @@ KRMat4 KRMat4::Transpose(const KRMat4 &m)
     KRMat4 matTranspose = m;
     matTranspose.transpose();
     return matTranspose;
-}
-
-void KRMat4::setUniform(GLint location) const
-{
-    if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, c));
 }
 
 KRMat4 KRMat4::Translation(const KRVector3 &v)

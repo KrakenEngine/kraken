@@ -18,8 +18,6 @@
 #include "KRCollider.h"
 #include "KRParticleSystem.h"
 #include "KRParticleSystemNewtonian.h"
-#include "KRAABB.h"
-#include "KRQuaternion.h"
 #include "KRBone.h"
 #include "KRLocator.h"
 #include "KRAudioSource.h"
@@ -125,17 +123,15 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     tinyxml2::XMLElement *e = doc->NewElement(getElementName().c_str());
     tinyxml2::XMLNode *n = parent->InsertEndChild(e);
     e->SetAttribute("name", m_name.c_str());
-    m_localTranslation.setXMLAttribute("translate", e, KRVector3::Zero());
-    m_localScale.setXMLAttribute("scale", e, KRVector3::One());
-    (m_localRotation * (180.0f / M_PI)).setXMLAttribute("rotate", e, KRVector3::Zero());
-    
-    
-    m_rotationOffset.setXMLAttribute("rotate_offset", e, KRVector3::Zero());
-    m_scalingOffset.setXMLAttribute("scale_offset", e, KRVector3::Zero());
-    m_rotationPivot.setXMLAttribute("rotate_pivot", e, KRVector3::Zero());
-    m_scalingPivot.setXMLAttribute("scale_pivot", e, KRVector3::Zero());
-    (m_preRotation * (180.0f / M_PI)).setXMLAttribute("pre_rotate", e, KRVector3::Zero());
-    (m_postRotation * (180.0f / M_PI)).setXMLAttribute("post_rotate", e, KRVector3::Zero());
+    kraken::setXMLAttribute("translate", e, m_localTranslation, KRVector3::Zero());
+    kraken::setXMLAttribute("scale", e, m_localScale, KRVector3::One());
+    kraken::setXMLAttribute("rotate", e, (m_localRotation * (180.0f / M_PI)), KRVector3::Zero());
+    kraken::setXMLAttribute("rotate_offset", e, m_rotationOffset, KRVector3::Zero());
+    kraken::setXMLAttribute("scale_offset", e, m_scalingOffset, KRVector3::Zero());
+    kraken::setXMLAttribute("rotate_pivot", e, m_rotationPivot, KRVector3::Zero());
+    kraken::setXMLAttribute("scale_pivot", e, m_scalingPivot, KRVector3::Zero());
+    kraken::setXMLAttribute("pre_rotate", e, (m_preRotation * (180.0f / M_PI)), KRVector3::Zero());
+    kraken::setXMLAttribute("post_rotate", e, (m_postRotation * (180.0f / M_PI)), KRVector3::Zero());
     
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
@@ -146,21 +142,19 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
 
 void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_name = e->Attribute("name");
-    m_localTranslation.getXMLAttribute("translate", e, KRVector3::Zero());
-    m_localScale.getXMLAttribute("scale", e, KRVector3::One());
-    m_localRotation.getXMLAttribute("rotate", e, KRVector3::Zero());
+    m_localTranslation = kraken::getXMLAttribute("translate", e, KRVector3::Zero());
+    m_localScale = kraken::getXMLAttribute("scale", e, KRVector3::One());
+    m_localRotation = kraken::getXMLAttribute("rotate", e, KRVector3::Zero());
     m_localRotation *= M_PI / 180.0f; // Convert degrees to radians
-    m_preRotation.getXMLAttribute("pre_rotate", e, KRVector3::Zero());
+    m_preRotation = kraken::getXMLAttribute("pre_rotate", e, KRVector3::Zero());
     m_preRotation *= M_PI / 180.0f; // Convert degrees to radians
-    m_postRotation.getXMLAttribute("post_rotate", e, KRVector3::Zero());
+    m_postRotation = kraken::getXMLAttribute("post_rotate", e, KRVector3::Zero());
     m_postRotation *= M_PI / 180.0f; // Convert degrees to radians
 
-    
-    m_rotationOffset.getXMLAttribute("rotate_offset", e, KRVector3::Zero());
-    m_scalingOffset.getXMLAttribute("scale_offset", e, KRVector3::Zero());
-    m_rotationPivot.getXMLAttribute("rotate_pivot", e, KRVector3::Zero());
-    m_scalingPivot.getXMLAttribute("scale_pivot", e, KRVector3::Zero());
-
+    m_rotationOffset = kraken::getXMLAttribute("rotate_offset", e, KRVector3::Zero());
+    m_scalingOffset = kraken::getXMLAttribute("scale_offset", e, KRVector3::Zero());
+    m_rotationPivot = kraken::getXMLAttribute("rotate_pivot", e, KRVector3::Zero());
+    m_scalingPivot = kraken::getXMLAttribute("scale_pivot", e, KRVector3::Zero());
     
     m_initialLocalTranslation = m_localTranslation;
     m_initialLocalScale = m_localScale;
@@ -434,7 +428,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
             rim_power = 0.0f;
         }
         KRVector3 rim_color = KRVector3::Zero();
-        rim_color.getXMLAttribute("rim_color", e, KRVector3::Zero());
+        rim_color = kraken::getXMLAttribute("rim_color", e, KRVector3::Zero());
         new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
     } else if(strcmp(szElementName, "collider") == 0) {
         new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);

@@ -34,8 +34,6 @@
 
 #include "KRMesh.h"
 
-#include "KRVector3.h"
-#include "KRTriangle3.h"
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
