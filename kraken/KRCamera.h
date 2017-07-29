@@ -69,8 +69,8 @@ public:
     Vector2 getDownsample();
     void setDownsample(float v);
     
-    void setFadeColor(const KRVector4 &fade_color);
-    KRVector4 getFadeColor();
+    void setFadeColor(const Vector4 &fade_color);
+    Vector4 getFadeColor();
     
     void setSkyBox(const std::string &skyBox);
     const std::string getSkyBox() const;
@@ -99,7 +99,7 @@ private:
     
     Vector2 m_downsample;
     
-    KRVector4 m_fade_color;
+    Vector4 m_fade_color;
     
     typedef struct {
         GLfloat x;

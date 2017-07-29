@@ -298,7 +298,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
+                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }

@@ -197,7 +197,7 @@
     <ClCompile Include="..\kraken\KRUnknownManager.cpp" />
     <ClCompile Include="..\kraken\vector2.cpp" />
     <ClCompile Include="..\kraken\vector3.cpp" />
-    <ClCompile Include="..\kraken\KRVector4.cpp" />
+    <ClCompile Include="..\kraken\vector4.cpp" />
     <ClCompile Include="..\kraken\KRViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -273,13 +273,13 @@
     <ClInclude Include="..\kraken\KRViewport.h" />
     <ClInclude Include="..\kraken\public\KRAABB.h" />
     <ClInclude Include="..\kraken\public\kraken.h" />
-    <ClInclude Include="..\kraken\public\KRFloat.h" />
+    <ClInclude Include="..\kraken\public\scalar.h" />
     <ClInclude Include="..\kraken\public\KRMat4.h" />
     <ClInclude Include="..\kraken\public\KRQuaternion.h" />
     <ClInclude Include="..\kraken\public\KRTriangle3.h" />
     <ClInclude Include="..\kraken\public\vector2.h" />
     <ClInclude Include="..\kraken\public\vector3.h" />
-    <ClInclude Include="..\kraken\public\KRVector4.h" />
+    <ClInclude Include="..\kraken\public\vector4.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glew.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glxew.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\wglew.h" />

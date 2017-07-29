@@ -31,7 +31,7 @@
 
 
 #include "Vector3.h"
-#include "KRVector4.h"
+#include "Vector4.h"
 
 #ifndef KRMAT4_H
 #define KRMAT4_H
@@ -99,7 +99,7 @@ class KRMat4 {
     static KRMat4 Invert(const KRMat4 &m);
     static KRMat4 Transpose(const KRMat4 &m);
     static Vector3 Dot(const KRMat4 &m, const Vector3 &v);
-    static KRVector4 Dot4(const KRMat4 &m, const KRVector4 &v);
+    static Vector4 Dot4(const KRMat4 &m, const Vector4 &v);
     static float DotW(const KRMat4 &m, const Vector3 &v);
     static Vector3 DotWDiv(const KRMat4 &m, const Vector3 &v);
     

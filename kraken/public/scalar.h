@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRFLOAT_H
-#define KRFLOAT_H
+#ifndef KRAKEN_SCALAR_H
+#define KRAKEN_SCALAR_H
 
 namespace kraken {
 
@@ -38,4 +38,4 @@ namespace kraken {
 
 }; // namespace kraken
 
-#endif /* defined(KRFLOAT_H) */
+#endif // KRAKEN_SCALAR_H

@@ -110,7 +110,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
         light_direction_view_space.normalize();
         
         KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

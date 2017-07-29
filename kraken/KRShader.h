@@ -46,7 +46,7 @@ public:
     virtual ~KRShader();
     const char *getKey() const;
     
-    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const KRVector4 &fade_color);
+    bool bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
     
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,
@@ -141,7 +141,7 @@ public:
     std::vector<int> m_uniform_value_int;
     std::vector<Vector2> m_uniform_value_vector2;
     std::vector<Vector3> m_uniform_value_vector3;
-    std::vector<KRVector4> m_uniform_value_vector4;
+    std::vector<Vector4> m_uniform_value_vector4;
     std::vector<KRMat4> m_uniform_value_mat4;
     
     
@@ -151,7 +151,7 @@ public:
     void setUniform(int location, int value);
     void setUniform(int location, const Vector2 &value);
     void setUniform(int location, const Vector3 &value);
-    void setUniform(int location, const KRVector4 &value);
+    void setUniform(int location, const Vector4 &value);
     void setUniform(int location, const KRMat4 &value);
     
 private:

@@ -76,8 +76,8 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
             
             KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            Vector3 rim_color; KRVector4 fade_color;
-            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
+            Vector3 rim_color; Vector4 fade_color;
+            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 KRDataBlock index_data;

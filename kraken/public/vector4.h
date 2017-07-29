@@ -1,5 +1,5 @@
 //
-//  KRVector4.h
+//  Vector4.h
 //  Kraken
 //
 //  Copyright 2017 Kearwood Gilbert. All rights reserved.
@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRVECTOR4_H
-#define KRVECTOR4_H
+#ifndef KRAKEN_VECTOR4_H
+#define KRAKEN_VECTOR4_H
 
 #include <functional> // for hash<>
 
@@ -38,7 +38,7 @@ namespace kraken {
 
 class Vector3;
 
-class KRVector4 {
+class Vector4 {
     
 public:
     union {
@@ -48,34 +48,34 @@ public:
         float c[4];
     };
     
-    KRVector4();
-    KRVector4(float X, float Y, float Z, float W);
-    KRVector4(float v);
-    KRVector4(float *v);
-    KRVector4(const KRVector4 &v);
-    KRVector4(const Vector3 &v, float W);
-    ~KRVector4();
+    Vector4();
+    Vector4(float X, float Y, float Z, float W);
+    Vector4(float v);
+    Vector4(float *v);
+    Vector4(const Vector4 &v);
+    Vector4(const Vector3 &v, float W);
+    ~Vector4();
     
     
-    KRVector4& operator =(const KRVector4& b);
-    KRVector4 operator +(const KRVector4& b) const;
-    KRVector4 operator -(const KRVector4& b) const;
-    KRVector4 operator +() const;
-    KRVector4 operator -() const;
-    KRVector4 operator *(const float v) const;
-    KRVector4 operator /(const float v) const;
+    Vector4& operator =(const Vector4& b);
+    Vector4 operator +(const Vector4& b) const;
+    Vector4 operator -(const Vector4& b) const;
+    Vector4 operator +() const;
+    Vector4 operator -() const;
+    Vector4 operator *(const float v) const;
+    Vector4 operator /(const float v) const;
     
-    KRVector4& operator +=(const KRVector4& b);
-    KRVector4& operator -=(const KRVector4& b);
-    KRVector4& operator *=(const float v);
-    KRVector4& operator /=(const float v);
+    Vector4& operator +=(const Vector4& b);
+    Vector4& operator -=(const Vector4& b);
+    Vector4& operator *=(const float v);
+    Vector4& operator /=(const float v);
     
-    bool operator ==(const KRVector4& b) const;
-    bool operator !=(const KRVector4& b) const;
+    bool operator ==(const Vector4& b) const;
+    bool operator !=(const Vector4& b) const;
     
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
-    bool operator >(const KRVector4& b) const;
-    bool operator <(const KRVector4& b) const;
+    bool operator >(const Vector4& b) const;
+    bool operator <(const Vector4& b) const;
     
     float& operator[](unsigned i);
     float operator[](unsigned i) const;
@@ -84,31 +84,31 @@ public:
     float magnitude() const;
     
     void normalize();
-    static KRVector4 Normalize(const KRVector4 &v);
+    static Vector4 Normalize(const Vector4 &v);
     
-    static float Dot(const KRVector4 &v1, const KRVector4 &v2);
-    static KRVector4 Min();
-    static KRVector4 Max();
-    static const KRVector4 &Zero();
-    static KRVector4 One();
-    static KRVector4 Forward();
-    static KRVector4 Backward();
-    static KRVector4 Up();
-    static KRVector4 Down();
-    static KRVector4 Left();
-    static KRVector4 Right();
-    static KRVector4 Lerp(const KRVector4 &v1, const KRVector4 &v2, float d);
-    static KRVector4 Slerp(const KRVector4 &v1, const KRVector4 &v2, float d);
-    static void OrthoNormalize(KRVector4 &normal, KRVector4 &tangent); // Gram-Schmidt Orthonormalization
+    static float Dot(const Vector4 &v1, const Vector4 &v2);
+    static Vector4 Min();
+    static Vector4 Max();
+    static const Vector4 &Zero();
+    static Vector4 One();
+    static Vector4 Forward();
+    static Vector4 Backward();
+    static Vector4 Up();
+    static Vector4 Down();
+    static Vector4 Left();
+    static Vector4 Right();
+    static Vector4 Lerp(const Vector4 &v1, const Vector4 &v2, float d);
+    static Vector4 Slerp(const Vector4 &v1, const Vector4 &v2, float d);
+    static void OrthoNormalize(Vector4 &normal, Vector4 &tangent); // Gram-Schmidt Orthonormalization
 };
 
 } // namespace kraken
 
 namespace std {
   template<>
-  struct hash<kraken::KRVector4> {
+  struct hash<kraken::Vector4> {
   public:
-    size_t operator()(const kraken::KRVector4 &s) const
+    size_t operator()(const kraken::Vector4 &s) const
     {
       size_t h1 = hash<float>()(s.x);
       size_t h2 = hash<float>()(s.y);
@@ -119,4 +119,4 @@ namespace std {
   };
 }
 
-#endif // KRVECTOR4_H
+#endif // KRAKEN_VECTOR4_H

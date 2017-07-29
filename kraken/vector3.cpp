@@ -48,7 +48,7 @@ Vector3::Vector3(const Vector3 &v) {
     z = v.z;
 }
 
-Vector3::Vector3(const KRVector4 &v) {
+Vector3::Vector3(const Vector4 &v) {
     x = v.x;
     y = v.y;
     z = v.z;
@@ -253,7 +253,7 @@ Vector3& Vector3::operator =(const Vector3& b) {
     return *this;
 }
 
-Vector3& Vector3::operator =(const KRVector4 &b) {
+Vector3& Vector3::operator =(const Vector4 &b) {
     x = b.x;
     y = b.y;
     z = b.z;

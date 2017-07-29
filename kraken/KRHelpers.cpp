@@ -14,7 +14,7 @@ void SetUniform(GLint location, const Vector3 &v)
   if (location != -1) GLDEBUG(glUniform3f(location, v.x, v.y, v.z));
 }
 
-void SetUniform(GLint location, const KRVector4 &v)
+void SetUniform(GLint location, const Vector4 &v)
 {
   if (location != -1) GLDEBUG(glUniform4f(location, v.x, v.y, v.z, v.w));
 }

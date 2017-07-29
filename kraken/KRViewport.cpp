@@ -221,12 +221,12 @@ bool KRViewport::visible(const KRAABB &b) const
     int outside_count[6] = {0, 0, 0, 0, 0, 0};
     
     for(int iCorner=0; iCorner<8; iCorner++) {
-        KRVector4 sourceCornerVertex = KRVector4(
+        Vector4 sourceCornerVertex = Vector4(
                                                  (iCorner & 1) == 0 ? b.min.x : b.max.x,
                                                  (iCorner & 2) == 0 ? b.min.y : b.max.y,
                                                  (iCorner & 4) == 0 ? b.min.z : b.max.z, 1.0f);
         
-        KRVector4 cornerVertex = KRMat4::Dot4(m_matViewProjection, sourceCornerVertex);
+        Vector4 cornerVertex = KRMat4::Dot4(m_matViewProjection, sourceCornerVertex);
         
         if(cornerVertex.x < -cornerVertex.w) {
             outside_count[0]++;

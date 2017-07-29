@@ -313,7 +313,7 @@ void KRShader::setUniform(int location, const Vector3 &value)
         }
     }
 }
-void KRShader::setUniform(int location, const KRVector4 &value)
+void KRShader::setUniform(int location, const Vector4 &value)
 {
     if(m_uniforms[location] != -1) {
         int value_index = m_uniform_value_index[location];
@@ -351,7 +351,7 @@ void KRShader::setUniform(int location, const KRMat4 &value)
     }
 }
 
-bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const KRVector4 &fade_color) {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -503,7 +503,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
-        setUniform(KRENGINE_UNIFORM_VIEWPORT, KRVector4(
+        setUniform(KRENGINE_UNIFORM_VIEWPORT, Vector4(
                 (GLfloat)0.0,
                 (GLfloat)0.0,
                 (GLfloat)viewport.getSize().x,

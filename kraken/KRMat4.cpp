@@ -322,10 +322,10 @@ Vector3 KRMat4::Dot(const KRMat4 &m, const Vector3 &v) {
     );
 }
 
-KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
+Vector4 KRMat4::Dot4(const KRMat4 &m, const Vector4 &v) {
 #ifdef KRAKEN_USE_ARM_NEON
 
-    KRVector4 d;
+    Vector4 d;
     asm volatile (
                   "vld1.32                {d0, d1}, [%1]                  \n\t"   //Q0 = v
                   "vld1.32                {d18, d19}, [%0]!               \n\t"   //Q1 = m
@@ -345,7 +345,7 @@ KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
                   );
     return d;
 #else
-    return KRVector4(
+    return Vector4(
         v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
         v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
         v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14],
@@ -364,14 +364,14 @@ Vector3 KRMat4::DotNoTranslate(const KRMat4 &m, const Vector3 &v)
     );
 }
 
-/* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
+/* Dot Product, returning w component as if it were a Vector4 (This will be deprecated once Vector4 is implemented instead*/
 float KRMat4::DotW(const KRMat4 &m, const Vector3 &v) {
     return v.x * m.c[0*4 + 3] + v.y * m.c[1*4 + 3] + v.z * m.c[2*4 + 3] + m.c[3*4 + 3];
 }
 
 /* Dot Product followed by W-divide */
 Vector3 KRMat4::DotWDiv(const KRMat4 &m, const Vector3 &v) {
-    KRVector4 r = Dot4(m, KRVector4(v, 1.0f));
+    Vector4 r = Dot4(m, Vector4(v, 1.0f));
     return Vector3(r) / r.w;
 }
 

@@ -35,7 +35,7 @@
 #include <functional> // for hash<>
 
 #include "Vector2.h"
-#include "KRVector4.h"
+#include "Vector4.h"
 
 namespace kraken {
 
@@ -55,7 +55,7 @@ public:
     Vector3(float *v);
     Vector3(double *v);
     Vector3(const Vector3 &v);
-    Vector3(const KRVector4 &v);
+    Vector3(const Vector4 &v);
     ~Vector3();
     
     // Vector2 swizzle getters
@@ -78,7 +78,7 @@ public:
     void zy(const Vector2 &v);
     
     Vector3& operator =(const Vector3& b);
-    Vector3& operator =(const KRVector4& b);
+    Vector3& operator =(const Vector4& b);
     Vector3 operator +(const Vector3& b) const;
     Vector3 operator -(const Vector3& b) const;
     Vector3 operator +() const;

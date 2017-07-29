@@ -30,9 +30,6 @@
     <ClCompile Include="..\3rdparty\forsyth\forsyth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\kraken\KRVector4.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\kraken\KRMat4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\kraken\vector3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\kraken\vector4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -473,13 +473,7 @@
     <ClInclude Include="..\kraken\KRHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\public\KRFloat.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
     <ClInclude Include="..\kraken\public\KRMat4.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kraken\public\KRVector4.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\public\kraken.h">
@@ -498,6 +492,12 @@
       <Filter>Header Files\public</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\public\vector3.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\vector4.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\scalar.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
   </ItemGroup>
