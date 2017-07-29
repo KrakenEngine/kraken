@@ -92,23 +92,23 @@ KRAABB KRCollider::getBounds() {
     }
 }
 
-bool KRCollider::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask ) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
             if(getBounds().intersectsLine(v0, v1)) {
-                KRVector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
-                KRVector3 v1_model_space = KRMat4::Dot(getInverseModelMatrix(), v1);
+                Vector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
+                Vector3 v1_model_space = KRMat4::Dot(getInverseModelMatrix(), v1);
                 KRHitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) { 
-                    KRVector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
+                    Vector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
                     hitinfo_model_space = KRHitInfo(hit_position_model_space, KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
-                    KRVector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, KRVector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    Vector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
+                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }
@@ -117,23 +117,23 @@ bool KRCollider::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &h
     return false;
 }
 
-bool KRCollider::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
             if(getBounds().intersectsRay(v0, dir)) {
-                KRVector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
-                KRVector3 dir_model_space = KRVector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), dir));
+                Vector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
+                Vector3 dir_model_space = Vector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), dir));
                 KRHitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) {
-                    KRVector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(hit_position_model_space, KRVector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    Vector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
+                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Vector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
-                    KRVector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, KRVector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    Vector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
+                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }
@@ -142,14 +142,14 @@ bool KRCollider::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &h
     return false;
 }
 
-bool KRCollider::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
             KRAABB sphereCastBounds = KRAABB( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
-                KRVector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
-                KRVector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
+                Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
+                Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
             );
             
             if(getBounds().intersects(sphereCastBounds)) {
@@ -198,7 +198,7 @@ void KRCollider::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_li
             
             KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
                 
                 // Enable additive blending
                 GLDEBUG(glEnable(GL_BLEND));

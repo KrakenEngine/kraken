@@ -32,7 +32,7 @@
 #ifndef KRQUATERNION_H
 #define KRQUATERNION_H
 
-#include "KRVector3.h"
+#include "Vector3.h"
 
 namespace kraken {
 
@@ -41,8 +41,8 @@ public:
     KRQuaternion();
     KRQuaternion(float w, float x, float y, float z);
     KRQuaternion(const KRQuaternion& p);
-    KRQuaternion(const KRVector3 &euler);
-    KRQuaternion(const KRVector3 &from_vector, const KRVector3 &to_vector);
+    KRQuaternion(const Vector3 &euler);
+    KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector);
     ~KRQuaternion();
     
     KRQuaternion& operator =( const KRQuaternion& p );
@@ -66,9 +66,9 @@ public:
     float& operator [](unsigned i);
     float operator [](unsigned i) const;
     
-    void setEulerXYZ(const KRVector3 &euler);
-    void setEulerZYX(const KRVector3 &euler);
-    KRVector3 eulerXYZ() const;
+    void setEulerXYZ(const Vector3 &euler);
+    void setEulerZYX(const Vector3 &euler);
+    Vector3 eulerXYZ() const;
     KRMat4 rotationMatrix() const;
     
     void normalize();
@@ -77,7 +77,7 @@ public:
     void conjugate();
     static KRQuaternion Conjugate(const KRQuaternion &v1);
     
-    static KRQuaternion FromAngleAxis(const KRVector3 &axis, float angle);
+    static KRQuaternion FromAngleAxis(const Vector3 &axis, float angle);
     static KRQuaternion Lerp(const KRQuaternion &a, const KRQuaternion &b, float t);
     static KRQuaternion Slerp(const KRQuaternion &a, const KRQuaternion &b, float t);
     static float Dot(const KRQuaternion &v1, const KRQuaternion &v2);

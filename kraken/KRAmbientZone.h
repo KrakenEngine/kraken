@@ -37,7 +37,7 @@ public:
     
     virtual KRAABB getBounds();
     
-    float getContainment(const KRVector3 &pos);
+    float getContainment(const Vector3 &pos);
     
 private:
     std::string m_zone;

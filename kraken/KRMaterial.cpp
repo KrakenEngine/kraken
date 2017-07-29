@@ -44,10 +44,10 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_pNormalMap = NULL;
     m_pReflectionMap = NULL;
     m_pReflectionCube = NULL;
-    m_ambientColor = KRVector3::Zero();
-    m_diffuseColor = KRVector3::One();
-    m_specularColor = KRVector3::One();
-    m_reflectionColor = KRVector3::Zero();
+    m_ambientColor = Vector3::Zero();
+    m_diffuseColor = Vector3::One();
+    m_specularColor = Vector3::One();
+    m_reflectionColor = Vector3::Zero();
     m_tr = (GLfloat)1.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";
@@ -186,19 +186,19 @@ KRMaterial::alpha_mode_type KRMaterial::getAlphaMode() {
     return m_alpha_mode;
 }
 
-void KRMaterial::setAmbient(const KRVector3 &c) {
+void KRMaterial::setAmbient(const Vector3 &c) {
     m_ambientColor = c;
 }
 
-void KRMaterial::setDiffuse(const KRVector3 &c) {
+void KRMaterial::setDiffuse(const Vector3 &c) {
     m_diffuseColor = c;
 }
 
-void KRMaterial::setSpecular(const KRVector3 &c) {
+void KRMaterial::setSpecular(const Vector3 &c) {
     m_specularColor = c;
 }
 
-void KRMaterial::setReflection(const KRVector3 &c) {
+void KRMaterial::setReflection(const Vector3 &c) {
     m_reflectionColor = c;
 }
 
@@ -302,7 +302,7 @@ void KRMaterial::getTextures()
     }
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage) {
     bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     getTextures();
@@ -310,7 +310,7 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     Vector2 default_scale = Vector2::One();
     Vector2 default_offset = Vector2::Zero();
     
-    bool bHasReflection = m_reflectionColor != KRVector3::Zero();
+    bool bHasReflection = m_reflectionColor != Vector3::Zero();
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
     bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
     bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
@@ -334,12 +334,12 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
         for(int bone_index=0; bone_index < bones.size(); bone_index++) {
             KRBone *bone = bones[bone_index];
             
-//                KRVector3 initialRotation = bone->getInitialLocalRotation();
-//                KRVector3 rotation = bone->getLocalRotation();
-//                KRVector3 initialTranslation = bone->getInitialLocalTranslation();
-//                KRVector3 translation = bone->getLocalTranslation();
-//                KRVector3 initialScale = bone->getInitialLocalScale();
-//                KRVector3 scale = bone->getLocalScale();
+//                Vector3 initialRotation = bone->getInitialLocalRotation();
+//                Vector3 rotation = bone->getLocalRotation();
+//                Vector3 initialTranslation = bone->getInitialLocalTranslation();
+//                Vector3 translation = bone->getLocalTranslation();
+//                Vector3 initialScale = bone->getInitialLocalScale();
+//                Vector3 scale = bone->getLocalScale();
 //                
             //printf("%s - delta rotation: %.4f %.4f %.4f\n", bone->getName().c_str(), (rotation.x - initialRotation.x) * 180.0 / M_PI, (rotation.y - initialRotation.y) * 180.0 / M_PI, (rotation.z - initialRotation.z) * 180.0 / M_PI);
             //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
@@ -365,14 +365,14 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
     }
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
     }

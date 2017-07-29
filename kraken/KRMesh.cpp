@@ -159,8 +159,8 @@ void KRMesh::loadPack(KRDataBlock *data) {
     m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
     m_pIndexBaseData->lock();
     
-    m_minPoint = KRVector3(ph.minx, ph.miny, ph.minz);
-    m_maxPoint = KRVector3(ph.maxx, ph.maxy, ph.maxz);
+    m_minPoint = Vector3(ph.minx, ph.miny, ph.minz);
+    m_maxPoint = Vector3(ph.maxx, ph.maxy, ph.maxz);
     
     updateAttributeOffsets();
 }
@@ -254,7 +254,7 @@ kraken_stream_level KRMesh::getStreamLevel()
     return stream_level;
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -532,7 +532,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
     bool use_short_uvb = true;
     
     if(use_short_vertexes) {
-        for(std::vector<KRVector3>::const_iterator itr=mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
+        for(std::vector<Vector3>::const_iterator itr=mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
             if(fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f || fabsf((*itr).z) > 1.0f) {
                 use_short_vertexes = false;
             }
@@ -638,7 +638,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
     
     memset(getVertexData(), 0, m_vertex_size * mi.vertices.size());
     for(int iVertex=0; iVertex < mi.vertices.size(); iVertex++) {
-        KRVector3 source_vertex = mi.vertices[iVertex];
+        Vector3 source_vertex = mi.vertices[iVertex];
         setVertexPosition(iVertex, source_vertex);
         if(mi.bone_names.size()) {
             for(int bone_weight_index=0; bone_weight_index<KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; bone_weight_index++) {
@@ -665,10 +665,10 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
             setVertexUVB(iVertex, mi.uvb[iVertex]);
         }
         if(mi.normals.size() > iVertex) {
-            setVertexNormal(iVertex, KRVector3::Normalize(mi.normals[iVertex]));
+            setVertexNormal(iVertex, Vector3::Normalize(mi.normals[iVertex]));
         }
         if(mi.tangents.size() > iVertex) {
-            setVertexTangent(iVertex, KRVector3::Normalize(mi.tangents[iVertex]));
+            setVertexTangent(iVertex, Vector3::Normalize(mi.tangents[iVertex]));
         }
     }
     
@@ -697,19 +697,19 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
         if(calculate_normals || calculate_tangents) {
             // NOTE: This will not work properly if the vertices are already indexed
             for(int iVertex=0; iVertex < mi.vertices.size(); iVertex+= 3) {
-                KRVector3 p1 = getVertexPosition(iVertex);
-                KRVector3 p2 = getVertexPosition(iVertex+1);
-                KRVector3 p3 = getVertexPosition(iVertex+2);
-                KRVector3 v1 = p2 - p1;
-                KRVector3 v2 = p3 - p1;
+                Vector3 p1 = getVertexPosition(iVertex);
+                Vector3 p2 = getVertexPosition(iVertex+1);
+                Vector3 p3 = getVertexPosition(iVertex+2);
+                Vector3 v1 = p2 - p1;
+                Vector3 v2 = p3 - p1;
                 
                 
                 // -- Calculate normal if missing --
                 if(calculate_normals) {
-                    KRVector3 first_normal = getVertexNormal(iVertex);
+                    Vector3 first_normal = getVertexNormal(iVertex);
                     if(first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
                         // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
-                        KRVector3 normal = KRVector3::Cross(v1, v2);
+                        Vector3 normal = Vector3::Cross(v1, v2);
                         
                         normal.normalize();
                         setVertexNormal(iVertex, normal);
@@ -720,7 +720,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
                 
                 // -- Calculate tangent vector for normal mapping --
                 if(calculate_tangents) {
-                    KRVector3 first_tangent = getVertexTangent(iVertex);
+                    Vector3 first_tangent = getVertexTangent(iVertex);
                     if(first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
                         
                         Vector2 uv0 = getVertexUVA(iVertex);
@@ -731,7 +731,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
                         Vector2 st2 = Vector2(uv2.x - uv0.x, uv2.y - uv0.y);
                         double coef = 1/ (st1.x * st2.y - st2.x * st1.y);
                         
-                        KRVector3 tangent(
+                        Vector3 tangent(
                                           coef * ((v1.x * st2.y)  + (v2.x * -st1.y)),
                                           coef * ((v1.y * st2.y)  + (v2.y * -st1.y)),
                                           coef * ((v1.z * st2.y)  + (v2.z * -st1.y))
@@ -762,11 +762,11 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
     optimize();
 }
 
-KRVector3 KRMesh::getMinPoint() const {
+Vector3 KRMesh::getMinPoint() const {
     return m_minPoint;
 }
 
-KRVector3 KRMesh::getMaxPoint() const {
+Vector3 KRMesh::getMaxPoint() const {
     return m_maxPoint;
 }
 
@@ -857,39 +857,39 @@ int KRMesh::getVertexCount(int submesh) const
     return getSubmesh(submesh)->vertex_count;
 }
 
-KRVector3 KRMesh::getVertexPosition(int index) const
+Vector3 KRMesh::getVertexPosition(int index) const
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
         short *v = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX_SHORT]);
-        return KRVector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
+        return Vector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
     } else if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
-        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]));
+        return Vector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]));
     } else {
-        return KRVector3::Zero();
+        return Vector3::Zero();
     }
 }
 
-KRVector3 KRMesh::getVertexNormal(int index) const
+Vector3 KRMesh::getVertexNormal(int index) const
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
         short *v = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL_SHORT]);
-        return KRVector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
+        return Vector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
     } else if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
-        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]));
+        return Vector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]));
     } else {
-        return KRVector3::Zero();
+        return Vector3::Zero();
     }
 }
 
-KRVector3 KRMesh::getVertexTangent(int index) const
+Vector3 KRMesh::getVertexTangent(int index) const
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
         short *v = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT_SHORT]);
-        return KRVector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
+        return Vector3((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
     } else if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
-        return KRVector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]));
+        return Vector3((float *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]));
     } else {
-        return KRVector3::Zero();
+        return Vector3::Zero();
     }
 }
 
@@ -917,7 +917,7 @@ Vector2 KRMesh::getVertexUVB(int index) const
     }
 }
 
-void KRMesh::setVertexPosition(int index, const KRVector3 &v)
+void KRMesh::setVertexPosition(int index, const Vector3 &v)
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
         short *vert = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX_SHORT]);
@@ -932,7 +932,7 @@ void KRMesh::setVertexPosition(int index, const KRVector3 &v)
     }
 }
 
-void KRMesh::setVertexNormal(int index, const KRVector3 &v)
+void KRMesh::setVertexNormal(int index, const Vector3 &v)
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
         short *vert = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL_SHORT]);
@@ -947,7 +947,7 @@ void KRMesh::setVertexNormal(int index, const KRVector3 &v)
     }
 }
 
-void KRMesh::setVertexTangent(int index, const KRVector3 & v)
+void KRMesh::setVertexTangent(int index, const Vector3 & v)
 {
     if(has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
         short *vert = (short *)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT_SHORT]);
@@ -1104,9 +1104,9 @@ KRMesh::model_format_t KRMesh::getModelFormat() const
     return f;
 }
 
-bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const KRTriangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo)
 {
-    KRVector3 hit_point;
+    Vector3 hit_point;
     if(tri.rayCast(start, dir, hit_point)) {
         // ---===--- hit_point is in triangle ---===---
         
@@ -1122,7 +1122,7 @@ bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTrian
             distance_v0 /= distance_total;
             distance_v1 /= distance_total;
             distance_v2 /= distance_total;
-            KRVector3 normal = KRVector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
+            Vector3 normal = Vector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
             
             hitinfo = KRHitInfo(hit_point, normal, new_hit_distance);
             return true;
@@ -1138,7 +1138,7 @@ bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTrian
 }
 
 
-bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, KRHitInfo &hitinfo) const
+bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
     bool hit_found = false;
@@ -1184,7 +1184,7 @@ bool KRMesh::rayCast(const KRVector3 &start, const KRVector3 &dir, KRHitInfo &hi
 }
 
 
-bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
 
@@ -1236,13 +1236,13 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const
     return hit_found;
 }
 
-bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
+bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
 {
     
-    KRVector3 dir = KRVector3::Normalize(v1 - v0);
-    KRVector3 start = v0;
+    Vector3 dir = Vector3::Normalize(v1 - v0);
+    Vector3 start = v0;
     
-    KRVector3 new_hit_point;
+    Vector3 new_hit_point;
     float new_hit_distance;
     
     KRTriangle3 world_tri = KRTriangle3(KRMat4::Dot(model_to_world, tri[0]), KRMat4::Dot(model_to_world, tri[1]), KRMat4::Dot(model_to_world, tri[2]));
@@ -1259,7 +1259,7 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const
             distance_v0 /= distance_total;
             distance_v1 /= distance_total;
             distance_v2 /= distance_total;
-            KRVector3 normal = KRVector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
+            Vector3 normal = Vector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
             */
             hitinfo = KRHitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
             return true;
@@ -1269,11 +1269,11 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const
     return false;
 }
 
-bool KRMesh::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const
+bool KRMesh::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
     KRHitInfo new_hitinfo;
-    KRVector3 dir = KRVector3::Normalize(v1 - v0);
+    Vector3 dir = Vector3::Normalize(v1 - v0);
     if(rayCast(v0, dir, new_hitinfo)) {
         if((new_hitinfo.getPosition() - v0).sqrMagnitude() <= (v1 - v0).sqrMagnitude()) {
             // The hit was between v1 and v2
@@ -1333,11 +1333,11 @@ void KRMesh::convertToIndexed()
             
             for(int i=0; i < vertex_count; i++) {
                 
-                KRVector3 vertex_position = getVertexPosition(source_index);
+                Vector3 vertex_position = getVertexPosition(source_index);
                 Vector2 vertex_uva = getVertexUVA(source_index);
                 Vector2 vertex_uvb = getVertexUVB(source_index);
-                KRVector3 vertex_normal = getVertexNormal(source_index);
-                KRVector3 vertex_tangent = getVertexTangent(source_index);
+                Vector3 vertex_normal = getVertexNormal(source_index);
+                Vector3 vertex_tangent = getVertexTangent(source_index);
                 std::vector<int> vertex_bone_indexes;
                 if(has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
                     vertex_bone_indexes.push_back(getBoneIndex(source_index, 0));

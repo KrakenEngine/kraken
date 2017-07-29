@@ -51,7 +51,7 @@ KRVector4::KRVector4(const KRVector4 &v) {
     w = v.w;
 }
 
-KRVector4::KRVector4(const KRVector3 &v, float W) {
+KRVector4::KRVector4(const Vector3 &v, float W) {
     x = v.x;
     y = v.y;
     z = v.z;

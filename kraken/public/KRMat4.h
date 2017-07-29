@@ -30,7 +30,7 @@
 //
 
 
-#include "KRVector3.h"
+#include "Vector3.h"
 #include "KRVector4.h"
 
 #ifndef KRMAT4_H
@@ -56,7 +56,7 @@ class KRMat4 {
     
     KRMat4(float *pMat);
     
-    KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans);
+    KRMat4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans);
     
     // Destructor
     ~KRMat4();
@@ -85,9 +85,9 @@ class KRMat4 {
     void perspective(float fov, float aspect, float nearz, float farz);
     void ortho(float left, float right, float top, float bottom, float nearz, float farz);
     void translate(float x, float y, float z);
-    void translate(const KRVector3 &v);
+    void translate(const Vector3 &v);
     void scale(float x, float y, float z);
-    void scale(const KRVector3 &v);
+    void scale(const Vector3 &v);
     void scale(float s);
     void rotate(float angle, AXIS axis);
     void rotate(const KRQuaternion &q);
@@ -95,19 +95,19 @@ class KRMat4 {
     bool invert();
     void transpose();
     
-    static KRVector3 DotNoTranslate(const KRMat4 &m, const KRVector3 &v); // Dot product without including translation; useful for transforming normals and tangents
+    static Vector3 DotNoTranslate(const KRMat4 &m, const Vector3 &v); // Dot product without including translation; useful for transforming normals and tangents
     static KRMat4 Invert(const KRMat4 &m);
     static KRMat4 Transpose(const KRMat4 &m);
-    static KRVector3 Dot(const KRMat4 &m, const KRVector3 &v);
+    static Vector3 Dot(const KRMat4 &m, const Vector3 &v);
     static KRVector4 Dot4(const KRMat4 &m, const KRVector4 &v);
-    static float DotW(const KRMat4 &m, const KRVector3 &v);
-    static KRVector3 DotWDiv(const KRMat4 &m, const KRVector3 &v);
+    static float DotW(const KRMat4 &m, const Vector3 &v);
+    static Vector3 DotWDiv(const KRMat4 &m, const Vector3 &v);
     
-    static KRMat4 LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection);
+    static KRMat4 LookAt(const Vector3 &cameraPos, const Vector3 &lookAtPos, const Vector3 &upDirection);
     
-    static KRMat4 Translation(const KRVector3 &v);
-    static KRMat4 Rotation(const KRVector3 &v);
-    static KRMat4 Scaling(const KRVector3 &v);
+    static KRMat4 Translation(const Vector3 &v);
+    static KRMat4 Rotation(const Vector3 &v);
+    static KRMat4 Scaling(const Vector3 &v);
 };
 
 } // namespace kraken

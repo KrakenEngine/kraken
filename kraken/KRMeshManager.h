@@ -127,7 +127,7 @@ public:
         GLfloat x;
         GLfloat y;
         GLfloat z;
-    } KRVector3D;
+    } Vector3D;
     
     typedef struct {
         GLfloat u;
@@ -135,12 +135,12 @@ public:
     } TexCoord;
     
     typedef struct {
-        KRVector3D vertex;
+        Vector3D vertex;
         TexCoord uva;
     } RandomParticleVertexData;
     
     typedef struct {
-        KRVector3D vertex;
+        Vector3D vertex;
     } VolumetricLightingVertexData;
     
 

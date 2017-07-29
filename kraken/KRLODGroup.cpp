@@ -14,7 +14,7 @@ KRLODGroup::KRLODGroup(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_min_distance = 0.0f;
     m_max_distance = 0.0f;
-    m_reference = KRAABB(KRVector3::Zero(), KRVector3::Zero());
+    m_reference = KRAABB(Vector3::Zero(), Vector3::Zero());
     m_use_world_units = true;
 }
 
@@ -71,7 +71,7 @@ void KRLODGroup::loadXML(tinyxml2::XMLElement *e)
         z = 0.0f;
     }
     
-    m_reference.min = KRVector3(x,y,z);
+    m_reference.min = Vector3(x,y,z);
     
     x=0.0f; y=0.0f; z=0.0f;
     if(e->QueryFloatAttribute("reference_max_x", &x) != tinyxml2::XML_SUCCESS) {
@@ -83,7 +83,7 @@ void KRLODGroup::loadXML(tinyxml2::XMLElement *e)
     if(e->QueryFloatAttribute("reference_max_z", &z) != tinyxml2::XML_SUCCESS) {
         z = 0.0f;
     }
-    m_reference.max = KRVector3(x,y,z);
+    m_reference.max = Vector3(x,y,z);
     
     m_use_world_units = true;
     if(e->QueryBoolAttribute("use_world_units", &m_use_world_units) != tinyxml2::XML_SUCCESS) {
@@ -114,19 +114,19 @@ KRNode::LodVisibility KRLODGroup::calcLODVisibility(const KRViewport &viewport)
         float sqr_distance;
         float sqr_prestream_distance;
         
-        KRVector3 world_camera_position = viewport.getCameraPosition();
-        KRVector3 local_camera_position = worldToLocal(world_camera_position);
-        KRVector3 local_reference_point = m_reference.nearestPoint(local_camera_position);
+        Vector3 world_camera_position = viewport.getCameraPosition();
+        Vector3 local_camera_position = worldToLocal(world_camera_position);
+        Vector3 local_reference_point = m_reference.nearestPoint(local_camera_position);
         
         if(m_use_world_units) {
-            KRVector3 world_reference_point = localToWorld(local_reference_point);
+            Vector3 world_reference_point = localToWorld(local_reference_point);
             sqr_distance = (world_camera_position - world_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
             sqr_prestream_distance = getContext().KRENGINE_PRESTREAM_DISTANCE * getContext().KRENGINE_PRESTREAM_DISTANCE;
         } else {
             sqr_distance = (local_camera_position - local_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
             
-            KRVector3 world_reference_point = localToWorld(local_reference_point);
-            sqr_prestream_distance = worldToLocal(KRVector3::Normalize(world_reference_point - world_camera_position) * getContext().KRENGINE_PRESTREAM_DISTANCE).sqrMagnitude(); // TODO, FINDME - Optimize with precalc?
+            Vector3 world_reference_point = localToWorld(local_reference_point);
+            sqr_prestream_distance = worldToLocal(Vector3::Normalize(world_reference_point - world_camera_position) * getContext().KRENGINE_PRESTREAM_DISTANCE).sqrMagnitude(); // TODO, FINDME - Optimize with precalc?
             
         }
         

@@ -41,7 +41,7 @@ void KROctree::add(KRNode *pNode)
             bool bInsideRoot = false;
             while(!bInsideRoot) {
                 KRAABB rootBounds = m_pRootNode->getBounds();
-                KRVector3 rootSize = rootBounds.size();
+                Vector3 rootSize = rootBounds.size();
                 if(nodeBounds.min.x < rootBounds.min.x || nodeBounds.min.y < rootBounds.min.y || nodeBounds.min.z < rootBounds.min.z) {
                     m_pRootNode = new KROctreeNode(NULL, KRAABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
                 } else if(nodeBounds.max.x > rootBounds.max.x || nodeBounds.max.y > rootBounds.max.y || nodeBounds.max.z > rootBounds.max.z) {
@@ -97,7 +97,7 @@ std::set<KRNode *> &KROctree::getOuterSceneNodes()
 }
 
 
-bool KROctree::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     std::vector<KRCollider *> outer_colliders;
@@ -118,7 +118,7 @@ bool KROctree::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hit
     return hit_found;
 }
 
-bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     for(std::set<KRNode *>::iterator outer_nodes_itr=m_outerSceneNodes.begin(); outer_nodes_itr != m_outerSceneNodes.end(); outer_nodes_itr++) {
@@ -133,7 +133,7 @@ bool KROctree::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hit
     return hit_found;
 }
 
-bool KROctree::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     std::vector<KRCollider *> outer_colliders;

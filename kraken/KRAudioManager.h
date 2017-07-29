@@ -105,11 +105,11 @@ public:
     // Listener position and orientation
     KRScene *getListenerScene();
     void setListenerScene(KRScene *scene);
-    void setListenerOrientation(const KRVector3 &position, const KRVector3 &forward, const KRVector3 &up);
+    void setListenerOrientation(const Vector3 &position, const Vector3 &forward, const Vector3 &up);
     void setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix);
-    KRVector3 &getListenerForward();
-    KRVector3 &getListenerPosition();
-    KRVector3 &getListenerUp();
+    Vector3 &getListenerForward();
+    Vector3 &getListenerPosition();
+    Vector3 &getListenerUp();
     
     
     // Global audio gain / attenuation
@@ -166,9 +166,9 @@ private:
     float m_global_ambient_gain;
     float m_global_gain;
     
-    KRVector3 m_listener_position;
-    KRVector3 m_listener_forward;
-    KRVector3 m_listener_up;
+    Vector3 m_listener_position;
+    Vector3 m_listener_forward;
+    Vector3 m_listener_up;
     
     unordered_map<std::string, KRAudioSample *> m_sounds;
     

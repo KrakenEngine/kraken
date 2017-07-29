@@ -32,32 +32,32 @@
 #ifndef KRTRIANGLE3_H
 #define KRTRIANGLE3_H
 
-#include "KRVector3.h"
+#include "Vector3.h"
 
 namespace kraken {
 
 class KRTriangle3
 {
 public:
-    KRVector3 vert[3];
+    Vector3 vert[3];
 
     KRTriangle3(const KRTriangle3 &tri);
-    KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3);
+    KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
     ~KRTriangle3();
     
-    KRVector3 calculateNormal() const;
+    Vector3 calculateNormal() const;
     
     bool operator ==(const KRTriangle3& b) const;
     bool operator !=(const KRTriangle3& b) const;
     KRTriangle3& operator =(const KRTriangle3& b);
-    KRVector3& operator[](unsigned int i);
-    KRVector3 operator[](unsigned int i) const;
+    Vector3& operator[](unsigned int i);
+    Vector3 operator[](unsigned int i) const;
     
-    bool rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const;
-    bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
+    bool rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const;
+    bool sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const;
     
-    bool containsPoint(const KRVector3 &p) const;
-    KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
+    bool containsPoint(const Vector3 &p) const;
+    Vector3 closestPointOnTriangle(const Vector3 &p) const;
 };
 
 } // namespace kraken

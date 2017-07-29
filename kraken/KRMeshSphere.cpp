@@ -52,25 +52,25 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
         ~Facet3() {
             
         }
-        KRVector3 p1;
-        KRVector3 p2;
-        KRVector3 p3;
+        Vector3 p1;
+        Vector3 p2;
+        Vector3 p3;
     };
     
     std::vector<Facet3> f = std::vector<Facet3>(facet_count);
     
     int i,it;
     float a;
-    KRVector3 p[6] = {
-        KRVector3(0,0,1),
-        KRVector3(0,0,-1),
-        KRVector3(-1,-1,0),
-        KRVector3(1,-1,0),
-        KRVector3(1,1,0),
-        KRVector3(-1,1,0)
+    Vector3 p[6] = {
+        Vector3(0,0,1),
+        Vector3(0,0,-1),
+        Vector3(-1,-1,0),
+        Vector3(1,-1,0),
+        Vector3(1,1,0),
+        Vector3(-1,1,0)
     };
     
-    KRVector3 pa,pb,pc;
+    Vector3 pa,pb,pc;
     int nt = 0,ntold;
     
     /* Create the level 0 object */

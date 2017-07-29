@@ -96,13 +96,13 @@ public:
     
     typedef struct {
         model_format_t format;
-        std::vector<KRVector3> vertices;
+        std::vector<Vector3> vertices;
         std::vector<__uint16_t> vertex_indexes;
         std::vector<std::pair<int, int> > vertex_index_bases;
         std::vector<Vector2> uva;
         std::vector<Vector2> uvb;
-        std::vector<KRVector3> normals;
-        std::vector<KRVector3> tangents;
+        std::vector<Vector3> normals;
+        std::vector<Vector3> tangents;
         std::vector<int> submesh_starts;
         std::vector<int> submesh_lengths;
         std::vector<std::string> material_names;
@@ -112,7 +112,7 @@ public:
         std::vector<std::vector<float> > bone_weights;
     } mesh_info;
     
-    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const KRVector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
+    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
     
     std::string m_lodBaseName;
     
@@ -131,8 +131,8 @@ public:
     
     GLfloat getMaxDimension();
     
-    KRVector3 getMinPoint() const;
-    KRVector3 getMaxPoint() const;
+    Vector3 getMinPoint() const;
+    Vector3 getMaxPoint() const;
     
     class Submesh {
     public:
@@ -185,17 +185,17 @@ public:
     int getSubmeshCount() const;
     int getVertexCount(int submesh) const;
     int getTriangleVertexIndex(int submesh, int index) const;
-    KRVector3 getVertexPosition(int index) const;
-    KRVector3 getVertexNormal(int index) const;
-    KRVector3 getVertexTangent(int index) const;
+    Vector3 getVertexPosition(int index) const;
+    Vector3 getVertexNormal(int index) const;
+    Vector3 getVertexTangent(int index) const;
     Vector2 getVertexUVA(int index) const;
     Vector2 getVertexUVB(int index) const;
     int getBoneIndex(int index, int weight_index) const;
     float getBoneWeight(int index, int weight_index) const;
     
-    void setVertexPosition(int index, const KRVector3 &v);
-    void setVertexNormal(int index, const KRVector3 &v);
-    void setVertexTangent(int index, const KRVector3 & v);
+    void setVertexPosition(int index, const Vector3 &v);
+    void setVertexNormal(int index, const Vector3 &v);
+    void setVertexTangent(int index, const Vector3 & v);
     void setVertexUVA(int index, const Vector2 &v);
     void setVertexUVB(int index, const Vector2 &v);
     void setBoneIndex(int index, int weight_index, int bone_index);
@@ -211,9 +211,9 @@ public:
     
     model_format_t getModelFormat() const;
     
-    bool lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo) const;
-    bool rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo) const;
-    bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo) const;
+    bool lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo) const;
+    bool rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo) const;
+    bool sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const;
     
     static int GetLODCoverage(const std::string &name);
     
@@ -230,8 +230,8 @@ private:
     void getSubmeshes();
     void getMaterials();
     
-    static bool rayCast(const KRVector3 &start, const KRVector3 &dir, const KRTriangle3 &tri, const KRVector3 &tri_n0, const KRVector3 &tri_n1, const KRVector3 &tri_n2, KRHitInfo &hitinfo);
-    static bool sphereCast(const KRMat4 &model_to_world, const KRVector3 &v0, const KRVector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
+    static bool rayCast(const Vector3 &start, const Vector3 &dir, const KRTriangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;
@@ -240,7 +240,7 @@ private:
     bool m_hasTransparency;
     
     
-    KRVector3 m_minPoint, m_maxPoint;
+    Vector3 m_minPoint, m_maxPoint;
     
 
 

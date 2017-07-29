@@ -64,17 +64,17 @@ KRQuaternion& KRQuaternion::operator =( const KRQuaternion& p ) {
     return *this;
 }
 
-KRQuaternion::KRQuaternion(const KRVector3 &euler) {
+KRQuaternion::KRQuaternion(const Vector3 &euler) {
     setEulerZYX(euler);
 }
 
-KRQuaternion::KRQuaternion(const KRVector3 &from_vector, const KRVector3 &to_vector) {
+KRQuaternion::KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector) {
     
-    KRVector3 a = KRVector3::Cross(from_vector, to_vector);
+    Vector3 a = Vector3::Cross(from_vector, to_vector);
     m_val[0] = a[0];
     m_val[1] = a[1];
     m_val[2] = a[2];
-    m_val[3] = sqrt(from_vector.sqrMagnitude() * to_vector.sqrMagnitude()) + KRVector3::Dot(from_vector, to_vector);
+    m_val[3] = sqrt(from_vector.sqrMagnitude() * to_vector.sqrMagnitude()) + Vector3::Dot(from_vector, to_vector);
     normalize();
 }
 
@@ -82,14 +82,14 @@ KRQuaternion::~KRQuaternion() {
     
 }
 
-void KRQuaternion::setEulerXYZ(const KRVector3 &euler)
+void KRQuaternion::setEulerXYZ(const Vector3 &euler)
 {
-    *this = KRQuaternion::FromAngleAxis(KRVector3(1.0f, 0.0f, 0.0f), euler.x)
-        * KRQuaternion::FromAngleAxis(KRVector3(0.0f, 1.0f, 0.0f), euler.y)
-        * KRQuaternion::FromAngleAxis(KRVector3(0.0f, 0.0f, 1.0f), euler.z);
+    *this = KRQuaternion::FromAngleAxis(Vector3(1.0f, 0.0f, 0.0f), euler.x)
+        * KRQuaternion::FromAngleAxis(Vector3(0.0f, 1.0f, 0.0f), euler.y)
+        * KRQuaternion::FromAngleAxis(Vector3(0.0f, 0.0f, 1.0f), euler.z);
 }
 
-void KRQuaternion::setEulerZYX(const KRVector3 &euler) {
+void KRQuaternion::setEulerZYX(const Vector3 &euler) {
     // ZYX Order!
     float c1 = cos(euler[0] * 0.5f);
     float c2 = cos(euler[1] * 0.5f);
@@ -112,22 +112,22 @@ float &KRQuaternion::operator [](unsigned i) {
     return m_val[i];
 }
 
-KRVector3 KRQuaternion::eulerXYZ() const {
+Vector3 KRQuaternion::eulerXYZ() const {
     double a2 = 2 * (m_val[0] * m_val[2] - m_val[1] * m_val[3]);
     if(a2 <= -0.99999) {
-        return KRVector3(
+        return Vector3(
            2.0 * atan2(m_val[1], m_val[0]),
            -PI * 0.5f,
            0
         );
     } else if(a2 >= 0.99999) {
-        return KRVector3(
+        return Vector3(
            2.0 * atan2(m_val[1], m_val[0]),
            PI * 0.5f,
            0
         );
     } else {
-        return KRVector3(
+        return Vector3(
              atan2(2 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]), (1 - 2 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]))),
              asin(a2),
              atan2(2 * (m_val[0] * m_val[3] + m_val[1] * m_val[2]), (1 - 2 * (m_val[2] * m_val[2] + m_val[3] * m_val[3])))
@@ -283,7 +283,7 @@ KRMat4 KRQuaternion::rotationMatrix() const {
     KRMat4 matRotate;
     
     /*
-    KRVector3 euler = eulerXYZ();
+    Vector3 euler = eulerXYZ();
     
     matRotate.rotate(euler.x, X_AXIS);
     matRotate.rotate(euler.y, Y_AXIS);
@@ -309,7 +309,7 @@ KRMat4 KRQuaternion::rotationMatrix() const {
 }
 
 
-KRQuaternion KRQuaternion::FromAngleAxis(const KRVector3 &axis, float angle)
+KRQuaternion KRQuaternion::FromAngleAxis(const Vector3 &axis, float angle)
 {
     float ha = angle * 0.5f;
     float sha = sin(ha);

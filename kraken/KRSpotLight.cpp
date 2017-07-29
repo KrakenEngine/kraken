@@ -55,7 +55,7 @@ KRAABB KRSpotLight::getBounds() {
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
-    return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
+    return KRAABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
 }
 
 

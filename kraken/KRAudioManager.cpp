@@ -1221,28 +1221,28 @@ void KRAudioManager::makeCurrentContext()
 void KRAudioManager::setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix)
 {
     setListenerOrientation(
-        KRMat4::Dot(modelMatrix, KRVector3(0.0, 0.0, 0.0)),
-        KRVector3::Normalize(KRMat4::Dot(modelMatrix, KRVector3(0.0, 0.0, -1.0)) - m_listener_position),
-        KRVector3::Normalize(KRMat4::Dot(modelMatrix, KRVector3(0.0, 1.0, 0.0)) - m_listener_position)
+        KRMat4::Dot(modelMatrix, Vector3(0.0, 0.0, 0.0)),
+        Vector3::Normalize(KRMat4::Dot(modelMatrix, Vector3(0.0, 0.0, -1.0)) - m_listener_position),
+        Vector3::Normalize(KRMat4::Dot(modelMatrix, Vector3(0.0, 1.0, 0.0)) - m_listener_position)
     );
 }
 
-KRVector3 &KRAudioManager::getListenerForward()
+Vector3 &KRAudioManager::getListenerForward()
 {
     return m_listener_forward;
 }
 
-KRVector3 &KRAudioManager::getListenerPosition()
+Vector3 &KRAudioManager::getListenerPosition()
 {
     return m_listener_position;
 }
 
-KRVector3 &KRAudioManager::getListenerUp()
+Vector3 &KRAudioManager::getListenerUp()
 {
     return m_listener_up;
 }
 
-void KRAudioManager::setListenerOrientation(const KRVector3 &position, const KRVector3 &forward, const KRVector3 &up)
+void KRAudioManager::setListenerOrientation(const Vector3 &position, const Vector3 &forward, const Vector3 &up)
 {
     m_listener_position = position;
     m_listener_forward = forward;
@@ -1459,14 +1459,14 @@ void KRAudioManager::startFrame(float deltaTime)
     m_prev_mapped_sources.clear();
     m_mapped_sources.swap(m_prev_mapped_sources);
     
-    KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
+    Vector3 listener_right = Vector3::Cross(m_listener_forward, m_listener_up);
     std::set<KRAudioSource *> active_sources = m_activeAudioSources;
     
     
     for(std::set<KRAudioSource *>::iterator itr=active_sources.begin(); itr != active_sources.end(); itr++) {
         KRAudioSource *source = *itr;
-        KRVector3 source_world_position = source->getWorldTranslation();
-        KRVector3 diff = source_world_position - m_listener_position;
+        Vector3 source_world_position = source->getWorldTranslation();
+        Vector3 diff = source_world_position - m_listener_position;
         float distance = diff.magnitude();
         float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
         
@@ -1475,14 +1475,14 @@ void KRAudioManager::startFrame(float deltaTime)
         
         if(gain > 0.0f) {
             
-            KRVector3 source_listener_space = KRVector3(
-                                                        KRVector3::Dot(listener_right, diff),
-                                                        KRVector3::Dot(m_listener_up, diff),
-                                                        KRVector3::Dot(m_listener_forward, diff)
+            Vector3 source_listener_space = Vector3(
+                                                        Vector3::Dot(listener_right, diff),
+                                                        Vector3::Dot(m_listener_up, diff),
+                                                        Vector3::Dot(m_listener_forward, diff)
                                                         );
             
             
-            KRVector3 source_dir = KRVector3::Normalize(source_listener_space);
+            Vector3 source_dir = Vector3::Normalize(source_listener_space);
             
             
             
@@ -1699,13 +1699,13 @@ void KRAudioManager::renderITD()
      float head_radius = 0.7431f; // 0.74ft = 22cm
      float half_max_itd_time = head_radius / speed_of_sound / 2.0f; // half of ITD time (Interaural time difference) when audio source is directly 90 degrees azimuth to one ear.
      
-     //    KRVector3 m_listener_position;
-     //    KRVector3 m_listener_forward;
-     //    KRVector3 m_listener_up;
+     //    Vector3 m_listener_position;
+     //    Vector3 m_listener_forward;
+     //    Vector3 m_listener_up;
      
-     KRVector3 listener_right = KRVector3::Cross(m_listener_forward, m_listener_up);
-     KRVector3 listener_right_ear = m_listener_position + listener_right * head_radius / 2.0f;
-     KRVector3 listener_left_ear = m_listener_position - listener_right * head_radius / 2.0f;
+     Vector3 listener_right = Vector3::Cross(m_listener_forward, m_listener_up);
+     Vector3 listener_right_ear = m_listener_position + listener_right * head_radius / 2.0f;
+     Vector3 listener_left_ear = m_listener_position - listener_right * head_radius / 2.0f;
      
      // Get a pointer to the dataBuffer of the AudioBufferList
      
@@ -1739,10 +1739,10 @@ void KRAudioManager::renderITD()
      // ----====---- Render direct / HRTF audio ----====----
      for(std::set<KRAudioSource *>::iterator itr=m_activeAudioSources.begin(); itr != m_activeAudioSources.end(); itr++) {
      KRAudioSource *source = *itr;
-     KRVector3 listener_to_source = source->getWorldTranslation() - m_listener_position;
-     KRVector3 right_ear_to_source = source->getWorldTranslation() - listener_right_ear;
-     KRVector3 left_ear_to_source = source->getWorldTranslation() - listener_left_ear;
-     KRVector3 source_direction = KRVector3::Normalize(listener_to_source);
+     Vector3 listener_to_source = source->getWorldTranslation() - m_listener_position;
+     Vector3 right_ear_to_source = source->getWorldTranslation() - listener_right_ear;
+     Vector3 left_ear_to_source = source->getWorldTranslation() - listener_left_ear;
+     Vector3 source_direction = Vector3::Normalize(listener_to_source);
      float right_ear_distance = right_ear_to_source.magnitude();
      float left_ear_distance = left_ear_to_source.magnitude();
      float right_itd_time = right_ear_distance / speed_of_sound;

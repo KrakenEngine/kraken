@@ -14,7 +14,7 @@
 #include <functional> // for hash<>
 
 #include "Vector2.h"
-#include "KRVector3.h"
+#include "Vector3.h"
 
 namespace kraken {
 
@@ -22,24 +22,24 @@ class KRMat4;
 
 class KRAABB {
 public:
-    KRAABB(const KRVector3 &minPoint, const KRVector3 &maxPoint);
-    KRAABB(const KRVector3 &corner1, const KRVector3 &corner2, const KRMat4 &modelMatrix);
+    KRAABB(const Vector3 &minPoint, const Vector3 &maxPoint);
+    KRAABB(const Vector3 &corner1, const Vector3 &corner2, const KRMat4 &modelMatrix);
     KRAABB();
     ~KRAABB();
     
-    void scale(const KRVector3 &s);
+    void scale(const Vector3 &s);
     void scale(float s);
     
-    KRVector3 center() const;
-    KRVector3 size() const;
+    Vector3 center() const;
+    Vector3 size() const;
     float volume() const;
     bool intersects(const KRAABB& b) const;
     bool contains(const KRAABB &b) const;
-    bool contains(const KRVector3 &v) const;
+    bool contains(const Vector3 &v) const;
     
-    bool intersectsLine(const KRVector3 &v1, const KRVector3 &v2) const;
-    bool intersectsRay(const KRVector3 &v1, const KRVector3 &dir) const;
-    bool intersectsSphere(const KRVector3 &center, float radius) const;
+    bool intersectsLine(const Vector3 &v1, const Vector3 &v2) const;
+    bool intersectsRay(const Vector3 &v1, const Vector3 &dir) const;
+    bool intersectsSphere(const Vector3 &center, float radius) const;
     void encapsulate(const KRAABB & b);
     
     KRAABB& operator =(const KRAABB& b);
@@ -50,14 +50,14 @@ public:
     bool operator >(const KRAABB& b) const;
     bool operator <(const KRAABB& b) const;
     
-    KRVector3 min;
-    KRVector3 max;
+    Vector3 min;
+    Vector3 max;
     
     static KRAABB Infinite();
     static KRAABB Zero();
     
     float longest_radius() const;
-    KRVector3 nearestPoint(const KRVector3 & v) const;
+    Vector3 nearestPoint(const Vector3 & v) const;
 };
 
 } // namespace kraken
@@ -68,8 +68,8 @@ namespace std {
     public:
         size_t operator()(const kraken::KRAABB &s) const
         {
-            size_t h1 = hash<kraken::KRVector3>()(s.min);
-            size_t h2 = hash<kraken::KRVector3>()(s.max);
+            size_t h1 = hash<kraken::Vector3>()(s.min);
+            size_t h2 = hash<kraken::Vector3>()(s.max);
             return h1 ^ ( h2 << 1 );
         }
     };

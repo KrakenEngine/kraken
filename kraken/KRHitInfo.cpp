@@ -34,13 +34,13 @@
 
 KRHitInfo::KRHitInfo()
 {
-    m_position = KRVector3::Zero();
-    m_normal = KRVector3::Zero();
+    m_position = Vector3::Zero();
+    m_normal = Vector3::Zero();
     m_distance = 0.0f;
     m_node = NULL;
 }
 
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance, KRNode *node)
+KRHitInfo::KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node)
 {
     m_position = position;
     m_normal = normal;
@@ -48,7 +48,7 @@ KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const f
     m_node = node;
 }
 
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance)
+KRHitInfo::KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance)
 {
     m_position = position;
     m_normal = normal;
@@ -63,15 +63,15 @@ KRHitInfo::~KRHitInfo()
 
 bool KRHitInfo::didHit() const
 {
-    return m_normal != KRVector3::Zero();
+    return m_normal != Vector3::Zero();
 }
 
-KRVector3 KRHitInfo::getPosition() const
+Vector3 KRHitInfo::getPosition() const
 {
     return m_position;
 }
 
-KRVector3 KRHitInfo::getNormal() const
+Vector3 KRHitInfo::getNormal() const
 {
     return m_normal;
 }

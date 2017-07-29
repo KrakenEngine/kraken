@@ -49,7 +49,7 @@ KRMat4::KRMat4(float *pMat) {
     memcpy(c, pMat, sizeof(float) * 16);
 }
 
-KRMat4::KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans)
+KRMat4::KRMat4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans)
 {
     c[0]  = axis_x.x;  c[1]  = axis_x.y;   c[2]  = axis_x.z;   c[3]  = 0.0f;
     c[4]  = axis_y.x;  c[5]  = axis_y.y;   c[6]  = axis_y.z;   c[7]  = 0.0f;
@@ -155,7 +155,7 @@ void KRMat4::translate(float x, float y, float z) {
     *this *= newMatrix;
 }
 
-void KRMat4::translate(const KRVector3 &v)
+void KRMat4::translate(const Vector3 &v)
 {
     translate(v.x, v.y, v.z);
 }
@@ -217,7 +217,7 @@ void KRMat4::scale(float x, float y, float z) {
     *this *= newMatrix;
 }
 
-void KRMat4::scale(const KRVector3 &v) {
+void KRMat4::scale(const Vector3 &v) {
     scale(v.x, v.y, v.z);
 }
 
@@ -313,9 +313,9 @@ void KRMat4::transpose() {
     memcpy(c, trans, sizeof(float) * 16);
 }
 
-/* Dot Product, returning KRVector3 */
-KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
-    return KRVector3(
+/* Dot Product, returning Vector3 */
+Vector3 KRMat4::Dot(const KRMat4 &m, const Vector3 &v) {
+    return Vector3(
         v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
         v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
         v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14]
@@ -355,9 +355,9 @@ KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
 }
 
 // Dot product without including translation; useful for transforming normals and tangents
-KRVector3 KRMat4::DotNoTranslate(const KRMat4 &m, const KRVector3 &v)
+Vector3 KRMat4::DotNoTranslate(const KRMat4 &m, const Vector3 &v)
 {
-    return KRVector3(
+    return Vector3(
          v.x * m.c[0] + v.y * m.c[4] + v.z * m.c[8],
          v.x * m.c[1] + v.y * m.c[5] + v.z * m.c[9],
          v.x * m.c[2] + v.y * m.c[6] + v.z * m.c[10]
@@ -365,24 +365,24 @@ KRVector3 KRMat4::DotNoTranslate(const KRMat4 &m, const KRVector3 &v)
 }
 
 /* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
-float KRMat4::DotW(const KRMat4 &m, const KRVector3 &v) {
+float KRMat4::DotW(const KRMat4 &m, const Vector3 &v) {
     return v.x * m.c[0*4 + 3] + v.y * m.c[1*4 + 3] + v.z * m.c[2*4 + 3] + m.c[3*4 + 3];
 }
 
 /* Dot Product followed by W-divide */
-KRVector3 KRMat4::DotWDiv(const KRMat4 &m, const KRVector3 &v) {
+Vector3 KRMat4::DotWDiv(const KRMat4 &m, const Vector3 &v) {
     KRVector4 r = Dot4(m, KRVector4(v, 1.0f));
-    return KRVector3(r) / r.w;
+    return Vector3(r) / r.w;
 }
 
-KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection)
+KRMat4 KRMat4::LookAt(const Vector3 &cameraPos, const Vector3 &lookAtPos, const Vector3 &upDirection)
 {
     KRMat4 matLookat;
-    KRVector3 lookat_z_axis = lookAtPos - cameraPos;
+    Vector3 lookat_z_axis = lookAtPos - cameraPos;
     lookat_z_axis.normalize();
-    KRVector3 lookat_x_axis = KRVector3::Cross(upDirection, lookat_z_axis);
+    Vector3 lookat_x_axis = Vector3::Cross(upDirection, lookat_z_axis);
     lookat_x_axis.normalize();
-    KRVector3 lookat_y_axis = KRVector3::Cross(lookat_z_axis, lookat_x_axis);
+    Vector3 lookat_y_axis = Vector3::Cross(lookat_z_axis, lookat_x_axis);
     
     matLookat.getPointer()[0] = lookat_x_axis.x;
     matLookat.getPointer()[1] = lookat_y_axis.x;
@@ -396,9 +396,9 @@ KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, co
     matLookat.getPointer()[9] = lookat_y_axis.z;
     matLookat.getPointer()[10] = lookat_z_axis.z;
     
-    matLookat.getPointer()[12] = -KRVector3::Dot(lookat_x_axis, cameraPos);
-    matLookat.getPointer()[13] = -KRVector3::Dot(lookat_y_axis, cameraPos);
-    matLookat.getPointer()[14] = -KRVector3::Dot(lookat_z_axis, cameraPos);
+    matLookat.getPointer()[12] = -Vector3::Dot(lookat_x_axis, cameraPos);
+    matLookat.getPointer()[13] = -Vector3::Dot(lookat_y_axis, cameraPos);
+    matLookat.getPointer()[14] = -Vector3::Dot(lookat_z_axis, cameraPos);
     
     return matLookat;
 }
@@ -417,7 +417,7 @@ KRMat4 KRMat4::Transpose(const KRMat4 &m)
     return matTranspose;
 }
 
-KRMat4 KRMat4::Translation(const KRVector3 &v)
+KRMat4 KRMat4::Translation(const Vector3 &v)
 {
     KRMat4 m;
     m[12] = v.x;
@@ -427,7 +427,7 @@ KRMat4 KRMat4::Translation(const KRVector3 &v)
     return m;
 }
 
-KRMat4 KRMat4::Rotation(const KRVector3 &v)
+KRMat4 KRMat4::Rotation(const Vector3 &v)
 {
     KRMat4 m;
     m.rotate(v.x, X_AXIS);
@@ -436,7 +436,7 @@ KRMat4 KRMat4::Rotation(const KRVector3 &v)
     return m;
 }
 
-KRMat4 KRMat4::Scaling(const KRVector3 &v)
+KRMat4 KRMat4::Scaling(const Vector3 &v)
 {
     KRMat4 m;
     m.scale(v);

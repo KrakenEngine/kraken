@@ -36,7 +36,7 @@ void KRBone::loadXML(tinyxml2::XMLElement *e)
 }
 
 KRAABB KRBone::getBounds() {
-    return KRAABB(-KRVector3::One(), KRVector3::One(), getModelMatrix()); // Only required for bone debug visualization
+    return KRAABB(-Vector3::One(), Vector3::One(), getModelMatrix()); // Only required for bone debug visualization
 }
 
 void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
@@ -63,7 +63,7 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
 
         KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
         
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
             std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {

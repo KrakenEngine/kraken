@@ -74,54 +74,54 @@ public:
     const std::set<KRNode *> &getChildren();
     KRNode *getParent();
     
-    void setLocalTranslation(const KRVector3 &v, bool set_original = false);
-    void setLocalScale(const KRVector3 &v, bool set_original = false);
-    void setLocalRotation(const KRVector3 &v, bool set_original = false);
+    void setLocalTranslation(const Vector3 &v, bool set_original = false);
+    void setLocalScale(const Vector3 &v, bool set_original = false);
+    void setLocalRotation(const Vector3 &v, bool set_original = false);
     
     
-    void setRotationOffset(const KRVector3 &v, bool set_original = false);
-    void setScalingOffset(const KRVector3 &v, bool set_original = false);
-    void setRotationPivot(const KRVector3 &v, bool set_original = false);
-    void setScalingPivot(const KRVector3 &v, bool set_original = false);
-    void setPreRotation(const KRVector3 &v, bool set_original = false);
-    void setPostRotation(const KRVector3 &v, bool set_original = false);
+    void setRotationOffset(const Vector3 &v, bool set_original = false);
+    void setScalingOffset(const Vector3 &v, bool set_original = false);
+    void setRotationPivot(const Vector3 &v, bool set_original = false);
+    void setScalingPivot(const Vector3 &v, bool set_original = false);
+    void setPreRotation(const Vector3 &v, bool set_original = false);
+    void setPostRotation(const Vector3 &v, bool set_original = false);
     
-    const KRVector3 &getRotationOffset();
-    const KRVector3 &getScalingOffset();
-    const KRVector3 &getRotationPivot();
-    const KRVector3 &getScalingPivot();
-    const KRVector3 &getPreRotation();
-    const KRVector3 &getPostRotation();
+    const Vector3 &getRotationOffset();
+    const Vector3 &getScalingOffset();
+    const Vector3 &getRotationPivot();
+    const Vector3 &getScalingPivot();
+    const Vector3 &getPreRotation();
+    const Vector3 &getPostRotation();
     
-    const KRVector3 &getInitialRotationOffset();
-    const KRVector3 &getInitialScalingOffset();
-    const KRVector3 &getInitialRotationPivot();
-    const KRVector3 &getInitialScalingPivot();
-    const KRVector3 &getInitialPreRotation();
-    const KRVector3 &getInitialPostRotation();
+    const Vector3 &getInitialRotationOffset();
+    const Vector3 &getInitialScalingOffset();
+    const Vector3 &getInitialRotationPivot();
+    const Vector3 &getInitialScalingPivot();
+    const Vector3 &getInitialPreRotation();
+    const Vector3 &getInitialPostRotation();
     
     
-    const KRVector3 &getLocalTranslation();
-    const KRVector3 &getLocalScale();
-    const KRVector3 &getLocalRotation();
+    const Vector3 &getLocalTranslation();
+    const Vector3 &getLocalScale();
+    const Vector3 &getLocalRotation();
     
-    const KRVector3 &getInitialLocalTranslation();
-    const KRVector3 &getInitialLocalScale();
-    const KRVector3 &getInitialLocalRotation();
+    const Vector3 &getInitialLocalTranslation();
+    const Vector3 &getInitialLocalScale();
+    const Vector3 &getInitialLocalRotation();
     
-    const KRVector3 getWorldTranslation();
-    const KRVector3 getWorldScale();
+    const Vector3 getWorldTranslation();
+    const Vector3 getWorldScale();
     const KRQuaternion getWorldRotation();
     
     const KRQuaternion getBindPoseWorldRotation();
     const KRQuaternion getActivePoseWorldRotation();
     
-    const KRVector3 localToWorld(const KRVector3 &local_point);
-    const KRVector3 worldToLocal(const KRVector3 &world_point);
+    const Vector3 localToWorld(const Vector3 &local_point);
+    const Vector3 worldToLocal(const Vector3 &world_point);
     
-    void setWorldTranslation(const KRVector3 &v);
-    void setWorldScale(const KRVector3 &v);
-    void setWorldRotation(const KRVector3 &v);
+    void setWorldTranslation(const Vector3 &v);
+    void setWorldScale(const Vector3 &v);
+    void setWorldRotation(const Vector3 &v);
     
     virtual KRAABB getBounds();
     void invalidateBounds() const;
@@ -186,27 +186,27 @@ public:
     virtual void setLODVisibility(LodVisibility lod_visibility);
     
 protected:
-    KRVector3 m_localTranslation;
-    KRVector3 m_localScale;
-    KRVector3 m_localRotation;
+    Vector3 m_localTranslation;
+    Vector3 m_localScale;
+    Vector3 m_localRotation;
     
-    KRVector3 m_rotationOffset;
-    KRVector3 m_scalingOffset;
-    KRVector3 m_rotationPivot;
-    KRVector3 m_scalingPivot;
-    KRVector3 m_preRotation;
-    KRVector3 m_postRotation;
+    Vector3 m_rotationOffset;
+    Vector3 m_scalingOffset;
+    Vector3 m_rotationPivot;
+    Vector3 m_scalingPivot;
+    Vector3 m_preRotation;
+    Vector3 m_postRotation;
     
-    KRVector3 m_initialLocalTranslation;
-    KRVector3 m_initialLocalScale;
-    KRVector3 m_initialLocalRotation;
+    Vector3 m_initialLocalTranslation;
+    Vector3 m_initialLocalScale;
+    Vector3 m_initialLocalRotation;
     
-    KRVector3 m_initialRotationOffset;
-    KRVector3 m_initialScalingOffset;
-    KRVector3 m_initialRotationPivot;
-    KRVector3 m_initialScalingPivot;
-    KRVector3 m_initialPreRotation;
-    KRVector3 m_initialPostRotation;
+    Vector3 m_initialRotationOffset;
+    Vector3 m_initialScalingOffset;
+    Vector3 m_initialRotationPivot;
+    Vector3 m_initialScalingPivot;
+    Vector3 m_initialPreRotation;
+    Vector3 m_initialPostRotation;
     
     LodVisibility m_lod_visible;
     

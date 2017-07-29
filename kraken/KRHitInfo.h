@@ -41,12 +41,12 @@ class KRNode;
 class KRHitInfo {
 public:
     KRHitInfo();
-    KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance);
-    KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance, KRNode *node);
+    KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance);
+    KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node);
     ~KRHitInfo();
     
-    KRVector3 getPosition() const;
-    KRVector3 getNormal() const;
+    Vector3 getPosition() const;
+    Vector3 getNormal() const;
     float getDistance() const;
     KRNode *getNode() const;
     bool didHit() const;
@@ -55,8 +55,8 @@ public:
     
 private:
     KRNode *m_node;
-    KRVector3 m_position;
-    KRVector3 m_normal;
+    Vector3 m_position;
+    Vector3 m_normal;
     float m_distance;
 };
 

@@ -3,7 +3,7 @@
 
 #include "KRFloat.h"
 #include "vector2.h"
-#include "KRVector3.h"
+#include "vector3.h"
 #include "KRVector4.h"
 #include "KRMat4.h"
 #include "KRQuaternion.h"

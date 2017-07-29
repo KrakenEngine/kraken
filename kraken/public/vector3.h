@@ -1,5 +1,5 @@
 //
-//  KRVector3.h
+//  Vector3.h
 //  Kraken
 //
 //  Copyright 2017 Kearwood Gilbert. All rights reserved.
@@ -34,11 +34,12 @@
 
 #include <functional> // for hash<>
 
+#include "Vector2.h"
 #include "KRVector4.h"
 
 namespace kraken {
 
-class KRVector3 {
+class Vector3 {
 
 public:
     union {        
@@ -48,14 +49,14 @@ public:
         float c[3];
     };
     
-    KRVector3();
-    KRVector3(float X, float Y, float Z);
-    KRVector3(float v);
-    KRVector3(float *v);
-    KRVector3(double *v);
-    KRVector3(const KRVector3 &v);
-    KRVector3(const KRVector4 &v);
-    ~KRVector3();
+    Vector3();
+    Vector3(float X, float Y, float Z);
+    Vector3(float v);
+    Vector3(float *v);
+    Vector3(double *v);
+    Vector3(const Vector3 &v);
+    Vector3(const KRVector4 &v);
+    ~Vector3();
     
     // Vector2 swizzle getters
     Vector2 xx() const;
@@ -76,26 +77,26 @@ public:
     void zx(const Vector2 &v);
     void zy(const Vector2 &v);
     
-    KRVector3& operator =(const KRVector3& b);
-    KRVector3& operator =(const KRVector4& b);
-    KRVector3 operator +(const KRVector3& b) const;
-    KRVector3 operator -(const KRVector3& b) const;
-    KRVector3 operator +() const;
-    KRVector3 operator -() const;
-    KRVector3 operator *(const float v) const;
-    KRVector3 operator /(const float v) const;
+    Vector3& operator =(const Vector3& b);
+    Vector3& operator =(const KRVector4& b);
+    Vector3 operator +(const Vector3& b) const;
+    Vector3 operator -(const Vector3& b) const;
+    Vector3 operator +() const;
+    Vector3 operator -() const;
+    Vector3 operator *(const float v) const;
+    Vector3 operator /(const float v) const;
     
-    KRVector3& operator +=(const KRVector3& b);
-    KRVector3& operator -=(const KRVector3& b);
-    KRVector3& operator *=(const float v);
-    KRVector3& operator /=(const float v);
+    Vector3& operator +=(const Vector3& b);
+    Vector3& operator -=(const Vector3& b);
+    Vector3& operator *=(const float v);
+    Vector3& operator /=(const float v);
     
-    bool operator ==(const KRVector3& b) const;
-    bool operator !=(const KRVector3& b) const;
+    bool operator ==(const Vector3& b) const;
+    bool operator !=(const Vector3& b) const;
     
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
-    bool operator >(const KRVector3& b) const;
-    bool operator <(const KRVector3& b) const;
+    bool operator >(const Vector3& b) const;
+    bool operator <(const Vector3& b) const;
     
     float& operator[](unsigned i);
     float operator[](unsigned i) const;
@@ -103,36 +104,36 @@ public:
     float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
     float magnitude() const;
     
-    void scale(const KRVector3 &v);
+    void scale(const Vector3 &v);
     void normalize();
-    static KRVector3 Normalize(const KRVector3 &v);
+    static Vector3 Normalize(const Vector3 &v);
     
-    static KRVector3 Cross(const KRVector3 &v1, const KRVector3 &v2);
+    static Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
     
-    static float Dot(const KRVector3 &v1, const KRVector3 &v2);
-    static KRVector3 Min();
-    static KRVector3 Max();
-    static const KRVector3 &Zero();
-    static KRVector3 One();
-    static KRVector3 Forward();
-    static KRVector3 Backward();
-    static KRVector3 Up();
-    static KRVector3 Down();
-    static KRVector3 Left();
-    static KRVector3 Right();
-    static KRVector3 Scale(const KRVector3 &v1, const KRVector3 &v2);
-    static KRVector3 Lerp(const KRVector3 &v1, const KRVector3 &v2, float d);
-    static KRVector3 Slerp(const KRVector3 &v1, const KRVector3 &v2, float d);
-    static void OrthoNormalize(KRVector3 &normal, KRVector3 &tangent); // Gram-Schmidt Orthonormalization
+    static float Dot(const Vector3 &v1, const Vector3 &v2);
+    static Vector3 Min();
+    static Vector3 Max();
+    static const Vector3 &Zero();
+    static Vector3 One();
+    static Vector3 Forward();
+    static Vector3 Backward();
+    static Vector3 Up();
+    static Vector3 Down();
+    static Vector3 Left();
+    static Vector3 Right();
+    static Vector3 Scale(const Vector3 &v1, const Vector3 &v2);
+    static Vector3 Lerp(const Vector3 &v1, const Vector3 &v2, float d);
+    static Vector3 Slerp(const Vector3 &v1, const Vector3 &v2, float d);
+    static void OrthoNormalize(Vector3 &normal, Vector3 &tangent); // Gram-Schmidt Orthonormalization
 };
 
 } // namespace kraken
 
 namespace std {
   template<>
-  struct hash<kraken::KRVector3> {
+  struct hash<kraken::Vector3> {
   public:
-    size_t operator()(const kraken::KRVector3 &s) const
+    size_t operator()(const kraken::Vector3 &s) const
     {
       size_t h1 = hash<float>()(s.x);
       size_t h2 = hash<float>()(s.y);

@@ -590,7 +590,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     // Transform = T * Roff * Rp * Rpre * R * Rpost * inverse(Rp) * Soff * Sp * S * inverse(Sp)
     
     int node_has_n_points = 0; // this will be 3 if the node_frame_key_position is complete after the import animated properties loop
-    KRVector3 node_key_frame_position = KRVector3(0.0, 0.0, 0.0);
+    Vector3 node_key_frame_position = Vector3(0.0, 0.0, 0.0);
         // ADDED 3, 2013 by Peter to store the key frame (start location) of an animation
         // the x, y, z translation position of the animation will be extracted from the curves
         // as they are added to the animation layer in the loop below ..
@@ -917,22 +917,22 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
     //              do we store it as node_local or store it as the world translation? or somewhere else ??
     //
 
-    KRVector3 node_translation = KRVector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
-    KRVector3 node_rotation = KRVector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
-    KRVector3 node_scale = KRVector3(local_scale[0], local_scale[1], local_scale[2]);
+    Vector3 node_translation = Vector3(local_translation[0], local_translation[1], local_translation[2]); // T * Roff * Rp
+    Vector3 node_rotation = Vector3(local_rotation[0], local_rotation[1], local_rotation[2]) / 180.0 * M_PI;
+    Vector3 node_scale = Vector3(local_scale[0], local_scale[1], local_scale[2]);
     
-    KRVector3 node_rotation_offset = KRVector3(rotation_offset[0], rotation_offset[1], rotation_offset[2]);
-    KRVector3 node_scaling_offset = KRVector3(scaling_offset[0], scaling_offset[1], scaling_offset[2]);
-    KRVector3 node_rotation_pivot = KRVector3(rotation_pivot[0], rotation_pivot[1], rotation_pivot[2]);
-    KRVector3 node_scaling_pivot = KRVector3(scaling_pivot[0], scaling_pivot[1], scaling_pivot[2]);
-    KRVector3 node_pre_rotation, node_post_rotation;
+    Vector3 node_rotation_offset = Vector3(rotation_offset[0], rotation_offset[1], rotation_offset[2]);
+    Vector3 node_scaling_offset = Vector3(scaling_offset[0], scaling_offset[1], scaling_offset[2]);
+    Vector3 node_rotation_pivot = Vector3(rotation_pivot[0], rotation_pivot[1], rotation_pivot[2]);
+    Vector3 node_scaling_pivot = Vector3(scaling_pivot[0], scaling_pivot[1], scaling_pivot[2]);
+    Vector3 node_pre_rotation, node_post_rotation;
     if(rotation_active) {
-        node_pre_rotation = KRVector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
-        node_post_rotation = KRVector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;  
+        node_pre_rotation = Vector3(pre_rotation[0], pre_rotation[1], pre_rotation[2]) / 180.0 * M_PI;
+        node_post_rotation = Vector3(post_rotation[0], post_rotation[1], post_rotation[2]) / 180.0 * M_PI;  
         //&KRF HACK removing this line (above) to prevent the post rotation from corrupting the default light values; the FBX is importing a post rotation and setting it to -90 degrees											
     } else {
-        node_pre_rotation = KRVector3::Zero();
-        node_post_rotation = KRVector3::Zero();
+        node_pre_rotation = Vector3::Zero();
+        node_post_rotation = Vector3::Zero();
     }
     
 //    printf("        Local Translation:      %f %f %f\n", local_translation[0], local_translation[1], local_translation[2]);
@@ -1115,15 +1115,15 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         
         // Ambient Color
         lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Ambient;
-        new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        new_material->setAmbient(Vector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Diffuse Color
         lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Diffuse;
-        new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        new_material->setDiffuse(Vector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Specular Color (unique to Phong materials)
         lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Specular;
-        new_material->setSpecular(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        new_material->setSpecular(Vector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Emissive Color
         //lKFbxDouble3 =((KFbxSurfacePhong *) pMaterial)->Emissive;
@@ -1155,18 +1155,18 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         //lKFbxDouble3 =((FbxSurfacePhong *) pMaterial)->Reflection;
         
         // We modulate Relection color by reflection factor, as we only have one "reflection color" variable in Kraken
-        new_material->setReflection(KRVector3(/*lKFbxDouble3.Get()[0] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[1] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[2] * */lKFbxDouble1.Get()));
+        new_material->setReflection(Vector3(/*lKFbxDouble3.Get()[0] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[1] * */lKFbxDouble1.Get(), /*lKFbxDouble3.Get()[2] * */lKFbxDouble1.Get()));
         
     } else if(pMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) ) {
         // We found a Lambert material.
         
         // Ambient Color
         lKFbxDouble3=((FbxSurfaceLambert *)pMaterial)->Ambient;
-        new_material->setAmbient(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        new_material->setAmbient(Vector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Diffuse Color
         lKFbxDouble3 =((FbxSurfaceLambert *)pMaterial)->Diffuse;
-        new_material->setDiffuse(KRVector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
+        new_material->setDiffuse(Vector3(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]));
         
         // Emissive
         //lKFbxDouble3 =((KFbxSurfaceLambert *)pMaterial)->Emissive;
@@ -1306,10 +1306,10 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
             if(FbxPose::GetBindPoseContaining(pFbxScene, cluster->GetLink(), pose_list, pose_indices)) {
                 fbx_bind_pose_matrix = (*pose_list)[0].GetMatrix(pose_indices[0]);
                 bind_pose = KRMat4(
-                   KRVector3(fbx_bind_pose_matrix.GetColumn(0).mData),
-                   KRVector3(fbx_bind_pose_matrix.GetColumn(1).mData),
-                   KRVector3(fbx_bind_pose_matrix.GetColumn(2).mData),
-                   KRVector3(fbx_bind_pose_matrix.GetColumn(3).mData)
+                   Vector3(fbx_bind_pose_matrix.GetColumn(0).mData),
+                   Vector3(fbx_bind_pose_matrix.GetColumn(1).mData),
+                   Vector3(fbx_bind_pose_matrix.GetColumn(2).mData),
+                   Vector3(fbx_bind_pose_matrix.GetColumn(3).mData)
                 );
                 fprintf(stderr, "Found bind pose(s)!\n");
             }
@@ -1318,10 +1318,10 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
             FbxAMatrix link_matrix;
             cluster->GetTransformLinkMatrix(link_matrix);
             mi.bone_bind_poses.push_back(KRMat4(
-                KRVector3(link_matrix.GetColumn(0).mData),
-                KRVector3(link_matrix.GetColumn(1).mData),
-                KRVector3(link_matrix.GetColumn(2).mData),
-                KRVector3(link_matrix.GetColumn(3).mData)
+                Vector3(link_matrix.GetColumn(0).mData),
+                Vector3(link_matrix.GetColumn(1).mData),
+                Vector3(link_matrix.GetColumn(2).mData),
+                Vector3(link_matrix.GetColumn(3).mData)
            ));
             
             int cluster_control_point_count = cluster->GetControlPointIndicesCount();
@@ -1381,11 +1381,11 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
 //    std::vector<std::vector<float> > bone_weights;
 //    std::vector<std::vector<int> > bone_indexes;
 //    
-//    std::vector<KRVector3> vertices;
+//    std::vector<Vector3> vertices;
 //    std::vector<Vector2> uva;
 //    std::vector<Vector2> uvb;
-//    std::vector<KRVector3> normals;
-//    std::vector<KRVector3> tangents;
+//    std::vector<Vector3> normals;
+//    std::vector<Vector3> tangents;
 //    std::vector<int> submesh_lengths;
 //    std::vector<int> submesh_starts;
 //    std::vector<std::string> material_names;
@@ -1434,7 +1434,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                         // ----====---- Read Vertex Position ----====----
                         int lControlPointIndex = pMesh->GetPolygonVertex(iPolygon, iVertex);
                         FbxVector4 v = control_points[lControlPointIndex];
-                        mi.vertices.push_back(KRVector3(v[0], v[1], v[2]));
+                        mi.vertices.push_back(Vector3(v[0], v[1], v[2]));
                         
                         if(mi.bone_names.size() > 0) {
                             control_point_weight_info_t &weight_info = control_point_weights[lControlPointIndex];
@@ -1484,7 +1484,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                         
                         FbxVector4 new_normal;
                         if(pMesh->GetPolygonVertexNormal(iPolygon, iVertex, new_normal)) {
-                            mi.normals.push_back(KRVector3(new_normal[0], new_normal[1], new_normal[2]));
+                            mi.normals.push_back(Vector3(new_normal[0], new_normal[1], new_normal[2]));
                         }
                         
                         /*
@@ -1513,7 +1513,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                                     }
                                 }
                                 if(l == 0) {
-                                    mi.tangents.push_back(KRVector3(new_tangent[0], new_tangent[1], new_tangent[2]));
+                                    mi.tangents.push_back(Vector3(new_tangent[0], new_tangent[1], new_tangent[2]));
                                 }
                                 
                             }
@@ -1715,7 +1715,7 @@ KRNode *LoadLight(KRNode *parent_node, FbxNode* pNode) {
     }
     
     if(new_light) {
-        new_light->setColor(KRVector3(light_color[0], light_color[1], light_color[2]));
+        new_light->setColor(Vector3(light_color[0], light_color[1], light_color[2]));
         new_light->setIntensity(light_intensity);
         new_light->setDecayStart(light_decaystart);
     }

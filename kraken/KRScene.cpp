@@ -208,7 +208,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
             bool in_viewport = false;
             if(renderPass == KRNode::RENDER_PASS_PRESTREAM) {
                 // When pre-streaming, objects are streamed in behind and in-front of the camera
-                KRAABB viewportExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + KRVector3(pCamera->settings.getPerspectiveFarZ()));
+                KRAABB viewportExtents = KRAABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveFarZ()));
                 in_viewport = octreeBounds.intersects(viewportExtents);
             } else {
                 in_viewport = viewport.visible(pOctreeNode->getBounds());
@@ -227,7 +227,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - KRVector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + KRVector3(pCamera->settings.getPerspectiveNearZ()));
+                    KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         // Record the frame number in which the camera was within the bounds
@@ -298,7 +298,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     
-                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+                    if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }
@@ -565,7 +565,7 @@ void KRScene::addDefaultLights()
 {
     KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
     
-    light1->setLocalRotation((KRQuaternion(KRVector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(KRVector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
+    light1->setLocalRotation((KRQuaternion(Vector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(Vector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
     m_pRootNode->addChild(light1);
 }
 
@@ -574,22 +574,22 @@ KRAABB KRScene::getRootOctreeBounds()
     if(m_nodeTree.getRootNode()) {
         return m_nodeTree.getRootNode()->getBounds();
     } else {
-        return KRAABB(-KRVector3::One(), KRVector3::One());
+        return KRAABB(-Vector3::One(), Vector3::One());
     }
 }
 
 
-bool KRScene::lineCast(const KRVector3 &v0, const KRVector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.lineCast(v0, v1, hitinfo, layer_mask);
 }
 
-bool KRScene::rayCast(const KRVector3 &v0, const KRVector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }
 
-bool KRScene::sphereCast(const KRVector3 &v0, const KRVector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.sphereCast(v0, v1, radius, hitinfo, layer_mask);
 }

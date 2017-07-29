@@ -98,7 +98,7 @@ void KRAmbientZone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point
         
         KRShader *pShader = getContext().getShaderManager()->getShader("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
         
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
             
             // Enable additive blending
             GLDEBUG(glEnable(GL_BLEND));
@@ -139,17 +139,17 @@ void KRAmbientZone::setGradientDistance(float gradient_distance)
 
 KRAABB KRAmbientZone::getBounds() {
     // Ambient zones always have a -1, -1, -1 to 1, 1, 1 bounding box
-    return KRAABB(-KRVector3::One(), KRVector3::One(), getModelMatrix());
+    return KRAABB(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
-float KRAmbientZone::getContainment(const KRVector3 &pos)
+float KRAmbientZone::getContainment(const Vector3 &pos)
 {
     KRAABB bounds = getBounds();
     if(bounds.contains(pos)) {
-        KRVector3 size = bounds.size();
-        KRVector3 diff = pos - bounds.center();
+        Vector3 size = bounds.size();
+        Vector3 diff = pos - bounds.center();
         diff = diff * 2.0f;
-        diff = KRVector3(diff.x / size.x, diff.y / size.y, diff.z / size.z);
+        diff = Vector3(diff.x / size.x, diff.y / size.y, diff.z / size.z);
         float d = diff.magnitude();
     
         if(m_gradient_distance <= 0.0f) {

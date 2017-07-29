@@ -45,8 +45,8 @@ public:
     bool bEnableDiffuse;
     bool bEnableSpecular;
     bool bEnableDeferredLighting;
-    KRVector3 light_intensity;
-    KRVector3 ambient_intensity;
+    Vector3 light_intensity;
+    Vector3 ambient_intensity;
     float perspective_fov;
     
     int dof_quality;
@@ -76,7 +76,7 @@ public:
     float fog_near;
     float fog_far;
     float fog_density;
-    KRVector3 fog_color;
+    Vector3 fog_color;
     int fog_type; // 0 = no fog, 1 = linear, 2 = exponential, 3 = exponential squared
     
     float dust_particle_intensity;

@@ -11,16 +11,16 @@
 using namespace kraken;
 
 namespace {
-  bool _intersectSphere(const KRVector3 &start, const KRVector3 &dir, const KRVector3 &sphere_center, float sphere_radius, float &distance)
+  bool _intersectSphere(const Vector3 &start, const Vector3 &dir, const Vector3 &sphere_center, float sphere_radius, float &distance)
   {
     // dir must be normalized
 
     // From: http://archive.gamedev.net/archive/reference/articles/article1026.html
 
     // TODO - Move to another class?
-    KRVector3 Q = sphere_center - start;
+    Vector3 Q = sphere_center - start;
     float c = Q.magnitude();
-    float v = KRVector3::Dot(Q, dir);
+    float v = Vector3::Dot(Q, dir);
     float d = sphere_radius * sphere_radius - (c * c - v * v);
 
 
@@ -40,27 +40,27 @@ namespace {
 
   }
 
-  bool _sameSide(const KRVector3 &p1, const KRVector3 &p2, const KRVector3 &a, const KRVector3 &b)
+  bool _sameSide(const Vector3 &p1, const Vector3 &p2, const Vector3 &a, const Vector3 &b)
   {
-    // TODO - Move to KRVector3 class?
+    // TODO - Move to Vector3 class?
     // From: http://stackoverflow.com/questions/995445/determine-if-a-3d-point-is-within-a-triangle
 
-    KRVector3 cp1 = KRVector3::Cross(b - a, p1 - a);
-    KRVector3 cp2 = KRVector3::Cross(b - a, p2 - a);
-    if (KRVector3::Dot(cp1, cp2) >= 0) return true;
+    Vector3 cp1 = Vector3::Cross(b - a, p1 - a);
+    Vector3 cp2 = Vector3::Cross(b - a, p2 - a);
+    if (Vector3::Dot(cp1, cp2) >= 0) return true;
     return false;
   }
 
-  KRVector3 _closestPointOnLine(const KRVector3 &a, const KRVector3 &b, const KRVector3 &p)
+  Vector3 _closestPointOnLine(const Vector3 &a, const Vector3 &b, const Vector3 &p)
   {
     // From: http://stackoverflow.com/questions/995445/determine-if-a-3d-point-is-within-a-triangle
 
     // Determine t (the length of the vector from ‘a’ to ‘p’)
 
-    KRVector3 c = p - a;
-    KRVector3 V = KRVector3::Normalize(b - a);
+    Vector3 c = p - a;
+    Vector3 V = Vector3::Normalize(b - a);
     float d = (a - b).magnitude();
-    float t = KRVector3::Dot(V, c);
+    float t = Vector3::Dot(V, c);
 
     // Check to see if ‘t’ is beyond the extents of the line segment
 
@@ -75,7 +75,7 @@ namespace {
 
 namespace kraken {
 
-KRTriangle3::KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3)
+KRTriangle3::KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3)
 {
     vert[0] = v1;
     vert[1] = v2;
@@ -114,35 +114,35 @@ KRTriangle3& KRTriangle3::operator =(const KRTriangle3& b)
     return *this;
 }
 
-KRVector3& KRTriangle3::operator[](unsigned int i)
+Vector3& KRTriangle3::operator[](unsigned int i)
 {
     return vert[i];
 }
 
-KRVector3 KRTriangle3::operator[](unsigned int i) const
+Vector3 KRTriangle3::operator[](unsigned int i) const
 {
     return vert[i];
 }
 
 
-bool KRTriangle3::rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const
+bool KRTriangle3::rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const
 {
     // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
     const float SMALL_NUM = 0.00000001;     // anything that avoids division overflow
-    KRVector3   u, v, n;                    // triangle vectors
-    KRVector3   w0, w;                      // ray vectors
+    Vector3   u, v, n;                    // triangle vectors
+    Vector3   w0, w;                      // ray vectors
     float       r, a, b;                    // params to calc ray-plane intersect
     
     // get triangle edge vectors and plane normal
     u = vert[1] - vert[0];
     v = vert[2] - vert[0];
-    n = KRVector3::Cross(u, v); // cross product
-    if (n == KRVector3::Zero())             // triangle is degenerate
+    n = Vector3::Cross(u, v); // cross product
+    if (n == Vector3::Zero())             // triangle is degenerate
         return false;                  // do not deal with this case
     
     w0 = start - vert[0];
-    a = -KRVector3::Dot(n, w0);
-    b = KRVector3::Dot(n,dir);
+    a = -Vector3::Dot(n, w0);
+    b = Vector3::Dot(n,dir);
     if (fabs(b) < SMALL_NUM) {     // ray is  parallel to triangle plane
         if (a == 0)
             return false; // ray lies in triangle plane
@@ -158,16 +158,16 @@ bool KRTriangle3::rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector
     // for a segment, also test if (r > 1.0) => no intersect
     
     
-    KRVector3 plane_hit_point = start + dir * r;            // intersect point of ray and plane
+    Vector3 plane_hit_point = start + dir * r;            // intersect point of ray and plane
     
     // is plane_hit_point inside triangle?
     float    uu, uv, vv, wu, wv, D;
-    uu = KRVector3::Dot(u,u);
-    uv = KRVector3::Dot(u,v);
-    vv = KRVector3::Dot(v,v);
+    uu = Vector3::Dot(u,u);
+    uv = Vector3::Dot(u,v);
+    vv = Vector3::Dot(v,v);
     w = plane_hit_point - vert[0];
-    wu = KRVector3::Dot(w,u);
-    wv = KRVector3::Dot(w,v);
+    wu = Vector3::Dot(w,u);
+    wv = Vector3::Dot(w,v);
     D = uv * uv - uu * vv;
     
     // get and test parametric coords
@@ -184,23 +184,23 @@ bool KRTriangle3::rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector
     return true;
 }
 
-KRVector3 KRTriangle3::calculateNormal() const
+Vector3 KRTriangle3::calculateNormal() const
 {
-    KRVector3 v1 = vert[1] - vert[0];
-    KRVector3 v2 = vert[2] - vert[0];
+    Vector3 v1 = vert[1] - vert[0];
+    Vector3 v2 = vert[2] - vert[0];
     
-    return KRVector3::Normalize(KRVector3::Cross(v1, v2));
+    return Vector3::Normalize(Vector3::Cross(v1, v2));
 }
 
-KRVector3 KRTriangle3::closestPointOnTriangle(const KRVector3 &p) const
+Vector3 KRTriangle3::closestPointOnTriangle(const Vector3 &p) const
 {
-    KRVector3 a = vert[0];
-    KRVector3 b = vert[1];
-    KRVector3 c = vert[2];
+    Vector3 a = vert[0];
+    Vector3 b = vert[1];
+    Vector3 c = vert[2];
     
-    KRVector3 Rab = _closestPointOnLine(a, b, p);
-    KRVector3 Rbc = _closestPointOnLine(b, c, p);
-    KRVector3 Rca = _closestPointOnLine(c, a, p);
+    Vector3 Rab = _closestPointOnLine(a, b, p);
+    Vector3 Rbc = _closestPointOnLine(b, c, p);
+    Vector3 Rca = _closestPointOnLine(c, a, p);
     
     // return closest [Rab, Rbc, Rca] to p;
     float sd_Rab = (p - Rab).sqrMagnitude();
@@ -216,21 +216,21 @@ KRVector3 KRTriangle3::closestPointOnTriangle(const KRVector3 &p) const
     }
 }
 
-bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const
+bool KRTriangle3::sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const
 {
     // Dir must be normalized
     const float SMALL_NUM = 0.001f;     // anything that avoids division overflow
     
-    KRVector3 tri_normal = calculateNormal();
+    Vector3 tri_normal = calculateNormal();
     
-    float d = KRVector3::Dot(tri_normal, vert[0]);
-    float e = KRVector3::Dot(tri_normal, start) - radius;
+    float d = Vector3::Dot(tri_normal, vert[0]);
+    float e = Vector3::Dot(tri_normal, start) - radius;
     float cotangent_distance = e - d;
     
-    KRVector3 plane_intersect;
+    Vector3 plane_intersect;
     float plane_intersect_distance;
     
-    float denom = KRVector3::Dot(tri_normal, dir);
+    float denom = Vector3::Dot(tri_normal, dir);
     
     if(denom > -SMALL_NUM) {
         return false; // dir is co-planar with the triangle or going in the direction of the normal; no intersection
@@ -261,7 +261,7 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
         return true;
     } else {
         // Triangle does not contain point, cast ray back to sphere from closest point on triangle edge or vertice
-        KRVector3 closest_point = closestPointOnTriangle(plane_intersect);
+        Vector3 closest_point = closestPointOnTriangle(plane_intersect);
         float reverse_hit_distance;
         if(_intersectSphere(closest_point, -dir, start, radius, reverse_hit_distance)) {
             // Reverse cast hit sphere
@@ -276,16 +276,16 @@ bool KRTriangle3::sphereCast(const KRVector3 &start, const KRVector3 &dir, float
 }
 
 
-bool KRTriangle3::containsPoint(const KRVector3 &p) const
+bool KRTriangle3::containsPoint(const Vector3 &p) const
 {
     /*
     // From: http://stackoverflow.com/questions/995445/determine-if-a-3d-point-is-within-a-triangle
     
     const float SMALL_NUM = 0.00000001f;     // anything that avoids division overflow
-    // KRVector3 A = vert[0], B = vert[1], C = vert[2];
+    // Vector3 A = vert[0], B = vert[1], C = vert[2];
     if (_sameSide(p, vert[0], vert[1], vert[2]) && _sameSide(p, vert[1], vert[0], vert[2]) && _sameSide(p, vert[2], vert[0], vert[1])) {
-        KRVector3 vc1 = KRVector3::Cross(vert[0] - vert[1], vert[0] - vert[2]);
-        if(fabs(KRVector3::Dot(vert[0] - p, vc1)) <= SMALL_NUM) {
+        Vector3 vc1 = Vector3::Cross(vert[0] - vert[1], vert[0] - vert[2]);
+        if(fabs(Vector3::Dot(vert[0] - p, vc1)) <= SMALL_NUM) {
             return true;
         }
     }
@@ -295,28 +295,28 @@ bool KRTriangle3::containsPoint(const KRVector3 &p) const
     
     // From: http://blogs.msdn.com/b/rezanour/archive/2011/08/07/barycentric-coordinates-and-point-in-triangle-tests.aspx
     
-    KRVector3 A = vert[0];
-    KRVector3 B = vert[1];
-    KRVector3 C = vert[2];
-    KRVector3 P = p;
+    Vector3 A = vert[0];
+    Vector3 B = vert[1];
+    Vector3 C = vert[2];
+    Vector3 P = p;
     
     // Prepare our barycentric variables
-    KRVector3 u = B - A;
-    KRVector3 v = C - A;
-    KRVector3 w = P - A;
+    Vector3 u = B - A;
+    Vector3 v = C - A;
+    Vector3 w = P - A;
     
-    KRVector3 vCrossW = KRVector3::Cross(v, w);
-    KRVector3 vCrossU = KRVector3::Cross(v, u);
+    Vector3 vCrossW = Vector3::Cross(v, w);
+    Vector3 vCrossU = Vector3::Cross(v, u);
     
     // Test sign of r
-    if (KRVector3::Dot(vCrossW, vCrossU) < 0)
+    if (Vector3::Dot(vCrossW, vCrossU) < 0)
         return false;
     
-    KRVector3 uCrossW = KRVector3::Cross(u, w);
-    KRVector3 uCrossV = KRVector3::Cross(u, v);
+    Vector3 uCrossW = Vector3::Cross(u, w);
+    Vector3 uCrossV = Vector3::Cross(u, v);
     
     // Test sign of t
-    if (KRVector3::Dot(uCrossW, uCrossV) < 0)
+    if (Vector3::Dot(uCrossW, uCrossV) < 0)
         return false;
     
     // At this point, we know that r and t and both > 0.

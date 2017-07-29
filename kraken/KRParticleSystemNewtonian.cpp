@@ -41,7 +41,7 @@ tinyxml2::XMLElement *KRParticleSystemNewtonian::saveXML( tinyxml2::XMLNode *par
 
 KRAABB KRParticleSystemNewtonian::getBounds()
 {
-    return KRAABB(-KRVector3::One(), KRVector3::One(), getModelMatrix());
+    return KRAABB(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
 void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)
@@ -76,8 +76,8 @@ void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLig
             
             KRShader *pParticleShader = m_pContext->getShaderManager()->getShader("dust_particle", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
             
-            KRVector3 rim_color; KRVector4 fade_color;
-            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+            Vector3 rim_color; KRVector4 fade_color;
+            if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
                 pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 KRDataBlock index_data;

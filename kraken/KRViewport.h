@@ -25,8 +25,8 @@ public:
     const KRMat4 &getViewProjectionMatrix() const;
     const KRMat4 &getInverseViewMatrix() const;
     const KRMat4 &getInverseProjectionMatrix() const;
-    const KRVector3 &getCameraDirection() const;
-    const KRVector3 &getCameraPosition() const;
+    const Vector3 &getCameraDirection() const;
+    const Vector3 &getCameraPosition() const;
     const int *getFrontToBackOrder() const;
     const int *getBackToFrontOrder() const;
     void setSize(const Vector2 &size);
@@ -57,8 +57,8 @@ private:
     KRMat4 m_matViewProjection;
     KRMat4 m_matInverseView;
     KRMat4 m_matInverseProjection;
-    KRVector3 m_cameraDirection;
-    KRVector3 m_cameraPosition;
+    Vector3 m_cameraDirection;
+    Vector3 m_cameraPosition;
     
     int m_frontToBackOrder[8];
     int m_backToFrontOrder[8];

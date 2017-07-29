@@ -28,12 +28,12 @@ std::string KRDirectionalLight::getElementName() {
     return "directional_light";
 }
 
-KRVector3 KRDirectionalLight::getWorldLightDirection() {
+Vector3 KRDirectionalLight::getWorldLightDirection() {
     return KRMat4::Dot(getWorldRotation().rotationMatrix(), getLocalLightDirection());
 }
 
-KRVector3 KRDirectionalLight::getLocalLightDirection() {
-    return KRVector3::Up();           //&KRF HACK changed from KRVector3::Forward(); - to compensate for the way Maya handles post rotation.
+Vector3 KRDirectionalLight::getLocalLightDirection() {
+    return Vector3::Up();           //&KRF HACK changed from Vector3::Forward(); - to compensate for the way Maya handles post rotation.
 }
 
 
@@ -52,13 +52,13 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         float max_depth = 1.0f;
         */
         
-        KRAABB worldSpacefrustrumSliceBounds = KRAABB(KRVector3(-1.0f, -1.0f, -1.0f), KRVector3(1.0f, 1.0f, 1.0f), KRMat4::Invert(viewport.getViewProjectionMatrix()));
+        KRAABB worldSpacefrustrumSliceBounds = KRAABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f), KRMat4::Invert(viewport.getViewProjectionMatrix()));
         worldSpacefrustrumSliceBounds.scale(KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
         
-        KRVector3 shadowLook = -KRVector3::Normalize(getWorldLightDirection());
+        Vector3 shadowLook = -Vector3::Normalize(getWorldLightDirection());
         
-        KRVector3 shadowUp(0.0, 1.0, 0.0);
-        if(KRVector3::Dot(shadowUp, shadowLook) > 0.99f) shadowUp = KRVector3(0.0, 0.0, 1.0); // Ensure shadow look direction is not parallel with the shadowUp direction
+        Vector3 shadowUp(0.0, 1.0, 0.0);
+        if(Vector3::Dot(shadowUp, shadowLook) > 0.99f) shadowUp = Vector3(0.0, 0.0, 1.0); // Ensure shadow look direction is not parallel with the shadowUp direction
         
 //        KRMat4 matShadowView = KRMat4::LookAt(viewport.getCameraPosition() - shadowLook, viewport.getCameraPosition(), shadowUp);
 //        KRMat4 matShadowProjection = KRMat4();
@@ -76,8 +76,8 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         matShadowProjection *= matBias;
         
         KRViewport newShadowViewport = KRViewport(Vector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);
-        KRAABB prevShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
-        KRAABB minimumShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(newShadowViewport.getViewProjectionMatrix()));
+        KRAABB prevShadowBounds = KRAABB(-Vector3::One(), Vector3::One(), KRMat4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
+        KRAABB minimumShadowBounds = KRAABB(-Vector3::One(), Vector3::One(), KRMat4::Invert(newShadowViewport.getViewProjectionMatrix()));
         minimumShadowBounds.scale(1.0f / KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
         if(!prevShadowBounds.contains(minimumShadowBounds) || !shadowValid[iShadow] || true) { // FINDME, HACK - Re-generating the shadow map every frame.  This should only be needed if the shadow contains non-static geometry
             m_shadowViewports[iShadow] = newShadowViewport;
@@ -105,12 +105,12 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
         matModelViewInverseTranspose.transpose();
         matModelViewInverseTranspose.invert();
         
-        KRVector3 light_direction_view_space = getWorldLightDirection();
+        Vector3 light_direction_view_space = getWorldLightDirection();
         light_direction_view_space = KRMat4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
         KRShader *pShader = getContext().getShaderManager()->getShader("light_directional", pCamera, std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, KRVector4::Zero())) {
             
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

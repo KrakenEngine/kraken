@@ -36,7 +36,7 @@
 
 namespace kraken {
 
-class KRVector3;
+class Vector3;
 
 class KRVector4 {
     
@@ -53,7 +53,7 @@ public:
     KRVector4(float v);
     KRVector4(float *v);
     KRVector4(const KRVector4 &v);
-    KRVector4(const KRVector3 &v, float W);
+    KRVector4(const Vector3 &v, float W);
     ~KRVector4();
     
     

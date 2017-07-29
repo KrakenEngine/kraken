@@ -95,12 +95,12 @@ const KRMat4 &KRViewport::getInverseProjectionMatrix() const
     return m_matInverseProjection;
 }
 
-const KRVector3 &KRViewport::getCameraDirection() const
+const Vector3 &KRViewport::getCameraDirection() const
 {
     return m_cameraDirection;
 }
 
-const KRVector3 &KRViewport::getCameraPosition() const
+const Vector3 &KRViewport::getCameraPosition() const
 {
     return m_cameraPosition;
 }
@@ -120,8 +120,8 @@ void KRViewport::calculateDerivedValues()
     m_matViewProjection = m_matView * m_matProjection;
     m_matInverseView = KRMat4::Invert(m_matView);
     m_matInverseProjection = KRMat4::Invert(m_matProjection);
-    m_cameraPosition = KRMat4::Dot(m_matInverseView, KRVector3::Zero());
-    m_cameraDirection = KRMat4::Dot(m_matInverseView, KRVector3(0.0, 0.0, 1.0)) - KRMat4::Dot(m_matInverseView, KRVector3(0.0, 0.0, 0.0));
+    m_cameraPosition = KRMat4::Dot(m_matInverseView, Vector3::Zero());
+    m_cameraDirection = KRMat4::Dot(m_matInverseView, Vector3(0.0, 0.0, 1.0)) - KRMat4::Dot(m_matInverseView, Vector3(0.0, 0.0, 0.0));
 
     for(int i=0; i<8; i++) {
         m_frontToBackOrder[i] = i;
@@ -174,10 +174,10 @@ float KRViewport::coverage(const KRAABB &b) const
     if(!visible(b)) {
         return 0.0f; // Culled out by view frustrum
     } else {
-        KRVector3 nearest_point = b.nearestPoint(getCameraPosition());
+        Vector3 nearest_point = b.nearestPoint(getCameraPosition());
         float distance = (nearest_point - getCameraPosition()).magnitude();
         
-        KRVector3 v = KRMat4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
+        Vector3 v = KRMat4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
         
         float screen_depth = distance / 1000.0f;
         
@@ -189,7 +189,7 @@ float KRViewport::coverage(const KRAABB &b) const
         Vector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
-            KRVector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, KRVector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
+            Vector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, Vector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
             if(i==0) {
                 screen_min = screen_pos.xy();
                 screen_max = screen_pos.xy();

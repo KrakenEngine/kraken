@@ -19,8 +19,8 @@ public:
     virtual ~KRDirectionalLight();
     
     virtual std::string getElementName();
-    KRVector3 getLocalLightDirection();
-    KRVector3 getWorldLightDirection();
+    Vector3 getLocalLightDirection();
+    Vector3 getWorldLightDirection();
 
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     virtual KRAABB getBounds();

@@ -295,7 +295,7 @@ void KRShader::setUniform(int location, const Vector2 &value)
         }
     }
 }
-void KRShader::setUniform(int location, const KRVector3 &value)
+void KRShader::setUniform(int location, const Vector3 &value)
 {
     if(m_uniforms[location] != -1) {
         int value_index = m_uniform_value_index[location];
@@ -351,7 +351,7 @@ void KRShader::setUniform(int location, const KRMat4 &value)
     }
 }
 
-bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const KRVector3 &rim_color, float rim_power, const KRVector4 &fade_color) {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const KRVector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -417,7 +417,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                     inverseModelMatrix.invert();
                     
                     // Bind the light direction vector
-                    KRVector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
+                    Vector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
                     lightDirObject.normalize();
                     setUniform(KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE, lightDirObject);
                 }
@@ -438,7 +438,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         
         if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
             // Transform location of camera to object space for calculation of specular halfVec
-            KRVector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, viewport.getCameraPosition());
+            Vector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, viewport.getCameraPosition());
             setUniform(KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE, cameraPosObject);
         }
     }
@@ -459,7 +459,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
         
         
         if(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1) {
-            KRVector3 view_space_model_origin = KRMat4::Dot(matModelView, KRVector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
+            Vector3 view_space_model_origin = KRMat4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
             setUniform(KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN, view_space_model_origin);
         }
         
