@@ -14,14 +14,14 @@
 
 KRViewport::KRViewport()
 {
-    m_size = KRVector2::One();
+    m_size = Vector2::One();
     m_matProjection = KRMat4();
     m_matView = KRMat4();
     m_lodBias = 0.0f;
     calculateDerivedValues();
 }
 
-KRViewport::KRViewport(const KRVector2 &size, const KRMat4 &matView, const KRMat4 &matProjection)
+KRViewport::KRViewport(const Vector2 &size, const KRMat4 &matView, const KRMat4 &matProjection)
 {
     m_size = size;
     m_matView = matView;
@@ -48,7 +48,7 @@ KRViewport::~KRViewport()
     
 }
 
-const KRVector2 &KRViewport::getSize() const
+const Vector2 &KRViewport::getSize() const
 {
     return m_size;
 }
@@ -63,7 +63,7 @@ const KRMat4 &KRViewport::getProjectionMatrix() const
     return m_matProjection;
 }
 
-void KRViewport::setSize(const KRVector2 &size)
+void KRViewport::setSize(const Vector2 &size)
 {
     m_size = size;
 }
@@ -185,8 +185,8 @@ float KRViewport::coverage(const KRAABB &b) const
         
         /*
         
-        KRVector2 screen_min;
-        KRVector2 screen_max;
+        Vector2 screen_min;
+        Vector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
             KRVector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, KRVector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));

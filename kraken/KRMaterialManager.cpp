@@ -228,8 +228,8 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             *pLastPeriod = '\0';
                         }
 
-                        KRVector2 texture_scale = KRVector2(1.0f, 1.0f);
-                        KRVector2 texture_offset = KRVector2(0.0f, 0.0f);
+                        Vector2 texture_scale = Vector2(1.0f, 1.0f);
+                        Vector2 texture_offset = Vector2(0.0f, 0.0f);
                         
                         int iScanSymbol = 2;
                         int iScaleParam = -1;

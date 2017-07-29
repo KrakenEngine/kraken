@@ -102,7 +102,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         assert(pFaces != NULL);
         
         std::vector<KRVector3> indexed_vertices;
-        std::vector<KRVector2> indexed_uva;
+        std::vector<Vector2> indexed_uva;
         std::vector<KRVector3> indexed_normals;
         
         int *pFace = pFaces;
@@ -163,7 +163,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     u = strtof(pChar, &pChar);
                     pChar = szSymbol[2];
                     v = strtof(pChar, &pChar);                            
-                    indexed_uva.push_back(KRVector2(u,v));
+                    indexed_uva.push_back(Vector2(u,v));
                 } else if(strcmp(szSymbol[0], "vn") == 0) {
                     // Vertex Normal (vn)
                     float x,y,z;
@@ -253,8 +253,8 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 KRVector3 prevFaceVertex;
                 KRVector3 firstFaceNormal;
                 KRVector3 prevFaceNormal;
-                KRVector2 firstFaceUva;
-                KRVector2 prevFaceUva;
+                Vector2 firstFaceUva;
+                Vector2 prevFaceUva;
                 for(int iFaceVertex=0; iFaceVertex < cFaceVertexes; iFaceVertex++) {
                     if(iFaceVertex > 2) {
                         // There have already been 3 vertices.  Now we need to split the quad into a second triangle composed of the 1st, 3rd, and 4th vertices
@@ -269,7 +269,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                         mi.normals.push_back(prevFaceNormal);
                     }
                     KRVector3 vertex = indexed_vertices[pFace[iFaceVertex*3+1]];
-                    KRVector2 new_uva;
+                    Vector2 new_uva;
                     if(pFace[iFaceVertex*3+2] >= 0) {
                         new_uva = indexed_uva[pFace[iFaceVertex*3+2]];
                     }

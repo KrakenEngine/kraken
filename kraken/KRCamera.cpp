@@ -53,7 +53,7 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
     m_frame_times_filled = 0;
-    m_downsample = KRVector2::One();
+    m_downsample = Vector2::One();
     
     m_fade_color = KRVector4::Zero();
 }
@@ -113,7 +113,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     
     //KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
     
-    settings.setViewportSize(KRVector2(m_backingWidth, m_backingHeight));
+    settings.setViewportSize(Vector2(m_backingWidth, m_backingHeight));
     KRMat4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
@@ -419,7 +419,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         
         GL_PUSH_GROUP_MARKER("Volumetric Lighting");
         
-        KRViewport volumetricLightingViewport = KRViewport(KRVector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
+        KRViewport volumetricLightingViewport = KRViewport(Vector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
         
         if(settings.volumetric_environment_downsample != 0) {
             // Set render target
@@ -808,12 +808,12 @@ void KRCamera::renderPost()
                     int iTexCol = iChar % 16;
                     int iTexRow = 15 - (iChar - iTexCol) / 16;
                     
-                    KRVector2 top_left_pos = KRVector2(-1.0f + dScaleX * iCol, dScaleY * iRow - 1.0);
-                    KRVector2 bottom_right_pos = KRVector2(-1.0 + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0);
-                    top_left_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
-                    bottom_right_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
-                    KRVector2 top_left_uv = KRVector2(dTexScale * iTexCol, dTexScale * iTexRow);
-                    KRVector2 bottom_right_uv = KRVector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
+                    Vector2 top_left_pos = Vector2(-1.0f + dScaleX * iCol, dScaleY * iRow - 1.0);
+                    Vector2 bottom_right_pos = Vector2(-1.0 + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0);
+                    top_left_pos += Vector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    bottom_right_pos += Vector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    Vector2 top_left_uv = Vector2(dTexScale * iTexCol, dTexScale * iTexRow);
+                    Vector2 bottom_right_uv = Vector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
                     
                     vertex_data[vertex_count].x = top_left_pos.x;
                     vertex_data[vertex_count].y = top_left_pos.y;
@@ -1096,7 +1096,7 @@ const KRViewport &KRCamera::getViewport() const
 }
 
 
-KRVector2 KRCamera::getDownsample()
+Vector2 KRCamera::getDownsample()
 {
     return m_downsample;
 }

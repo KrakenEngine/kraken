@@ -4,7 +4,7 @@
 
 namespace kraken {
 
-void SetUniform(GLint location, const KRVector2 &v)
+void SetUniform(GLint location, const Vector2 &v)
 {
   if (location != -1) GLDEBUG(glUniform2f(location, v.x, v.y));
 }

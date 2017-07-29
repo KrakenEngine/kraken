@@ -223,14 +223,14 @@ private:
     void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
     void renderLimiter();
     
-    std::vector<KRVector2> m_hrtf_sample_locations;
+    std::vector<Vector2> m_hrtf_sample_locations;
     float *m_hrtf_data;
-    unordered_map<KRVector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
+    unordered_map<Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
     
-    KRVector2 getNearestHRTFSample(const KRVector2 &dir);
-    void getHRTFMix(const KRVector2 &dir, KRVector2 &hrtf1, KRVector2 &hrtf2, KRVector2 &hrtf3, KRVector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
-    KRAudioSample *getHRTFSample(const KRVector2 &hrtf_dir);
-    KRDSP::SplitComplex getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel);
+    Vector2 getNearestHRTFSample(const Vector2 &dir);
+    void getHRTFMix(const Vector2 &dir, Vector2 &hrtf1, Vector2 &hrtf2, Vector2 &hrtf3, Vector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
+    KRAudioSample *getHRTFSample(const Vector2 &hrtf_dir);
+    KRDSP::SplitComplex getHRTFSpectral(const Vector2 &hrtf_dir, const int channel);
     
     unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
     float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
@@ -244,7 +244,7 @@ private:
 #endif
     
     
-    unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+    unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
     bool m_anticlick_block;
     bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };

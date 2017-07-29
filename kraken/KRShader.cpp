@@ -277,7 +277,7 @@ void KRShader::setUniform(int location, int value)
     }
 }
 
-void KRShader::setUniform(int location, const KRVector2 &value)
+void KRShader::setUniform(int location, const Vector2 &value)
 {
     if(m_uniforms[location] != -1) {
         int value_index = m_uniform_value_index[location];

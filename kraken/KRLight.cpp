@@ -263,7 +263,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
             float slice_far = -pCamera->settings.volumetric_environment_max_distance;
             float slice_spacing = (slice_far - slice_near) / slice_count;
             
-            pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, KRVector2(slice_near, slice_spacing));
+            pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2(slice_near, slice_spacing));
             pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
             
             KRDataBlock index_data;
@@ -363,7 +363,7 @@ void KRLight::allocateShadowBuffers(int cBuffers) {
     
     // Allocate newly required buffers
     for(int iShadow = 0; iShadow < cBuffers; iShadow++) {
-        KRVector2 viewportSize = m_shadowViewports[iShadow].getSize();
+        Vector2 viewportSize = m_shadowViewports[iShadow].getSize();
         
         if(!shadowDepthTexture[iShadow]) {
             shadowValid[iShadow] = false;

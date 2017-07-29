@@ -139,7 +139,7 @@ public:
     
     std::vector<float> m_uniform_value_float;
     std::vector<int> m_uniform_value_int;
-    std::vector<KRVector2> m_uniform_value_vector2;
+    std::vector<Vector2> m_uniform_value_vector2;
     std::vector<KRVector3> m_uniform_value_vector3;
     std::vector<KRVector4> m_uniform_value_vector4;
     std::vector<KRMat4> m_uniform_value_mat4;
@@ -149,7 +149,7 @@ public:
     
     void setUniform(int location, float value);
     void setUniform(int location, int value);
-    void setUniform(int location, const KRVector2 &value);
+    void setUniform(int location, const Vector2 &value);
     void setUniform(int location, const KRVector3 &value);
     void setUniform(int location, const KRVector4 &value);
     void setUniform(int location, const KRMat4 &value);

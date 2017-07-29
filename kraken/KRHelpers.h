@@ -17,7 +17,7 @@ float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
 
 namespace kraken {
-  void SetUniform(GLint location, const KRVector2 &v);
+  void SetUniform(GLint location, const Vector2 &v);
   void SetUniform(GLint location, const KRVector3 &v);
   void SetUniform(GLint location, const KRVector4 &v);
   void SetUniform(GLint location, const KRMat4 &v);

@@ -19,8 +19,8 @@ public:
     // Overload assignment operator
     KRRenderSettings& operator=(const KRRenderSettings &s);
     
-    const KRVector2 &getViewportSize();
-    void setViewportSize(const KRVector2 &size);
+    const Vector2 &getViewportSize();
+    void setViewportSize(const Vector2 &size);
     
     float getPerspectiveNearZ();
     float getPerspectiveFarZ();
@@ -61,7 +61,7 @@ public:
     float vignette_radius;
     float vignette_falloff;
     
-    KRVector2 m_viewportSize;
+    Vector2 m_viewportSize;
     
     int m_cShadowBuffers;
     

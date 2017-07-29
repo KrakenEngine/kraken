@@ -75,7 +75,7 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         matBias.bias();
         matShadowProjection *= matBias;
         
-        KRViewport newShadowViewport = KRViewport(KRVector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);
+        KRViewport newShadowViewport = KRViewport(Vector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);
         KRAABB prevShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
         KRAABB minimumShadowBounds = KRAABB(-KRVector3::One(), KRVector3::One(), KRMat4::Invert(newShadowViewport.getViewProjectionMatrix()));
         minimumShadowBounds.scale(1.0f / KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);

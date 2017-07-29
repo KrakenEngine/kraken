@@ -153,11 +153,11 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     return *this;
 }
 
-const KRVector2 &KRRenderSettings::getViewportSize() {
+const Vector2 &KRRenderSettings::getViewportSize() {
     return m_viewportSize;
 }
 
-void KRRenderSettings::setViewportSize(const KRVector2 &size) {
+void KRRenderSettings::setViewportSize(const Vector2 &size) {
     m_viewportSize = size;
 }
 

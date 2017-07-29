@@ -436,374 +436,374 @@ void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool 
 
 void KRAudioManager::initHRTF()
 {
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,005.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,025.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,035.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,055.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,065.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,085.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,095.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,115.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,125.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,145.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,155.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,175.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-10.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,005.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,025.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,035.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,055.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,065.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,085.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,095.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,115.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,125.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,145.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,155.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,175.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-20.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,006.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,012.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,018.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,024.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,036.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,042.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,048.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,054.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,066.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,072.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,078.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,084.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,096.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,102.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,108.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,114.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,126.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,132.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,138.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,144.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,156.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,162.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,168.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,174.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-30.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,006.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,013.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,019.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,026.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,032.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,039.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,051.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,058.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,064.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,071.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,077.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,084.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,096.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,103.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,109.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,116.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,122.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,129.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,141.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,148.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,154.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,161.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,167.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,174.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(-40.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,005.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,025.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,035.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,055.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,065.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,085.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,095.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,115.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,125.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,145.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,155.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,175.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(0.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,005.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,025.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,035.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,055.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,065.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,085.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,095.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,115.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,125.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,145.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,155.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,175.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(10.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,005.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,025.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,035.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,055.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,065.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,085.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,095.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,115.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,125.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,145.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,155.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,175.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(20.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,006.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,012.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,018.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,024.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,036.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,042.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,048.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,054.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,066.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,072.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,078.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,084.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,096.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,102.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,108.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,114.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,126.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,132.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,138.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,144.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,156.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,162.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,168.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,174.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(30.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,006.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,013.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,019.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,026.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,032.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,039.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,051.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,058.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,064.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,071.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,077.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,084.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,096.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,103.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,109.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,116.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,122.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,129.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,141.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,148.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,154.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,161.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,167.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,174.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(40.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,008.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,016.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,024.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,032.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,048.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,056.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,064.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,072.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,088.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,096.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,104.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,112.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,128.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,136.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,144.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,152.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,168.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(50.0f,176.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,010.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,020.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,040.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,050.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,070.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,080.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,100.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,110.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,130.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,140.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,160.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,170.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(60.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,015.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,045.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,075.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,105.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,135.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,165.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(70.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,000.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,030.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,060.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,090.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,120.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,150.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(80.0f,180.0f));
-    m_hrtf_sample_locations.push_back(KRVector2(90.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,005.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,025.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,035.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,055.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,065.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,085.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,095.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,115.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,125.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,145.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,155.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,175.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-10.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,005.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,025.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,035.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,055.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,065.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,085.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,095.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,115.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,125.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,145.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,155.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,175.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-20.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,006.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,012.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,018.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,024.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,036.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,042.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,048.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,054.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,066.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,072.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,078.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,084.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,096.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,102.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,108.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,114.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,126.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,132.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,138.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,144.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,156.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,162.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,168.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,174.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-30.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,006.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,013.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,019.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,026.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,032.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,039.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,051.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,058.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,064.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,071.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,077.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,084.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,096.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,103.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,109.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,116.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,122.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,129.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,141.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,148.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,154.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,161.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,167.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,174.0f));
+    m_hrtf_sample_locations.push_back(Vector2(-40.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,005.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,025.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,035.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,055.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,065.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,085.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,095.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,115.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,125.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,145.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,155.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,175.0f));
+    m_hrtf_sample_locations.push_back(Vector2(0.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,005.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,025.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,035.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,055.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,065.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,085.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,095.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,115.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,125.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,145.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,155.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,175.0f));
+    m_hrtf_sample_locations.push_back(Vector2(10.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,005.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,025.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,035.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,055.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,065.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,085.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,095.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,115.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,125.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,145.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,155.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,175.0f));
+    m_hrtf_sample_locations.push_back(Vector2(20.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,006.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,012.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,018.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,024.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,036.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,042.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,048.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,054.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,066.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,072.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,078.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,084.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,096.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,102.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,108.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,114.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,126.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,132.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,138.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,144.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,156.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,162.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,168.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,174.0f));
+    m_hrtf_sample_locations.push_back(Vector2(30.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,006.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,013.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,019.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,026.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,032.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,039.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,051.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,058.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,064.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,071.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,077.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,084.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,096.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,103.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,109.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,116.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,122.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,129.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,141.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,148.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,154.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,161.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,167.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,174.0f));
+    m_hrtf_sample_locations.push_back(Vector2(40.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,008.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,016.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,024.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,032.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,048.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,056.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,064.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,072.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,088.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,096.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,104.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,112.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,128.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,136.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,144.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,152.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,168.0f));
+    m_hrtf_sample_locations.push_back(Vector2(50.0f,176.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,010.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,020.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,040.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,050.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,070.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,080.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,100.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,110.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,130.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,140.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,160.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,170.0f));
+    m_hrtf_sample_locations.push_back(Vector2(60.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,015.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,045.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,075.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,105.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,135.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,165.0f));
+    m_hrtf_sample_locations.push_back(Vector2(70.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,000.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,030.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,060.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,090.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,120.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,150.0f));
+    m_hrtf_sample_locations.push_back(Vector2(80.0f,180.0f));
+    m_hrtf_sample_locations.push_back(Vector2(90.0f,000.0f));
     
     if(m_hrtf_data) {
         delete m_hrtf_data;
@@ -815,8 +815,8 @@ void KRAudioManager::initHRTF()
     }
     
     int sample_index=0;
-    for(std::vector<KRVector2>::iterator itr=m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
-        KRVector2 pos = *itr;
+    for(std::vector<Vector2>::iterator itr=m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+        Vector2 pos = *itr;
         KRAudioSample *sample = getHRTFSample(pos);
         for(int channel=0; channel < 2; channel++) {
             KRDSP::SplitComplex spectral;
@@ -833,7 +833,7 @@ void KRAudioManager::initHRTF()
     
 }
 
-KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir)
+KRAudioSample *KRAudioManager::getHRTFSample(const Vector2 &hrtf_dir)
 {
     //hrtf_kemar_H-10e000a.wav
     char szName[64];
@@ -842,9 +842,9 @@ KRAudioSample *KRAudioManager::getHRTFSample(const KRVector2 &hrtf_dir)
     return get(szName);
 }
 
-KRDSP::SplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, const int channel)
+KRDSP::SplitComplex KRAudioManager::getHRTFSpectral(const Vector2 &hrtf_dir, const int channel)
 {
-    KRVector2 dir = hrtf_dir;
+    Vector2 dir = hrtf_dir;
     int sample_channel = channel;
     if(dir.y < 0) {
         dir.y = -dir.y;
@@ -853,21 +853,21 @@ KRDSP::SplitComplex KRAudioManager::getHRTFSpectral(const KRVector2 &hrtf_dir, c
     return m_hrtf_spectral[sample_channel][dir];
 }
 
-KRVector2 KRAudioManager::getNearestHRTFSample(const KRVector2 &dir)
+Vector2 KRAudioManager::getNearestHRTFSample(const Vector2 &dir)
 {
     float elev_gran = 10.0f;
 
     
-    KRVector2 dir_deg = dir * (180.0f / M_PI);
+    Vector2 dir_deg = dir * (180.0f / M_PI);
     float elevation = floor(dir_deg.x / elev_gran + 0.5f) * elev_gran;
     if(elevation < -40.0f) {
         elevation = -40.0f;
     }
     
-    KRVector2 min_direction;
+    Vector2 min_direction;
     bool first = true;
     float min_distance = 360.0f;
-    for(std::vector<KRVector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+    for(std::vector<Vector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
         if(first) {
             first = false;
             min_direction = (*itr);
@@ -888,7 +888,7 @@ KRVector2 KRAudioManager::getNearestHRTFSample(const KRVector2 &dir)
     return min_direction;
 }
 
-void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2 &dir2, KRVector2 &dir3, KRVector2 &dir4, float &mix1, float &mix2, float &mix3, float &mix4)
+void KRAudioManager::getHRTFMix(const Vector2 &dir, Vector2 &dir1, Vector2 &dir2, Vector2 &dir3, Vector2 &dir4, float &mix1, float &mix2, float &mix3, float &mix4)
 {
     float elev_gran = 10.0f;
     
@@ -913,8 +913,8 @@ void KRAudioManager::getHRTFMix(const KRVector2 &dir, KRVector2 &dir1, KRVector2
     bool first2 = true;
     bool first3 = true;
     bool first4 = true;
-    for(std::vector<KRVector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
-        KRVector2 sample_pos = *itr;
+    for(std::vector<Vector2>::iterator itr = m_hrtf_sample_locations.begin(); itr != m_hrtf_sample_locations.end(); itr++) {
+        Vector2 sample_pos = *itr;
         
         if(sample_pos.x == elev1) {
             if(sample_pos.y <= azimuth) {
@@ -1493,11 +1493,11 @@ void KRAudioManager::startFrame(float deltaTime)
                 }
             }
             
-            KRVector2 source_dir2 = KRVector2::Normalize(KRVector2(source_dir.x, source_dir.z));
+            Vector2 source_dir2 = Vector2::Normalize(Vector2(source_dir.x, source_dir.z));
             float azimuth = -atan2(source_dir2.x, -source_dir2.y);
             float elevation = atan( source_dir.y / sqrt(source_dir.x * source_dir.x + source_dir.z * source_dir.z));
             
-            KRVector2 adjusted_source_dir = KRVector2(elevation, azimuth);
+            Vector2 adjusted_source_dir = Vector2(elevation, azimuth);
             
             if(!m_high_quality_hrtf) {
                 adjusted_source_dir = getNearestHRTFSample(adjusted_source_dir);
@@ -1505,30 +1505,30 @@ void KRAudioManager::startFrame(float deltaTime)
             
             // Click Removal - Add ramping of gain changes for audio sources that are continuing to play
             float gain_anticlick = 0.0f;
-            std::pair<unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> prev_range = m_prev_mapped_sources.equal_range(adjusted_source_dir);
-            for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator prev_itr=prev_range.first; prev_itr != prev_range.second; prev_itr++) {
+            std::pair<unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> prev_range = m_prev_mapped_sources.equal_range(adjusted_source_dir);
+            for(unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator prev_itr=prev_range.first; prev_itr != prev_range.second; prev_itr++) {
                 if( (*prev_itr).second.first == source) {
                     gain_anticlick = (*prev_itr).second.second.second;
                     break;
                 }
             }
             
-            m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >(adjusted_source_dir, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(gain_anticlick, gain))));
+            m_mapped_sources.insert(std::pair<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >(adjusted_source_dir, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(gain_anticlick, gain))));
         }
     }
     
     // Click Removal - Map audio sources for ramp-down of gain for audio sources that have been squelched by attenuation
-    for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_prev_mapped_sources.begin(); itr != m_prev_mapped_sources.end(); itr++) {
+    for(unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_prev_mapped_sources.begin(); itr != m_prev_mapped_sources.end(); itr++) {
 
         KRAudioSource *source = (*itr).second.first;
         float source_prev_gain = (*itr).second.second.second;
         if(source->isPlaying() && source_prev_gain > 0.0f) {
             // Only create ramp-down channels for 3d sources that have been squelched by attenuation; this is not necessary if the sample has completed playing
-            KRVector2 source_position = (*itr).first;
+            Vector2 source_position = (*itr).first;
             
-            std::pair<unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> new_range = m_mapped_sources.equal_range(source_position);
+            std::pair<unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator, unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator> new_range = m_mapped_sources.equal_range(source_position);
             bool already_merged = false;
-            for(unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator new_itr=new_range.first; new_itr != new_range.second; new_itr++) {
+            for(unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator new_itr=new_range.first; new_itr != new_range.second; new_itr++) {
                 if( (*new_itr).second.first == source) {
                     already_merged = true;
                     break;
@@ -1537,7 +1537,7 @@ void KRAudioManager::startFrame(float deltaTime)
             if(!already_merged) {
                 
                 // source gain becomes anticlick gain and gain becomes 0 for anti-click ramp-down.
-                m_mapped_sources.insert(std::pair<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >(source_position, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(source_prev_gain, 0.0f))));
+                m_mapped_sources.insert(std::pair<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >(source_position, std::pair<KRAudioSource *, std::pair<float, float> >(source, std::pair<float, float>(source_prev_gain, 0.0f))));
             }
         }
     }
@@ -1585,10 +1585,10 @@ void KRAudioManager::renderHRTF()
     for(int channel=0; channel<impulse_response_channels; channel++) {
         
         bool first_source = true;
-        unordered_multimap<KRVector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
+        unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > >::iterator itr=m_mapped_sources.begin();
         while(itr != m_mapped_sources.end()) {
             // Batch together sound sources that are emitted from the same direction
-            KRVector2 source_direction = (*itr).first;
+            Vector2 source_direction = (*itr).first;
             KRAudioSource *source = (*itr).second.first;
             float gain_anticlick = (*itr).second.second.first;
             float gain = (*itr).second.second.second;
@@ -1625,7 +1625,7 @@ void KRAudioManager::renderHRTF()
             if(itr == m_mapped_sources.end()) {
                 end_of_group = true;
             } else {
-                KRVector2 next_direction = (*itr).first;
+                Vector2 next_direction = (*itr).first;
                 end_of_group = next_direction != source_direction;
             }
 
@@ -1643,7 +1643,7 @@ void KRAudioManager::renderHRTF()
                     hrtf_spectral = *hrtf_accum;
                     
                     float mix[4];
-                    KRVector2 dir[4];
+                    Vector2 dir[4];
                     
                     getHRTFMix(source_direction, dir[0], dir[1], dir[2], dir[3], mix[0], mix[1], mix[2], mix[3]);
                 

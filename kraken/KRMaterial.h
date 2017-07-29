@@ -63,12 +63,12 @@ public:
     virtual bool save(KRDataBlock &data);
     
     
-    void setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
     void setReflectionCube(std::string texture_name);
-    void setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
     void setAmbient(const KRVector3 &c);
     void setDiffuse(const KRVector3 &c);    
     void setSpecular(const KRVector3 &c);
@@ -105,16 +105,16 @@ private:
     std::string m_reflectionCube;
     std::string m_normalMap;
     
-    KRVector2 m_ambientMapScale;
-    KRVector2 m_ambientMapOffset;
-    KRVector2 m_diffuseMapScale;
-    KRVector2 m_diffuseMapOffset;
-    KRVector2 m_specularMapScale;
-    KRVector2 m_specularMapOffset;
-    KRVector2 m_reflectionMapScale;
-    KRVector2 m_reflectionMapOffset;
-    KRVector2 m_normalMapScale;
-    KRVector2 m_normalMapOffset;
+    Vector2 m_ambientMapScale;
+    Vector2 m_ambientMapOffset;
+    Vector2 m_diffuseMapScale;
+    Vector2 m_diffuseMapOffset;
+    Vector2 m_specularMapScale;
+    Vector2 m_specularMapOffset;
+    Vector2 m_reflectionMapScale;
+    Vector2 m_reflectionMapOffset;
+    Vector2 m_normalMapScale;
+    Vector2 m_normalMapOffset;
     
     KRVector3 m_ambientColor; // Ambient rgb
     KRVector3 m_diffuseColor; // Diffuse rgb

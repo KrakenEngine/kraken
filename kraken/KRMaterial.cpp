@@ -56,14 +56,14 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_normalMap = "";
     m_reflectionMap = "";
     m_reflectionCube = "";
-    m_ambientMapOffset = KRVector2(0.0f, 0.0f);
-    m_specularMapOffset = KRVector2(0.0f, 0.0f);
-    m_diffuseMapOffset = KRVector2(0.0f, 0.0f);
-    m_ambientMapScale = KRVector2(1.0f, 1.0f);
-    m_specularMapScale = KRVector2(1.0f, 1.0f);
-    m_diffuseMapScale = KRVector2(1.0f, 1.0f);
-    m_reflectionMapOffset = KRVector2(0.0f, 0.0f);
-    m_reflectionMapScale = KRVector2(1.0f, 1.0f);
+    m_ambientMapOffset = Vector2(0.0f, 0.0f);
+    m_specularMapOffset = Vector2(0.0f, 0.0f);
+    m_diffuseMapOffset = Vector2(0.0f, 0.0f);
+    m_ambientMapScale = Vector2(1.0f, 1.0f);
+    m_specularMapScale = Vector2(1.0f, 1.0f);
+    m_diffuseMapScale = Vector2(1.0f, 1.0f);
+    m_reflectionMapOffset = Vector2(0.0f, 0.0f);
+    m_reflectionMapScale = Vector2(1.0f, 1.0f);
     m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
 }
 
@@ -144,31 +144,31 @@ bool KRMaterial::save(KRDataBlock &data) {
     return true;
 }
 
-void KRMaterial::setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_ambientMap = texture_name;
     m_ambientMapScale = texture_scale;
     m_ambientMapOffset = texture_offset;
 }
 
-void KRMaterial::setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_diffuseMap = texture_name;
     m_diffuseMapScale = texture_scale;
     m_diffuseMapOffset = texture_offset;
 }
 
-void KRMaterial::setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_specularMap = texture_name;
     m_specularMapScale = texture_scale;
     m_specularMapOffset = texture_offset;
 }
 
-void KRMaterial::setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_normalMap = texture_name;
     m_normalMapScale = texture_scale;
     m_normalMapOffset = texture_offset;
 }
 
-void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_reflectionMap = texture_name;
     m_reflectionMapScale = texture_scale;
     m_reflectionMapOffset = texture_offset;
@@ -307,8 +307,8 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     getTextures();
     
-    KRVector2 default_scale = KRVector2::One();
-    KRVector2 default_offset = KRVector2::Zero();
+    Vector2 default_scale = Vector2::One();
+    Vector2 default_offset = Vector2::Zero();
     
     bool bHasReflection = m_reflectionColor != KRVector3::Zero();
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;

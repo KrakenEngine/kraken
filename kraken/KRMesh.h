@@ -99,8 +99,8 @@ public:
         std::vector<KRVector3> vertices;
         std::vector<__uint16_t> vertex_indexes;
         std::vector<std::pair<int, int> > vertex_index_bases;
-        std::vector<KRVector2> uva;
-        std::vector<KRVector2> uvb;
+        std::vector<Vector2> uva;
+        std::vector<Vector2> uvb;
         std::vector<KRVector3> normals;
         std::vector<KRVector3> tangents;
         std::vector<int> submesh_starts;
@@ -188,16 +188,16 @@ public:
     KRVector3 getVertexPosition(int index) const;
     KRVector3 getVertexNormal(int index) const;
     KRVector3 getVertexTangent(int index) const;
-    KRVector2 getVertexUVA(int index) const;
-    KRVector2 getVertexUVB(int index) const;
+    Vector2 getVertexUVA(int index) const;
+    Vector2 getVertexUVB(int index) const;
     int getBoneIndex(int index, int weight_index) const;
     float getBoneWeight(int index, int weight_index) const;
     
     void setVertexPosition(int index, const KRVector3 &v);
     void setVertexNormal(int index, const KRVector3 &v);
     void setVertexTangent(int index, const KRVector3 & v);
-    void setVertexUVA(int index, const KRVector2 &v);
-    void setVertexUVB(int index, const KRVector2 &v);
+    void setVertexUVA(int index, const Vector2 &v);
+    void setVertexUVB(int index, const Vector2 &v);
     void setBoneIndex(int index, int weight_index, int bone_index);
     void setBoneWeight(int index, int weight_index, float bone_weight);
     

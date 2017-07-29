@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRVECTOR3_H
-#define KRVECTOR3_H
+#ifndef KRAKEN_VECTOR3_H
+#define KRAKEN_VECTOR3_H
 
 #include <functional> // for hash<>
 
@@ -57,24 +57,24 @@ public:
     KRVector3(const KRVector4 &v);
     ~KRVector3();
     
-    // KRVector2 swizzle getters
-    KRVector2 xx() const;
-    KRVector2 xy() const;
-    KRVector2 xz() const;
-    KRVector2 yx() const;
-    KRVector2 yy() const;
-    KRVector2 yz() const;
-    KRVector2 zx() const;
-    KRVector2 zy() const;
-    KRVector2 zz() const;
+    // Vector2 swizzle getters
+    Vector2 xx() const;
+    Vector2 xy() const;
+    Vector2 xz() const;
+    Vector2 yx() const;
+    Vector2 yy() const;
+    Vector2 yz() const;
+    Vector2 zx() const;
+    Vector2 zy() const;
+    Vector2 zz() const;
     
-    // KRVector2 swizzle setters
-    void xy(const KRVector2 &v);
-    void xz(const KRVector2 &v);
-    void yx(const KRVector2 &v);
-    void yz(const KRVector2 &v);
-    void zx(const KRVector2 &v);
-    void zy(const KRVector2 &v);
+    // Vector2 swizzle setters
+    void xy(const Vector2 &v);
+    void xz(const Vector2 &v);
+    void yx(const Vector2 &v);
+    void yz(const Vector2 &v);
+    void zx(const Vector2 &v);
+    void zy(const Vector2 &v);
     
     KRVector3& operator =(const KRVector3& b);
     KRVector3& operator =(const KRVector4& b);
@@ -142,4 +142,4 @@ namespace std {
   };
 }
 
-#endif // KRVECTOR3_H
+#endif // KRAKEN_VECTOR3_H

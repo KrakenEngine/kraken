@@ -1210,7 +1210,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
-            new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+            new_material->setDiffuseMap(KRResource::GetFileBase(pFileTexture->GetFileName()), Vector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  Vector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
     }
     
@@ -1227,7 +1227,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         FbxTexture* pTexture = FbxCast <FbxTexture> (pProperty.GetSrcObject(FbxCriteria::ObjectType(FbxTexture::ClassId),0));
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
-            new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+            new_material->setSpecularMap(KRResource::GetFileBase(pFileTexture->GetFileName()), Vector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  Vector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
     }
     
@@ -1245,7 +1245,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
         FbxTexture* pTexture = pProperty.GetSrcObject<FbxTexture>(0);
         FbxFileTexture *pFileTexture = FbxCast<FbxFileTexture>(pTexture);
         if(pFileTexture) {
-            new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), KRVector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  KRVector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
+            new_material->setNormalMap(KRResource::GetFileBase(pFileTexture->GetFileName()), Vector2(pTexture->GetScaleU(), pTexture->GetScaleV()),  Vector2(pTexture->GetTranslationU(), pTexture->GetTranslationV()));
         }
     }
     
@@ -1382,8 +1382,8 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
 //    std::vector<std::vector<int> > bone_indexes;
 //    
 //    std::vector<KRVector3> vertices;
-//    std::vector<KRVector2> uva;
-//    std::vector<KRVector2> uvb;
+//    std::vector<Vector2> uva;
+//    std::vector<Vector2> uvb;
 //    std::vector<KRVector3> normals;
 //    std::vector<KRVector3> tangents;
 //    std::vector<int> submesh_lengths;
@@ -1448,8 +1448,8 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             mi.bone_weights.push_back(vertex_bone_weights);
                         }
                         
-                        KRVector2 new_uva = KRVector2(0.0, 0.0);
-                        KRVector2 new_uvb = KRVector2(0.0, 0.0);
+                        Vector2 new_uva = Vector2(0.0, 0.0);
+                        Vector2 new_uvb = Vector2(0.0, 0.0);
                         
                         
                         // ----====---- Read UVs ----====----
@@ -1462,7 +1462,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             bool unmapped = false;
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
                                 if(!unmapped) {
-                                    new_uva = KRVector2(uv[0], uv[1]);
+                                    new_uva = Vector2(uv[0], uv[1]);
                                 }
                             }
                             mi.uva.push_back(new_uva);
@@ -1474,7 +1474,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
                             bool unmapped = false;
                             if(pMesh->GetPolygonVertexUV(iPolygon, iVertex, setName, uv, unmapped)) {
                                 if(!unmapped) {
-                                    new_uvb = KRVector2(uv[0], uv[1]);
+                                    new_uvb = Vector2(uv[0], uv[1]);
                                 }
                             }
                             mi.uvb.push_back(new_uvb);

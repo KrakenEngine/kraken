@@ -16,10 +16,10 @@ class KRLight;
 class KRViewport {
 public:
     KRViewport();
-    KRViewport(const KRVector2 &size, const KRMat4 &matView, const KRMat4 &matProjection);
+    KRViewport(const Vector2 &size, const KRMat4 &matView, const KRMat4 &matProjection);
     ~KRViewport();
     
-    const KRVector2 &getSize() const;
+    const Vector2 &getSize() const;
     const KRMat4 &getViewMatrix() const;
     const KRMat4 &getProjectionMatrix() const;
     const KRMat4 &getViewProjectionMatrix() const;
@@ -29,7 +29,7 @@ public:
     const KRVector3 &getCameraPosition() const;
     const int *getFrontToBackOrder() const;
     const int *getBackToFrontOrder() const;
-    void setSize(const KRVector2 &size);
+    void setSize(const Vector2 &size);
     void setViewMatrix(const KRMat4 &matView);
     void setProjectionMatrix(const KRMat4 &matProjection);
     float getLODBias() const;
@@ -47,7 +47,7 @@ public:
     float coverage(const KRAABB &b) const;
     
 private:
-    KRVector2 m_size;
+    Vector2 m_size;
     KRMat4 m_matView;
     KRMat4 m_matProjection;
     
