@@ -41,65 +41,65 @@ class Vector3;
 class Vector4 {
     
 public:
-    union {
-        struct {
-            float x, y, z, w;
-        };
-        float c[4];
+  union {
+    struct {
+      float x, y, z, w;
     };
+    float c[4];
+  };
     
-    Vector4();
-    Vector4(float X, float Y, float Z, float W);
-    Vector4(float v);
-    Vector4(float *v);
-    Vector4(const Vector4 &v);
-    Vector4(const Vector3 &v, float W);
-    ~Vector4();
+  Vector4();
+  Vector4(float X, float Y, float Z, float W);
+  Vector4(float v);
+  Vector4(float *v);
+  Vector4(const Vector4 &v);
+  Vector4(const Vector3 &v, float W);
+  ~Vector4();
     
     
-    Vector4& operator =(const Vector4& b);
-    Vector4 operator +(const Vector4& b) const;
-    Vector4 operator -(const Vector4& b) const;
-    Vector4 operator +() const;
-    Vector4 operator -() const;
-    Vector4 operator *(const float v) const;
-    Vector4 operator /(const float v) const;
+  Vector4& operator =(const Vector4& b);
+  Vector4 operator +(const Vector4& b) const;
+  Vector4 operator -(const Vector4& b) const;
+  Vector4 operator +() const;
+  Vector4 operator -() const;
+  Vector4 operator *(const float v) const;
+  Vector4 operator /(const float v) const;
     
-    Vector4& operator +=(const Vector4& b);
-    Vector4& operator -=(const Vector4& b);
-    Vector4& operator *=(const float v);
-    Vector4& operator /=(const float v);
+  Vector4& operator +=(const Vector4& b);
+  Vector4& operator -=(const Vector4& b);
+  Vector4& operator *=(const float v);
+  Vector4& operator /=(const float v);
     
-    bool operator ==(const Vector4& b) const;
-    bool operator !=(const Vector4& b) const;
+  bool operator ==(const Vector4& b) const;
+  bool operator !=(const Vector4& b) const;
     
-    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
-    bool operator >(const Vector4& b) const;
-    bool operator <(const Vector4& b) const;
+  // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+  bool operator >(const Vector4& b) const;
+  bool operator <(const Vector4& b) const;
     
-    float& operator[](unsigned i);
-    float operator[](unsigned i) const;
+  float& operator[](unsigned i);
+  float operator[](unsigned i) const;
     
-    float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
-    float magnitude() const;
+  float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
+  float magnitude() const;
     
-    void normalize();
-    static Vector4 Normalize(const Vector4 &v);
+  void normalize();
+  static Vector4 Normalize(const Vector4 &v);
     
-    static float Dot(const Vector4 &v1, const Vector4 &v2);
-    static Vector4 Min();
-    static Vector4 Max();
-    static const Vector4 &Zero();
-    static Vector4 One();
-    static Vector4 Forward();
-    static Vector4 Backward();
-    static Vector4 Up();
-    static Vector4 Down();
-    static Vector4 Left();
-    static Vector4 Right();
-    static Vector4 Lerp(const Vector4 &v1, const Vector4 &v2, float d);
-    static Vector4 Slerp(const Vector4 &v1, const Vector4 &v2, float d);
-    static void OrthoNormalize(Vector4 &normal, Vector4 &tangent); // Gram-Schmidt Orthonormalization
+  static float Dot(const Vector4 &v1, const Vector4 &v2);
+  static Vector4 Min();
+  static Vector4 Max();
+  static const Vector4 &Zero();
+  static Vector4 One();
+  static Vector4 Forward();
+  static Vector4 Backward();
+  static Vector4 Up();
+  static Vector4 Down();
+  static Vector4 Left();
+  static Vector4 Right();
+  static Vector4 Lerp(const Vector4 &v1, const Vector4 &v2, float d);
+  static Vector4 Slerp(const Vector4 &v1, const Vector4 &v2, float d);
+  static void OrthoNormalize(Vector4 &normal, Vector4 &tangent); // Gram-Schmidt Orthonormalization
 };
 
 } // namespace kraken
@@ -117,6 +117,6 @@ namespace std {
       return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
     }
   };
-}
+} // namespace std
 
 #endif // KRAKEN_VECTOR4_H

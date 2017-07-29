@@ -39,25 +39,25 @@ namespace kraken {
 class KRTriangle3
 {
 public:
-    Vector3 vert[3];
+  Vector3 vert[3];
 
-    KRTriangle3(const KRTriangle3 &tri);
-    KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
-    ~KRTriangle3();
+  KRTriangle3(const KRTriangle3 &tri);
+  KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
+  ~KRTriangle3();
     
-    Vector3 calculateNormal() const;
+  Vector3 calculateNormal() const;
     
-    bool operator ==(const KRTriangle3& b) const;
-    bool operator !=(const KRTriangle3& b) const;
-    KRTriangle3& operator =(const KRTriangle3& b);
-    Vector3& operator[](unsigned int i);
-    Vector3 operator[](unsigned int i) const;
+  bool operator ==(const KRTriangle3& b) const;
+  bool operator !=(const KRTriangle3& b) const;
+  KRTriangle3& operator =(const KRTriangle3& b);
+  Vector3& operator[](unsigned int i);
+  Vector3 operator[](unsigned int i) const;
     
-    bool rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const;
-    bool sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const;
+  bool rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const;
+  bool sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const;
     
-    bool containsPoint(const Vector3 &p) const;
-    Vector3 closestPointOnTriangle(const Vector3 &p) const;
+  bool containsPoint(const Vector3 &p) const;
+  Vector3 closestPointOnTriangle(const Vector3 &p) const;
 };
 
 } // namespace kraken

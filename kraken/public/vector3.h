@@ -42,89 +42,89 @@ namespace kraken {
 class Vector3 {
 
 public:
-    union {        
-        struct {
-            float x, y, z;
-        };
-        float c[3];
+  union {        
+    struct {
+      float x, y, z;
     };
+    float c[3];
+  };
     
-    Vector3();
-    Vector3(float X, float Y, float Z);
-    Vector3(float v);
-    Vector3(float *v);
-    Vector3(double *v);
-    Vector3(const Vector3 &v);
-    Vector3(const Vector4 &v);
-    ~Vector3();
+  Vector3();
+  Vector3(float X, float Y, float Z);
+  Vector3(float v);
+  Vector3(float *v);
+  Vector3(double *v);
+  Vector3(const Vector3 &v);
+  Vector3(const Vector4 &v);
+  ~Vector3();
     
-    // Vector2 swizzle getters
-    Vector2 xx() const;
-    Vector2 xy() const;
-    Vector2 xz() const;
-    Vector2 yx() const;
-    Vector2 yy() const;
-    Vector2 yz() const;
-    Vector2 zx() const;
-    Vector2 zy() const;
-    Vector2 zz() const;
+  // Vector2 swizzle getters
+  Vector2 xx() const;
+  Vector2 xy() const;
+  Vector2 xz() const;
+  Vector2 yx() const;
+  Vector2 yy() const;
+  Vector2 yz() const;
+  Vector2 zx() const;
+  Vector2 zy() const;
+  Vector2 zz() const;
     
-    // Vector2 swizzle setters
-    void xy(const Vector2 &v);
-    void xz(const Vector2 &v);
-    void yx(const Vector2 &v);
-    void yz(const Vector2 &v);
-    void zx(const Vector2 &v);
-    void zy(const Vector2 &v);
+  // Vector2 swizzle setters
+  void xy(const Vector2 &v);
+  void xz(const Vector2 &v);
+  void yx(const Vector2 &v);
+  void yz(const Vector2 &v);
+  void zx(const Vector2 &v);
+  void zy(const Vector2 &v);
     
-    Vector3& operator =(const Vector3& b);
-    Vector3& operator =(const Vector4& b);
-    Vector3 operator +(const Vector3& b) const;
-    Vector3 operator -(const Vector3& b) const;
-    Vector3 operator +() const;
-    Vector3 operator -() const;
-    Vector3 operator *(const float v) const;
-    Vector3 operator /(const float v) const;
+  Vector3& operator =(const Vector3& b);
+  Vector3& operator =(const Vector4& b);
+  Vector3 operator +(const Vector3& b) const;
+  Vector3 operator -(const Vector3& b) const;
+  Vector3 operator +() const;
+  Vector3 operator -() const;
+  Vector3 operator *(const float v) const;
+  Vector3 operator /(const float v) const;
     
-    Vector3& operator +=(const Vector3& b);
-    Vector3& operator -=(const Vector3& b);
-    Vector3& operator *=(const float v);
-    Vector3& operator /=(const float v);
+  Vector3& operator +=(const Vector3& b);
+  Vector3& operator -=(const Vector3& b);
+  Vector3& operator *=(const float v);
+  Vector3& operator /=(const float v);
     
-    bool operator ==(const Vector3& b) const;
-    bool operator !=(const Vector3& b) const;
+  bool operator ==(const Vector3& b) const;
+  bool operator !=(const Vector3& b) const;
     
-    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
-    bool operator >(const Vector3& b) const;
-    bool operator <(const Vector3& b) const;
+  // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+  bool operator >(const Vector3& b) const;
+  bool operator <(const Vector3& b) const;
     
-    float& operator[](unsigned i);
-    float operator[](unsigned i) const;
+  float& operator[](unsigned i);
+  float operator[](unsigned i) const;
     
-    float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
-    float magnitude() const;
+  float sqrMagnitude() const; // calculate the square of the magnitude (useful for comparison of magnitudes without the cost of a sqrt() function)
+  float magnitude() const;
     
-    void scale(const Vector3 &v);
-    void normalize();
-    static Vector3 Normalize(const Vector3 &v);
+  void scale(const Vector3 &v);
+  void normalize();
+  static Vector3 Normalize(const Vector3 &v);
     
-    static Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
+  static Vector3 Cross(const Vector3 &v1, const Vector3 &v2);
     
-    static float Dot(const Vector3 &v1, const Vector3 &v2);
-    static Vector3 Min();
-    static Vector3 Max();
-    static const Vector3 &Zero();
-    static Vector3 One();
-    static Vector3 Forward();
-    static Vector3 Backward();
-    static Vector3 Up();
-    static Vector3 Down();
-    static Vector3 Left();
-    static Vector3 Right();
-    static Vector3 Scale(const Vector3 &v1, const Vector3 &v2);
-    static Vector3 Lerp(const Vector3 &v1, const Vector3 &v2, float d);
-    static Vector3 Slerp(const Vector3 &v1, const Vector3 &v2, float d);
-    static void OrthoNormalize(Vector3 &normal, Vector3 &tangent); // Gram-Schmidt Orthonormalization
+  static float Dot(const Vector3 &v1, const Vector3 &v2);
+  static Vector3 Min();
+  static Vector3 Max();
+  static const Vector3 &Zero();
+  static Vector3 One();
+  static Vector3 Forward();
+  static Vector3 Backward();
+  static Vector3 Up();
+  static Vector3 Down();
+  static Vector3 Left();
+  static Vector3 Right();
+  static Vector3 Scale(const Vector3 &v1, const Vector3 &v2);
+  static Vector3 Lerp(const Vector3 &v1, const Vector3 &v2, float d);
+  static Vector3 Slerp(const Vector3 &v1, const Vector3 &v2, float d);
+  static void OrthoNormalize(Vector3 &normal, Vector3 &tangent); // Gram-Schmidt Orthonormalization
 };
 
 } // namespace kraken
@@ -141,6 +141,6 @@ namespace std {
       return h1 ^ (h2 << 1) ^ (h3 << 2);
     }
   };
-}
+} // namespace std
 
 #endif // KRAKEN_VECTOR3_H

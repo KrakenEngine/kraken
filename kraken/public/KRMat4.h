@@ -33,83 +33,83 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-#ifndef KRMAT4_H
-#define KRMAT4_H
+#ifndef KRAKEN_MATRIX4_H
+#define KRAKEN_MATRIX4_H
 
 namespace kraken {
 
 typedef enum {
-    X_AXIS,
-    Y_AXIS,
-    Z_AXIS
+  X_AXIS,
+  Y_AXIS,
+  Z_AXIS
 } AXIS;
 
 class KRQuaternion;
 
 class KRMat4 {
-    public:
+public:
     
-    float c[16]; // Matrix components, in column-major order
+  float c[16]; // Matrix components, in column-major order
     
-    // Default constructor - Creates an identity matrix
-    KRMat4();
+  // Default constructor - Creates an identity matrix
+  KRMat4();
     
-    KRMat4(float *pMat);
+  KRMat4(float *pMat);
     
-    KRMat4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans);
+  KRMat4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans);
     
-    // Destructor
-    ~KRMat4();
+  // Destructor
+  ~KRMat4();
     
-    // Copy constructor
-    KRMat4(const KRMat4 &m);
+  // Copy constructor
+  KRMat4(const KRMat4 &m);
     
-    // Overload assignment operator
-    KRMat4& operator=(const KRMat4 &m);
+  // Overload assignment operator
+  KRMat4& operator=(const KRMat4 &m);
     
-    // Overload comparison operator
-    bool operator==(const KRMat4 &m) const;
+  // Overload comparison operator
+  bool operator==(const KRMat4 &m) const;
     
-    // Overload compound multiply operator
-    KRMat4& operator*=(const KRMat4 &m);
+  // Overload compound multiply operator
+  KRMat4& operator*=(const KRMat4 &m);
     
-    float& operator[](unsigned i);
-    float operator[](unsigned i) const;
+  float& operator[](unsigned i);
+  float operator[](unsigned i) const;
     
-    // Overload multiply operator
-    //KRMat4& operator*(const KRMat4 &m);
-    KRMat4 operator*(const KRMat4 &m) const;
+  // Overload multiply operator
+  //KRMat4& operator*(const KRMat4 &m);
+  KRMat4 operator*(const KRMat4 &m) const;
     
-    float *getPointer();
+  float *getPointer();
     
-    void perspective(float fov, float aspect, float nearz, float farz);
-    void ortho(float left, float right, float top, float bottom, float nearz, float farz);
-    void translate(float x, float y, float z);
-    void translate(const Vector3 &v);
-    void scale(float x, float y, float z);
-    void scale(const Vector3 &v);
-    void scale(float s);
-    void rotate(float angle, AXIS axis);
-    void rotate(const KRQuaternion &q);
-    void bias();
-    bool invert();
-    void transpose();
+  void perspective(float fov, float aspect, float nearz, float farz);
+  void ortho(float left, float right, float top, float bottom, float nearz, float farz);
+  void translate(float x, float y, float z);
+  void translate(const Vector3 &v);
+  void scale(float x, float y, float z);
+  void scale(const Vector3 &v);
+  void scale(float s);
+  void rotate(float angle, AXIS axis);
+  void rotate(const KRQuaternion &q);
+  void bias();
+  bool invert();
+  void transpose();
     
-    static Vector3 DotNoTranslate(const KRMat4 &m, const Vector3 &v); // Dot product without including translation; useful for transforming normals and tangents
-    static KRMat4 Invert(const KRMat4 &m);
-    static KRMat4 Transpose(const KRMat4 &m);
-    static Vector3 Dot(const KRMat4 &m, const Vector3 &v);
-    static Vector4 Dot4(const KRMat4 &m, const Vector4 &v);
-    static float DotW(const KRMat4 &m, const Vector3 &v);
-    static Vector3 DotWDiv(const KRMat4 &m, const Vector3 &v);
+  static Vector3 DotNoTranslate(const KRMat4 &m, const Vector3 &v); // Dot product without including translation; useful for transforming normals and tangents
+  static KRMat4 Invert(const KRMat4 &m);
+  static KRMat4 Transpose(const KRMat4 &m);
+  static Vector3 Dot(const KRMat4 &m, const Vector3 &v);
+  static Vector4 Dot4(const KRMat4 &m, const Vector4 &v);
+  static float DotW(const KRMat4 &m, const Vector3 &v);
+  static Vector3 DotWDiv(const KRMat4 &m, const Vector3 &v);
     
-    static KRMat4 LookAt(const Vector3 &cameraPos, const Vector3 &lookAtPos, const Vector3 &upDirection);
+  static KRMat4 LookAt(const Vector3 &cameraPos, const Vector3 &lookAtPos, const Vector3 &upDirection);
     
-    static KRMat4 Translation(const Vector3 &v);
-    static KRMat4 Rotation(const Vector3 &v);
-    static KRMat4 Scaling(const Vector3 &v);
+  static KRMat4 Translation(const Vector3 &v);
+  static KRMat4 Rotation(const Vector3 &v);
+  static KRMat4 Scaling(const Vector3 &v);
 };
 
 } // namespace kraken
 
-#endif // KRMAT4_H
+#endif // KRAKEN_MATRIX4_H

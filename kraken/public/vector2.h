@@ -39,62 +39,62 @@ namespace kraken {
 class Vector2 {
     
 public:
-    union {
-        struct {
-            float x, y;
-        };
-        float c[2];
+  union {
+    struct {
+      float x, y;
     };
+    float c[2];
+  };
     
-    Vector2();
-    Vector2(float X, float Y);
-    Vector2(float v);
-    Vector2(float *v);
-    Vector2(const Vector2 &v);
-    ~Vector2();
+  Vector2();
+  Vector2(float X, float Y);
+  Vector2(float v);
+  Vector2(float *v);
+  Vector2(const Vector2 &v);
+  ~Vector2();
     
-    // Vector2 swizzle getters
-    Vector2 yx() const;
+  // Vector2 swizzle getters
+  Vector2 yx() const;
     
-    // Vector2 swizzle setters
-    void yx(const Vector2 &v);
+  // Vector2 swizzle setters
+  void yx(const Vector2 &v);
     
-    Vector2& operator =(const Vector2& b);
-    Vector2 operator +(const Vector2& b) const;
-    Vector2 operator -(const Vector2& b) const;
-    Vector2 operator +() const;
-    Vector2 operator -() const;
-    Vector2 operator *(const float v) const;
-    Vector2 operator /(const float v) const;
+  Vector2& operator =(const Vector2& b);
+  Vector2 operator +(const Vector2& b) const;
+  Vector2 operator -(const Vector2& b) const;
+  Vector2 operator +() const;
+  Vector2 operator -() const;
+  Vector2 operator *(const float v) const;
+  Vector2 operator /(const float v) const;
     
-    Vector2& operator +=(const Vector2& b);
-    Vector2& operator -=(const Vector2& b);
-    Vector2& operator *=(const float v);
-    Vector2& operator /=(const float v);
+  Vector2& operator +=(const Vector2& b);
+  Vector2& operator -=(const Vector2& b);
+  Vector2& operator *=(const float v);
+  Vector2& operator /=(const float v);
     
-    // Comparison operators are implemented to allow insertion into sorted containers such as std::set
-    bool operator >(const Vector2& b) const;
-    bool operator <(const Vector2& b) const;
+  // Comparison operators are implemented to allow insertion into sorted containers such as std::set
+  bool operator >(const Vector2& b) const;
+  bool operator <(const Vector2& b) const;
     
-    bool operator ==(const Vector2& b) const;
-    bool operator !=(const Vector2& b) const;
+  bool operator ==(const Vector2& b) const;
+  bool operator !=(const Vector2& b) const;
     
-    float& operator[](unsigned i);
-    float operator[](unsigned i) const;
+  float& operator[](unsigned i);
+  float operator[](unsigned i) const;
     
-    float sqrMagnitude() const;
-    float magnitude() const;
+  float sqrMagnitude() const;
+  float magnitude() const;
 
-    void normalize();
-    static Vector2 Normalize(const Vector2 &v);
+  void normalize();
+  static Vector2 Normalize(const Vector2 &v);
 
-    static float Cross(const Vector2 &v1, const Vector2 &v2);
+  static float Cross(const Vector2 &v1, const Vector2 &v2);
     
-    static float Dot(const Vector2 &v1, const Vector2 &v2);
-    static Vector2 Min();
-    static Vector2 Max();
-    static Vector2 Zero();
-    static Vector2 One();
+  static float Dot(const Vector2 &v1, const Vector2 &v2);
+  static Vector2 Min();
+  static Vector2 Max();
+  static Vector2 Zero();
+  static Vector2 One();
 };
 
 } // namespace kraken
@@ -110,7 +110,6 @@ namespace std {
       return h1 ^ (h2 << 1);
     }
   };
-}
+} // namespace std
 
 #endif // KRAKEN_VECTOR2_H
-

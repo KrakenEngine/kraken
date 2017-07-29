@@ -38,51 +38,51 @@ namespace kraken {
 
 class KRQuaternion {
 public:
-    KRQuaternion();
-    KRQuaternion(float w, float x, float y, float z);
-    KRQuaternion(const KRQuaternion& p);
-    KRQuaternion(const Vector3 &euler);
-    KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector);
-    ~KRQuaternion();
+  KRQuaternion();
+  KRQuaternion(float w, float x, float y, float z);
+  KRQuaternion(const KRQuaternion& p);
+  KRQuaternion(const Vector3 &euler);
+  KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector);
+  ~KRQuaternion();
     
-    KRQuaternion& operator =( const KRQuaternion& p );
-    KRQuaternion operator +(const KRQuaternion &v) const;
-    KRQuaternion operator -(const KRQuaternion &v) const;
-    KRQuaternion operator +() const;
-    KRQuaternion operator -() const;
+  KRQuaternion& operator =( const KRQuaternion& p );
+  KRQuaternion operator +(const KRQuaternion &v) const;
+  KRQuaternion operator -(const KRQuaternion &v) const;
+  KRQuaternion operator +() const;
+  KRQuaternion operator -() const;
     
-    KRQuaternion operator *(const KRQuaternion &v);
-    KRQuaternion operator *(float num) const;
-    KRQuaternion operator /(float num) const;
+  KRQuaternion operator *(const KRQuaternion &v);
+  KRQuaternion operator *(float num) const;
+  KRQuaternion operator /(float num) const;
     
-    KRQuaternion& operator +=(const KRQuaternion& v);
-    KRQuaternion& operator -=(const KRQuaternion& v);
-    KRQuaternion& operator *=(const KRQuaternion& v);
-    KRQuaternion& operator *=(const float& v);
-    KRQuaternion& operator /=(const float& v);
+  KRQuaternion& operator +=(const KRQuaternion& v);
+  KRQuaternion& operator -=(const KRQuaternion& v);
+  KRQuaternion& operator *=(const KRQuaternion& v);
+  KRQuaternion& operator *=(const float& v);
+  KRQuaternion& operator /=(const float& v);
 
-    friend bool operator ==(KRQuaternion &v1, KRQuaternion &v2);
-    friend bool operator !=(KRQuaternion &v1, KRQuaternion &v2);
-    float& operator [](unsigned i);
-    float operator [](unsigned i) const;
+  friend bool operator ==(KRQuaternion &v1, KRQuaternion &v2);
+  friend bool operator !=(KRQuaternion &v1, KRQuaternion &v2);
+  float& operator [](unsigned i);
+  float operator [](unsigned i) const;
     
-    void setEulerXYZ(const Vector3 &euler);
-    void setEulerZYX(const Vector3 &euler);
-    Vector3 eulerXYZ() const;
-    KRMat4 rotationMatrix() const;
+  void setEulerXYZ(const Vector3 &euler);
+  void setEulerZYX(const Vector3 &euler);
+  Vector3 eulerXYZ() const;
+  KRMat4 rotationMatrix() const;
     
-    void normalize();
-    static KRQuaternion Normalize(const KRQuaternion &v1);
+  void normalize();
+  static KRQuaternion Normalize(const KRQuaternion &v1);
     
-    void conjugate();
-    static KRQuaternion Conjugate(const KRQuaternion &v1);
+  void conjugate();
+  static KRQuaternion Conjugate(const KRQuaternion &v1);
     
-    static KRQuaternion FromAngleAxis(const Vector3 &axis, float angle);
-    static KRQuaternion Lerp(const KRQuaternion &a, const KRQuaternion &b, float t);
-    static KRQuaternion Slerp(const KRQuaternion &a, const KRQuaternion &b, float t);
-    static float Dot(const KRQuaternion &v1, const KRQuaternion &v2);
+  static KRQuaternion FromAngleAxis(const Vector3 &axis, float angle);
+  static KRQuaternion Lerp(const KRQuaternion &a, const KRQuaternion &b, float t);
+  static KRQuaternion Slerp(const KRQuaternion &a, const KRQuaternion &b, float t);
+  static float Dot(const KRQuaternion &v1, const KRQuaternion &v2);
 private:
-    float m_val[4];
+  float m_val[4];
 };
 
 } // namespace kraken
