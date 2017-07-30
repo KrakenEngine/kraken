@@ -213,7 +213,7 @@ void KRNode::setWorldTranslation(const Vector3 &v)
 void KRNode::setWorldRotation(const Vector3 &v)
 {
     if(m_parentNode) {
-        setLocalRotation((KRQuaternion(v) * -m_parentNode->getWorldRotation()).eulerXYZ());
+        setLocalRotation((Quaternion(v) * -m_parentNode->getWorldRotation()).eulerXYZ());
         setPreRotation(Vector3::Zero());
         setPostRotation(Vector3::Zero());
     } else {
@@ -543,7 +543,7 @@ const Matrix4 &KRNode::getModelMatrix()
                 * Matrix4::Translation(m_scalingPivot)
                 * Matrix4::Translation(m_scalingOffset)
                 * Matrix4::Translation(-m_rotationPivot)
-                //* (KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation)).rotationMatrix()
+                //* (Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation)).rotationMatrix()
                 * Matrix4::Rotation(m_postRotation)
                 * Matrix4::Rotation(m_localRotation)
                 * Matrix4::Rotation(m_preRotation)
@@ -565,7 +565,7 @@ const Matrix4 &KRNode::getModelMatrix()
                 * Matrix4::Translation(m_scalingPivot)
                 * Matrix4::Translation(m_scalingOffset)
                 * Matrix4::Translation(-m_rotationPivot)
-            //* (KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation)).rotationMatrix()
+            //* (Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation)).rotationMatrix()
                             * Matrix4::Rotation(m_postRotation)
                             * Matrix4::Rotation(m_localRotation)
                             * Matrix4::Rotation(m_preRotation)
@@ -600,7 +600,7 @@ const Matrix4 &KRNode::getBindPoseMatrix()
             * Matrix4::Translation(m_initialScalingPivot)
             * Matrix4::Translation(m_initialScalingOffset)
             * Matrix4::Translation(-m_initialRotationPivot)
-            //* (KRQuaternion(m_initialPostRotation) * KRQuaternion(m_initialLocalRotation) * KRQuaternion(m_initialPreRotation)).rotationMatrix()
+            //* (Quaternion(m_initialPostRotation) * Quaternion(m_initialLocalRotation) * Quaternion(m_initialPreRotation)).rotationMatrix()
             * Matrix4::Rotation(m_initialPostRotation)
             * Matrix4::Rotation(m_initialLocalRotation)
             * Matrix4::Rotation(m_initialPreRotation)
@@ -623,7 +623,7 @@ const Matrix4 &KRNode::getBindPoseMatrix()
             * Matrix4::Translation(m_initialScalingPivot)
             * Matrix4::Translation(m_initialScalingOffset)
             * Matrix4::Translation(-m_initialRotationPivot)
-           // * (KRQuaternion(m_initialPostRotation) * KRQuaternion(m_initialLocalRotation) * KRQuaternion(m_initialPreRotation)).rotationMatrix()
+           // * (Quaternion(m_initialPostRotation) * Quaternion(m_initialLocalRotation) * Quaternion(m_initialPreRotation)).rotationMatrix()
                         * Matrix4::Rotation(m_initialPostRotation)
                         * Matrix4::Rotation(m_initialLocalRotation)
                         * Matrix4::Rotation(m_initialPreRotation)
@@ -701,24 +701,24 @@ const Matrix4 &KRNode::getActivePoseMatrix()
 
 }
 
-const KRQuaternion KRNode::getWorldRotation() {
-    KRQuaternion world_rotation = KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation);
+const Quaternion KRNode::getWorldRotation() {
+    Quaternion world_rotation = Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation);
     if(m_parentNode) {
         world_rotation = world_rotation * m_parentNode->getWorldRotation();
     }
     return world_rotation;
 }
 
-const KRQuaternion KRNode::getBindPoseWorldRotation() {
-    KRQuaternion world_rotation = KRQuaternion(m_initialPostRotation) * KRQuaternion(m_initialLocalRotation) * KRQuaternion(m_initialPreRotation);
+const Quaternion KRNode::getBindPoseWorldRotation() {
+    Quaternion world_rotation = Quaternion(m_initialPostRotation) * Quaternion(m_initialLocalRotation) * Quaternion(m_initialPreRotation);
     if(dynamic_cast<KRBone *>(m_parentNode)) {
         world_rotation = world_rotation * m_parentNode->getBindPoseWorldRotation();
     }
     return world_rotation;
 }
 
-const KRQuaternion KRNode::getActivePoseWorldRotation() {
-    KRQuaternion world_rotation = KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation);
+const Quaternion KRNode::getActivePoseWorldRotation() {
+    Quaternion world_rotation = Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation);
     if(dynamic_cast<KRBone *>(m_parentNode)) {
         world_rotation = world_rotation * m_parentNode->getActivePoseWorldRotation();
     }

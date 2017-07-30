@@ -42,9 +42,6 @@
     <ClCompile Include="..\kraken\KRViewport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\kraken\KRQuaternion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\kraken\KRDataBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\kraken\matrix4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\kraken\quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -482,9 +482,6 @@
     <ClInclude Include="..\kraken\public\KRTriangle3.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\public\KRQuaternion.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
     <ClInclude Include="..\kraken\public\vector2.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
@@ -498,6 +495,9 @@
       <Filter>Header Files\public</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\public\matrix4.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\quaternion.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
   </ItemGroup>

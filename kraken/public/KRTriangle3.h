@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTRIANGLE3_H
-#define KRTRIANGLE3_H
+#ifndef KRAKEN_TRIANGLE3_H
+#define KRAKEN_TRIANGLE3_H
 
 #include "Vector3.h"
 
@@ -62,4 +62,4 @@ public:
 
 } // namespace kraken
 
-#endif // KRTRIANGLE3_H
+#endif // KRAKEN_TRIANGLE3_H

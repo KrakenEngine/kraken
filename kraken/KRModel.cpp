@@ -200,7 +200,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 if(m_faces_camera) {
                     Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
                     Vector3 camera_pos = viewport.getCameraPosition();
-                    matModel = KRQuaternion(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
+                    matModel = Quaternion(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
                 pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);

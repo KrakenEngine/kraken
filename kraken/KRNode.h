@@ -111,10 +111,10 @@ public:
     
     const Vector3 getWorldTranslation();
     const Vector3 getWorldScale();
-    const KRQuaternion getWorldRotation();
+    const Quaternion getWorldRotation();
     
-    const KRQuaternion getBindPoseWorldRotation();
-    const KRQuaternion getActivePoseWorldRotation();
+    const Quaternion getBindPoseWorldRotation();
+    const Quaternion getActivePoseWorldRotation();
     
     const Vector3 localToWorld(const Vector3 &local_point);
     const Vector3 worldToLocal(const Vector3 &world_point);

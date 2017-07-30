@@ -171,7 +171,7 @@
     <ClCompile Include="..\kraken\KRParticleSystem.cpp" />
     <ClCompile Include="..\kraken\KRParticleSystemNewtonian.cpp" />
     <ClCompile Include="..\kraken\KRPointLight.cpp" />
-    <ClCompile Include="..\kraken\KRQuaternion.cpp" />
+    <ClCompile Include="..\kraken\quaternion.cpp" />
     <ClCompile Include="..\kraken\KRRenderSettings.cpp" />
     <ClCompile Include="..\kraken\KRResource+blend.cpp" />
     <ClCompile Include="..\kraken\KRResource+fbx.cpp" />
@@ -275,7 +275,7 @@
     <ClInclude Include="..\kraken\public\kraken.h" />
     <ClInclude Include="..\kraken\public\scalar.h" />
     <ClInclude Include="..\kraken\public\matrix4.h" />
-    <ClInclude Include="..\kraken\public\KRQuaternion.h" />
+    <ClInclude Include="..\kraken\public\quaternion.h" />
     <ClInclude Include="..\kraken\public\KRTriangle3.h" />
     <ClInclude Include="..\kraken\public\vector2.h" />
     <ClInclude Include="..\kraken\public\vector3.h" />

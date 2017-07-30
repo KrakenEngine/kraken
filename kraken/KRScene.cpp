@@ -565,7 +565,7 @@ void KRScene::addDefaultLights()
 {
     KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
     
-    light1->setLocalRotation((KRQuaternion(Vector3(0.0, M_PI * 0.10, 0.0)) * KRQuaternion(Vector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
+    light1->setLocalRotation((Quaternion(Vector3(0.0, M_PI * 0.10, 0.0)) * Quaternion(Vector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
     m_pRootNode->addChild(light1);
 }
 

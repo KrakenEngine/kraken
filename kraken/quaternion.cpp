@@ -1,5 +1,5 @@
 //
-//  KRQuaternion.cpp
+//  Quaternion.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -35,28 +35,28 @@
 
 namespace kraken {
 
-KRQuaternion::KRQuaternion() {
+Quaternion::Quaternion() {
     m_val[0] = 1.0;
     m_val[1] = 0.0;
     m_val[2] = 0.0;
     m_val[3] = 0.0;
 }
 
-KRQuaternion::KRQuaternion(float w, float x, float y, float z) {
+Quaternion::Quaternion(float w, float x, float y, float z) {
     m_val[0] = w;
     m_val[1] = x;
     m_val[2] = y;
     m_val[3] = z;
 }
 
-KRQuaternion::KRQuaternion(const KRQuaternion& p) {
+Quaternion::Quaternion(const Quaternion& p) {
     m_val[0] = p[0];
     m_val[1] = p[1];
     m_val[2] = p[2];
     m_val[3] = p[3];
 }
 
-KRQuaternion& KRQuaternion::operator =( const KRQuaternion& p ) {
+Quaternion& Quaternion::operator =( const Quaternion& p ) {
     m_val[0] = p[0];
     m_val[1] = p[1];
     m_val[2] = p[2];
@@ -64,11 +64,11 @@ KRQuaternion& KRQuaternion::operator =( const KRQuaternion& p ) {
     return *this;
 }
 
-KRQuaternion::KRQuaternion(const Vector3 &euler) {
+Quaternion::Quaternion(const Vector3 &euler) {
     setEulerZYX(euler);
 }
 
-KRQuaternion::KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector) {
+Quaternion::Quaternion(const Vector3 &from_vector, const Vector3 &to_vector) {
     
     Vector3 a = Vector3::Cross(from_vector, to_vector);
     m_val[0] = a[0];
@@ -78,18 +78,18 @@ KRQuaternion::KRQuaternion(const Vector3 &from_vector, const Vector3 &to_vector)
     normalize();
 }
 
-KRQuaternion::~KRQuaternion() {
+Quaternion::~Quaternion() {
     
 }
 
-void KRQuaternion::setEulerXYZ(const Vector3 &euler)
+void Quaternion::setEulerXYZ(const Vector3 &euler)
 {
-    *this = KRQuaternion::FromAngleAxis(Vector3(1.0f, 0.0f, 0.0f), euler.x)
-        * KRQuaternion::FromAngleAxis(Vector3(0.0f, 1.0f, 0.0f), euler.y)
-        * KRQuaternion::FromAngleAxis(Vector3(0.0f, 0.0f, 1.0f), euler.z);
+    *this = Quaternion::FromAngleAxis(Vector3(1.0f, 0.0f, 0.0f), euler.x)
+        * Quaternion::FromAngleAxis(Vector3(0.0f, 1.0f, 0.0f), euler.y)
+        * Quaternion::FromAngleAxis(Vector3(0.0f, 0.0f, 1.0f), euler.z);
 }
 
-void KRQuaternion::setEulerZYX(const Vector3 &euler) {
+void Quaternion::setEulerZYX(const Vector3 &euler) {
     // ZYX Order!
     float c1 = cos(euler[0] * 0.5f);
     float c2 = cos(euler[1] * 0.5f);
@@ -104,15 +104,15 @@ void KRQuaternion::setEulerZYX(const Vector3 &euler) {
     m_val[3] = c1 * c2 * s3 - s1 * s2 * c3;
 }
 
-float KRQuaternion::operator [](unsigned i) const {
+float Quaternion::operator [](unsigned i) const {
     return m_val[i];
 }
 
-float &KRQuaternion::operator [](unsigned i) {
+float &Quaternion::operator [](unsigned i) {
     return m_val[i];
 }
 
-Vector3 KRQuaternion::eulerXYZ() const {
+Vector3 Quaternion::eulerXYZ() const {
     double a2 = 2 * (m_val[0] * m_val[2] - m_val[1] * m_val[3]);
     if(a2 <= -0.99999) {
         return Vector3(
@@ -137,7 +137,7 @@ Vector3 KRQuaternion::eulerXYZ() const {
 
 }
 
-bool operator ==(KRQuaternion &v1, KRQuaternion &v2) {
+bool operator ==(Quaternion &v1, Quaternion &v2) {
     return
         v1[0] == v2[0]
         && v1[1] == v2[1]
@@ -145,7 +145,7 @@ bool operator ==(KRQuaternion &v1, KRQuaternion &v2) {
         && v1[3] == v2[3];
 }
 
-bool operator !=(KRQuaternion &v1, KRQuaternion &v2) {
+bool operator !=(Quaternion &v1, Quaternion &v2) {
     return
         v1[0] != v2[0]
         || v1[1] != v2[1]
@@ -153,7 +153,7 @@ bool operator !=(KRQuaternion &v1, KRQuaternion &v2) {
         || v1[3] != v2[3];
 }
 
-KRQuaternion KRQuaternion::operator *(const KRQuaternion &v) {
+Quaternion Quaternion::operator *(const Quaternion &v) {
     float t0 = (m_val[3]-m_val[2])*(v[2]-v[3]);
     float t1 = (m_val[0]+m_val[1])*(v[0]+v[1]);
     float t2 = (m_val[0]-m_val[1])*(v[2]+v[3]);
@@ -165,7 +165,7 @@ KRQuaternion KRQuaternion::operator *(const KRQuaternion &v) {
     float t8 = t5+t6+t7;
     float t9 = (t4+t8)/2;
     
-    return KRQuaternion(
+    return Quaternion(
         t0+t9-t5,
         t1+t9-t8,
         t2+t9-t7,
@@ -173,24 +173,24 @@ KRQuaternion KRQuaternion::operator *(const KRQuaternion &v) {
     );
 }
 
-KRQuaternion KRQuaternion::operator *(float v) const {
-    return KRQuaternion(m_val[0] * v, m_val[1] * v, m_val[2] * v, m_val[3] * v);
+Quaternion Quaternion::operator *(float v) const {
+    return Quaternion(m_val[0] * v, m_val[1] * v, m_val[2] * v, m_val[3] * v);
 }
 
-KRQuaternion KRQuaternion::operator /(float num) const {
+Quaternion Quaternion::operator /(float num) const {
     float inv_num = 1.0f / num;
-    return KRQuaternion(m_val[0] * inv_num, m_val[1] * inv_num, m_val[2] * inv_num, m_val[3] * inv_num);
+    return Quaternion(m_val[0] * inv_num, m_val[1] * inv_num, m_val[2] * inv_num, m_val[3] * inv_num);
 }
 
-KRQuaternion KRQuaternion::operator +(const KRQuaternion &v) const {
-    return KRQuaternion(m_val[0] + v[0], m_val[1] + v[1], m_val[2] + v[2], m_val[3] + v[3]);
+Quaternion Quaternion::operator +(const Quaternion &v) const {
+    return Quaternion(m_val[0] + v[0], m_val[1] + v[1], m_val[2] + v[2], m_val[3] + v[3]);
 }
 
-KRQuaternion KRQuaternion::operator -(const KRQuaternion &v) const {
-    return KRQuaternion(m_val[0] - v[0], m_val[1] - v[1], m_val[2] - v[2], m_val[3] - v[3]);
+Quaternion Quaternion::operator -(const Quaternion &v) const {
+    return Quaternion(m_val[0] - v[0], m_val[1] - v[1], m_val[2] - v[2], m_val[3] - v[3]);
 }
 
-KRQuaternion& KRQuaternion::operator +=(const KRQuaternion& v) {
+Quaternion& Quaternion::operator +=(const Quaternion& v) {
     m_val[0] += v[0];
     m_val[1] += v[1];
     m_val[2] += v[2];
@@ -198,7 +198,7 @@ KRQuaternion& KRQuaternion::operator +=(const KRQuaternion& v) {
     return *this;
 }
 
-KRQuaternion& KRQuaternion::operator -=(const KRQuaternion& v) {
+Quaternion& Quaternion::operator -=(const Quaternion& v) {
     m_val[0] -= v[0];
     m_val[1] -= v[1];
     m_val[2] -= v[2];
@@ -206,7 +206,7 @@ KRQuaternion& KRQuaternion::operator -=(const KRQuaternion& v) {
     return *this;
 }
 
-KRQuaternion& KRQuaternion::operator *=(const KRQuaternion& v) {
+Quaternion& Quaternion::operator *=(const Quaternion& v) {
     float t0 = (m_val[3]-m_val[2])*(v[2]-v[3]);
     float t1 = (m_val[0]+m_val[1])*(v[0]+v[1]);
     float t2 = (m_val[0]-m_val[1])*(v[2]+v[3]);
@@ -226,7 +226,7 @@ KRQuaternion& KRQuaternion::operator *=(const KRQuaternion& v) {
     return *this;
 }
 
-KRQuaternion& KRQuaternion::operator *=(const float& v) {
+Quaternion& Quaternion::operator *=(const float& v) {
     m_val[0] *= v;
     m_val[1] *= v;
     m_val[2] *= v;
@@ -234,7 +234,7 @@ KRQuaternion& KRQuaternion::operator *=(const float& v) {
     return *this;
 }
 
-KRQuaternion& KRQuaternion::operator /=(const float& v) {
+Quaternion& Quaternion::operator /=(const float& v) {
     float inv_v = 1.0f / v;
     m_val[0] *= inv_v;
     m_val[1] *= inv_v;
@@ -243,17 +243,17 @@ KRQuaternion& KRQuaternion::operator /=(const float& v) {
     return *this;
 }
 
-KRQuaternion KRQuaternion::operator +() const {
+Quaternion Quaternion::operator +() const {
     return *this;
 }
 
-KRQuaternion KRQuaternion::operator -() const {
-    return KRQuaternion(-m_val[0], -m_val[1], -m_val[2], -m_val[3]);
+Quaternion Quaternion::operator -() const {
+    return Quaternion(-m_val[0], -m_val[1], -m_val[2], -m_val[3]);
 }
 
-KRQuaternion Normalize(const KRQuaternion &v1) {
+Quaternion Normalize(const Quaternion &v1) {
     float inv_magnitude = 1.0f / sqrtf(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2] + v1[3] * v1[3]);
-    return KRQuaternion(
+    return Quaternion(
         v1[0] * inv_magnitude,
         v1[1] * inv_magnitude,
         v1[2] * inv_magnitude,
@@ -261,7 +261,7 @@ KRQuaternion Normalize(const KRQuaternion &v1) {
     );
 }
 
-void KRQuaternion::normalize() {
+void Quaternion::normalize() {
     float inv_magnitude = 1.0f / sqrtf(m_val[0] * m_val[0] + m_val[1] * m_val[1] + m_val[2] * m_val[2] + m_val[3] * m_val[3]);
     m_val[0] *= inv_magnitude;
     m_val[1] *= inv_magnitude;
@@ -269,17 +269,17 @@ void KRQuaternion::normalize() {
     m_val[3] *= inv_magnitude;
 }
 
-KRQuaternion Conjugate(const KRQuaternion &v1) {
-    return KRQuaternion(v1[0], -v1[1], -v1[2], -v1[3]);
+Quaternion Conjugate(const Quaternion &v1) {
+    return Quaternion(v1[0], -v1[1], -v1[2], -v1[3]);
 }
 
-void KRQuaternion::conjugate() {
+void Quaternion::conjugate() {
     m_val[1] = -m_val[1];
     m_val[2] = -m_val[2];
     m_val[3] = -m_val[3];
 }
 
-Matrix4 KRQuaternion::rotationMatrix() const {
+Matrix4 Quaternion::rotationMatrix() const {
     Matrix4 matRotate;
     
     /*
@@ -309,19 +309,19 @@ Matrix4 KRQuaternion::rotationMatrix() const {
 }
 
 
-KRQuaternion KRQuaternion::FromAngleAxis(const Vector3 &axis, float angle)
+Quaternion Quaternion::FromAngleAxis(const Vector3 &axis, float angle)
 {
     float ha = angle * 0.5f;
     float sha = sin(ha);
-    return KRQuaternion(cos(ha), axis.x * sha, axis.y * sha, axis.z * sha);
+    return Quaternion(cos(ha), axis.x * sha, axis.y * sha, axis.z * sha);
 }
 
-float KRQuaternion::Dot(const KRQuaternion &v1, const KRQuaternion &v2)
+float Quaternion::Dot(const Quaternion &v1, const Quaternion &v2)
 {
     return v1.m_val[0] * v2.m_val[0] + v1.m_val[1] * v2.m_val[1] + v1.m_val[2] * v2.m_val[2] + v1.m_val[3] * v2.m_val[3];
 }
 
-KRQuaternion KRQuaternion::Lerp(const KRQuaternion &a, const KRQuaternion &b, float t)
+Quaternion Quaternion::Lerp(const Quaternion &a, const Quaternion &b, float t)
 {
     if (t <= 0.0f) {
         return a;
@@ -332,7 +332,7 @@ KRQuaternion KRQuaternion::Lerp(const KRQuaternion &a, const KRQuaternion &b, fl
     return a * (1.0f - t) + b * t;
 }
 
-KRQuaternion KRQuaternion::Slerp(const KRQuaternion &a, const KRQuaternion &b, float t)
+Quaternion Quaternion::Slerp(const Quaternion &a, const Quaternion &b, float t)
 {
     if (t <= 0.0f) {
         return a;
@@ -343,7 +343,7 @@ KRQuaternion KRQuaternion::Slerp(const KRQuaternion &a, const KRQuaternion &b, f
     }
     
     float coshalftheta = Dot(a, b);
-    KRQuaternion c = a;
+    Quaternion c = a;
     
     // Angle is greater than 180. We can negate the angle/quat to get the
     // shorter rotation to reach the same destination.
