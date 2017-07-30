@@ -16,8 +16,8 @@ class KRNode;
 
 class KROctreeNode {
 public:
-    KROctreeNode(KROctreeNode *parent, const KRAABB &bounds);
-    KROctreeNode(KROctreeNode *parent, const KRAABB &bounds, int iChild, KROctreeNode *pChild);
+    KROctreeNode(KROctreeNode *parent, const AABB &bounds);
+    KROctreeNode(KROctreeNode *parent, const AABB &bounds, int iChild, KROctreeNode *pChild);
     ~KROctreeNode();
     
     KROctreeNode **getChildren();
@@ -27,12 +27,12 @@ public:
     void remove(KRNode *pNode);
     void update(KRNode *pNode);
     
-    KRAABB getBounds();
+    AABB getBounds();
     
     KROctreeNode *getParent();
     void setChildNode(int iChild, KROctreeNode *pChild);
     int getChildIndex(KRNode *pNode);
-    KRAABB getChildBounds(int iChild);
+    AABB getChildBounds(int iChild);
     void trim();
     bool isEmpty() const;
     
@@ -53,7 +53,7 @@ public:
 
 private:
     
-    KRAABB m_bounds;
+    AABB m_bounds;
     
     KROctreeNode *m_parent;
     KROctreeNode *m_children[8];

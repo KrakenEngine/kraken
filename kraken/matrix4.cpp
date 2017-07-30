@@ -49,12 +49,12 @@ Matrix4::Matrix4(float *pMat) {
     memcpy(c, pMat, sizeof(float) * 16);
 }
 
-Matrix4::Matrix4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans)
+Matrix4::Matrix4(const Vector3 &new_axis_x, const Vector3 &new_axis_y, const Vector3 &new_axis_z, const Vector3 &new_transform)
 {
-    c[0]  = axis_x.x;  c[1]  = axis_x.y;   c[2]  = axis_x.z;   c[3]  = 0.0f;
-    c[4]  = axis_y.x;  c[5]  = axis_y.y;   c[6]  = axis_y.z;   c[7]  = 0.0f;
-    c[8]  = axis_z.x;  c[9]  = axis_z.y;   c[10] = axis_z.z;   c[11] = 0.0f;
-    c[12] = trans.x;   c[13] = trans.y;    c[14] = trans.z;    c[15] = 1.0f;
+    c[0]  = new_axis_x.x;    c[1]  = new_axis_x.y;    c[2]  = new_axis_x.z;    c[3]  = 0.0f;
+    c[4]  = new_axis_y.x;    c[5]  = new_axis_y.y;    c[6]  = new_axis_y.z;    c[7]  = 0.0f;
+    c[8]  = new_axis_z.x;    c[9]  = new_axis_z.y;    c[10] = new_axis_z.z;    c[11] = 0.0f;
+    c[12] = new_transform.x; c[13] = new_transform.y; c[14] = new_transform.z; c[15] = 1.0f;
 }
 
 Matrix4::~Matrix4() {

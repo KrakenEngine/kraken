@@ -52,7 +52,7 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         float max_depth = 1.0f;
         */
         
-        KRAABB worldSpacefrustrumSliceBounds = KRAABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f), Matrix4::Invert(viewport.getViewProjectionMatrix()));
+        AABB worldSpacefrustrumSliceBounds = AABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f), Matrix4::Invert(viewport.getViewProjectionMatrix()));
         worldSpacefrustrumSliceBounds.scale(KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
         
         Vector3 shadowLook = -Vector3::Normalize(getWorldLightDirection());
@@ -66,8 +66,8 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         
         Matrix4 matShadowView = Matrix4::LookAt(worldSpacefrustrumSliceBounds.center() - shadowLook, worldSpacefrustrumSliceBounds.center(), shadowUp);
         Matrix4 matShadowProjection = Matrix4();
-        KRAABB shadowSpaceFrustrumSliceBounds = KRAABB(worldSpacefrustrumSliceBounds.min, worldSpacefrustrumSliceBounds.max, Matrix4::Invert(matShadowProjection));
-        KRAABB shadowSpaceSceneBounds = KRAABB(getScene().getRootOctreeBounds().min, getScene().getRootOctreeBounds().max, Matrix4::Invert(matShadowProjection));
+        AABB shadowSpaceFrustrumSliceBounds = AABB(worldSpacefrustrumSliceBounds.min, worldSpacefrustrumSliceBounds.max, Matrix4::Invert(matShadowProjection));
+        AABB shadowSpaceSceneBounds = AABB(getScene().getRootOctreeBounds().min, getScene().getRootOctreeBounds().max, Matrix4::Invert(matShadowProjection));
         if(shadowSpaceSceneBounds.min.z < shadowSpaceFrustrumSliceBounds.min.z) shadowSpaceFrustrumSliceBounds.min.z = shadowSpaceSceneBounds.min.z; // Include any potential shadow casters that are outside the view frustrum
         matShadowProjection.scale(1.0f / shadowSpaceFrustrumSliceBounds.size().x, 1.0f / shadowSpaceFrustrumSliceBounds.size().y, 1.0f / shadowSpaceFrustrumSliceBounds.size().z);
         
@@ -76,8 +76,8 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
         matShadowProjection *= matBias;
         
         KRViewport newShadowViewport = KRViewport(Vector2(KRENGINE_SHADOW_MAP_WIDTH, KRENGINE_SHADOW_MAP_HEIGHT), matShadowView, matShadowProjection);
-        KRAABB prevShadowBounds = KRAABB(-Vector3::One(), Vector3::One(), Matrix4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
-        KRAABB minimumShadowBounds = KRAABB(-Vector3::One(), Vector3::One(), Matrix4::Invert(newShadowViewport.getViewProjectionMatrix()));
+        AABB prevShadowBounds = AABB(-Vector3::One(), Vector3::One(), Matrix4::Invert(m_shadowViewports[iShadow].getViewProjectionMatrix()));
+        AABB minimumShadowBounds = AABB(-Vector3::One(), Vector3::One(), Matrix4::Invert(newShadowViewport.getViewProjectionMatrix()));
         minimumShadowBounds.scale(1.0f / KRENGINE_SHADOW_BOUNDS_EXTRA_SCALE);
         if(!prevShadowBounds.contains(minimumShadowBounds) || !shadowValid[iShadow] || true) { // FINDME, HACK - Re-generating the shadow map every frame.  This should only be needed if the shadow contains non-static geometry
             m_shadowViewports[iShadow] = newShadowViewport;
@@ -129,7 +129,7 @@ void KRDirectionalLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &
     }
 }
 
-KRAABB KRDirectionalLight::getBounds()
+AABB KRDirectionalLight::getBounds()
 {
-    return KRAABB::Infinite();
+    return AABB::Infinite();
 }

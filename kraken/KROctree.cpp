@@ -25,10 +25,10 @@ KROctree::~KROctree()
 
 void KROctree::add(KRNode *pNode)
 {
-    KRAABB nodeBounds = pNode->getBounds();
-    if(nodeBounds == KRAABB::Zero()) {
+    AABB nodeBounds = pNode->getBounds();
+    if(nodeBounds == AABB::Zero()) {
         // This item is not visible, don't add it to the octree or outer scene nodes
-    } else if(nodeBounds == KRAABB::Infinite()) {
+    } else if(nodeBounds == AABB::Infinite()) {
         // This item is infinitely large; we track it separately
         m_outerSceneNodes.insert(pNode);
     } else { 
@@ -40,12 +40,12 @@ void KROctree::add(KRNode *pNode)
             // Keep encapsulating the root node until the new root contains the inserted node
             bool bInsideRoot = false;
             while(!bInsideRoot) {
-                KRAABB rootBounds = m_pRootNode->getBounds();
+                AABB rootBounds = m_pRootNode->getBounds();
                 Vector3 rootSize = rootBounds.size();
                 if(nodeBounds.min.x < rootBounds.min.x || nodeBounds.min.y < rootBounds.min.y || nodeBounds.min.z < rootBounds.min.z) {
-                    m_pRootNode = new KROctreeNode(NULL, KRAABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
+                    m_pRootNode = new KROctreeNode(NULL, AABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
                 } else if(nodeBounds.max.x > rootBounds.max.x || nodeBounds.max.y > rootBounds.max.y || nodeBounds.max.z > rootBounds.max.z) {
-                    m_pRootNode = new KROctreeNode(NULL, KRAABB(rootBounds.min, rootBounds.max + rootSize), 0, m_pRootNode);
+                    m_pRootNode = new KROctreeNode(NULL, AABB(rootBounds.min, rootBounds.max + rootSize), 0, m_pRootNode);
                 } else {
                     bInsideRoot = true;
                 }

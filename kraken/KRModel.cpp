@@ -241,23 +241,23 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport &viewport)
     return stream_level;
 }
 
-KRAABB KRModel::getBounds() {
+AABB KRModel::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
         if(m_faces_camera) {
-            KRAABB normal_bounds = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            AABB normal_bounds = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             float max_dimension = normal_bounds.longest_radius();
-            return KRAABB(normal_bounds.center()-Vector3(max_dimension), normal_bounds.center() + Vector3(max_dimension));
+            return AABB(normal_bounds.center()-Vector3(max_dimension), normal_bounds.center() + Vector3(max_dimension));
         } else {
             
             if(!(m_boundsCachedMat == getModelMatrix())) {
                 m_boundsCachedMat = getModelMatrix();
-                m_boundsCached = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+                m_boundsCached = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             }
             return m_boundsCached;
         }
     } else {
-        return KRAABB::Infinite();
+        return AABB::Infinite();
     }
 }
 

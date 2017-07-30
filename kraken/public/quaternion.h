@@ -38,6 +38,13 @@ namespace kraken {
 
 class Quaternion {
 public:
+  union {
+    struct {
+      float w, x, y, z;
+    };
+    float c[4];
+  };
+
   Quaternion();
   Quaternion(float w, float x, float y, float z);
   Quaternion(const Quaternion& p);
@@ -81,10 +88,23 @@ public:
   static Quaternion Lerp(const Quaternion &a, const Quaternion &b, float t);
   static Quaternion Slerp(const Quaternion &a, const Quaternion &b, float t);
   static float Dot(const Quaternion &v1, const Quaternion &v2);
-private:
-  float m_val[4];
 };
 
 } // namespace kraken
+
+namespace std {
+  template<>
+  struct hash<kraken::Quaternion> {
+  public:
+    size_t operator()(const kraken::Quaternion &s) const
+    {
+      size_t h1 = hash<float>()(s.c[0]);
+      size_t h2 = hash<float>()(s.c[1]);
+      size_t h3 = hash<float>()(s.c[2]);
+      size_t h4 = hash<float>()(s.c[3]);
+      return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
+    }
+  };
+} // namespace std
 
 #endif // KRAKEN_QUATERNION_H

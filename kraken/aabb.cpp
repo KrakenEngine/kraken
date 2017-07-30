@@ -10,19 +10,19 @@
 #include "assert.h"
 #include "KRHelpers.h"
 
-KRAABB::KRAABB()
+AABB::AABB()
 {
     min = Vector3::Min();
     max = Vector3::Max();
 }
 
-KRAABB::KRAABB(const Vector3 &minPoint, const Vector3 &maxPoint)
+AABB::AABB(const Vector3 &minPoint, const Vector3 &maxPoint)
 {
     min = minPoint;
     max = maxPoint;
 }
 
-KRAABB::KRAABB(const Vector3 &corner1, const Vector3 &corner2, const Matrix4 &modelMatrix)
+AABB::AABB(const Vector3 &corner1, const Vector3 &corner2, const Matrix4 &modelMatrix)
 {
     for(int iCorner=0; iCorner<8; iCorner++) {
         Vector3 sourceCornerVertex = Matrix4::DotWDiv(modelMatrix, Vector3(
@@ -45,12 +45,12 @@ KRAABB::KRAABB(const Vector3 &corner1, const Vector3 &corner2, const Matrix4 &mo
     }
 }
 
-KRAABB::~KRAABB()
+AABB::~AABB()
 {
     
 }
 
-KRAABB& KRAABB::operator =(const KRAABB& b)
+AABB& AABB::operator =(const AABB& b)
 {
     min = b.min;
     max = b.max;
@@ -58,33 +58,33 @@ KRAABB& KRAABB::operator =(const KRAABB& b)
     return *this;
 }
 
-bool KRAABB::operator ==(const KRAABB& b) const
+bool AABB::operator ==(const AABB& b) const
 {
     return min == b.min && max == b.max;
 }
 
-bool KRAABB::operator !=(const KRAABB& b) const
+bool AABB::operator !=(const AABB& b) const
 {
     return min != b.min || max != b.max;
 }
 
-Vector3 KRAABB::center() const
+Vector3 AABB::center() const
 {
     return (min + max) * 0.5f;
 }
 
-Vector3 KRAABB::size() const
+Vector3 AABB::size() const
 {
     return max - min;
 }
 
-float KRAABB::volume() const
+float AABB::volume() const
 {
     Vector3 s = size();
     return s.x * s.y * s.z;
 }
 
-void KRAABB::scale(const Vector3 &s)
+void AABB::scale(const Vector3 &s)
 {
     Vector3 prev_center = center();
     Vector3 prev_size = size();
@@ -93,12 +93,12 @@ void KRAABB::scale(const Vector3 &s)
     max = prev_center + new_scale;
 }
 
-void KRAABB::scale(float s)
+void AABB::scale(float s)
 {
     scale(Vector3(s));
 }
 
-bool KRAABB::operator >(const KRAABB& b) const
+bool AABB::operator >(const AABB& b) const
 {
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
     if(min > b.min) {
@@ -112,7 +112,7 @@ bool KRAABB::operator >(const KRAABB& b) const
     }
 
 }
-bool KRAABB::operator <(const KRAABB& b) const
+bool AABB::operator <(const AABB& b) const
 {
     // Comparison operators are implemented to allow insertion into sorted containers such as std::set
     
@@ -127,34 +127,34 @@ bool KRAABB::operator <(const KRAABB& b) const
     }
 }
 
-bool KRAABB::intersects(const KRAABB& b) const
+bool AABB::intersects(const AABB& b) const
 {
     // Return true if the two volumes intersect
     return min.x <= b.max.x && min.y <= b.max.y && min.z <= b.max.z && max.x >= b.min.x && max.y >= b.min.y && max.z >= b.min.z;
 }
 
-bool KRAABB::contains(const KRAABB &b) const
+bool AABB::contains(const AABB &b) const
 {
     // Return true if the passed KRAABB is entirely contained within this KRAABB
     return b.min.x >= min.x && b.min.y >= min.y && b.min.z >= min.z && b.max.x <= max.x && b.max.y <= max.y && b.max.z <= max.z;
 }
 
-bool KRAABB::contains(const Vector3 &v) const
+bool AABB::contains(const Vector3 &v) const
 {
     return v.x >= min.x && v.x <= max.x && v.y >= min.y && v.y <= max.y && v.z >= min.z && v.z <= max.z;
 }
 
-KRAABB KRAABB::Infinite()
+AABB AABB::Infinite()
 {
-    return KRAABB(Vector3::Min(), Vector3::Max());
+    return AABB(Vector3::Min(), Vector3::Max());
 }
 
-KRAABB KRAABB::Zero()
+AABB AABB::Zero()
 {
-    return KRAABB(Vector3::Zero(), Vector3::Zero());
+    return AABB(Vector3::Zero(), Vector3::Zero());
 }
 
-float KRAABB::longest_radius() const
+float AABB::longest_radius() const
 {
     float radius1 = (center() - min).magnitude();
     float radius2 = (max - center()).magnitude();
@@ -162,7 +162,7 @@ float KRAABB::longest_radius() const
 }
 
 
-bool KRAABB::intersectsLine(const Vector3 &v1, const Vector3 &v2) const
+bool AABB::intersectsLine(const Vector3 &v1, const Vector3 &v2) const
 {
     Vector3 dir = Vector3::Normalize(v2 - v1);
     float length = (v2 - v1).magnitude();
@@ -205,7 +205,7 @@ bool KRAABB::intersectsLine(const Vector3 &v1, const Vector3 &v2) const
     return false ; // the ray did not hit the box.
 }
 
-bool KRAABB::intersectsRay(const Vector3 &v1, const Vector3 &dir) const
+bool AABB::intersectsRay(const Vector3 &v1, const Vector3 &dir) const
 {
   /*
    Fast Ray-Box Intersection
@@ -281,7 +281,7 @@ bool KRAABB::intersectsRay(const Vector3 &v1, const Vector3 &dir) const
 	return true;				/* ray hits box */
 }
 
-bool KRAABB::intersectsSphere(const Vector3 &center, float radius) const
+bool AABB::intersectsSphere(const Vector3 &center, float radius) const
 {
     // Arvo's Algorithm
     
@@ -317,7 +317,7 @@ bool KRAABB::intersectsSphere(const Vector3 &center, float radius) const
     return squaredDistance <= radius;
 }
 
-void KRAABB::encapsulate(const KRAABB & b)
+void AABB::encapsulate(const AABB & b)
 {
     if(b.min.x < min.x) min.x = b.min.x;
     if(b.min.y < min.y) min.y = b.min.y;
@@ -328,7 +328,7 @@ void KRAABB::encapsulate(const KRAABB & b)
     if(b.max.z > max.z) max.z = b.max.z;
 }
 
-Vector3 KRAABB::nearestPoint(const Vector3 & v) const
+Vector3 AABB::nearestPoint(const Vector3 & v) const
 {
     return Vector3(KRCLAMP(v.x, min.x, max.x), KRCLAMP(v.y, min.y, max.y), KRCLAMP(v.z, min.z, max.z));
 }

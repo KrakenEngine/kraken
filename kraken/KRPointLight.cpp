@@ -31,12 +31,12 @@ std::string KRPointLight::getElementName() {
     return "point_light";
 }
 
-KRAABB KRPointLight::getBounds() {
+AABB KRPointLight::getBounds() {
     float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
-    return KRAABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
+    return AABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
 }
 
 void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)

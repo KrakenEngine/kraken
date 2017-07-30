@@ -154,7 +154,7 @@ void KRViewport::calculateDerivedValues()
 }
 
 
-unordered_map<KRAABB, int> &KRViewport::getVisibleBounds()
+unordered_map<AABB, int> &KRViewport::getVisibleBounds()
 {
     return m_visibleBounds;
 }
@@ -169,7 +169,7 @@ void KRViewport::setLODBias(float lod_bias)
     m_lodBias = lod_bias;
 }
 
-float KRViewport::coverage(const KRAABB &b) const
+float KRViewport::coverage(const AABB &b) const
 {
     if(!visible(b)) {
         return 0.0f; // Culled out by view frustrum
@@ -213,7 +213,7 @@ float KRViewport::coverage(const KRAABB &b) const
 }
 
 
-bool KRViewport::visible(const KRAABB &b) const
+bool KRViewport::visible(const AABB &b) const
 {
     // test if bounding box would be within the visible range of the clip space transformed by matViewProjection
     // This is used for view frustrum culling

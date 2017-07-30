@@ -48,15 +48,21 @@ class Quaternion;
 
 class Matrix4 {
 public:
-    
-  float c[16]; // Matrix components, in column-major order
+
+  union {
+    struct {
+      Vector4 axis_x, axis_y, axis_z, transform;
+    };
+    // Matrix components, in column-major order
+    float c[16];
+  };
     
   // Default constructor - Creates an identity matrix
   Matrix4();
     
   Matrix4(float *pMat);
     
-  Matrix4(const Vector3 &axis_x, const Vector3 &axis_y, const Vector3 &axis_z, const Vector3 &trans);
+  Matrix4(const Vector3 &new_axis_x, const Vector3 &new_axis_y, const Vector3 &new_axis_z, const Vector3 &new_transform);
     
   // Destructor
   ~Matrix4();
@@ -111,5 +117,20 @@ public:
 };
 
 } // namespace kraken
+
+namespace std {
+  template<>
+  struct hash<kraken::Matrix4> {
+  public:
+    size_t operator()(const kraken::Matrix4 &s) const
+    {
+      size_t h1 = hash<kraken::Vector4>()(s.axis_x);
+      size_t h2 = hash<kraken::Vector4>()(s.axis_y);
+      size_t h3 = hash<kraken::Vector4>()(s.axis_z);
+      size_t h4 = hash<kraken::Vector4>()(s.transform);
+      return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
+    }
+  };
+} // namespace std
 
 #endif // KRAKEN_MATRIX4_H

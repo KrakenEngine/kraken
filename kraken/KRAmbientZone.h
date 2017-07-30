@@ -35,7 +35,7 @@ public:
     float getAmbientGain();
     void setAmbientGain(float ambient_gain);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     
     float getContainment(const Vector3 &pos);
     

@@ -76,8 +76,8 @@ float KRSprite::getSpriteAlpha() const
     return m_spriteAlpha;
 }
 
-KRAABB KRSprite::getBounds() {
-    return KRAABB(-Vector3::One() * 0.5f, Vector3::One() * 0.5f, getModelMatrix());
+AABB KRSprite::getBounds() {
+    return AABB(-Vector3::One() * 0.5f, Vector3::One() * 0.5f, getModelMatrix());
 }
 
 

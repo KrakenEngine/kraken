@@ -18,7 +18,7 @@ using namespace kraken;
 
 namespace kraken {
 class Matrix4;
-class KRAABB;
+class AABB;
 } // namespace kraken
 class KRCamera;
 class KRShaderManager;
@@ -123,7 +123,7 @@ public:
     void setWorldScale(const Vector3 &v);
     void setWorldRotation(const Vector3 &v);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     void invalidateBounds() const;
     const Matrix4 &getModelMatrix();
     const Matrix4 &getInverseModelMatrix();
@@ -230,7 +230,7 @@ private:
     bool m_activePoseMatrixValid;
     bool m_inverseBindPoseMatrixValid;
     
-    mutable KRAABB m_bounds;
+    mutable AABB m_bounds;
     mutable bool m_boundsValid;
     
     std::string m_name;

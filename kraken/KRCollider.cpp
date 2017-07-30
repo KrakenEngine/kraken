@@ -83,12 +83,12 @@ void KRCollider::loadModel() {
     }
 }
 
-KRAABB KRCollider::getBounds() {
+AABB KRCollider::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
-            return KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            return AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
     } else {
-        return KRAABB::Infinite();
+        return AABB::Infinite();
     }
 }
 
@@ -147,7 +147,7 @@ bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, 
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
-            KRAABB sphereCastBounds = KRAABB( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
+            AABB sphereCastBounds = AABB( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
                 Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
                 Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
             );

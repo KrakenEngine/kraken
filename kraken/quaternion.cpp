@@ -36,31 +36,31 @@
 namespace kraken {
 
 Quaternion::Quaternion() {
-    m_val[0] = 1.0;
-    m_val[1] = 0.0;
-    m_val[2] = 0.0;
-    m_val[3] = 0.0;
+    c[0] = 1.0;
+    c[1] = 0.0;
+    c[2] = 0.0;
+    c[3] = 0.0;
 }
 
 Quaternion::Quaternion(float w, float x, float y, float z) {
-    m_val[0] = w;
-    m_val[1] = x;
-    m_val[2] = y;
-    m_val[3] = z;
+    c[0] = w;
+    c[1] = x;
+    c[2] = y;
+    c[3] = z;
 }
 
 Quaternion::Quaternion(const Quaternion& p) {
-    m_val[0] = p[0];
-    m_val[1] = p[1];
-    m_val[2] = p[2];
-    m_val[3] = p[3];
+    c[0] = p[0];
+    c[1] = p[1];
+    c[2] = p[2];
+    c[3] = p[3];
 }
 
 Quaternion& Quaternion::operator =( const Quaternion& p ) {
-    m_val[0] = p[0];
-    m_val[1] = p[1];
-    m_val[2] = p[2];
-    m_val[3] = p[3];
+    c[0] = p[0];
+    c[1] = p[1];
+    c[2] = p[2];
+    c[3] = p[3];
     return *this;
 }
 
@@ -71,10 +71,10 @@ Quaternion::Quaternion(const Vector3 &euler) {
 Quaternion::Quaternion(const Vector3 &from_vector, const Vector3 &to_vector) {
     
     Vector3 a = Vector3::Cross(from_vector, to_vector);
-    m_val[0] = a[0];
-    m_val[1] = a[1];
-    m_val[2] = a[2];
-    m_val[3] = sqrt(from_vector.sqrMagnitude() * to_vector.sqrMagnitude()) + Vector3::Dot(from_vector, to_vector);
+    c[0] = a[0];
+    c[1] = a[1];
+    c[2] = a[2];
+    c[3] = sqrt(from_vector.sqrMagnitude() * to_vector.sqrMagnitude()) + Vector3::Dot(from_vector, to_vector);
     normalize();
 }
 
@@ -98,39 +98,39 @@ void Quaternion::setEulerZYX(const Vector3 &euler) {
     float s2 = sin(euler[1] * 0.5f);
     float s3 = sin(euler[2] * 0.5f);
     
-    m_val[0] = c1 * c2 * c3 + s1 * s2 * s3;
-    m_val[1] = s1 * c2 * c3 - c1 * s2 * s3;
-    m_val[2] = c1 * s2 * c3 + s1 * c2 * s3;
-    m_val[3] = c1 * c2 * s3 - s1 * s2 * c3;
+    c[0] = c1 * c2 * c3 + s1 * s2 * s3;
+    c[1] = s1 * c2 * c3 - c1 * s2 * s3;
+    c[2] = c1 * s2 * c3 + s1 * c2 * s3;
+    c[3] = c1 * c2 * s3 - s1 * s2 * c3;
 }
 
 float Quaternion::operator [](unsigned i) const {
-    return m_val[i];
+    return c[i];
 }
 
 float &Quaternion::operator [](unsigned i) {
-    return m_val[i];
+    return c[i];
 }
 
 Vector3 Quaternion::eulerXYZ() const {
-    double a2 = 2 * (m_val[0] * m_val[2] - m_val[1] * m_val[3]);
+    double a2 = 2 * (c[0] * c[2] - c[1] * c[3]);
     if(a2 <= -0.99999) {
         return Vector3(
-           2.0 * atan2(m_val[1], m_val[0]),
+           2.0 * atan2(c[1], c[0]),
            -PI * 0.5f,
            0
         );
     } else if(a2 >= 0.99999) {
         return Vector3(
-           2.0 * atan2(m_val[1], m_val[0]),
+           2.0 * atan2(c[1], c[0]),
            PI * 0.5f,
            0
         );
     } else {
         return Vector3(
-             atan2(2 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]), (1 - 2 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]))),
+             atan2(2 * (c[0] * c[1] + c[2] * c[3]), (1 - 2 * (c[1] * c[1] + c[2] * c[2]))),
              asin(a2),
-             atan2(2 * (m_val[0] * m_val[3] + m_val[1] * m_val[2]), (1 - 2 * (m_val[2] * m_val[2] + m_val[3] * m_val[3])))
+             atan2(2 * (c[0] * c[3] + c[1] * c[2]), (1 - 2 * (c[2] * c[2] + c[3] * c[3])))
          );
     }
     
@@ -154,14 +154,14 @@ bool operator !=(Quaternion &v1, Quaternion &v2) {
 }
 
 Quaternion Quaternion::operator *(const Quaternion &v) {
-    float t0 = (m_val[3]-m_val[2])*(v[2]-v[3]);
-    float t1 = (m_val[0]+m_val[1])*(v[0]+v[1]);
-    float t2 = (m_val[0]-m_val[1])*(v[2]+v[3]);
-    float t3 = (m_val[3]+m_val[2])*(v[0]-v[1]);
-    float t4 = (m_val[3]-m_val[1])*(v[1]-v[2]);
-    float t5 = (m_val[3]+m_val[1])*(v[1]+v[2]);
-    float t6 = (m_val[0]+m_val[2])*(v[0]-v[3]);
-    float t7 = (m_val[0]-m_val[2])*(v[0]+v[3]);
+    float t0 = (c[3]-c[2])*(v[2]-v[3]);
+    float t1 = (c[0]+c[1])*(v[0]+v[1]);
+    float t2 = (c[0]-c[1])*(v[2]+v[3]);
+    float t3 = (c[3]+c[2])*(v[0]-v[1]);
+    float t4 = (c[3]-c[1])*(v[1]-v[2]);
+    float t5 = (c[3]+c[1])*(v[1]+v[2]);
+    float t6 = (c[0]+c[2])*(v[0]-v[3]);
+    float t7 = (c[0]-c[2])*(v[0]+v[3]);
     float t8 = t5+t6+t7;
     float t9 = (t4+t8)/2;
     
@@ -174,72 +174,72 @@ Quaternion Quaternion::operator *(const Quaternion &v) {
 }
 
 Quaternion Quaternion::operator *(float v) const {
-    return Quaternion(m_val[0] * v, m_val[1] * v, m_val[2] * v, m_val[3] * v);
+    return Quaternion(c[0] * v, c[1] * v, c[2] * v, c[3] * v);
 }
 
 Quaternion Quaternion::operator /(float num) const {
     float inv_num = 1.0f / num;
-    return Quaternion(m_val[0] * inv_num, m_val[1] * inv_num, m_val[2] * inv_num, m_val[3] * inv_num);
+    return Quaternion(c[0] * inv_num, c[1] * inv_num, c[2] * inv_num, c[3] * inv_num);
 }
 
 Quaternion Quaternion::operator +(const Quaternion &v) const {
-    return Quaternion(m_val[0] + v[0], m_val[1] + v[1], m_val[2] + v[2], m_val[3] + v[3]);
+    return Quaternion(c[0] + v[0], c[1] + v[1], c[2] + v[2], c[3] + v[3]);
 }
 
 Quaternion Quaternion::operator -(const Quaternion &v) const {
-    return Quaternion(m_val[0] - v[0], m_val[1] - v[1], m_val[2] - v[2], m_val[3] - v[3]);
+    return Quaternion(c[0] - v[0], c[1] - v[1], c[2] - v[2], c[3] - v[3]);
 }
 
 Quaternion& Quaternion::operator +=(const Quaternion& v) {
-    m_val[0] += v[0];
-    m_val[1] += v[1];
-    m_val[2] += v[2];
-    m_val[3] += v[3];
+    c[0] += v[0];
+    c[1] += v[1];
+    c[2] += v[2];
+    c[3] += v[3];
     return *this;
 }
 
 Quaternion& Quaternion::operator -=(const Quaternion& v) {
-    m_val[0] -= v[0];
-    m_val[1] -= v[1];
-    m_val[2] -= v[2];
-    m_val[3] -= v[3];
+    c[0] -= v[0];
+    c[1] -= v[1];
+    c[2] -= v[2];
+    c[3] -= v[3];
     return *this;
 }
 
 Quaternion& Quaternion::operator *=(const Quaternion& v) {
-    float t0 = (m_val[3]-m_val[2])*(v[2]-v[3]);
-    float t1 = (m_val[0]+m_val[1])*(v[0]+v[1]);
-    float t2 = (m_val[0]-m_val[1])*(v[2]+v[3]);
-    float t3 = (m_val[3]+m_val[2])*(v[0]-v[1]);
-    float t4 = (m_val[3]-m_val[1])*(v[1]-v[2]);
-    float t5 = (m_val[3]+m_val[1])*(v[1]+v[2]);
-    float t6 = (m_val[0]+m_val[2])*(v[0]-v[3]);
-    float t7 = (m_val[0]-m_val[2])*(v[0]+v[3]);
+    float t0 = (c[3]-c[2])*(v[2]-v[3]);
+    float t1 = (c[0]+c[1])*(v[0]+v[1]);
+    float t2 = (c[0]-c[1])*(v[2]+v[3]);
+    float t3 = (c[3]+c[2])*(v[0]-v[1]);
+    float t4 = (c[3]-c[1])*(v[1]-v[2]);
+    float t5 = (c[3]+c[1])*(v[1]+v[2]);
+    float t6 = (c[0]+c[2])*(v[0]-v[3]);
+    float t7 = (c[0]-c[2])*(v[0]+v[3]);
     float t8 = t5+t6+t7;
     float t9 = (t4+t8)/2;
     
-    m_val[0] = t0+t9-t5;
-    m_val[1] = t1+t9-t8;
-    m_val[2] = t2+t9-t7;
-    m_val[3] = t3+t9-t6;
+    c[0] = t0+t9-t5;
+    c[1] = t1+t9-t8;
+    c[2] = t2+t9-t7;
+    c[3] = t3+t9-t6;
     
     return *this;
 }
 
 Quaternion& Quaternion::operator *=(const float& v) {
-    m_val[0] *= v;
-    m_val[1] *= v;
-    m_val[2] *= v;
-    m_val[3] *= v;
+    c[0] *= v;
+    c[1] *= v;
+    c[2] *= v;
+    c[3] *= v;
     return *this;
 }
 
 Quaternion& Quaternion::operator /=(const float& v) {
     float inv_v = 1.0f / v;
-    m_val[0] *= inv_v;
-    m_val[1] *= inv_v;
-    m_val[2] *= inv_v;
-    m_val[3] *= inv_v;
+    c[0] *= inv_v;
+    c[1] *= inv_v;
+    c[2] *= inv_v;
+    c[3] *= inv_v;
     return *this;
 }
 
@@ -248,7 +248,7 @@ Quaternion Quaternion::operator +() const {
 }
 
 Quaternion Quaternion::operator -() const {
-    return Quaternion(-m_val[0], -m_val[1], -m_val[2], -m_val[3]);
+    return Quaternion(-c[0], -c[1], -c[2], -c[3]);
 }
 
 Quaternion Normalize(const Quaternion &v1) {
@@ -262,11 +262,11 @@ Quaternion Normalize(const Quaternion &v1) {
 }
 
 void Quaternion::normalize() {
-    float inv_magnitude = 1.0f / sqrtf(m_val[0] * m_val[0] + m_val[1] * m_val[1] + m_val[2] * m_val[2] + m_val[3] * m_val[3]);
-    m_val[0] *= inv_magnitude;
-    m_val[1] *= inv_magnitude;
-    m_val[2] *= inv_magnitude;
-    m_val[3] *= inv_magnitude;
+    float inv_magnitude = 1.0f / sqrtf(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] + c[3] * c[3]);
+    c[0] *= inv_magnitude;
+    c[1] *= inv_magnitude;
+    c[2] *= inv_magnitude;
+    c[3] *= inv_magnitude;
 }
 
 Quaternion Conjugate(const Quaternion &v1) {
@@ -274,9 +274,9 @@ Quaternion Conjugate(const Quaternion &v1) {
 }
 
 void Quaternion::conjugate() {
-    m_val[1] = -m_val[1];
-    m_val[2] = -m_val[2];
-    m_val[3] = -m_val[3];
+    c[1] = -c[1];
+    c[2] = -c[2];
+    c[3] = -c[3];
 }
 
 Matrix4 Quaternion::rotationMatrix() const {
@@ -293,17 +293,17 @@ Matrix4 Quaternion::rotationMatrix() const {
     // FINDME - Determine why the more optimal routine commented below wasn't working
     
     
-    matRotate.c[0] = 1.0 - 2.0 * (m_val[2] * m_val[2] + m_val[3] * m_val[3]);
-    matRotate.c[1] = 2.0 * (m_val[1] * m_val[2] - m_val[0] * m_val[3]);
-    matRotate.c[2] = 2.0 * (m_val[0] * m_val[2] + m_val[1] * m_val[3]);
+    matRotate.c[0] = 1.0 - 2.0 * (c[2] * c[2] + c[3] * c[3]);
+    matRotate.c[1] = 2.0 * (c[1] * c[2] - c[0] * c[3]);
+    matRotate.c[2] = 2.0 * (c[0] * c[2] + c[1] * c[3]);
     
-    matRotate.c[4] = 2.0 * (m_val[1] * m_val[2] + m_val[0] * m_val[3]);
-    matRotate.c[5] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[3] * m_val[3]);
-    matRotate.c[6] = 2.0 * (m_val[2] * m_val[3] - m_val[0] * m_val[1]);
+    matRotate.c[4] = 2.0 * (c[1] * c[2] + c[0] * c[3]);
+    matRotate.c[5] = 1.0 - 2.0 * (c[1] * c[1] + c[3] * c[3]);
+    matRotate.c[6] = 2.0 * (c[2] * c[3] - c[0] * c[1]);
     
-    matRotate.c[8] = 2.0 * (m_val[1] * m_val[3] - m_val[0] * m_val[2]);
-    matRotate.c[9] = 2.0 * (m_val[0] * m_val[1] + m_val[2] * m_val[3]);
-    matRotate.c[10] = 1.0 - 2.0 * (m_val[1] * m_val[1] + m_val[2] * m_val[2]);
+    matRotate.c[8] = 2.0 * (c[1] * c[3] - c[0] * c[2]);
+    matRotate.c[9] = 2.0 * (c[0] * c[1] + c[2] * c[3]);
+    matRotate.c[10] = 1.0 - 2.0 * (c[1] * c[1] + c[2] * c[2]);
     
     return matRotate;
 }
@@ -318,7 +318,7 @@ Quaternion Quaternion::FromAngleAxis(const Vector3 &axis, float angle)
 
 float Quaternion::Dot(const Quaternion &v1, const Quaternion &v2)
 {
-    return v1.m_val[0] * v2.m_val[0] + v1.m_val[1] * v2.m_val[1] + v1.m_val[2] * v2.m_val[2] + v1.m_val[3] * v2.m_val[3];
+    return v1.c[0] * v2.c[0] + v1.c[1] * v2.c[1] + v1.c[2] * v2.c[2] + v1.c[3] * v2.c[3];
 }
 
 Quaternion Quaternion::Lerp(const Quaternion &a, const Quaternion &b, float t)

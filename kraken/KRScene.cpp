@@ -97,18 +97,18 @@ std::set<KRLight *> &KRScene::getLights()
     return m_lights;
 }
 
-void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+void KRScene::render(KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
         // Cached "success" results are expired after KRENGINE_OCCLUSION_TEST_EXPIRY frames (marked with .second of the last frame
-        std::set<KRAABB> expired_visible_bounds;
-        for(unordered_map<KRAABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
+        std::set<AABB> expired_visible_bounds;
+        for(unordered_map<AABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
             if((*visible_bounds_itr).second == -1 || (*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
                 expired_visible_bounds.insert((*visible_bounds_itr).first);
             }
         }
-        for(std::set<KRAABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
+        for(std::set<AABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
             visibleBounds.erase(*expired_visible_bounds_itr);
         }
     }
@@ -175,11 +175,11 @@ void KRScene::render(KRCamera *pCamera, unordered_map<KRAABB, int> &visibleBound
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
-        KRAABB octreeBounds = pOctreeNode->getBounds();
+        AABB octreeBounds = pOctreeNode->getBounds();
         
         if(bOcclusionResultsPass) {
             // ----====---- Occlusion results pass ----====----
@@ -208,7 +208,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
             bool in_viewport = false;
             if(renderPass == KRNode::RENDER_PASS_PRESTREAM) {
                 // When pre-streaming, objects are streamed in behind and in-front of the camera
-                KRAABB viewportExtents = KRAABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveFarZ()));
+                AABB viewportExtents = AABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveFarZ()));
                 in_viewport = octreeBounds.intersects(viewportExtents);
             } else {
                 in_viewport = viewport.visible(pOctreeNode->getBounds());
@@ -227,7 +227,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    KRAABB cameraExtents = KRAABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveNearZ()));
+                    AABB cameraExtents = AABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         // Record the frame number in which the camera was within the bounds
@@ -240,7 +240,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                 if(!bVisible) {
                     // Check if a previous occlusion query has returned true, taking advantage of temporal consistency of visible elements from frame to frame
                     // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
-                    unordered_map<KRAABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
+                    unordered_map<AABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
                     if(match_itr != visibleBounds.end()) {
                         if((*match_itr).second == -1) {
                             // We have already tested these bounds with a negative result
@@ -569,12 +569,12 @@ void KRScene::addDefaultLights()
     m_pRootNode->addChild(light1);
 }
 
-KRAABB KRScene::getRootOctreeBounds()
+AABB KRScene::getRootOctreeBounds()
 {
     if(m_nodeTree.getRootNode()) {
         return m_nodeTree.getRootNode()->getBounds();
     } else {
-        return KRAABB(-Vector3::One(), Vector3::One());
+        return AABB(-Vector3::One(), Vector3::One());
     }
 }
 

@@ -55,7 +55,7 @@ public:
 
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     
     void setRimColor(const Vector3 &rim_color);
     void setRimPower(float rim_power);
@@ -85,7 +85,7 @@ private:
     
     
     Matrix4 m_boundsCachedMat;
-    KRAABB m_boundsCached;
+    AABB m_boundsCached;
     
     
     Vector3 m_rim_color;

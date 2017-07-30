@@ -137,14 +137,14 @@ void KRAmbientZone::setGradientDistance(float gradient_distance)
     m_gradient_distance = gradient_distance;
 }
 
-KRAABB KRAmbientZone::getBounds() {
+AABB KRAmbientZone::getBounds() {
     // Ambient zones always have a -1, -1, -1 to 1, 1, 1 bounding box
-    return KRAABB(-Vector3::One(), Vector3::One(), getModelMatrix());
+    return AABB(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
 float KRAmbientZone::getContainment(const Vector3 &pos)
 {
-    KRAABB bounds = getBounds();
+    AABB bounds = getBounds();
     if(bounds.contains(pos)) {
         Vector3 size = bounds.size();
         Vector3 diff = pos - bounds.center();

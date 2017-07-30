@@ -10,7 +10,7 @@
 #include "KRNode.h"
 #include "KRCollider.h"
 
-KROctreeNode::KROctreeNode(KROctreeNode *parent, const KRAABB &bounds) : m_bounds(bounds)
+KROctreeNode::KROctreeNode(KROctreeNode *parent, const AABB &bounds) : m_bounds(bounds)
 {
     m_parent = parent;
     
@@ -21,7 +21,7 @@ KROctreeNode::KROctreeNode(KROctreeNode *parent, const KRAABB &bounds) : m_bound
     m_activeQuery = false;
 }
 
-KROctreeNode::KROctreeNode(KROctreeNode *parent, const KRAABB &bounds, int iChild, KROctreeNode *pChild) : m_bounds(bounds)
+KROctreeNode::KROctreeNode(KROctreeNode *parent, const AABB &bounds, int iChild, KROctreeNode *pChild) : m_bounds(bounds)
 {
     // This constructor is used when expanding the octree and replacing the root node with a new root that encapsulates it
     m_parent = parent;
@@ -76,7 +76,7 @@ void KROctreeNode::endOcclusionQuery()
 }
 
 
-KRAABB KROctreeNode::getBounds()
+AABB KROctreeNode::getBounds()
 {
     return m_bounds;
 }
@@ -95,11 +95,11 @@ void KROctreeNode::add(KRNode *pNode)
     }
 }
 
-KRAABB KROctreeNode::getChildBounds(int iChild)
+AABB KROctreeNode::getChildBounds(int iChild)
 {
     Vector3 center = m_bounds.center();
     
-    return KRAABB(
+    return AABB(
        Vector3(
                  (iChild & 1) == 0 ? m_bounds.min.x : center.x,
                  (iChild & 2) == 0 ? m_bounds.min.y : center.y,
@@ -264,7 +264,7 @@ bool KROctreeNode::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius
     } else {
     */
     
-        KRAABB swept_bounds = KRAABB(Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
+        AABB swept_bounds = AABB(Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
         // FINDME, TODO - Investigate AABB - swept sphere intersections or OBB - AABB intersections: "if(getBounds().intersectsSweptSphere(v0, v1, radius)) {"
         if(getBounds().intersects(swept_bounds)) {
         

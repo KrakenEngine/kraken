@@ -38,13 +38,13 @@ public:
     // Overload assignment operator
     KRViewport& operator=(const KRViewport &v);
     
-    unordered_map<KRAABB, int> &getVisibleBounds();
+    unordered_map<AABB, int> &getVisibleBounds();
     
     const std::set<KRLight *> &getVisibleLights();
     void setVisibleLights(const std::set<KRLight *> visibleLights);
     
-    bool visible(const KRAABB &b) const;
-    float coverage(const KRAABB &b) const;
+    bool visible(const AABB &b) const;
+    float coverage(const AABB &b) const;
     
 private:
     Vector2 m_size;
@@ -65,7 +65,7 @@ private:
     
     void calculateDerivedValues();
     
-    unordered_map<KRAABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
+    unordered_map<AABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
     
     
 };

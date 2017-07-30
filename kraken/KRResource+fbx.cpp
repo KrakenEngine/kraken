@@ -954,7 +954,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
         KRLODSet *lod_set = new KRLODSet(parent_node->getScene(), name);
         parent_node->addChild(lod_set);
         
-        KRAABB reference_bounds;
+        AABB reference_bounds;
         // Create a lod_group node for each fbx child node
         int child_count = pNode->GetChildCount();
         for(int i = 0; i < child_count; i++)
@@ -1022,7 +1022,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode *parent_node, FbxGeometryConverter *pG
                 reference_bounds = new_node->getBounds();
             }
             
-            new_node->setReference(KRAABB(reference_bounds.min, reference_bounds.max, new_node->getInverseModelMatrix()));
+            new_node->setReference(AABB(reference_bounds.min, reference_bounds.max, new_node->getInverseModelMatrix()));
         }
     } else {
         KRNode *new_node = NULL;

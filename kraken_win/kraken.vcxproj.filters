@@ -33,9 +33,6 @@
     <ClCompile Include="..\kraken\KRFloat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\kraken\KRAABB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\kraken\KRViewport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\kraken\triangle3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\kraken\aabb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -476,9 +476,6 @@
     <ClInclude Include="..\kraken\public\kraken.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\public\KRAABB.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
     <ClInclude Include="..\kraken\public\vector2.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
@@ -498,6 +495,9 @@
       <Filter>Header Files\public</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\public\triangle3.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\kraken\public\aabb.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
   </ItemGroup>

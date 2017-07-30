@@ -125,7 +125,7 @@
   <ItemGroup>
     <ClCompile Include="..\3rdparty\forsyth\forsyth.cpp" />
     <ClCompile Include="..\3rdparty\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="..\kraken\KRAABB.cpp" />
+    <ClCompile Include="..\kraken\aabb.cpp" />
     <ClCompile Include="..\kraken\KRAmbientZone.cpp" />
     <ClCompile Include="..\kraken\KRAnimation.cpp" />
     <ClCompile Include="..\kraken\KRAnimationAttribute.cpp" />
@@ -271,7 +271,7 @@
     <ClInclude Include="..\kraken\KRUnknown.h" />
     <ClInclude Include="..\kraken\KRUnknownManager.h" />
     <ClInclude Include="..\kraken\KRViewport.h" />
-    <ClInclude Include="..\kraken\public\KRAABB.h" />
+    <ClInclude Include="..\kraken\public\aabb.h" />
     <ClInclude Include="..\kraken\public\kraken.h" />
     <ClInclude Include="..\kraken\public\scalar.h" />
     <ClInclude Include="..\kraken\public\matrix4.h" />

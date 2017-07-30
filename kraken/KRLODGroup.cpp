@@ -14,7 +14,7 @@ KRLODGroup::KRLODGroup(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_min_distance = 0.0f;
     m_max_distance = 0.0f;
-    m_reference = KRAABB(Vector3::Zero(), Vector3::Zero());
+    m_reference = AABB(Vector3::Zero(), Vector3::Zero());
     m_use_world_units = true;
 }
 
@@ -92,12 +92,12 @@ void KRLODGroup::loadXML(tinyxml2::XMLElement *e)
 }
 
 
-const KRAABB &KRLODGroup::getReference() const
+const AABB &KRLODGroup::getReference() const
 {
     return m_reference;
 }
 
-void KRLODGroup::setReference(const KRAABB &reference)
+void KRLODGroup::setReference(const AABB &reference)
 {
     m_reference = reference;
 }
