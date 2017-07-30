@@ -196,9 +196,9 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
                 }
                 
-                KRMat4 matModel = getModelMatrix();
+                Matrix4 matModel = getModelMatrix();
                 if(m_faces_camera) {
-                    Vector3 model_center = KRMat4::Dot(matModel, Vector3::Zero());
+                    Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
                     Vector3 camera_pos = viewport.getCameraPosition();
                     matModel = KRQuaternion(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }

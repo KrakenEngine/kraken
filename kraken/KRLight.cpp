@@ -198,7 +198,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 GLDEBUG(glEnable(GL_DEPTH_TEST));
                 GLDEBUG(glDepthRangef(0.0, 1.0));
 
-                KRMat4 particleModelMatrix;
+                Matrix4 particleModelMatrix;
                 particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
                 particleModelMatrix.translate(viewport.getCameraPosition());
                 
@@ -223,7 +223,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 if(getContext().getShaderManager()->selectShader(*pCamera, pParticleShader, viewport, particleModelMatrix, this_point_light, this_directional_light, this_spot_light, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     
                     pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * pCamera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-                    pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_PARTICLE_ORIGIN, KRMat4::DotWDiv(KRMat4::Invert(particleModelMatrix), Vector3::Zero()));
+                    pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
                     pParticleShader->setUniform(KRShader::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                     
                     KRDataBlock particle_index_data;
@@ -256,7 +256,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
         
         KRShader *pFogShader = m_pContext->getShaderManager()->getShader(shader_name, pCamera, this_point_light, this_directional_light, this_spot_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
         
-        if(getContext().getShaderManager()->selectShader(*pCamera, pFogShader, viewport, KRMat4(), this_point_light, this_directional_light, this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        if(getContext().getShaderManager()->selectShader(*pCamera, pFogShader, viewport, Matrix4(), this_point_light, this_directional_light, this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             int slice_count = (int)(pCamera->settings.volumetric_environment_quality * 495.0) + 5;
             
             float slice_near = -pCamera->settings.getPerspectiveNearZ();
@@ -277,7 +277,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             
             
-            KRMat4 occlusion_test_sphere_matrix = KRMat4();
+            Matrix4 occlusion_test_sphere_matrix = Matrix4();
             occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
             occlusion_test_sphere_matrix.translate(m_localTranslation);
             if(m_parentNode) {
@@ -449,7 +449,7 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             // Use shader program
             KRShader *shadowShader = m_pContext->getShaderManager()->getShader("ShadowShader", pCamera, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
             
-            getContext().getShaderManager()->selectShader(*pCamera, shadowShader, m_shadowViewports[iShadow], KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
+            getContext().getShaderManager()->selectShader(*pCamera, shadowShader, m_shadowViewports[iShadow], Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             
             getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);

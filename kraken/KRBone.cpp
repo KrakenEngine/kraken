@@ -48,7 +48,7 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
     bool bVisualize = pCamera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES;
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        KRMat4 sphereModelMatrix = getModelMatrix();
+        Matrix4 sphereModelMatrix = getModelMatrix();
         
         // Enable additive blending
         GLDEBUG(glEnable(GL_BLEND));
@@ -87,11 +87,11 @@ void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights
 }
 
 
-void KRBone::setBindPose(const KRMat4 &pose)
+void KRBone::setBindPose(const Matrix4 &pose)
 {
     m_bind_pose = pose;
 }
-const KRMat4 &KRBone::getBindPose()
+const Matrix4 &KRBone::getBindPose()
 {
     return m_bind_pose;
 }

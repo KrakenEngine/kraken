@@ -84,7 +84,7 @@ private:
     bool m_faces_camera;
     
     
-    KRMat4 m_boundsCachedMat;
+    Matrix4 m_boundsCachedMat;
     KRAABB m_boundsCached;
     
     

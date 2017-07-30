@@ -274,10 +274,10 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<KRAABB, int> &visi
                     
 
 
-                    KRMat4 matModel = KRMat4();
+                    Matrix4 matModel = Matrix4();
                     matModel.scale(octreeBounds.size() * 0.5f);
                     matModel.translate(octreeBounds.center());
-                    KRMat4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
+                    Matrix4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
                     getContext().getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);

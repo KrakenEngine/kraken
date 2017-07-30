@@ -1218,12 +1218,12 @@ void KRAudioManager::makeCurrentContext()
     initAudio();
 }
 
-void KRAudioManager::setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix)
+void KRAudioManager::setListenerOrientationFromModelMatrix(const Matrix4 &modelMatrix)
 {
     setListenerOrientation(
-        KRMat4::Dot(modelMatrix, Vector3(0.0, 0.0, 0.0)),
-        Vector3::Normalize(KRMat4::Dot(modelMatrix, Vector3(0.0, 0.0, -1.0)) - m_listener_position),
-        Vector3::Normalize(KRMat4::Dot(modelMatrix, Vector3(0.0, 1.0, 0.0)) - m_listener_position)
+        Matrix4::Dot(modelMatrix, Vector3(0.0, 0.0, 0.0)),
+        Vector3::Normalize(Matrix4::Dot(modelMatrix, Vector3(0.0, 0.0, -1.0)) - m_listener_position),
+        Vector3::Normalize(Matrix4::Dot(modelMatrix, Vector3(0.0, 1.0, 0.0)) - m_listener_position)
     );
 }
 

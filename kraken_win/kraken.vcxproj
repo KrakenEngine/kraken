@@ -156,7 +156,7 @@
     <ClCompile Include="..\kraken\KRLocator.cpp" />
     <ClCompile Include="..\kraken\KRLODGroup.cpp" />
     <ClCompile Include="..\kraken\KRLODSet.cpp" />
-    <ClCompile Include="..\kraken\KRMat4.cpp" />
+    <ClCompile Include="..\kraken\matrix4.cpp" />
     <ClCompile Include="..\kraken\KRMaterial.cpp" />
     <ClCompile Include="..\kraken\KRMaterialManager.cpp" />
     <ClCompile Include="..\kraken\KRMesh.cpp" />
@@ -274,7 +274,7 @@
     <ClInclude Include="..\kraken\public\KRAABB.h" />
     <ClInclude Include="..\kraken\public\kraken.h" />
     <ClInclude Include="..\kraken\public\scalar.h" />
-    <ClInclude Include="..\kraken\public\KRMat4.h" />
+    <ClInclude Include="..\kraken\public\matrix4.h" />
     <ClInclude Include="..\kraken\public\KRQuaternion.h" />
     <ClInclude Include="..\kraken\public\KRTriangle3.h" />
     <ClInclude Include="..\kraken\public\vector2.h" />

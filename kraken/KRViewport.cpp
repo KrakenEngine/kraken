@@ -15,13 +15,13 @@
 KRViewport::KRViewport()
 {
     m_size = Vector2::One();
-    m_matProjection = KRMat4();
-    m_matView = KRMat4();
+    m_matProjection = Matrix4();
+    m_matView = Matrix4();
     m_lodBias = 0.0f;
     calculateDerivedValues();
 }
 
-KRViewport::KRViewport(const Vector2 &size, const KRMat4 &matView, const KRMat4 &matProjection)
+KRViewport::KRViewport(const Vector2 &size, const Matrix4 &matView, const Matrix4 &matProjection)
 {
     m_size = size;
     m_matView = matView;
@@ -53,12 +53,12 @@ const Vector2 &KRViewport::getSize() const
     return m_size;
 }
 
-const KRMat4 &KRViewport::getViewMatrix() const
+const Matrix4 &KRViewport::getViewMatrix() const
 {
     return m_matView;
 }
 
-const KRMat4 &KRViewport::getProjectionMatrix() const
+const Matrix4 &KRViewport::getProjectionMatrix() const
 {
     return m_matProjection;
 }
@@ -68,29 +68,29 @@ void KRViewport::setSize(const Vector2 &size)
     m_size = size;
 }
 
-void KRViewport::setViewMatrix(const KRMat4 &matView)
+void KRViewport::setViewMatrix(const Matrix4 &matView)
 {
     m_matView = matView;
     calculateDerivedValues();
 }
 
-void KRViewport::setProjectionMatrix(const KRMat4 &matProjection)
+void KRViewport::setProjectionMatrix(const Matrix4 &matProjection)
 {
     m_matProjection = matProjection;
     calculateDerivedValues();
 }
 
-const KRMat4 &KRViewport::KRViewport::getViewProjectionMatrix() const
+const Matrix4 &KRViewport::KRViewport::getViewProjectionMatrix() const
 {
     return m_matViewProjection;
 }
 
-const KRMat4 &KRViewport::getInverseViewMatrix() const
+const Matrix4 &KRViewport::getInverseViewMatrix() const
 {
     return m_matInverseView;
 }
 
-const KRMat4 &KRViewport::getInverseProjectionMatrix() const
+const Matrix4 &KRViewport::getInverseProjectionMatrix() const
 {
     return m_matInverseProjection;
 }
@@ -118,10 +118,10 @@ const int *KRViewport::getBackToFrontOrder() const
 void KRViewport::calculateDerivedValues()
 {
     m_matViewProjection = m_matView * m_matProjection;
-    m_matInverseView = KRMat4::Invert(m_matView);
-    m_matInverseProjection = KRMat4::Invert(m_matProjection);
-    m_cameraPosition = KRMat4::Dot(m_matInverseView, Vector3::Zero());
-    m_cameraDirection = KRMat4::Dot(m_matInverseView, Vector3(0.0, 0.0, 1.0)) - KRMat4::Dot(m_matInverseView, Vector3(0.0, 0.0, 0.0));
+    m_matInverseView = Matrix4::Invert(m_matView);
+    m_matInverseProjection = Matrix4::Invert(m_matProjection);
+    m_cameraPosition = Matrix4::Dot(m_matInverseView, Vector3::Zero());
+    m_cameraDirection = Matrix4::Dot(m_matInverseView, Vector3(0.0, 0.0, 1.0)) - Matrix4::Dot(m_matInverseView, Vector3(0.0, 0.0, 0.0));
 
     for(int i=0; i<8; i++) {
         m_frontToBackOrder[i] = i;
@@ -177,7 +177,7 @@ float KRViewport::coverage(const KRAABB &b) const
         Vector3 nearest_point = b.nearestPoint(getCameraPosition());
         float distance = (nearest_point - getCameraPosition()).magnitude();
         
-        Vector3 v = KRMat4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
+        Vector3 v = Matrix4::DotWDiv(m_matProjection, getCameraPosition() + getCameraDirection() * distance);
         
         float screen_depth = distance / 1000.0f;
         
@@ -189,7 +189,7 @@ float KRViewport::coverage(const KRAABB &b) const
         Vector2 screen_max;
         // Loop through all corners and transform them to screen space
         for(int i=0; i<8; i++) {
-            Vector3 screen_pos = KRMat4::DotWDiv(m_matViewProjection, Vector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
+            Vector3 screen_pos = Matrix4::DotWDiv(m_matViewProjection, Vector3(i & 1 ? b.min.x : b.max.x, i & 2 ? b.min.y : b.max.y, i & 4 ? b.min.z : b.max.z));
             if(i==0) {
                 screen_min = screen_pos.xy();
                 screen_max = screen_pos.xy();
@@ -226,7 +226,7 @@ bool KRViewport::visible(const KRAABB &b) const
                                                  (iCorner & 2) == 0 ? b.min.y : b.max.y,
                                                  (iCorner & 4) == 0 ? b.min.z : b.max.z, 1.0f);
         
-        Vector4 cornerVertex = KRMat4::Dot4(m_matViewProjection, sourceCornerVertex);
+        Vector4 cornerVertex = Matrix4::Dot4(m_matViewProjection, sourceCornerVertex);
         
         if(cornerVertex.x < -cornerVertex.w) {
             outside_count[0]++;

@@ -24,10 +24,10 @@ public:
     
     void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
 
-    void setBindPose(const KRMat4 &pose);
-    const KRMat4 &getBindPose();
+    void setBindPose(const Matrix4 &pose);
+    const Matrix4 &getBindPose();
 private:
-    KRMat4 m_bind_pose;
+    Matrix4 m_bind_pose;
 };
 
 

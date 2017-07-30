@@ -279,8 +279,8 @@ void KRQuaternion::conjugate() {
     m_val[3] = -m_val[3];
 }
 
-KRMat4 KRQuaternion::rotationMatrix() const {
-    KRMat4 matRotate;
+Matrix4 KRQuaternion::rotationMatrix() const {
+    Matrix4 matRotate;
     
     /*
     Vector3 euler = eulerXYZ();

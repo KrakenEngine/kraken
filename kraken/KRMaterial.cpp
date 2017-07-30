@@ -302,7 +302,7 @@ void KRMaterial::getTextures()
     }
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage) {
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage) {
     bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     getTextures();
@@ -345,12 +345,12 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
             //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
 //                printf("%s - delta scale: %.4f %.4f %.4f\n", bone->getName().c_str(), scale.x - initialScale.x, scale.y - initialScale.y, scale.z - initialScale.z);
             
-            KRMat4 skin_bone_bind_pose = bind_poses[bone_index];
-            KRMat4 active_mat = bone->getActivePoseMatrix();
-            KRMat4 inv_bind_mat = bone->getInverseBindPoseMatrix();
-            KRMat4 inv_bind_mat2 = KRMat4::Invert(bind_poses[bone_index]);
-            KRMat4 t = (inv_bind_mat * active_mat);
-            KRMat4 t2 = inv_bind_mat2 * bone->getModelMatrix();
+            Matrix4 skin_bone_bind_pose = bind_poses[bone_index];
+            Matrix4 active_mat = bone->getActivePoseMatrix();
+            Matrix4 inv_bind_mat = bone->getInverseBindPoseMatrix();
+            Matrix4 inv_bind_mat2 = Matrix4::Invert(bind_poses[bone_index]);
+            Matrix4 t = (inv_bind_mat * active_mat);
+            Matrix4 t2 = inv_bind_mat2 * bone->getModelMatrix();
             for(int i=0; i < 16; i++) {
                 *bone_mat_component++ = t[i];
             }

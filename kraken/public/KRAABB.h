@@ -18,12 +18,12 @@
 
 namespace kraken {
 
-class KRMat4;
+class Matrix4;
 
 class KRAABB {
 public:
   KRAABB(const Vector3 &minPoint, const Vector3 &maxPoint);
-  KRAABB(const Vector3 &corner1, const Vector3 &corner2, const KRMat4 &modelMatrix);
+  KRAABB(const Vector3 &corner1, const Vector3 &corner2, const Matrix4 &modelMatrix);
   KRAABB();
   ~KRAABB();
     

@@ -58,9 +58,9 @@ KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getCont
     m_bindPoseMatrixValid = false;
     m_activePoseMatrixValid = false;
     m_inverseBindPoseMatrixValid = false;
-    m_modelMatrix = KRMat4();
-    m_bindPoseMatrix = KRMat4();
-    m_activePoseMatrix = KRMat4();
+    m_modelMatrix = Matrix4();
+    m_bindPoseMatrix = Matrix4();
+    m_activePoseMatrix = Matrix4();
     m_lod_visible = LOD_VISIBILITY_HIDDEN;
     m_scale_compensation = false;
     m_boundsValid = false;
@@ -203,7 +203,7 @@ void KRNode::setLocalTranslation(const Vector3 &v, bool set_original) {
 void KRNode::setWorldTranslation(const Vector3 &v)
 {
     if(m_parentNode) {
-        setLocalTranslation(KRMat4::Dot(m_parentNode->getInverseModelMatrix(), v));
+        setLocalTranslation(Matrix4::Dot(m_parentNode->getInverseModelMatrix(), v));
     } else {
         setLocalTranslation(v);
     }
@@ -227,7 +227,7 @@ void KRNode::setWorldRotation(const Vector3 &v)
 void KRNode::setWorldScale(const Vector3 &v)
 {
     if(m_parentNode) {
-        setLocalScale(KRMat4::DotNoTranslate(m_parentNode->getInverseModelMatrix(), v));
+        setLocalScale(Matrix4::DotNoTranslate(m_parentNode->getInverseModelMatrix(), v));
     } else {
         setLocalScale(v);
     }
@@ -383,7 +383,7 @@ const Vector3 KRNode::getWorldTranslation() {
 }
 
 const Vector3 KRNode::getWorldScale() {
-    return KRMat4::DotNoTranslate(getModelMatrix(), m_localScale);
+    return Matrix4::DotNoTranslate(getModelMatrix(), m_localScale);
 }
 
 std::string KRNode::getElementName() {
@@ -523,11 +523,11 @@ void KRNode::invalidateBindPoseMatrix()
     }
 }
 
-const KRMat4 &KRNode::getModelMatrix()
+const Matrix4 &KRNode::getModelMatrix()
 {
     
     if(!m_modelMatrixValid) {
-        m_modelMatrix = KRMat4();
+        m_modelMatrix = Matrix4();
         
         bool parent_is_bone = false;
         if(dynamic_cast<KRBone *>(m_parentNode)) {
@@ -538,40 +538,40 @@ const KRMat4 &KRNode::getModelMatrix()
             
             
             // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R * Rpost * Rp-1 * Soff * Sp * S * Sp-1
-            m_modelMatrix = KRMat4::Translation(-m_scalingPivot)
-                * KRMat4::Scaling(m_localScale)
-                * KRMat4::Translation(m_scalingPivot)
-                * KRMat4::Translation(m_scalingOffset)
-                * KRMat4::Translation(-m_rotationPivot)
+            m_modelMatrix = Matrix4::Translation(-m_scalingPivot)
+                * Matrix4::Scaling(m_localScale)
+                * Matrix4::Translation(m_scalingPivot)
+                * Matrix4::Translation(m_scalingOffset)
+                * Matrix4::Translation(-m_rotationPivot)
                 //* (KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation)).rotationMatrix()
-                * KRMat4::Rotation(m_postRotation)
-                * KRMat4::Rotation(m_localRotation)
-                * KRMat4::Rotation(m_preRotation)
-                * KRMat4::Translation(m_rotationPivot)
-                * KRMat4::Translation(m_rotationOffset);
+                * Matrix4::Rotation(m_postRotation)
+                * Matrix4::Rotation(m_localRotation)
+                * Matrix4::Rotation(m_preRotation)
+                * Matrix4::Translation(m_rotationPivot)
+                * Matrix4::Translation(m_rotationOffset);
             
             if(m_parentNode) {
             
                 m_modelMatrix.rotate(m_parentNode->getWorldRotation());
-                m_modelMatrix.translate(KRMat4::Dot(m_parentNode->getModelMatrix(), m_localTranslation));
+                m_modelMatrix.translate(Matrix4::Dot(m_parentNode->getModelMatrix(), m_localTranslation));
             } else {
                 m_modelMatrix.translate(m_localTranslation);
             }
         } else {
 
             // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R * Rpost * Rp-1 * Soff * Sp * S * Sp-1
-            m_modelMatrix = KRMat4::Translation(-m_scalingPivot)
-                * KRMat4::Scaling(m_localScale)
-                * KRMat4::Translation(m_scalingPivot)
-                * KRMat4::Translation(m_scalingOffset)
-                * KRMat4::Translation(-m_rotationPivot)
+            m_modelMatrix = Matrix4::Translation(-m_scalingPivot)
+                * Matrix4::Scaling(m_localScale)
+                * Matrix4::Translation(m_scalingPivot)
+                * Matrix4::Translation(m_scalingOffset)
+                * Matrix4::Translation(-m_rotationPivot)
             //* (KRQuaternion(m_postRotation) * KRQuaternion(m_localRotation) * KRQuaternion(m_preRotation)).rotationMatrix()
-                            * KRMat4::Rotation(m_postRotation)
-                            * KRMat4::Rotation(m_localRotation)
-                            * KRMat4::Rotation(m_preRotation)
-                * KRMat4::Translation(m_rotationPivot)
-                * KRMat4::Translation(m_rotationOffset)
-                * KRMat4::Translation(m_localTranslation);
+                            * Matrix4::Rotation(m_postRotation)
+                            * Matrix4::Rotation(m_localRotation)
+                            * Matrix4::Rotation(m_preRotation)
+                * Matrix4::Translation(m_rotationPivot)
+                * Matrix4::Translation(m_rotationOffset)
+                * Matrix4::Translation(m_localTranslation);
 
             if(m_parentNode) {
                 m_modelMatrix *= m_parentNode->getModelMatrix();
@@ -584,10 +584,10 @@ const KRMat4 &KRNode::getModelMatrix()
     return m_modelMatrix;
 }
 
-const KRMat4 &KRNode::getBindPoseMatrix()
+const Matrix4 &KRNode::getBindPoseMatrix()
 {
     if(!m_bindPoseMatrixValid) {
-        m_bindPoseMatrix = KRMat4();
+        m_bindPoseMatrix = Matrix4();
         
         bool parent_is_bone = false;
         if(dynamic_cast<KRBone *>(m_parentNode)) {
@@ -595,22 +595,22 @@ const KRMat4 &KRNode::getBindPoseMatrix()
         }
         
         if(getScaleCompensation() && parent_is_bone) {
-            m_bindPoseMatrix = KRMat4::Translation(-m_initialScalingPivot)
-            * KRMat4::Scaling(m_initialLocalScale)
-            * KRMat4::Translation(m_initialScalingPivot)
-            * KRMat4::Translation(m_initialScalingOffset)
-            * KRMat4::Translation(-m_initialRotationPivot)
+            m_bindPoseMatrix = Matrix4::Translation(-m_initialScalingPivot)
+            * Matrix4::Scaling(m_initialLocalScale)
+            * Matrix4::Translation(m_initialScalingPivot)
+            * Matrix4::Translation(m_initialScalingOffset)
+            * Matrix4::Translation(-m_initialRotationPivot)
             //* (KRQuaternion(m_initialPostRotation) * KRQuaternion(m_initialLocalRotation) * KRQuaternion(m_initialPreRotation)).rotationMatrix()
-            * KRMat4::Rotation(m_initialPostRotation)
-            * KRMat4::Rotation(m_initialLocalRotation)
-            * KRMat4::Rotation(m_initialPreRotation)
-            * KRMat4::Translation(m_initialRotationPivot)
-            * KRMat4::Translation(m_initialRotationOffset);
+            * Matrix4::Rotation(m_initialPostRotation)
+            * Matrix4::Rotation(m_initialLocalRotation)
+            * Matrix4::Rotation(m_initialPreRotation)
+            * Matrix4::Translation(m_initialRotationPivot)
+            * Matrix4::Translation(m_initialRotationOffset);
             //m_bindPoseMatrix.translate(m_localTranslation);
             if(m_parentNode) {
                 
                 m_bindPoseMatrix.rotate(m_parentNode->getBindPoseWorldRotation());
-                m_bindPoseMatrix.translate(KRMat4::Dot(m_parentNode->getBindPoseMatrix(), m_localTranslation));
+                m_bindPoseMatrix.translate(Matrix4::Dot(m_parentNode->getBindPoseMatrix(), m_localTranslation));
             } else {
                 m_bindPoseMatrix.translate(m_localTranslation);
             }
@@ -618,18 +618,18 @@ const KRMat4 &KRNode::getBindPoseMatrix()
             
             // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R * Rpost * Rp-1 * Soff * Sp * S * Sp-1
             
-            m_bindPoseMatrix = KRMat4::Translation(-m_initialScalingPivot)
-            * KRMat4::Scaling(m_initialLocalScale)
-            * KRMat4::Translation(m_initialScalingPivot)
-            * KRMat4::Translation(m_initialScalingOffset)
-            * KRMat4::Translation(-m_initialRotationPivot)
+            m_bindPoseMatrix = Matrix4::Translation(-m_initialScalingPivot)
+            * Matrix4::Scaling(m_initialLocalScale)
+            * Matrix4::Translation(m_initialScalingPivot)
+            * Matrix4::Translation(m_initialScalingOffset)
+            * Matrix4::Translation(-m_initialRotationPivot)
            // * (KRQuaternion(m_initialPostRotation) * KRQuaternion(m_initialLocalRotation) * KRQuaternion(m_initialPreRotation)).rotationMatrix()
-                        * KRMat4::Rotation(m_initialPostRotation)
-                        * KRMat4::Rotation(m_initialLocalRotation)
-                        * KRMat4::Rotation(m_initialPreRotation)
-            * KRMat4::Translation(m_initialRotationPivot)
-            * KRMat4::Translation(m_initialRotationOffset)
-            * KRMat4::Translation(m_initialLocalTranslation);
+                        * Matrix4::Rotation(m_initialPostRotation)
+                        * Matrix4::Rotation(m_initialLocalRotation)
+                        * Matrix4::Rotation(m_initialPreRotation)
+            * Matrix4::Translation(m_initialRotationPivot)
+            * Matrix4::Translation(m_initialRotationOffset)
+            * Matrix4::Translation(m_initialLocalTranslation);
             
             if(m_parentNode && parent_is_bone) {
 
@@ -643,11 +643,11 @@ const KRMat4 &KRNode::getBindPoseMatrix()
     return m_bindPoseMatrix;
 }
 
-const KRMat4 &KRNode::getActivePoseMatrix()
+const Matrix4 &KRNode::getActivePoseMatrix()
 {
     
     if(!m_activePoseMatrixValid) {
-        m_activePoseMatrix = KRMat4();
+        m_activePoseMatrix = Matrix4();
         
         bool parent_is_bone = false;
         if(dynamic_cast<KRBone *>(m_parentNode)) {
@@ -655,38 +655,38 @@ const KRMat4 &KRNode::getActivePoseMatrix()
         }
         
         if(getScaleCompensation() && parent_is_bone) {
-            m_activePoseMatrix= KRMat4::Translation(-m_scalingPivot)
-            * KRMat4::Scaling(m_localScale)
-            * KRMat4::Translation(m_scalingPivot)
-            * KRMat4::Translation(m_scalingOffset)
-            * KRMat4::Translation(-m_rotationPivot)
-            * KRMat4::Rotation(m_postRotation)
-            * KRMat4::Rotation(m_localRotation)
-            * KRMat4::Rotation(m_preRotation)
-            * KRMat4::Translation(m_rotationPivot)
-            * KRMat4::Translation(m_rotationOffset);
+            m_activePoseMatrix= Matrix4::Translation(-m_scalingPivot)
+            * Matrix4::Scaling(m_localScale)
+            * Matrix4::Translation(m_scalingPivot)
+            * Matrix4::Translation(m_scalingOffset)
+            * Matrix4::Translation(-m_rotationPivot)
+            * Matrix4::Rotation(m_postRotation)
+            * Matrix4::Rotation(m_localRotation)
+            * Matrix4::Rotation(m_preRotation)
+            * Matrix4::Translation(m_rotationPivot)
+            * Matrix4::Translation(m_rotationOffset);
             
             if(m_parentNode) {
                 
                 m_activePoseMatrix.rotate(m_parentNode->getActivePoseWorldRotation());
-                m_activePoseMatrix.translate(KRMat4::Dot(m_parentNode->getActivePoseMatrix(), m_localTranslation));
+                m_activePoseMatrix.translate(Matrix4::Dot(m_parentNode->getActivePoseMatrix(), m_localTranslation));
             } else {
                 m_activePoseMatrix.translate(m_localTranslation);
             }
         } else {
             
             // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R * Rpost * Rp-1 * Soff * Sp * S * Sp-1
-            m_activePoseMatrix = KRMat4::Translation(-m_scalingPivot)
-            * KRMat4::Scaling(m_localScale)
-            * KRMat4::Translation(m_scalingPivot)
-            * KRMat4::Translation(m_scalingOffset)
-            * KRMat4::Translation(-m_rotationPivot)
-            * KRMat4::Rotation(m_postRotation)
-            * KRMat4::Rotation(m_localRotation)
-            * KRMat4::Rotation(m_preRotation)
-            * KRMat4::Translation(m_rotationPivot)
-            * KRMat4::Translation(m_rotationOffset)
-            * KRMat4::Translation(m_localTranslation);
+            m_activePoseMatrix = Matrix4::Translation(-m_scalingPivot)
+            * Matrix4::Scaling(m_localScale)
+            * Matrix4::Translation(m_scalingPivot)
+            * Matrix4::Translation(m_scalingOffset)
+            * Matrix4::Translation(-m_rotationPivot)
+            * Matrix4::Rotation(m_postRotation)
+            * Matrix4::Rotation(m_localRotation)
+            * Matrix4::Rotation(m_preRotation)
+            * Matrix4::Translation(m_rotationPivot)
+            * Matrix4::Translation(m_rotationOffset)
+            * Matrix4::Translation(m_localTranslation);
             
             
             if(m_parentNode && parent_is_bone) {
@@ -725,18 +725,18 @@ const KRQuaternion KRNode::getActivePoseWorldRotation() {
     return world_rotation;
 }
 
-const KRMat4 &KRNode::getInverseModelMatrix()
+const Matrix4 &KRNode::getInverseModelMatrix()
 {
     if(!m_inverseModelMatrixValid) {
-        m_inverseModelMatrix = KRMat4::Invert(getModelMatrix());
+        m_inverseModelMatrix = Matrix4::Invert(getModelMatrix());
     }
     return m_inverseModelMatrix;
 }
 
-const KRMat4 &KRNode::getInverseBindPoseMatrix()
+const Matrix4 &KRNode::getInverseBindPoseMatrix()
 {
     if(!m_inverseBindPoseMatrixValid ) {
-        m_inverseBindPoseMatrix = KRMat4::Invert(getBindPoseMatrix());
+        m_inverseBindPoseMatrix = Matrix4::Invert(getBindPoseMatrix());
         m_inverseBindPoseMatrixValid = true;
     }
     return m_inverseBindPoseMatrix;
@@ -919,12 +919,12 @@ KRNode::LodVisibility KRNode::getLODVisibility()
 
 const Vector3 KRNode::localToWorld(const Vector3 &local_point)
 {
-    return KRMat4::Dot(getModelMatrix(), local_point);
+    return Matrix4::Dot(getModelMatrix(), local_point);
 }
 
 const Vector3 KRNode::worldToLocal(const Vector3 &world_point)
 {
-    return KRMat4::Dot(getInverseModelMatrix(), world_point);
+    return Matrix4::Dot(getInverseModelMatrix(), world_point);
 }
 
 void KRNode::addBehavior(KRBehavior *behavior)

@@ -20,7 +20,7 @@ namespace kraken {
   void SetUniform(GLint location, const Vector2 &v);
   void SetUniform(GLint location, const Vector3 &v);
   void SetUniform(GLint location, const Vector4 &v);
-  void SetUniform(GLint location, const KRMat4 &v);
+  void SetUniform(GLint location, const Matrix4 &v);
 
   void setXMLAttribute(const std::string &base_name, ::tinyxml2::XMLElement *e, const Vector3 &value, const Vector3 &default_value);
   const Vector3 getXMLAttribute(const std::string &base_name, ::tinyxml2::XMLElement *e, const Vector3 &default_value);

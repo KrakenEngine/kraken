@@ -98,17 +98,17 @@ bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitin
         loadModel();
         if(m_models.size()) {
             if(getBounds().intersectsLine(v0, v1)) {
-                Vector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
-                Vector3 v1_model_space = KRMat4::Dot(getInverseModelMatrix(), v1);
+                Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
+                Vector3 v1_model_space = Matrix4::Dot(getInverseModelMatrix(), v1);
                 KRHitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) { 
-                    Vector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(hit_position_model_space, KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    Vector3 hit_position_model_space = Matrix4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
+                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
-                    Vector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
+                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }
@@ -123,17 +123,17 @@ bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitin
         loadModel();
         if(m_models.size()) {
             if(getBounds().intersectsRay(v0, dir)) {
-                Vector3 v0_model_space = KRMat4::Dot(getInverseModelMatrix(), v0);
-                Vector3 dir_model_space = Vector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), dir));
+                Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
+                Vector3 dir_model_space = Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), dir));
                 KRHitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) {
-                    Vector3 hit_position_model_space = KRMat4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Vector3::Normalize(KRMat4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    Vector3 hit_position_model_space = Matrix4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
+                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
-                    Vector3 hit_position_world_space = KRMat4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(KRMat4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
+                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }

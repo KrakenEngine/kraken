@@ -106,7 +106,7 @@ public:
     KRScene *getListenerScene();
     void setListenerScene(KRScene *scene);
     void setListenerOrientation(const Vector3 &position, const Vector3 &forward, const Vector3 &up);
-    void setListenerOrientationFromModelMatrix(const KRMat4 &modelMatrix);
+    void setListenerOrientationFromModelMatrix(const Matrix4 &modelMatrix);
     Vector3 &getListenerForward();
     Vector3 &getListenerPosition();
     Vector3 &getListenerUp();

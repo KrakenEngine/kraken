@@ -69,7 +69,7 @@ public:
   void setEulerXYZ(const Vector3 &euler);
   void setEulerZYX(const Vector3 &euler);
   Vector3 eulerXYZ() const;
-  KRMat4 rotationMatrix() const;
+  Matrix4 rotationMatrix() const;
     
   void normalize();
   static KRQuaternion Normalize(const KRQuaternion &v1);

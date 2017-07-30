@@ -1300,12 +1300,12 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
             
             /*
             FbxMatrix fbx_bind_pose_matrix;
-            KRMat4 bind_pose;
+            Matrix4 bind_pose;
             PoseList pose_list;
             FbxArray<int> pose_indices;
             if(FbxPose::GetBindPoseContaining(pFbxScene, cluster->GetLink(), pose_list, pose_indices)) {
                 fbx_bind_pose_matrix = (*pose_list)[0].GetMatrix(pose_indices[0]);
-                bind_pose = KRMat4(
+                bind_pose = Matrix4(
                    Vector3(fbx_bind_pose_matrix.GetColumn(0).mData),
                    Vector3(fbx_bind_pose_matrix.GetColumn(1).mData),
                    Vector3(fbx_bind_pose_matrix.GetColumn(2).mData),
@@ -1317,7 +1317,7 @@ void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGe
             
             FbxAMatrix link_matrix;
             cluster->GetTransformLinkMatrix(link_matrix);
-            mi.bone_bind_poses.push_back(KRMat4(
+            mi.bone_bind_poses.push_back(Matrix4(
                 Vector3(link_matrix.GetColumn(0).mData),
                 Vector3(link_matrix.GetColumn(1).mData),
                 Vector3(link_matrix.GetColumn(2).mData),

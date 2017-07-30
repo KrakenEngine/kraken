@@ -17,7 +17,7 @@
 using namespace kraken;
 
 namespace kraken {
-class KRMat4;
+class Matrix4;
 class KRAABB;
 } // namespace kraken
 class KRCamera;
@@ -125,11 +125,11 @@ public:
     
     virtual KRAABB getBounds();
     void invalidateBounds() const;
-    const KRMat4 &getModelMatrix();
-    const KRMat4 &getInverseModelMatrix();
-    const KRMat4 &getBindPoseMatrix();
-    const KRMat4 &getActivePoseMatrix();
-    const KRMat4 &getInverseBindPoseMatrix();
+    const Matrix4 &getModelMatrix();
+    const Matrix4 &getInverseModelMatrix();
+    const Matrix4 &getBindPoseMatrix();
+    const Matrix4 &getActivePoseMatrix();
+    const Matrix4 &getInverseBindPoseMatrix();
     
     enum node_attribute_type {
         KRENGINE_NODE_ATTRIBUTE_NONE,
@@ -219,11 +219,11 @@ private:
     long m_lastRenderFrame;
     void invalidateModelMatrix();
     void invalidateBindPoseMatrix();
-    KRMat4 m_modelMatrix;
-    KRMat4 m_inverseModelMatrix;
-    KRMat4 m_bindPoseMatrix;
-    KRMat4 m_activePoseMatrix;
-    KRMat4 m_inverseBindPoseMatrix;
+    Matrix4 m_modelMatrix;
+    Matrix4 m_inverseModelMatrix;
+    Matrix4 m_bindPoseMatrix;
+    Matrix4 m_activePoseMatrix;
+    Matrix4 m_inverseBindPoseMatrix;
     bool m_modelMatrixValid;
     bool m_inverseModelMatrixValid;
     bool m_bindPoseMatrixValid;

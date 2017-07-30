@@ -332,7 +332,7 @@ void KRShader::setUniform(int location, const Vector4 &value)
     }
 }
 
-void KRShader::setUniform(int location, const KRMat4 &value)
+void KRShader::setUniform(int location, const Matrix4 &value)
 {
     if(m_uniforms[location] != -1) {
         int value_index = m_uniform_value_index[location];
@@ -351,7 +351,7 @@ void KRShader::setUniform(int location, const KRMat4 &value)
     }
 }
 
-bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
+bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -405,7 +405,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                     m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
                 }
                 
-                KRMat4 matBias;
+                Matrix4 matBias;
                 matBias.translate(1.0, 1.0, 1.0);
                 matBias.scale(0.5);
                 for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
@@ -413,11 +413,11 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
                 }
                 
                 if(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
-                    KRMat4 inverseModelMatrix = matModel;
+                    Matrix4 inverseModelMatrix = matModel;
                     inverseModelMatrix.invert();
                     
                     // Bind the light direction vector
-                    Vector3 lightDirObject = KRMat4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
+                    Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
                     lightDirObject.normalize();
                     setUniform(KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE, lightDirObject);
                 }
@@ -433,38 +433,38 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
 
     
     if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
-        KRMat4 inverseModelMatrix = matModel;
+        Matrix4 inverseModelMatrix = matModel;
         inverseModelMatrix.invert();
         
         if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
             // Transform location of camera to object space for calculation of specular halfVec
-            Vector3 cameraPosObject = KRMat4::Dot(inverseModelMatrix, viewport.getCameraPosition());
+            Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
             setUniform(KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE, cameraPosObject);
         }
     }
     
     if(m_uniforms[KRENGINE_UNIFORM_MVP] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
         // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-        KRMat4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
+        Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
         setUniform(KRENGINE_UNIFORM_MVP, mvpMatrix);
         
         if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP] != -1) {
-            setUniform(KRShader::KRENGINE_UNIFORM_INVMVP, KRMat4::Invert(mvpMatrix));
+            setUniform(KRShader::KRENGINE_UNIFORM_INVMVP, Matrix4::Invert(mvpMatrix));
         }
     }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1 || m_uniforms[KRShader::KRENGINE_UNIFORM_MODEL_VIEW] != -1) {
-        KRMat4 matModelView = matModel * viewport.getViewMatrix();
+        Matrix4 matModelView = matModel * viewport.getViewMatrix();
         setUniform(KRENGINE_UNIFORM_MODEL_VIEW, matModelView);
         
         
         if(m_uniforms[KRShader::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1) {
-            Vector3 view_space_model_origin = KRMat4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
+            Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
             setUniform(KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN, view_space_model_origin);
         }
         
         if(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1) {
-            KRMat4 matModelViewInverseTranspose = matModelView;
+            Matrix4 matModelViewInverseTranspose = matModelView;
             matModelViewInverseTranspose.transpose();
             matModelViewInverseTranspose.invert();
             setUniform(KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE, matModelViewInverseTranspose);
@@ -472,7 +472,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     if(m_uniforms[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE] != -1) {
-        KRMat4 matModelInverseTranspose = matModel;
+        Matrix4 matModelInverseTranspose = matModel;
         matModelInverseTranspose.transpose();
         matModelInverseTranspose.invert();
         setUniform(KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE, matModelInverseTranspose);
@@ -483,7 +483,7 @@ bool KRShader::bind(KRCamera &camera, const KRViewport &viewport, const KRMat4 &
     }
     
     if(m_uniforms[KRShader::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] != -1) {
-        KRMat4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
+        Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
         // Remove the translation
         matInvMVPNoTranslate.getPointer()[3] = 0;
         matInvMVPNoTranslate.getPointer()[7] = 0;

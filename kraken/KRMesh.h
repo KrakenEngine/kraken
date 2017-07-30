@@ -108,11 +108,11 @@ public:
         std::vector<std::string> material_names;
         std::vector<std::string> bone_names;
         std::vector<std::vector<int> > bone_indexes;
-        std::vector<KRMat4> bone_bind_poses;
+        std::vector<Matrix4> bone_bind_poses;
         std::vector<std::vector<float> > bone_weights;
     } mesh_info;
     
-    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
+    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
     
     std::string m_lodBaseName;
     
@@ -206,14 +206,14 @@ public:
     
     int getBoneCount();
     char *getBoneName(int bone_index);
-    KRMat4 getBoneBindPose(int bone_index);
+    Matrix4 getBoneBindPose(int bone_index);
 
     
     model_format_t getModelFormat() const;
     
     bool lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo) const;
     bool rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo) const;
-    bool sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const;
+    bool sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const;
     
     static int GetLODCoverage(const std::string &name);
     
@@ -231,7 +231,7 @@ private:
     void getMaterials();
     
     static bool rayCast(const Vector3 &start, const Vector3 &dir, const KRTriangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo);
-    static bool sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
+    static bool sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;

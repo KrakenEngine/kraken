@@ -254,7 +254,7 @@ kraken_stream_level KRMesh::getStreamLevel()
     return stream_level;
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
+void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -288,7 +288,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                         
                         if(pMaterial != NULL && pMaterial == (*mat_itr)) {
                             if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                                std::vector<KRMat4> bone_bind_poses;
+                                std::vector<Matrix4> bone_bind_poses;
                                 for(int i=0; i < bones.size(); i++) {
                                     bone_bind_poses.push_back(getBoneBindPose(i));
                                 }
@@ -1093,9 +1093,9 @@ char *KRMesh::getBoneName(int bone_index)
     return getBone(bone_index)->szName;
 }
 
-KRMat4 KRMesh::getBoneBindPose(int bone_index)
+Matrix4 KRMesh::getBoneBindPose(int bone_index)
 {
-    return KRMat4(getBone(bone_index)->bind_pose);
+    return Matrix4(getBone(bone_index)->bind_pose);
 }
 
 KRMesh::model_format_t KRMesh::getModelFormat() const
@@ -1184,7 +1184,7 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, KRHitInfo &hitinf
 }
 
 
-bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const
+bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const
 {
     m_pData->lock();
 
@@ -1236,7 +1236,7 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const V
     return hit_found;
 }
 
-bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
+bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
 {
     
     Vector3 dir = Vector3::Normalize(v1 - v0);
@@ -1245,7 +1245,7 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const V
     Vector3 new_hit_point;
     float new_hit_distance;
     
-    KRTriangle3 world_tri = KRTriangle3(KRMat4::Dot(model_to_world, tri[0]), KRMat4::Dot(model_to_world, tri[1]), KRMat4::Dot(model_to_world, tri[2]));
+    KRTriangle3 world_tri = KRTriangle3(Matrix4::Dot(model_to_world, tri[0]), Matrix4::Dot(model_to_world, tri[1]), Matrix4::Dot(model_to_world, tri[2]));
     
     if(world_tri.sphereCast(start, dir, radius, new_hit_point, new_hit_distance)) {
         if((!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) && new_hit_distance <= (v1 - v0).magnitude()) {
@@ -1259,7 +1259,7 @@ bool KRMesh::sphereCast(const KRMat4 &model_to_world, const Vector3 &v0, const V
             distance_v0 /= distance_total;
             distance_v1 /= distance_total;
             distance_v2 /= distance_total;
-            Vector3 normal = Vector3::Normalize(KRMat4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
+            Vector3 normal = Vector3::Normalize(Matrix4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
             */
             hitinfo = KRHitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
             return true;
