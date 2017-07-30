@@ -32,24 +32,24 @@
 #ifndef KRAKEN_TRIANGLE3_H
 #define KRAKEN_TRIANGLE3_H
 
-#include "Vector3.h"
+#include "vector3.h"
 
 namespace kraken {
 
-class KRTriangle3
+class Triangle3
 {
 public:
   Vector3 vert[3];
 
-  KRTriangle3(const KRTriangle3 &tri);
-  KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
-  ~KRTriangle3();
+  Triangle3(const Triangle3 &tri);
+  Triangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
+  ~Triangle3();
     
   Vector3 calculateNormal() const;
     
-  bool operator ==(const KRTriangle3& b) const;
-  bool operator !=(const KRTriangle3& b) const;
-  KRTriangle3& operator =(const KRTriangle3& b);
+  bool operator ==(const Triangle3& b) const;
+  bool operator !=(const Triangle3& b) const;
+  Triangle3& operator =(const Triangle3& b);
   Vector3& operator[](unsigned int i);
   Vector3 operator[](unsigned int i) const;
     
@@ -61,5 +61,19 @@ public:
 };
 
 } // namespace kraken
+
+namespace std {
+  template<>
+  struct hash<kraken::Triangle3> {
+  public:
+    size_t operator()(const kraken::Triangle3 &s) const
+    {
+      size_t h1 = hash<kraken::Vector3>()(s.vert[0]);
+      size_t h2 = hash<kraken::Vector3>()(s.vert[1]);
+      size_t h3 = hash<kraken::Vector3>()(s.vert[2]);
+      return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+  };
+} // namespace std
 
 #endif // KRAKEN_TRIANGLE3_H

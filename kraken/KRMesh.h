@@ -230,8 +230,8 @@ private:
     void getSubmeshes();
     void getMaterials();
     
-    static bool rayCast(const Vector3 &start, const Vector3 &dir, const KRTriangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo);
-    static bool sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo);
+    static bool rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo);
+    static bool sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const Triangle3 &tri, KRHitInfo &hitinfo);
     
     int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
     vector<KRMaterial *> m_materials;

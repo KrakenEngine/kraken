@@ -34,8 +34,8 @@
 
 #include <functional> // for hash<>
 
-#include "Vector2.h"
-#include "Vector4.h"
+#include "vector2.h"
+#include "vector4.h"
 
 namespace kraken {
 

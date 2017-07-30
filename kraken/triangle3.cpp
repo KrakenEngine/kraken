@@ -75,14 +75,14 @@ namespace {
 
 namespace kraken {
 
-KRTriangle3::KRTriangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3)
+Triangle3::Triangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3)
 {
     vert[0] = v1;
     vert[1] = v2;
     vert[2] = v3;
 }
 
-KRTriangle3::KRTriangle3(const KRTriangle3 &tri)
+Triangle3::Triangle3(const Triangle3 &tri)
 {
     vert[0] = tri[0];
     vert[1] = tri[1];
@@ -90,22 +90,22 @@ KRTriangle3::KRTriangle3(const KRTriangle3 &tri)
 }
 
 
-KRTriangle3::~KRTriangle3()
+Triangle3::~Triangle3()
 {
     
 }
 
-bool KRTriangle3::operator ==(const KRTriangle3& b) const
+bool Triangle3::operator ==(const Triangle3& b) const
 {
     return vert[0] == b[0] && vert[1] == b[1] && vert[2] == b[2];
 }
 
-bool KRTriangle3::operator !=(const KRTriangle3& b) const
+bool Triangle3::operator !=(const Triangle3& b) const
 {
     return vert[0] != b[0] || vert[1] != b[1] || vert[2] != b[2];
 }
 
-KRTriangle3& KRTriangle3::operator =(const KRTriangle3& b)
+Triangle3& Triangle3::operator =(const Triangle3& b)
 {
     
     vert[0] = b[0];
@@ -114,18 +114,18 @@ KRTriangle3& KRTriangle3::operator =(const KRTriangle3& b)
     return *this;
 }
 
-Vector3& KRTriangle3::operator[](unsigned int i)
+Vector3& Triangle3::operator[](unsigned int i)
 {
     return vert[i];
 }
 
-Vector3 KRTriangle3::operator[](unsigned int i) const
+Vector3 Triangle3::operator[](unsigned int i) const
 {
     return vert[i];
 }
 
 
-bool KRTriangle3::rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const
+bool Triangle3::rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const
 {
     // algorithm based on Dan Sunday's implementation at http://geomalgorithms.com/a06-_intersect-2.html
     const float SMALL_NUM = 0.00000001;     // anything that avoids division overflow
@@ -184,7 +184,7 @@ bool KRTriangle3::rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit
     return true;
 }
 
-Vector3 KRTriangle3::calculateNormal() const
+Vector3 Triangle3::calculateNormal() const
 {
     Vector3 v1 = vert[1] - vert[0];
     Vector3 v2 = vert[2] - vert[0];
@@ -192,7 +192,7 @@ Vector3 KRTriangle3::calculateNormal() const
     return Vector3::Normalize(Vector3::Cross(v1, v2));
 }
 
-Vector3 KRTriangle3::closestPointOnTriangle(const Vector3 &p) const
+Vector3 Triangle3::closestPointOnTriangle(const Vector3 &p) const
 {
     Vector3 a = vert[0];
     Vector3 b = vert[1];
@@ -216,7 +216,7 @@ Vector3 KRTriangle3::closestPointOnTriangle(const Vector3 &p) const
     }
 }
 
-bool KRTriangle3::sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const
+bool Triangle3::sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const
 {
     // Dir must be normalized
     const float SMALL_NUM = 0.001f;     // anything that avoids division overflow
@@ -276,7 +276,7 @@ bool KRTriangle3::sphereCast(const Vector3 &start, const Vector3 &dir, float rad
 }
 
 
-bool KRTriangle3::containsPoint(const Vector3 &p) const
+bool Triangle3::containsPoint(const Vector3 &p) const
 {
     /*
     // From: http://stackoverflow.com/questions/995445/determine-if-a-3d-point-is-within-a-triangle

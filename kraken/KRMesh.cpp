@@ -1104,7 +1104,7 @@ KRMesh::model_format_t KRMesh::getModelFormat() const
     return f;
 }
 
-bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const KRTriangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo)
 {
     Vector3 hit_point;
     if(tri.rayCast(start, dir, hit_point)) {
@@ -1154,7 +1154,7 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, KRHitInfo &hitinf
                     tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
                     tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
                     
-                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    Triangle3 tri = Triangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
                     
                     if(rayCast(start, dir, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
                 }
@@ -1200,12 +1200,12 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
                     tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 1);
                     tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index*3 + 2);
                     
-                    KRTriangle3 tri = KRTriangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
+                    Triangle3 tri = Triangle3(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
                     
                     if(sphereCast(model_to_world, v0, v1, radius, tri, hitinfo)) hit_found = true;
                     
                     /*
-                    KRTriangle3 tri2 = KRTriangle3(getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[2]));
+                    Triangle3 tri2 = Triangle3(getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[2]));
                     
                     if(sphereCast(model_to_world, v0, v1, radius, tri2, new_hitinfo)) hit_found = true;
                     */
@@ -1236,7 +1236,7 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
     return hit_found;
 }
 
-bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const KRTriangle3 &tri, KRHitInfo &hitinfo)
+bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const Triangle3 &tri, KRHitInfo &hitinfo)
 {
     
     Vector3 dir = Vector3::Normalize(v1 - v0);
@@ -1245,7 +1245,7 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
     Vector3 new_hit_point;
     float new_hit_distance;
     
-    KRTriangle3 world_tri = KRTriangle3(Matrix4::Dot(model_to_world, tri[0]), Matrix4::Dot(model_to_world, tri[1]), Matrix4::Dot(model_to_world, tri[2]));
+    Triangle3 world_tri = Triangle3(Matrix4::Dot(model_to_world, tri[0]), Matrix4::Dot(model_to_world, tri[1]), Matrix4::Dot(model_to_world, tri[2]));
     
     if(world_tri.sphereCast(start, dir, radius, new_hit_point, new_hit_distance)) {
         if((!hitinfo.didHit() || hitinfo.getDistance() > new_hit_distance) && new_hit_distance <= (v1 - v0).magnitude()) {

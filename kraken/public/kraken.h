@@ -8,6 +8,6 @@
 #include "matrix4.h"
 #include "quaternion.h"
 #include "KRAABB.h"
-#include "KRTriangle3.h"
+#include "triangle3.h"
 
 #endif // KRAKEN_H

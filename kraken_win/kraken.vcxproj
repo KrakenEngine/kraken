@@ -192,7 +192,7 @@
     <ClCompile Include="..\kraken\KRTextureManager.cpp" />
     <ClCompile Include="..\kraken\KRTexturePVR.cpp" />
     <ClCompile Include="..\kraken\KRTextureTGA.cpp" />
-    <ClCompile Include="..\kraken\KRTriangle3.cpp" />
+    <ClCompile Include="..\kraken\triangle3.cpp" />
     <ClCompile Include="..\kraken\KRUnknown.cpp" />
     <ClCompile Include="..\kraken\KRUnknownManager.cpp" />
     <ClCompile Include="..\kraken\vector2.cpp" />
@@ -276,7 +276,7 @@
     <ClInclude Include="..\kraken\public\scalar.h" />
     <ClInclude Include="..\kraken\public\matrix4.h" />
     <ClInclude Include="..\kraken\public\quaternion.h" />
-    <ClInclude Include="..\kraken\public\KRTriangle3.h" />
+    <ClInclude Include="..\kraken\public\triangle3.h" />
     <ClInclude Include="..\kraken\public\vector2.h" />
     <ClInclude Include="..\kraken\public\vector3.h" />
     <ClInclude Include="..\kraken\public\vector4.h" />
