@@ -1,6 +1,13 @@
 language: cpp
 compiler: clang
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libc++-dev
+
 # Build steps
 script:
   - mkdir build
