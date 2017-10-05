@@ -7,6 +7,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glext.h>
+#elif defined(__APPLE__)
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
 #endif
 #include "../3rdparty/tinyxml2/tinyxml2.h"
 
