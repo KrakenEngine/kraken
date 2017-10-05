@@ -29,9 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
+#include "public/kraken.h"
+#include <string.h>
 
-#include "public/Matrix4.h"
+namespace kraken {
 
 Matrix4::Matrix4() {
     // Default constructor - Initialize with an identity matrix
@@ -442,4 +443,6 @@ Matrix4 Matrix4::Scaling(const Vector3 &v)
     m.scale(v);
     return m;
 }
+
+} // namespace kraken
 

@@ -3,10 +3,12 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <GL/glew.h>
-#include "../3rdparty/tinyxml2/tinyxml2.h"
+#elif defined(__linux__) || defined(__unix__) || defined(__posix__)
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
 #endif
-
-#include "KREngine-common.h"
+#include "../3rdparty/tinyxml2/tinyxml2.h"
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))
 #define KRMAX(x,y) ((x) > (y) ? (x) : (y))

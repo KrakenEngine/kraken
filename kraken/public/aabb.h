@@ -13,8 +13,8 @@
 
 #include <functional> // for hash<>
 
-#include "Vector2.h"
-#include "Vector3.h"
+#include "vector2.h"
+#include "vector3.h"
 
 namespace kraken {
 

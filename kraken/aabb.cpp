@@ -10,6 +10,8 @@
 #include "assert.h"
 #include "KRHelpers.h"
 
+namespace kraken {
+
 AABB::AABB()
 {
     min = Vector3::Min();
@@ -332,3 +334,6 @@ Vector3 AABB::nearestPoint(const Vector3 & v) const
 {
     return Vector3(KRCLAMP(v.x, min.x, max.x), KRCLAMP(v.y, min.y, max.y), KRCLAMP(v.z, min.z, max.z));
 }
+
+} // namespace kraken
+

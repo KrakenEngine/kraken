@@ -29,8 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
 #include "public/kraken.h"
+
+namespace kraken {
 
 const Vector3 Vector3_ZERO(0.0f, 0.0f, 0.0f);
 
@@ -412,3 +413,6 @@ bool Vector3::operator <(const Vector3& b) const
         return false;
     }
 }
+
+} // namespace kraken
+
