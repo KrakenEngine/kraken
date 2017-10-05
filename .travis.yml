@@ -1,15 +1,17 @@
 language: cpp
 compiler: clang
-os:
-  - linux
-  - osx
-    osx_image: xcode9.1
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libc++-dev
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libc++-dev
+    - os: osx
+      osx_image: xcode9.1
 
 # Build steps
 script:
