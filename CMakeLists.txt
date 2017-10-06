@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (WIN32)
-  set(CMAKE_GENERATOR_PLATFORM "Visual Studio 15 2017")
+  set(CMAKE_GENERATOR_PLATFORM "Visual Studio 15 2017 Win64")
 else()
   set(CMAKE_CXX_COMPILER "clang++")
 endif()
