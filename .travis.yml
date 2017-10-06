@@ -1,6 +1,10 @@
 language: cpp
 compiler: clang
 
+branches:
+  only:
+    - master
+
 matrix:
   include:
     - os: linux
@@ -17,12 +21,14 @@ matrix:
 script:
   - mkdir build
   - cd build
-  - cmake .. && make && make package
+  - cmake .. && make
+  - cd archive
+  - tar czf kraken-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.tar.gz *
 
 deploy:
     provider: releases
     api_key: $GITHUB_TOKEN
-    file: "build/archive/kraken.tgz"
+    file: "build/archive/kraken-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.tgz"
     skip_cleanup: true
     on:
       tags: true
