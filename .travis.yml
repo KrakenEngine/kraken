@@ -23,7 +23,7 @@ script:
   - cd build
   - cmake .. && make
   - cd archive
-  - tar czf kraken-$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz *
+  - tar cvzf kraken-$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz *
 
 deploy:
     provider: releases
