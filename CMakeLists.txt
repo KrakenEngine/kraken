@@ -71,3 +71,8 @@ PROPERTIES
   OUTPUT_NAME kraken
 )
 
+add_custom_target(package
+  COMMENT "Compressing..."
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/archive"
+  COMMAND ${CMAKE_COMMAND} -E tar "cfvz" "kraken.tgz" "*"
+)
