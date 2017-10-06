@@ -1,5 +1,5 @@
 //
-//  KRHitInfo.cpp
+//  KRHitInfo.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,68 +29,37 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRHitInfo.h"
-#include "KRContext.h"
+#ifndef KRAKEN_HITINFO_H
+#define KRAKEN_HITINFO_H
 
-KRHitInfo::KRHitInfo()
-{
-    m_position = Vector3::Zero();
-    m_normal = Vector3::Zero();
-    m_distance = 0.0f;
-    m_node = NULL;
-}
+#include "vector3.h"
 
-KRHitInfo::KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node)
-{
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = node;
-}
+namespace kraken {
 
-KRHitInfo::KRHitInfo(const Vector3 &position, const Vector3 &normal, const float distance)
-{
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = NULL;
-}
+class KRNode;
 
-KRHitInfo::~KRHitInfo()
-{
-    
-}
+class HitInfo {
+public:
+    HitInfo();
+    HitInfo(const Vector3 &position, const Vector3 &normal, const float distance);
+    HitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node);
+    ~HitInfo();
 
-bool KRHitInfo::didHit() const
-{
-    return m_normal != Vector3::Zero();
-}
+    Vector3 getPosition() const;
+    Vector3 getNormal() const;
+    float getDistance() const;
+    KRNode *getNode() const;
+    bool didHit() const;
 
-Vector3 KRHitInfo::getPosition() const
-{
-    return m_position;
-}
+    HitInfo& operator =(const HitInfo& b);
 
-Vector3 KRHitInfo::getNormal() const
-{
-    return m_normal;
-}
+private:
+    KRNode *m_node;
+    Vector3 m_position;
+    Vector3 m_normal;
+    float m_distance;
+};
 
-float KRHitInfo::getDistance() const
-{
-    return m_distance;
-}
+} // namespace kraken
 
-KRNode *KRHitInfo::getNode() const
-{
-    return m_node;
-}
-
-KRHitInfo& KRHitInfo::operator =(const KRHitInfo& b)
-{
-    m_position = b.m_position;
-    m_normal = b.m_normal;
-    m_distance = b.m_distance;
-    m_node = b.m_node;
-    return *this;
-}
+#endif

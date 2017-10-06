@@ -9,5 +9,6 @@
 #include "quaternion.h"
 #include "aabb.h"
 #include "triangle3.h"
+#include "hitinfo.h"
 
 #endif // KRAKEN_H
