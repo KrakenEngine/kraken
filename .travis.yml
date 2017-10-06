@@ -19,12 +19,10 @@ script:
   - cd build
   - cmake .. && make && make package
 
-- stage: GitHub Release
-  script: echo "Deploying to GitHub releases ..."
-    deploy:
-      provider: releases
-      api_key: $GITHUB_TOKEN
-      file: build/archive/kraken.tgz
-      skip_cleanup: true
-      on:
-        tags: true 
+deploy:
+    provider: releases
+    api_key: $GITHUB_TOKEN
+    file: "build/archive/kraken.tgz"
+    skip_cleanup: true
+    on:
+      tags: true
