@@ -32,9 +32,7 @@ using namespace kraken;
 #include <stdio.h>
 
 #include "../3rdparty/tinyxml2/tinyxml2.h"
-#if defined(_WIN32) || defined(_WIN64)
-
-#else
+#if defined(__APPLE__)
 
 #include <sys/mman.h>
 #include <unistd.h>
