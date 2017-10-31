@@ -14,3 +14,5 @@ add_sources(hitinfo.cpp)
 
 # Private Implementation
 add_sources(KRDataBlock.cpp)
+add_sources(KRContext.cpp)
+add_sources(KRContextObject.cpp)
