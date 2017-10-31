@@ -11,3 +11,6 @@ add_sources(quaternion.cpp)
 add_sources(matrix4.cpp)
 add_sources(aabb.cpp)
 add_sources(hitinfo.cpp)
+
+# Private Implementation
+add_sources(KRDataBlock.cpp)

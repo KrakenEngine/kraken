@@ -34,9 +34,9 @@
 
 #include "vector3.h"
 
-namespace kraken {
-
 class KRNode;
+
+namespace kraken {
 
 class HitInfo {
 public:

@@ -13,6 +13,7 @@
 
 #include "public/kraken.h"
 #include "KRHelpers.h"
+using namespace kraken;
 
 #include <stdint.h>
 #include <vector>
@@ -30,8 +31,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#if defined(_WIN32) || defined(_WIN64)
 #include "../3rdparty/tinyxml2/tinyxml2.h"
+#if defined(_WIN32) || defined(_WIN64)
+
 #else
 
 #include <sys/mman.h>
@@ -51,7 +53,6 @@
 #include <OpenAL/MacOSX_OALExtensions.h>
 #endif
 
-#include "tinyxml2.h"
 #endif
 
 #include <boost/tokenizer.hpp>

@@ -135,7 +135,7 @@ bool KRDataBlock::load(const std::string &path)
 {
     bool success = false;
     unload();
-    
+
     struct stat statbuf;
     m_bReadOnly = true;
 
@@ -179,7 +179,7 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
 #if defined(_WIN32) || defined(_WIN64)
     if(m_hPackFile) {
         new_block->m_hPackFile = m_hPackFile;
-#elif defined(__APPLE)
+#elif defined(__APPLE__)
     if (m_fdPackFile) {
       new_block->m_fdPackFile = m_fdPackFile;
 #else
@@ -237,10 +237,10 @@ void KRDataBlock::expand(size_t size)
         // ... Or starting with a pointer reference, we must make our own copy and must not free the pointer
         void *pNewData = malloc(m_data_size + size);
         assert(pNewData != NULL);
-        
+
         // Copy exising data
         copy(pNewData);
-        
+
         // Unload existing data allocation, which is now redundant
         size_t new_size = m_data_size + size; // We need to store this before unload() as unload() will reset it
         unload();
@@ -255,7 +255,7 @@ void KRDataBlock::expand(size_t size)
 void KRDataBlock::append(void *data, size_t size) {
     // Expand the data block
     expand(size);
-    
+
     // Fill the new space with the data to append
     lock();
     memcpy((unsigned char *)m_data + m_data_size - size, data, size);
@@ -326,7 +326,7 @@ bool KRDataBlock::save(const std::string& path) {
   HANDLE hNewFile = INVALID_HANDLE_VALUE;
   HANDLE hFileMapping = NULL;
   void *pNewData = NULL;
-  
+
   hNewFile = CreateFile(path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (hNewFile == INVALID_HANDLE_VALUE) {
     success = false;
@@ -364,7 +364,7 @@ bool KRDataBlock::save(const std::string& path) {
   }
 
   return success;
- 
+
 #elif defined(__APPLE__)
     int fdNewFile = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
     if(fdNewFile == -1) {
@@ -374,7 +374,7 @@ bool KRDataBlock::save(const std::string& path) {
     // Seek to end of file and write a byte to enlarge it
     lseek(fdNewFile, m_data_size-1, SEEK_SET);
     write(fdNewFile, "", 1);
-        
+
     // Now map it...
     void *pNewData = mmap(0, m_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdNewFile, 0);
     if(pNewData == (caddr_t) -1) {
@@ -384,10 +384,10 @@ bool KRDataBlock::save(const std::string& path) {
     if(m_data != NULL) {
         // Copy data to new file
         copy(pNewData);
-            
+
         // Unmap the new file
         munmap(pNewData, m_data_size);
-            
+
         // Close the new file
         close(fdNewFile);
     }
@@ -414,7 +414,7 @@ std::string KRDataBlock::getString()
 void KRDataBlock::lock()
 {
     if(m_lockCount == 0) {
-        
+
         // Memory mapped file; ensure data is mapped to ram
 #if defined(_WIN32) || defined(_WIN64)
         if(m_hFileMapping) {
@@ -439,7 +439,7 @@ void KRDataBlock::lock()
 #elif defined(__APPLE__)
                 //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
                 // Round m_data_offset down to the next memory page, as required by mmap
-                
+
                 if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t) -1) {
                     int iError = errno;
                     switch(iError) {
@@ -489,10 +489,10 @@ void KRDataBlock::unlock()
 {
     // We expect that the data block was previously locked
     assertLocked();
-    
-    
+
+
     if(m_lockCount == 1) {
-        
+
         // Memory mapped file; ensure data is unmapped from ram
 #if defined(_WIN32) || defined(_WIN64)
         if (m_hPackFile) {
