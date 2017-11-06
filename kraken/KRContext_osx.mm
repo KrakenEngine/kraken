@@ -7,6 +7,7 @@
 //
 
 #include "KREngine-common.h"
+#include <AppKit/AppKit.h>
 
 #include "KRContext.h"
 
