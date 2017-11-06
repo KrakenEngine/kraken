@@ -35,9 +35,9 @@ public:
     float getAmbientGain();
     void setAmbientGain(float ambient_gain);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     
-    float getContainment(const KRVector3 &pos);
+    float getContainment(const Vector3 &pos);
     
 private:
     std::string m_zone;

@@ -9,8 +9,6 @@
 #include "KREngine-common.h"
 
 #include "KRPointLight.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRCamera.h"
 #include "KRContext.h"
 #include "KRStockGeometry.h"
@@ -33,12 +31,12 @@ std::string KRPointLight::getElementName() {
     return "point_light";
 }
 
-KRAABB KRPointLight::getBounds() {
+AABB KRPointLight::getBounds() {
     float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
-    return KRAABB(KRVector3(-influence_radius), KRVector3(influence_radius), getModelMatrix());
+    return AABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
 }
 
 void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
@@ -55,22 +53,22 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
         std::vector<KRPointLight *> this_light;
         this_light.push_back(this);
 
-        KRVector3 light_position = getLocalTranslation();
+        Vector3 light_position = getLocalTranslation();
         
         float influence_radius = m_decayStart - sqrt(m_intensity * 0.01f) / sqrt(KRLIGHT_MIN_INFLUENCE);
         
-        KRMat4 sphereModelMatrix = KRMat4();
+        Matrix4 sphereModelMatrix = Matrix4();
         sphereModelMatrix.scale(influence_radius);
         sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
 
         if(viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
 
-            KRVector3 view_light_position = KRMat4::Dot(viewport.getViewMatrix(), light_position);
+            Vector3 view_light_position = Matrix4::Dot(viewport.getViewMatrix(), light_position);
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
             KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 
                 pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
@@ -148,25 +146,25 @@ void KRPointLight::generateMesh() {
             ~Facet3() {
                 
             }
-            KRVector3 p1;
-            KRVector3 p2;
-            KRVector3 p3;
+            Vector3 p1;
+            Vector3 p2;
+            Vector3 p3;
         };
         
         std::vector<Facet3> f = std::vector<Facet3>(facet_count);
         
         int i,it;
         float a;
-        KRVector3 p[6] = {
-            KRVector3(0,0,1),
-            KRVector3(0,0,-1),
-            KRVector3(-1,-1,0),
-            KRVector3(1,-1,0),
-            KRVector3(1,1,0),
-            KRVector3(-1,1,0)
+        Vector3 p[6] = {
+            Vector3(0,0,1),
+            Vector3(0,0,-1),
+            Vector3(-1,-1,0),
+            Vector3(1,-1,0),
+            Vector3(1,1,0),
+            Vector3(-1,1,0)
         };
 
-        KRVector3 pa,pb,pc;
+        Vector3 pa,pb,pc;
         int nt = 0,ntold;
         
         /* Create the level 0 object */

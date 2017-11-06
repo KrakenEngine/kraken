@@ -19,8 +19,8 @@ public:
     // Overload assignment operator
     KRRenderSettings& operator=(const KRRenderSettings &s);
     
-    const KRVector2 &getViewportSize();
-    void setViewportSize(const KRVector2 &size);
+    const Vector2 &getViewportSize();
+    void setViewportSize(const Vector2 &size);
     
     float getPerspectiveNearZ();
     float getPerspectiveFarZ();
@@ -45,8 +45,8 @@ public:
     bool bEnableDiffuse;
     bool bEnableSpecular;
     bool bEnableDeferredLighting;
-    KRVector3 light_intensity;
-    KRVector3 ambient_intensity;
+    Vector3 light_intensity;
+    Vector3 ambient_intensity;
     float perspective_fov;
     
     int dof_quality;
@@ -61,7 +61,7 @@ public:
     float vignette_radius;
     float vignette_falloff;
     
-    KRVector2 m_viewportSize;
+    Vector2 m_viewportSize;
     
     int m_cShadowBuffers;
     
@@ -76,7 +76,7 @@ public:
     float fog_near;
     float fog_far;
     float fog_density;
-    KRVector3 fog_color;
+    Vector3 fog_color;
     int fog_type; // 0 = no fog, 1 = linear, 2 = exponential, 3 = exponential squared
     
     float dust_particle_intensity;

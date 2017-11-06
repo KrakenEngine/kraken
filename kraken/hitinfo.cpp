@@ -1,5 +1,5 @@
 //
-//  KRHitInfo.h
+//  HitInfo.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,34 +29,72 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRHITINFO_H
-#define KRHITINFO_H
+#include "public/kraken.h"
 
-#include "KRVector3.h"
+namespace kraken {
 
-class KRNode;
+HitInfo::HitInfo()
+{
+    m_position = Vector3::Zero();
+    m_normal = Vector3::Zero();
+    m_distance = 0.0f;
+    m_node = NULL;
+}
 
-class KRHitInfo {
-public:
-    KRHitInfo();
-    KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance);
-    KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance, KRNode *node);
-    ~KRHitInfo();
-    
-    KRVector3 getPosition() const;
-    KRVector3 getNormal() const;
-    float getDistance() const;
-    KRNode *getNode() const;
-    bool didHit() const;
-    
-    KRHitInfo& operator =(const KRHitInfo& b);
-    
-    
-private:
-    KRNode *m_node;
-    KRVector3 m_position;
-    KRVector3 m_normal;
-    float m_distance;
-};
+HitInfo::HitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node)
+{
+    m_position = position;
+    m_normal = normal;
+    m_distance = distance;
+    m_node = node;
+}
 
-#endif
+HitInfo::HitInfo(const Vector3 &position, const Vector3 &normal, const float distance)
+{
+    m_position = position;
+    m_normal = normal;
+    m_distance = distance;
+    m_node = NULL;
+}
+
+HitInfo::~HitInfo()
+{
+
+}
+
+bool HitInfo::didHit() const
+{
+    return m_normal != Vector3::Zero();
+}
+
+Vector3 HitInfo::getPosition() const
+{
+    return m_position;
+}
+
+Vector3 HitInfo::getNormal() const
+{
+    return m_normal;
+}
+
+float HitInfo::getDistance() const
+{
+    return m_distance;
+}
+
+KRNode *HitInfo::getNode() const
+{
+    return m_node;
+}
+
+HitInfo& HitInfo::operator =(const HitInfo& b)
+{
+    m_position = b.m_position;
+    m_normal = b.m_normal;
+    m_distance = b.m_distance;
+    m_node = b.m_node;
+    return *this;
+}
+
+} // namespace kraken
+

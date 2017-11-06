@@ -36,8 +36,6 @@
 #include "KRShader.h"
 #include "KRCamera.h"
 #include "KRResource.h"
-#include "KRVector2.h"
-#include "KRVector3.h"
 #include "KRScene.h"
 #include "KRBone.h"
 
@@ -65,16 +63,16 @@ public:
     virtual bool save(KRDataBlock &data);
     
     
-    void setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
+    void setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
     void setReflectionCube(std::string texture_name);
-    void setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset);
-    void setAmbient(const KRVector3 &c);
-    void setDiffuse(const KRVector3 &c);    
-    void setSpecular(const KRVector3 &c);
-    void setReflection(const KRVector3 &c);
+    void setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+    void setAmbient(const Vector3 &c);
+    void setDiffuse(const Vector3 &c);    
+    void setSpecular(const Vector3 &c);
+    void setReflection(const Vector3 &c);
     void setTransparency(GLfloat a);
     void setShininess(GLfloat s);
     void setAlphaMode(alpha_mode_type blend_mode);
@@ -84,7 +82,7 @@ public:
     bool isTransparent();
     const std::string &getName() const;
     
-    bool bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
+    bool bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
     
     bool needsVertexTangents();
     
@@ -107,21 +105,21 @@ private:
     std::string m_reflectionCube;
     std::string m_normalMap;
     
-    KRVector2 m_ambientMapScale;
-    KRVector2 m_ambientMapOffset;
-    KRVector2 m_diffuseMapScale;
-    KRVector2 m_diffuseMapOffset;
-    KRVector2 m_specularMapScale;
-    KRVector2 m_specularMapOffset;
-    KRVector2 m_reflectionMapScale;
-    KRVector2 m_reflectionMapOffset;
-    KRVector2 m_normalMapScale;
-    KRVector2 m_normalMapOffset;
+    Vector2 m_ambientMapScale;
+    Vector2 m_ambientMapOffset;
+    Vector2 m_diffuseMapScale;
+    Vector2 m_diffuseMapOffset;
+    Vector2 m_specularMapScale;
+    Vector2 m_specularMapOffset;
+    Vector2 m_reflectionMapScale;
+    Vector2 m_reflectionMapOffset;
+    Vector2 m_normalMapScale;
+    Vector2 m_normalMapOffset;
     
-    KRVector3 m_ambientColor; // Ambient rgb
-    KRVector3 m_diffuseColor; // Diffuse rgb
-    KRVector3 m_specularColor; // Specular rgb
-    KRVector3 m_reflectionColor; // Reflection rgb
+    Vector3 m_ambientColor; // Ambient rgb
+    Vector3 m_diffuseColor; // Diffuse rgb
+    Vector3 m_specularColor; // Specular rgb
+    Vector3 m_reflectionColor; // Reflection rgb
     
     //GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
     //GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb

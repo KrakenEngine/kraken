@@ -33,8 +33,8 @@ KRRenderSettings::KRRenderSettings()
     bEnableDeferredLighting = false;
     max_anisotropy = 4.0f;
     
-    ambient_intensity = KRVector3::Zero();
-    light_intensity = KRVector3::One();
+    ambient_intensity = Vector3::Zero();
+    light_intensity = Vector3::One();
     
     perspective_fov = 45.0 * D2R;
     perspective_nearz = 0.3f;     // was 0.05f
@@ -67,7 +67,7 @@ KRRenderSettings::KRRenderSettings()
     fog_near = 50.0f;
     fog_far = 500.0f;
     fog_density = 0.0005f;
-    fog_color = KRVector3(0.45, 0.45, 0.5);
+    fog_color = Vector3(0.45, 0.45, 0.5);
     fog_type = 0;
     
     dust_particle_intensity = 0.25f;
@@ -153,11 +153,11 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings &s)
     return *this;
 }
 
-const KRVector2 &KRRenderSettings::getViewportSize() {
+const Vector2 &KRRenderSettings::getViewportSize() {
     return m_viewportSize;
 }
 
-void KRRenderSettings::setViewportSize(const KRVector2 &size) {
+void KRRenderSettings::setViewportSize(const Vector2 &size) {
     m_viewportSize = size;
 }
 

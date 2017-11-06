@@ -73,11 +73,15 @@
     <TargetExt>.lib</TargetExt>
     <OutDir>$(SolutionDir)\build\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>build\intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\lib\vs2015\x64\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.lib</TargetExt>
     <OutDir>$(SolutionDir)\build\output\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>build\intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\lib\vs2015\x64\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +125,7 @@
   <ItemGroup>
     <ClCompile Include="..\3rdparty\forsyth\forsyth.cpp" />
     <ClCompile Include="..\3rdparty\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="..\kraken\KRAABB.cpp" />
+    <ClCompile Include="..\kraken\aabb.cpp" />
     <ClCompile Include="..\kraken\KRAmbientZone.cpp" />
     <ClCompile Include="..\kraken\KRAnimation.cpp" />
     <ClCompile Include="..\kraken\KRAnimationAttribute.cpp" />
@@ -146,12 +150,13 @@
     <ClCompile Include="..\kraken\KRDSP_slow.cpp" />
     <ClCompile Include="..\kraken\KRDSP_vDSP.cpp" />
     <ClCompile Include="..\kraken\KRFloat.cpp" />
+    <ClCompile Include="..\kraken\KRHelpers.cpp" />
     <ClCompile Include="..\kraken\KRHitInfo.cpp" />
     <ClCompile Include="..\kraken\KRLight.cpp" />
     <ClCompile Include="..\kraken\KRLocator.cpp" />
     <ClCompile Include="..\kraken\KRLODGroup.cpp" />
     <ClCompile Include="..\kraken\KRLODSet.cpp" />
-    <ClCompile Include="..\kraken\KRMat4.cpp" />
+    <ClCompile Include="..\kraken\matrix4.cpp" />
     <ClCompile Include="..\kraken\KRMaterial.cpp" />
     <ClCompile Include="..\kraken\KRMaterialManager.cpp" />
     <ClCompile Include="..\kraken\KRMesh.cpp" />
@@ -166,7 +171,7 @@
     <ClCompile Include="..\kraken\KRParticleSystem.cpp" />
     <ClCompile Include="..\kraken\KRParticleSystemNewtonian.cpp" />
     <ClCompile Include="..\kraken\KRPointLight.cpp" />
-    <ClCompile Include="..\kraken\KRQuaternion.cpp" />
+    <ClCompile Include="..\kraken\quaternion.cpp" />
     <ClCompile Include="..\kraken\KRRenderSettings.cpp" />
     <ClCompile Include="..\kraken\KRResource+blend.cpp" />
     <ClCompile Include="..\kraken\KRResource+fbx.cpp" />
@@ -187,18 +192,17 @@
     <ClCompile Include="..\kraken\KRTextureManager.cpp" />
     <ClCompile Include="..\kraken\KRTexturePVR.cpp" />
     <ClCompile Include="..\kraken\KRTextureTGA.cpp" />
-    <ClCompile Include="..\kraken\KRTriangle3.cpp" />
+    <ClCompile Include="..\kraken\triangle3.cpp" />
     <ClCompile Include="..\kraken\KRUnknown.cpp" />
     <ClCompile Include="..\kraken\KRUnknownManager.cpp" />
-    <ClCompile Include="..\kraken\KRVector2.cpp" />
-    <ClCompile Include="..\kraken\KRVector3.cpp" />
-    <ClCompile Include="..\kraken\KRVector4.cpp" />
+    <ClCompile Include="..\kraken\vector2.cpp" />
+    <ClCompile Include="..\kraken\vector3.cpp" />
+    <ClCompile Include="..\kraken\vector4.cpp" />
     <ClCompile Include="..\kraken\KRViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdparty\forsyth\forsyth.h" />
     <ClInclude Include="..\3rdparty\tinyxml2\tinyxml2.h" />
-    <ClInclude Include="..\kraken\KRAABB.h" />
     <ClInclude Include="..\kraken\kraken.h" />
     <ClInclude Include="..\kraken\KRAmbientZone.h" />
     <ClInclude Include="..\kraken\KRAnimation.h" />
@@ -224,13 +228,12 @@
     <ClInclude Include="..\kraken\KRDSP.h" />
     <ClInclude Include="..\kraken\KREngine-common.h" />
     <ClInclude Include="..\kraken\KREngine.h" />
-    <ClInclude Include="..\kraken\KRFloat.h" />
+    <ClInclude Include="..\kraken\KRHelpers.h" />
     <ClInclude Include="..\kraken\KRHitInfo.h" />
     <ClInclude Include="..\kraken\KRLight.h" />
     <ClInclude Include="..\kraken\KRLocator.h" />
     <ClInclude Include="..\kraken\KRLODGroup.h" />
     <ClInclude Include="..\kraken\KRLODSet.h" />
-    <ClInclude Include="..\kraken\KRMat4.h" />
     <ClInclude Include="..\kraken\KRMaterial.h" />
     <ClInclude Include="..\kraken\KRMaterialManager.h" />
     <ClInclude Include="..\kraken\KRMesh.h" />
@@ -245,7 +248,6 @@
     <ClInclude Include="..\kraken\KRParticleSystem.h" />
     <ClInclude Include="..\kraken\KRParticleSystemNewtonian.h" />
     <ClInclude Include="..\kraken\KRPointLight.h" />
-    <ClInclude Include="..\kraken\KRQuaternion.h" />
     <ClInclude Include="..\kraken\KRRenderSettings.h" />
     <ClInclude Include="..\kraken\KRResource+blend.h" />
     <ClInclude Include="..\kraken\KRResource.h" />
@@ -266,13 +268,18 @@
     <ClInclude Include="..\kraken\KRTextureManager.h" />
     <ClInclude Include="..\kraken\KRTexturePVR.h" />
     <ClInclude Include="..\kraken\KRTextureTGA.h" />
-    <ClInclude Include="..\kraken\KRTriangle3.h" />
     <ClInclude Include="..\kraken\KRUnknown.h" />
     <ClInclude Include="..\kraken\KRUnknownManager.h" />
-    <ClInclude Include="..\kraken\KRVector2.h" />
-    <ClInclude Include="..\kraken\KRVector3.h" />
-    <ClInclude Include="..\kraken\KRVector4.h" />
     <ClInclude Include="..\kraken\KRViewport.h" />
+    <ClInclude Include="..\kraken\public\aabb.h" />
+    <ClInclude Include="..\kraken\public\kraken.h" />
+    <ClInclude Include="..\kraken\public\scalar.h" />
+    <ClInclude Include="..\kraken\public\matrix4.h" />
+    <ClInclude Include="..\kraken\public\quaternion.h" />
+    <ClInclude Include="..\kraken\public\triangle3.h" />
+    <ClInclude Include="..\kraken\public\vector2.h" />
+    <ClInclude Include="..\kraken\public\vector3.h" />
+    <ClInclude Include="..\kraken\public\vector4.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glew.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\glxew.h" />
     <ClInclude Include="3rdparty\glew\glew-1.13.0\include\GL\wglew.h" />

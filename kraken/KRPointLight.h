@@ -10,7 +10,6 @@
 #define KRPOINTLIGHT_H
 
 #include "KRLight.h"
-#include "KRMat4.h"
 
 class KRPointLight : public KRLight {
     
@@ -20,7 +19,7 @@ public:
     virtual ~KRPointLight();
     
     virtual std::string getElementName();
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
 
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     

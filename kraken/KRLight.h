@@ -34,8 +34,8 @@ public:
     float getIntensity();
     void setDecayStart(float decayStart);
     float getDecayStart();
-    const KRVector3 &getColor();
-    void setColor(const KRVector3 &color);
+    const Vector3 &getColor();
+    void setColor(const Vector3 &color);
     
     void setFlareTexture(std::string flare_texture);
     void setFlareSize(float flare_size);
@@ -54,7 +54,7 @@ protected:
     
     float m_intensity;
     float m_decayStart;
-    KRVector3 m_color;
+    Vector3 m_color;
     
     std::string m_flareTexture;
     KRTexture *m_pFlareTexture;

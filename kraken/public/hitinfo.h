@@ -1,5 +1,5 @@
 //
-//  KRTriangle.h
+//  KRHitInfo.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,35 +29,37 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTRIANGLE3_H
-#define KRTRIANGLE3_H
+#ifndef KRAKEN_HITINFO_H
+#define KRAKEN_HITINFO_H
 
-#include "KRVector3.h"
+#include "vector3.h"
 
-class KRTriangle3
-{
+class KRNode;
+
+namespace kraken {
+
+class HitInfo {
 public:
-    KRTriangle3(const KRTriangle3 &tri);
-    KRTriangle3(const KRVector3 &v1, const KRVector3 &v2, const KRVector3 &v3);
-    ~KRTriangle3();
-    
-    KRVector3 calculateNormal() const;
-    
-    bool operator ==(const KRTriangle3& b) const;
-    bool operator !=(const KRTriangle3& b) const;
-    KRTriangle3& operator =(const KRTriangle3& b);
-    KRVector3& operator[](unsigned i);
-    KRVector3 operator[](unsigned i) const;
-    
-    
-    bool rayCast(const KRVector3 &start, const KRVector3 &dir, KRVector3 &hit_point) const;
-    bool sphereCast(const KRVector3 &start, const KRVector3 &dir, float radius, KRVector3 &hit_point, float &hit_distance) const;
-    
-    bool containsPoint(const KRVector3 &p) const;
-    KRVector3 closestPointOnTriangle(const KRVector3 &p) const;
+    HitInfo();
+    HitInfo(const Vector3 &position, const Vector3 &normal, const float distance);
+    HitInfo(const Vector3 &position, const Vector3 &normal, const float distance, KRNode *node);
+    ~HitInfo();
+
+    Vector3 getPosition() const;
+    Vector3 getNormal() const;
+    float getDistance() const;
+    KRNode *getNode() const;
+    bool didHit() const;
+
+    HitInfo& operator =(const HitInfo& b);
+
 private:
-    
-    KRVector3 m_c[3];
+    KRNode *m_node;
+    Vector3 m_position;
+    Vector3 m_normal;
+    float m_distance;
 };
 
-#endif // KRTRIANGLE3_H
+} // namespace kraken
+
+#endif

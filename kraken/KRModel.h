@@ -29,16 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
-
 #include "KREngine-common.h"
 
 #ifndef KRMODEL_H
 #define KRMODEL_H
 
 #include "KRMesh.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
 #include "KRModel.h"
 #include "KRCamera.h"
 #include "KRMeshManager.h"
@@ -51,7 +47,7 @@
 class KRModel : public KRNode {
     
 public:
-    KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, KRVector3 rim_color = KRVector3::Zero(), float rim_power = 0.0f);
+    KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color = Vector3::Zero(), float rim_power = 0.0f);
     virtual ~KRModel();
     
     virtual std::string getElementName();
@@ -59,11 +55,11 @@ public:
 
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     
-    void setRimColor(const KRVector3 &rim_color);
+    void setRimColor(const Vector3 &rim_color);
     void setRimPower(float rim_power);
-    KRVector3 getRimColor();
+    Vector3 getRimColor();
     float getRimPower();
     
     void setLightMap(const std::string &name);
@@ -88,11 +84,11 @@ private:
     bool m_faces_camera;
     
     
-    KRMat4 m_boundsCachedMat;
-    KRAABB m_boundsCached;
+    Matrix4 m_boundsCachedMat;
+    AABB m_boundsCached;
     
     
-    KRVector3 m_rim_color;
+    Vector3 m_rim_color;
     float m_rim_power;
 };
 

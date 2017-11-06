@@ -31,6 +31,8 @@ public:
     static int KRENGINE_MAX_TEXTURE_DIM;
     static int KRENGINE_MIN_TEXTURE_DIM;
     static int KRENGINE_PRESTREAM_DISTANCE;
+    static int KRENGINE_SYS_ALLOCATION_GRANULARITY;
+    static int KRENGINE_SYS_PAGE_SIZE;
     
     
     KRContext();
@@ -87,7 +89,7 @@ public:
     typedef void log_callback(void *userdata, const std::string &message, log_level level);
     
     static void SetLogCallback(log_callback *log_callback, void *user_data);
-    static void Log(log_level level, const std::string &message_format, ...);
+    static void Log(log_level level, const std::string message_format, ...);
     
     void doStreaming();
     void receivedMemoryWarning();

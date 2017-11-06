@@ -34,9 +34,6 @@
 
 #include "KREngine-common.h"
 
-#include "KRMat4.h"
-#include "KRVector2.h"
-#include "KRAABB.h"
 #include "KRShader.h"
 #include "KRContextObject.h"
 #include "KRTexture.h"
@@ -69,11 +66,11 @@ public:
     std::string getDebugText();
     
     void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
-    KRVector2 getDownsample();
+    Vector2 getDownsample();
     void setDownsample(float v);
     
-    void setFadeColor(const KRVector4 &fade_color);
-    KRVector4 getFadeColor();
+    void setFadeColor(const Vector4 &fade_color);
+    Vector4 getFadeColor();
     
     void setSkyBox(const std::string &skyBox);
     const std::string getSkyBox() const;
@@ -100,9 +97,9 @@ private:
     
     float m_particlesAbsoluteTime;
     
-    KRVector2 m_downsample;
+    Vector2 m_downsample;
     
-    KRVector4 m_fade_color;
+    Vector4 m_fade_color;
     
     typedef struct {
         GLfloat x;

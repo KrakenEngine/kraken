@@ -44,10 +44,10 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_pNormalMap = NULL;
     m_pReflectionMap = NULL;
     m_pReflectionCube = NULL;
-    m_ambientColor = KRVector3::Zero();
-    m_diffuseColor = KRVector3::One();
-    m_specularColor = KRVector3::One();
-    m_reflectionColor = KRVector3::Zero();
+    m_ambientColor = Vector3::Zero();
+    m_diffuseColor = Vector3::One();
+    m_specularColor = Vector3::One();
+    m_reflectionColor = Vector3::Zero();
     m_tr = (GLfloat)1.0f;
     m_ns = (GLfloat)0.0f;
     m_ambientMap = "";
@@ -56,14 +56,14 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_normalMap = "";
     m_reflectionMap = "";
     m_reflectionCube = "";
-    m_ambientMapOffset = KRVector2(0.0f, 0.0f);
-    m_specularMapOffset = KRVector2(0.0f, 0.0f);
-    m_diffuseMapOffset = KRVector2(0.0f, 0.0f);
-    m_ambientMapScale = KRVector2(1.0f, 1.0f);
-    m_specularMapScale = KRVector2(1.0f, 1.0f);
-    m_diffuseMapScale = KRVector2(1.0f, 1.0f);
-    m_reflectionMapOffset = KRVector2(0.0f, 0.0f);
-    m_reflectionMapScale = KRVector2(1.0f, 1.0f);
+    m_ambientMapOffset = Vector2(0.0f, 0.0f);
+    m_specularMapOffset = Vector2(0.0f, 0.0f);
+    m_diffuseMapOffset = Vector2(0.0f, 0.0f);
+    m_ambientMapScale = Vector2(1.0f, 1.0f);
+    m_specularMapScale = Vector2(1.0f, 1.0f);
+    m_diffuseMapScale = Vector2(1.0f, 1.0f);
+    m_reflectionMapOffset = Vector2(0.0f, 0.0f);
+    m_reflectionMapScale = Vector2(1.0f, 1.0f);
     m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
 }
 
@@ -144,31 +144,31 @@ bool KRMaterial::save(KRDataBlock &data) {
     return true;
 }
 
-void KRMaterial::setAmbientMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_ambientMap = texture_name;
     m_ambientMapScale = texture_scale;
     m_ambientMapOffset = texture_offset;
 }
 
-void KRMaterial::setDiffuseMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_diffuseMap = texture_name;
     m_diffuseMapScale = texture_scale;
     m_diffuseMapOffset = texture_offset;
 }
 
-void KRMaterial::setSpecularMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_specularMap = texture_name;
     m_specularMapScale = texture_scale;
     m_specularMapOffset = texture_offset;
 }
 
-void KRMaterial::setNormalMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_normalMap = texture_name;
     m_normalMapScale = texture_scale;
     m_normalMapOffset = texture_offset;
 }
 
-void KRMaterial::setReflectionMap(std::string texture_name, KRVector2 texture_scale, KRVector2 texture_offset) {
+void KRMaterial::setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset) {
     m_reflectionMap = texture_name;
     m_reflectionMapScale = texture_scale;
     m_reflectionMapOffset = texture_offset;
@@ -186,19 +186,19 @@ KRMaterial::alpha_mode_type KRMaterial::getAlphaMode() {
     return m_alpha_mode;
 }
 
-void KRMaterial::setAmbient(const KRVector3 &c) {
+void KRMaterial::setAmbient(const Vector3 &c) {
     m_ambientColor = c;
 }
 
-void KRMaterial::setDiffuse(const KRVector3 &c) {
+void KRMaterial::setDiffuse(const Vector3 &c) {
     m_diffuseColor = c;
 }
 
-void KRMaterial::setSpecular(const KRVector3 &c) {
+void KRMaterial::setSpecular(const Vector3 &c) {
     m_specularColor = c;
 }
 
-void KRMaterial::setReflection(const KRVector3 &c) {
+void KRMaterial::setReflection(const Vector3 &c) {
     m_reflectionColor = c;
 }
 
@@ -302,15 +302,15 @@ void KRMaterial::getTextures()
     }
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<KRMat4> &bind_poses, const KRViewport &viewport, const KRMat4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const KRVector3 &rim_color, float rim_power, float lod_coverage) {
+bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage) {
     bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
     
     getTextures();
     
-    KRVector2 default_scale = KRVector2::One();
-    KRVector2 default_offset = KRVector2::Zero();
+    Vector2 default_scale = Vector2::One();
+    Vector2 default_offset = Vector2::Zero();
     
-    bool bHasReflection = m_reflectionColor != KRVector3::Zero();
+    bool bHasReflection = m_reflectionColor != Vector3::Zero();
     bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
     bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
     bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
@@ -322,7 +322,7 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_reflectionMapScale != default_scale && bReflectionMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, m_reflectionMapOffset != default_offset && bReflectionMap, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
 
     
-    KRVector4 fade_color;
+    Vector4 fade_color;
     if(!getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {
         return false;
     }
@@ -334,23 +334,23 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
         for(int bone_index=0; bone_index < bones.size(); bone_index++) {
             KRBone *bone = bones[bone_index];
             
-//                KRVector3 initialRotation = bone->getInitialLocalRotation();
-//                KRVector3 rotation = bone->getLocalRotation();
-//                KRVector3 initialTranslation = bone->getInitialLocalTranslation();
-//                KRVector3 translation = bone->getLocalTranslation();
-//                KRVector3 initialScale = bone->getInitialLocalScale();
-//                KRVector3 scale = bone->getLocalScale();
+//                Vector3 initialRotation = bone->getInitialLocalRotation();
+//                Vector3 rotation = bone->getLocalRotation();
+//                Vector3 initialTranslation = bone->getInitialLocalTranslation();
+//                Vector3 translation = bone->getLocalTranslation();
+//                Vector3 initialScale = bone->getInitialLocalScale();
+//                Vector3 scale = bone->getLocalScale();
 //                
             //printf("%s - delta rotation: %.4f %.4f %.4f\n", bone->getName().c_str(), (rotation.x - initialRotation.x) * 180.0 / M_PI, (rotation.y - initialRotation.y) * 180.0 / M_PI, (rotation.z - initialRotation.z) * 180.0 / M_PI);
             //printf("%s - delta translation: %.4f %.4f %.4f\n", bone->getName().c_str(), translation.x - initialTranslation.x, translation.y - initialTranslation.y, translation.z - initialTranslation.z);
 //                printf("%s - delta scale: %.4f %.4f %.4f\n", bone->getName().c_str(), scale.x - initialScale.x, scale.y - initialScale.y, scale.z - initialScale.z);
             
-            KRMat4 skin_bone_bind_pose = bind_poses[bone_index];
-            KRMat4 active_mat = bone->getActivePoseMatrix();
-            KRMat4 inv_bind_mat = bone->getInverseBindPoseMatrix();
-            KRMat4 inv_bind_mat2 = KRMat4::Invert(bind_poses[bone_index]);
-            KRMat4 t = (inv_bind_mat * active_mat);
-            KRMat4 t2 = inv_bind_mat2 * bone->getModelMatrix();
+            Matrix4 skin_bone_bind_pose = bind_poses[bone_index];
+            Matrix4 active_mat = bone->getActivePoseMatrix();
+            Matrix4 inv_bind_mat = bone->getInverseBindPoseMatrix();
+            Matrix4 inv_bind_mat2 = Matrix4::Invert(bind_poses[bone_index]);
+            Matrix4 t = (inv_bind_mat * active_mat);
+            Matrix4 t2 = inv_bind_mat2 * bone->getModelMatrix();
             for(int i=0; i < 16; i++) {
                 *bone_mat_component++ = t[i];
             }
@@ -365,14 +365,14 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, KRVector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
     }
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, KRVector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
     }

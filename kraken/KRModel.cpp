@@ -34,9 +34,8 @@
 #include "KRModel.h"
 #include "KRContext.h"
 #include "KRMesh.h"
-#include "KRQuaternion.h"
 
-KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, KRVector3 rim_color, float rim_power) : KRNode(scene, instance_name) {
+KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;
     m_model_name = model_name;
@@ -80,12 +79,12 @@ tinyxml2::XMLElement *KRModel::saveXML( tinyxml2::XMLNode *parent)
     e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
     e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
     e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
-    m_rim_color.setXMLAttribute("rim_color", e, KRVector3::Zero());
+    kraken::setXMLAttribute("rim_color", e, m_rim_color, Vector3::Zero());
     e->SetAttribute("rim_power", m_rim_power);
     return e;
 }
 
-void KRModel::setRimColor(const KRVector3 &rim_color)
+void KRModel::setRimColor(const Vector3 &rim_color)
 {
     m_rim_color = rim_color;
 }
@@ -95,7 +94,7 @@ void KRModel::setRimPower(float rim_power)
     m_rim_power = rim_power;
 }
 
-KRVector3 KRModel::getRimColor()
+Vector3 KRModel::getRimColor()
 {
     return m_rim_color;
 }
@@ -197,11 +196,11 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
                 }
                 
-                KRMat4 matModel = getModelMatrix();
+                Matrix4 matModel = getModelMatrix();
                 if(m_faces_camera) {
-                    KRVector3 model_center = KRMat4::Dot(matModel, KRVector3::Zero());
-                    KRVector3 camera_pos = viewport.getCameraPosition();
-                    matModel = KRQuaternion(KRVector3::Forward(), KRVector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
+                    Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
+                    Vector3 camera_pos = viewport.getCameraPosition();
+                    matModel = Quaternion(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
                 pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
@@ -242,23 +241,23 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport &viewport)
     return stream_level;
 }
 
-KRAABB KRModel::getBounds() {
+AABB KRModel::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
         if(m_faces_camera) {
-            KRAABB normal_bounds = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            AABB normal_bounds = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             float max_dimension = normal_bounds.longest_radius();
-            return KRAABB(normal_bounds.center()-KRVector3(max_dimension), normal_bounds.center() + KRVector3(max_dimension));
+            return AABB(normal_bounds.center()-Vector3(max_dimension), normal_bounds.center() + Vector3(max_dimension));
         } else {
             
             if(!(m_boundsCachedMat == getModelMatrix())) {
                 m_boundsCachedMat = getModelMatrix();
-                m_boundsCached = KRAABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+                m_boundsCached = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             }
             return m_boundsCached;
         }
     } else {
-        return KRAABB::Infinite();
+        return AABB::Infinite();
     }
 }
 

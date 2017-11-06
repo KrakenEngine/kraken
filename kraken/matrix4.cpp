@@ -1,5 +1,5 @@
 //
-//  KRMat4.cpp
+//  Matrix4.cpp
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,12 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
+#include "public/kraken.h"
+#include <string.h>
 
-#include "KRMat4.h"
-#include "KRQuaternion.h"
+namespace kraken {
 
-KRMat4::KRMat4() {
+Matrix4::Matrix4() {
     // Default constructor - Initialize with an identity matrix
     static const float IDENTITY_MATRIX[] = {
         1.0, 0.0, 0.0, 0.0,
@@ -46,53 +46,53 @@ KRMat4::KRMat4() {
     
 }
 
-KRMat4::KRMat4(float *pMat) {
+Matrix4::Matrix4(float *pMat) {
     memcpy(c, pMat, sizeof(float) * 16);
 }
 
-KRMat4::KRMat4(const KRVector3 &axis_x, const KRVector3 &axis_y, const KRVector3 &axis_z, const KRVector3 &trans)
+Matrix4::Matrix4(const Vector3 &new_axis_x, const Vector3 &new_axis_y, const Vector3 &new_axis_z, const Vector3 &new_transform)
 {
-    c[0]  = axis_x.x;  c[1]  = axis_x.y;   c[2]  = axis_x.z;   c[3]  = 0.0f;
-    c[4]  = axis_y.x;  c[5]  = axis_y.y;   c[6]  = axis_y.z;   c[7]  = 0.0f;
-    c[8]  = axis_z.x;  c[9]  = axis_z.y;   c[10] = axis_z.z;   c[11] = 0.0f;
-    c[12] = trans.x;   c[13] = trans.y;    c[14] = trans.z;    c[15] = 1.0f;
+    c[0]  = new_axis_x.x;    c[1]  = new_axis_x.y;    c[2]  = new_axis_x.z;    c[3]  = 0.0f;
+    c[4]  = new_axis_y.x;    c[5]  = new_axis_y.y;    c[6]  = new_axis_y.z;    c[7]  = 0.0f;
+    c[8]  = new_axis_z.x;    c[9]  = new_axis_z.y;    c[10] = new_axis_z.z;    c[11] = 0.0f;
+    c[12] = new_transform.x; c[13] = new_transform.y; c[14] = new_transform.z; c[15] = 1.0f;
 }
 
-KRMat4::~KRMat4() {
+Matrix4::~Matrix4() {
     
 }
 
-float *KRMat4::getPointer() {
+float *Matrix4::getPointer() {
     return c;
 }
 
 // Copy constructor
-KRMat4::KRMat4(const KRMat4 &m) {
+Matrix4::Matrix4(const Matrix4 &m) {
     memcpy(c, m.c, sizeof(float) * 16);
 }
 
-KRMat4& KRMat4::operator=(const KRMat4 &m) {
+Matrix4& Matrix4::operator=(const Matrix4 &m) {
     if(this != &m) { // Prevent self-assignment.
         memcpy(c, m.c, sizeof(float) * 16);
     }
     return *this;
 }
 
-float& KRMat4::operator[](unsigned i) {
+float& Matrix4::operator[](unsigned i) {
     return c[i];
 }
 
-float KRMat4::operator[](unsigned i) const {
+float Matrix4::operator[](unsigned i) const {
     return c[i];
 }
 
 // Overload comparison operator
-bool KRMat4::operator==(const KRMat4 &m) const {
+bool Matrix4::operator==(const Matrix4 &m) const {
     return memcmp(c, m.c, sizeof(float) * 16) == 0;
 }
 
 // Overload compound multiply operator
-KRMat4& KRMat4::operator*=(const KRMat4 &m) {
+Matrix4& Matrix4::operator*=(const Matrix4 &m) {
     float temp[16];
     
     int x,y;
@@ -113,8 +113,8 @@ KRMat4& KRMat4::operator*=(const KRMat4 &m) {
 }
 
 // Overload multiply operator
-KRMat4 KRMat4::operator*(const KRMat4 &m) const {
-    KRMat4 ret = *this;
+Matrix4 Matrix4::operator*(const Matrix4 &m) const {
+    Matrix4 ret = *this;
     ret *= m;
     return ret;
 }
@@ -122,7 +122,7 @@ KRMat4 KRMat4::operator*(const KRMat4 &m) const {
 
 /* Generate a perspective view matrix using a field of view angle fov,
  * window aspect ratio, near and far clipping planes */
-void KRMat4::perspective(float fov, float aspect, float nearz, float farz) {
+void Matrix4::perspective(float fov, float aspect, float nearz, float farz) {
    
     memset(c, 0, sizeof(float) * 16);
     
@@ -146,8 +146,8 @@ void KRMat4::perspective(float fov, float aspect, float nearz, float farz) {
 }
 
 /* Perform translation operations on a matrix */
-void KRMat4::translate(float x, float y, float z) {
-    KRMat4 newMatrix; // Create new identity matrix
+void Matrix4::translate(float x, float y, float z) {
+    Matrix4 newMatrix; // Create new identity matrix
     
     newMatrix.c[12] = x;
     newMatrix.c[13] = y;
@@ -156,13 +156,13 @@ void KRMat4::translate(float x, float y, float z) {
     *this *= newMatrix;
 }
 
-void KRMat4::translate(const KRVector3 &v)
+void Matrix4::translate(const Vector3 &v)
 {
     translate(v.x, v.y, v.z);
 }
 
 /* Rotate a matrix by an angle on a X, Y, or Z axis */
-void KRMat4::rotate(float angle, AXIS axis) {
+void Matrix4::rotate(float angle, AXIS axis) {
     const int cos1[3] = { 5, 0, 0 }; // cos(angle)
     const int cos2[3] = { 10, 10, 5 }; // cos(angle)
     const int sin1[3] = { 9, 2, 4 }; // -sin(angle)
@@ -192,7 +192,7 @@ void KRMat4::rotate(float angle, AXIS axis) {
      
      */
     
-    KRMat4 newMatrix; // Create new identity matrix
+    Matrix4 newMatrix; // Create new identity matrix
     
     newMatrix.c[cos1[axis]] = cos(angle);
     newMatrix.c[sin1[axis]] = -sin(angle);
@@ -202,14 +202,14 @@ void KRMat4::rotate(float angle, AXIS axis) {
     *this *= newMatrix;
 }
 
-void KRMat4::rotate(const KRQuaternion &q)
+void Matrix4::rotate(const Quaternion &q)
 {
     *this *= q.rotationMatrix();
 }
 
 /* Scale matrix by separate x, y, and z amounts */
-void KRMat4::scale(float x, float y, float z) {
-    KRMat4 newMatrix; // Create new identity matrix
+void Matrix4::scale(float x, float y, float z) {
+    Matrix4 newMatrix; // Create new identity matrix
     
     newMatrix.c[0] = x;
     newMatrix.c[5] = y;
@@ -218,17 +218,17 @@ void KRMat4::scale(float x, float y, float z) {
     *this *= newMatrix;
 }
 
-void KRMat4::scale(const KRVector3 &v) {
+void Matrix4::scale(const Vector3 &v) {
     scale(v.x, v.y, v.z);
 }
 
 /* Scale all dimensions equally */
-void KRMat4::scale(float s) {
+void Matrix4::scale(float s) {
     scale(s,s,s);
 }
 
  // Initialize with a bias matrix
-void KRMat4::bias() {
+void Matrix4::bias() {
     static const float BIAS_MATRIX[] = {
         0.5, 0.0, 0.0, 0.0, 
         0.0, 0.5, 0.0, 0.0,
@@ -240,7 +240,7 @@ void KRMat4::bias() {
 
 
 /* Generate an orthographic view matrix */
-void KRMat4::ortho(float left, float right, float top, float bottom, float nearz, float farz) {
+void Matrix4::ortho(float left, float right, float top, float bottom, float nearz, float farz) {
     memset(c, 0, sizeof(float) * 16);
     c[0] = 2.0f / (right - left);
     c[5] = 2.0f / (bottom - top);
@@ -250,7 +250,7 @@ void KRMat4::ortho(float left, float right, float top, float bottom, float nearz
 }
 
 /* Replace matrix with its inverse */
-bool KRMat4::invert() {
+bool Matrix4::invert() {
     // Based on gluInvertMatrix implementation
     
     float inv[16], det;
@@ -304,7 +304,7 @@ bool KRMat4::invert() {
     return true;
 }
 
-void KRMat4::transpose() {
+void Matrix4::transpose() {
     float trans[16];
     for(int x=0; x<4; x++) {
         for(int y=0; y<4; y++) {
@@ -314,19 +314,19 @@ void KRMat4::transpose() {
     memcpy(c, trans, sizeof(float) * 16);
 }
 
-/* Dot Product, returning KRVector3 */
-KRVector3 KRMat4::Dot(const KRMat4 &m, const KRVector3 &v) {
-    return KRVector3(
+/* Dot Product, returning Vector3 */
+Vector3 Matrix4::Dot(const Matrix4 &m, const Vector3 &v) {
+    return Vector3(
         v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
         v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
         v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14]
     );
 }
 
-KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
+Vector4 Matrix4::Dot4(const Matrix4 &m, const Vector4 &v) {
 #ifdef KRAKEN_USE_ARM_NEON
 
-    KRVector4 d;
+    Vector4 d;
     asm volatile (
                   "vld1.32                {d0, d1}, [%1]                  \n\t"   //Q0 = v
                   "vld1.32                {d18, d19}, [%0]!               \n\t"   //Q1 = m
@@ -346,7 +346,7 @@ KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
                   );
     return d;
 #else
-    return KRVector4(
+    return Vector4(
         v.c[0] * m.c[0] + v.c[1] * m.c[4] + v.c[2] * m.c[8]  + m.c[12],
         v.c[0] * m.c[1] + v.c[1] * m.c[5] + v.c[2] * m.c[9]  + m.c[13],
         v.c[0] * m.c[2] + v.c[1] * m.c[6] + v.c[2] * m.c[10] + m.c[14],
@@ -356,34 +356,34 @@ KRVector4 KRMat4::Dot4(const KRMat4 &m, const KRVector4 &v) {
 }
 
 // Dot product without including translation; useful for transforming normals and tangents
-KRVector3 KRMat4::DotNoTranslate(const KRMat4 &m, const KRVector3 &v)
+Vector3 Matrix4::DotNoTranslate(const Matrix4 &m, const Vector3 &v)
 {
-    return KRVector3(
+    return Vector3(
          v.x * m.c[0] + v.y * m.c[4] + v.z * m.c[8],
          v.x * m.c[1] + v.y * m.c[5] + v.z * m.c[9],
          v.x * m.c[2] + v.y * m.c[6] + v.z * m.c[10]
     );
 }
 
-/* Dot Product, returning w component as if it were a KRVector4 (This will be deprecated once KRVector4 is implemented instead*/
-float KRMat4::DotW(const KRMat4 &m, const KRVector3 &v) {
+/* Dot Product, returning w component as if it were a Vector4 (This will be deprecated once Vector4 is implemented instead*/
+float Matrix4::DotW(const Matrix4 &m, const Vector3 &v) {
     return v.x * m.c[0*4 + 3] + v.y * m.c[1*4 + 3] + v.z * m.c[2*4 + 3] + m.c[3*4 + 3];
 }
 
 /* Dot Product followed by W-divide */
-KRVector3 KRMat4::DotWDiv(const KRMat4 &m, const KRVector3 &v) {
-    KRVector4 r = Dot4(m, KRVector4(v, 1.0f));
-    return KRVector3(r) / r.w;
+Vector3 Matrix4::DotWDiv(const Matrix4 &m, const Vector3 &v) {
+    Vector4 r = Dot4(m, Vector4(v, 1.0f));
+    return Vector3(r) / r.w;
 }
 
-KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, const KRVector3 &upDirection)
+Matrix4 Matrix4::LookAt(const Vector3 &cameraPos, const Vector3 &lookAtPos, const Vector3 &upDirection)
 {
-    KRMat4 matLookat;
-    KRVector3 lookat_z_axis = lookAtPos - cameraPos;
+    Matrix4 matLookat;
+    Vector3 lookat_z_axis = lookAtPos - cameraPos;
     lookat_z_axis.normalize();
-    KRVector3 lookat_x_axis = KRVector3::Cross(upDirection, lookat_z_axis);
+    Vector3 lookat_x_axis = Vector3::Cross(upDirection, lookat_z_axis);
     lookat_x_axis.normalize();
-    KRVector3 lookat_y_axis = KRVector3::Cross(lookat_z_axis, lookat_x_axis);
+    Vector3 lookat_y_axis = Vector3::Cross(lookat_z_axis, lookat_x_axis);
     
     matLookat.getPointer()[0] = lookat_x_axis.x;
     matLookat.getPointer()[1] = lookat_y_axis.x;
@@ -397,35 +397,30 @@ KRMat4 KRMat4::LookAt(const KRVector3 &cameraPos, const KRVector3 &lookAtPos, co
     matLookat.getPointer()[9] = lookat_y_axis.z;
     matLookat.getPointer()[10] = lookat_z_axis.z;
     
-    matLookat.getPointer()[12] = -KRVector3::Dot(lookat_x_axis, cameraPos);
-    matLookat.getPointer()[13] = -KRVector3::Dot(lookat_y_axis, cameraPos);
-    matLookat.getPointer()[14] = -KRVector3::Dot(lookat_z_axis, cameraPos);
+    matLookat.getPointer()[12] = -Vector3::Dot(lookat_x_axis, cameraPos);
+    matLookat.getPointer()[13] = -Vector3::Dot(lookat_y_axis, cameraPos);
+    matLookat.getPointer()[14] = -Vector3::Dot(lookat_z_axis, cameraPos);
     
     return matLookat;
 }
 
-KRMat4 KRMat4::Invert(const KRMat4 &m)
+Matrix4 Matrix4::Invert(const Matrix4 &m)
 {
-    KRMat4 matInvert = m;
+    Matrix4 matInvert = m;
     matInvert.invert();
     return matInvert;
 }
 
-KRMat4 KRMat4::Transpose(const KRMat4 &m)
+Matrix4 Matrix4::Transpose(const Matrix4 &m)
 {
-    KRMat4 matTranspose = m;
+    Matrix4 matTranspose = m;
     matTranspose.transpose();
     return matTranspose;
 }
 
-void KRMat4::setUniform(GLint location) const
+Matrix4 Matrix4::Translation(const Vector3 &v)
 {
-    if(location != -1) GLDEBUG(glUniformMatrix4fv(location, 1, GL_FALSE, c));
-}
-
-KRMat4 KRMat4::Translation(const KRVector3 &v)
-{
-    KRMat4 m;
+    Matrix4 m;
     m[12] = v.x;
     m[13] = v.y;
     m[14] = v.z;
@@ -433,19 +428,21 @@ KRMat4 KRMat4::Translation(const KRVector3 &v)
     return m;
 }
 
-KRMat4 KRMat4::Rotation(const KRVector3 &v)
+Matrix4 Matrix4::Rotation(const Vector3 &v)
 {
-    KRMat4 m;
+    Matrix4 m;
     m.rotate(v.x, X_AXIS);
     m.rotate(v.y, Y_AXIS);
     m.rotate(v.z, Z_AXIS);
     return m;
 }
 
-KRMat4 KRMat4::Scaling(const KRVector3 &v)
+Matrix4 Matrix4::Scaling(const Vector3 &v)
 {
-    KRMat4 m;
+    Matrix4 m;
     m.scale(v);
     return m;
 }
+
+} // namespace kraken
 

@@ -101,9 +101,9 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         int *pFaces = (int *)malloc(sizeof(int) * (cFaces + 1));
         assert(pFaces != NULL);
         
-        std::vector<KRVector3> indexed_vertices;
-        std::vector<KRVector2> indexed_uva;
-        std::vector<KRVector3> indexed_normals;
+        std::vector<Vector3> indexed_vertices;
+        std::vector<Vector2> indexed_uva;
+        std::vector<Vector3> indexed_normals;
         
         int *pFace = pFaces;
         int *pMaterialFaces = pFace++;
@@ -154,7 +154,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     y = strtof(pChar, &pChar);
                     pChar = szSymbol[3];
                     z = strtof(pChar, &pChar);
-                    indexed_vertices.push_back(KRVector3(x,y,z));
+                    indexed_vertices.push_back(Vector3(x,y,z));
                 } else if(strcmp(szSymbol[0], "vt") == 0) {
                     // Vertex Texture UV Coordinate (vt)
                     char *pChar = szSymbol[1];
@@ -163,7 +163,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     u = strtof(pChar, &pChar);
                     pChar = szSymbol[2];
                     v = strtof(pChar, &pChar);                            
-                    indexed_uva.push_back(KRVector2(u,v));
+                    indexed_uva.push_back(Vector2(u,v));
                 } else if(strcmp(szSymbol[0], "vn") == 0) {
                     // Vertex Normal (vn)
                     float x,y,z;
@@ -173,7 +173,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     y = strtof(pChar, &pChar);
                     pChar = szSymbol[3];
                     z = strtof(pChar, &pChar);
-                    indexed_normals.push_back(KRVector3(x,y,z));
+                    indexed_normals.push_back(Vector3(x,y,z));
                 } else if(strcmp(szSymbol[0], "f") == 0) {
                     // Face (f)
                     int cFaceVertices = cSymbols - 1;
@@ -249,12 +249,12 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
             int *pMaterialEndFace = pFace + *pFace++;
             while(pFace < pMaterialEndFace  && iVertex < cVertexData) {
                 int cFaceVertexes = *pFace;
-                KRVector3 firstFaceVertex;
-                KRVector3 prevFaceVertex;
-                KRVector3 firstFaceNormal;
-                KRVector3 prevFaceNormal;
-                KRVector2 firstFaceUva;
-                KRVector2 prevFaceUva;
+                Vector3 firstFaceVertex;
+                Vector3 prevFaceVertex;
+                Vector3 firstFaceNormal;
+                Vector3 prevFaceNormal;
+                Vector2 firstFaceUva;
+                Vector2 prevFaceUva;
                 for(int iFaceVertex=0; iFaceVertex < cFaceVertexes; iFaceVertex++) {
                     if(iFaceVertex > 2) {
                         // There have already been 3 vertices.  Now we need to split the quad into a second triangle composed of the 1st, 3rd, and 4th vertices
@@ -268,14 +268,14 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                         mi.uva.push_back(prevFaceUva);
                         mi.normals.push_back(prevFaceNormal);
                     }
-                    KRVector3 vertex = indexed_vertices[pFace[iFaceVertex*3+1]];
-                    KRVector2 new_uva;
+                    Vector3 vertex = indexed_vertices[pFace[iFaceVertex*3+1]];
+                    Vector2 new_uva;
                     if(pFace[iFaceVertex*3+2] >= 0) {
                         new_uva = indexed_uva[pFace[iFaceVertex*3+2]];
                     }
-                    KRVector3 normal;
+                    Vector3 normal;
                     if(pFace[iFaceVertex*3+3] >= 0){
-                        KRVector3 normal = indexed_normals[pFace[iFaceVertex*3+3]];
+                        Vector3 normal = indexed_normals[pFace[iFaceVertex*3+3]];
                     }
                     
                     mi.vertices.push_back(vertex);
@@ -321,7 +321,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         
         // TODO: Bones not yet supported for OBJ
 //        std::vector<std::string> bone_names;
-//        std::vector<KRMat4> bone_bind_poses;
+//        std::vector<Matrix4> bone_bind_poses;
 //        std::vector<std::vector<int> > bone_indexes;
 //        std::vector<std::vector<float> > bone_weights;
 //        

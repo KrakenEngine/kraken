@@ -30,7 +30,6 @@
 //
 
 #include "KREngine-common.h"
-#include "KRVector2.h"
 #include "KRCamera.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
@@ -54,9 +53,9 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     volumetricLightAccumulationBuffer = 0;
     volumetricLightAccumulationTexture = 0;
     m_frame_times_filled = 0;
-    m_downsample = KRVector2::One();
+    m_downsample = Vector2::One();
     
-    m_fade_color = KRVector4::Zero();
+    m_fade_color = Vector4::Zero();
 }
 
 KRCamera::~KRCamera() {
@@ -109,18 +108,18 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     
     KRScene &scene = getScene();
     
-    KRMat4 modelMatrix = getModelMatrix();
-    KRMat4 viewMatrix = KRMat4::LookAt(KRMat4::Dot(modelMatrix, KRVector3::Zero()), KRMat4::Dot(modelMatrix, KRVector3::Forward()), KRVector3::Normalize(KRMat4::DotNoTranslate(modelMatrix, KRVector3::Up())));
+    Matrix4 modelMatrix = getModelMatrix();
+    Matrix4 viewMatrix = Matrix4::LookAt(Matrix4::Dot(modelMatrix, Vector3::Zero()), Matrix4::Dot(modelMatrix, Vector3::Forward()), Vector3::Normalize(Matrix4::DotNoTranslate(modelMatrix, Vector3::Up())));
     
-    //KRMat4 viewMatrix = KRMat4::Invert(getModelMatrix());
+    //Matrix4 viewMatrix = Matrix4::Invert(getModelMatrix());
     
-    settings.setViewportSize(KRVector2(m_backingWidth, m_backingHeight));
-    KRMat4 projectionMatrix;
+    settings.setViewportSize(Vector2(m_backingWidth, m_backingHeight));
+    Matrix4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
     m_viewport.setLODBias(settings.getLODBias());
 
-    KRVector3 vecCameraDirection = m_viewport.getCameraDirection();
+    Vector3 vecCameraDirection = m_viewport.getCameraDirection();
     
     
     scene.updateOctree(m_viewport);
@@ -313,7 +312,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     }
     
     if(m_pSkyBoxTexture) {
-        getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, KRMat4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE, KRVector3::Zero(), 0.0f, KRVector4::Zero());
+        getContext().getShaderManager()->selectShader("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, Matrix4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
@@ -420,7 +419,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         
         GL_PUSH_GROUP_MARKER("Volumetric Lighting");
         
-        KRViewport volumetricLightingViewport = KRViewport(KRVector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
+        KRViewport volumetricLightingViewport = KRViewport(Vector2(volumetricBufferWidth, volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
         
         if(settings.volumetric_environment_downsample != 0) {
             // Set render target
@@ -477,11 +476,11 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         KRShader *pVisShader = getContext().getShaderManager()->getShader("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
         m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
-        for(unordered_map<KRAABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
-            KRMat4 matModel = KRMat4();
+        for(unordered_map<AABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
+            Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
-            if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f, KRVector4::Zero())) {
+            if(getContext().getShaderManager()->selectShader(*this, pVisShader, m_viewport, matModel, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -695,8 +694,8 @@ void KRCamera::renderPost()
     GLDEBUG(glDisable(GL_DEPTH_TEST));
     KRShader *postShader = m_pContext->getShaderManager()->getShader("PostShader", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
-    KRVector3 rim_color;
-    getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
+    Vector3 rim_color;
+    getContext().getShaderManager()->selectShader(*this, postShader, m_viewport, Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
     
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -718,10 +717,10 @@ void KRCamera::renderPost()
 //        KRShader *blitShader = m_pContext->getShaderManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //        
 //        for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
-//            KRMat4 viewMatrix = KRMat4();
+//            Matrix4 viewMatrix = Matrix4();
 //            viewMatrix.scale(0.20, 0.20, 0.20);
 //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
-//            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, KRMat4()), shadowViewports, KRMat4(), KRVector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+//            getContext().getShaderManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, Matrix4()), shadowViewports, Matrix4(), Vector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 //            m_pContext->getTextureManager()->selectTexture(1, NULL);
 //            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
 //            m_pContext->getTextureManager()->_setActiveTexture(0);
@@ -809,12 +808,12 @@ void KRCamera::renderPost()
                     int iTexCol = iChar % 16;
                     int iTexRow = 15 - (iChar - iTexCol) / 16;
                     
-                    KRVector2 top_left_pos = KRVector2(-1.0f + dScaleX * iCol, dScaleY * iRow - 1.0);
-                    KRVector2 bottom_right_pos = KRVector2(-1.0 + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0);
-                    top_left_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
-                    bottom_right_pos += KRVector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
-                    KRVector2 top_left_uv = KRVector2(dTexScale * iTexCol, dTexScale * iTexRow);
-                    KRVector2 bottom_right_uv = KRVector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
+                    Vector2 top_left_pos = Vector2(-1.0f + dScaleX * iCol, dScaleY * iRow - 1.0);
+                    Vector2 bottom_right_pos = Vector2(-1.0 + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0);
+                    top_left_pos += Vector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    bottom_right_pos += Vector2(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
+                    Vector2 top_left_uv = Vector2(dTexScale * iTexCol, dTexScale * iTexRow);
+                    Vector2 bottom_right_uv = Vector2(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
                     
                     vertex_data[vertex_count].x = top_left_pos.x;
                     vertex_data[vertex_count].y = top_left_pos.y;
@@ -880,7 +879,7 @@ void KRCamera::renderPost()
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
         
         KRShader *fontShader = m_pContext->getShaderManager()->getShader("debug_font", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-        getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, KRMat4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, KRVector3::Zero(), 0.0f, KRVector4::Zero());
+        getContext().getShaderManager()->selectShader(*this, fontShader, m_viewport, Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
@@ -1097,7 +1096,7 @@ const KRViewport &KRCamera::getViewport() const
 }
 
 
-KRVector2 KRCamera::getDownsample()
+Vector2 KRCamera::getDownsample()
 {
     return m_downsample;
 }
@@ -1107,12 +1106,12 @@ void KRCamera::setDownsample(float v)
     m_downsample = v;
 }
 
-void KRCamera::setFadeColor(const KRVector4 &fade_color)
+void KRCamera::setFadeColor(const Vector4 &fade_color)
 {
     m_fade_color = fade_color;
 }
 
-KRVector4 KRCamera::getFadeColor()
+Vector4 KRCamera::getFadeColor()
 {
     return m_fade_color;
 }

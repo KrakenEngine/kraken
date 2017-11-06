@@ -1,5 +1,5 @@
 //
-//  KRHitInfo.cpp
+//  KRTriangle.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,68 +29,51 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRHitInfo.h"
-#include "KRContext.h"
+#ifndef KRAKEN_TRIANGLE3_H
+#define KRAKEN_TRIANGLE3_H
 
-KRHitInfo::KRHitInfo()
-{
-    m_position = KRVector3::Zero();
-    m_normal = KRVector3::Zero();
-    m_distance = 0.0f;
-    m_node = NULL;
-}
+#include "vector3.h"
 
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance, KRNode *node)
-{
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = node;
-}
+namespace kraken {
 
-KRHitInfo::KRHitInfo(const KRVector3 &position, const KRVector3 &normal, const float distance)
+class Triangle3
 {
-    m_position = position;
-    m_normal = normal;
-    m_distance = distance;
-    m_node = NULL;
-}
+public:
+  Vector3 vert[3];
 
-KRHitInfo::~KRHitInfo()
-{
+  Triangle3(const Triangle3 &tri);
+  Triangle3(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
+  ~Triangle3();
     
-}
+  Vector3 calculateNormal() const;
+    
+  bool operator ==(const Triangle3& b) const;
+  bool operator !=(const Triangle3& b) const;
+  Triangle3& operator =(const Triangle3& b);
+  Vector3& operator[](unsigned int i);
+  Vector3 operator[](unsigned int i) const;
+    
+  bool rayCast(const Vector3 &start, const Vector3 &dir, Vector3 &hit_point) const;
+  bool sphereCast(const Vector3 &start, const Vector3 &dir, float radius, Vector3 &hit_point, float &hit_distance) const;
+    
+  bool containsPoint(const Vector3 &p) const;
+  Vector3 closestPointOnTriangle(const Vector3 &p) const;
+};
 
-bool KRHitInfo::didHit() const
-{
-    return m_normal != KRVector3::Zero();
-}
+} // namespace kraken
 
-KRVector3 KRHitInfo::getPosition() const
-{
-    return m_position;
-}
+namespace std {
+  template<>
+  struct hash<kraken::Triangle3> {
+  public:
+    size_t operator()(const kraken::Triangle3 &s) const
+    {
+      size_t h1 = hash<kraken::Vector3>()(s.vert[0]);
+      size_t h2 = hash<kraken::Vector3>()(s.vert[1]);
+      size_t h3 = hash<kraken::Vector3>()(s.vert[2]);
+      return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
+  };
+} // namespace std
 
-KRVector3 KRHitInfo::getNormal() const
-{
-    return m_normal;
-}
-
-float KRHitInfo::getDistance() const
-{
-    return m_distance;
-}
-
-KRNode *KRHitInfo::getNode() const
-{
-    return m_node;
-}
-
-KRHitInfo& KRHitInfo::operator =(const KRHitInfo& b)
-{
-    m_position = b.m_position;
-    m_normal = b.m_normal;
-    m_distance = b.m_distance;
-    m_node = b.m_node;
-    return *this;
-}
+#endif // KRAKEN_TRIANGLE3_H

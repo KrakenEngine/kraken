@@ -30,8 +30,8 @@
 //
 
 // #include "KRTextureManager.h"
-#include "KRMat4.h"
-#include "KRVector3.h"
+#include "Matrix4.h"
+#include "Vector3.h"
 #include "KRMesh.h"
 #include "KRScene.h"
 #include "KRContext.h"

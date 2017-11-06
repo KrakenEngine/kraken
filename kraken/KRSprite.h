@@ -28,7 +28,7 @@ public:
     
     virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
-    virtual KRAABB getBounds();
+    virtual AABB getBounds();
     
 protected:
     

@@ -36,11 +36,8 @@
 
 #include <errno.h>
 
-#ifdef __APPLE__
-int KRAKEN_MEM_PAGE_SIZE = getpagesize();
-#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRAKEN_MEM_PAGE_SIZE - 1))
-#define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRAKEN_MEM_PAGE_SIZE - 1)) + KRAKEN_MEM_PAGE_SIZE)
-#endif
+#define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1))
+#define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1)) + KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY)
 
 int m_mapCount = 0;
 size_t m_mapSize = 0;
@@ -52,10 +49,10 @@ KRDataBlock::KRDataBlock() {
     m_data_offset = 0;
 #if defined(_WIN32) || defined(_WIN64)
     m_hPackFile = INVALID_HANDLE_VALUE;
-#else
+    m_hFileMapping = NULL;
+#elif defined(__APPLE__)
     m_fdPackFile = 0;
 #endif
-
     m_fileName = "";
     m_mmapData = NULL;
     m_fileOwnerDataBlock = NULL;
@@ -70,7 +67,8 @@ KRDataBlock::KRDataBlock(void *data, size_t size) {
     m_data_offset = 0;
 #if defined(_WIN32) || defined(_WIN64)
     m_hPackFile = INVALID_HANDLE_VALUE;
-#else
+    m_hFileMapping = NULL;
+#elif defined(__APPLE__)
     m_fdPackFile = 0;
 #endif
     m_fileName = "";
@@ -90,22 +88,27 @@ KRDataBlock::~KRDataBlock() {
 void KRDataBlock::unload()
 {
     assert(m_lockCount == 0);
-    
+
+#if defined(_WIN32) || defined(_WIN64)
+    if (m_hPackFile != INVALID_HANDLE_VALUE) {
+      CloseHandle(m_hPackFile);
+      m_hPackFile = INVALID_HANDLE_VALUE;
+    }
+#elif defined(__APPLE__)
     if(m_fdPackFile) {
         // Memory mapped file
         if(m_fileOwnerDataBlock == this) {
             close(m_fdPackFile);
         }
         m_fdPackFile = 0;
-    } else if(m_data != NULL && m_bMalloced) {
+    }
+#endif
+
+   if(m_data != NULL && m_bMalloced) {
         // Malloc'ed data
         free(m_data);
     }
 
-#if defined(_WIN32) || defined(_WIN64)
-    m_hPackFile = INVALID_HANDLE_VALUE;
-#endif
-    
     m_bMalloced = false;
     m_data = NULL;
     m_data_size = 0;
@@ -132,19 +135,34 @@ bool KRDataBlock::load(const std::string &path)
 {
     bool success = false;
     unload();
-    
+
     struct stat statbuf;
     m_bReadOnly = true;
+
+#if defined(_WIN32) || defined(_WIN64)
+    m_hPackFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(m_hPackFile != INVALID_HANDLE_VALUE) {
+      m_fileOwnerDataBlock = this;
+      m_fileName = KRResource::GetFileBase(path);
+      FILE_STANDARD_INFO fileInfo;
+      if(GetFileInformationByHandleEx(m_hPackFile, FileStandardInfo, &fileInfo, sizeof(fileInfo))) {
+        m_data_size = fileInfo.AllocationSize.QuadPart;
+        m_data_offset = 0;
+        success = true;
+      }
+    }
+#elif defined(__APPLE__)
     m_fdPackFile = open(path.c_str(), O_RDONLY);
     if(m_fdPackFile >= 0) {
-        m_fileOwnerDataBlock = this;
-        m_fileName = KRResource::GetFileBase(path);
-        if(fstat(m_fdPackFile, &statbuf) >= 0) {
-            m_data_size = statbuf.st_size;
-            m_data_offset = 0;
-            success = true;
-        }
+      m_fileOwnerDataBlock = this;
+      m_fileName = KRResource::GetFileBase(path);
+      if(fstat(m_fdPackFile, &statbuf) >= 0) {
+        m_data_size = statbuf.st_size;
+        m_data_offset = 0;
+        success = true;
+      }
     }
+#endif
     if(!success) {
         // If anything failed, don't leave the object in an invalid state
         unload();
@@ -158,8 +176,15 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
     KRDataBlock *new_block = new KRDataBlock();
 
     new_block->m_data_size = length;
-    if(m_fdPackFile) {
-        new_block->m_fdPackFile = m_fdPackFile;
+#if defined(_WIN32) || defined(_WIN64)
+    if(m_hPackFile) {
+        new_block->m_hPackFile = m_hPackFile;
+#elif defined(__APPLE__)
+    if (m_fdPackFile) {
+      new_block->m_fdPackFile = m_fdPackFile;
+#else
+#error Unsupported
+#endif
         new_block->m_fileOwnerDataBlock = m_fileOwnerDataBlock;
         new_block->m_data_offset = start + m_data_offset;
     } else if(m_bMalloced) {
@@ -190,7 +215,13 @@ size_t KRDataBlock::getSize() const {
 // Expand the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
 void KRDataBlock::expand(size_t size)
 {
-    if(m_data == NULL && m_fdPackFile == 0) {
+#if defined(_WIN32) || defined(_WIN64)
+    if(m_data == NULL && m_hPackFile == 0) {
+#elif defined(__APPLE__)
+    if (m_data == NULL && m_fdPackFile == 0) {
+#else
+#error Unsupported
+#endif
         // Starting with an empty data block; allocate memory on the heap
         m_data = malloc(size);
         assert(m_data != NULL);
@@ -206,10 +237,10 @@ void KRDataBlock::expand(size_t size)
         // ... Or starting with a pointer reference, we must make our own copy and must not free the pointer
         void *pNewData = malloc(m_data_size + size);
         assert(pNewData != NULL);
-        
+
         // Copy exising data
         copy(pNewData);
-        
+
         // Unload existing data allocation, which is now redundant
         size_t new_size = m_data_size + size; // We need to store this before unload() as unload() will reset it
         unload();
@@ -224,7 +255,7 @@ void KRDataBlock::expand(size_t size)
 void KRDataBlock::append(void *data, size_t size) {
     // Expand the data block
     expand(size);
-    
+
     // Fill the new space with the data to append
     lock();
     memcpy((unsigned char *)m_data + m_data_size - size, data, size);
@@ -239,10 +270,34 @@ void KRDataBlock::copy(void *dest) {
 
 // Copy a range of data to the destination pointer
 void KRDataBlock::copy(void *dest, int start, int count) {
+#if defined(_WIN32) || defined(_WIN64)
+  if (m_lockCount == 0 && m_hPackFile != 0) {
+    // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
+
+    LARGE_INTEGER distance;
+    distance.QuadPart = start + m_data_offset;
+    bool success = SetFilePointerEx(m_hPackFile, distance, NULL, FILE_BEGIN);
+    assert(success);
+
+    void *w = dest;
+    DWORD bytes_remaining = count;
+    while(bytes_remaining > 0) {
+      DWORD bytes_read = 0;
+      success = ReadFile(m_hPackFile, w, bytes_remaining, &bytes_read, NULL);
+      assert(success);
+      assert(bytes_read > 0);
+      w = (unsigned char *)w + bytes_read;
+      bytes_remaining -= bytes_read;
+    }
+    assert(bytes_remaining == 0);
+#elif defined(__APPLE__)
     if(m_lockCount == 0 && m_fdPackFile != 0) {
         // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
         ssize_t r = pread(m_fdPackFile, dest, count, start + m_data_offset);
         assert(r != -1);
+#else
+#error Unsupported
+#endif
     } else {
         lock();
         memcpy((unsigned char *)dest, (unsigned char *)m_data + start, count);
@@ -266,33 +321,81 @@ void KRDataBlock::append(const std::string &s)
 
 // Save the data to a file.
 bool KRDataBlock::save(const std::string& path) {
+#if defined(_WIN32) || defined(_WIN64)
+  bool success = true;
+  HANDLE hNewFile = INVALID_HANDLE_VALUE;
+  HANDLE hFileMapping = NULL;
+  void *pNewData = NULL;
+
+  hNewFile = CreateFile(path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  if (hNewFile == INVALID_HANDLE_VALUE) {
+    success = false;
+  }
+
+  if (success) {
+    hFileMapping = CreateFileMappingFromApp(hNewFile, NULL, PAGE_READWRITE, m_data_size, NULL);
+    if (hFileMapping == NULL) {
+      success = false;
+    }
+  }
+
+  if (success) {
+    pNewData = MapViewOfFileFromApp(hFileMapping, FILE_MAP_WRITE, 0, m_data_size);
+    if (pNewData == NULL) {
+      success = false;
+    }
+  }
+
+  if (success) {
+    // Copy data to new file
+    copy(pNewData);
+  }
+
+  if (pNewData != NULL) {
+    UnmapViewOfFile(pNewData);
+  }
+
+  if (hFileMapping != NULL) {
+    CloseHandle(hFileMapping);
+  }
+
+  if (hNewFile != INVALID_HANDLE_VALUE) {
+    CloseHandle(hNewFile);
+  }
+
+  return success;
+
+#elif defined(__APPLE__)
     int fdNewFile = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
     if(fdNewFile == -1) {
         return false;
-    } else {
-        // Seek to end of file and write a byte to enlarge it
-        lseek(fdNewFile, m_data_size-1, SEEK_SET);
-        write(fdNewFile, "", 1);
-        
-        // Now map it...
-        void *pNewData = mmap(0, m_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdNewFile, 0);
-        if(pNewData == (caddr_t) -1) {
-            close(fdNewFile);
-            return false;
-        } else if(m_data != NULL) {
-            
-            
-            // Copy data to new file
-            copy(pNewData);
-            
-            // Unmap the new file
-            munmap(pNewData, m_data_size);
-            
-            // Close the new file
-            close(fdNewFile);
-        }
-        return true;
     }
+
+    // Seek to end of file and write a byte to enlarge it
+    lseek(fdNewFile, m_data_size-1, SEEK_SET);
+    write(fdNewFile, "", 1);
+
+    // Now map it...
+    void *pNewData = mmap(0, m_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdNewFile, 0);
+    if(pNewData == (caddr_t) -1) {
+        close(fdNewFile);
+        return false;
+    }
+    if(m_data != NULL) {
+        // Copy data to new file
+        copy(pNewData);
+
+        // Unmap the new file
+        munmap(pNewData, m_data_size);
+
+        // Close the new file
+        close(fdNewFile);
+    }
+    return true;
+
+#else
+#error Unsupported
+#endif
 }
 
 // Get contents as a string
@@ -311,18 +414,32 @@ std::string KRDataBlock::getString()
 void KRDataBlock::lock()
 {
     if(m_lockCount == 0) {
-        
+
         // Memory mapped file; ensure data is mapped to ram
+#if defined(_WIN32) || defined(_WIN64)
+        if(m_hFileMapping) {
+#elif defined(__APPLE__)
         if(m_fdPackFile) {
+#else
+#error Unsupported
+#endif
             if(m_data_size < KRENGINE_MIN_MMAP) {
                 m_data = malloc(m_data_size);
                 assert(m_data != NULL);
                 copy(m_data);
             } else {
+              size_t alignment_offset = m_data_offset & (KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1);
+              assert(m_mmapData == NULL);
+#if defined(_WIN32) || defined(_WIN64)
+              m_hFileMapping = CreateFileMappingFromApp(m_hPackFile, NULL, m_bReadOnly ? PAGE_READONLY : PAGE_READWRITE, m_data_size, NULL);
+              assert(m_hFileMapping != NULL);
+
+              m_mmapData = MapViewOfFileFromApp(m_hPackFile, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              assert(m_mmapData != NULL);
+#elif defined(__APPLE__)
                 //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
-                
                 // Round m_data_offset down to the next memory page, as required by mmap
-                size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
+
                 if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t) -1) {
                     int iError = errno;
                     switch(iError) {
@@ -353,6 +470,9 @@ void KRDataBlock::lock()
                     }
                     assert(false); // mmap() failed.
                 }
+#else
+#error Unsupported
+#endif
                 m_mapCount++;
                 m_mapSize += m_data_size;
                 m_mapOverhead += alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
@@ -369,24 +489,41 @@ void KRDataBlock::unlock()
 {
     // We expect that the data block was previously locked
     assertLocked();
-    
-    
+
+
     if(m_lockCount == 1) {
-        
+
         // Memory mapped file; ensure data is unmapped from ram
+#if defined(_WIN32) || defined(_WIN64)
+        if (m_hPackFile) {
+#elif defined(__APPLE__)
         if(m_fdPackFile) {
+#else
+#error Undefined
+#endif
             if(m_data_size < KRENGINE_MIN_MMAP) {
                 free(m_data);
                 m_data = NULL;
             } else {
                 //fprintf(stderr, "KRDataBlock::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
-                
+#if defined(_WIN32) || defined(_WIN64)
+                if (m_mmapData != NULL) {
+                  UnmapViewOfFile(m_mmapData);
+                }
+                if(m_hFileMapping != NULL) {
+                  CloseHandle(m_hFileMapping);
+                  m_hFileMapping = NULL;
+                }
+#elif defined(__APPLE__)
                 munmap(m_mmapData, m_data_size);
+#else
+#error Undefined
+#endif
                 m_data = NULL;
                 m_mmapData = NULL;
                 m_mapCount--;
                 m_mapSize -= m_data_size;
-                size_t alignment_offset = m_data_offset & (KRAKEN_MEM_PAGE_SIZE - 1);
+                size_t alignment_offset = m_data_offset & (KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1);
                 m_mapOverhead -= alignment_offset + KRAKEN_MEM_ROUND_UP_PAGE(m_data_size + alignment_offset) - m_data_size + alignment_offset;
                 // fprintf(stderr, "Mapped: %i Size: %d Overhead: %d\n", m_mapCount, m_mapSize, m_mapOverhead);
             }
