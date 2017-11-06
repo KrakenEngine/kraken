@@ -579,17 +579,17 @@ AABB KRScene::getRootOctreeBounds()
 }
 
 
-bool KRScene::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.lineCast(v0, v1, hitinfo, layer_mask);
 }
 
-bool KRScene::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.rayCast(v0, dir, hitinfo, layer_mask);
 }
 
-bool KRScene::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRScene::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask)
 {
     return m_nodeTree.sphereCast(v0, v1, radius, hitinfo, layer_mask);
 }

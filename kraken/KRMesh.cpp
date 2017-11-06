@@ -1104,7 +1104,7 @@ KRMesh::model_format_t KRMesh::getModelFormat() const
     return f;
 }
 
-bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, KRHitInfo &hitinfo)
+bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, HitInfo &hitinfo)
 {
     Vector3 hit_point;
     if(tri.rayCast(start, dir, hit_point)) {
@@ -1124,7 +1124,7 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &
             distance_v2 /= distance_total;
             Vector3 normal = Vector3::Normalize(tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2));
             
-            hitinfo = KRHitInfo(hit_point, normal, new_hit_distance);
+            hitinfo = HitInfo(hit_point, normal, new_hit_distance);
             return true;
         } else {
             return false; // The hit was farther than an existing hit
@@ -1138,7 +1138,7 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &
 }
 
 
-bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, KRHitInfo &hitinfo) const
+bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, HitInfo &hitinfo) const
 {
     m_pData->lock();
     bool hit_found = false;
@@ -1184,7 +1184,7 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, KRHitInfo &hitinf
 }
 
 
-bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo) const
+bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo) const
 {
     m_pData->lock();
 
@@ -1236,7 +1236,7 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
     return hit_found;
 }
 
-bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const Triangle3 &tri, KRHitInfo &hitinfo)
+bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const Triangle3 &tri, HitInfo &hitinfo)
 {
     
     Vector3 dir = Vector3::Normalize(v1 - v0);
@@ -1261,7 +1261,7 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
             distance_v2 /= distance_total;
             Vector3 normal = Vector3::Normalize(Matrix4::DotNoTranslate(model_to_world, (tri_n0 * (1.0 - distance_v0) + tri_n1 * (1.0 - distance_v1) + tri_n2 * (1.0 - distance_v2))));
             */
-            hitinfo = KRHitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
+            hitinfo = HitInfo(new_hit_point, world_tri.calculateNormal(), new_hit_distance);
             return true;
         }
     }
@@ -1269,10 +1269,10 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
     return false;
 }
 
-bool KRMesh::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo) const
+bool KRMesh::lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo) const
 {
     m_pData->lock();
-    KRHitInfo new_hitinfo;
+    HitInfo new_hitinfo;
     Vector3 dir = Vector3::Normalize(v1 - v0);
     if(rayCast(v0, dir, new_hitinfo)) {
         if((new_hitinfo.getPosition() - v0).sqrMagnitude() <= (v1 - v0).sqrMagnitude()) {

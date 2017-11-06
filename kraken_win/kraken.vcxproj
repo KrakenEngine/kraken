@@ -151,7 +151,7 @@
     <ClCompile Include="..\kraken\KRDSP_vDSP.cpp" />
     <ClCompile Include="..\kraken\KRFloat.cpp" />
     <ClCompile Include="..\kraken\KRHelpers.cpp" />
-    <ClCompile Include="..\kraken\KRHitInfo.cpp" />
+    <ClCompile Include="..\kraken\HitInfo.cpp" />
     <ClCompile Include="..\kraken\KRLight.cpp" />
     <ClCompile Include="..\kraken\KRLocator.cpp" />
     <ClCompile Include="..\kraken\KRLODGroup.cpp" />
@@ -229,7 +229,7 @@
     <ClInclude Include="..\kraken\KREngine-common.h" />
     <ClInclude Include="..\kraken\KREngine.h" />
     <ClInclude Include="..\kraken\KRHelpers.h" />
-    <ClInclude Include="..\kraken\KRHitInfo.h" />
+    <ClInclude Include="..\kraken\HitInfo.h" />
     <ClInclude Include="..\kraken\KRLight.h" />
     <ClInclude Include="..\kraken\KRLocator.h" />
     <ClInclude Include="..\kraken\KRLODGroup.h" />

@@ -140,6 +140,9 @@ tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
         case KRNode::KRENGINE_NODE_SCALE_OFFSET_Z:
             szAttribute = "scale_offset_z";
             break;
+        case KRNode::KRENGINE_NODE_ATTRIBUTE_COUNT:
+            // Suppress warning
+            break;
     }
     
     e->SetAttribute("attribute", szAttribute);

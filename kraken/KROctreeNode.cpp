@@ -196,7 +196,7 @@ std::set<KRNode *> &KROctreeNode::getSceneNodes()
 }
 
 
-bool KROctreeNode::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctreeNode::lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     if(hitinfo.didHit() && v1 != hitinfo.getPosition()) {
@@ -224,7 +224,7 @@ bool KROctreeNode::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hit
     return hit_found;
 }
 
-bool KROctreeNode::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctreeNode::rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     if(hitinfo.didHit()) {
@@ -252,7 +252,7 @@ bool KROctreeNode::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hit
     return hit_found;
 }
 
-bool KROctreeNode::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctreeNode::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     /*

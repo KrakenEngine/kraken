@@ -13,4 +13,13 @@ add_sources(aabb.cpp)
 add_sources(hitinfo.cpp)
 
 # Private Implementation
+add_sources(KRAmbientZone.cpp)
+add_sources(KRAnimation.cpp)
+add_sources(KRAnimationAttribute.cpp)
+add_sources(KRAnimationCurve.cpp)
+add_sources(KRAnimationCurveManager.cpp)
+add_sources(KRAnimationLayer.cpp)
+add_sources(KRAnimationManager.cpp)
+add_sources(KRAudioBuffer.cpp)
+add_sources(KRAudioManager.cpp)
 add_sources(KRDataBlock.cpp)
