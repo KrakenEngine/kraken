@@ -88,6 +88,7 @@ using std::queue;
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <Accelerate/Accelerate.h>
+#include <AppKit/AppKit.h>
 #define KRAKEN_HAVE_BLAS 1
 #endif
 

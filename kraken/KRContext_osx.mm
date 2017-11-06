@@ -15,8 +15,8 @@ NSOpenGLContext *gRenderContext = nil;
 
 void KRContext::destroyDeviceContexts()
 {
-    [gStreamerContext release];
-    [gRenderContext release];
+  gStreamerContext = nil;
+  gRenderContext = nil;
 }
 
 void KRContext::createDeviceContexts()
