@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
+#include "public/kraken.h"
 #include "KROctree.h"
 #include "KRNode.h"
-#include "HitInfo.h"
 #include "KRCollider.h"
 
 KROctree::KROctree()

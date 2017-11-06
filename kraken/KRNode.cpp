@@ -850,6 +850,10 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
         case KRENGINE_NODE_SCALE_OFFSET_Z:
             setScalingOffset(Vector3(m_scalingOffset.x, m_scalingOffset.y, v));
             break;
+        case KRENGINE_NODE_ATTRIBUTE_NONE:
+        case KRENGINE_NODE_ATTRIBUTE_COUNT:
+            // Suppress warnings
+            break;
     }
 }
 

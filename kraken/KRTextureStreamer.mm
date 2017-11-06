@@ -12,6 +12,7 @@
 #include "KRContext.h"
 
 #include <chrono>
+#include <AppKit/AppKit.h>
 
 
 #if TARGET_OS_IPHONE

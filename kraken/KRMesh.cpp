@@ -37,12 +37,7 @@
 #include "KRShader.h"
 #include "KRShaderManager.h"
 #include "KRContext.h"
-#if defined(_WIN32) || defined(_WIN64)
 #include "../3rdparty/forsyth/forsyth.h"
-#else
-#include "forsyth.h"
-#endif
-
 
 KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)  {
     setName(name);
@@ -52,7 +47,6 @@ KRMesh::KRMesh(KRContext &context, std::string name) : KRResource(context, name)
     m_pMetaData = NULL;
     m_pIndexBaseData = NULL;
     m_constant = false;
-    
 }
 
 KRMesh::KRMesh(KRContext &context, std::string name, KRDataBlock *data) : KRResource(context, name) {
