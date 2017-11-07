@@ -92,7 +92,7 @@ AABB KRCollider::getBounds() {
     }
 }
 
-bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask ) { // Only test if layer masks have a common bit set
         loadModel();
@@ -100,15 +100,15 @@ bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitin
             if(getBounds().intersectsLine(v0, v1)) {
                 Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
                 Vector3 v1_model_space = Matrix4::Dot(getInverseModelMatrix(), v1);
-                KRHitInfo hitinfo_model_space;
+                HitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) { 
                     Vector3 hit_position_model_space = Matrix4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    hitinfo_model_space = HitInfo(hit_position_model_space, Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
                     Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    hitinfo = HitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }
@@ -117,7 +117,7 @@ bool KRCollider::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitin
     return false;
 }
 
-bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
@@ -125,15 +125,15 @@ bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitin
             if(getBounds().intersectsRay(v0, dir)) {
                 Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
                 Vector3 dir_model_space = Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), dir));
-                KRHitInfo hitinfo_model_space;
+                HitInfo hitinfo_model_space;
                 if(hitinfo.didHit()) {
                     Vector3 hit_position_model_space = Matrix4::Dot(getInverseModelMatrix(), hitinfo.getPosition());
-                    hitinfo_model_space = KRHitInfo(hit_position_model_space, Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
+                    hitinfo_model_space = HitInfo(hit_position_model_space, Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
                 }
 
                 if(m_models[0]->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
                     Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
-                    hitinfo = KRHitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
+                    hitinfo = HitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
                     return true;
                 }
             }
@@ -142,7 +142,7 @@ bool KRCollider::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitin
     return false;
 }
 
-bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask)
 {
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
@@ -154,7 +154,7 @@ bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, 
             
             if(getBounds().intersects(sphereCastBounds)) {
                 if(m_models[0]->sphereCast(getModelMatrix(), v0, v1, radius, hitinfo)) {
-                    hitinfo = KRHitInfo(hitinfo.getPosition(), hitinfo.getNormal(), hitinfo.getDistance(), this);
+                    hitinfo = HitInfo(hitinfo.getPosition(), hitinfo.getNormal(), hitinfo.getDistance(), this);
                     return true;
                 }
             }

@@ -10,7 +10,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
-#include <fbxsdk.h>
+#include "fbxsdk.h"
 
 
 #include "KRResource.h"

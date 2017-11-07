@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 Kearwood Software. All rights reserved.
 //
 
+#include "public/kraken.h"
 #include "KROctree.h"
 #include "KRNode.h"
-#include "KRHitInfo.h"
 #include "KRCollider.h"
 
 KROctree::KROctree()
@@ -97,7 +97,7 @@ std::set<KRNode *> &KROctree::getOuterSceneNodes()
 }
 
 
-bool KROctree::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     std::vector<KRCollider *> outer_colliders;
@@ -118,7 +118,7 @@ bool KROctree::lineCast(const Vector3 &v0, const Vector3 &v1, KRHitInfo &hitinfo
     return hit_found;
 }
 
-bool KROctree::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     for(std::set<KRNode *>::iterator outer_nodes_itr=m_outerSceneNodes.begin(); outer_nodes_itr != m_outerSceneNodes.end(); outer_nodes_itr++) {
@@ -133,7 +133,7 @@ bool KROctree::rayCast(const Vector3 &v0, const Vector3 &dir, KRHitInfo &hitinfo
     return hit_found;
 }
 
-bool KROctree::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, KRHitInfo &hitinfo, unsigned int layer_mask)
+bool KROctree::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask)
 {
     bool hit_found = false;
     std::vector<KRCollider *> outer_colliders;

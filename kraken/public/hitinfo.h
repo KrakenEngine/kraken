@@ -1,5 +1,5 @@
 //
-//  KRHitInfo.h
+//  hitinfo.h
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.

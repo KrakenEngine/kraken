@@ -28,8 +28,6 @@
 - (void)dealloc
 {
     CVDisplayLinkRelease(displayLink);
-    
-    [super dealloc];
 }
 
 

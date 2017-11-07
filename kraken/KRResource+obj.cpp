@@ -246,7 +246,8 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         while(*pFace != 0 && iVertex < cVertexData) {
             pMaterial->start_vertex = iVertex;
             
-            int *pMaterialEndFace = pFace + *pFace++;
+            int *pMaterialEndFace = pFace + *pFace;
+            ++pFace;
             while(pFace < pMaterialEndFace  && iVertex < cVertexData) {
                 int cFaceVertexes = *pFace;
                 Vector3 firstFaceVertex;

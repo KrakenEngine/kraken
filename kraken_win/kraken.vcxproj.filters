@@ -102,7 +102,7 @@
     <ClCompile Include="..\kraken\KRDirectionalLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\kraken\KRHitInfo.cpp">
+    <ClCompile Include="..\kraken\HitInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\kraken\KRLight.cpp">
@@ -335,7 +335,7 @@
     <ClInclude Include="..\kraken\KREngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\kraken\KRHitInfo.h">
+    <ClInclude Include="..\kraken\HitInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\kraken\KRLight.h">

@@ -7,6 +7,7 @@
 //
 
 #include "KREngine-common.h"
+#include <AppKit/AppKit.h>
 
 #include "KRContext.h"
 
@@ -15,8 +16,8 @@ NSOpenGLContext *gRenderContext = nil;
 
 void KRContext::destroyDeviceContexts()
 {
-    [gStreamerContext release];
-    [gRenderContext release];
+  gStreamerContext = nil;
+  gRenderContext = nil;
 }
 
 void KRContext::createDeviceContexts()

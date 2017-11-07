@@ -144,8 +144,8 @@ void KRAudioManager::setListenerScene(KRScene *scene)
 void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
 {
     // uint64_t start_time = mach_absolute_time();
-	  AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
-    AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
+	Float32 *outA = (Float32 *)ioData->mBuffers[0].mData;
+    Float32 *outB = (Float32 *)ioData->mBuffers[1].mData; // Non-Interleaved only
     
     int output_frame = 0;
     
@@ -168,16 +168,6 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
             float right_channel = block_data[m_output_sample * KRENGINE_MAX_OUTPUT_CHANNELS + 1];
             m_output_sample++;
             
-#if CA_PREFER_FIXED_POINT
-            // Interleaved
-            //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
-            //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
-            
-            // Non-Interleaved
-            outA[output_frame] = (SInt32)(left_channel * 0x1000000f);
-            outB[output_frame] = (SInt32)(right_channel * 0x1000000f);
-#else
-            
             // Interleaved
             //        outA[i*2] = (Float32)left_channel;
             //        outA[i*2 + 1] = (Float32)right_channel;
@@ -185,7 +175,6 @@ void KRAudioManager::renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData)
             // Non-Interleaved
             outA[output_frame] = (Float32)left_channel;
             outB[output_frame] = (Float32)right_channel;
-#endif
             output_frame++;
         }
     }
@@ -417,18 +406,14 @@ OSStatus KRAudioManager::renderInput(void *inRefCon, AudioUnitRenderActionFlags 
 void KRSetAUCanonical(AudioStreamBasicDescription &desc, UInt32 nChannels, bool interleaved)
 {
     desc.mFormatID = kAudioFormatLinearPCM;
-#if CA_PREFER_FIXED_POINT
-    desc.mFormatFlags = kAudioFormatFlagsCanonical | (kAudioUnitSampleFractionBits << kLinearPCMFormatFlagsSampleFractionShift);
-#else
-    desc.mFormatFlags = kAudioFormatFlagsCanonical;
-#endif
+    desc.mFormatFlags = kAudioFormatFlagsNativeFloatPacked;
     desc.mChannelsPerFrame = nChannels;
     desc.mFramesPerPacket = 1;
-    desc.mBitsPerChannel = 8 * sizeof(AudioUnitSampleType);
+    desc.mBitsPerChannel = 8 * sizeof(Float32);
     if (interleaved)
-        desc.mBytesPerPacket = desc.mBytesPerFrame = nChannels * sizeof(AudioUnitSampleType);
+        desc.mBytesPerPacket = desc.mBytesPerFrame = nChannels * sizeof(Float32);
     else {
-        desc.mBytesPerPacket = desc.mBytesPerFrame = sizeof(AudioUnitSampleType);
+        desc.mBytesPerPacket = desc.mBytesPerFrame = sizeof(Float32);
         desc.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
     }
 }
@@ -1128,8 +1113,6 @@ void KRAudioManager::initAudio()
                              &size));
         
         // ----
-        // AUCanonical on the iPhone is the 8.24 integer format that is native to the iPhone.
-
         KRSetAUCanonical(desc, 2, false);
         desc.mSampleRate = 44100.0f;
 
@@ -1487,7 +1470,7 @@ void KRAudioManager::startFrame(float deltaTime)
             
             
             if(source->getEnableOcclusion() && /* FINDME!! DISABLES CODE */ (false)) {
-                KRHitInfo hitinfo;
+                HitInfo hitinfo;
                 if(source->getScene().lineCast(m_listener_position, source_world_position, hitinfo, KRAKEN_COLLIDER_AUDIO)) {
                     gain = 0.0f;
                 }
@@ -1709,22 +1692,12 @@ void KRAudioManager::renderITD()
      
      // Get a pointer to the dataBuffer of the AudioBufferList
      
-     AudioUnitSampleType *outA = (AudioUnitSampleType *)ioData->mBuffers[0].mData;
-     AudioUnitSampleType *outB = (AudioUnitSampleType *)ioData->mBuffers[1].mData; // Non-Interleaved only
+     Float32 *outA = (Float32 *)ioData->mBuffers[0].mData;
+     Float32 *outB = (Float32 *)ioData->mBuffers[1].mData; // Non-Interleaved only
      
      
      // ----====---- Zero out accumulation / output buffer ----====----
      for (UInt32 i = 0; i < inNumberFrames; ++i) {
-     
-     #if CA_PREFER_FIXED_POINT
-     // Interleaved
-     //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
-     //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
-     
-     // Non-Interleaved
-     outA[i] = (SInt32)(0x1000000f);
-     outB[i] = (SInt32)(0x1000000f);
-     #else
      
      // Interleaved
      //        outA[i*2] = (Float32)left_channel;
@@ -1733,7 +1706,6 @@ void KRAudioManager::renderITD()
      // Non-Interleaved
      outA[i] = (Float32)0.0f;
      outB[i] = (Float32)0.0f;
-     #endif
      }
      
      // ----====---- Render direct / HRTF audio ----====----
@@ -1768,16 +1740,6 @@ void KRAudioManager::renderITD()
      //                left_channel = 0.0f;
      //                right_channel = 0.0f;
      
-     #if CA_PREFER_FIXED_POINT
-     // Interleaved
-     //        outA[i*2] = (SInt16)(left_channel * 32767.0f);
-     //        outA[i*2 + 1] = (SInt16)(right_channel * 32767.0f);
-     
-     // Non-Interleaved
-     outA[i] += (SInt32)(left_channel * 0x1000000f);
-     outB[i] += (SInt32)(right_channel * 0x1000000f);
-     #else
-     
      // Interleaved
      //        outA[i*2] = (Float32)left_channel;
      //        outA[i*2 + 1] = (Float32)right_channel;
@@ -1785,7 +1747,6 @@ void KRAudioManager::renderITD()
      // Non-Interleaved
      outA[i] += (Float32)left_channel;
      outB[i] += (Float32)right_channel;
-     #endif
      sample_frame++;
      }
      }

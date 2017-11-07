@@ -45,11 +45,15 @@ endmacro()
 IF(APPLE)
    # SET(GUI_TYPE MACOSX_BUNDLE)
    # INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
+   FIND_LIBRARY(APPKIT_LIBRARY AppKit)
    FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
    FIND_LIBRARY(AUDIO_TOOLBOX_LIBRARY AudioToolbox)
-   MARK_AS_ADVANCED (OPENGL_LIBRARY
-                     AUDIO_TOOLBOX_LIBRARY)
-   SET(EXTRA_LIBS ${OPENGL_LIBRARY} ${AUDIO_TOOLBOX_LIBRARY})
+   FIND_LIBRARY(ACCELERATE_LIBRARY Accelerate)
+   MARK_AS_ADVANCED (APPKIT_LIBRARY
+                     OPENGL_LIBRARY
+                     AUDIO_TOOLBOX_LIBRARY
+                     ACCELERATE_LIBRARY)
+   SET(EXTRA_LIBS ${APPKIT_LIBRARY} ${OPENGL_LIBRARY} ${AUDIO_TOOLBOX_LIBRARY} ${ACCELERATE_LIBRARY})
    FIND_PATH(COCOA_INCLUDE_DIR OpenGL/gl3.h)
 ENDIF (APPLE)
 
@@ -74,7 +78,7 @@ PROPERTIES
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.65.1)
+find_package(Boost 1.54.0)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
   target_link_libraries(kraken ${Boost_LIBRARIES})

@@ -1064,6 +1064,9 @@ std::string KRCamera::getDebugText()
                     case KRNode::RENDER_PASS_SHADOWMAP:
                         stream << "shadow";
                         break;
+                    default:
+                        // Suppress warnings
+                        break;
                 }
                 stream << "\t" << (*itr).object_name << "\t" << (*itr).material_name;
                 vertex_count += (*itr).vertex_count;
@@ -1084,6 +1087,9 @@ std::string KRCamera::getDebugText()
         break;
     case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES:
         stream << "Siren - Ambient Zones";
+        break;
+    case KRRenderSettings::KRENGINE_DEBUG_DISPLAY_NUMBER:
+        // Suppress warning
         break;
     }
     return stream.str();
