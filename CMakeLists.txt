@@ -84,6 +84,30 @@ if(Boost_FOUND)
   target_link_libraries(kraken ${Boost_LIBRARIES})
 endif()
 
+# ---- Hydra ----
+add_subdirectory(hydra)
+include_directories(hydra/include)
+target_link_libraries(kraken hydra)
+
+# ---- OpenGL ----
+find_package(OpenGL REQUIRED)
+include_directories( ${OPENGL_INCLUDE_DIRS} )
+target_link_libraries(kraken ${OPENGL_LIBRARIES})
+
+# ---- GLAD ----
+add_subdirectory(3rdparty/glad)
+include_directories(${GLAD_INCLUDE_DIRS})
+target_link_libraries(kraken glad)
+
+# ---- GLFW ----
+set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
+set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+add_subdirectory(3rdparty/glfw)
+include_directories(3rdparty/glfw/include)
+target_link_libraries(kraken glfw ${GLFW_LIBRARIES})
+
 # add_custom_target(package
 #   COMMENT "Compressing..."
 #   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/archive"

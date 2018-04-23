@@ -1,0 +1,9 @@
+[submodule "3rdparty/glfw"]
+	path = 3rdparty/glfw
+	url = git@github.com:glfw/glfw.git
+[submodule "3rdparty/glad"]
+	path = 3rdparty/glad
+	url = git@github.com:Dav1dde/glad.git
+[submodule "hydra"]
+	path = hydra
+	url = git@github.com:KrakenEngine/hydra.git

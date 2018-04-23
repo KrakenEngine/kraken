@@ -114,7 +114,7 @@ typedef uint16_t __uint16_t;
 typedef int8_t __int8_t;
 typedef uint8_t __uint8_t;
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 // OpenGL ES 2.0 mapping to OpenGL 3.2
 #define glDeleteQueriesEXT glDeleteQueries
 #define glGenQueriesEXT glGenQueries

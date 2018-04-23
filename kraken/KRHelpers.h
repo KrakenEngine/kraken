@@ -2,7 +2,7 @@
 #define KRHELPERS_H
 
 #if defined(_WIN32) || defined(_WIN64)
-#include <GL/glew.h>
+#include <glad/glad.h>
 #elif defined(__linux__) || defined(__unix__) || defined(__posix__)
 #include <GL/gl.h>
 #include <GL/glu.h>
