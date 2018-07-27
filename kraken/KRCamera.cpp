@@ -790,8 +790,8 @@ void KRCamera::renderPost()
         DebugTextVertexData *vertex_data = (DebugTextVertexData *)m_debug_text_vertices.getStart();
 
         pChar = szText;
-        float dScaleX = 2.0f / (1024f / 16f);
-        float dScaleY = 2.0f / (768f / 16f);
+        float dScaleX = 2.0f / (1024.0f / 16.0f);
+        float dScaleY = 2.0f / (768.0f / 16.0f);
         float dTexScale = 1.0f / 16.0f;
         int iRow = row_count - 1; iCol = 0; iTab = 0;
         while(*pChar) {
