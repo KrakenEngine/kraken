@@ -86,7 +86,7 @@ void KRCollider::loadModel() {
 AABB KRCollider::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
-            return AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            return AABB::Create(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
     } else {
         return AABB::Infinite();
     }
@@ -147,9 +147,9 @@ bool KRCollider::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, 
     if(layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
         loadModel();
         if(m_models.size()) {
-            AABB sphereCastBounds = AABB( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
-                Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
-                Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
+            AABB sphereCastBounds = AABB::Create( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
+                Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
+                Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
             );
             
             if(getBounds().intersects(sphereCastBounds)) {

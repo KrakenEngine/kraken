@@ -213,7 +213,7 @@ void KRNode::setWorldTranslation(const Vector3 &v)
 void KRNode::setWorldRotation(const Vector3 &v)
 {
     if(m_parentNode) {
-        setLocalRotation((Quaternion(v) * -m_parentNode->getWorldRotation()).eulerXYZ());
+        setLocalRotation((Quaternion::Create(v) * -m_parentNode->getWorldRotation()).eulerXYZ());
         setPreRotation(Vector3::Zero());
         setPostRotation(Vector3::Zero());
     } else {
@@ -702,7 +702,7 @@ const Matrix4 &KRNode::getActivePoseMatrix()
 }
 
 const Quaternion KRNode::getWorldRotation() {
-    Quaternion world_rotation = Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation);
+    Quaternion world_rotation = Quaternion::Create(m_postRotation) * Quaternion::Create(m_localRotation) * Quaternion::Create(m_preRotation);
     if(m_parentNode) {
         world_rotation = world_rotation * m_parentNode->getWorldRotation();
     }
@@ -710,7 +710,7 @@ const Quaternion KRNode::getWorldRotation() {
 }
 
 const Quaternion KRNode::getBindPoseWorldRotation() {
-    Quaternion world_rotation = Quaternion(m_initialPostRotation) * Quaternion(m_initialLocalRotation) * Quaternion(m_initialPreRotation);
+    Quaternion world_rotation = Quaternion::Create(m_initialPostRotation) * Quaternion::Create(m_initialLocalRotation) * Quaternion::Create(m_initialPreRotation);
     if(dynamic_cast<KRBone *>(m_parentNode)) {
         world_rotation = world_rotation * m_parentNode->getBindPoseWorldRotation();
     }
@@ -718,7 +718,7 @@ const Quaternion KRNode::getBindPoseWorldRotation() {
 }
 
 const Quaternion KRNode::getActivePoseWorldRotation() {
-    Quaternion world_rotation = Quaternion(m_postRotation) * Quaternion(m_localRotation) * Quaternion(m_preRotation);
+    Quaternion world_rotation = Quaternion::Create(m_postRotation) * Quaternion::Create(m_localRotation) * Quaternion::Create(m_preRotation);
     if(dynamic_cast<KRBone *>(m_parentNode)) {
         world_rotation = world_rotation * m_parentNode->getActivePoseWorldRotation();
     }
@@ -768,87 +768,87 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
     //printf("%s - ", m_name.c_str());
     switch(attrib) {
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
-            setLocalTranslation(Vector3(v, m_localTranslation.y, m_localTranslation.z));
+            setLocalTranslation(Vector3::Create(v, m_localTranslation.y, m_localTranslation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
-            setLocalTranslation(Vector3(m_localTranslation.x, v, m_localTranslation.z));
+            setLocalTranslation(Vector3::Create(m_localTranslation.x, v, m_localTranslation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
-            setLocalTranslation(Vector3(m_localTranslation.x, m_localTranslation.y, v));
+            setLocalTranslation(Vector3::Create(m_localTranslation.x, m_localTranslation.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_X:
-            setLocalScale(Vector3(v, m_localScale.y, m_localScale.z));
+            setLocalScale(Vector3::Create(v, m_localScale.y, m_localScale.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
-            setLocalScale(Vector3(m_localScale.x, v, m_localScale.z));
+            setLocalScale(Vector3::Create(m_localScale.x, v, m_localScale.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
-            setLocalScale(Vector3(m_localScale.x, m_localScale.y, v));
+            setLocalScale(Vector3::Create(m_localScale.x, m_localScale.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
-            setLocalRotation(Vector3(v * DEGREES_TO_RAD, m_localRotation.y, m_localRotation.z));
+            setLocalRotation(Vector3::Create(v * DEGREES_TO_RAD, m_localRotation.y, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
-            setLocalRotation(Vector3(m_localRotation.x, v * DEGREES_TO_RAD, m_localRotation.z));
+            setLocalRotation(Vector3::Create(m_localRotation.x, v * DEGREES_TO_RAD, m_localRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
-            setLocalRotation(Vector3(m_localRotation.x, m_localRotation.y, v * DEGREES_TO_RAD));
+            setLocalRotation(Vector3::Create(m_localRotation.x, m_localRotation.y, v * DEGREES_TO_RAD));
             break;
             
 
         case KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X:
-            setPreRotation(Vector3(v * DEGREES_TO_RAD, m_preRotation.y, m_preRotation.z));
+            setPreRotation(Vector3::Create(v * DEGREES_TO_RAD, m_preRotation.y, m_preRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y:
-            setPreRotation(Vector3(m_preRotation.x, v * DEGREES_TO_RAD, m_preRotation.z));
+            setPreRotation(Vector3::Create(m_preRotation.x, v * DEGREES_TO_RAD, m_preRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z:
-            setPreRotation(Vector3(m_preRotation.x, m_preRotation.y, v * DEGREES_TO_RAD));
+            setPreRotation(Vector3::Create(m_preRotation.x, m_preRotation.y, v * DEGREES_TO_RAD));
             break;
         case KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X:
-            setPostRotation(Vector3(v * DEGREES_TO_RAD, m_postRotation.y, m_postRotation.z));
+            setPostRotation(Vector3::Create(v * DEGREES_TO_RAD, m_postRotation.y, m_postRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y:
-            setPostRotation(Vector3(m_postRotation.x, v * DEGREES_TO_RAD, m_postRotation.z));
+            setPostRotation(Vector3::Create(m_postRotation.x, v * DEGREES_TO_RAD, m_postRotation.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z:
-            setPostRotation(Vector3(m_postRotation.x, m_postRotation.y, v * DEGREES_TO_RAD));
+            setPostRotation(Vector3::Create(m_postRotation.x, m_postRotation.y, v * DEGREES_TO_RAD));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X:
-            setRotationPivot(Vector3(v, m_rotationPivot.y, m_rotationPivot.z));
+            setRotationPivot(Vector3::Create(v, m_rotationPivot.y, m_rotationPivot.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y:
-            setRotationPivot(Vector3(m_rotationPivot.x, v, m_rotationPivot.z));
+            setRotationPivot(Vector3::Create(m_rotationPivot.x, v, m_rotationPivot.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z:
-            setRotationPivot(Vector3(m_rotationPivot.x, m_rotationPivot.y, v));
+            setRotationPivot(Vector3::Create(m_rotationPivot.x, m_rotationPivot.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X:
-            setScalingPivot(Vector3(v, m_scalingPivot.y, m_scalingPivot.z));
+            setScalingPivot(Vector3::Create(v, m_scalingPivot.y, m_scalingPivot.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y:
-            setScalingPivot(Vector3(m_scalingPivot.x, v, m_scalingPivot.z));
+            setScalingPivot(Vector3::Create(m_scalingPivot.x, v, m_scalingPivot.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z:
-            setScalingPivot(Vector3(m_scalingPivot.x, m_scalingPivot.y, v));
+            setScalingPivot(Vector3::Create(m_scalingPivot.x, m_scalingPivot.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X:
-            setRotationOffset(Vector3(v, m_rotationOffset.y, m_rotationOffset.z));
+            setRotationOffset(Vector3::Create(v, m_rotationOffset.y, m_rotationOffset.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y:
-            setRotationOffset(Vector3(m_rotationOffset.x, v, m_rotationOffset.z));
+            setRotationOffset(Vector3::Create(m_rotationOffset.x, v, m_rotationOffset.z));
             break;
         case KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z:
-            setRotationOffset(Vector3(m_rotationOffset.x, m_rotationOffset.y, v));
+            setRotationOffset(Vector3::Create(m_rotationOffset.x, m_rotationOffset.y, v));
             break;
         case KRENGINE_NODE_SCALE_OFFSET_X:
-            setScalingOffset(Vector3(v, m_scalingOffset.y, m_scalingOffset.z));
+            setScalingOffset(Vector3::Create(v, m_scalingOffset.y, m_scalingOffset.z));
             break;
         case KRENGINE_NODE_SCALE_OFFSET_Y:
-            setScalingOffset(Vector3(m_scalingOffset.x, v, m_scalingOffset.z));
+            setScalingOffset(Vector3::Create(m_scalingOffset.x, v, m_scalingOffset.z));
             break;
         case KRENGINE_NODE_SCALE_OFFSET_Z:
-            setScalingOffset(Vector3(m_scalingOffset.x, m_scalingOffset.y, v));
+            setScalingOffset(Vector3::Create(m_scalingOffset.x, m_scalingOffset.y, v));
             break;
         case KRENGINE_NODE_ATTRIBUTE_NONE:
         case KRENGINE_NODE_ATTRIBUTE_COUNT:

@@ -154,7 +154,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     y = strtof(pChar, &pChar);
                     pChar = szSymbol[3];
                     z = strtof(pChar, &pChar);
-                    indexed_vertices.push_back(Vector3(x,y,z));
+                    indexed_vertices.push_back(Vector3::Create(x,y,z));
                 } else if(strcmp(szSymbol[0], "vt") == 0) {
                     // Vertex Texture UV Coordinate (vt)
                     char *pChar = szSymbol[1];
@@ -163,7 +163,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     u = strtof(pChar, &pChar);
                     pChar = szSymbol[2];
                     v = strtof(pChar, &pChar);                            
-                    indexed_uva.push_back(Vector2(u,v));
+                    indexed_uva.push_back(Vector2::Create(u,v));
                 } else if(strcmp(szSymbol[0], "vn") == 0) {
                     // Vertex Normal (vn)
                     float x,y,z;
@@ -173,7 +173,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                     y = strtof(pChar, &pChar);
                     pChar = szSymbol[3];
                     z = strtof(pChar, &pChar);
-                    indexed_normals.push_back(Vector3(x,y,z));
+                    indexed_normals.push_back(Vector3::Create(x,y,z));
                 } else if(strcmp(szSymbol[0], "f") == 0) {
                     // Face (f)
                     int cFaceVertices = cSymbols - 1;

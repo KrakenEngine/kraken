@@ -56,14 +56,14 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_normalMap = "";
     m_reflectionMap = "";
     m_reflectionCube = "";
-    m_ambientMapOffset = Vector2(0.0f, 0.0f);
-    m_specularMapOffset = Vector2(0.0f, 0.0f);
-    m_diffuseMapOffset = Vector2(0.0f, 0.0f);
-    m_ambientMapScale = Vector2(1.0f, 1.0f);
-    m_specularMapScale = Vector2(1.0f, 1.0f);
-    m_diffuseMapScale = Vector2(1.0f, 1.0f);
-    m_reflectionMapOffset = Vector2(0.0f, 0.0f);
-    m_reflectionMapScale = Vector2(1.0f, 1.0f);
+    m_ambientMapOffset = Vector2::Create(0.0f, 0.0f);
+    m_specularMapOffset = Vector2::Create(0.0f, 0.0f);
+    m_diffuseMapOffset = Vector2::Create(0.0f, 0.0f);
+    m_ambientMapScale = Vector2::Create(1.0f, 1.0f);
+    m_specularMapScale = Vector2::Create(1.0f, 1.0f);
+    m_diffuseMapScale = Vector2::Create(1.0f, 1.0f);
+    m_reflectionMapOffset = Vector2::Create(0.0f, 0.0f);
+    m_reflectionMapScale = Vector2::Create(1.0f, 1.0f);
     m_alpha_mode = KRMATERIAL_ALPHA_MODE_OPAQUE;
 }
 
@@ -365,14 +365,14 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3::Create(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
     }
     
     if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3::Create(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
     }

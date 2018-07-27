@@ -36,7 +36,7 @@ void KRBone::loadXML(tinyxml2::XMLElement *e)
 }
 
 AABB KRBone::getBounds() {
-    return AABB(-Vector3::One(), Vector3::One(), getModelMatrix()); // Only required for bone debug visualization
+    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix()); // Only required for bone debug visualization
 }
 
 void KRBone::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)

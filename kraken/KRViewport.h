@@ -11,6 +11,8 @@
 
 #include "KREngine-common.h"
 
+#include "aabb.h"
+
 class KRLight;
 
 class KRViewport {

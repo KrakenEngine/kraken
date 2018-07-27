@@ -36,7 +36,7 @@ KRRenderSettings::KRRenderSettings()
     ambient_intensity = Vector3::Zero();
     light_intensity = Vector3::One();
     
-    perspective_fov = 45.0 * D2R;
+    perspective_fov = 45.0f * D2R;
     perspective_nearz = 0.3f;     // was 0.05f
     perspective_farz = 1000.0f;
     
@@ -60,14 +60,14 @@ KRRenderSettings::KRRenderSettings()
     volumetric_environment_enable = false;
     volumetric_environment_downsample = 2;
     volumetric_environment_max_distance = 100.0f;
-    volumetric_environment_quality = (50 - 5.0) / 495.0f;
+    volumetric_environment_quality = (50.0f - 5.0f) / 495.0f;
     volumetric_environment_intensity = 0.9f;
     
     
     fog_near = 50.0f;
     fog_far = 500.0f;
     fog_density = 0.0005f;
-    fog_color = Vector3(0.45, 0.45, 0.5);
+    fog_color = Vector3::Create(0.45f, 0.45f, 0.5f);
     fog_type = 0;
     
     dust_particle_intensity = 0.25f;

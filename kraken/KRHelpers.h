@@ -1,6 +1,10 @@
 #ifndef KRHELPERS_H
 #define KRHELPERS_H
 
+#include "vector2.h"
+#include "vector3.h"
+#include "matrix4.h"
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <glad/glad.h>
 #elif defined(__linux__) || defined(__unix__) || defined(__posix__)

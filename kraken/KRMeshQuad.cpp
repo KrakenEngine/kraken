@@ -38,15 +38,15 @@ KRMeshQuad::KRMeshQuad(KRContext &context) : KRMesh(context, "__quad")
     
     KRMesh::mesh_info mi;
     
-    mi.vertices.push_back(Vector3(-1.0f, -1.0f, 0.0f));
-    mi.vertices.push_back(Vector3(1.0f, -1.0f, 0.0f));
-    mi.vertices.push_back(Vector3(-1.0f,  1.0f, 0.0f));
-    mi.vertices.push_back(Vector3(1.0f,  1.0f, 0.0f));
+    mi.vertices.push_back(Vector3::Create(-1.0f, -1.0f, 0.0f));
+    mi.vertices.push_back(Vector3::Create(1.0f, -1.0f, 0.0f));
+    mi.vertices.push_back(Vector3::Create(-1.0f,  1.0f, 0.0f));
+    mi.vertices.push_back(Vector3::Create(1.0f,  1.0f, 0.0f));
     
-    mi.uva.push_back(Vector2(0.0f, 0.0f));
-    mi.uva.push_back(Vector2(1.0f, 0.0f));
-    mi.uva.push_back(Vector2(0.0f, 1.0f));
-    mi.uva.push_back(Vector2(1.0f, 1.0f));
+    mi.uva.push_back(Vector2::Create(0.0f, 0.0f));
+    mi.uva.push_back(Vector2::Create(1.0f, 0.0f));
+    mi.uva.push_back(Vector2::Create(0.0f, 1.0f));
+    mi.uva.push_back(Vector2::Create(1.0f, 1.0f));
     
     
     mi.submesh_starts.push_back(0);

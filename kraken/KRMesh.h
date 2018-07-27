@@ -36,6 +36,8 @@
 
 #include "KREngine-common.h"
 
+#include "hydra.h"
+
 using namespace kraken;
 
 #define MAX_VBO_SIZE 65535

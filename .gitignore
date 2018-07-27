@@ -2,3 +2,7 @@
 Kraken.xcodeproj/xcuserdata
 kraken_win/build/
 build/
+kraken.dir/
+Win32/
+x64/
+kraken_win

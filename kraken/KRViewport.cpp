@@ -121,7 +121,7 @@ void KRViewport::calculateDerivedValues()
     m_matInverseView = Matrix4::Invert(m_matView);
     m_matInverseProjection = Matrix4::Invert(m_matProjection);
     m_cameraPosition = Matrix4::Dot(m_matInverseView, Vector3::Zero());
-    m_cameraDirection = Matrix4::Dot(m_matInverseView, Vector3(0.0, 0.0, 1.0)) - Matrix4::Dot(m_matInverseView, Vector3(0.0, 0.0, 0.0));
+    m_cameraDirection = Matrix4::Dot(m_matInverseView, Vector3::Create(0.0, 0.0, 1.0)) - Matrix4::Dot(m_matInverseView, Vector3::Create(0.0, 0.0, 0.0));
 
     for(int i=0; i<8; i++) {
         m_frontToBackOrder[i] = i;
@@ -221,7 +221,7 @@ bool KRViewport::visible(const AABB &b) const
     int outside_count[6] = {0, 0, 0, 0, 0, 0};
     
     for(int iCorner=0; iCorner<8; iCorner++) {
-        Vector4 sourceCornerVertex = Vector4(
+        Vector4 sourceCornerVertex = Vector4::Create(
                                                  (iCorner & 1) == 0 ? b.min.x : b.max.x,
                                                  (iCorner & 2) == 0 ? b.min.y : b.max.y,
                                                  (iCorner & 4) == 0 ? b.min.z : b.max.z, 1.0f);

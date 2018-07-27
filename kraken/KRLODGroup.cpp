@@ -14,7 +14,7 @@ KRLODGroup::KRLODGroup(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_min_distance = 0.0f;
     m_max_distance = 0.0f;
-    m_reference = AABB(Vector3::Zero(), Vector3::Zero());
+    m_reference = AABB::Create(Vector3::Zero(), Vector3::Zero());
     m_use_world_units = true;
 }
 
@@ -71,7 +71,7 @@ void KRLODGroup::loadXML(tinyxml2::XMLElement *e)
         z = 0.0f;
     }
     
-    m_reference.min = Vector3(x,y,z);
+    m_reference.min = Vector3::Create(x,y,z);
     
     x=0.0f; y=0.0f; z=0.0f;
     if(e->QueryFloatAttribute("reference_max_x", &x) != tinyxml2::XML_SUCCESS) {
@@ -83,7 +83,7 @@ void KRLODGroup::loadXML(tinyxml2::XMLElement *e)
     if(e->QueryFloatAttribute("reference_max_z", &z) != tinyxml2::XML_SUCCESS) {
         z = 0.0f;
     }
-    m_reference.max = Vector3(x,y,z);
+    m_reference.max = Vector3::Create(x,y,z);
     
     m_use_world_units = true;
     if(e->QueryBoolAttribute("use_world_units", &m_use_world_units) != tinyxml2::XML_SUCCESS) {

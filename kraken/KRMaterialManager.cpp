@@ -162,49 +162,49 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                         char *pScan2 = szSymbol[1];
                         float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
-                            pMaterial->setAmbient(Vector3(r, r, r));
+                            pMaterial->setAmbient(Vector3::Create(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
                             float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
                             float b = strtof(pScan2, &pScan2);
-                            pMaterial->setAmbient(Vector3(r, g, b));
+                            pMaterial->setAmbient(Vector3::Create(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "kd") == 0) {
                         char *pScan2 = szSymbol[1];
                         float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
-                            pMaterial->setDiffuse(Vector3(r, r, r));
+                            pMaterial->setDiffuse(Vector3::Create(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
                             float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
                             float b = strtof(pScan2, &pScan2);
-                            pMaterial->setDiffuse(Vector3(r, g, b));
+                            pMaterial->setDiffuse(Vector3::Create(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "ks") == 0) {
                         char *pScan2 = szSymbol[1];
                         float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
-                            pMaterial->setSpecular(Vector3(r, r, r));
+                            pMaterial->setSpecular(Vector3::Create(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
                             float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
                             float b = strtof(pScan2, &pScan2);
-                            pMaterial->setSpecular(Vector3(r, g, b));
+                            pMaterial->setSpecular(Vector3::Create(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "kr") == 0) {
                         char *pScan2 = szSymbol[1];
                         float r = strtof(pScan2, &pScan2);
                         if(cSymbols == 2) {
-                            pMaterial->setReflection(Vector3(r, r, r));
+                            pMaterial->setReflection(Vector3::Create(r, r, r));
                         } else if(cSymbols == 4) {
                             pScan2 = szSymbol[2];
                             float g = strtof(pScan2, &pScan2);
                             pScan2 = szSymbol[3];
                             float b = strtof(pScan2, &pScan2);
-                            pMaterial->setReflection(Vector3(r, g, b));
+                            pMaterial->setReflection(Vector3::Create(r, g, b));
                         }
                     } else if(strcmp(szSymbol[0], "tr") == 0) {
                         char *pScan2 = szSymbol[1];
@@ -228,8 +228,8 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
                             *pLastPeriod = '\0';
                         }
 
-                        Vector2 texture_scale = Vector2(1.0f, 1.0f);
-                        Vector2 texture_offset = Vector2(0.0f, 0.0f);
+                        Vector2 texture_scale = Vector2::Create(1.0f, 1.0f);
+                        Vector2 texture_offset = Vector2::Create(0.0f, 0.0f);
                         
                         int iScanSymbol = 2;
                         int iScaleParam = -1;

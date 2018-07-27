@@ -43,9 +43,9 @@ void KROctree::add(KRNode *pNode)
                 AABB rootBounds = m_pRootNode->getBounds();
                 Vector3 rootSize = rootBounds.size();
                 if(nodeBounds.min.x < rootBounds.min.x || nodeBounds.min.y < rootBounds.min.y || nodeBounds.min.z < rootBounds.min.z) {
-                    m_pRootNode = new KROctreeNode(NULL, AABB(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
+                    m_pRootNode = new KROctreeNode(NULL, AABB::Create(rootBounds.min - rootSize, rootBounds.max), 7, m_pRootNode);
                 } else if(nodeBounds.max.x > rootBounds.max.x || nodeBounds.max.y > rootBounds.max.y || nodeBounds.max.z > rootBounds.max.z) {
-                    m_pRootNode = new KROctreeNode(NULL, AABB(rootBounds.min, rootBounds.max + rootSize), 0, m_pRootNode);
+                    m_pRootNode = new KROctreeNode(NULL, AABB::Create(rootBounds.min, rootBounds.max + rootSize), 0, m_pRootNode);
                 } else {
                     bInsideRoot = true;
                 }

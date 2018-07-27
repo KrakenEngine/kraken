@@ -29,8 +29,8 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
     m_color = Vector3::One();
     m_flareTexture = "";
     m_pFlareTexture = NULL;
-    m_flareSize = 0.0;
-    m_flareOcclusionSize = 0.05;
+    m_flareSize = 0.0f;
+    m_flareOcclusionSize = 0.05f;
     m_casts_shadow = true;
     m_light_shafts = true;
     m_dust_particle_density = 0.1f;
@@ -86,7 +86,7 @@ void KRLight::loadXML(tinyxml2::XMLElement *e) {
     if(e->QueryFloatAttribute("color_b", &z) != tinyxml2::XML_SUCCESS) {
         z = 1.0;
     }
-    m_color = Vector3(x,y,z);
+    m_color = Vector3::Create(x,y,z);
     
     if(e->QueryFloatAttribute("intensity", &m_intensity) != tinyxml2::XML_SUCCESS) {
         m_intensity = 100.0;
@@ -101,7 +101,7 @@ void KRLight::loadXML(tinyxml2::XMLElement *e) {
     }
     
     if(e->QueryFloatAttribute("flare_occlusion_size", &m_flareOcclusionSize) != tinyxml2::XML_SUCCESS) {
-        m_flareOcclusionSize = 0.05;
+        m_flareOcclusionSize = 0.05f;
     }
     
     if(e->QueryBoolAttribute("casts_shadow", &m_casts_shadow) != tinyxml2::XML_SUCCESS) {
@@ -263,7 +263,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
             float slice_far = -pCamera->settings.volumetric_environment_max_distance;
             float slice_spacing = (slice_far - slice_near) / slice_count;
             
-            pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2(slice_near, slice_spacing));
+            pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
             pFogShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
             
             KRDataBlock index_data;

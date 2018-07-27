@@ -138,7 +138,7 @@ void KRReverbZone::setGradientDistance(float gradient_distance)
 
 AABB KRReverbZone::getBounds() {
     // Reverb zones always have a -1, -1, -1 to 1, 1, 1 bounding box
-    return AABB(-Vector3::One(), Vector3::One(), getModelMatrix());
+    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
 float KRReverbZone::getContainment(const Vector3 &pos)
@@ -148,7 +148,7 @@ float KRReverbZone::getContainment(const Vector3 &pos)
         Vector3 size = bounds.size();
         Vector3 diff = pos - bounds.center();
         diff = diff * 2.0f;
-        diff = Vector3(diff.x / size.x, diff.y / size.y, diff.z / size.z);
+        diff = Vector3::Create(diff.x / size.x, diff.y / size.y, diff.z / size.z);
         float d = diff.magnitude();
         
         if(m_gradient_distance <= 0.0f) {

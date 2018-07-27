@@ -10,7 +10,7 @@
 #define KROCTREENODE_H
 
 #include "KREngine-common.h"
-#include "public/hitinfo.h"
+#include "hitinfo.h"
 
 class KRNode;
 

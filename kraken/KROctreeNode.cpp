@@ -99,12 +99,12 @@ AABB KROctreeNode::getChildBounds(int iChild)
 {
     Vector3 center = m_bounds.center();
     
-    return AABB(
-       Vector3(
+    return AABB::Create(
+       Vector3::Create(
                  (iChild & 1) == 0 ? m_bounds.min.x : center.x,
                  (iChild & 2) == 0 ? m_bounds.min.y : center.y,
                  (iChild & 4) == 0 ? m_bounds.min.z : center.z),
-       Vector3(
+       Vector3::Create(
                  (iChild & 1) == 0 ? center.x : m_bounds.max.x,
                  (iChild & 2) == 0 ? center.y : m_bounds.max.y,
                  (iChild & 4) == 0 ? center.z : m_bounds.max.z)
@@ -264,7 +264,7 @@ bool KROctreeNode::sphereCast(const Vector3 &v0, const Vector3 &v1, float radius
     } else {
     */
     
-        AABB swept_bounds = AABB(Vector3(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), Vector3(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
+        AABB swept_bounds = AABB::Create(Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
         // FINDME, TODO - Investigate AABB - swept sphere intersections or OBB - AABB intersections: "if(getBounds().intersectsSweptSphere(v0, v1, radius)) {"
         if(getBounds().intersects(swept_bounds)) {
         

@@ -55,7 +55,7 @@ AABB KRSpotLight::getBounds() {
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
-    return AABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
+    return AABB::Create(Vector3::Create(-influence_radius), Vector3::Create(influence_radius), getModelMatrix());
 }
 
 

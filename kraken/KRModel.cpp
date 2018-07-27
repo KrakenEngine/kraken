@@ -200,7 +200,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 if(m_faces_camera) {
                     Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
                     Vector3 camera_pos = viewport.getCameraPosition();
-                    matModel = Quaternion(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
+                    matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
                 pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
@@ -245,14 +245,14 @@ AABB KRModel::getBounds() {
     loadModel();
     if(m_models.size() > 0) {
         if(m_faces_camera) {
-            AABB normal_bounds = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+            AABB normal_bounds = AABB::Create(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             float max_dimension = normal_bounds.longest_radius();
-            return AABB(normal_bounds.center()-Vector3(max_dimension), normal_bounds.center() + Vector3(max_dimension));
+            return AABB::Create(normal_bounds.center()-Vector3::Create(max_dimension), normal_bounds.center() + Vector3::Create(max_dimension));
         } else {
             
             if(!(m_boundsCachedMat == getModelMatrix())) {
                 m_boundsCachedMat = getModelMatrix();
-                m_boundsCached = AABB(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+                m_boundsCached = AABB::Create(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
             }
             return m_boundsCached;
         }

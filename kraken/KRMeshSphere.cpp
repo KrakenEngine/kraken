@@ -62,12 +62,12 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     int i,it;
     float a;
     Vector3 p[6] = {
-        Vector3(0,0,1),
-        Vector3(0,0,-1),
-        Vector3(-1,-1,0),
-        Vector3(1,-1,0),
-        Vector3(1,1,0),
-        Vector3(-1,1,0)
+        Vector3::Create(0,0,1),
+        Vector3::Create(0,0,-1),
+        Vector3::Create(-1,-1,0),
+        Vector3::Create(1,-1,0),
+        Vector3::Create(1,1,0),
+        Vector3::Create(-1,1,0)
     };
     
     Vector3 pa,pb,pc;

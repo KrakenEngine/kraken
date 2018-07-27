@@ -208,7 +208,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibl
             bool in_viewport = false;
             if(renderPass == KRNode::RENDER_PASS_PRESTREAM) {
                 // When pre-streaming, objects are streamed in behind and in-front of the camera
-                AABB viewportExtents = AABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveFarZ()));
+                AABB viewportExtents = AABB::Create(viewport.getCameraPosition() - Vector3::Create(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3::Create(pCamera->settings.getPerspectiveFarZ()));
                 in_viewport = octreeBounds.intersects(viewportExtents);
             } else {
                 in_viewport = viewport.visible(pOctreeNode->getBounds());
@@ -227,7 +227,7 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibl
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    AABB cameraExtents = AABB(viewport.getCameraPosition() - Vector3(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3(pCamera->settings.getPerspectiveNearZ()));
+                    AABB cameraExtents = AABB::Create(viewport.getCameraPosition() - Vector3::Create(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3::Create(pCamera->settings.getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         // Record the frame number in which the camera was within the bounds
@@ -565,7 +565,7 @@ void KRScene::addDefaultLights()
 {
     KRDirectionalLight *light1 = new KRDirectionalLight(*this, "default_light1");
     
-    light1->setLocalRotation((Quaternion(Vector3(0.0, M_PI * 0.10, 0.0)) * Quaternion(Vector3(0.0, 0.0, -M_PI * 0.15))).eulerXYZ());
+    light1->setLocalRotation((Quaternion::Create(Vector3::Create(0.0f, M_PI * 0.10f, 0.0f)) * Quaternion::Create(Vector3::Create(0.0f, 0.0f, -M_PI * 0.15f))).eulerXYZ());
     m_pRootNode->addChild(light1);
 }
 
@@ -574,7 +574,7 @@ AABB KRScene::getRootOctreeBounds()
     if(m_nodeTree.getRootNode()) {
         return m_nodeTree.getRootNode()->getBounds();
     } else {
-        return AABB(-Vector3::One(), Vector3::One());
+        return AABB::Create(-Vector3::One(), Vector3::One());
     }
 }
 

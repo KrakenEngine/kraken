@@ -15,6 +15,8 @@
 #include "KRHelpers.h"
 using namespace kraken;
 
+#include "hydra.h"
+
 #include <stdint.h>
 #include <vector>
 #include <string>

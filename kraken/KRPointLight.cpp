@@ -36,7 +36,7 @@ AABB KRPointLight::getBounds() {
     if(influence_radius < m_flareOcclusionSize) {
         influence_radius = m_flareOcclusionSize;
     }
-    return AABB(Vector3(-influence_radius), Vector3(influence_radius), getModelMatrix());
+    return AABB::Create(Vector3::Create(-influence_radius), Vector3::Create(influence_radius), getModelMatrix());
 }
 
 void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
@@ -156,19 +156,19 @@ void KRPointLight::generateMesh() {
         int i,it;
         float a;
         Vector3 p[6] = {
-            Vector3(0,0,1),
-            Vector3(0,0,-1),
-            Vector3(-1,-1,0),
-            Vector3(1,-1,0),
-            Vector3(1,1,0),
-            Vector3(-1,1,0)
+            Vector3::Create(0,0,1),
+            Vector3::Create(0,0,-1),
+            Vector3::Create(-1,-1,0),
+            Vector3::Create(1,-1,0),
+            Vector3::Create(1,1,0),
+            Vector3::Create(-1,1,0)
         };
 
         Vector3 pa,pb,pc;
         int nt = 0,ntold;
         
         /* Create the level 0 object */
-        a = 1 / sqrt(2.0);
+        a = 1.0f / sqrtf(2.0f);
         for (i=0;i<6;i++) {
             p[i].x *= a;
             p[i].y *= a;

@@ -86,7 +86,7 @@ public:
         
         // Disable copy constructors
         KRVBOData(const KRVBOData& o) = delete;
-        KRVBOData(KRVBOData& o) = delete;
+        KRVBOData& operator=(const KRVBOData& o) = delete;
         
         long getSize() { return m_size; }
         

@@ -54,7 +54,7 @@ void FFTWorkspace::create(size_t length)
   cos_table = new float[size];
   sin_table = new float[size];
   for (int i = 0; i < size / 2; i++) {
-    float a = 2 * M_PI * i / length;
+    float a = 2.0f * M_PI * i / length;
     cos_table[i] = cos(a);
     sin_table[i] = sin(a);
   }
