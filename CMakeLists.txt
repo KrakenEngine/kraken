@@ -61,20 +61,6 @@ add_subdirectory(kraken)
 
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
 
-TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
-SET_TARGET_PROPERTIES(
-  kraken
-PROPERTIES
-  FRAMEWORK ON
-  SOVERSION 0
-  VERSION 0.1.0
-  PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
-  PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
-  ARCHIVE_OUTPUT_DIRECTORY "archive"
-  LIBRARY_OUTPUT_DIRECTORY "lib"
-  OUTPUT_NAME kraken
-)
-
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
@@ -95,7 +81,7 @@ include_directories( ${OPENGL_INCLUDE_DIRS} )
 target_link_libraries(kraken ${OPENGL_LIBRARIES})
 
 # ---- GLAD ----
-set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,  GL_EXT_texture_compression_s3tc")
+set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic, GL_EXT_texture_compression_s3tc, GL_S3_s3tc")
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
 target_link_libraries(kraken glad)
@@ -108,6 +94,20 @@ set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 add_subdirectory(3rdparty/glfw)
 include_directories(3rdparty/glfw/include)
 target_link_libraries(kraken glfw ${GLFW_LIBRARIES})
+
+TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
+SET_TARGET_PROPERTIES(
+  kraken
+PROPERTIES
+  FRAMEWORK ON
+  SOVERSION 0
+  VERSION 0.1.0
+  PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
+  PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
+  ARCHIVE_OUTPUT_DIRECTORY "archive"
+  LIBRARY_OUTPUT_DIRECTORY "lib"
+  OUTPUT_NAME kraken
+)
 
 # add_custom_target(package
 #   COMMENT "Compressing..."
