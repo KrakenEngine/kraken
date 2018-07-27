@@ -95,6 +95,7 @@ include_directories( ${OPENGL_INCLUDE_DIRS} )
 target_link_libraries(kraken ${OPENGL_LIBRARIES})
 
 # ---- GLAD ----
+set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,  GL_EXT_texture_compression_s3tc")
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
 target_link_libraries(kraken glad)
