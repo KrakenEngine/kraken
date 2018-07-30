@@ -41,7 +41,7 @@ tinyxml2::XMLElement *KRParticleSystemNewtonian::saveXML( tinyxml2::XMLNode *par
 
 AABB KRParticleSystemNewtonian::getBounds()
 {
-    return AABB(-Vector3::One(), Vector3::One(), getModelMatrix());
+    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
 void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)

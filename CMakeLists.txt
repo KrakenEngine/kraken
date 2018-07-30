@@ -59,7 +59,21 @@ ENDIF (APPLE)
 
 add_subdirectory(kraken)
 
-add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+add_public_header(hydra/include/aabb.h)
+add_public_header(hydra/include/hitinfo.h)
+add_public_header(hydra/include/hydra.h)
+add_public_header(hydra/include/matrix2.h)
+add_public_header(hydra/include/matrix2x3.h)
+add_public_header(hydra/include/matrix4.h)
+add_public_header(hydra/include/quaternion.h)
+add_public_header(hydra/include/scalar.h)
+add_public_header(hydra/include/triangle3.h)
+add_public_header(hydra/include/vector2.h)
+add_public_header(hydra/include/vector3.h)
+add_public_header(hydra/include/vector4.h)
+add_public_header(hydra/include/vector2i.h)
+
+add_library(kraken SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -75,13 +89,14 @@ add_subdirectory(hydra)
 include_directories(hydra/include)
 target_link_libraries(kraken hydra)
 
+
 # ---- OpenGL ----
 find_package(OpenGL REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS} )
 target_link_libraries(kraken ${OPENGL_LIBRARIES})
 
 # ---- GLAD ----
-set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic, GL_EXT_texture_compression_s3tc, GL_S3_s3tc")
+set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
 target_link_libraries(kraken glad)
@@ -105,9 +120,20 @@ PROPERTIES
   PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
   PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
   ARCHIVE_OUTPUT_DIRECTORY "archive"
-  LIBRARY_OUTPUT_DIRECTORY "lib"
+  LIBRARY_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
   OUTPUT_NAME kraken
 )
+
+# install(TARGETS kraken DESTINATION ${PROJECT_BINARY_DIR}/lib${LIB_SUFFIX})
+# install(FILES ${KRAKEN_PUBLIC_HEADERS} DESTINATION ${PROJECT_BINARY_DIR}/include)
+
+# INSTALL(TARGETS kraken 
+#        LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+#        ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+#        PUBLIC_HEADER DESTINATION "include"
+# )
+
+
 
 # add_custom_target(package
 #   COMMENT "Compressing..."
