@@ -103,6 +103,8 @@ using std::unordered_map;
 using std::unordered_multimap;
 using std::hash;
 
+#include <vulkan/vulkan.h>
+
 #if defined(_WIN32) || defined(_WIN64)
 
 #include <mutex>

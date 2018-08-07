@@ -132,8 +132,9 @@ private:
     static void *s_log_callback_user_data;
     
     KRStreamer m_streamer;
+    VkInstance m_vulkanInstance;
     
-    static void createDeviceContexts();
+    void createDeviceContexts();
     void destroyDeviceContexts();
 };
 

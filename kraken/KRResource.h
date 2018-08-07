@@ -30,7 +30,7 @@ public:
     
     static std::vector<KRResource *> LoadObj(KRContext &context, const std::string& path);
 #if !TARGET_OS_IPHONE
-    static void LoadFbx(KRContext &context, const std::string& path);
+//    static void LoadFbx(KRContext &context, const std::string& path); TODO, FINDME, HACK! - Uncomment
     static std::vector<KRResource *> LoadBlenderScene(KRContext &context, const std::string& path);
 #endif
    

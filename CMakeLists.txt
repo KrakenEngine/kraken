@@ -89,6 +89,9 @@ add_subdirectory(hydra)
 include_directories(hydra/include)
 target_link_libraries(kraken hydra)
 
+# ---- Vulkan ----
+find_package(Vulkan REQUIRED)
+target_link_libraries(kraken Vulkan::Vulkan)
 
 # ---- OpenGL ----
 find_package(OpenGL REQUIRED)

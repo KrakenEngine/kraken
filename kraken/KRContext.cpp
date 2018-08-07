@@ -47,7 +47,9 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 
-KRContext::KRContext() : m_streamer(*this)
+KRContext::KRContext()
+  : m_streamer(*this)
+  , m_vulkanInstance(VK_NULL_HANDLE)
 {
     m_streamingEnabled = false;
 #ifdef __APPLE__
@@ -282,8 +284,11 @@ void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     } else if(extension.compare("obj") == 0) {
         KRResource::LoadObj(*this, file_name);
 #if !TARGET_OS_IPHONE
+/*
+  // FINDME, TODO, HACK! - Uncomment
     } else if(extension.compare("fbx") == 0) {
         KRResource::LoadFbx(*this, file_name);
+*/
     } else if(extension.compare("blend") == 0) {
         KRResource::LoadBlenderScene(*this, file_name);
 #endif
@@ -387,20 +392,20 @@ void KRContext::getMemoryStats(long &free_memory)
 
 void KRContext::doStreaming()
 {
-    if(m_streamingEnabled) {
-        /*
-        long free_memory = KRENGINE_GPU_MEM_TARGET;
-        long total_memory = KRENGINE_GPU_MEM_MAX;
-        */
-        /*
+  if (m_streamingEnabled) {
+    /*
+    long free_memory = KRENGINE_GPU_MEM_TARGET;
+    long total_memory = KRENGINE_GPU_MEM_MAX;
+    */
+    /*
 #if TARGET_OS_IPHONE
         // FINDME, TODO, HACK! - Experimental code, need to expose through engine parameters
         const long KRENGINE_RESERVE_MEMORY = 0x4000000; // 64MB
-        
+
         getMemoryStats(free_memory);
         free_memory = KRCLAMP(free_memory - KRENGINE_RESERVE_MEMORY, 0, KRENGINE_GPU_MEM_TARGET);
         total_memory = KRMIN(KRENGINE_GPU_MEM_MAX, free_memory * 3 / 4 + m_pTextureManager->getMemUsed() + m_pMeshManager->getMemUsed());
-        
+
 #endif
         */
         /*
@@ -411,7 +416,7 @@ void KRContext::doStreaming()
             free_memory = 0;
         }
         */
-        
+
         /*
         // FINDME, TODO - Experimental code, need to expose through engine parameters
         const long MEMORY_WARNING_THROTTLE2_FRAMES = 30;
@@ -421,31 +426,75 @@ void KRContext::doStreaming()
             free_memory /= 2;
         }
         */
-        
+
         /*
         m_pMeshManager->doStreaming(total_memory, free_memory);
         m_pTextureManager->doStreaming(total_memory, free_memory);
         */
-        
-        
-        long streaming_start_frame = m_current_frame;
-        
-        long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
-        long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
-        long memoryRemainingThisFrameStart = memoryRemainingThisFrame;
-        m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-        m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-        
-        if(memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
-            m_last_fully_streamed_frame = streaming_start_frame;
-        }
-        
+
+
+    long streaming_start_frame = m_current_frame;
+
+    long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
+    long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
+    long memoryRemainingThisFrameStart = memoryRemainingThisFrame;
+    m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+    m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+
+    if (memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
+      m_last_fully_streamed_frame = streaming_start_frame;
     }
+
+  }
 }
 
 void KRContext::receivedMemoryWarning()
 {
-    m_last_memory_warning_frame = m_current_frame;
+  m_last_memory_warning_frame = m_current_frame;
 }
 
+void
+KRContext::createDeviceContexts()
+{
+  // initialize the VkApplicationInfo structure
+  VkApplicationInfo app_info = {};
+  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+  app_info.pNext = NULL;
+  app_info.pApplicationName = "Test"; // TODO - Change Me!
+  app_info.applicationVersion = 1;
+  app_info.pEngineName = "Kraken Engine";
+  app_info.engineVersion = 1;
+  app_info.apiVersion = VK_API_VERSION_1_0;
 
+
+  // initialize the VkInstanceCreateInfo structure
+  VkInstanceCreateInfo inst_info = {};
+  inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  inst_info.pNext = NULL;
+  inst_info.flags = 0;
+  inst_info.pApplicationInfo = &app_info;
+  inst_info.enabledExtensionCount = 0;
+  inst_info.ppEnabledExtensionNames = NULL;
+  inst_info.enabledLayerCount = 0;
+  inst_info.ppEnabledLayerNames = NULL;
+
+  VkResult res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
+  if (res != VK_SUCCESS) {
+    destroyDeviceContexts();
+  }
+}
+
+void
+KRContext::destroyDeviceContexts()
+{
+  if (m_vulkanInstance) != VK_NULL_HANDLE) {
+    vkDestroyInstance(m_vulkanInstance, NULL);
+    m_vulkanInstance = VK_NULL_HANDLE;
+  }
+}
+
+void
+KRContext::activateStreamerContext()
+{
+
+}
