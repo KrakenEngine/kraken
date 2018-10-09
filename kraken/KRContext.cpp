@@ -487,7 +487,7 @@ KRContext::createDeviceContexts()
 void
 KRContext::destroyDeviceContexts()
 {
-  if (m_vulkanInstance) != VK_NULL_HANDLE) {
+  if (m_vulkanInstance != VK_NULL_HANDLE) {
     vkDestroyInstance(m_vulkanInstance, NULL);
     m_vulkanInstance = VK_NULL_HANDLE;
   }
