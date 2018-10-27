@@ -28,9 +28,20 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAKEN_H
-#define KRAKEN_H
+#ifndef KRAKEN_CONTEXT_H
+#define KRAKEN_CONTEXT_H
 
-#include "context.h"
+namespace kraken {
 
-#endif // KRAKEN_H
+class Context
+{
+private:
+  Context();
+  ~Context();
+};
+
+Context* GetContext();
+
+} // namepsace kraken
+
+#endif // KRAKEN_CONTEXT_H

@@ -3,6 +3,16 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    MESSAGE( "64 bits compiler detected" )
+    SET( EX_PLATFORM 64 )
+    SET( EX_PLATFORM_NAME "x64" )
+else( CMAKE_SIZEOF_VOID_P EQUAL 8 ) 
+    MESSAGE( "32 bits compiler detected" )
+    SET( EX_PLATFORM 32 )
+    SET( EX_PLATFORM_NAME "x86" )
+endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+
 if (NOT WIN32)
   set(CMAKE_CXX_COMPILER "clang++")
 endif()
@@ -73,36 +83,35 @@ add_public_header(hydra/include/vector3.h)
 add_public_header(hydra/include/vector4.h)
 add_public_header(hydra/include/vector2i.h)
 
-add_library(kraken SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
-
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.54.0)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
-  target_link_libraries(kraken ${Boost_LIBRARIES})
+  list (APPEND EXTRA_LIBS "${Boost_LIBRARIES}")
 endif()
 
 # ---- Hydra ----
 add_subdirectory(hydra)
 include_directories(hydra/include)
-target_link_libraries(kraken hydra)
+list (APPEND EXTRA_LIBS hydra)
 
 # ---- Vulkan ----
 find_package(Vulkan REQUIRED)
-target_link_libraries(kraken Vulkan::Vulkan)
+target_link_libraries(krakenstatic )
+list (APPEND EXTRA_LIBS Vulkan::Vulkan)
 
 # ---- OpenGL ----
 find_package(OpenGL REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS} )
-target_link_libraries(kraken ${OPENGL_LIBRARIES})
+list (APPEND EXTRA_LIBS "${OPENGL_LIBRARIES}")
 
 # ---- GLAD ----
 set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
-target_link_libraries(kraken glad)
+list (APPEND EXTRA_LIBS "glad")
 
 # ---- GLFW ----
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
@@ -111,11 +120,13 @@ set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
 set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 add_subdirectory(3rdparty/glfw)
 include_directories(3rdparty/glfw/include)
-target_link_libraries(kraken glfw ${GLFW_LIBRARIES})
+list (APPEND EXTRA_LIBS "${GLFW_LIBRARIES}")
 
-TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
+
+add_library(krakendynamic MODULE ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+TARGET_LINK_LIBRARIES( krakendynamic ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
-  kraken
+  krakendynamic
 PROPERTIES
   FRAMEWORK ON
   SOVERSION 0
@@ -127,19 +138,29 @@ PROPERTIES
   OUTPUT_NAME kraken
 )
 
-# install(TARGETS kraken DESTINATION ${PROJECT_BINARY_DIR}/lib${LIB_SUFFIX})
-# install(FILES ${KRAKEN_PUBLIC_HEADERS} DESTINATION ${PROJECT_BINARY_DIR}/include)
-
-# INSTALL(TARGETS kraken 
-#        LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-#        ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-#        PUBLIC_HEADER DESTINATION "include"
-# )
-
-
+add_library(krakenstatic STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+TARGET_LINK_LIBRARIES( krakenstatic ${EXTRA_LIBS} )
+SET_TARGET_PROPERTIES(
+  krakenstatic
+PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
+  OUTPUT_NAME kraken
+)
 
 # add_custom_target(package
 #   COMMENT "Compressing..."
 #   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/archive"
 #   COMMAND ${CMAKE_COMMAND} -E tar "cfvz" "kraken.tgz" "*"
 # )
+
+install(TARGETS krakenstatic krakendynamic
+        RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/bin${EX_PLATFORM}
+        PUBLIC_HEADER DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/include
+        ARCHIVE DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/lib${EX_PLATFORM}
+        LIBRARY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/lib${EX_PLATFORM}
+)
+
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  install (FILES $<TARGET_PDB_FILE:krakendynamic>
+           DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/lib${EX_PLATFORM})
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
