@@ -238,7 +238,7 @@ private:
     unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
-    boost::signals2::mutex m_mutex;
+    std::mutex m_mutex;
 #ifdef __APPLE__
     mach_timebase_info_data_t m_timebase_info;
 #endif

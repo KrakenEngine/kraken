@@ -90,11 +90,13 @@ void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)
 
 void KRTextureManager::_setMaxAnisotropy(int i, float max_anisotropy)
 {
+#if !defined(ANDROID)
     if(m_maxAnisotropy[i] != max_anisotropy) {
         _setActiveTexture(i);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
         m_maxAnisotropy[i] = max_anisotropy;
     }
+#endif
 }
 
 void KRTextureManager::setMaxAnisotropy(float max_anisotropy)

@@ -42,7 +42,9 @@ KRStreamer::~KRStreamer()
 void KRStreamer::run()
 {
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ANDROID)
+    // TODO - Set thread names on Android
+#elif defined(_WIN32) || defined(_WIN64)
     // TODO - Set thread names on windows
 #else
    pthread_setname_np("Kraken - Streamer");

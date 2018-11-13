@@ -98,7 +98,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     
     GLenum internal_format = GL_RGBA;
     
-#if !TARGET_OS_IPHONE
+#if !TARGET_OS_IPHONE && !defined(ANDROID)
     if(compress) {
         internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
@@ -124,15 +124,15 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         unsigned char *pDest = converted_image;
                         unsigned char *pEnd = pData + pHeader->height * pHeader->width * 3;
                         while(pSource < pEnd) {
-                            *pDest++ = pSource[0];
-                            *pDest++ = pSource[1];
                             *pDest++ = pSource[2];
+                            *pDest++ = pSource[1];
+                            *pDest++ = pSource[0];
                             *pDest++ = 0xff;
                             pSource += 3;
                         }
                         assert(pSource <= m_pData->getEnd());
 //#endif
-                        GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                        GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                         GLDEBUG(glFinish());
                         free(converted_image);
 
@@ -148,20 +148,34 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             unsigned char *pDest = converted_image;
                             unsigned char *pEnd = pData + pHeader->height * pHeader->width * 3;
                             while(pSource < pEnd) {
-                                *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
-                                *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
                                 *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
                                 *pDest++ = pSource[3];
                                 pSource += 4;
                             }
                             assert(pSource <= m_pData->getEnd());
                             
-                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                             GLDEBUG(glFinish());
                             free(converted_image);
                         } else {
-                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
+                            unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
+
+                            unsigned char *pSource = pData;
+                            unsigned char *pDest = converted_image;
+                            unsigned char *pEnd = pData + pHeader->height * pHeader->width * 3;
+                            while(pSource < pEnd) {
+                                *pDest++ = (__uint32_t)pSource[2];
+                                *pDest++ = (__uint32_t)pSource[1];
+                                *pDest++ = (__uint32_t)pSource[0];
+                                *pDest++ = pSource[3];
+                                pSource += 4;
+                            }
+                            assert(pSource <= m_pData->getEnd());
+                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
                             GLDEBUG(glFinish());
+                            free(converted_image);
                         }
                         
                         current_lod_max_dim = m_max_lod_max_dim;
@@ -187,9 +201,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 // RLE Packet
                                 pSource++;
                                 while(count--) {
-                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
-                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
                                     *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
                                     *pDest++ = pSource[3];
                                 }
                                 pSource += 4;
@@ -197,9 +211,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 // RAW Packet
                                 pSource++;
                                 while(count--) {
-                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
-                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
                                     *pDest++ = (__uint32_t)pSource[2] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[1] * (__uint32_t)pSource[3] / 0xff;
+                                    *pDest++ = (__uint32_t)pSource[0] * (__uint32_t)pSource[3] / 0xff;
                                     *pDest++ = pSource[3];
                                     pSource += 4;
                                 }
@@ -214,9 +228,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 // RLE Packet
                                 pSource++;
                                 while(count--) {
-                                    *pDest++ = pSource[0];
-                                    *pDest++ = pSource[1];
                                     *pDest++ = pSource[2];
+                                    *pDest++ = pSource[1];
+                                    *pDest++ = pSource[0];
                                     *pDest++ = pSource[3];
                                 }
                                 pSource += 4;
@@ -224,9 +238,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 // RAW Packet
                                 pSource++;
                                 while(count--) {
-                                    *pDest++ = pSource[0];
-                                    *pDest++ = pSource[1];
                                     *pDest++ = pSource[2];
+                                    *pDest++ = pSource[1];
+                                    *pDest++ = pSource[0];
                                     *pDest++ = pSource[3];
                                     pSource += 4;
                                 }
@@ -235,7 +249,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         assert(pSource <= m_pData->getEnd());
                         assert(pDest == pEnd);
                     }
-                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     GLDEBUG(glFinish());
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
@@ -253,9 +267,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             // RLE Packet
                             pSource++;
                             while(count--) {
-                                *pDest++ = pSource[0];
-                                *pDest++ = pSource[1];
                                 *pDest++ = pSource[2];
+                                *pDest++ = pSource[1];
+                                *pDest++ = pSource[0];
                                 *pDest++ = 0xff;
                             }
                             pSource += 3;
@@ -263,9 +277,9 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                             // RAW Packet
                             pSource++;
                             while(count--) {
-                                *pDest++ = pSource[0];
-                                *pDest++ = pSource[1];
                                 *pDest++ = pSource[2];
+                                *pDest++ = pSource[1];
+                                *pDest++ = pSource[0];
                                 *pDest++ = 0xff;
                                 pSource += 3;
                             }
@@ -273,7 +287,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     }
                     assert(pSource <= m_pData->getEnd());
                     assert(pDest == pEnd);
-                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
+                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     GLDEBUG(glFinish());
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
@@ -293,7 +307,7 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
     return true;
 }
 
-#if !TARGET_OS_IPHONE
+#if !TARGET_OS_IPHONE && !defined(ANDROID)
 
 KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
 {

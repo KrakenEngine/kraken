@@ -13,6 +13,11 @@
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
 
+#if defined(ANDROID)
+#include <chrono>
+#include <unistd.h>
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
@@ -32,6 +37,8 @@ int KRContext::KRENGINE_SYS_PAGE_SIZE;
 #elif TARGET_OS_MAC
 
 #elif defined(_WIN32) || defined(_WIN64)
+
+#elif defined(ANDROID)
 
 #else
 
@@ -83,7 +90,7 @@ KRContext::KRContext()
     KRENGINE_SYS_ALLOCATION_GRANULARITY = winSysInfo.dwAllocationGranularity;
     KRENGINE_SYS_PAGE_SIZE = winSysInfo.dwPageSize;
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
 
     KRENGINE_SYS_PAGE_SIZE = getpagesize();
     KRENGINE_SYS_ALLOCATION_GRANULARITY = KRENGINE_SYS_PAGE_SIZE;
@@ -348,7 +355,10 @@ float KRContext::getAbsoluteTime() const
 
 long KRContext::getAbsoluteTimeMilliseconds()
 {
-#ifdef __APPLE__
+#if defined(ANDROID)
+    return std::chrono::duration_cast< std::chrono::milliseconds >(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+#elif defined(__APPLE__)
     return (long)(mach_absolute_time() / 1000 * m_timebase_info.numer / m_timebase_info.denom); // Division done first to avoid potential overflow
 #else
     return (long)GetTickCount64();

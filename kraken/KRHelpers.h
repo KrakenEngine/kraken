@@ -5,9 +5,12 @@
 #include "vector3.h"
 #include "matrix4.h"
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ANDROID)
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+#elif defined(_WIN32) || defined(_WIN64)
 #include <glad/glad.h>
-#elif defined(__linux__) || defined(__unix__) || defined(__posix__)
+#elif (defined(__linux__) || defined(__unix__) || defined(__posix__))
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glext.h>

@@ -53,7 +53,7 @@ void KROctreeNode::beginOcclusionQuery()
 {
     if(!m_occlusionTested){
         GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || defined(ANDROID)
         GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
 #else
         GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
@@ -67,7 +67,7 @@ void KROctreeNode::endOcclusionQuery()
 {
     if(m_activeQuery) {
         // Only end a query if we started one
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || defined(ANDROID)
         GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
 #else
         GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));

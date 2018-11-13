@@ -13,7 +13,7 @@ else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     SET( EX_PLATFORM_NAME "x86" )
 endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
-if (NOT WIN32)
+if (NOT WIN32 AND NOT ANDROID)
   set(CMAKE_CXX_COMPILER "clang++")
 endif()
 
@@ -83,13 +83,9 @@ add_public_header(hydra/include/vector3.h)
 add_public_header(hydra/include/vector4.h)
 add_public_header(hydra/include/vector2i.h)
 
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.54.0)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-  list (APPEND EXTRA_LIBS "${Boost_LIBRARIES}")
+# ---- Android ----
+if(ANDROID)
+add_subdirectory(kraken_android)
 endif()
 
 # ---- Hydra ----
@@ -98,22 +94,32 @@ include_directories(hydra/include)
 list (APPEND EXTRA_LIBS hydra)
 
 # ---- Vulkan ----
+if(NOT ANDROID)
 find_package(Vulkan REQUIRED)
-target_link_libraries(krakenstatic )
+target_link_libraries(krakenstatic)
 list (APPEND EXTRA_LIBS Vulkan::Vulkan)
+endif()
 
 # ---- OpenGL ----
+if(ANDROID)
+list (APPEND EXTRA_LIBS "EGL")
+list (APPEND EXTRA_LIBS "GLESv3")
+else()
 find_package(OpenGL REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS} )
 list (APPEND EXTRA_LIBS "${OPENGL_LIBRARIES}")
+endif()
 
 # ---- GLAD ----
+if(NOT ANDROID)
 set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
 list (APPEND EXTRA_LIBS "glad")
+endif()
 
 # ---- GLFW ----
+if(NOT ANDROID)
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
@@ -121,6 +127,7 @@ set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 add_subdirectory(3rdparty/glfw)
 include_directories(3rdparty/glfw/include)
 list (APPEND EXTRA_LIBS "${GLFW_LIBRARIES}")
+endif()
 
 
 add_library(krakendynamic MODULE ${SRCS} ${KRAKEN_PUBLIC_HEADERS})

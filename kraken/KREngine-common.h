@@ -47,10 +47,6 @@ using namespace kraken;
 
 #endif
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/signals2/mutex.hpp>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -104,8 +100,19 @@ using std::unordered_multimap;
 using std::hash;
 
 #include <vulkan/vulkan.h>
-
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ANDROID)
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+// OpenGL ES 2.0 mapping to OpenGL ES 3.2
+#define glDeleteQueriesEXT glDeleteQueries
+#define glGenQueriesEXT glGenQueries
+#define glBeginQueryEXT glBeginQuery
+#define glEndQueryEXT glEndQuery
+#define glGetQueryObjectuivEXT glGetQueryObjectuiv
+#define glTexStorage2DEXT glTexStorage2D
+#define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
+#define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
+#elif defined(_WIN32) || defined(_WIN64)
 
 #include <mutex>
 #include <cstdint>

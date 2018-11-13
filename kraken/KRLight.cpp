@@ -287,7 +287,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
             if(getContext().getShaderManager()->selectShader("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, occlusion_test_sphere_matrix, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
 
                 GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || defined(ANDROID)
                 GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
 #else
                 GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
@@ -300,7 +300,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                     }
                 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || defined(ANDROID)
                 GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
 #else
                 GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
