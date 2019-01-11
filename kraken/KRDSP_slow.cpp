@@ -54,7 +54,7 @@ void FFTWorkspace::create(size_t length)
   cos_table = new float[size];
   sin_table = new float[size];
   for (int i = 0; i < size / 2; i++) {
-    float a = 2.0f * M_PI * i / length;
+    float a = 2.0f * (float)M_PI * i / length;
     cos_table[i] = cos(a);
     sin_table[i] = sin(a);
   }
@@ -80,7 +80,7 @@ void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
   // Only power-of-two sizes supported
   assert((count & (count - 1)) == 0);
 
-  int levels = 0;
+  unsigned int levels = 0;
   while (1 << levels <= count) {
     levels++;
   }
