@@ -42,7 +42,7 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
     
     int iterations = 3;
-    int facet_count = pow(4, iterations) * 8;
+    int facet_count = (int)(pow(4, iterations) * 8.0f);
 
     class Facet3 {
     public:
@@ -74,7 +74,7 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     int nt = 0,ntold;
     
     /* Create the level 0 object */
-    a = 1 / sqrt(2.0);
+    a = 1.0f / sqrtf(2.0f);
     for (i=0;i<6;i++) {
         p[i].x *= a;
         p[i].y *= a;
@@ -121,7 +121,7 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     }
     
     mi.submesh_starts.push_back(0);
-    mi.submesh_lengths.push_back(mi.vertices.size());
+    mi.submesh_lengths.push_back((int)mi.vertices.size());
     mi.material_names.push_back("");
     
 

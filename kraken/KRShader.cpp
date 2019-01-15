@@ -246,7 +246,7 @@ void KRShader::setUniform(int location, float value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_float.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_float.size();
             m_uniform_value_float.push_back(value);
         } else if(m_uniform_value_float[value_index] == value) {
             needs_update = false;
@@ -264,7 +264,7 @@ void KRShader::setUniform(int location, int value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_int.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_int.size();
             m_uniform_value_int.push_back(value);
         } else if(m_uniform_value_int[value_index] == value) {
             needs_update = false;
@@ -283,7 +283,7 @@ void KRShader::setUniform(int location, const Vector2 &value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_vector2.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_vector2.size();
             m_uniform_value_vector2.push_back(value);
         } else if(m_uniform_value_vector2[value_index] == value) {
             needs_update = false;
@@ -301,7 +301,7 @@ void KRShader::setUniform(int location, const Vector3 &value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_vector3.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_vector3.size();
             m_uniform_value_vector3.push_back(value);
         } else if(m_uniform_value_vector3[value_index] == value) {
             needs_update = false;
@@ -319,7 +319,7 @@ void KRShader::setUniform(int location, const Vector4 &value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_vector4.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_vector4.size();
             m_uniform_value_vector4.push_back(value);
         } else if(m_uniform_value_vector4[value_index] == value) {
             needs_update = false;
@@ -338,7 +338,7 @@ void KRShader::setUniform(int location, const Matrix4 &value)
         int value_index = m_uniform_value_index[location];
         bool needs_update = true;
         if(value_index == -1) {
-            m_uniform_value_index[location] = m_uniform_value_mat4.size();
+            m_uniform_value_index[location] = (int)m_uniform_value_mat4.size();
             m_uniform_value_mat4.push_back(value);
         } else if(m_uniform_value_mat4[value_index] == value) {
             needs_update = false;

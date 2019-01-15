@@ -72,7 +72,7 @@ void KRTexture::resize(int max_dim)
             m_iNewHandle = 0;
         } else {
             int target_dim = max_dim;
-            if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+            if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
             if(m_new_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
                 assert(m_newTextureMemUsed == 0);
@@ -116,9 +116,9 @@ kraken_stream_level KRTexture::getStreamLevel(KRTexture::texture_usage_t texture
 {
     if(m_current_lod_max_dim == 0) {
         return kraken_stream_level::STREAM_LEVEL_OUT;
-    } else if(m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, m_max_lod_max_dim)) {
+    } else if(m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, (int)m_max_lod_max_dim)) {
         return kraken_stream_level::STREAM_LEVEL_IN_HQ;
-    } else if(m_current_lod_max_dim >= KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, m_min_lod_max_dim)) {
+    } else if(m_current_lod_max_dim >= KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, (int)m_min_lod_max_dim)) {
         return kraken_stream_level::STREAM_LEVEL_IN_LQ;
     } else {
         return kraken_stream_level::STREAM_LEVEL_OUT;

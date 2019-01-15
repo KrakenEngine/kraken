@@ -55,7 +55,7 @@ KRMeshCube::KRMeshCube(KRContext &context) : KRMesh(context, "__cube")
     
     
     mi.submesh_starts.push_back(0);
-    mi.submesh_lengths.push_back(mi.vertices.size());
+    mi.submesh_lengths.push_back((int)mi.vertices.size());
     mi.material_names.push_back("");
     mi.format = KRENGINE_MODEL_FORMAT_STRIP;
 

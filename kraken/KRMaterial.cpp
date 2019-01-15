@@ -319,7 +319,7 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
     bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
     
-    KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_reflectionMapScale != default_scale && bReflectionMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, m_reflectionMapOffset != default_offset && bReflectionMap, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
+    KRShader *pShader = getContext().getShaderManager()->getShader("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, (int)bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_reflectionMapScale != default_scale && bReflectionMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, m_reflectionMapOffset != default_offset && bReflectionMap, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
 
     
     Vector4 fade_color;
@@ -356,7 +356,7 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
             }
         }
         if(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-            glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], bones.size(), GL_FALSE, bone_mats);
+            glUniformMatrix4fv(pShader->m_uniforms[KRShader::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats);
         }
     }
 

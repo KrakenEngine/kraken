@@ -43,13 +43,13 @@ KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRT
     //       - yy is the framerate
     
     // TODO - Add error handling for mal-formatted animated texture formats
-    int first_comma_pos = name.find(",");
-    int second_comma_pos = name.find(",", first_comma_pos + 1);
+    size_t first_comma_pos = name.find(",");
+    size_t second_comma_pos = name.find(",", first_comma_pos + 1);
     
     
     m_texture_base_name = name.substr(8, first_comma_pos - 8);
     m_frame_count = atoi(name.substr(first_comma_pos+1, second_comma_pos - first_comma_pos -1).c_str());
-    m_frame_rate = atof(name.substr(second_comma_pos+1).c_str());
+    m_frame_rate = (float)atof(name.substr(second_comma_pos+1).c_str());
     
     m_max_lod_max_dim = 2048;
     m_min_lod_max_dim = 64;
@@ -57,8 +57,8 @@ KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRT
     for(int i=0; i<m_frame_count; i++) {
         KRTexture2D *frame_texture = textureForFrame(i);
         if(frame_texture) {
-            if(frame_texture->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = frame_texture->getMaxMipMap();
-            if(frame_texture->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = frame_texture->getMinMipMap();
+            if(frame_texture->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = frame_texture->getMaxMipMap();
+            if(frame_texture->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = frame_texture->getMinMipMap();
         }
     }
 }
@@ -106,7 +106,7 @@ void KRTextureAnimated::bind(GLuint texture_unit)
 {
     resetPoolExpiry(0.0f, TEXTURE_USAGE_NONE); // TODO - Need to set parameters here for streaming priority?
     KRTexture::bind(texture_unit);
-    int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate,m_frame_count));
+    int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate, (float)m_frame_count));
     KRTexture2D *frame_texture = textureForFrame(frame_number);
     if(frame_texture) {
         frame_texture->bind(texture_unit);

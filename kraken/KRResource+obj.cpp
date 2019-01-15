@@ -216,7 +216,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 } else if(strcmp(szSymbol[0], "usemtl") == 0) {
                     // Use Material (usemtl)
                     if(pFace - pMaterialFaces > 1) {
-                        *pMaterialFaces = pFace - pMaterialFaces - 1;
+                        *pMaterialFaces = (int)(pFace - pMaterialFaces - 1);
                         pMaterialFaces = pFace++;
                     }
                 }
@@ -224,7 +224,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         }
         
         
-        *pMaterialFaces = pFace - pMaterialFaces - 1;
+        *pMaterialFaces = (int)(pFace - pMaterialFaces - 1);
         *pFace++ = 0;
         
         

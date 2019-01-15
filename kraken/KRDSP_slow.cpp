@@ -81,13 +81,13 @@ void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
   assert((count & (count - 1)) == 0);
 
   unsigned int levels = 0;
-  while (1 << levels <= count) {
+  while (1 << levels <= (int)count) {
     levels++;
   }
 
   for (size_t i = 0; i < count; i++) {
     size_t j = 0;
-    for (int k = 0; k < levels; k++) {
+    for (int k = 0; k < (int)levels; k++) {
       j <<= 1;
       j |= ((i >> k) & 1);
     }

@@ -309,7 +309,7 @@ void KRAudioManager::renderReverb()
     for(unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
         siren_reverb_zone_weight_info zi = (*zone_itr).second;
         if(zi.reverb_sample) {
-            int zone_sample_blocks = KRMIN(zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
+            int zone_sample_blocks = KRMIN((int)zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
             impulse_response_blocks = KRMAX(impulse_response_blocks, zone_sample_blocks);
         }
     }

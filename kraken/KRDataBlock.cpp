@@ -140,7 +140,6 @@ bool KRDataBlock::load(const std::string &path)
     bool success = false;
     unload();
 
-    struct stat statbuf;
     m_bReadOnly = true;
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -160,6 +159,7 @@ bool KRDataBlock::load(const std::string &path)
     if(m_fdPackFile >= 0) {
       m_fileOwnerDataBlock = this;
       m_fileName = KRResource::GetFileBase(path);
+      struct stat statbuf;
       if(fstat(m_fdPackFile, &statbuf) >= 0) {
         m_data_size = statbuf.st_size;
         m_data_offset = 0;
@@ -269,7 +269,7 @@ void KRDataBlock::append(void *data, size_t size) {
 
 // Copy the entire data block to the destination pointer
 void KRDataBlock::copy(void *dest) {
-    copy(dest, 0, m_data_size);
+    copy(dest, 0, (int)m_data_size);
 }
 
 // Copy a range of data to the destination pointer

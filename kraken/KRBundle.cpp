@@ -54,14 +54,14 @@ KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : K
     m_pData = pData;
     
     __int64_t file_pos = 0;
-    while(file_pos < m_pData->getSize()) {
+    while(file_pos < (__int64_t)m_pData->getSize()) {
         tar_header_type file_header;
-        m_pData->copy(&file_header, file_pos, sizeof(file_header));
+        m_pData->copy(&file_header, (int)file_pos, sizeof(file_header));
         size_t file_size = strtol(file_header.file_size, NULL, 8);
         file_pos += 512; // Skip past the header to the file contents
         if(file_header.file_name[0] != '\0' && file_header.file_name[0] != '.') {
             // We ignore the last two records in the tar file, which are zero'ed out tar_header structures
-            KRDataBlock *pFileData = pData->getSubBlock(file_pos, file_size);
+            KRDataBlock *pFileData = pData->getSubBlock((int)file_pos, (int)file_size);
             context.loadResource(file_header.file_name, pFileData);
         }
         file_pos += RoundUpSize(file_size);

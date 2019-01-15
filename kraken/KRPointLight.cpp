@@ -127,7 +127,7 @@ void KRPointLight::generateMesh() {
     // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
     
     int iterations = 3;
-    int facet_count = pow(4, iterations) * 8;
+    int facet_count = (int)(pow(4, iterations) * 8);
     
     if(m_cVertices != facet_count * 3) {
         if(m_sphereVertices) {
