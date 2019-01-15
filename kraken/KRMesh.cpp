@@ -1053,15 +1053,15 @@ void KRMesh::updateAttributeOffsets()
 {
     pack_header *header = getHeader();
     int mask = 0;
-    for(int i=0; i < KRENGINE_NUM_ATTRIBUTES; i++) {
+    for(size_t i=0; i < KRENGINE_NUM_ATTRIBUTES; i++) {
         if(has_vertex_attribute((vertex_attrib_t)i)) {
-            m_vertex_attribute_offset[i] = VertexSizeForAttributes(header->vertex_attrib_flags & mask);
+            m_vertex_attribute_offset[i] = (int)VertexSizeForAttributes(header->vertex_attrib_flags & mask);
         } else {
             m_vertex_attribute_offset[i] = -1;
         }
         mask = (mask << 1) | 1;
     }
-    m_vertex_size = VertexSizeForAttributes(header->vertex_attrib_flags);
+    m_vertex_size = (int)VertexSizeForAttributes(header->vertex_attrib_flags);
 }
 
 size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags)

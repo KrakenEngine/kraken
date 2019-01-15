@@ -150,7 +150,7 @@ public:
     
     long getMemoryTransferedThisFrame();
 
-    int getActiveVBOCount();
+    size_t getActiveVBOCount();
     
     struct draw_call_info {
         KRNode::RenderPass pass;

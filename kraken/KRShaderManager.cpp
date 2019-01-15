@@ -57,9 +57,9 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     int light_point_count = 0;
     int light_spot_count = 0;
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
-        light_directional_count = directional_lights.size();
-        light_point_count = point_lights.size();
-        light_spot_count = spot_lights.size();
+        light_directional_count = (int)directional_lights.size();
+        light_point_count = (int)point_lights.size();
+        light_spot_count = (int)spot_lights.size();
         for(std::vector<KRDirectionalLight *>::const_iterator light_itr=directional_lights.begin(); light_itr != directional_lights.end(); light_itr++) {
             KRDirectionalLight *directional_light =(*light_itr);
             iShadowQuality = directional_light->getShadowBufferCount();
@@ -109,13 +109,13 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
     key.second.push_back(pCamera->settings.dof_quality);
     key.second.push_back(pCamera->settings.bEnableFlash);
     key.second.push_back(pCamera->settings.bEnableVignette);
-    key.second.push_back(pCamera->settings.dof_depth * 1000.0f);
-    key.second.push_back(pCamera->settings.dof_falloff * 1000.0f);
-    key.second.push_back(pCamera->settings.flash_depth * 1000.0f);
-    key.second.push_back(pCamera->settings.flash_falloff * 1000.0f);
-    key.second.push_back(pCamera->settings.flash_intensity * 1000.0f);
-    key.second.push_back(pCamera->settings.vignette_radius * 1000.0f);
-    key.second.push_back(pCamera->settings.vignette_falloff * 1000.0f);
+    key.second.push_back((int)(pCamera->settings.dof_depth * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.dof_falloff * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.flash_depth * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.flash_falloff * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.flash_intensity * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.vignette_radius * 1000.0f));
+    key.second.push_back((int)(pCamera->settings.vignette_falloff * 1000.0f));
     key.second.push_back(bRimColor);
     key.second.push_back(bFadeColorEnabled);
               
@@ -278,6 +278,6 @@ const std::string &KRShaderManager::getVertShaderSource(const std::string &name)
     return m_vertShaderSource[name];
 }
 
-long KRShaderManager::getShaderHandlesUsed() {
+size_t KRShaderManager::getShaderHandlesUsed() {
     return m_shaders.size();
 }

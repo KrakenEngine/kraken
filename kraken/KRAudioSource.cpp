@@ -433,7 +433,7 @@ float KRAudioSource::getAudioTime()
 void KRAudioSource::setAudioTime(float new_position)
 {
     // Sets the audio playback position with units of floating point seconds.
-    setAudioFrame(new_position * 44100.0f);
+    setAudioFrame((__int64_t)(new_position * 44100.0f));
 }
 
 void KRAudioSource::sample(int frame_count, int channel, float *buffer, float gain)

@@ -1,7 +1,12 @@
-cmake_minimum_required (VERSION 2.6)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+cmake_minimum_required (VERSION 2.8)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+else(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
 
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     MESSAGE( "64 bits compiler detected" )

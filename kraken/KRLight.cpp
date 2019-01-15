@@ -191,7 +191,7 @@ void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
                 
                 float particle_range = 600.0f;
                 
-                int particle_count = m_dust_particle_density * pow(particle_range, 3);
+                int particle_count = (int)(m_dust_particle_density * pow(particle_range, 3));
                 if(particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
                 
                 // Enable z-buffer test
@@ -421,12 +421,12 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
             
-            GLDEBUG(glViewport(0, 0, m_shadowViewports[iShadow].getSize().x, m_shadowViewports[iShadow].getSize().y));
+            GLDEBUG(glViewport(0, 0, (GLsizei)m_shadowViewports[iShadow].getSize().x, (GLsizei)m_shadowViewports[iShadow].getSize().y));
             
             GLDEBUG(glClearDepthf(0.0f));
             GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
             
-            GLDEBUG(glViewport(1, 1, m_shadowViewports[iShadow].getSize().x - 2, m_shadowViewports[iShadow].getSize().y - 2));
+            GLDEBUG(glViewport(1, 1, (GLsizei)m_shadowViewports[iShadow].getSize().x - 2, (GLsizei)m_shadowViewports[iShadow].getSize().y - 2));
 
             GLDEBUG(glClearDepthf(1.0f));
             

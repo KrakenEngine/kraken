@@ -401,32 +401,32 @@ KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
         for(int iPlane=0; iPlane < KRENGINE_MAX_VOLUMETRIC_PLANES; iPlane++) {
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
 
         }
@@ -481,7 +481,7 @@ long KRMeshManager::getMemoryTransferedThisFrame()
 }
 
 
-int KRMeshManager::getActiveVBOCount()
+size_t KRMeshManager::getActiveVBOCount()
 {
     return m_vbosActive.size();
 }
