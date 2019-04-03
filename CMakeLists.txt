@@ -5,6 +5,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
 else(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Likely MSVC...
+    # Build with more cores
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
@@ -162,3 +165,5 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   install (FILES $<TARGET_PDB_FILE:kraken>
            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/lib/win${EX_PLATFORM})
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+add_subdirectory(tests)
