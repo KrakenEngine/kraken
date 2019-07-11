@@ -115,113 +115,98 @@ KRShader::KRShader(KRContext &context, char *szKey, std::string options, std::st
     
     
     GLuint vertexShader = 0, fragShader = 0;
-    try {
-        const GLchar *vertSource[2] = {options.c_str(), vertShaderSource.c_str()};
-        const GLchar *fragSource[2] = {options.c_str(), fragShaderSource.c_str()};
-        
-        // Create shader program.
-        GLDEBUG(m_iProgram = glCreateProgram());
-        
-        // Create and compile vertex shader.
-        GLDEBUG(vertexShader = glCreateShader(GL_VERTEX_SHADER));
-        GLDEBUG(glShaderSource(vertexShader, 2, vertSource, NULL));
-        GLDEBUG(glCompileShader(vertexShader));
-        
-        // Report any compile issues to stderr
-        GLint logLength = 0;
-        GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
-        if (logLength > 0) {
-            GLchar *log = (GLchar *)malloc(logLength + 1);
-            assert(log != NULL);
-            log[0] = '\0'; // In case glGetShaderInfoLog fails
-            GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
-            log[logLength] = '\0';
-            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
-            free(log);
-        }
 
-        
-        // Create and compile vertex shader.
-        GLDEBUG(fragShader = glCreateShader(GL_FRAGMENT_SHADER));
-        GLDEBUG(glShaderSource(fragShader, 2, fragSource, NULL));
-        GLDEBUG(glCompileShader(fragShader));
-        
-        // Report any compile issues to stderr
-        logLength = 0; // In case glGetShaderiv fails
-        GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
-        if (logLength > 0) {
-            GLchar *log = (GLchar *)malloc(logLength + 1);
-            assert(log != NULL);
-            log[0] = '\0'; // In case glGetShaderInfoLog fails
-            GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
-            log[logLength] = '\0';
-            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
-            free(log);
-        }
-        
-        // Attach vertex shader to program.
-        GLDEBUG(glAttachShader(m_iProgram, vertexShader));
-        
-        // Attach fragment shader to program.
-        GLDEBUG(glAttachShader(m_iProgram, fragShader));
-        
-        // Bind attribute locations.
-        // This needs to be done prior to linking.
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEINDEXES, "bone_indexes"));
-        GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, "bone_weights"));
-        
-        // Link program.
-        GLDEBUG(glLinkProgram(m_iProgram));
-        
-        GLint link_success = GL_FALSE;
-        GLDEBUG(glGetProgramiv(m_iProgram, GL_LINK_STATUS, &link_success));
-        
-        if(link_success != GL_TRUE) {
-            // Report any linking issues to stderr
-            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to link shader program: %s", szKey);
-            logLength = 0; // In case glGetProgramiv fails
-            GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
-            if (logLength > 0)
-            {
-                GLchar *log = (GLchar *)malloc(logLength + 1);
-                assert(log != NULL);
-                log[0] = '\0'; // In case glGetProgramInfoLog fails
-                GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-                log[logLength] = '\0';
-                KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program link log:\n%s", log);
-                free(log);
-            }
-            GLDEBUG(glDeleteProgram(m_iProgram));
-            m_iProgram = 0;
-        } else {
-        
-            // Get uniform locations
-            for(int i=0; i < KRENGINE_NUM_UNIFORMS; i++ ){
-                GLDEBUG(m_uniforms[i] = glGetUniformLocation(m_iProgram, KRENGINE_UNIFORM_NAMES[i]));
-                m_uniform_value_index[i] = -1;
-            }
-        }
-        
-    } catch(...) {
-        if(vertexShader) {
-            GLDEBUG(glDeleteShader(vertexShader));
-            vertexShader = 0;
-        }
-        if(fragShader) {
-            GLDEBUG(glDeleteShader(fragShader));
-            fragShader = 0;
-        }
-        if(m_iProgram) {
-            GLDEBUG(glDeleteProgram(m_iProgram));
-            m_iProgram = 0;
-        }
+    const GLchar *vertSource[2] = {options.c_str(), vertShaderSource.c_str()};
+    const GLchar *fragSource[2] = {options.c_str(), fragShaderSource.c_str()};
+    
+    // Create shader program.
+    GLDEBUG(m_iProgram = glCreateProgram());
+    
+    // Create and compile vertex shader.
+    GLDEBUG(vertexShader = glCreateShader(GL_VERTEX_SHADER));
+    GLDEBUG(glShaderSource(vertexShader, 2, vertSource, NULL));
+    GLDEBUG(glCompileShader(vertexShader));
+    
+    // Report any compile issues to stderr
+    GLint logLength = 0;
+    GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength + 1);
+        assert(log != NULL);
+        log[0] = '\0'; // In case glGetShaderInfoLog fails
+        GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
+        log[logLength] = '\0';
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
+        free(log);
+    }
+
+    
+    // Create and compile vertex shader.
+    GLDEBUG(fragShader = glCreateShader(GL_FRAGMENT_SHADER));
+    GLDEBUG(glShaderSource(fragShader, 2, fragSource, NULL));
+    GLDEBUG(glCompileShader(fragShader));
+    
+    // Report any compile issues to stderr
+    logLength = 0; // In case glGetShaderiv fails
+    GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength + 1);
+        assert(log != NULL);
+        log[0] = '\0'; // In case glGetShaderInfoLog fails
+        GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
+        log[logLength] = '\0';
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
+        free(log);
     }
     
+    // Attach vertex shader to program.
+    GLDEBUG(glAttachShader(m_iProgram, vertexShader));
+    
+    // Attach fragment shader to program.
+    GLDEBUG(glAttachShader(m_iProgram, fragShader));
+    
+    // Bind attribute locations.
+    // This needs to be done prior to linking.
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEINDEXES, "bone_indexes"));
+    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, "bone_weights"));
+    
+    // Link program.
+    GLDEBUG(glLinkProgram(m_iProgram));
+    
+    GLint link_success = GL_FALSE;
+    GLDEBUG(glGetProgramiv(m_iProgram, GL_LINK_STATUS, &link_success));
+    
+    if(link_success != GL_TRUE) {
+        // Report any linking issues to stderr
+        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to link shader program: %s", szKey);
+        logLength = 0; // In case glGetProgramiv fails
+        GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
+        if (logLength > 0)
+        {
+            GLchar *log = (GLchar *)malloc(logLength + 1);
+            assert(log != NULL);
+            log[0] = '\0'; // In case glGetProgramInfoLog fails
+            GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
+            log[logLength] = '\0';
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program link log:\n%s", log);
+            free(log);
+        }
+        GLDEBUG(glDeleteProgram(m_iProgram));
+        m_iProgram = 0;
+    } else {
+    
+        // Get uniform locations
+        for(int i=0; i < KRENGINE_NUM_UNIFORMS; i++ ){
+            GLDEBUG(m_uniforms[i] = glGetUniformLocation(m_iProgram, KRENGINE_UNIFORM_NAMES[i]));
+            m_uniform_value_index[i] = -1;
+        }
+    }
+
     // Release vertex and fragment shaders.
     if (vertexShader) {
         GLDEBUG(glDeleteShader(vertexShader));
