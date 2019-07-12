@@ -4,10 +4,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (WIN32)
-  add_executable(kraken_cube WIN32 main.cpp)
+  add_executable(kraken_cube WIN32 main_win.cpp)
   add_compile_definitions(UNICODE)
 else(WIN32)
-  add_executable(kraken_cube main.cpp)
+  add_executable(kraken_cube main_macos.mm)
   set(CMAKE_CXX_COMPILER "clang++")
 endif(WIN32)
 
