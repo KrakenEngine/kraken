@@ -732,7 +732,7 @@ void kraken::set_debug_text(const std::string &print_text)
 -(void) setSunTemperature:(float)t
 {
     float i = [self getSunIntensity];
-    _settings.light_intensity = Vector3(
+    _settings.light_intensity.init(
         (t < 0.5f ? t * 2.0f : 1.0f) * i,
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
@@ -742,7 +742,7 @@ void kraken::set_debug_text(const std::string &print_text)
 -(void) setSunIntensity:(float)i
 {
     float t = [self getSunTemperature];
-    _settings.light_intensity = Vector3(
+    _settings.light_intensity.init(
         (t < 0.5f ? t * 2.0f : 1.0f) * i,
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
@@ -778,7 +778,7 @@ void kraken::set_debug_text(const std::string &print_text)
 -(void) setAmbientTemperature:(float)t
 {
     float i = [self getAmbientIntensity];
-    _settings.ambient_intensity = Vector3(
+    _settings.ambient_intensity.init(
         (t < 0.5f ? t * 2.0f : 1.0f) * i,
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
@@ -788,7 +788,7 @@ void kraken::set_debug_text(const std::string &print_text)
 -(void) setAmbientIntensity:(float)i
 {
     float t = [self getAmbientTemperature];
-    _settings.ambient_intensity = Vector3(
+    _settings.ambient_intensity.init(
         (t < 0.5f ? t * 2.0f : 1.0f) * i,
         (t < 0.5f ? t * 2.0f : (1.0f - t) * 2.0f) * i,
         (t < 0.5f ? 1.0f : (1.0f - t) * 2.0f) * i
