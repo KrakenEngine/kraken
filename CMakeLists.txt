@@ -51,6 +51,8 @@ macro (add_public_header)
 endmacro()
 
 IF(APPLE)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
    # SET(GUI_TYPE MACOSX_BUNDLE)
    # INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
    FIND_LIBRARY(APPKIT_LIBRARY AppKit)
