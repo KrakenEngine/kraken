@@ -181,7 +181,7 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
 
     new_block->m_data_size = length;
 #if defined(_WIN32) || defined(_WIN64)
-    if(m_hPackFile) {
+    if(m_hPackFile != INVALID_HANDLE_VALUE) {
         new_block->m_hPackFile = m_hPackFile;
 #elif defined(__APPLE__) || defined(ANDROID)
     if (m_fdPackFile) {
@@ -220,7 +220,7 @@ size_t KRDataBlock::getSize() const {
 void KRDataBlock::expand(size_t size)
 {
 #if defined(_WIN32) || defined(_WIN64)
-    if(m_data == NULL && m_hPackFile == 0) {
+    if(m_data == NULL && m_hPackFile == INVALID_HANDLE_VALUE) {
 #elif defined(__APPLE__) || defined(ANDROID)
     if (m_data == NULL && m_fdPackFile == 0) {
 #else
@@ -275,7 +275,7 @@ void KRDataBlock::copy(void *dest) {
 // Copy a range of data to the destination pointer
 void KRDataBlock::copy(void *dest, int start, int count) {
 #if defined(_WIN32) || defined(_WIN64)
-  if (m_lockCount == 0 && m_hPackFile != 0) {
+  if (m_lockCount == 0 && m_hPackFile != INVALID_HANDLE_VALUE) {
     // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
 
     LARGE_INTEGER distance;
@@ -499,7 +499,7 @@ void KRDataBlock::unlock()
 
         // Memory mapped file; ensure data is unmapped from ram
 #if defined(_WIN32) || defined(_WIN64)
-        if (m_hPackFile) {
+        if (m_hPackFile != INVALID_HANDLE_VALUE) {
 #elif defined(__APPLE__) || defined(ANDROID)
         if(m_fdPackFile) {
 #else

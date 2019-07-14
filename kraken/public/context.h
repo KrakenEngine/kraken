@@ -35,12 +35,14 @@ namespace kraken {
 
 class Context
 {
+class impl;
+public:
+  static Context* Get();
 private:
   Context();
   ~Context();
+  impl* mImpl;
 };
-
-Context* GetContext();
 
 } // namepsace kraken
 
