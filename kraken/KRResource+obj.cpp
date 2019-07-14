@@ -235,7 +235,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         KRMesh::pack_material *pMaterial = new KRMesh::pack_material();
         pMaterial->start_vertex = iVertex;
         pMaterial->vertex_count = 0;
-        memset(pMaterial->szName, 256, 0);
+        memset(pMaterial->szName, 0, 256);
         if(material_itr < material_names_t.end()) {
             strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
         }
@@ -301,7 +301,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 pMaterial = new KRMesh::pack_material();
                 pMaterial->start_vertex = iVertex;
                 pMaterial->vertex_count = 0;
-                memset(pMaterial->szName, 256, 0);
+                memset(pMaterial->szName, 0, 256);
                 
                 if(material_itr < material_names_t.end()) {
                     strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
