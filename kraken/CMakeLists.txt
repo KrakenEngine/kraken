@@ -3,6 +3,7 @@ add_subdirectory(public)
 set(KRAKEN_PUBLIC_HEADERS "${KRAKEN_PUBLIC_HEADERS}" PARENT_SCOPE)
 
 # Private Implementation
+add_sources(context.cpp)
 add_sources(KRAmbientZone.cpp)
 add_sources(KRAnimation.cpp)
 add_sources(KRAnimationAttribute.cpp)
