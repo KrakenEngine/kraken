@@ -11,6 +11,7 @@ class Context::impl
 public:
   impl();
   ~impl();
+  bool loadResource(const char* szPath);
 
 private:
   KRContext mContext;
@@ -33,6 +34,18 @@ Context::Context()
 Context::~Context()
 {
   delete mImpl;
+}
+
+bool Context::loadResource(const char* szPath)
+{
+  return mImpl->loadResource(szPath);
+}
+
+bool Context::impl::loadResource(const char* szPath)
+{
+  mContext.loadResource(szPath);
+  // TODO: update KRContext::loadResource to return success/fail boolean
+  return true;
 }
 
 Context::impl::impl()

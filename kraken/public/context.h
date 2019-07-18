@@ -38,6 +38,7 @@ class Context
 class impl;
 public:
   static Context* Get();
+  bool loadResource(const char* szPath);
 private:
   Context();
   ~Context();
