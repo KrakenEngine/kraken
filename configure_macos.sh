@@ -1,1 +1,1 @@
-cmake -H. -G Ninja -Bbuild -DCMAKE_TOOLCHAIN_FILE="tools/toolchain-x86_64-apple-darwin-clang.cmake"
+cmake -H. -G Ninja -Bbuild -DCMAKE_TOOLCHAIN_FILE="toolchain/toolchain-x86_64-apple-darwin-clang.cmake"
