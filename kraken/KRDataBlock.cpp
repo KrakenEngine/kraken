@@ -149,7 +149,7 @@ bool KRDataBlock::load(const std::string &path)
       m_fileName = KRResource::GetFileBase(path);
       FILE_STANDARD_INFO fileInfo;
       if(GetFileInformationByHandleEx(m_hPackFile, FileStandardInfo, &fileInfo, sizeof(fileInfo))) {
-        m_data_size = fileInfo.AllocationSize.QuadPart;
+        m_data_size = fileInfo.EndOfFile.QuadPart;
         m_data_offset = 0;
         success = true;
       }
