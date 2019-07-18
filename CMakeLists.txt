@@ -159,3 +159,4 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 add_subdirectory(tests)
+add_subdirectory(tools)
