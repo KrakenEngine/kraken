@@ -33,4 +33,34 @@
 
 #include "context.h"
 
+#define KR_NULL_HANDLE 0
+
+typedef enum {
+  KR_SUCCESS = 0,
+  KR_ERROR_NOT_INITIALIZED = 1,
+  KR_ERROR_WRONG_THREAD = 2,
+  KR_RESULT_MAX_ENUM = 0x7FFFFFFF
+} KrResult;
+
+typedef enum {
+  KR_STRUCTURE_TYPE_INITIALIZE = 0,
+  KR_STRUCTURE_TYPE_SHUTDOWN = 1,
+  KR_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
+} KrStructureType;
+
+typedef struct {
+  KrStructureType sType;
+  void* pNext;
+} KrInitializeInfo;
+
+typedef struct {
+  KrStructureType sType;
+  void* pNext;
+  const char* pResourcePath;
+} KrLoadResourceInfo;
+
+KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);
+KrResult KrShutdown();
+KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo);
+
 #endif // KRAKEN_H
