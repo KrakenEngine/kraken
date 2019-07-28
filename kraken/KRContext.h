@@ -35,7 +35,7 @@ public:
     static int KRENGINE_SYS_PAGE_SIZE;
     
     
-    KRContext();
+    KRContext(const KrInitializeInfo* initializeInfo);
     ~KRContext();
     
     void loadResource(const std::string &file_name, KRDataBlock *data);
@@ -112,6 +112,9 @@ private:
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;
     KRUnknownManager *m_pUnknownManager;
+
+    KRResource** m_resourceMap;
+    size_t m_resourceMapSize;
     
     void detectExtensions();
     bool m_bDetectedExtensions;

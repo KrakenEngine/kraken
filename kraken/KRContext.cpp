@@ -54,10 +54,13 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 
-KRContext::KRContext()
+KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   : m_streamer(*this)
   , m_vulkanInstance(VK_NULL_HANDLE)
+  , m_resourceMapSize(initializeInfo->resourceMapSize)
 {
+    m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
+    memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
     m_streamingEnabled = false;
 #ifdef __APPLE__
     mach_timebase_info(&m_timebase_info);
@@ -103,7 +106,6 @@ KRContext::KRContext()
 }
 
 KRContext::~KRContext() {
-    
     if(m_pSceneManager) {
         delete m_pSceneManager;
         m_pSceneManager = NULL;
@@ -156,6 +158,10 @@ KRContext::~KRContext() {
     }
     
     destroyDeviceContexts();
+    if (m_resourceMap) {
+        delete m_resourceMap;
+        m_resourceMap = NULL;
+    }
 }
 
 void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)
