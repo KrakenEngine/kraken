@@ -37,7 +37,9 @@ public:
     
     KRContext(const KrInitializeInfo* initializeInfo);
     ~KRContext();
-    
+
+    KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
+
     void loadResource(const std::string &file_name, KRDataBlock *data);
     void loadResource(std::string path);
     

@@ -36,7 +36,10 @@ KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo)
 
 KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->unloadResource(pUnloadResourceInfo);
 }
 
 KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo)

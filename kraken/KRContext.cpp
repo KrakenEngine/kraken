@@ -320,6 +320,19 @@ void KRContext::loadResource(std::string path) {
     }
 }
 
+KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInfo)
+{
+  if (unloadResourceInfo->resourceHandle < 0 || unloadResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[unloadResourceInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  // TODO - Need to implement unloading logic
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
 void KRContext::detectExtensions() {
     m_bDetectedExtensions = true;
     
