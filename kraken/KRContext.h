@@ -38,7 +38,9 @@ public:
     KRContext(const KrInitializeInfo* initializeInfo);
     ~KRContext();
 
+    KrResult createBundle(const KrCreateBundleInfo* createBundleInfo);
     KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
+    KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
     void loadResource(const std::string &file_name, KRDataBlock *data);
     void loadResource(std::string path);

@@ -1,6 +1,7 @@
 #include "public/kraken.h"
 
 #include "KRContext.h"
+#include "KRBundle.h"
 
 namespace {
 
@@ -44,7 +45,10 @@ KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo)
 
 KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->saveResource(pSaveResourceInfo);
 }
 
 KrResult KrMapResource(const KrMapResourceInfo* pMapResourceInfo)
@@ -59,7 +63,10 @@ KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo)
 
 KrResult KrCreateBundle(const KrCreateBundleInfo* pCreateBundleInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->createBundle(pCreateBundleInfo);
 }
 
 KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo)

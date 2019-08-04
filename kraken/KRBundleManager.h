@@ -47,6 +47,7 @@ public:
     
     KRBundle *loadBundle(const char *szName, KRDataBlock *pData);
     KRBundle *getBundle(const char *szName);
+    KRBundle* createBundle(const char* szName);
     
     std::vector<std::string> getBundleNames();
     unordered_map<std::string, KRBundle *> getBundles();

@@ -51,6 +51,14 @@ KRBundle *KRBundleManager::loadBundle(const char *szName, KRDataBlock *pData)
     return pBundle;
 }
 
+KRBundle *KRBundleManager::createBundle(const char *szName)
+{
+  // TODO: Check for name conflicts
+  KRBundle *pBundle = new KRBundle(*m_pContext, szName);
+  m_bundles[szName] = pBundle;
+  return pBundle;
+}
+
 KRBundle *KRBundleManager::getBundle(const char *szName) {
     return m_bundles[szName];
 }

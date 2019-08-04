@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
   save_resource_info.pResourcePath = "output.krbundle";
   res = KrSaveResource(&save_resource_info);
   if (res != KR_SUCCESS) {
-    printf("Failed to save bundle.\n");
+    printf("Failed to save bundle.\nError %i\n", res);
   }
 
   KrShutdown();

@@ -12,6 +12,7 @@
 #include "KRCamera.h"
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
+#include "KRBundle.h"
 
 #if defined(ANDROID)
 #include <chrono>
@@ -331,6 +332,32 @@ KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInf
   }
   // TODO - Need to implement unloading logic
   return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
+{
+  if (createBundleInfo->resourceHandle < 0 || createBundleInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* bundle = m_pBundleManager->createBundle(createBundleInfo->pBundleName);
+  m_resourceMap[createBundleInfo->resourceHandle] = bundle;
+
+  return KR_SUCCESS;
+}
+
+KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)
+{
+  if (saveResourceInfo->resourceHandle < 0 || saveResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[saveResourceInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  if (resource->save(saveResourceInfo->pResourcePath)) {
+    return KR_SUCCESS;
+  }
+  return KR_ERROR_UNEXPECTED;
 }
 
 void KRContext::detectExtensions() {
