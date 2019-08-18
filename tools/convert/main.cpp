@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
   move_to_bundle_info.sType = KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE;
   move_to_bundle_info.bundleHandle = 0;
 
-  for (int i = 0; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
     if (arg[0] != '-') {
       load_resource_info.pResourcePath = arg;

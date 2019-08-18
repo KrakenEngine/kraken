@@ -33,6 +33,10 @@ std::string KRResource::GetFileExtension(const std::string& name)
 std::string KRResource::GetFileBase(const std::string& name)
 {
     std::string f = name;
+
+    // Normalize Windows Paths
+    std::replace(f.begin(), f.end(), '\\', '/');
+
     // Strip off directory
     if(f.find_last_of("/") != std::string::npos) {
         f = f.substr(f.find_last_of("/") + 1);

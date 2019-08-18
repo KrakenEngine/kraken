@@ -95,7 +95,10 @@ void KRDataBlock::unload()
 
 #if defined(_WIN32) || defined(_WIN64)
     if (m_hPackFile != INVALID_HANDLE_VALUE) {
-      CloseHandle(m_hPackFile);
+      // Memory mapped file
+      if (m_fileOwnerDataBlock == this) {
+        CloseHandle(m_hPackFile);
+      }
       m_hPackFile = INVALID_HANDLE_VALUE;
     }
 #elif defined(__APPLE__)
@@ -414,6 +417,36 @@ std::string KRDataBlock::getString()
     return ret;
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+void ReportWindowsLastError(LPCTSTR lpszFunction)
+{
+  LPVOID lpMsgBuf;
+  LPVOID lpDisplayBuf;
+  DWORD dw = GetLastError();
+
+  FormatMessage(
+    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+    FORMAT_MESSAGE_FROM_SYSTEM |
+    FORMAT_MESSAGE_IGNORE_INSERTS,
+    NULL,
+    dw,
+    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    (LPTSTR)&lpMsgBuf,
+    0, NULL);
+
+  // Display the error message and exit the process
+
+  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+  (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+  fprintf(stderr,
+    TEXT("%s failed with error %d: %s\n"),
+    lpszFunction, dw, lpMsgBuf);
+
+  LocalFree(lpMsgBuf);
+  LocalFree(lpDisplayBuf);
+}
+#endif
+
 // Lock the memory, forcing it to be loaded into a contiguous block of address space
 void KRDataBlock::lock()
 {
@@ -421,7 +454,7 @@ void KRDataBlock::lock()
 
         // Memory mapped file; ensure data is mapped to ram
 #if defined(_WIN32) || defined(_WIN64)
-        if(m_hFileMapping) {
+        if(m_hPackFile != INVALID_HANDLE_VALUE) {
 #elif defined(__APPLE__) || defined(ANDROID)
         if(m_fdPackFile) {
 #else
@@ -436,9 +469,15 @@ void KRDataBlock::lock()
               assert(m_mmapData == NULL);
 #if defined(_WIN32) || defined(_WIN64)
               m_hFileMapping = CreateFileMappingFromApp(m_hPackFile, NULL, m_bReadOnly ? PAGE_READONLY : PAGE_READWRITE, m_data_size, NULL);
+              if(m_hFileMapping == NULL) {
+                ReportWindowsLastError("CreateFileMappingFromApp");
+              }
               assert(m_hFileMapping != NULL);
 
-              m_mmapData = MapViewOfFileFromApp(m_hPackFile, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              m_mmapData = MapViewOfFileFromApp(m_hFileMapping, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              if(m_mmapData == NULL) {
+                ReportWindowsLastError("MapViewOfFileFromApp");
+              }
               assert(m_mmapData != NULL);
 #elif defined(__APPLE__) || defined(ANDROID)
                 //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
