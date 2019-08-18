@@ -7,6 +7,8 @@ add_executable(kraken_convert main.cpp)
 
 if (WIN32)
   add_compile_definitions(UNICODE)
+  # Enable Wildcard Globbing for command line arguments
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} setargv.obj")
 else(WIN32)
   set(CMAKE_CXX_COMPILER "clang++")
 endif(WIN32)
