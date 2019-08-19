@@ -83,6 +83,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
+    m_pSourceManager = new KRSourceManager(*this);
     m_streamingEnabled = true;
 
 
@@ -145,6 +146,11 @@ KRContext::~KRContext() {
     if(m_pSoundManager) {
         delete m_pSoundManager;
         m_pSoundManager = NULL;
+    }
+
+    if(m_pSourceManager) {
+        delete m_pSourceManager;
+        m_pSourceManager = NULL;
     }
 
     if(m_pUnknownManager) {
@@ -218,13 +224,14 @@ KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
 KRAudioManager *KRContext::getAudioManager() {
     return m_pSoundManager;
 }
+KRSourceManager *KRContext::getSourceManager() {
+    return m_pSourceManager;
+}
 KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
 }
-
 std::vector<KRResource *> KRContext::getResources()
 {
-    
     std::vector<KRResource *> resources;
     
     for(unordered_map<std::string, KRScene *>::iterator itr = m_pSceneManager->getScenes().begin(); itr != m_pSceneManager->getScenes().end(); itr++) {
@@ -248,6 +255,13 @@ std::vector<KRResource *> KRContext::getResources()
     for(unordered_map<std::string, KRAudioSample *>::iterator itr = m_pSoundManager->getSounds().begin(); itr != m_pSoundManager->getSounds().end(); itr++) {
         resources.push_back((*itr).second);
     }
+
+    unordered_map<std::string, unordered_map<std::string, KRSource *> > sources = m_pSourceManager->getSources();
+    for(unordered_map<std::string, unordered_map<std::string, KRSource *> >::iterator itr = sources.begin(); itr != sources.end(); itr++) {
+        for(unordered_map<std::string, KRSource *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr2++) {
+            resources.push_back((*itr2).second);
+        }
+    }
     
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > unknowns = m_pUnknownManager->getUnknowns();
     for(unordered_map<std::string, unordered_map<std::string, KRUnknown *> >::iterator itr = unknowns.begin(); itr != unknowns.end(); itr++) {
@@ -256,69 +270,76 @@ std::vector<KRResource *> KRContext::getResources()
         }
     }
     
-    // FINDME, TODO - Not yet exporting shaders, as they are currently only being used as standard Kraken assets.  In the future people may want their custom shaders to be exported.
-    
     return resources;
 }
 
-void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
+KRResource* KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
     std::string extension = KRResource::GetFileExtension(file_name);
+
+    KRResource *resource = nullptr;
     
 //    fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
     
     if(extension.compare("krbundle") == 0) {
-        m_pBundleManager->loadBundle(name.c_str(), data);
+        resource = m_pBundleManager->loadBundle(name.c_str(), data);
     } else if(extension.compare("krmesh") == 0) {
-        m_pMeshManager->loadModel(name.c_str(), data);
+        resource = m_pMeshManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
-        m_pSceneManager->loadScene(name.c_str(), data);
+        resource = m_pSceneManager->loadScene(name.c_str(), data);
     } else if(extension.compare("kranimation") == 0) {
-        m_pAnimationManager->loadAnimation(name.c_str(), data);
+        resource = m_pAnimationManager->loadAnimation(name.c_str(), data);
     } else if(extension.compare("kranimationcurve") == 0) {
-        m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
+        resource = m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("ktx") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("vsh") == 0) {
-        m_pShaderManager->loadVertexShader(name.c_str(), data);
+        resource = m_pSourceManager->load(name, extension, data);
     } else if(extension.compare("fsh") == 0) {
-        m_pShaderManager->loadFragmentShader(name.c_str(), data);
+        resource = m_pSourceManager->load(name, extension, data);
     } else if(extension.compare("mtl") == 0) {
-        m_pMaterialManager->load(name.c_str(), data);
+        resource = m_pMaterialManager->load(name.c_str(), data);
     } else if(extension.compare("mp3") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("wav") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("aac") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("obj") == 0) {
-        KRResource::LoadObj(*this, file_name);
+        resource = KRResource::LoadObj(*this, file_name);
 #if !TARGET_OS_IPHONE
 /*
   // FINDME, TODO, HACK! - Uncomment
     } else if(extension.compare("fbx") == 0) {
-        KRResource::LoadFbx(*this, file_name);
+        resource = KRResource::LoadFbx(*this, file_name);
 */
     } else if(extension.compare("blend") == 0) {
-        KRResource::LoadBlenderScene(*this, file_name);
+        resource = KRResource::LoadBlenderScene(*this, file_name);
 #endif
     } else {
-        m_pUnknownManager->load(name, extension, data);
+        resource = m_pUnknownManager->load(name, extension, data);
     }
+    return resource;
 }
 
-void KRContext::loadResource(std::string path) {
-    KRDataBlock *data = new KRDataBlock();
-    if(data->load(path)) {
-        loadResource(path, data);
-    } else {
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", path.c_str());
-        delete data;
+KrResult KRContext::loadResource(const KrLoadResourceInfo* loadResourceInfo) {
+    if (loadResourceInfo->resourceHandle < 0 || loadResourceInfo->resourceHandle >= m_resourceMapSize) {
+      return KR_ERROR_OUT_OF_BOUNDS;
     }
+    KRDataBlock *data = new KRDataBlock();
+    if(!data->load(loadResourceInfo->pResourcePath)) {
+      KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", loadResourceInfo->pResourcePath);
+      delete data;
+      return KR_ERROR_UNEXPECTED;
+    }
+
+    KRResource *resource = loadResource(loadResourceInfo->pResourcePath, data);
+    m_resourceMap[loadResourceInfo->resourceHandle] = resource;
+    return KR_SUCCESS;
 }
 
 KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInfo)
@@ -343,6 +364,29 @@ KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
   m_resourceMap[createBundleInfo->resourceHandle] = bundle;
 
   return KR_SUCCESS;
+}
+
+KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
+{
+  if (moveToBundleInfo->bundleHandle < 0 || moveToBundleInfo->bundleHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  if (moveToBundleInfo->resourceHandle < 0 || moveToBundleInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[moveToBundleInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRResource* bundleResource = m_resourceMap[moveToBundleInfo->bundleHandle];
+  if (bundleResource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRBundle* bundle = dynamic_cast<KRBundle*>(bundleResource);
+  if (bundle == nullptr) {
+    return KR_ERROR_INCORRECT_TYPE;
+  }
+  return resource->moveToBundle(bundle);
 }
 
 KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)

@@ -11,12 +11,9 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 
-std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::string& path)
-{
-    std::vector<KRResource *> resources;
-    
+KRMesh* KRResource::LoadObj(KRContext &context, const std::string& path)
+{    
     KRMesh *new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
-    resources.push_back(new_mesh);
     
     KRMesh::mesh_info mi;
     
@@ -337,5 +334,5 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         free(pFaces);
     }
     
-    return resources;
+    return new_mesh;
 }

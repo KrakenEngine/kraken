@@ -19,6 +19,7 @@
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
 #include "KRUnknownManager.h"
+#include "KRSourceManager.h"
 #include "KRStreamer.h"
 
 class KRAudioManager;
@@ -39,11 +40,13 @@ public:
     ~KRContext();
 
     KrResult createBundle(const KrCreateBundleInfo* createBundleInfo);
+    KrResult moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo);
+    KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
     KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
-    void loadResource(const std::string &file_name, KRDataBlock *data);
-    void loadResource(std::string path);
+    KRResource* loadResource(const std::string &file_name, KRDataBlock *data);
+    
     
     KRBundleManager *getBundleManager();
     KRSceneManager *getSceneManager();
@@ -55,6 +58,7 @@ public:
     KRAnimationCurveManager *getAnimationCurveManager();
     KRAudioManager *getAudioManager();
     KRUnknownManager *getUnknownManager();
+    KRSourceManager *getSourceManager();
     
     KRCamera *createCamera(int width, int height);
     
@@ -116,6 +120,7 @@ private:
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;
     KRUnknownManager *m_pUnknownManager;
+    KRSourceManager *m_pSourceManager;
 
     KRResource** m_resourceMap;
     size_t m_resourceMapSize;

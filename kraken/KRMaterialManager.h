@@ -49,7 +49,7 @@ public:
     KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager);
     virtual ~KRMaterialManager();
     
-    bool load(const char *szName, KRDataBlock *data);
+    KRMaterial* load(const char *szName, KRDataBlock *data);
     void add(KRMaterial *new_material);
     KRMaterial *getMaterial(const std::string &name);
     

@@ -114,7 +114,7 @@ bool KRBundle::save(KRDataBlock &data) {
     return true;
 }
 
-void KRBundle::append(KRResource &resource)
+KRDataBlock* KRBundle::append(KRResource &resource)
 {
     // Serialize resource to binary representation
     KRDataBlock resource_data;
@@ -124,7 +124,7 @@ void KRBundle::append(KRResource &resource)
     
     // Padding is added at the end of file to align next header to a 512 byte boundary.  Padding at the end of the archive includes an additional 1024 bytes -- two zero-ed out file headers that mark the end of the archive
     size_t padding_size = RoundUpSize(resource_data.getSize()) - resource_data.getSize() + KRENGINE_KRBUNDLE_HEADER_SIZE * 2;
-    
+    size_t resource_data_start = m_pData->getSize() + KRENGINE_KRBUNDLE_HEADER_SIZE;
     m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE + resource_data.getSize() + padding_size - KRENGINE_KRBUNDLE_HEADER_SIZE * 2); // We will overwrite the existing zero-ed out file headers that marked the end of the archive, so we don't have to include their size here
     
     m_pData->lock();
@@ -163,4 +163,7 @@ void KRBundle::append(KRResource &resource)
     sprintf(file_header->checksum, "%07o", check_sum);
     
     m_pData->unlock();
+
+    KRDataBlock *pFileData = m_pData->getSubBlock((int)resource_data_start, (int)resource_data.getSize());
+    return pFileData;
 }

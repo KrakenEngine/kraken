@@ -97,7 +97,7 @@ void KRMaterialManager::add(KRMaterial *new_material) {
     m_materials[lowerName] = new_material;
 }
 
-bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
+KRMaterial* KRMaterialManager::load(const char *szName, KRDataBlock *data) {
     KRMaterial *pMaterial = NULL;
     char szSymbol[16][256];
     data->lock();
@@ -284,5 +284,5 @@ bool KRMaterialManager::load(const char *szName, KRDataBlock *data) {
     }
     data->unlock();
     delete data;
-    return true;
+    return pMaterial;
 }

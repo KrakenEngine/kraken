@@ -31,7 +31,7 @@ KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  sContext->loadResource(pLoadResourceInfo->pResourcePath);
+  sContext->loadResource(pLoadResourceInfo);
   return KR_SUCCESS;
 }
 
@@ -71,5 +71,8 @@ KrResult KrCreateBundle(const KrCreateBundleInfo* pCreateBundleInfo)
 
 KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->moveToBundle(pMoveToBundleInfo);
 }
