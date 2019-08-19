@@ -222,14 +222,15 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         
         stream << "\n";
         std::string options = stream.str();
+
+        KRSourceManager *sourceManager = m_pContext->getSourceManager();
+        KRSource *vertSource = sourceManager->get(platform_shader_name.c_str(), "vsh");
+        KRSource *fragSource = sourceManager->get(platform_shader_name.c_str(), "fsh");
         
-        std::string vertShaderSource = m_vertShaderSource[platform_shader_name];
-        std::string fragShaderSource = m_fragShaderSource[platform_shader_name];
-        
-        if(vertShaderSource.length() == 0) {
+        if(vertSource == nullptr) {
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Vertex Shader Missing: %s", platform_shader_name.c_str());
         }
-        if(fragShaderSource.length() == 0) {
+        if(fragSource == nullptr) {
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Fragment Shader Missing: %s", platform_shader_name.c_str());
         }
         
@@ -238,7 +239,7 @@ KRShader *KRShaderManager::getShader(const std::string &shader_name, KRCamera *p
         char szKey[256];
         sprintf(szKey, "%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f", light_directional_count, light_point_count, light_spot_count, bone_count, pCamera->settings.fog_type, pCamera->settings.bEnablePerPixel,bAlphaTest, bAlphaBlend, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, pCamera->settings.bDebugPSSM, iShadowQuality, pCamera->settings.bEnableAmbient, pCamera->settings.bEnableDiffuse, pCamera->settings.bEnableSpecular, bLightMap, bDiffuseMapScale, bSpecMapScale, bReflectionMapScale, bNormalMapScale, bDiffuseMapOffset, bSpecMapOffset, bReflectionMapOffset, bNormalMapOffset,pCamera->settings.volumetric_environment_enable && pCamera->settings.volumetric_environment_downsample != 0, renderPass, shader_name.c_str(),pCamera->settings.dof_quality,pCamera->settings.bEnableFlash,pCamera->settings.bEnableVignette,pCamera->settings.dof_depth,pCamera->settings.dof_falloff,pCamera->settings.flash_depth,pCamera->settings.flash_falloff,pCamera->settings.flash_intensity,pCamera->settings.vignette_radius,pCamera->settings.vignette_falloff, fade_color.x, fade_color.y, fade_color.z, fade_color.w);
         
-        pShader = new KRShader(getContext(), szKey, options, vertShaderSource, fragShaderSource);
+        pShader = new KRShader(getContext(), szKey, options, vertSource->getData()->getString(), fragSource->getData()->getString());
 
         m_shaders[key] = pShader;
     }
@@ -258,24 +259,6 @@ bool KRShaderManager::selectShader(KRCamera &camera, KRShader *pShader, const KR
     } else {
         return false;
     }
-}
-
-void KRShaderManager::loadFragmentShader(const std::string &name, KRDataBlock *data) {
-    m_fragShaderSource[name] = data->getString();
-    delete data;
-}
-
-void KRShaderManager::loadVertexShader(const std::string &name, KRDataBlock *data) {
-    m_vertShaderSource[name] = data->getString();
-    delete data;
-}
-
-const std::string &KRShaderManager::getFragShaderSource(const std::string &name) {
-    return m_fragShaderSource[name];
-}
-
-const std::string &KRShaderManager::getVertShaderSource(const std::string &name) {
-    return m_vertShaderSource[name];
 }
 
 size_t KRShaderManager::getShaderHandlesUsed() {

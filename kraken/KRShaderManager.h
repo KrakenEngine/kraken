@@ -52,12 +52,6 @@ public:
     KRShaderManager(KRContext &context);
     virtual ~KRShaderManager();
     
-    void loadFragmentShader(const std::string &name, KRDataBlock *data);
-    void loadVertexShader(const std::string &name, KRDataBlock *data);
-    const std::string &getFragShaderSource(const std::string &name);
-    const std::string &getVertShaderSource(const std::string &name);
-    
-    
     KRShader *getShader(const std::string &shader_name, KRCamera *pCamera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, bool bRimColor = false);
     
     bool selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
@@ -71,9 +65,6 @@ public:
 private:
     //unordered_map<std::string, KRShader *> m_shaders;
     std::map<std::pair<std::string, std::vector<int> >, KRShader *> m_shaders;
-    
-    unordered_map<std::string, std::string> m_fragShaderSource;
-    unordered_map<std::string, std::string> m_vertShaderSource;
 };
 
 #endif
