@@ -4,6 +4,7 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "matrix4.h"
+#include <string>
 
 #if defined(ANDROID)
 #include <GLES3/gl3.h>
