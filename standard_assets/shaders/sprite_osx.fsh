@@ -1,5 +1,5 @@
 //
-//  KRMaterialManager.h
+//  sprite.fsh
 //  KREngine
 //
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
@@ -29,41 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+out vec4 colorOut;
 
+in mediump vec2 texCoord;
+uniform sampler2D diffuseTexture;
+uniform lowp float material_alpha;
 
-
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
-    virtual ~KRMaterialManager();
-    
-    KRMaterial* load(const char *szName, KRDataBlock *data);
-    void add(KRMaterial *new_material);
-    KRMaterial *getMaterial(const std::string &name);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-    
-    unordered_map<std::string, KRMaterial *> &getMaterials();
-    
-private:
-    unordered_map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRPipelineManager *m_pPipelineManager;
-
-};
-
-#endif
-
+void main() {
+    colorOut = vec4(vec3(texture(diffuseTexture, texCoord)), 1.0) * material_alpha;
+}

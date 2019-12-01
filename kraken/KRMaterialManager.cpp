@@ -33,10 +33,10 @@
 #include "KRMaterialManager.h"
 
 
-KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRShaderManager *pShaderManager) : KRContextObject(context)
+KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager) : KRContextObject(context)
 {
     m_pTextureManager = pTextureManager;
-    m_pShaderManager = pShaderManager;
+    m_pPipelineManager = pPipelineManager;
 }
 
 KRMaterialManager::~KRMaterialManager() {

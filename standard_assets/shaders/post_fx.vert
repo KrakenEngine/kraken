@@ -1,8 +1,4 @@
-//
-//  KRMaterialManager.h
-//  KREngine
-//
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2019 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -29,41 +25,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+uniform vec2 viewport_downsample;
+in vec4 vertex_position;
+in vec4 vertex_uv;
 
+out vec2 textureCoordinate;
 
-
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
-    virtual ~KRMaterialManager();
-    
-    KRMaterial* load(const char *szName, KRDataBlock *data);
-    void add(KRMaterial *new_material);
-    KRMaterial *getMaterial(const std::string &name);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-    
-    unordered_map<std::string, KRMaterial *> &getMaterials();
-    
-private:
-    unordered_map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRPipelineManager *m_pPipelineManager;
-
-};
-
-#endif
-
+void main()
+{
+	gl_Position = vertex_position;
+	textureCoordinate = vertex_uv.xy * viewport_downsample.xy;
+}

@@ -34,8 +34,8 @@
 
 #include "KRMesh.h"
 
-#include "KRShader.h"
-#include "KRShaderManager.h"
+#include "KRPipeline.h"
+#include "KRPipelineManager.h"
 #include "KRContext.h"
 #include "../3rdparty/forsyth/forsyth.h"
 

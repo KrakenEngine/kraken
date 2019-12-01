@@ -32,8 +32,8 @@
 #include "KREngine-common.h"
 
 #include "KRTexture.h"
-#include "KRShaderManager.h"
-#include "KRShader.h"
+#include "KRPipelineManager.h"
+#include "KRPipeline.h"
 #include "KRCamera.h"
 #include "KRResource.h"
 #include "KRScene.h"

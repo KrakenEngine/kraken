@@ -14,7 +14,7 @@
 #include "KRSceneManager.h"
 #include "KRTextureManager.h"
 #include "KRMaterialManager.h"
-#include "KRShaderManager.h"
+#include "KRPipelineManager.h"
 #include "KRMeshManager.h"
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
@@ -26,7 +26,7 @@ class KRAudioManager;
 
 class KRContext {
 public:
-    static int KRENGINE_MAX_SHADER_HANDLES;
+    static int KRENGINE_MAX_PIPELINE_HANDLES;
     static int KRENGINE_GPU_MEM_MAX;
     static int KRENGINE_GPU_MEM_TARGET;
     static int KRENGINE_MAX_TEXTURE_DIM;
@@ -52,7 +52,7 @@ public:
     KRSceneManager *getSceneManager();
     KRTextureManager *getTextureManager();
     KRMaterialManager *getMaterialManager();
-    KRShaderManager *getShaderManager();
+    KRPipelineManager *getPipelineManager();
     KRMeshManager *getMeshManager();
     KRAnimationManager *getAnimationManager();
     KRAnimationCurveManager *getAnimationCurveManager();
@@ -114,7 +114,7 @@ private:
     KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
-    KRShaderManager *m_pShaderManager;
+    KRPipelineManager *m_pPipelineManager;
     KRMeshManager *m_pMeshManager;
     KRAnimationManager *m_pAnimationManager;
     KRAnimationCurveManager *m_pAnimationCurveManager;

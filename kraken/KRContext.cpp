@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-int KRContext::KRENGINE_MAX_SHADER_HANDLES;
+int KRContext::KRENGINE_MAX_PIPELINE_HANDLES;
 int KRContext::KRENGINE_GPU_MEM_MAX;
 int KRContext::KRENGINE_GPU_MEM_TARGET;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
@@ -74,9 +74,9 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_absolute_time = 0.0f;
     
     m_pBundleManager = new KRBundleManager(*this);
-    m_pShaderManager = new KRShaderManager(*this);
+    m_pPipelineManager = new KRPipelineManager(*this);
     m_pTextureManager = new KRTextureManager(*this);
-    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
+    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pPipelineManager);
     m_pMeshManager = new KRMeshManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
@@ -128,9 +128,9 @@ KRContext::~KRContext() {
         m_pMaterialManager = NULL;
     }
     
-    if(m_pShaderManager) {
-        delete m_pShaderManager;
-        m_pShaderManager = NULL;
+    if(m_pPipelineManager) {
+        delete m_pPipelineManager;
+        m_pPipelineManager = NULL;
     }
     
     if(m_pAnimationManager) {
@@ -209,8 +209,8 @@ KRTextureManager *KRContext::getTextureManager() {
 KRMaterialManager *KRContext::getMaterialManager() {
     return m_pMaterialManager;
 }
-KRShaderManager *KRContext::getShaderManager() {
-    return m_pShaderManager;
+KRPipelineManager *KRContext::getPipelineManager() {
+    return m_pPipelineManager;
 }
 KRMeshManager *KRContext::getMeshManager() {
     return m_pMeshManager;
@@ -297,9 +297,53 @@ KRResource* KRContext::loadResource(const std::string &file_name, KRDataBlock *d
         resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
         resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
-    } else if(extension.compare("vsh") == 0) {
+    } else if(extension.compare("vert") == 0) {
+        // vertex shader
         resource = m_pSourceManager->load(name, extension, data);
-    } else if(extension.compare("fsh") == 0) {
+    } else if(extension.compare("frag") == 0) {
+        // fragment shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("tesc") == 0) {
+        // tessellation control shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("tese") == 0) {
+        // tessellation evaluation shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("geom") == 0) {
+        // geometry shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("comp") == 0) {
+        // compute shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("mesh") == 0) {
+        // mesh shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("task") == 0) {
+        // task shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rgen") == 0) {
+        // ray generation shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rint") == 0) {
+        // ray intersection shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rahit") == 0) {
+        // ray any hit shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rchit") == 0) {
+        // ray closest hit shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rmiss") == 0) {
+        // ray miss shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rcall") == 0) {
+        // ray callable shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("glsl") == 0) {
+        // glsl included by other shaders
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("options") == 0) {
+        // shader pre-processor options definition file
         resource = m_pSourceManager->load(name, extension, data);
     } else if(extension.compare("mtl") == 0) {
         resource = m_pMaterialManager->load(name.c_str(), data);

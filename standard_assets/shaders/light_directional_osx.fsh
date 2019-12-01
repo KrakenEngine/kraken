@@ -1,7 +1,3 @@
-//
-//  KRMaterialManager.h
-//  KREngine
-//
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
@@ -29,41 +25,37 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+out vec4 colorOut;
 
+uniform sampler2D gbuffer_frame;
+uniform sampler2D gbuffer_depth;
 
+uniform mediump vec3 light_direction_view_space; // Must be normalized and converted to view space before entering shader
+uniform lowp vec3 light_color;
+uniform highp float light_intensity;
+uniform mediump vec4 viewport;
 
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
-    virtual ~KRMaterialManager();
+void main()
+{
+    lowp vec2 gbuffer_uv = vec2(gl_FragCoord.xy / viewport.zw);  // FINDME, TODO - Dependent Texture Read adding latency, due to calculation of texture UV within fragment -- move to vertex shader?
+    lowp vec4 gbuffer_sample = texture(gbuffer_frame, gbuffer_uv);
     
-    KRMaterial* load(const char *szName, KRDataBlock *data);
-    void add(KRMaterial *new_material);
-    KRMaterial *getMaterial(const std::string &name);
+    mediump vec3 gbuffer_normal = normalize(2.0 * gbuffer_sample.rgb - 1.0);
+    mediump float gbuffer_specular_exponent = gbuffer_sample.a * 100.0;
     
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
+    mediump vec3 view_space_vertex_position = vec3(
+        ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1.0,
+        (2.0 * -texture(gbuffer_depth, gbuffer_uv).r - gl_DepthRange.near - gl_DepthRange.far) / (gl_DepthRange.far - gl_DepthRange.near)
+    );
     
-    
-    unordered_map<std::string, KRMaterial *> &getMaterials();
-    
-private:
-    unordered_map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRPipelineManager *m_pPipelineManager;
+    //mediump float lamberFactor = max(0.0,dot(light_direction_view_space, gbuffer_normal)) * 0.2;
+    mediump float lamberFactor = dot(light_direction_view_space, gbuffer_normal) * 0.2;
 
-};
+    mediump float specularFactor = 0.0;
 
-#endif
+    mediump vec3 halfVec = normalize((normalize(- view_space_vertex_position) + light_direction_view_space)); // Normalizing anyways, no need to divide by 2
+    specularFactor = pow(dot(halfVec,gbuffer_normal), gbuffer_specular_exponent);
 
+    
+    colorOut = vec4(light_color * lamberFactor, specularFactor) * light_intensity;
+}

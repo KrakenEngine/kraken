@@ -114,6 +114,18 @@ find_package(Vulkan REQUIRED)
 list (APPEND EXTRA_LIBS Vulkan::Vulkan)
 endif()
 
+
+# ---- GLSlang ----
+if(NOT ANDROID)
+set(ENABLE_GLSLANG_BINARIES OFF)
+set(ENABLE_GLSLANG_INSTALL OFF)
+set(ENABLE_SPVREMAPPER OFF)
+add_subdirectory(3rdparty/glslang)
+include_directories(3rdparty/glslang/Public)
+list (APPEND EXTRA_LIBS "glslang")
+list (APPEND EXTRA_LIBS "SPIRV")
+endif()
+
 # ---- OpenGL ----
 if(ANDROID)
 list (APPEND EXTRA_LIBS "EGL")

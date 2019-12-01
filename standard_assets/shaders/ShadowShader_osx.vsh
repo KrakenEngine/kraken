@@ -1,7 +1,3 @@
-//
-//  KRMaterialManager.h
-//  KREngine
-//
 //  Copyright 2012 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
@@ -29,41 +25,23 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+#define SHADOW_BIAS 0.01
 
 
+in highp vec4	vertex_position;
+uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 
-
-#include "KREngine-common.h"
-
-#include "KRMaterial.h"
-#include "KRTextureManager.h"
-#include "KRMaterialManager.h"
-
-
-using std::map;
-
-class KRMaterialManager : public KRContextObject {
-public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
-    virtual ~KRMaterialManager();
-    
-    KRMaterial* load(const char *szName, KRDataBlock *data);
-    void add(KRMaterial *new_material);
-    KRMaterial *getMaterial(const std::string &name);
-    
-    void configure(bool blend_enable, GLenum blend_src, GLenum blend_dest, bool depth_test_enable, GLenum depth_func, bool depth_write_enable);
-    
-    
-    unordered_map<std::string, KRMaterial *> &getMaterials();
-    
-private:
-    unordered_map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRPipelineManager *m_pPipelineManager;
-
-};
-
-#endif
-
+void main()
+{
+    // Transform position
+    /*
+    position = shadow_mvp1 * vec4(vertex_position,1.0);
+     */
+    gl_Position = mvp_matrix * vertex_position;
+    gl_Position.z += SHADOW_BIAS;
+    /*
+    // Pass UV co-ordinates
+    texCoord = vertex_uv.st;
+    */
+   
+}
