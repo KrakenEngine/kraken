@@ -37,41 +37,56 @@ int main( int argc, char *argv[] )
   move_to_bundle_info.sType = KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE;
   move_to_bundle_info.bundleHandle = 0;
 
+  char* output_bundle = nullptr;
+
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
-    if (arg[0] != '-') {
-      load_resource_info.pResourcePath = arg;
+	  if (arg[0] == '-') {
+	    continue;
+	  }
+	  if (i > 1 && argv[i - 1][0] == '-') {
+      char command = argv[i - 1][1];
+      switch (command) {
+      case 'o':
+        output_bundle = arg;
+        break;
+      default:
+        printf("Unknown command: -%c\n", command);
+        break;
+      }
+      continue;
+	  }
+
+    load_resource_info.pResourcePath = arg;
+	  printf("loading %s... ", arg);
       res = KrLoadResource(&load_resource_info);
       if (res != KR_SUCCESS) {
-        printf("Failed to load resource: %s\n", arg);
+        printf("[FAIL] (KrLoadResource)\n");
+		  continue;
       }
       move_to_bundle_info.resourceHandle = 1;
       res = KrMoveToBundle(&move_to_bundle_info);
       if (res != KR_SUCCESS) {
-        printf("Failed to move resource to bundle.\n");
-      }
+        printf("[FAIL] (KrMoveToBundle)\n");
+		  continue;
     }
+	  printf("[GOOD]\n");
   }
 
-  KrSaveResourceInfo save_resource_info = {};
-  save_resource_info.sType = KR_STRUCTURE_TYPE_SAVE_RESOURCE;
-  save_resource_info.resourceHandle = 0;
-  save_resource_info.pResourcePath = "output.krbundle";
-  res = KrSaveResource(&save_resource_info);
-  if (res != KR_SUCCESS) {
-    printf("Failed to save bundle.\nError %i\n", res);
+  if (output_bundle) {
+    printf("Bundling %s... ", output_bundle);
+    KrSaveResourceInfo save_resource_info = {};
+    save_resource_info.sType = KR_STRUCTURE_TYPE_SAVE_RESOURCE;
+    save_resource_info.resourceHandle = 0;
+    save_resource_info.pResourcePath = output_bundle;
+    res = KrSaveResource(&save_resource_info);
+    if (res != KR_SUCCESS) {
+      printf("[FAIL] (Error %i)\n", res);
+    } else {
+      printf("[GOOD]\n");
+    }
   }
 
   KrShutdown();
-/*
-  Context* context = Context::Get();
-
-  for (int i = 0; i < argc; i++) {
-    char *arg = argv[i];
-    if (arg[0] != '-') {
-      context->loadResource(arg);
-    }
-  }
-*/
   return 0;
 }

@@ -1,0 +1,2 @@
+add_subdirectory(hrtf_kemar)
+set(KRAKEN_STANDARD_ASSETS "${KRAKEN_STANDARD_ASSETS}" PARENT_SCOPE)

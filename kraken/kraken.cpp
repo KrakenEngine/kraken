@@ -31,8 +31,7 @@ KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  sContext->loadResource(pLoadResourceInfo);
-  return KR_SUCCESS;
+  return sContext->loadResource(pLoadResourceInfo);
 }
 
 KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo)

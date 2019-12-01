@@ -173,6 +173,20 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/lib/win)
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
-add_subdirectory(kraken_standard_assets)
+add_subdirectory(standard_assets)
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle
+    COMMAND kraken_convert -o ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle ${KRAKEN_STANDARD_ASSETS}
+    DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	COMMENT "Creating Standard Assets"
+)
+
+add_custom_target(standard_assets ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle
+    VERBATIM
+)
+
 add_subdirectory(tests)
 add_subdirectory(tools)
