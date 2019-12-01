@@ -17,3 +17,7 @@ target_include_directories(kraken_convert PRIVATE ${CMAKE_SOURCE_DIR}/hydra/incl
 
 TARGET_LINK_LIBRARIES( kraken_convert kraken ${EXTRA_LIBS} )
 
+set_target_properties( kraken_convert PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/output/bin
+  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/output/bin
+)

@@ -175,18 +175,25 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 add_subdirectory(standard_assets)
 
+SET(STANDARD_ASSET_BUNDLE "${CMAKE_BINARY_DIR}/output/assets/standard_assets.krbundle")
+
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle
-    COMMAND kraken_convert -o ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle ${KRAKEN_STANDARD_ASSETS}
+    OUTPUT ${STANDARD_ASSET_BUNDLE}
+    COMMAND kraken_convert -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
     DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	COMMENT "Creating Standard Assets"
 )
 
 add_custom_target(standard_assets ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/standard_assets.krbundle
+    DEPENDS ${STANDARD_ASSET_BUNDLE}
     VERBATIM
 )
 
 add_subdirectory(tests)
 add_subdirectory(tools)
+
+set_target_properties( kraken PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/output/lib
+  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/output/lib
+)
