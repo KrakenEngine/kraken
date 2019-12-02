@@ -83,6 +83,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
+    m_pShaderManager = new KRShaderManager(*this);
     m_pSourceManager = new KRSourceManager(*this);
     m_streamingEnabled = true;
 
@@ -224,6 +225,9 @@ KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
 KRAudioManager *KRContext::getAudioManager() {
     return m_pSoundManager;
 }
+KRShaderManager *KRContext::getShaderManager() {
+    return m_pShaderManager;
+}
 KRSourceManager *KRContext::getSourceManager() {
     return m_pSourceManager;
 }
@@ -262,6 +266,13 @@ std::vector<KRResource *> KRContext::getResources()
             resources.push_back((*itr2).second);
         }
     }
+
+    unordered_map<std::string, unordered_map<std::string, KRShader *> > shaders = m_pShaderManager->getShaders();
+    for(unordered_map<std::string, unordered_map<std::string, KRShader *> >::iterator itr = shaders.begin(); itr != shaders.end(); itr++) {
+        for(unordered_map<std::string, KRShader *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr2++) {
+            resources.push_back((*itr2).second);
+        }
+    }
     
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > unknowns = m_pUnknownManager->getUnknowns();
     for(unordered_map<std::string, unordered_map<std::string, KRUnknown *> >::iterator itr = unknowns.begin(); itr != unknowns.end(); itr++) {
@@ -297,6 +308,9 @@ KRResource* KRContext::loadResource(const std::string &file_name, KRDataBlock *d
         resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
         resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+    } else if(extension.compare("spv") == 0) {
+        // SPIR-V shader binary
+        resource = m_pShaderManager->load(name, extension, data);
     } else if(extension.compare("vert") == 0) {
         // vertex shader
         resource = m_pSourceManager->load(name, extension, data);

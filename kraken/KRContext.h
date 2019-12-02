@@ -19,6 +19,7 @@
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
 #include "KRUnknownManager.h"
+#include "KRShaderManager.h"
 #include "KRSourceManager.h"
 #include "KRStreamer.h"
 
@@ -58,6 +59,7 @@ public:
     KRAnimationCurveManager *getAnimationCurveManager();
     KRAudioManager *getAudioManager();
     KRUnknownManager *getUnknownManager();
+    KRShaderManager *getShaderManager();
     KRSourceManager *getSourceManager();
     
     KRCamera *createCamera(int width, int height);
@@ -120,6 +122,7 @@ private:
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;
     KRUnknownManager *m_pUnknownManager;
+    KRShaderManager *m_pShaderManager;
     KRSourceManager *m_pSourceManager;
 
     KRResource** m_resourceMap;
