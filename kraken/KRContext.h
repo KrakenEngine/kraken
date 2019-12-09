@@ -44,6 +44,7 @@ public:
     KrResult moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo);
     KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
     KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
+    KrResult mapResource(const KrMapResourceInfo* mapResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
     KRResource* loadResource(const std::string &file_name, KRDataBlock *data);

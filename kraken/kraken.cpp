@@ -52,7 +52,10 @@ KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo)
 
 KrResult KrMapResource(const KrMapResourceInfo* pMapResourceInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->mapResource(pMapResourceInfo);
 }
 
 KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo)

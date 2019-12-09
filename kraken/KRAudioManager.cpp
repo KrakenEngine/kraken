@@ -39,7 +39,7 @@
 #include "KRDSP.h"
 
 KRAudioManager::KRAudioManager(KRContext &context)
-    : KRContextObject(context)
+    : KRResourceManager(context)
     , m_initialized(false)
 {
     m_enable_audio = true;
@@ -1246,6 +1246,25 @@ void KRAudioManager::add(KRAudioSample *sound)
     } else {
         m_sounds[lower_name] = sound;
     }
+}
+
+KRResource* KRAudioManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("mtl") == 0 ||
+      extension.compare("mp3") == 0 ||
+      extension.compare("wav") == 0) {
+    return load(name, extension, data);
+  }
+  return nullptr;
+}
+KRResource* KRAudioManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("mtl") == 0 ||
+    extension.compare("mp3") == 0 ||
+    extension.compare("wav") == 0) {
+    return get(name);
+  }
+  return nullptr;
 }
 
 KRAudioSample *KRAudioManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)

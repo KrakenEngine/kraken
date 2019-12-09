@@ -38,7 +38,7 @@
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
+KRMeshManager::KRMeshManager(KRContext &context) : KRResourceManager(context) {
     m_currentVBO = NULL;
     m_vboMemUsed = 0;
     m_memoryTransferredThisFrame = 0;
@@ -100,6 +100,29 @@ KRMeshManager::~KRMeshManager() {
         delete (*itr).second;
     }
     m_models.empty();
+}
+
+KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("krmesh") == 0) {
+    return loadModel(name.c_str(), data);
+  }
+  return nullptr;
+}
+KRResource* KRMeshManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("krmesh") == 0) {
+    std::string lodBaseName;
+    int lodCoverage;
+    KRMesh::parseName(name, lodBaseName, lodCoverage);
+    std::vector<KRMesh*> models = getModel(lodBaseName.c_str());
+    for (KRMesh* mesh : models) {
+      if (mesh->getLODCoverage() == lodCoverage) {
+        return mesh;
+      }
+    }
+  }
+  return nullptr;
 }
 
 KRMesh *KRMeshManager::loadModel(const char *szName, KRDataBlock *pData) {

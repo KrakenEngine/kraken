@@ -80,7 +80,7 @@ typedef struct {
 
 typedef struct {
   KrStructureType sType;
-  const char* presourceName;
+  const char* pResourceName;
   KrResourceMapIndex resourceHandle;
 } KrMapResourceInfo;
 

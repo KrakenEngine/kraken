@@ -40,7 +40,7 @@
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
 
-KRTextureManager::KRTextureManager(KRContext &context) : KRContextObject(context) {
+KRTextureManager::KRTextureManager(KRContext &context) : KRResourceManager(context) {
     m_textureMemUsed = 0;
 
     for(int iTexture=0; iTexture<KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
@@ -113,6 +113,41 @@ void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode);
         m_wrapModeT[i] = wrap_mode;
     }
+}
+
+
+KRResource* KRTextureManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  /*
+  
+      } else if(extension.compare("pvr") == 0) {
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+    } else if(extension.compare("ktx") == 0) {
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+    } else if(extension.compare("tga") == 0) {
+  
+  */
+  if (extension.compare("pvr") == 0 ||
+    extension.compare("ktx") == 0 ||
+    extension.compare("tga") == 0) {
+    return loadTexture(name.c_str(), extension.c_str(), data);
+  }
+  return nullptr;
+}
+
+KRResource* KRTextureManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("pvr") == 0 ||
+      extension.compare("ktx") == 0 ||
+      extension.compare("tga") == 0) {
+    // TODO - Currently textures must have a unique name, without consideration
+    //        of extensions.  When textures are compressed, the uncompressed versions
+    //        are removed.  Both compressed and un-compressed textures should co-exist
+    //        with the renderer prioritizing as necessary.  This will facilitate more
+    //        ergonomic usage within toolchain and editor GUI.
+    return getTexture(name);
+  }
+  return nullptr;
 }
 
 KRTexture *KRTextureManager::loadTexture(const char *szName, const char *szExtension, KRDataBlock *data) {

@@ -32,10 +32,9 @@
 #ifndef KRMATERIALMANAGER_H
 #define KRMATERIALMANAGER_H
 
-
-
-
 #include "KREngine-common.h"
+
+#include "KRResourceManager.h"
 
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
@@ -44,10 +43,13 @@
 
 using std::map;
 
-class KRMaterialManager : public KRContextObject {
+class KRMaterialManager : public KRResourceManager {
 public:
     KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
     virtual ~KRMaterialManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     KRMaterial* load(const char *szName, KRDataBlock *data);
     void add(KRMaterial *new_material);

@@ -34,14 +34,19 @@
 
 #include "KREngine-common.h"
 
+#include "KRResourceManager.h"
+
 #include "KRShader.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-class KRShaderManager : public KRContextObject {
+class KRShaderManager : public KRResourceManager {
 public:
     KRShaderManager(KRContext &context);
     virtual ~KRShaderManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     void add(KRShader *shader);
     

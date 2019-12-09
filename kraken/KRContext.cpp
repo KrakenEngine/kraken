@@ -413,6 +413,22 @@ KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInf
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
+KrResult KRContext::mapResource(const KrMapResourceInfo* mapResourceInfo)
+{
+  if (mapResourceInfo->resourceHandle < 0 || mapResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+
+/*
+  KRResource* resource = loadResource(loadResourceInfo->pResourcePath, data);
+  m_resourceMap[loadResourceInfo->resourceHandle] = resource;
+  return KR_SUCCESS;
+*/
+
+  // TODO - Need to implement mapping logic
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
 KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
 {
   if (createBundleInfo->resourceHandle < 0 || createBundleInfo->resourceHandle >= m_resourceMapSize) {

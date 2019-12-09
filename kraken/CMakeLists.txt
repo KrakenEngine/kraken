@@ -64,6 +64,7 @@ add_sources(KRResource+blend.cpp)
 # add_sources(KRResource+fbx.cpp) # TODO - Locate FBX SDK dependencies
 add_sources(KRResource+obj.cpp)
 add_sources(KRResource.cpp)
+add_sources(KRResourceManager.cpp)
 add_sources(KRReverbZone.cpp)
 add_sources(KRScene.cpp)
 add_sources(KRSceneManager.cpp)

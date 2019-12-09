@@ -33,7 +33,7 @@
 #include "KRMaterialManager.h"
 
 
-KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager) : KRContextObject(context)
+KRMaterialManager::KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager) : KRResourceManager(context)
 {
     m_pTextureManager = pTextureManager;
     m_pPipelineManager = pPipelineManager;
@@ -43,6 +43,24 @@ KRMaterialManager::~KRMaterialManager() {
 
 }
 
+KRResource* KRMaterialManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("mtl") == 0) {
+    return load(name.c_str(), data);
+  }
+  return nullptr;
+}
+
+KRResource* KRMaterialManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("mtl") == 0) {
+    // TODO - This is not correct -- there are multiple materials emitted in a single mtl file.
+    //        We should treat "mtl" files as source files, managed by KRSource, which output
+    //        material resources when compiled.
+    return m_materials[name];
+  }
+  return nullptr;
+}
 
 unordered_map<std::string, KRMaterial *> &KRMaterialManager::getMaterials()
 {

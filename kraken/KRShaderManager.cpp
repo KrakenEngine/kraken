@@ -32,7 +32,7 @@
 #include "KRShaderManager.h"
 #include "KREngine-common.h"
 
-KRShaderManager::KRShaderManager(KRContext &context) : KRContextObject(context)
+KRShaderManager::KRShaderManager(KRContext &context) : KRResourceManager(context)
 {
     
 }
@@ -44,6 +44,21 @@ KRShaderManager::~KRShaderManager()
             delete (*name_itr).second;
         }
     }
+}
+
+KRResource* KRShaderManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("spv") == 0) {
+    return load(name, extension, data);
+  }
+  return nullptr;
+}
+KRResource* KRShaderManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("spv") == 0) {
+    return get(name, extension);
+  }
+  return nullptr;
 }
 
 unordered_map<std::string, unordered_map<std::string, KRShader *> > &KRShaderManager::getShaders()

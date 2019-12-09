@@ -32,7 +32,7 @@
 #include "KRSourceManager.h"
 #include "KREngine-common.h"
 
-KRSourceManager::KRSourceManager(KRContext &context) : KRContextObject(context)
+KRSourceManager::KRSourceManager(KRContext &context) : KRResourceManager(context)
 {
     
 }
@@ -72,6 +72,52 @@ void KRSourceManager::add(KRSource *source)
     } else {
         (*extension_itr).second[lower_name] = source;
     }
+}
+
+KRResource* KRSourceManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("vert") == 0 ||
+      extension.compare("frag") == 0 ||
+      extension.compare("tesc") == 0 ||
+      extension.compare("tese") == 0 ||
+      extension.compare("geom") == 0 ||
+      extension.compare("comp") == 0 ||
+      extension.compare("mesh") == 0 ||
+      extension.compare("task") == 0 ||
+      extension.compare("rgen") == 0 ||
+      extension.compare("rint") == 0 ||
+      extension.compare("rahit") == 0 ||
+      extension.compare("rchit") == 0 ||
+      extension.compare("rmiss") == 0 ||
+      extension.compare("rcall") == 0 ||
+      extension.compare("glsl") == 0 ||
+      extension.compare("options") == 0) {
+    return load(name, extension, data);
+  }
+  return nullptr;
+}
+
+KRResource* KRSourceManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("vert") == 0 ||
+      extension.compare("frag") == 0 ||
+      extension.compare("tesc") == 0 ||
+      extension.compare("tese") == 0 ||
+      extension.compare("geom") == 0 ||
+      extension.compare("comp") == 0 ||
+      extension.compare("mesh") == 0 ||
+      extension.compare("task") == 0 ||
+      extension.compare("rgen") == 0 ||
+      extension.compare("rint") == 0 ||
+      extension.compare("rahit") == 0 ||
+      extension.compare("rchit") == 0 ||
+      extension.compare("rmiss") == 0 ||
+      extension.compare("rcall") == 0 ||
+      extension.compare("glsl") == 0 ||
+      extension.compare("options") == 0) {
+    return get(name, extension);
+  }
+  return nullptr;
 }
 
 KRSource *KRSourceManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)

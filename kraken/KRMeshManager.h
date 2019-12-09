@@ -33,6 +33,8 @@
 #define KRMESHMANAGER_H
 
 #include "KREngine-common.h"
+
+#include "KRResourceManager.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRNode.h"
@@ -40,13 +42,16 @@
 class KRContext;
 class KRMesh;
 
-class KRMeshManager : public KRContextObject {
+class KRMeshManager : public KRResourceManager {
 public:
     static const int KRENGINE_MAX_VOLUMETRIC_PLANES=500;
     static const int KRENGINE_MAX_RANDOM_PARTICLES=150000;
     
     KRMeshManager(KRContext &context);
     virtual ~KRMeshManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);

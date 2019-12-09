@@ -33,7 +33,7 @@
 
 #include "KRBundle.h"
 
-KRBundleManager::KRBundleManager(KRContext &context) : KRContextObject(context) {
+KRBundleManager::KRBundleManager(KRContext &context) : KRResourceManager(context) {
     
 }
 
@@ -42,6 +42,21 @@ KRBundleManager::~KRBundleManager() {
         delete (*itr).second;
     }
     m_bundles.empty();
+}
+
+KRResource* KRBundleManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("krbundle") == 0) {
+    return loadBundle(name.c_str() , data);
+  }
+  return nullptr;
+}
+KRResource* KRBundleManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("krbundle") == 0) {
+    return getBundle(name.c_str());
+  }
+  return nullptr;
 }
 
 KRBundle *KRBundleManager::loadBundle(const char *szName, KRDataBlock *pData)

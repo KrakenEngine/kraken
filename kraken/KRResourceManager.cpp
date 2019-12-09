@@ -1,8 +1,8 @@
 //
-//  KRAnimationCurveManager.h
+//  KRResourceManager.cpp
 //  KREngine
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
+//  Copyright 2019 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -29,38 +29,15 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONCURVEMANAGER_H
-#define KRANIMATIONCURVEMANAGER_H
-
+#include "KRResourceManager.h"
 #include "KREngine-common.h"
 
-#include "KRResourceManager.h"
-
-#include "KRAnimationCurve.h"
-#include "KRContextObject.h"
-#include "KRDataBlock.h"
-
-using std::map;
-
-class KRAnimationCurveManager : public KRResourceManager {
-public:
-    KRAnimationCurveManager(KRContext &context);
-    virtual ~KRAnimationCurveManager();
-
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-
-    KRAnimationCurve *loadAnimationCurve(const std::string &name, KRDataBlock *data);
-    KRAnimationCurve *getAnimationCurve(const std::string &name);
-    void addAnimationCurve(KRAnimationCurve *new_animation_curve);
-    unordered_map<std::string, KRAnimationCurve *> &getAnimationCurves();
+KRResourceManager::KRResourceManager(KRContext &context) : KRContextObject(context)
+{
     
-    void deleteAnimationCurve(KRAnimationCurve *curve);
-    
-private:
-    unordered_map<std::string, KRAnimationCurve *> m_animationCurves;
-};
+}
 
+KRResourceManager::~KRResourceManager()
+{
 
-
-#endif
+}
