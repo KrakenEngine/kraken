@@ -155,8 +155,14 @@ include_directories(3rdparty/glfw/include)
 list (APPEND EXTRA_LIBS "${GLFW_LIBRARIES}")
 endif()
 
+add_custom_command(
+    OUTPUT ${KRAKEN_PUBLIC_HEADERS_OUTPUT}
+//    COMMAND kraken_convert -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
+//    DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
+  COMMENT "Copying public headers"
+)
 
-add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PUBLIC_HEADERS_OUTPUT})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
   kraken
@@ -184,6 +190,9 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   install (FILES $<TARGET_PDB_FILE:kraken>
            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/lib/win)
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+set(KRAKEN_PUBLIC_HEADERS_OUTPUT ${KRAKEN_PUBLIC_HEADERS})
+list(TRANSFORM KRAKEN_PUBLIC_HEADERS_OUTPUT PREPEND "${CMAKE_BINARY_DIR}/output/include")
 
 add_subdirectory(standard_assets)
 
