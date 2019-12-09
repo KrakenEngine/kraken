@@ -59,7 +59,7 @@ KRTextureKTX::KRTextureKTX(KRContext &context, KRDataBlock *data, std::string na
     uint32_t blockStart = sizeof(KTXHeader) + m_header.bytesOfKeyValueData;
     uint32_t width = m_header.pixelWidth, height = m_header.pixelHeight;
     
-    for(int mipmap_level=0; mipmap_level < KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
+    for(int mipmap_level=0; mipmap_level < (int)KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
         uint32_t blockLength;
         data->copy(&blockLength, blockStart, 4);
         blockStart += 4;
@@ -126,7 +126,7 @@ KRTextureKTX::~KRTextureKTX() {
 long KRTextureKTX::getMemRequiredForSize(int max_dim)
 {
     int target_dim = max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = target_dim;
+    if(target_dim < (int)m_min_lod_max_dim) target_dim = target_dim;
     
     // Determine how much memory will be consumed
     
@@ -137,7 +137,7 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
     for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
         KRDataBlock *block = *itr;
         if(width <= target_dim && height <= target_dim) {
-            memoryRequired += block->getSize();
+            memoryRequired += (long)block->getSize();
         }
 		
         width = width >> 1;
@@ -156,7 +156,7 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
 bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     int target_dim = lod_max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+    if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
     
     if(m_blocks.size() == 0) {
         return false;
@@ -239,9 +239,9 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             GLDEBUG(glCompressedTexImage2D(target, destination_level, (GLenum)m_header.glInternalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
 #endif
             block->unlock();
-            memoryTransferred += block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+            memoryTransferred += (long)block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
 #endif
-            memoryRequired += block->getSize();
+            memoryRequired += (long)block->getSize();
             //
             //            err = glGetError();
             //            if (err != GL_NO_ERROR) {

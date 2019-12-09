@@ -21,7 +21,7 @@ class Matrix4;
 class AABB;
 } // namespace kraken
 class KRCamera;
-class KRShaderManager;
+class KRPipelineManager;
 class KRMeshManager;
 class KRMaterialManager;
 class KRTextureManager;

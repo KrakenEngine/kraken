@@ -34,7 +34,7 @@
 
 #include "KREngine-common.h"
 
-#include "KRShader.h"
+#include "KRPipeline.h"
 #include "KRContextObject.h"
 #include "KRTexture.h"
 #include "KRContext.h"

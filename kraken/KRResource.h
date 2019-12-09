@@ -12,7 +12,9 @@
 
 #ifndef KRRESOURCE_H
 #define KRRESOURCE_H
-
+class KRBundle;
+class KRScene;
+class KRMesh;
 class KRResource : public KRContextObject
 {
 public:
@@ -20,6 +22,8 @@ public:
     virtual std::string getExtension() = 0;
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data) = 0;
+
+    KrResult moveToBundle(KRBundle* bundle);
     
     static std::string GetFileExtension(const std::string& name);
     static std::string GetFileBase(const std::string& name);
@@ -27,11 +31,10 @@ public:
     
     virtual ~KRResource();
     
-    
-    static std::vector<KRResource *> LoadObj(KRContext &context, const std::string& path);
+    static KRMesh* LoadObj(KRContext &context, const std::string& path);
 #if !TARGET_OS_IPHONE
-    static void LoadFbx(KRContext &context, const std::string& path);
-    static std::vector<KRResource *> LoadBlenderScene(KRContext &context, const std::string& path);
+//    static KRScene* LoadFbx(KRContext &context, const std::string& path); TODO, FINDME, HACK! - Uncomment
+    static KRScene* LoadBlenderScene(KRContext &context, const std::string& path);
 #endif
    
 protected:

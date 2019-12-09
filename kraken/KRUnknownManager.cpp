@@ -32,7 +32,7 @@
 #include "KRUnknownManager.h"
 #include "KREngine-common.h"
 
-KRUnknownManager::KRUnknownManager(KRContext &context) : KRContextObject(context)
+KRUnknownManager::KRUnknownManager(KRContext &context) : KRResourceManager(context)
 {
     
 }
@@ -72,6 +72,19 @@ void KRUnknownManager::add(KRUnknown *unknown)
     } else {
         (*extension_itr).second[lower_name] = unknown;
     }
+}
+
+
+KRResource* KRUnknownManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  // KRUnknown's can have any extension
+  return load(name, extension, data);
+}
+
+KRResource* KRUnknownManager::getResource(const std::string& name, const std::string& extension)
+{
+  // KRUnknown's can have any extension
+  return get(name, extension);
 }
 
 KRUnknown *KRUnknownManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)

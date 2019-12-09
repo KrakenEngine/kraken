@@ -34,6 +34,8 @@
 
 #include "KREngine-common.h"
 
+#include "KRResourceManager.h"
+
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRAudioSource.h"
@@ -90,10 +92,13 @@ typedef struct {
     KRAudioSample *reverb_sample;
 } siren_reverb_zone_weight_info;
 
-class KRAudioManager : public KRContextObject {
+class KRAudioManager : public KRResourceManager {
 public:
     KRAudioManager(KRContext &context);
     virtual ~KRAudioManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     unordered_map<std::string, KRAudioSample *> &getSounds();
     
@@ -238,7 +243,7 @@ private:
     unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
     float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
     
-    boost::signals2::mutex m_mutex;
+    std::mutex m_mutex;
 #ifdef __APPLE__
     mach_timebase_info_data_t m_timebase_info;
 #endif

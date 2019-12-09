@@ -28,8 +28,6 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#include <boost/tokenizer.hpp>
-#include <boost/lexical_cast.hpp>
 #include "KRAnimation.h"
 #include "KRAnimationManager.h"
 #include "KRContext.h"
@@ -291,7 +289,7 @@ KRAnimation *KRAnimation::split(const std::string &name, float start_time, float
                     KRAnimationAttribute *new_attribute = new KRAnimationAttribute(getContext());
                     KRAnimationCurve *new_curve = curve;
                     if(clone_curves) {
-                        std::string new_curve_name = name + "_curve" + boost::lexical_cast<std::string>(++new_curve_count);
+                        std::string new_curve_name = name + "_curve" + std::to_string(++new_curve_count);
                         new_curve = curve->split(new_curve_name, start_time, duration);
                     }
                     

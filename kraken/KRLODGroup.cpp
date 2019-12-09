@@ -121,12 +121,12 @@ KRNode::LodVisibility KRLODGroup::calcLODVisibility(const KRViewport &viewport)
         if(m_use_world_units) {
             Vector3 world_reference_point = localToWorld(local_reference_point);
             sqr_distance = (world_camera_position - world_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
-            sqr_prestream_distance = getContext().KRENGINE_PRESTREAM_DISTANCE * getContext().KRENGINE_PRESTREAM_DISTANCE;
+            sqr_prestream_distance = (float)(getContext().KRENGINE_PRESTREAM_DISTANCE * getContext().KRENGINE_PRESTREAM_DISTANCE);
         } else {
             sqr_distance = (local_camera_position - local_reference_point).sqrMagnitude() * (lod_bias * lod_bias);
             
             Vector3 world_reference_point = localToWorld(local_reference_point);
-            sqr_prestream_distance = worldToLocal(Vector3::Normalize(world_reference_point - world_camera_position) * getContext().KRENGINE_PRESTREAM_DISTANCE).sqrMagnitude(); // TODO, FINDME - Optimize with precalc?
+            sqr_prestream_distance = worldToLocal(Vector3::Normalize(world_reference_point - world_camera_position) * (float)getContext().KRENGINE_PRESTREAM_DISTANCE).sqrMagnitude(); // TODO, FINDME - Optimize with precalc?
             
         }
         

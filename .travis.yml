@@ -3,7 +3,7 @@ compiler: clang
 
 branches:
   only:
-    - master
+    - feature-vulkan
 
 matrix:
   include:
@@ -14,7 +14,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - libc++-dev
-            - libboost-dev
     - os: osx
       osx_image: xcode9.1
 

@@ -1,19 +1,19 @@
 //
-//  KRShaderManager.h
+//  ShaderManager.h
 //  KREngine
 //
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
-//  
+//  Copyright 2019 Kearwood Gilbert. All rights reserved.
+//
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
-//  
+//
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
-//  
+//
 //  THIS SOFTWARE IS PROVIDED BY KEARWOOD GILBERT ''AS IS'' AND ANY EXPRESS OR IMPLIED
 //  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 //  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL KEARWOOD GILBERT OR
@@ -23,57 +23,43 @@
 //  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  
+//
 //  The views and conclusions contained in the software and documentation are those of the
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
 
+#ifndef KRSHADER_MANAGER_H
+#define KRSHADER_MANAGER_H
 
 #include "KREngine-common.h"
 
-#include "KRCamera.h"
-#include "KRDataBlock.h"
-#include "KRNode.h"
-
-using std::map;
-using std::vector;
+#include "KRResourceManager.h"
 
 #include "KRShader.h"
+#include "KRContextObject.h"
+#include "KRDataBlock.h"
 
-#ifndef KRSHADERMANAGER_H
-#define KRSHADERMANAGER_H
-
-class KRShader;
-class KRCamera;
-
-class KRShaderManager : public KRContextObject {
+class KRShaderManager : public KRResourceManager {
 public:
     KRShaderManager(KRContext &context);
     virtual ~KRShaderManager();
-    
-    void loadFragmentShader(const std::string &name, KRDataBlock *data);
-    void loadVertexShader(const std::string &name, KRDataBlock *data);
-    const std::string &getFragShaderSource(const std::string &name);
-    const std::string &getVertShaderSource(const std::string &name);
-    
-    
-    KRShader *getShader(const std::string &shader_name, KRCamera *pCamera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, bool bRimColor = false);
-    
-    bool selectShader(KRCamera &camera, KRShader *pShader, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
-    
-    bool selectShader(const std::string &shader_name, KRCamera &camera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRViewport &viewport, const Matrix4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
-    
-    long getShaderHandlesUsed();
-    
-    KRShader *m_active_shader;
 
-private:
-    //unordered_map<std::string, KRShader *> m_shaders;
-    std::map<std::pair<std::string, std::vector<int> >, KRShader *> m_shaders;
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
-    unordered_map<std::string, std::string> m_fragShaderSource;
-    unordered_map<std::string, std::string> m_vertShaderSource;
+    void add(KRShader *shader);
+    
+    KRShader *load(const std::string &name, const std::string &extension, KRDataBlock *data);
+    KRShader *get(const std::string &name, const std::string &extension);
+    
+
+    const unordered_map<std::string, KRShader *> &get(const std::string &extension);
+    
+    unordered_map<std::string, unordered_map<std::string, KRShader *> > &getShaders();
+    
+private:
+    unordered_map<std::string, unordered_map<std::string, KRShader *> > m_shaders;
 };
 
-#endif
+#endif /* defined(KRUNKNOWN_MANAGER_H) */

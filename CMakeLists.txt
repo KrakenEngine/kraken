@@ -1,9 +1,17 @@
-cmake_minimum_required (VERSION 2.6)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+cmake_minimum_required (VERSION 2.8)
 
-if (NOT WIN32)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+else(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Likely MSVC...
+    # Build with more cores
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
+if (NOT WIN32 AND NOT ANDROID)
   set(CMAKE_CXX_COMPILER "clang++")
 endif()
 
@@ -27,6 +35,21 @@ macro (add_sources)
     endif()
 endmacro()
 
+macro (add_standard_asset)
+    file (RELATIVE_PATH _relPath "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    foreach (_src ${ARGN})
+        if (_relPath)
+            list (APPEND KRAKEN_STANDARD_ASSETS "${_relPath}/${_src}")
+        else()
+            list (APPEND KRAKEN_STANDARD_ASSETS "${_src}")
+        endif()
+    endforeach()
+    if (_relPath)
+        # propagate KRAKEN_STANDARD_ASSETS to parent directory
+        set (KRAKEN_STANDARD_ASSETS ${KRAKEN_STANDARD_ASSETS} PARENT_SCOPE)
+    endif()
+endmacro()
+
 macro (add_public_header)
     file (RELATIVE_PATH _relPath "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
     foreach (_src ${ARGN})
@@ -43,6 +66,8 @@ macro (add_public_header)
 endmacro()
 
 IF(APPLE)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
    # SET(GUI_TYPE MACOSX_BUNDLE)
    # INCLUDE_DIRECTORIES ( /Developer/Headers/FlatCarbon )
    FIND_LIBRARY(APPKIT_LIBRARY AppKit)
@@ -73,70 +98,123 @@ add_public_header(hydra/include/vector3.h)
 add_public_header(hydra/include/vector4.h)
 add_public_header(hydra/include/vector2i.h)
 
-add_library(kraken SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
-
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.54.0)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-  target_link_libraries(kraken ${Boost_LIBRARIES})
+# ---- Android ----
+if(ANDROID)
+add_subdirectory(kraken_android)
 endif()
 
 # ---- Hydra ----
 add_subdirectory(hydra)
 include_directories(hydra/include)
-target_link_libraries(kraken hydra)
+list (APPEND EXTRA_LIBS hydra)
 
+# ---- Vulkan ----
+if(NOT ANDROID)
+find_package(Vulkan REQUIRED)
+list (APPEND EXTRA_LIBS Vulkan::Vulkan)
+endif()
+
+
+# ---- GLSlang ----
+if(NOT ANDROID)
+set(ENABLE_GLSLANG_BINARIES OFF)
+set(ENABLE_GLSLANG_INSTALL OFF)
+set(ENABLE_SPVREMAPPER OFF)
+add_subdirectory(3rdparty/glslang)
+include_directories(3rdparty/glslang/Public)
+list (APPEND EXTRA_LIBS "glslang")
+list (APPEND EXTRA_LIBS "SPIRV")
+endif()
 
 # ---- OpenGL ----
+if(ANDROID)
+list (APPEND EXTRA_LIBS "EGL")
+list (APPEND EXTRA_LIBS "GLESv3")
+else()
 find_package(OpenGL REQUIRED)
 include_directories( ${OPENGL_INCLUDE_DIRS} )
-target_link_libraries(kraken ${OPENGL_LIBRARIES})
+list (APPEND EXTRA_LIBS "${OPENGL_LIBRARIES}")
+endif()
 
 # ---- GLAD ----
+if(NOT ANDROID)
 set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
 add_subdirectory(3rdparty/glad)
 include_directories(${GLAD_INCLUDE_DIRS})
-target_link_libraries(kraken glad)
+list (APPEND EXTRA_LIBS "glad")
+endif()
 
 # ---- GLFW ----
+if(NOT ANDROID)
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
 set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 add_subdirectory(3rdparty/glfw)
 include_directories(3rdparty/glfw/include)
-target_link_libraries(kraken glfw ${GLFW_LIBRARIES})
+list (APPEND EXTRA_LIBS "${GLFW_LIBRARIES}")
+endif()
 
+add_custom_command(
+    OUTPUT ${KRAKEN_PUBLIC_HEADERS_OUTPUT}
+//    COMMAND kraken_convert -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
+//    DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
+  COMMENT "Copying public headers"
+)
+
+add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PUBLIC_HEADERS_OUTPUT})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
   kraken
 PROPERTIES
-  FRAMEWORK ON
-  SOVERSION 0
-  VERSION 0.1.0
   PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
   PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
-  ARCHIVE_OUTPUT_DIRECTORY "archive"
-  LIBRARY_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
+  ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
   OUTPUT_NAME kraken
 )
-
-# install(TARGETS kraken DESTINATION ${PROJECT_BINARY_DIR}/lib${LIB_SUFFIX})
-# install(FILES ${KRAKEN_PUBLIC_HEADERS} DESTINATION ${PROJECT_BINARY_DIR}/include)
-
-# INSTALL(TARGETS kraken 
-#        LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-#        ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-#        PUBLIC_HEADER DESTINATION "include"
-# )
-
-
 
 # add_custom_target(package
 #   COMMENT "Compressing..."
 #   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/archive"
 #   COMMAND ${CMAKE_COMMAND} -E tar "cfvz" "kraken.tgz" "*"
 # )
+
+install(TARGETS kraken
+        RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/bin/win
+        PUBLIC_HEADER DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/include
+        ARCHIVE DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/lib/win
+        LIBRARY DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/lib/win
+)
+
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  install (FILES $<TARGET_PDB_FILE:kraken>
+           DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/lib/win)
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+set(KRAKEN_PUBLIC_HEADERS_OUTPUT ${KRAKEN_PUBLIC_HEADERS})
+list(TRANSFORM KRAKEN_PUBLIC_HEADERS_OUTPUT PREPEND "${CMAKE_BINARY_DIR}/output/include")
+
+add_subdirectory(standard_assets)
+
+SET(STANDARD_ASSET_BUNDLE "${CMAKE_BINARY_DIR}/output/assets/standard_assets.krbundle")
+
+add_custom_command(
+    OUTPUT ${STANDARD_ASSET_BUNDLE}
+    COMMAND kraken_convert -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
+    DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	COMMENT "Creating Standard Assets"
+)
+
+add_custom_target(standard_assets ALL
+    DEPENDS ${STANDARD_ASSET_BUNDLE}
+    VERBATIM
+)
+
+add_subdirectory(tests)
+add_subdirectory(tools)
+
+set_target_properties( kraken PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/output/lib
+  RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/output/lib
+)

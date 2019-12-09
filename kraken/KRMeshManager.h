@@ -33,6 +33,8 @@
 #define KRMESHMANAGER_H
 
 #include "KREngine-common.h"
+
+#include "KRResourceManager.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRNode.h"
@@ -40,13 +42,16 @@
 class KRContext;
 class KRMesh;
 
-class KRMeshManager : public KRContextObject {
+class KRMeshManager : public KRResourceManager {
 public:
     static const int KRENGINE_MAX_VOLUMETRIC_PLANES=500;
     static const int KRENGINE_MAX_RANDOM_PARTICLES=150000;
     
     KRMeshManager(KRContext &context);
     virtual ~KRMeshManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
@@ -88,7 +93,7 @@ public:
         KRVBOData(const KRVBOData& o) = delete;
         KRVBOData& operator=(const KRVBOData& o) = delete;
         
-        long getSize() { return m_size; }
+        long getSize() { return (long)m_size; }
         
         void resetPoolExpiry(float lodCoverage);
         long getLastFrameUsed() { return m_last_frame_used; }
@@ -150,7 +155,7 @@ public:
     
     long getMemoryTransferedThisFrame();
 
-    int getActiveVBOCount();
+    size_t getActiveVBOCount();
     
     struct draw_call_info {
         KRNode::RenderPass pass;

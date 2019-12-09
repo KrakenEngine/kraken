@@ -34,14 +34,19 @@
 
 #include "KREngine-common.h"
 
+#include "KRResourceManager.h"
+
 #include "KRUnknown.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-class KRUnknownManager : public KRContextObject {
+class KRUnknownManager : public KRResourceManager {
 public:
     KRUnknownManager(KRContext &context);
     virtual ~KRUnknownManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     void add(KRUnknown *unknown);
     

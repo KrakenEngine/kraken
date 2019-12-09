@@ -84,7 +84,7 @@ int KRAudioSample::getChannelCount()
     return m_channelsPerFrame;
 }
 
-int KRAudioSample::getFrameCount()
+__int64_t KRAudioSample::getFrameCount()
 {
     loadInfo();
     //return (int)((__int64_t)m_totalFrames * (__int64_t)frame_rate / (__int64_t)m_frameRate);
@@ -113,7 +113,7 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
         if(buffer_index >= m_bufferCount) {
             return 0.0f; // Past the end of the recording
         } else {
-            int buffer_offset = frame_offset - buffer_index * maxFramesPerBuffer;
+            __int64_t buffer_offset = frame_offset - buffer_index * maxFramesPerBuffer;
             
             KRAudioBuffer *buffer = getContext().getAudioManager()->getBuffer(*this, buffer_index);
             if(buffer == NULL) {
@@ -132,12 +132,12 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
 {
     loadInfo();
     
-    m_last_frame_used = getContext().getAudioManager()->getAudioFrame();
+    m_last_frame_used = (int)getContext().getAudioManager()->getAudioFrame();
     
     if(loop) {
         int buffer_offset = 0;
         int frames_left = frame_count;
-        int sample_length = getFrameCount();
+        int sample_length = (int)getFrameCount();
         while(frames_left) {
             int next_frame = (int)(((__int64_t)frame_offset + (__int64_t)buffer_offset) % sample_length);
             if(next_frame + frames_left >= sample_length) {
@@ -160,8 +160,8 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
             // Range is entirely after the sample
             memset(buffer, 0, frame_count * sizeof(float));
         } else {
-            int start_frame = frame_offset < 0 ? 0 : frame_offset;
-            int prefix_frames = frame_offset < 0 ? -frame_offset : 0;
+            int start_frame = (int)(frame_offset < 0 ? 0 : frame_offset);
+            int prefix_frames = (int)(frame_offset < 0 ? -frame_offset : 0);
             if(prefix_frames > 0) {
                 // Prefix with padding of 0's
                 memset(buffer, 0, prefix_frames * sizeof(float));
@@ -386,7 +386,7 @@ KRAudioBuffer *KRAudioSample::getBuffer(int index)
 void KRAudioSample::_endFrame()
 {
     const __int64_t AUDIO_SAMPLE_EXPIRY_FRAMES = 500;
-    long current_frame = getContext().getAudioManager()->getAudioFrame();
+    __int64_t current_frame = getContext().getAudioManager()->getAudioFrame();
     if(current_frame > m_last_frame_used + AUDIO_SAMPLE_EXPIRY_FRAMES) {
         closeFile();
     }
