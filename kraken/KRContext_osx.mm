@@ -20,7 +20,7 @@ void KRContext::destroyDeviceContexts()
   gRenderContext = nil;
 }
 
-void KRContext::createDeviceContexts()
+void createGLDeviceContexts()
 {
     if(gRenderContext == nil) {
         
@@ -63,20 +63,20 @@ void KRContext::createDeviceContexts()
 
 void KRContext::activateStreamerContext()
 {
-    createDeviceContexts();
+    createGLDeviceContexts();
     [gStreamerContext makeCurrentContext];
 }
 
 void KRContext::activateRenderContext()
 {
-    createDeviceContexts();
+    createGLDeviceContexts();
     [gRenderContext update];
     [gRenderContext makeCurrentContext];
 }
 
 void KRContext::attachToView(void *view)
 {
-    createDeviceContexts();
+    createGLDeviceContexts();
     NSView *v = (NSView *)view;
     [gRenderContext setView: v];
     [gRenderContext update];

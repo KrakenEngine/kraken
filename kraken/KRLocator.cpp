@@ -34,7 +34,22 @@ void KRLocator::loadXML(tinyxml2::XMLElement *e)
     KRNode::loadXML(e);
 }
 
-unordered_map<std::string, boost::variant<int, double, bool, std::string> > &KRLocator::getUserAttributes()
+unordered_map<std::string, int> &KRLocator::getUserIntAttributes()
 {
-    return m_userAttributes;
+    return m_userIntAttributes;
+}
+
+unordered_map<std::string, double> &KRLocator::getUserDoubleAttributes()
+{
+    return m_userDoubleAttributes;
+}
+
+unordered_map<std::string, bool> &KRLocator::getUserBoolAttributes()
+{
+    return m_userBoolAttributes;
+}
+
+unordered_map<std::string, std::string> &KRLocator::getUserStringAttributes()
+{
+    return m_userStringAttributes;
 }

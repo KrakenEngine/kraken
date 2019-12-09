@@ -54,14 +54,14 @@ KRBundle::KRBundle(KRContext &context, std::string name, KRDataBlock *pData) : K
     m_pData = pData;
     
     __int64_t file_pos = 0;
-    while(file_pos < m_pData->getSize()) {
+    while(file_pos < (__int64_t)m_pData->getSize()) {
         tar_header_type file_header;
-        m_pData->copy(&file_header, file_pos, sizeof(file_header));
+        m_pData->copy(&file_header, (int)file_pos, sizeof(file_header));
         size_t file_size = strtol(file_header.file_size, NULL, 8);
         file_pos += 512; // Skip past the header to the file contents
         if(file_header.file_name[0] != '\0' && file_header.file_name[0] != '.') {
             // We ignore the last two records in the tar file, which are zero'ed out tar_header structures
-            KRDataBlock *pFileData = pData->getSubBlock(file_pos, file_size);
+            KRDataBlock *pFileData = pData->getSubBlock((int)file_pos, (int)file_size);
             context.loadResource(file_header.file_name, pFileData);
         }
         file_pos += RoundUpSize(file_size);
@@ -114,7 +114,7 @@ bool KRBundle::save(KRDataBlock &data) {
     return true;
 }
 
-void KRBundle::append(KRResource &resource)
+KRDataBlock* KRBundle::append(KRResource &resource)
 {
     // Serialize resource to binary representation
     KRDataBlock resource_data;
@@ -124,7 +124,7 @@ void KRBundle::append(KRResource &resource)
     
     // Padding is added at the end of file to align next header to a 512 byte boundary.  Padding at the end of the archive includes an additional 1024 bytes -- two zero-ed out file headers that mark the end of the archive
     size_t padding_size = RoundUpSize(resource_data.getSize()) - resource_data.getSize() + KRENGINE_KRBUNDLE_HEADER_SIZE * 2;
-    
+    size_t resource_data_start = m_pData->getSize() + KRENGINE_KRBUNDLE_HEADER_SIZE;
     m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE + resource_data.getSize() + padding_size - KRENGINE_KRBUNDLE_HEADER_SIZE * 2); // We will overwrite the existing zero-ed out file headers that marked the end of the archive, so we don't have to include their size here
     
     m_pData->lock();
@@ -163,4 +163,7 @@ void KRBundle::append(KRResource &resource)
     sprintf(file_header->checksum, "%07o", check_sum);
     
     m_pData->unlock();
+
+    KRDataBlock *pFileData = m_pData->getSubBlock((int)resource_data_start, (int)resource_data.getSize());
+    return pFileData;
 }

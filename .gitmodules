@@ -7,3 +7,6 @@
 [submodule "hydra"]
 	path = hydra
 	url = git@github.com:KrakenEngine/hydra.git
+[submodule "3rdparty/glslang"]
+	path = 3rdparty/glslang
+	url = git@github.com:KhronosGroup/glslang.git

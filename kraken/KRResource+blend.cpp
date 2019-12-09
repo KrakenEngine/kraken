@@ -13,10 +13,8 @@
 #include "KRResource+blend.h"
 
 
-std::vector<KRResource *> KRResource::LoadBlenderScene(KRContext &context, const std::string& path) {
-    std::vector<KRResource *> resources;
+KRScene* KRResource::LoadBlenderScene(KRContext &context, const std::string& path) {
     KRScene *pScene = new KRScene(context, KRResource::GetFileBase(path));
-    resources.push_back(pScene);
     
     KRDataBlock data;
     
@@ -24,7 +22,7 @@ std::vector<KRResource *> KRResource::LoadBlenderScene(KRContext &context, const
         //KRBlendFile blend_file = KRBlendFile(pFile);
     }
     
-    return resources;
+    return pScene;
 }
 
 

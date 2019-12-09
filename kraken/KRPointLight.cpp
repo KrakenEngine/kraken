@@ -67,15 +67,15 @@ void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
-            KRShader *pShader = getContext().getShaderManager()->getShader(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-            if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
-                pShader->setUniform(KRShader::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
 
                 
                 if(bVisualize) {
@@ -127,7 +127,7 @@ void KRPointLight::generateMesh() {
     // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
     
     int iterations = 3;
-    int facet_count = pow(4, iterations) * 8;
+    int facet_count = (int)(pow(4, iterations) * 8);
     
     if(m_cVertices != facet_count * 3) {
         if(m_sphereVertices) {

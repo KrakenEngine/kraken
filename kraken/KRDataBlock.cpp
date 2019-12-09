@@ -35,6 +35,10 @@
 #include "KRContext.h"
 
 #include <errno.h>
+#if defined(__APPLE__) || defined(ANDROID)
+#include <unistd.h>
+#include <sys/mman.h>
+#endif
 
 #define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1))
 #define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1)) + KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY)
@@ -91,7 +95,10 @@ void KRDataBlock::unload()
 
 #if defined(_WIN32) || defined(_WIN64)
     if (m_hPackFile != INVALID_HANDLE_VALUE) {
-      CloseHandle(m_hPackFile);
+      // Memory mapped file
+      if (m_fileOwnerDataBlock == this) {
+        CloseHandle(m_hPackFile);
+      }
       m_hPackFile = INVALID_HANDLE_VALUE;
     }
 #elif defined(__APPLE__)
@@ -136,7 +143,6 @@ bool KRDataBlock::load(const std::string &path)
     bool success = false;
     unload();
 
-    struct stat statbuf;
     m_bReadOnly = true;
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -146,7 +152,7 @@ bool KRDataBlock::load(const std::string &path)
       m_fileName = KRResource::GetFileBase(path);
       FILE_STANDARD_INFO fileInfo;
       if(GetFileInformationByHandleEx(m_hPackFile, FileStandardInfo, &fileInfo, sizeof(fileInfo))) {
-        m_data_size = fileInfo.AllocationSize.QuadPart;
+        m_data_size = fileInfo.EndOfFile.QuadPart;
         m_data_offset = 0;
         success = true;
       }
@@ -156,6 +162,7 @@ bool KRDataBlock::load(const std::string &path)
     if(m_fdPackFile >= 0) {
       m_fileOwnerDataBlock = this;
       m_fileName = KRResource::GetFileBase(path);
+      struct stat statbuf;
       if(fstat(m_fdPackFile, &statbuf) >= 0) {
         m_data_size = statbuf.st_size;
         m_data_offset = 0;
@@ -177,9 +184,9 @@ KRDataBlock *KRDataBlock::getSubBlock(int start, int length)
 
     new_block->m_data_size = length;
 #if defined(_WIN32) || defined(_WIN64)
-    if(m_hPackFile) {
+    if(m_hPackFile != INVALID_HANDLE_VALUE) {
         new_block->m_hPackFile = m_hPackFile;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
     if (m_fdPackFile) {
       new_block->m_fdPackFile = m_fdPackFile;
 #else
@@ -216,8 +223,8 @@ size_t KRDataBlock::getSize() const {
 void KRDataBlock::expand(size_t size)
 {
 #if defined(_WIN32) || defined(_WIN64)
-    if(m_data == NULL && m_hPackFile == 0) {
-#elif defined(__APPLE__)
+    if(m_data == NULL && m_hPackFile == INVALID_HANDLE_VALUE) {
+#elif defined(__APPLE__) || defined(ANDROID)
     if (m_data == NULL && m_fdPackFile == 0) {
 #else
 #error Unsupported
@@ -265,13 +272,13 @@ void KRDataBlock::append(void *data, size_t size) {
 
 // Copy the entire data block to the destination pointer
 void KRDataBlock::copy(void *dest) {
-    copy(dest, 0, m_data_size);
+    copy(dest, 0, (int)m_data_size);
 }
 
 // Copy a range of data to the destination pointer
 void KRDataBlock::copy(void *dest, int start, int count) {
 #if defined(_WIN32) || defined(_WIN64)
-  if (m_lockCount == 0 && m_hPackFile != 0) {
+  if (m_lockCount == 0 && m_hPackFile != INVALID_HANDLE_VALUE) {
     // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
 
     LARGE_INTEGER distance;
@@ -290,7 +297,7 @@ void KRDataBlock::copy(void *dest, int start, int count) {
       bytes_remaining -= bytes_read;
     }
     assert(bytes_remaining == 0);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
     if(m_lockCount == 0 && m_fdPackFile != 0) {
         // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
         ssize_t r = pread(m_fdPackFile, dest, count, start + m_data_offset);
@@ -365,7 +372,7 @@ bool KRDataBlock::save(const std::string& path) {
 
   return success;
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
     int fdNewFile = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
     if(fdNewFile == -1) {
         return false;
@@ -410,6 +417,36 @@ std::string KRDataBlock::getString()
     return ret;
 }
 
+#if defined(_WIN32) || defined(_WIN64)
+void ReportWindowsLastError(LPCTSTR lpszFunction)
+{
+  LPVOID lpMsgBuf;
+  LPVOID lpDisplayBuf;
+  DWORD dw = GetLastError();
+
+  FormatMessage(
+    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+    FORMAT_MESSAGE_FROM_SYSTEM |
+    FORMAT_MESSAGE_IGNORE_INSERTS,
+    NULL,
+    dw,
+    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    (LPTSTR)&lpMsgBuf,
+    0, NULL);
+
+  // Display the error message and exit the process
+
+  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
+  (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+  fprintf(stderr,
+    TEXT("%s failed with error %d: %s\n"),
+    lpszFunction, dw, lpMsgBuf);
+
+  LocalFree(lpMsgBuf);
+  LocalFree(lpDisplayBuf);
+}
+#endif
+
 // Lock the memory, forcing it to be loaded into a contiguous block of address space
 void KRDataBlock::lock()
 {
@@ -417,8 +454,8 @@ void KRDataBlock::lock()
 
         // Memory mapped file; ensure data is mapped to ram
 #if defined(_WIN32) || defined(_WIN64)
-        if(m_hFileMapping) {
-#elif defined(__APPLE__)
+        if(m_hPackFile != INVALID_HANDLE_VALUE) {
+#elif defined(__APPLE__) || defined(ANDROID)
         if(m_fdPackFile) {
 #else
 #error Unsupported
@@ -432,11 +469,17 @@ void KRDataBlock::lock()
               assert(m_mmapData == NULL);
 #if defined(_WIN32) || defined(_WIN64)
               m_hFileMapping = CreateFileMappingFromApp(m_hPackFile, NULL, m_bReadOnly ? PAGE_READONLY : PAGE_READWRITE, m_data_size, NULL);
+              if(m_hFileMapping == NULL) {
+                ReportWindowsLastError("CreateFileMappingFromApp");
+              }
               assert(m_hFileMapping != NULL);
 
-              m_mmapData = MapViewOfFileFromApp(m_hPackFile, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              m_mmapData = MapViewOfFileFromApp(m_hFileMapping, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              if(m_mmapData == NULL) {
+                ReportWindowsLastError("MapViewOfFileFromApp");
+              }
               assert(m_mmapData != NULL);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
                 //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
                 // Round m_data_offset down to the next memory page, as required by mmap
 
@@ -495,8 +538,8 @@ void KRDataBlock::unlock()
 
         // Memory mapped file; ensure data is unmapped from ram
 #if defined(_WIN32) || defined(_WIN64)
-        if (m_hPackFile) {
-#elif defined(__APPLE__)
+        if (m_hPackFile != INVALID_HANDLE_VALUE) {
+#elif defined(__APPLE__) || defined(ANDROID)
         if(m_fdPackFile) {
 #else
 #error Undefined
@@ -514,7 +557,7 @@ void KRDataBlock::unlock()
                   CloseHandle(m_hFileMapping);
                   m_hFileMapping = NULL;
                 }
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
                 munmap(m_mmapData, m_data_size);
 #else
 #error Undefined

@@ -10,6 +10,7 @@
 #define KRBEHAVIOR_H
 
 #include <map>
+#include <string>
 
 /*
 

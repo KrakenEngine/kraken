@@ -38,23 +38,20 @@
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRContextObject(context) {
+KRMeshManager::KRMeshManager(KRContext &context) : KRResourceManager(context) {
     m_currentVBO = NULL;
     m_vboMemUsed = 0;
     m_memoryTransferredThisFrame = 0;
     m_first_frame = true;
     m_streamerComplete = true;
     
-    addModel(new KRMeshCube(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
-    addModel(new KRMeshQuad(context)); // FINDME - HACK!  This needs to be fixed, as it currently segfaults
+    addModel(new KRMeshCube(context));
+    addModel(new KRMeshQuad(context));
     addModel(new KRMeshSphere(context));
     m_draw_call_logging_enabled = false;
     m_draw_call_log_used = false;
     
-    
-    
     // ----  Initialize stock models ----
-    
     static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
         1.0, 1.0, 1.0,
         -1.0, 1.0, 1.0,
@@ -103,6 +100,29 @@ KRMeshManager::~KRMeshManager() {
         delete (*itr).second;
     }
     m_models.empty();
+}
+
+KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("krmesh") == 0) {
+    return loadModel(name.c_str(), data);
+  }
+  return nullptr;
+}
+KRResource* KRMeshManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("krmesh") == 0) {
+    std::string lodBaseName;
+    int lodCoverage;
+    KRMesh::parseName(name, lodBaseName, lodCoverage);
+    std::vector<KRMesh*> models = getModel(lodBaseName.c_str());
+    for (KRMesh* mesh : models) {
+      if (mesh->getLODCoverage() == lodCoverage) {
+        return mesh;
+      }
+    }
+  }
+  return nullptr;
 }
 
 KRMesh *KRMeshManager::loadModel(const char *szName, KRDataBlock *pData) {
@@ -401,32 +421,32 @@ KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
         for(int iPlane=0; iPlane < KRENGINE_MAX_VOLUMETRIC_PLANES; iPlane++) {
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = iPlane;
+            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
             iVertex++;
 
         }
@@ -481,7 +501,7 @@ long KRMeshManager::getMemoryTransferedThisFrame()
 }
 
 
-int KRMeshManager::getActiveVBOCount()
+size_t KRMeshManager::getActiveVBOCount()
 {
     return m_vbosActive.size();
 }

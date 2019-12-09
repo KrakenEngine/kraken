@@ -125,13 +125,13 @@ tinyxml2::XMLElement *KRNode::saveXML(tinyxml2::XMLNode *parent) {
     e->SetAttribute("name", m_name.c_str());
     kraken::setXMLAttribute("translate", e, m_localTranslation, Vector3::Zero());
     kraken::setXMLAttribute("scale", e, m_localScale, Vector3::One());
-    kraken::setXMLAttribute("rotate", e, (m_localRotation * (180.0f / M_PI)), Vector3::Zero());
+    kraken::setXMLAttribute("rotate", e, (m_localRotation * (180.0f / (float)M_PI)), Vector3::Zero());
     kraken::setXMLAttribute("rotate_offset", e, m_rotationOffset, Vector3::Zero());
     kraken::setXMLAttribute("scale_offset", e, m_scalingOffset, Vector3::Zero());
     kraken::setXMLAttribute("rotate_pivot", e, m_rotationPivot, Vector3::Zero());
     kraken::setXMLAttribute("scale_pivot", e, m_scalingPivot, Vector3::Zero());
-    kraken::setXMLAttribute("pre_rotate", e, (m_preRotation * (180.0f / M_PI)), Vector3::Zero());
-    kraken::setXMLAttribute("post_rotate", e, (m_postRotation * (180.0f / M_PI)), Vector3::Zero());
+    kraken::setXMLAttribute("pre_rotate", e, (m_preRotation * (180.0f / (float)M_PI)), Vector3::Zero());
+    kraken::setXMLAttribute("post_rotate", e, (m_postRotation * (180.0f / (float)M_PI)), Vector3::Zero());
     
     for(std::set<KRNode *>::iterator itr=m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
         KRNode *child = (*itr);
@@ -145,11 +145,11 @@ void KRNode::loadXML(tinyxml2::XMLElement *e) {
     m_localTranslation = kraken::getXMLAttribute("translate", e, Vector3::Zero());
     m_localScale = kraken::getXMLAttribute("scale", e, Vector3::One());
     m_localRotation = kraken::getXMLAttribute("rotate", e, Vector3::Zero());
-    m_localRotation *= M_PI / 180.0f; // Convert degrees to radians
+    m_localRotation *= (float)M_PI / 180.0f; // Convert degrees to radians
     m_preRotation = kraken::getXMLAttribute("pre_rotate", e, Vector3::Zero());
-    m_preRotation *= M_PI / 180.0f; // Convert degrees to radians
+    m_preRotation *= (float)M_PI / 180.0f; // Convert degrees to radians
     m_postRotation = kraken::getXMLAttribute("post_rotate", e, Vector3::Zero());
-    m_postRotation *= M_PI / 180.0f; // Convert degrees to radians
+    m_postRotation *= (float)M_PI / 180.0f; // Convert degrees to radians
 
     m_rotationOffset = kraken::getXMLAttribute("rotate_offset", e, Vector3::Zero());
     m_scalingOffset = kraken::getXMLAttribute("scale_offset", e, Vector3::Zero());
@@ -763,7 +763,7 @@ void KRNode::SetAttribute(node_attribute_type attrib, float v)
 {
     if(m_animation_mask[attrib]) return;
     
-    const float DEGREES_TO_RAD = M_PI / 180.0f;
+    const float DEGREES_TO_RAD = (float)M_PI / 180.0f;
     
     //printf("%s - ", m_name.c_str());
     switch(attrib) {

@@ -33,17 +33,22 @@
 #define KRENGINE_KRSCENEMANAGER_H
 
 #include "KREngine-common.h"
+
+#include "KRResourceManager.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
 class KRScene;
 
 
-class KRSceneManager : public KRContextObject {
+class KRSceneManager : public KRResourceManager {
 public:
     KRSceneManager(KRContext &context);
     virtual ~KRSceneManager();
     
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
     void add(KRScene *scene);
     KRScene *loadScene(const std::string &name, KRDataBlock *data);
 

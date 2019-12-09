@@ -14,18 +14,20 @@
 #include "KRSceneManager.h"
 #include "KRTextureManager.h"
 #include "KRMaterialManager.h"
-#include "KRShaderManager.h"
+#include "KRPipelineManager.h"
 #include "KRMeshManager.h"
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
 #include "KRUnknownManager.h"
+#include "KRShaderManager.h"
+#include "KRSourceManager.h"
 #include "KRStreamer.h"
 
 class KRAudioManager;
 
 class KRContext {
 public:
-    static int KRENGINE_MAX_SHADER_HANDLES;
+    static int KRENGINE_MAX_PIPELINE_HANDLES;
     static int KRENGINE_GPU_MEM_MAX;
     static int KRENGINE_GPU_MEM_TARGET;
     static int KRENGINE_MAX_TEXTURE_DIM;
@@ -35,22 +37,31 @@ public:
     static int KRENGINE_SYS_PAGE_SIZE;
     
     
-    KRContext();
+    KRContext(const KrInitializeInfo* initializeInfo);
     ~KRContext();
+
+    KrResult createBundle(const KrCreateBundleInfo* createBundleInfo);
+    KrResult moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo);
+    KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
+    KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
+    KrResult mapResource(const KrMapResourceInfo* mapResourceInfo);
+    KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
+
+    KRResource* loadResource(const std::string &file_name, KRDataBlock *data);
     
-    void loadResource(const std::string &file_name, KRDataBlock *data);
-    void loadResource(std::string path);
     
     KRBundleManager *getBundleManager();
     KRSceneManager *getSceneManager();
     KRTextureManager *getTextureManager();
     KRMaterialManager *getMaterialManager();
-    KRShaderManager *getShaderManager();
+    KRPipelineManager *getPipelineManager();
     KRMeshManager *getMeshManager();
     KRAnimationManager *getAnimationManager();
     KRAnimationCurveManager *getAnimationCurveManager();
     KRAudioManager *getAudioManager();
     KRUnknownManager *getUnknownManager();
+    KRShaderManager *getShaderManager();
+    KRSourceManager *getSourceManager();
     
     KRCamera *createCamera(int width, int height);
     
@@ -106,12 +117,17 @@ private:
     KRSceneManager *m_pSceneManager;
     KRTextureManager *m_pTextureManager;
     KRMaterialManager *m_pMaterialManager;
-    KRShaderManager *m_pShaderManager;
+    KRPipelineManager *m_pPipelineManager;
     KRMeshManager *m_pMeshManager;
     KRAnimationManager *m_pAnimationManager;
     KRAnimationCurveManager *m_pAnimationCurveManager;
     KRAudioManager *m_pSoundManager;
     KRUnknownManager *m_pUnknownManager;
+    KRShaderManager *m_pShaderManager;
+    KRSourceManager *m_pSourceManager;
+
+    KRResource** m_resourceMap;
+    size_t m_resourceMapSize;
     
     void detectExtensions();
     bool m_bDetectedExtensions;
@@ -132,8 +148,9 @@ private:
     static void *s_log_callback_user_data;
     
     KRStreamer m_streamer;
+    VkInstance m_vulkanInstance;
     
-    static void createDeviceContexts();
+    void createDeviceContexts();
     void destroyDeviceContexts();
 };
 

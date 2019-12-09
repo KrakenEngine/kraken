@@ -39,7 +39,7 @@
 #include "KRDSP.h"
 
 KRAudioManager::KRAudioManager(KRContext &context)
-    : KRContextObject(context)
+    : KRResourceManager(context)
     , m_initialized(false)
 {
     m_enable_audio = true;
@@ -309,7 +309,7 @@ void KRAudioManager::renderReverb()
     for(unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr=m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
         siren_reverb_zone_weight_info zi = (*zone_itr).second;
         if(zi.reverb_sample) {
-            int zone_sample_blocks = KRMIN(zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
+            int zone_sample_blocks = KRMIN((int)zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
             impulse_response_blocks = KRMAX(impulse_response_blocks, zone_sample_blocks);
         }
     }
@@ -843,7 +843,7 @@ Vector2 KRAudioManager::getNearestHRTFSample(const Vector2 &dir)
     float elev_gran = 10.0f;
 
     
-    Vector2 dir_deg = dir * (180.0f / M_PI);
+    Vector2 dir_deg = dir * (180.0f / (float)M_PI);
     float elevation = floor(dir_deg.x / elev_gran + 0.5f) * elev_gran;
     if(elevation < -40.0f) {
         elevation = -40.0f;
@@ -877,8 +877,8 @@ void KRAudioManager::getHRTFMix(const Vector2 &dir, Vector2 &dir1, Vector2 &dir2
 {
     float elev_gran = 10.0f;
     
-    float elevation = dir.x * 180.0f / M_PI;
-    float azimuth = dir.y * 180.0f / M_PI;
+    float elevation = dir.x * 180.0f / (float)M_PI;
+    float azimuth = dir.y * 180.0f / (float)M_PI;
     
     float elev1 = floor(elevation / elev_gran) * elev_gran;
     float elev2 = ceil(elevation / elev_gran) * elev_gran;
@@ -1246,6 +1246,25 @@ void KRAudioManager::add(KRAudioSample *sound)
     } else {
         m_sounds[lower_name] = sound;
     }
+}
+
+KRResource* KRAudioManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("mtl") == 0 ||
+      extension.compare("mp3") == 0 ||
+      extension.compare("wav") == 0) {
+    return load(name, extension, data);
+  }
+  return nullptr;
+}
+KRResource* KRAudioManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("mtl") == 0 ||
+    extension.compare("mp3") == 0 ||
+    extension.compare("wav") == 0) {
+    return get(name);
+  }
+  return nullptr;
 }
 
 KRAudioSample *KRAudioManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)
@@ -1830,19 +1849,19 @@ void audioLimit_Mute(bool onNotOff) {
 float audioGetLimitParameters_Stereo(float *buffer, unsigned long framesize,
                                   unsigned long *attack_sample_position, float *peak)
 {
-	float limitvol = 1.0;
+	float limitvol = 1.0f;
 	long attack_position = -1;
-	*peak = 0.0;
-	float max = 0.0;
-	float amplitude = 0.0;
+	*peak = 0.0f;
+	float max = 0.0f;
+	float amplitude = 0.0f;
 	
 	float *src = buffer;
 	for (unsigned long i = 0; i < framesize * 2; i++) {
 		amplitude = fabs(*src); src++;
 		if (amplitude > max) max = amplitude;
-		if (amplitude > 0.995) if (attack_position < 0) attack_position = (i+1) / 2;
+		if (amplitude > 0.995f) if (attack_position < 0) attack_position = (i+1) / 2;
     }
-	if (max > 0.995) limitvol = 0.995 / max;
+	if (max > 0.995f) limitvol = 0.995f / max;
 	*peak = max;
 	
 	if (attack_position < 0) attack_position = framesize;

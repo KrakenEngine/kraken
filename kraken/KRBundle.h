@@ -44,7 +44,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    void append(KRResource &resource);
+    KRDataBlock* append(KRResource &resource);
     
 private:
     KRDataBlock *m_pData;

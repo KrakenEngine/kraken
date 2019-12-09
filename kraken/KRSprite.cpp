@@ -14,8 +14,8 @@
 #include "KRCamera.h"
 #include "KRContext.h"
 
-#include "KRShaderManager.h"
-#include "KRShader.h"
+#include "KRPipelineManager.h"
+#include "KRPipeline.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
@@ -127,9 +127,9 @@ void KRSprite::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
                 GLDEBUG(glDepthRangef(0.0, 1.0));
                 
                 // Render light sprite on transparency pass
-                KRShader *pShader = getContext().getShaderManager()->getShader("sprite", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-                if(getContext().getShaderManager()->selectShader(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                    pShader->setUniform(KRShader::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
+                KRPipeline *pShader = getContext().getPipelineManager()->getPipeline("sprite", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
                     m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
                     m_pContext->getMeshManager()->bindVBO(&m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));

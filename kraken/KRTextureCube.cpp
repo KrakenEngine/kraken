@@ -44,8 +44,8 @@ KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(c
         std::string faceName = getName() + SUFFIXES[i];
         m_textures[i] = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
         if(m_textures[i]) {
-            if(m_textures[i]->getMaxMipMap() < m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
-            if(m_textures[i]->getMinMipMap() > m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
+            if(m_textures[i]->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
+            if(m_textures[i]->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
         } else {
             assert(false);
         }
@@ -94,7 +94,7 @@ bool KRTextureCube::createGLTexture(int lod_max_dim)
 long KRTextureCube::getMemRequiredForSize(int max_dim)
 {
     int target_dim = max_dim;
-    if(target_dim < m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+    if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
     
     long memoryRequired = 0;
     for(int i=0; i<6; i++) {

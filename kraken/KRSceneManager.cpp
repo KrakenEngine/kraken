@@ -32,7 +32,7 @@
 #include "KRSceneManager.h"
 #include "KRScene.h"
 
-KRSceneManager::KRSceneManager(KRContext &context) : KRContextObject(context){
+KRSceneManager::KRSceneManager(KRContext &context) : KRResourceManager(context){
 }
 
 KRSceneManager::~KRSceneManager() {
@@ -40,6 +40,21 @@ KRSceneManager::~KRSceneManager() {
         delete (*itr).second;
     }
     m_scenes.empty();
+}
+
+KRResource* KRSceneManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+  if (extension.compare("krscene") == 0) {
+    return loadScene(name, data);
+  }
+  return nullptr;
+}
+KRResource* KRSceneManager::getResource(const std::string& name, const std::string& extension)
+{
+  if (extension.compare("krscene") == 0) {
+    return getScene(name);
+  }
+  return nullptr;
 }
 
 KRScene *KRSceneManager::loadScene(const std::string &name, KRDataBlock *data) {

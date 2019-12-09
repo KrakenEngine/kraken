@@ -34,6 +34,8 @@
 
 #include "KREngine-common.h"
 
+#include "KRResourceManager.h"
+
 #include "KRTexture.h"
 #include "KRContextObject.h"
 #include "KREngine-common.h"
@@ -41,10 +43,13 @@
 #include "KRContext.h"
 #include "KRStreamer.h"
 
-class KRTextureManager : public KRContextObject {
+class KRTextureManager : public KRResourceManager {
 public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
+
+    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
     
     void selectTexture(int iTextureUnit, KRTexture *pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage);
     bool selectTexture(GLenum target, int iTextureUnit, int iTextureHandle);

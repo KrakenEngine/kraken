@@ -60,8 +60,7 @@ class KRNode;
 class KRMesh : public KRResource {
 
 public:
-
-
+    static void parseName(const std::string& name, std::string& lodBaseName, int& lodCoverage);
 
     KRMesh(KRContext &context, std::string name, KRDataBlock *data);
     KRMesh(KRContext &context, std::string name);

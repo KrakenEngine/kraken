@@ -32,7 +32,7 @@
 #include "KRAnimationCurveManager.h"
 #include "KRAnimationCurve.h"
 
-KRAnimationCurveManager::KRAnimationCurveManager(KRContext &context) : KRContextObject(context)
+KRAnimationCurveManager::KRAnimationCurveManager(KRContext &context) : KRResourceManager(context)
 {
     
 }
@@ -46,6 +46,21 @@ KRAnimationCurveManager::~KRAnimationCurveManager() {
 void KRAnimationCurveManager::deleteAnimationCurve(KRAnimationCurve *curve) {
     m_animationCurves.erase(curve->getName());
     delete curve;
+}
+
+KRResource* KRAnimationCurveManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+{
+    if (extension.compare("kranimationcurve") == 0) {
+        return loadAnimationCurve(name, data);
+    }
+    return nullptr;
+}
+KRResource* KRAnimationCurveManager::getResource(const std::string& name, const std::string& extension)
+{
+    if (extension.compare("kranimationcurve") == 0) {
+        return getAnimationCurve(name);
+    }
+    return nullptr;
 }
 
 KRAnimationCurve *KRAnimationCurveManager::loadAnimationCurve(const std::string &name, KRDataBlock *data) {

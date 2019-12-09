@@ -12,12 +12,18 @@
 #include "KRCamera.h"
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
+#include "KRBundle.h"
+
+#if defined(ANDROID)
+#include <chrono>
+#include <unistd.h>
+#endif
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
 
-int KRContext::KRENGINE_MAX_SHADER_HANDLES;
+int KRContext::KRENGINE_MAX_PIPELINE_HANDLES;
 int KRContext::KRENGINE_GPU_MEM_MAX;
 int KRContext::KRENGINE_GPU_MEM_TARGET;
 int KRContext::KRENGINE_MAX_TEXTURE_DIM;
@@ -33,6 +39,8 @@ int KRContext::KRENGINE_SYS_PAGE_SIZE;
 
 #elif defined(_WIN32) || defined(_WIN64)
 
+#elif defined(ANDROID)
+
 #else
 
 #error Unsupported Platform
@@ -47,8 +55,13 @@ const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
 KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 
-KRContext::KRContext() : m_streamer(*this)
+KRContext::KRContext(const KrInitializeInfo* initializeInfo)
+  : m_streamer(*this)
+  , m_vulkanInstance(VK_NULL_HANDLE)
+  , m_resourceMapSize(initializeInfo->resourceMapSize)
 {
+    m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
+    memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
     m_streamingEnabled = false;
 #ifdef __APPLE__
     mach_timebase_info(&m_timebase_info);
@@ -61,15 +74,17 @@ KRContext::KRContext() : m_streamer(*this)
     m_absolute_time = 0.0f;
     
     m_pBundleManager = new KRBundleManager(*this);
-    m_pShaderManager = new KRShaderManager(*this);
+    m_pPipelineManager = new KRPipelineManager(*this);
     m_pTextureManager = new KRTextureManager(*this);
-    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pShaderManager);
+    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pPipelineManager);
     m_pMeshManager = new KRMeshManager(*this);
     m_pSceneManager = new KRSceneManager(*this);
     m_pAnimationManager = new KRAnimationManager(*this);
     m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
     m_pSoundManager = new KRAudioManager(*this);
     m_pUnknownManager = new KRUnknownManager(*this);
+    m_pShaderManager = new KRShaderManager(*this);
+    m_pSourceManager = new KRSourceManager(*this);
     m_streamingEnabled = true;
 
 
@@ -81,7 +96,7 @@ KRContext::KRContext() : m_streamer(*this)
     KRENGINE_SYS_ALLOCATION_GRANULARITY = winSysInfo.dwAllocationGranularity;
     KRENGINE_SYS_PAGE_SIZE = winSysInfo.dwPageSize;
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(ANDROID)
 
     KRENGINE_SYS_PAGE_SIZE = getpagesize();
     KRENGINE_SYS_ALLOCATION_GRANULARITY = KRENGINE_SYS_PAGE_SIZE;
@@ -94,7 +109,6 @@ KRContext::KRContext() : m_streamer(*this)
 }
 
 KRContext::~KRContext() {
-    
     if(m_pSceneManager) {
         delete m_pSceneManager;
         m_pSceneManager = NULL;
@@ -115,9 +129,9 @@ KRContext::~KRContext() {
         m_pMaterialManager = NULL;
     }
     
-    if(m_pShaderManager) {
-        delete m_pShaderManager;
-        m_pShaderManager = NULL;
+    if(m_pPipelineManager) {
+        delete m_pPipelineManager;
+        m_pPipelineManager = NULL;
     }
     
     if(m_pAnimationManager) {
@@ -135,6 +149,11 @@ KRContext::~KRContext() {
         m_pSoundManager = NULL;
     }
 
+    if(m_pSourceManager) {
+        delete m_pSourceManager;
+        m_pSourceManager = NULL;
+    }
+
     if(m_pUnknownManager) {
         delete m_pUnknownManager;
         m_pUnknownManager = NULL;
@@ -147,6 +166,10 @@ KRContext::~KRContext() {
     }
     
     destroyDeviceContexts();
+    if (m_resourceMap) {
+        delete m_resourceMap;
+        m_resourceMap = NULL;
+    }
 }
 
 void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)
@@ -187,8 +210,8 @@ KRTextureManager *KRContext::getTextureManager() {
 KRMaterialManager *KRContext::getMaterialManager() {
     return m_pMaterialManager;
 }
-KRShaderManager *KRContext::getShaderManager() {
-    return m_pShaderManager;
+KRPipelineManager *KRContext::getPipelineManager() {
+    return m_pPipelineManager;
 }
 KRMeshManager *KRContext::getMeshManager() {
     return m_pMeshManager;
@@ -202,13 +225,17 @@ KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
 KRAudioManager *KRContext::getAudioManager() {
     return m_pSoundManager;
 }
+KRShaderManager *KRContext::getShaderManager() {
+    return m_pShaderManager;
+}
+KRSourceManager *KRContext::getSourceManager() {
+    return m_pSourceManager;
+}
 KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
 }
-
 std::vector<KRResource *> KRContext::getResources()
 {
-    
     std::vector<KRResource *> resources;
     
     for(unordered_map<std::string, KRScene *>::iterator itr = m_pSceneManager->getScenes().begin(); itr != m_pSceneManager->getScenes().end(); itr++) {
@@ -232,6 +259,20 @@ std::vector<KRResource *> KRContext::getResources()
     for(unordered_map<std::string, KRAudioSample *>::iterator itr = m_pSoundManager->getSounds().begin(); itr != m_pSoundManager->getSounds().end(); itr++) {
         resources.push_back((*itr).second);
     }
+
+    unordered_map<std::string, unordered_map<std::string, KRSource *> > sources = m_pSourceManager->getSources();
+    for(unordered_map<std::string, unordered_map<std::string, KRSource *> >::iterator itr = sources.begin(); itr != sources.end(); itr++) {
+        for(unordered_map<std::string, KRSource *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr2++) {
+            resources.push_back((*itr2).second);
+        }
+    }
+
+    unordered_map<std::string, unordered_map<std::string, KRShader *> > shaders = m_pShaderManager->getShaders();
+    for(unordered_map<std::string, unordered_map<std::string, KRShader *> >::iterator itr = shaders.begin(); itr != shaders.end(); itr++) {
+        for(unordered_map<std::string, KRShader *>::iterator itr2 = (*itr).second.begin(); itr2 != (*itr).second.end(); itr2++) {
+            resources.push_back((*itr2).second);
+        }
+    }
     
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > unknowns = m_pUnknownManager->getUnknowns();
     for(unordered_map<std::string, unordered_map<std::string, KRUnknown *> >::iterator itr = unknowns.begin(); itr != unknowns.end(); itr++) {
@@ -240,66 +281,201 @@ std::vector<KRResource *> KRContext::getResources()
         }
     }
     
-    // FINDME, TODO - Not yet exporting shaders, as they are currently only being used as standard Kraken assets.  In the future people may want their custom shaders to be exported.
-    
     return resources;
 }
 
-void KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
+KRResource* KRContext::loadResource(const std::string &file_name, KRDataBlock *data) {
     std::string name = KRResource::GetFileBase(file_name);
     std::string extension = KRResource::GetFileExtension(file_name);
+
+    KRResource *resource = nullptr;
     
 //    fprintf(stderr, "KRContext::loadResource - Loading: %s\n", file_name.c_str());
     
     if(extension.compare("krbundle") == 0) {
-        m_pBundleManager->loadBundle(name.c_str(), data);
+        resource = m_pBundleManager->loadBundle(name.c_str(), data);
     } else if(extension.compare("krmesh") == 0) {
-        m_pMeshManager->loadModel(name.c_str(), data);
+        resource = m_pMeshManager->loadModel(name.c_str(), data);
     } else if(extension.compare("krscene") == 0) {
-        m_pSceneManager->loadScene(name.c_str(), data);
+        resource = m_pSceneManager->loadScene(name.c_str(), data);
     } else if(extension.compare("kranimation") == 0) {
-        m_pAnimationManager->loadAnimation(name.c_str(), data);
+        resource = m_pAnimationManager->loadAnimation(name.c_str(), data);
     } else if(extension.compare("kranimationcurve") == 0) {
-        m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
+        resource = m_pAnimationCurveManager->loadAnimationCurve(name.c_str(), data);
     } else if(extension.compare("pvr") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("ktx") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
     } else if(extension.compare("tga") == 0) {
-        m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
-    } else if(extension.compare("vsh") == 0) {
-        m_pShaderManager->loadVertexShader(name.c_str(), data);
-    } else if(extension.compare("fsh") == 0) {
-        m_pShaderManager->loadFragmentShader(name.c_str(), data);
+        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+    } else if(extension.compare("spv") == 0) {
+        // SPIR-V shader binary
+        resource = m_pShaderManager->load(name, extension, data);
+    } else if(extension.compare("vert") == 0) {
+        // vertex shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("frag") == 0) {
+        // fragment shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("tesc") == 0) {
+        // tessellation control shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("tese") == 0) {
+        // tessellation evaluation shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("geom") == 0) {
+        // geometry shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("comp") == 0) {
+        // compute shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("mesh") == 0) {
+        // mesh shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("task") == 0) {
+        // task shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rgen") == 0) {
+        // ray generation shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rint") == 0) {
+        // ray intersection shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rahit") == 0) {
+        // ray any hit shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rchit") == 0) {
+        // ray closest hit shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rmiss") == 0) {
+        // ray miss shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("rcall") == 0) {
+        // ray callable shader
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("glsl") == 0) {
+        // glsl included by other shaders
+        resource = m_pSourceManager->load(name, extension, data);
+    } else if(extension.compare("options") == 0) {
+        // shader pre-processor options definition file
+        resource = m_pSourceManager->load(name, extension, data);
     } else if(extension.compare("mtl") == 0) {
-        m_pMaterialManager->load(name.c_str(), data);
+        resource = m_pMaterialManager->load(name.c_str(), data);
     } else if(extension.compare("mp3") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("wav") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("aac") == 0) {
-        m_pSoundManager->load(name.c_str(), extension, data);
+        resource = m_pSoundManager->load(name.c_str(), extension, data);
     } else if(extension.compare("obj") == 0) {
-        KRResource::LoadObj(*this, file_name);
+        resource = KRResource::LoadObj(*this, file_name);
 #if !TARGET_OS_IPHONE
+/*
+  // FINDME, TODO, HACK! - Uncomment
     } else if(extension.compare("fbx") == 0) {
-        KRResource::LoadFbx(*this, file_name);
+        resource = KRResource::LoadFbx(*this, file_name);
+*/
     } else if(extension.compare("blend") == 0) {
-        KRResource::LoadBlenderScene(*this, file_name);
+        resource = KRResource::LoadBlenderScene(*this, file_name);
 #endif
     } else {
-        m_pUnknownManager->load(name, extension, data);
+        resource = m_pUnknownManager->load(name, extension, data);
     }
+    return resource;
 }
 
-void KRContext::loadResource(std::string path) {
-    KRDataBlock *data = new KRDataBlock();
-    if(data->load(path)) {
-        loadResource(path, data);
-    } else {
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", path.c_str());
-        delete data;
+KrResult KRContext::loadResource(const KrLoadResourceInfo* loadResourceInfo) {
+    if (loadResourceInfo->resourceHandle < 0 || loadResourceInfo->resourceHandle >= m_resourceMapSize) {
+      return KR_ERROR_OUT_OF_BOUNDS;
     }
+    KRDataBlock *data = new KRDataBlock();
+    if(!data->load(loadResourceInfo->pResourcePath)) {
+      KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", loadResourceInfo->pResourcePath);
+      delete data;
+      return KR_ERROR_UNEXPECTED;
+    }
+
+    KRResource *resource = loadResource(loadResourceInfo->pResourcePath, data);
+    m_resourceMap[loadResourceInfo->resourceHandle] = resource;
+    return KR_SUCCESS;
+}
+
+KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInfo)
+{
+  if (unloadResourceInfo->resourceHandle < 0 || unloadResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[unloadResourceInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  // TODO - Need to implement unloading logic
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::mapResource(const KrMapResourceInfo* mapResourceInfo)
+{
+  if (mapResourceInfo->resourceHandle < 0 || mapResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+
+/*
+  KRResource* resource = loadResource(loadResourceInfo->pResourcePath, data);
+  m_resourceMap[loadResourceInfo->resourceHandle] = resource;
+  return KR_SUCCESS;
+*/
+
+  // TODO - Need to implement mapping logic
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
+{
+  if (createBundleInfo->resourceHandle < 0 || createBundleInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* bundle = m_pBundleManager->createBundle(createBundleInfo->pBundleName);
+  m_resourceMap[createBundleInfo->resourceHandle] = bundle;
+
+  return KR_SUCCESS;
+}
+
+KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
+{
+  if (moveToBundleInfo->bundleHandle < 0 || moveToBundleInfo->bundleHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  if (moveToBundleInfo->resourceHandle < 0 || moveToBundleInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[moveToBundleInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRResource* bundleResource = m_resourceMap[moveToBundleInfo->bundleHandle];
+  if (bundleResource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRBundle* bundle = dynamic_cast<KRBundle*>(bundleResource);
+  if (bundle == nullptr) {
+    return KR_ERROR_INCORRECT_TYPE;
+  }
+  return resource->moveToBundle(bundle);
+}
+
+KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)
+{
+  if (saveResourceInfo->resourceHandle < 0 || saveResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* resource = m_resourceMap[saveResourceInfo->resourceHandle];
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  if (resource->save(saveResourceInfo->pResourcePath)) {
+    return KR_SUCCESS;
+  }
+  return KR_ERROR_UNEXPECTED;
 }
 
 void KRContext::detectExtensions() {
@@ -343,7 +519,10 @@ float KRContext::getAbsoluteTime() const
 
 long KRContext::getAbsoluteTimeMilliseconds()
 {
-#ifdef __APPLE__
+#if defined(ANDROID)
+    return std::chrono::duration_cast< std::chrono::milliseconds >(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+#elif defined(__APPLE__)
     return (long)(mach_absolute_time() / 1000 * m_timebase_info.numer / m_timebase_info.denom); // Division done first to avoid potential overflow
 #else
     return (long)GetTickCount64();
@@ -387,20 +566,20 @@ void KRContext::getMemoryStats(long &free_memory)
 
 void KRContext::doStreaming()
 {
-    if(m_streamingEnabled) {
-        /*
-        long free_memory = KRENGINE_GPU_MEM_TARGET;
-        long total_memory = KRENGINE_GPU_MEM_MAX;
-        */
-        /*
+  if (m_streamingEnabled) {
+    /*
+    long free_memory = KRENGINE_GPU_MEM_TARGET;
+    long total_memory = KRENGINE_GPU_MEM_MAX;
+    */
+    /*
 #if TARGET_OS_IPHONE
         // FINDME, TODO, HACK! - Experimental code, need to expose through engine parameters
         const long KRENGINE_RESERVE_MEMORY = 0x4000000; // 64MB
-        
+
         getMemoryStats(free_memory);
         free_memory = KRCLAMP(free_memory - KRENGINE_RESERVE_MEMORY, 0, KRENGINE_GPU_MEM_TARGET);
         total_memory = KRMIN(KRENGINE_GPU_MEM_MAX, free_memory * 3 / 4 + m_pTextureManager->getMemUsed() + m_pMeshManager->getMemUsed());
-        
+
 #endif
         */
         /*
@@ -411,7 +590,7 @@ void KRContext::doStreaming()
             free_memory = 0;
         }
         */
-        
+
         /*
         // FINDME, TODO - Experimental code, need to expose through engine parameters
         const long MEMORY_WARNING_THROTTLE2_FRAMES = 30;
@@ -421,31 +600,75 @@ void KRContext::doStreaming()
             free_memory /= 2;
         }
         */
-        
+
         /*
         m_pMeshManager->doStreaming(total_memory, free_memory);
         m_pTextureManager->doStreaming(total_memory, free_memory);
         */
-        
-        
-        long streaming_start_frame = m_current_frame;
-        
-        long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
-        long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
-        long memoryRemainingThisFrameStart = memoryRemainingThisFrame;
-        m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-        m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
-        
-        if(memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
-            m_last_fully_streamed_frame = streaming_start_frame;
-        }
-        
+
+
+    long streaming_start_frame = m_current_frame;
+
+    long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
+    long memoryRemainingThisFrame = KRENGINE_GPU_MEM_MAX - m_pTextureManager->getMemUsed() - m_pMeshManager->getMemUsed();
+    long memoryRemainingThisFrameStart = memoryRemainingThisFrame;
+    m_pMeshManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+    m_pTextureManager->doStreaming(memoryRemaining, memoryRemainingThisFrame);
+
+    if (memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
+      m_last_fully_streamed_frame = streaming_start_frame;
     }
+
+  }
 }
 
 void KRContext::receivedMemoryWarning()
 {
-    m_last_memory_warning_frame = m_current_frame;
+  m_last_memory_warning_frame = m_current_frame;
 }
 
+void
+KRContext::createDeviceContexts()
+{
+  // initialize the VkApplicationInfo structure
+  VkApplicationInfo app_info = {};
+  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+  app_info.pNext = NULL;
+  app_info.pApplicationName = "Test"; // TODO - Change Me!
+  app_info.applicationVersion = 1;
+  app_info.pEngineName = "Kraken Engine";
+  app_info.engineVersion = 1;
+  app_info.apiVersion = VK_API_VERSION_1_0;
 
+
+  // initialize the VkInstanceCreateInfo structure
+  VkInstanceCreateInfo inst_info = {};
+  inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  inst_info.pNext = NULL;
+  inst_info.flags = 0;
+  inst_info.pApplicationInfo = &app_info;
+  inst_info.enabledExtensionCount = 0;
+  inst_info.ppEnabledExtensionNames = NULL;
+  inst_info.enabledLayerCount = 0;
+  inst_info.ppEnabledLayerNames = NULL;
+
+  VkResult res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
+  if (res != VK_SUCCESS) {
+    destroyDeviceContexts();
+  }
+}
+
+void
+KRContext::destroyDeviceContexts()
+{
+  if (m_vulkanInstance != VK_NULL_HANDLE) {
+    vkDestroyInstance(m_vulkanInstance, NULL);
+    m_vulkanInstance = VK_NULL_HANDLE;
+  }
+}
+
+void
+KRContext::activateStreamerContext()
+{
+
+}

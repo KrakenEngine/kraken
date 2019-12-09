@@ -42,22 +42,9 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
     
     int iterations = 3;
-    int facet_count = pow(4, iterations) * 8;
-
-    class Facet3 {
-    public:
-        Facet3() {
-            
-        }
-        ~Facet3() {
-            
-        }
-        Vector3 p1;
-        Vector3 p2;
-        Vector3 p3;
-    };
+    int facet_count = (int)(pow(4, iterations) * 8.0f);
     
-    std::vector<Facet3> f = std::vector<Facet3>(facet_count);
+    std::vector<Triangle3> f = std::vector<Triangle3>(facet_count);
     
     int i,it;
     float a;
@@ -74,54 +61,54 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     int nt = 0,ntold;
     
     /* Create the level 0 object */
-    a = 1 / sqrt(2.0);
+    a = 1.0f / sqrtf(2.0f);
     for (i=0;i<6;i++) {
         p[i].x *= a;
         p[i].y *= a;
     }
-    f[0].p1 = p[0]; f[0].p2 = p[3]; f[0].p3 = p[4];
-    f[1].p1 = p[0]; f[1].p2 = p[4]; f[1].p3 = p[5];
-    f[2].p1 = p[0]; f[2].p2 = p[5]; f[2].p3 = p[2];
-    f[3].p1 = p[0]; f[3].p2 = p[2]; f[3].p3 = p[3];
-    f[4].p1 = p[1]; f[4].p2 = p[4]; f[4].p3 = p[3];
-    f[5].p1 = p[1]; f[5].p2 = p[5]; f[5].p3 = p[4];
-    f[6].p1 = p[1]; f[6].p2 = p[2]; f[6].p3 = p[5];
-    f[7].p1 = p[1]; f[7].p2 = p[3]; f[7].p3 = p[2];
+    f[0][0] = p[0]; f[0][1] = p[3]; f[0][2] = p[4];
+    f[1][0] = p[0]; f[1][1] = p[4]; f[1][2] = p[5];
+    f[2][0] = p[0]; f[2][1] = p[5]; f[2][2] = p[2];
+    f[3][0] = p[0]; f[3][1] = p[2]; f[3][2] = p[3];
+    f[4][0] = p[1]; f[4][1] = p[4]; f[4][2] = p[3];
+    f[5][0] = p[1]; f[5][1] = p[5]; f[5][2] = p[4];
+    f[6][0] = p[1]; f[6][1] = p[2]; f[6][2] = p[5];
+    f[7][0] = p[1]; f[7][1] = p[3]; f[7][2] = p[2];
     nt = 8;
     
     /* Bisect each edge and move to the surface of a unit sphere */
     for (it=0;it<iterations;it++) {
         ntold = nt;
         for (i=0;i<ntold;i++) {
-            pa.x = (f[i].p1.x + f[i].p2.x) / 2;
-            pa.y = (f[i].p1.y + f[i].p2.y) / 2;
-            pa.z = (f[i].p1.z + f[i].p2.z) / 2;
-            pb.x = (f[i].p2.x + f[i].p3.x) / 2;
-            pb.y = (f[i].p2.y + f[i].p3.y) / 2;
-            pb.z = (f[i].p2.z + f[i].p3.z) / 2;
-            pc.x = (f[i].p3.x + f[i].p1.x) / 2;
-            pc.y = (f[i].p3.y + f[i].p1.y) / 2;
-            pc.z = (f[i].p3.z + f[i].p1.z) / 2;
+            pa.x = (f[i][0].x + f[i][1].x) / 2;
+            pa.y = (f[i][0].y + f[i][1].y) / 2;
+            pa.z = (f[i][0].z + f[i][1].z) / 2;
+            pb.x = (f[i][1].x + f[i][2].x) / 2;
+            pb.y = (f[i][1].y + f[i][2].y) / 2;
+            pb.z = (f[i][1].z + f[i][2].z) / 2;
+            pc.x = (f[i][2].x + f[i][0].x) / 2;
+            pc.y = (f[i][2].y + f[i][0].y) / 2;
+            pc.z = (f[i][2].z + f[i][0].z) / 2;
             pa.normalize();
             pb.normalize();
             pc.normalize();
-            f[nt].p1 = f[i].p1; f[nt].p2 = pa; f[nt].p3 = pc; nt++;
-            f[nt].p1 = pa; f[nt].p2 = f[i].p2; f[nt].p3 = pb; nt++;
-            f[nt].p1 = pb; f[nt].p2 = f[i].p3; f[nt].p3 = pc; nt++;
-            f[i].p1 = pa;
-            f[i].p2 = pb;
-            f[i].p3 = pc;
+            f[nt][0] = f[i][0]; f[nt][1] = pa; f[nt][2] = pc; nt++;
+            f[nt][0] = pa; f[nt][1] = f[i][1]; f[nt][2] = pb; nt++;
+            f[nt][0] = pb; f[nt][1] = f[i][2]; f[nt][2] = pc; nt++;
+            f[i][0] = pa;
+            f[i][1] = pb;
+            f[i][2] = pc;
         }
     }
     
     for(int facet_index=0; facet_index < facet_count; facet_index++) {
-        mi.vertices.push_back(f[facet_index].p1);
-        mi.vertices.push_back(f[facet_index].p2);
-        mi.vertices.push_back(f[facet_index].p3);
+        mi.vertices.push_back(f[facet_index][0]);
+        mi.vertices.push_back(f[facet_index][1]);
+        mi.vertices.push_back(f[facet_index][2]);
     }
     
     mi.submesh_starts.push_back(0);
-    mi.submesh_lengths.push_back(mi.vertices.size());
+    mi.submesh_lengths.push_back((int)mi.vertices.size());
     mi.material_names.push_back("");
     
 

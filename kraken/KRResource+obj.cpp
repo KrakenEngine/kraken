@@ -11,12 +11,9 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 
-std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::string& path)
-{
-    std::vector<KRResource *> resources;
-    
+KRMesh* KRResource::LoadObj(KRContext &context, const std::string& path)
+{    
     KRMesh *new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
-    resources.push_back(new_mesh);
     
     KRMesh::mesh_info mi;
     
@@ -216,7 +213,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 } else if(strcmp(szSymbol[0], "usemtl") == 0) {
                     // Use Material (usemtl)
                     if(pFace - pMaterialFaces > 1) {
-                        *pMaterialFaces = pFace - pMaterialFaces - 1;
+                        *pMaterialFaces = (int)(pFace - pMaterialFaces - 1);
                         pMaterialFaces = pFace++;
                     }
                 }
@@ -224,7 +221,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         }
         
         
-        *pMaterialFaces = pFace - pMaterialFaces - 1;
+        *pMaterialFaces = (int)(pFace - pMaterialFaces - 1);
         *pFace++ = 0;
         
         
@@ -235,7 +232,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         KRMesh::pack_material *pMaterial = new KRMesh::pack_material();
         pMaterial->start_vertex = iVertex;
         pMaterial->vertex_count = 0;
-        memset(pMaterial->szName, 256, 0);
+        memset(pMaterial->szName, 0, 256);
         if(material_itr < material_names_t.end()) {
             strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
         }
@@ -301,7 +298,7 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
                 pMaterial = new KRMesh::pack_material();
                 pMaterial->start_vertex = iVertex;
                 pMaterial->vertex_count = 0;
-                memset(pMaterial->szName, 256, 0);
+                memset(pMaterial->szName, 0, 256);
                 
                 if(material_itr < material_names_t.end()) {
                     strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
@@ -337,5 +334,5 @@ std::vector<KRResource *> KRResource::LoadObj(KRContext &context, const std::str
         free(pFaces);
     }
     
-    return resources;
+    return new_mesh;
 }
