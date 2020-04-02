@@ -36,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   KrLoadResourceInfo load_resource_info = {};
   load_resource_info.sType = KR_STRUCTURE_TYPE_LOAD_RESOURCE;
   load_resource_info.resourceHandle = 1;
-  load_resource_info.pResourcePath = "kraken_standard_assets.krbundle";
+  load_resource_info.pResourcePath = lpCmdLine; // "kraken_standard_assets.krbundle";
   res = KrLoadResource(&load_resource_info);
   if (res != KR_SUCCESS) {
 	  //printf("Failed to load resource: %s\n", arg);
