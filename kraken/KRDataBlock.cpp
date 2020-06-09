@@ -279,8 +279,7 @@ void KRDataBlock::copy(void *dest) {
 void KRDataBlock::copy(void *dest, int start, int count) {
 #if defined(_WIN32) || defined(_WIN64)
   if (m_lockCount == 0 && m_hPackFile != INVALID_HANDLE_VALUE) {
-    // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
-
+    // Optimization: If we haven't mmap'ed or malloced the data already, ReadFile() it directly from the file into the buffer
     LARGE_INTEGER distance;
     distance.QuadPart = start + m_data_offset;
     bool success = SetFilePointerEx(m_hPackFile, distance, NULL, FILE_BEGIN);
@@ -298,10 +297,10 @@ void KRDataBlock::copy(void *dest, int start, int count) {
     }
     assert(bytes_remaining == 0);
 #elif defined(__APPLE__) || defined(ANDROID)
-    if(m_lockCount == 0 && m_fdPackFile != 0) {
-        // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
-        ssize_t r = pread(m_fdPackFile, dest, count, start + m_data_offset);
-        assert(r != -1);
+  if(m_lockCount == 0 && m_fdPackFile != 0) {
+      // Optimization: If we haven't mmap'ed or malloced the data already, pread() it directly from the file into the buffer
+      ssize_t r = pread(m_fdPackFile, dest, count, start + m_data_offset);
+      assert(r != -1);
 #else
 #error Unsupported
 #endif
@@ -468,13 +467,13 @@ void KRDataBlock::lock()
               size_t alignment_offset = m_data_offset & (KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1);
               assert(m_mmapData == NULL);
 #if defined(_WIN32) || defined(_WIN64)
-              m_hFileMapping = CreateFileMappingFromApp(m_hPackFile, NULL, m_bReadOnly ? PAGE_READONLY : PAGE_READWRITE, m_data_size, NULL);
+              m_hFileMapping = CreateFileMappingFromApp(m_hPackFile, NULL, m_bReadOnly ? PAGE_READONLY : PAGE_READWRITE, m_fileOwnerDataBlock->getSize(), NULL);
               if(m_hFileMapping == NULL) {
                 ReportWindowsLastError("CreateFileMappingFromApp");
               }
               assert(m_hFileMapping != NULL);
 
-              m_mmapData = MapViewOfFileFromApp(m_hFileMapping, m_bReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
+              m_mmapData = MapViewOfFileFromApp(m_hFileMapping, m_bReadOnly ? FILE_MAP_READ | FILE_MAP_COPY : FILE_MAP_WRITE, m_data_offset - alignment_offset, m_data_size + alignment_offset);
               if(m_mmapData == NULL) {
                 ReportWindowsLastError("MapViewOfFileFromApp");
               }
