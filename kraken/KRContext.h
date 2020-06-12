@@ -47,6 +47,8 @@ public:
     KrResult mapResource(const KrMapResourceInfo* mapResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
+    KrResult createScene(const KrCreateSceneInfo* createSceneInfo);
+
     KRResource* loadResource(const std::string &file_name, KRDataBlock *data);
     
     

@@ -429,6 +429,16 @@ KrResult KRContext::mapResource(const KrMapResourceInfo* mapResourceInfo)
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
+KrResult KRContext::createScene(const KrCreateSceneInfo* createSceneInfo)
+{
+  if (createSceneInfo->resourceHandle < 0 || createSceneInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRScene* scene = m_pSceneManager->createScene(createSceneInfo->pSceneName);
+  m_resourceMap[createSceneInfo->resourceHandle] = scene;
+  return KR_SUCCESS;
+}
+
 KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
 {
   if (createBundleInfo->resourceHandle < 0 || createBundleInfo->resourceHandle >= m_resourceMapSize) {

@@ -56,6 +56,7 @@ typedef enum {
   KR_STRUCTURE_TYPE_UNMAP_RESOURCE  = 0x00010004,
   KR_STRUCTURE_TYPE_CREATE_BUNDLE   = 0x00010005,
   KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE  = 0x00010006,
+  KR_STRUCTURE_TYPE_CREATE_SCENE    = 0x00020000,
 
   KR_STRUCTURE_TYPE_MAX_ENUM        = 0x7FFFFFFF
 } KrStructureType;
@@ -107,6 +108,12 @@ typedef struct {
   KrResourceMapIndex bundleHandle;
 } KrMoveToBundleInfo;
 
+typedef struct {
+  KrStructureType sType;
+  const char* pSceneName;
+  KrResourceMapIndex resourceHandle;
+} KrCreateSceneInfo;
+
 KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);
 KrResult KrShutdown();
 KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo);
@@ -116,5 +123,7 @@ KrResult KrMapResource(const KrMapResourceInfo* pMapResourceInfo);
 KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo);
 KrResult KrCreateBundle(const KrCreateBundleInfo* pCreateBundleInfo);
 KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo);
+
+KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo);
 
 #endif // KRAKEN_H

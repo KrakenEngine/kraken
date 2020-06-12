@@ -49,6 +49,8 @@ public:
     virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
     virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
+    KRScene* createScene(const std::string& name);
+
     void add(KRScene *scene);
     KRScene *loadScene(const std::string &name, KRDataBlock *data);
 

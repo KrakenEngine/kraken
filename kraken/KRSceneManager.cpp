@@ -67,6 +67,15 @@ KRScene *KRSceneManager::loadScene(const std::string &name, KRDataBlock *data) {
     return pScene;
 }
 
+
+KRScene* KRSceneManager::createScene(const std::string& name)
+{
+  // TODO: Check for name conflicts
+  KRScene* pScene = new KRScene(*m_pContext, name);
+  add(pScene);
+  return pScene;
+}
+
 void KRSceneManager::add(KRScene *scene)
 {
     std::string lowerName = scene->getName();

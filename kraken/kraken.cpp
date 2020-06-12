@@ -78,3 +78,11 @@ KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo)
   }
   return sContext->moveToBundle(pMoveToBundleInfo);
 }
+
+KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->createScene(pCreateSceneInfo);
+}
