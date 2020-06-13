@@ -32,6 +32,7 @@
 #define KRAKEN_H
 
 #include "context.h"
+#include "hydra.h"
 
 #define KR_NULL_HANDLE 0
 
@@ -47,18 +48,36 @@ typedef enum {
 } KrResult;
 
 typedef enum {
-  KR_STRUCTURE_TYPE_INITIALIZE      = 0,
-  KR_STRUCTURE_TYPE_SHUTDOWN        = 1,
-  KR_STRUCTURE_TYPE_LOAD_RESOURCE   = 0x00010000,
-  KR_STRUCTURE_TYPE_UNLOAD_RESOURCE = 0x00010001,
-  KR_STRUCTURE_TYPE_SAVE_RESOURCE   = 0x00010002,
-  KR_STRUCTURE_TYPE_MAP_RESOURCE    = 0x00010003,
-  KR_STRUCTURE_TYPE_UNMAP_RESOURCE  = 0x00010004,
-  KR_STRUCTURE_TYPE_CREATE_BUNDLE   = 0x00010005,
-  KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE  = 0x00010006,
-  KR_STRUCTURE_TYPE_CREATE_SCENE    = 0x00020000,
+  KR_STRUCTURE_TYPE_INITIALIZE       = 0,
+  KR_STRUCTURE_TYPE_SHUTDOWN,
 
-  KR_STRUCTURE_TYPE_MAX_ENUM        = 0x7FFFFFFF
+  KR_STRUCTURE_TYPE_LOAD_RESOURCE    = 0x00010000,
+  KR_STRUCTURE_TYPE_UNLOAD_RESOURCE,
+  KR_STRUCTURE_TYPE_SAVE_RESOURCE,
+  KR_STRUCTURE_TYPE_MAP_RESOURCE,
+  KR_STRUCTURE_TYPE_UNMAP_RESOURCE,
+  KR_STRUCTURE_TYPE_CREATE_BUNDLE,
+  KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE,
+
+  KR_STRUCTURE_TYPE_CREATE_SCENE     = 0x00020000,
+
+  KR_STRUCTURE_TYPE_NODE             = 0x10000000,
+  KR_STRUCTURE_TYPE_NODE_CAMERA,
+  KR_STRUCTURE_TYPE_NODE_LOD_SET,
+  KR_STRUCTURE_TYPE_NODE_LOD_GROUP,
+  KR_STRUCTURE_TYPE_NODE_POINT_LIGHT,
+  KR_STRUCTURE_TYPE_NODE_DIRECTIONAL_LIGHT,
+  KR_STRUCTURE_TYPE_NODE_SPOT_LIGHT,
+  KR_STRUCTURE_TYPE_NODE_SPRITE,
+  KR_STRUCTURE_TYPE_NODE_MODEL,
+  KR_STRUCTURE_TYPE_NODE_COLLIDER,
+  KR_STRUCTURE_TYPE_NODE_BONE,
+  KR_STRUCTURE_TYPE_NODE_LOCATOR,
+  KR_STRUCTURE_TYPE_NODE_AUDIO_SOURCE,
+  KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE,
+  KR_STRUCTURE_TYPE_NODE_REVERB_ZONE,
+  
+  KR_STRUCTURE_TYPE_MAX_ENUM         = 0x7FFFFFFF
 } KrStructureType;
 
 typedef int KrResourceMapIndex;
@@ -113,6 +132,124 @@ typedef struct {
   const char* pSceneName;
   KrResourceMapIndex resourceHandle;
 } KrCreateSceneInfo;
+
+typedef struct {
+  KrStructureType sType;
+  const char* pName;
+  kraken::Vector3 translate;
+  kraken::Vector3 scale;
+  kraken::Vector3 rotate;
+  kraken::Vector3 pre_rotate;
+  kraken::Vector3 post_rotate;
+  kraken::Vector3 rotate_offset;
+  kraken::Vector3 scale_offset;
+  kraken::Vector3 rotate_pivot;
+  kraken::Vector3 scale_pivot;
+  union {
+    struct node {
+      // KR_STRUCTURE_TYPE_NODE
+      // No additional members
+    };
+    struct camera {
+      // KR_STRUCTURE_TYPE_NODE_CAMERA
+      KrResourceMapIndex skybox_texture;
+    };
+    struct lod_set {
+      // KR_STRUCTURE_TYPE_NODE_LOD_SET
+      // No additional members
+    };
+    struct lod_group {
+      // KR_STRUCTURE_TYPE_NODE_LOD_GROUP
+      float min_distance;
+      float max_distance;
+      kraken::Vector3 reference_min;
+      kraken::Vector3 reference_max;
+      bool use_world_units;
+    };
+    struct light {
+      kraken::Vector3 color;
+      float intensity;
+      float decay_start;
+      float flare_size;
+      float flare_occlusion_size;
+      KrResourceMapIndex flate_texture;
+      bool casts_shadow;
+      bool light_shafts;
+      float dust_particle_density;
+      float dust_particle_size;
+      float dust_particle_intensity;
+      struct point {
+        // KR_STRUCTURE_TYPE_NODE_POINT_LIGHT
+        // No additional members
+      };
+      struct directional {
+        // KR_STRUCTURE_TYPE_NODE_DIRECTIONAL_LIGHT
+        // No additional members
+      };
+      struct spot {
+        // KR_STRUCTURE_TYPE_NODE_SPOT_LIGHT
+        float inner_angle;
+        float outer_angle;
+      };
+    };
+    struct sprite {
+      // KR_STRUCTURE_TYPE_NODE_SPRITE
+      KrResourceMapIndex texture;
+      float alpha;
+    };
+    struct model {
+      // KR_STRUCTURE_TYPE_NODE_MODEL
+      float lod_min_coverage;
+      bool receives_shadow;
+      bool faces_camera;
+      float rim_power;
+      kraken::Vector3 rim_color;
+      KrResourceMapIndex mesh;
+      KrResourceMapIndex light_map_texture;
+    };
+    struct collider {
+      // KR_STRUCTURE_TYPE_NODE_COLLIDER
+      KrResourceMapIndex mesh;
+      uint64_t layer_mask;
+      float audio_occlusion;
+    };
+    struct bone {
+      // KR_STRUCTURE_TYPE_NODE_BONE
+      // No additional members
+    };
+    struct locator {
+      // KR_STRUCTURE_TYPE_NODE_LOCATOR
+      // No additional members
+    };
+    struct audio_source {
+      // KR_STRUCTURE_TYPE_NODE_AUDIO_SOURCE
+      KrResourceMapIndex sample;
+      float gain;
+      float pitch;
+      bool looping;
+      bool is_3d;
+      float reference_distance;
+      float reverb;
+      float rolloff_factor;
+      bool enable_obstruction;
+      bool enable_occlusion;
+    };
+    struct ambient_zone {
+      // KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE
+      char* pZoneName;
+      float gradient;
+      float gain;
+      KrResourceMapIndex sample;
+    };
+    struct reverb_zone {
+      // KR_STRUCTURE_TYPE_NODE_REVERB_ZONE
+      char* pZoneName;
+      float gradient;
+      float gain;
+      KrResourceMapIndex sample;
+    };
+  };
+} KrNodeInfo;
 
 KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);
 KrResult KrShutdown();

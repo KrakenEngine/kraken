@@ -32,6 +32,6 @@
 #ifndef HELLO_CUBE_H
 #define HELLO_CUBE_H
 
-void smoke_main();
+void smoke_load();
 
 #endif // HELLO_CUBE_H

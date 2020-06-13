@@ -44,6 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	  return 1;
   }
 
+  smoke_load();
+
   while (GetMessage(&msg, NULL, 0, 0) > 0)
     DispatchMessage(&msg);
 
