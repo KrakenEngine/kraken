@@ -15,6 +15,8 @@
 
 class KRBone : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRBone(KRScene &scene, std::string name);
     virtual ~KRBone();
     virtual std::string getElementName();

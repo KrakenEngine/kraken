@@ -2,6 +2,22 @@
 
 #include "KRContext.h"
 #include "KRBundle.h"
+#include "hydra.h"
+#include "KRLODSet.h"
+#include "KRLODGroup.h"
+#include "KRPointLight.h"
+#include "KRDirectionalLight.h"
+#include "KRSpotLight.h"
+#include "KRSprite.h"
+#include "KRModel.h"
+#include "KRCollider.h"
+#include "KRBone.h"
+#include "KRLocator.h"
+#include "KRAudioSource.h"
+#include "KRAmbientZone.h"
+#include "KRReverbZone.h"
+
+using namespace kraken;
 
 namespace {
 
@@ -85,4 +101,59 @@ KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo)
     return KR_ERROR_NOT_INITIALIZED;
   }
   return sContext->createScene(pCreateSceneInfo);
+}
+
+KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType)
+{
+  pNodeInfo->sType = nodeType;
+  switch (nodeType) {
+  case KR_STRUCTURE_TYPE_NODE:
+    KRNode::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_CAMERA:
+    KRCamera::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOD_SET:
+    KRLODSet::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOD_GROUP:
+    KRLODGroup::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_POINT_LIGHT:
+    KRPointLight::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_DIRECTIONAL_LIGHT:
+    KRDirectionalLight::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_SPOT_LIGHT:
+    KRSpotLight::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_SPRITE:
+    KRSprite::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_MODEL:
+    KRModel::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_COLLIDER:
+    KRCollider::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_BONE:
+    KRBone::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOCATOR:
+    KRLocator::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_AUDIO_SOURCE:
+    KRAudioSource::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE:
+    KRAmbientZone::InitNodeInfo(pNodeInfo);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_REVERB_ZONE:
+    KRReverbZone::InitNodeInfo(pNodeInfo);
+    break;
+  default:
+    return KR_ERROR_INCORRECT_TYPE;
+  }
+  return KR_SUCCESS;
 }

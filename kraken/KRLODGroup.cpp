@@ -10,6 +10,17 @@
 #include "KRLODSet.h"
 #include "KRContext.h"
 
+/* static */
+void KRLODGroup::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->lod_group.min_distance = 0.0f;
+  nodeInfo->lod_group.max_distance = 0.0f;
+  nodeInfo->lod_group.reference_min = Vector3::Zero();
+  nodeInfo->lod_group.reference_max = Vector3::Zero();
+  nodeInfo->lod_group.use_world_units = true;
+}
+
 KRLODGroup::KRLODGroup(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_min_distance = 0.0f;

@@ -10,6 +10,13 @@
 #include "KRLODGroup.h"
 #include "KRContext.h"
 
+/* static */
+void KRLODSet::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  // No additional members
+}
+
 KRLODSet::KRLODSet(KRScene &scene, std::string name) : KRNode(scene, name)
 {
 

@@ -21,6 +21,22 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 
+/* static */
+void KRLight::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->light.casts_shadow = true;
+  nodeInfo->light.color = Vector3::One();
+  nodeInfo->light.decay_start = 0.0f;
+  nodeInfo->light.dust_particle_density = 0.1f;
+  nodeInfo->light.dust_particle_intensity = 1.0f;
+  nodeInfo->light.dust_particle_size = 1.0f;
+  nodeInfo->light.flare_occlusion_size = 0.05f;
+  nodeInfo->light.flare_size = 0.0f;
+  nodeInfo->light.flare_texture = -1;
+  nodeInfo->light.intensity = 1.0f;
+  nodeInfo->light.light_shafts = true;
+}
 
 KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
 {
@@ -35,7 +51,9 @@ KRLight::KRLight(KRScene &scene, std::string name) : KRNode(scene, name)
     m_light_shafts = true;
     m_dust_particle_density = 0.1f;
     m_dust_particle_size = 1.0f;
+    m_dust_particle_intensity = 1.0f;
     m_occlusionQuery = 0;
+    m_decayStart = 0;
     
     // Initialize shadow buffers
     m_cShadowBuffers = 0;

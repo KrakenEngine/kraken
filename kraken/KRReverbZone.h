@@ -15,6 +15,8 @@
 
 class KRReverbZone : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRReverbZone(KRScene &scene, std::string name);
     virtual ~KRReverbZone();
     virtual std::string getElementName();

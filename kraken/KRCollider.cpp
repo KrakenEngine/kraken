@@ -34,6 +34,14 @@
 #include "KRContext.h"
 #include "KRMesh.h"
 
+/* static */
+void KRCollider::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->collider.audio_occlusion = 1.0f;
+  nodeInfo->collider.layer_mask = 65535;
+  nodeInfo->collider.mesh = -1;
+}
 
 KRCollider::KRCollider(KRScene &scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion) : KRNode(scene, collider_name) {
     m_model_name = model_name;

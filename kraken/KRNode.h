@@ -59,11 +59,14 @@ public:
         LOD_VISIBILITY_PRESTREAM,
         LOD_VISIBILITY_VISIBLE
     };
+
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     
     KRNode(KRScene &scene, std::string name);
     virtual ~KRNode();
     
     virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+
     static KRNode *LoadXML(KRScene &scene, tinyxml2::XMLElement *e);
     virtual void loadXML(tinyxml2::XMLElement *e);
     

@@ -9,6 +9,13 @@
 #include "KRLocator.h"
 #include "KRContext.h"
 
+/* static */
+void KRLocator::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  // No additional members
+}
+
 KRLocator::KRLocator(KRScene &scene, std::string name) : KRNode(scene, name)
 {
  

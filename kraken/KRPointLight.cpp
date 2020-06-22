@@ -13,6 +13,13 @@
 #include "KRContext.h"
 #include "KRStockGeometry.h"
 
+/* static */
+void KRPointLight::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRLight::InitNodeInfo(nodeInfo);
+  // No additional members
+}
+
 KRPointLight::KRPointLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {
     m_sphereVertices = NULL;

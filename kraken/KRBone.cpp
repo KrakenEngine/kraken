@@ -9,6 +9,13 @@
 #include "KRBone.h"
 #include "KRContext.h"
 
+/* static */
+void KRBone::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  // No additional members
+}
+
 KRBone::KRBone(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     setScaleCompensation(true);

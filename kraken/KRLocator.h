@@ -15,6 +15,8 @@
 
 class KRLocator : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRLocator(KRScene &scene, std::string name);
     virtual ~KRLocator();
     virtual std::string getElementName();

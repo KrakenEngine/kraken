@@ -9,6 +9,16 @@
 #include "KRAmbientZone.h"
 #include "KRContext.h"
 
+/* static */
+void KRAmbientZone::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->ambient_zone.gain = 1.0f;
+  nodeInfo->ambient_zone.gradient = 0.25f;
+  nodeInfo->ambient_zone.pZoneName = nullptr;
+  nodeInfo->ambient_zone.sample = -1;
+}
+
 KRAmbientZone::KRAmbientZone(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_ambient = "";

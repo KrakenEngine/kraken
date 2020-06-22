@@ -23,7 +23,7 @@ static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
 
 class KRLight : public KRNode {
 public:
-    
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     
     virtual ~KRLight();
     virtual std::string getElementName() = 0;

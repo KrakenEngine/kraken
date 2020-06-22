@@ -9,6 +9,16 @@
 #include "KRReverbZone.h"
 #include "KRContext.h"
 
+/* static */
+void KRReverbZone::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->reverb_zone.gain = 1.0f;
+  nodeInfo->reverb_zone.gradient = 0.25f;
+  nodeInfo->reverb_zone.sample = -1;
+  nodeInfo->reverb_zone.pZoneName = nullptr;
+}
+
 KRReverbZone::KRReverbZone(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_reverb = "";

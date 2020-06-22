@@ -15,6 +15,8 @@
 
 class KRSprite : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRSprite(KRScene &scene, std::string name);
     
     virtual ~KRSprite();

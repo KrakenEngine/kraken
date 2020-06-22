@@ -14,6 +14,7 @@
 class KRDirectionalLight : public KRLight {
     
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     
     KRDirectionalLight(KRScene &scene, std::string name);
     virtual ~KRDirectionalLight();

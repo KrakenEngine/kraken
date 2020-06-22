@@ -14,6 +14,13 @@
 #include "assert.h"
 #include "KRStockGeometry.h"
 
+/* static */
+void KRDirectionalLight::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRLight::InitNodeInfo(nodeInfo);
+  // No additional members
+}
+
 KRDirectionalLight::KRDirectionalLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {
 

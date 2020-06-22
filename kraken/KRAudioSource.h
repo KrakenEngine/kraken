@@ -42,6 +42,8 @@ class KRAudioBuffer;
 
 class KRAudioSource : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRAudioSource(KRScene &scene, std::string name);
     virtual ~KRAudioSource();
     virtual std::string getElementName();

@@ -21,6 +21,13 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 
+/* static */
+void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->sprite.alpha = 1.0f;
+  nodeInfo->sprite.texture = -1;
+}
 
 KRSprite::KRSprite(KRScene &scene, std::string name) : KRNode(scene, name)
 {

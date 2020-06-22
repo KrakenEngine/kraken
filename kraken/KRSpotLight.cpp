@@ -9,8 +9,18 @@
 #include "KREngine-common.h"
 #include "KRSpotLight.h"
 
+/* static */
+void KRSpotLight::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRLight::InitNodeInfo(nodeInfo);
+  nodeInfo->light.spot.inner_angle = M_PI_4;
+  nodeInfo->light.spot.outer_angle = M_PI_2;
+}
+
 KRSpotLight::KRSpotLight(KRScene &scene, std::string name) : KRLight(scene, name)
 {
+  m_innerAngle = M_PI_4;
+  m_outerAngle = M_PI_2;
 }
 
 KRSpotLight::~KRSpotLight()

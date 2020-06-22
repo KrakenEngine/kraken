@@ -35,6 +35,22 @@
 #include "KRAudioSample.h"
 #include "KRAudioBuffer.h"
 
+/* static */
+void KRAudioSource::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->audio_source.enable_obstruction = true;
+  nodeInfo->audio_source.enable_occlusion = true;
+  nodeInfo->audio_source.gain = 1.0f;
+  nodeInfo->audio_source.is_3d = true;
+  nodeInfo->audio_source.looping = false;
+  nodeInfo->audio_source.pitch = 1.0f;
+  nodeInfo->audio_source.reference_distance = 1.0f;
+  nodeInfo->audio_source.reverb = 0.0f;
+  nodeInfo->audio_source.rolloff_factor = 2.0f;
+  nodeInfo->audio_source.sample = -1;
+}
+
 KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, name)
 {
     m_currentBufferFrame = 0;

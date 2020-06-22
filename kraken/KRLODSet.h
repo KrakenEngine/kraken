@@ -16,6 +16,7 @@ class KRLODGroup;
 
 class KRLODSet : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     KRLODSet(KRScene &scene, std::string name);
     virtual ~KRLODSet();
     virtual std::string getElementName();

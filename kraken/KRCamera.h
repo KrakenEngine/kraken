@@ -49,6 +49,7 @@ class KRViewport;
 
 class KRCamera : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
 

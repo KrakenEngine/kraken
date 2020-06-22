@@ -15,6 +15,8 @@
 
 class KRAmbientZone : public KRNode {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRAmbientZone(KRScene &scene, std::string name);
     virtual ~KRAmbientZone();
     virtual std::string getElementName();

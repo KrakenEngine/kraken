@@ -14,7 +14,7 @@
 class KRPointLight : public KRLight {
     
 public:
-    
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
     KRPointLight(KRScene &scene, std::string name);
     virtual ~KRPointLight();
     

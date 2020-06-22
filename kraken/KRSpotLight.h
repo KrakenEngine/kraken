@@ -13,6 +13,8 @@
 
 class KRSpotLight : public KRLight {
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRSpotLight(KRScene &scene, std::string name);
     virtual ~KRSpotLight();
     

@@ -25,6 +25,21 @@
 #include "KRReverbZone.h"
 #include "KRSprite.h"
 
+/* static */
+void KRNode::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  nodeInfo->pName = nullptr;
+  nodeInfo->translate = Vector3::Zero();
+  nodeInfo->scale = Vector3::One();
+  nodeInfo->rotate = Vector3::Zero();
+  nodeInfo->pre_rotate = Vector3::Zero();
+  nodeInfo->post_rotate = Vector3::Zero();
+  nodeInfo->rotate_offset = Vector3::Zero();
+  nodeInfo->scale_offset = Vector3::Zero();
+  nodeInfo->rotate_pivot = Vector3::Zero();
+  nodeInfo->scale_pivot = Vector3::Zero();
+}
+
 KRNode::KRNode(KRScene &scene, std::string name) : KRContextObject(scene.getContext())
 {
     m_name = name;

@@ -35,6 +35,19 @@
 #include "KRContext.h"
 #include "KRMesh.h"
 
+/* static */
+void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->model.faces_camera = false;
+  nodeInfo->model.light_map_texture = -1;
+  nodeInfo->model.lod_min_coverage = 0.0f;
+  nodeInfo->model.mesh = -1;
+  nodeInfo->model.receives_shadow = true;
+  nodeInfo->model.rim_color = Vector3::Zero();
+  nodeInfo->model.rim_power = 0.0f;
+}
+
 KRModel::KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power) : KRNode(scene, instance_name) {
     m_lightMap = light_map;
     m_pLightMap = NULL;

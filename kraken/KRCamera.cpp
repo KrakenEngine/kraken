@@ -34,6 +34,13 @@
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 
+/* static */
+void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
+{
+  KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->camera.skybox_texture = -1;
+}
+
 KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_last_frame_start = 0;
     

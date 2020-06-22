@@ -47,6 +47,8 @@
 class KRModel : public KRNode {
     
 public:
+    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
     KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color = Vector3::Zero(), float rim_power = 0.0f);
     virtual ~KRModel();
     
