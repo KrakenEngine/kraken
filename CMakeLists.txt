@@ -109,11 +109,49 @@ include_directories(hydra/include)
 list (APPEND EXTRA_LIBS hydra)
 
 # ---- Vulkan ----
-if(NOT ANDROID)
-find_package(Vulkan REQUIRED)
-list (APPEND EXTRA_LIBS Vulkan::Vulkan)
+add_library(vulkan INTERFACE)
+set(VULKAN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/vulkan/include)
+target_sources(vulkan INTERFACE ${VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
+target_include_directories(vulkan INTERFACE ${VULKAN_INCLUDE_DIR})
+
+target_compile_definitions(vulkan INTERFACE VK_NO_PROTOTYPES)
+
+if(ANDROID)
+    target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_ANDROID_KHR)
+elseif(WIN32)
+    target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_WIN32_KHR)
+elseif(APPLE)
+    target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_MACOS_MVK)
+elseif(UNIX)
+    # See whether X11 is available. If not, fall back to direct-to-display mode.
+    find_package(X11 QUIET)
+    if (X11_FOUND)
+        target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_XCB_KHR)
+    else()
+        set(DIRECT_TO_DISPLAY TRUE)
+        set(DIRECT_TO_DISPLAY TRUE PARENT_SCOPE)
+        target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_DISPLAY_KHR)
+    endif()
 endif()
 
+list (APPEND EXTRA_LIBS vulkan)
+
+# ---- Volk ----
+# volk
+set(VOLK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/volk")
+set(VOLK_FILES
+    "${VOLK_DIR}/volk.c"
+    "${VOLK_DIR}/volk.h")
+
+add_library(volk STATIC ${VOLK_FILES})
+
+target_link_libraries(volk PUBLIC vulkan)
+
+target_include_directories(volk PUBLIC ${VOLK_DIR})
+
+set_property(TARGET volk PROPERTY FOLDER "3rdparty")
+
+list (APPEND EXTRA_LIBS volk)
 
 # ---- GLSlang ----
 if(NOT ANDROID)

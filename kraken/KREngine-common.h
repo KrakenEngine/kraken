@@ -100,6 +100,7 @@ using std::unordered_multimap;
 using std::hash;
 
 #include <vulkan/vulkan.h>
+#include <volk.h>
 #if defined(ANDROID)
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>

@@ -640,6 +640,12 @@ void KRContext::receivedMemoryWarning()
 void
 KRContext::createDeviceContexts()
 {
+  VkResult res = volkInitialize();
+  if (res != VK_SUCCESS) {
+    destroyDeviceContexts();
+    return;
+  }
+
   // initialize the VkApplicationInfo structure
   VkApplicationInfo app_info = {};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -662,10 +668,12 @@ KRContext::createDeviceContexts()
   inst_info.enabledLayerCount = 0;
   inst_info.ppEnabledLayerNames = NULL;
 
-  VkResult res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
+  res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
   if (res != VK_SUCCESS) {
     destroyDeviceContexts();
   }
+
+  volkLoadInstance(m_vulkanInstance);
 }
 
 void
