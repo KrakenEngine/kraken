@@ -12,7 +12,7 @@
 	url = git@github.com:KhronosGroup/glslang.git
 [submodule "3rdparty/vulkan"]
 	path = 3rdparty/vulkan
-	url = https://github.com/KhronosGroup/Vulkan-Headers
+	url = git@github.com:KhronosGroup/Vulkan-Headers.git
 [submodule "3rdparty/volk"]
 	path = 3rdparty/volk
-	url = https://github.com/zeux/volk
+	url = git@github.com:github.com/zeux/volk.git
