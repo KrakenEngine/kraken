@@ -204,11 +204,16 @@ PROPERTIES
   OUTPUT_NAME kraken
 )
 
-# add_custom_target(package
-#   COMMENT "Compressing..."
-#   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/archive"
-#   COMMAND ${CMAKE_COMMAND} -E tar "cfvz" "kraken.tgz" "*"
-# )
+add_library(kraken_dynamic SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+TARGET_LINK_LIBRARIES( kraken_dynamic ${EXTRA_LIBS} )
+SET_TARGET_PROPERTIES(
+  kraken_dynamic
+PROPERTIES
+  PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
+  PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
+  ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
+  OUTPUT_NAME kraken
+)
 
 install(TARGETS kraken
         RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/bin/win
@@ -250,6 +255,22 @@ file(COPY ${KRAKEN_PUBLIC_HEADERS} DESTINATION "${CMAKE_BINARY_DIR}/output/inclu
 add_custom_target(kraken_sdk ALL
     DEPENDS ${STANDARD_ASSET_BUNDLE} ${KRAKEN_PUBLIC_HEADERS_OUTPUT}
     VERBATIM
+)
+
+add_custom_command(
+    TARGET kraken_sdk
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:kraken>
+        ${CMAKE_BINARY_DIR}/output/lib/$<TARGET_FILE_NAME:kraken>
+)
+
+add_custom_command(
+    TARGET kraken_sdk
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:kraken_dynamic>
+        ${CMAKE_BINARY_DIR}/output/lib/$<TARGET_FILE_NAME:kraken_dynamic>
 )
 
 add_subdirectory(tests)
