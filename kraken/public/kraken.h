@@ -61,6 +61,18 @@ typedef enum {
 
   KR_STRUCTURE_TYPE_CREATE_SCENE     = 0x00020000,
 
+  KR_STRUCTURE_TYPE_FIND_NODE_BY_NAME   = 0x00030000,
+  KR_STRUCTURE_TYPE_FIND_ADJACENT_NODES,
+  KR_STRUCTURE_TYPE_DELETE_NODE,
+  KR_STRUCTURE_TYPE_DELETE_NODE_CHILDREN,
+  KR_STRUCTURE_TYPE_APPEND_BEFORE_NODE,
+  KR_STRUCTURE_TYPE_APPEND_AFTER_NODE,
+  KR_STRUCTURE_TYPE_APPEND_FIRST_CHILD_NODE,
+  KR_STRUCTURE_TYPE_APPEND_LAST_CHILD_NODE,
+  KR_STRUCTURE_TYPE_UPDATE_NODE,
+  KR_STRUCTURE_TYPE_SET_NODE_LOCAL_TRANSFORM,
+  KR_STRUCTURE_TYPE_SET_NODE_WORLD_TRANSFORM,
+
   KR_STRUCTURE_TYPE_NODE             = 0x10000000,
   KR_STRUCTURE_TYPE_NODE_CAMERA,
   KR_STRUCTURE_TYPE_NODE_LOD_SET,
@@ -82,6 +94,7 @@ typedef enum {
 } KrStructureType;
 
 typedef int KrResourceMapIndex;
+typedef int KrSceneNodeMapIndex;
 
 typedef struct {
   KrStructureType sType;
@@ -252,6 +265,98 @@ typedef struct {
   };
 } KrNodeInfo;
 
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+  char* pName;
+} KrFindNodeByNameInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+  KrSceneNodeMapIndex parentNodeHandle;
+  KrSceneNodeMapIndex priorNodeHandle;
+  KrSceneNodeMapIndex nextNodeHandle;
+  KrSceneNodeMapIndex firstChildNodeHandle;
+  KrSceneNodeMapIndex lastChildNodeHandle;
+} KrFindAdjacentNodesInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+} KrDeleteNodeInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+} KrDeleteNodeChildrenInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex siblingNodeHandle;
+  KrNodeInfo node;
+} KrAppendBeforeNodeInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex siblingNodeHandle;
+  KrNodeInfo node;
+} KrAppendAfterNodeInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex parentNodeHandle;
+  KrNodeInfo node;
+} KrAppendFirstChildNodeInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex parentNodeHandle;
+  KrNodeInfo node;
+} KrAppendLastChildNodeInfo;
+
+typedef struct
+{
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+  KrNodeInfo node;
+} KrUpdateNodeInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+  kraken::Vector3 translate;
+  kraken::Vector3 scale;
+  kraken::Vector3 rotate;
+} KrSetNodeLocalTransformInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrResourceMapIndex sceneHandle;
+  KrSceneNodeMapIndex nodeHandle;
+  kraken::Vector3 translate;
+  kraken::Vector3 scale;
+  kraken::Vector3 rotate;
+} KrSetNodeWorldTransformInfo;
+
 KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);
 KrResult KrShutdown();
 KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo);
@@ -264,5 +369,15 @@ KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo);
 KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType);
 
 KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo);
+KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);
+KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo);
+KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo);
+KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
+KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo);
+KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
+KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
+KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
+KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
+KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransformInfo);
 
 #endif // KRAKEN_H

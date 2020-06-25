@@ -103,6 +103,86 @@ KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo)
   return sContext->createScene(pCreateSceneInfo);
 }
 
+KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransformInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
 KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType)
 {
   pNodeInfo->sType = nodeType;
