@@ -371,6 +371,8 @@ KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType);
 KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo);
 KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);
 KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo);
+KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform);
+KrResult KrSetNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform);
 KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo);
 KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
 KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo);
@@ -378,6 +380,5 @@ KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
 KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
 KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
 KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
-KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransformInfo);
 
 #endif // KRAKEN_H

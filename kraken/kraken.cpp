@@ -119,6 +119,22 @@ KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesIn
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
+KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KrSetNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
 KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo)
 {
   if (!sContext) {
@@ -168,14 +184,6 @@ KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChild
 }
 
 KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
-{
-  if (!sContext) {
-    return KR_ERROR_NOT_INITIALIZED;
-  }
-  return KR_ERROR_NOT_IMPLEMENTED;
-}
-
-KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransformInfo)
 {
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
