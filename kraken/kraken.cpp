@@ -108,7 +108,7 @@ KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->findNodeByName(pFindNodeByNameInfo);
 }
 
 KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo)
@@ -116,7 +116,7 @@ KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesIn
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->findAdjacentNodes(pFindAdjacentNodesInfo);
 }
 
 KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform)
@@ -124,7 +124,7 @@ KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLoca
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->setNodeLocalTransform(pSetNodeLocalTransform);
 }
 
 KrResult KrSetNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform)
@@ -132,7 +132,7 @@ KrResult KrSetNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorl
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->setNodeWorldTransform(pSetNodeWorldTransform);
 }
 
 KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo)
@@ -140,7 +140,7 @@ KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->deleteNode(pDeleteNodeInfo);
 }
 
 KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo)
@@ -148,7 +148,7 @@ KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildre
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->deleteNodeChildren(pDeleteNodeChildrenInfo);
 }
 
 KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo)
@@ -156,7 +156,7 @@ KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->appendBeforeNode(pAppendBeforeNodeInfo);
 }
 
 KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo)
@@ -164,7 +164,7 @@ KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->appendAfterNode(pAppendAfterNodeInfo);
 }
 
 KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo)
@@ -172,7 +172,7 @@ KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstCh
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->appendFirstChildNode(pAppendFirstChildNodeInfo);
 }
 
 KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo)
@@ -180,7 +180,7 @@ KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChild
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->appendLastChildNode(pAppendLastChildNodeInfo);
 }
 
 KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
@@ -188,7 +188,7 @@ KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return KR_ERROR_NOT_IMPLEMENTED;
+  return sContext->updateNode(pUpdateNodeInfo);
 }
 
 KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType)

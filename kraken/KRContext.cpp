@@ -690,3 +690,58 @@ KRContext::activateStreamerContext()
 {
 
 }
+
+KrResult KRContext::findNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::findAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::setNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::setNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::deleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::appendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::appendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::appendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::appendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+KrResult KRContext::updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
+}

@@ -48,6 +48,18 @@ public:
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
     KrResult createScene(const KrCreateSceneInfo* createSceneInfo);
+    KrResult findNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);
+    KrResult findAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo);
+    KrResult setNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform);
+    KrResult setNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform);
+    KrResult deleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo);
+    KrResult deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
+    KrResult appendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo);
+    KrResult appendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
+    KrResult appendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
+    KrResult appendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
+    KrResult updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
+
 
     KRResource* loadResource(const std::string &file_name, KRDataBlock *data);
     
