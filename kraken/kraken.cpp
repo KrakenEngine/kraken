@@ -76,7 +76,10 @@ KrResult KrMapResource(const KrMapResourceInfo* pMapResourceInfo)
 
 KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->unmapResource(pUnmapResourceInfo);
 }
 
 KrResult KrCreateBundle(const KrCreateBundleInfo* pCreateBundleInfo)

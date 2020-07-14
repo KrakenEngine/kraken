@@ -429,6 +429,14 @@ KrResult KRContext::mapResource(const KrMapResourceInfo* mapResourceInfo)
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
+KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
+{
+  if (unmapResourceInfo->resourceHandle < 0 || unmapResourceInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  m_resourceMap[unmapResourceInfo->resourceHandle] = nullptr;
+}
+
 KrResult KRContext::createScene(const KrCreateSceneInfo* createSceneInfo)
 {
   if (createSceneInfo->resourceHandle < 0 || createSceneInfo->resourceHandle >= m_resourceMapSize) {

@@ -45,6 +45,7 @@ public:
     KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
     KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
     KrResult mapResource(const KrMapResourceInfo* mapResourceInfo);
+    KrResult unmapResource(const KrUnmapResourceInfo* unmapResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
     KrResult createScene(const KrCreateSceneInfo* createSceneInfo);
