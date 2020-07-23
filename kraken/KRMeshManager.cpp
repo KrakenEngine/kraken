@@ -99,7 +99,7 @@ KRMeshManager::~KRMeshManager() {
     for(unordered_multimap<std::string, KRMesh *>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr){
         delete (*itr).second;
     }
-    m_models.empty();
+    m_models.clear();
 }
 
 KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)

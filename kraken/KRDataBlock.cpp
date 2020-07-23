@@ -439,7 +439,7 @@ void ReportWindowsLastError(LPCTSTR lpszFunction)
   (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
   fprintf(stderr,
     TEXT("%s failed with error %d: %s\n"),
-    lpszFunction, dw, lpMsgBuf);
+    lpszFunction, dw, (LPCTSTR)lpMsgBuf);
 
   LocalFree(lpMsgBuf);
   LocalFree(lpDisplayBuf);

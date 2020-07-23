@@ -11,6 +11,10 @@ else(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+if (WIN32)
+  add_definitions(-D_HAS_EXCEPTIONS=0)
+endif()
+
 if (NOT WIN32 AND NOT ANDROID)
   set(CMAKE_CXX_COMPILER "clang++")
 endif()

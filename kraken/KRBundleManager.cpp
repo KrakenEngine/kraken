@@ -41,7 +41,7 @@ KRBundleManager::~KRBundleManager() {
     for(unordered_map<std::string, KRBundle *>::iterator itr = m_bundles.begin(); itr != m_bundles.end(); ++itr){
         delete (*itr).second;
     }
-    m_bundles.empty();
+    m_bundles.clear();
 }
 
 KRResource* KRBundleManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)

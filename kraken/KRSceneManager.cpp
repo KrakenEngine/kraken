@@ -39,7 +39,7 @@ KRSceneManager::~KRSceneManager() {
     for(unordered_map<std::string, KRScene *>::iterator itr = m_scenes.begin(); itr != m_scenes.end(); ++itr){
         delete (*itr).second;
     }
-    m_scenes.empty();
+    m_scenes.clear();
 }
 
 KRResource* KRSceneManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
