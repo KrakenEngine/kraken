@@ -40,6 +40,9 @@ public:
     KRContext(const KrInitializeInfo* initializeInfo);
     ~KRContext();
 
+    KrResult createWindowSurface(const KrCreateWindowSurfaceInfo* createWindowSurfaceInfo);
+    KrResult deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteWindowSurfaceInfo);
+
     KrResult createBundle(const KrCreateBundleInfo* createBundleInfo);
     KrResult moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo);
     KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
@@ -170,6 +173,13 @@ private:
     void destroyDeviceContexts();
 
     unordered_multimap<std::string, KRResource*> m_resources;
+    typedef struct {
+      KrSurfaceHandle surfaceHandle;
+#ifdef WIN32
+      HWND hWnd;
+#endif
+    } SurfaceInfo;
+    unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
 };
 
 #endif

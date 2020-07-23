@@ -789,3 +789,33 @@ void KRContext::removeResource(KRResource* resource)
     }
   }
 }
+
+KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createWindowSurfaceInfo)
+{
+  if (createWindowSurfaceInfo->surfaceHandle < 0) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  if (m_surfaces.count(createWindowSurfaceInfo->surfaceHandle)) {
+    return KR_ERROR_DUPLICATE_HANDLE;
+  }
+  SurfaceInfo info{};
+  info.surfaceHandle = createWindowSurfaceInfo->surfaceHandle;
+#ifdef WIN32
+  info.hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
+  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
+  // TODO - Complete implementation
+  return KR_ERROR_NOT_IMPLEMENTED;
+#else
+  // Not implemented for this platform
+  return KR_ERROR_NOT_IMPLEMENTED;
+#endif
+}
+
+KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteWindowSurfaceInfo)
+{
+  if (deleteWindowSurfaceInfo->surfaceHandle < 0) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  // TODO - Complete implementation
+  return KR_ERROR_NOT_IMPLEMENTED;
+}

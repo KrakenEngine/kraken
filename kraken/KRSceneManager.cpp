@@ -49,6 +49,7 @@ KRResource* KRSceneManager::loadResource(const std::string& name, const std::str
   }
   return nullptr;
 }
+
 KRResource* KRSceneManager::getResource(const std::string& name, const std::string& extension)
 {
   if (extension.compare("krscene") == 0) {

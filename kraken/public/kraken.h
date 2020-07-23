@@ -45,6 +45,7 @@ typedef enum {
   KR_ERROR_INCORRECT_TYPE = 5,
   KR_ERROR_NOT_FOUND = 6,
   KR_ERROR_AMBIGUOUS_MATCH = 7,
+  KR_ERROR_DUPLICATE_HANDLE = 8,
   KR_ERROR_UNEXPECTED = 0x10000000,
   KR_RESULT_MAX_ENUM = 0x7FFFFFFF
 } KrResult;
@@ -97,11 +98,25 @@ typedef enum {
 
 typedef int KrResourceMapIndex;
 typedef int KrSceneNodeMapIndex;
+typedef int KrSurfaceHandle;
 
 typedef struct {
   KrStructureType sType;
   size_t resourceMapSize;
 } KrInitializeInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrSurfaceHandle surfaceHandle;
+#if defined(_WIN32) || defined(_WIN64)
+  void* hWnd; // Can static cast to HWND
+#endif
+} KrCreateWindowSurfaceInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrSurfaceHandle surfaceHandle;
+} KrDeleteWindowSurfaceInfo;
 
 typedef struct {
   KrStructureType sType;
@@ -361,6 +376,9 @@ typedef struct {
 
 KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);
 KrResult KrShutdown();
+KrResult KrCreateWindowSurface(const KrCreateWindowSurfaceInfo* pCreateWindowSurfaceInfo);
+KrResult KrDeleteWindowSurface(const KrDeleteWindowSurfaceInfo* pDeleteWindowSurfaceInfo);
+
 KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo);
 KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo);
 KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo);
