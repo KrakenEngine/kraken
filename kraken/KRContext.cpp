@@ -419,14 +419,24 @@ KrResult KRContext::mapResource(const KrMapResourceInfo* mapResourceInfo)
     return KR_ERROR_OUT_OF_BOUNDS;
   }
 
-/*
-  KRResource* resource = loadResource(loadResourceInfo->pResourcePath, data);
-  m_resourceMap[loadResourceInfo->resourceHandle] = resource;
-  return KR_SUCCESS;
-*/
+  std::string lowerName = mapResourceInfo->pResourceName;
+  std::transform(lowerName.begin(), lowerName.end(),
+    lowerName.begin(), ::tolower);
 
-  // TODO - Need to implement mapping logic
-  return KR_ERROR_NOT_IMPLEMENTED;
+  KRResource* resource = nullptr;
+
+  std::pair<unordered_multimap<std::string, KRResource*>::iterator, unordered_multimap<std::string, KRResource*>::iterator> range = m_resources.equal_range(lowerName);
+  for (unordered_multimap<std::string, KRResource*>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
+    if (resource != nullptr) {
+      return KR_ERROR_AMBIGUOUS_MATCH;
+    }
+    resource = itr_match->second;
+  }
+  if (resource == nullptr) {
+    return KR_ERROR_NOT_FOUND;
+  }
+  m_resourceMap[mapResourceInfo->resourceHandle] = resource;
+  return KR_SUCCESS;
 }
 
 KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
@@ -435,6 +445,8 @@ KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
     return KR_ERROR_OUT_OF_BOUNDS;
   }
   m_resourceMap[unmapResourceInfo->resourceHandle] = nullptr;
+  // TODO - Delete objects after lass dereference
+  return KR_SUCCESS;
 }
 
 KrResult KRContext::createScene(const KrCreateSceneInfo* createSceneInfo)
@@ -752,4 +764,28 @@ KrResult KRContext::appendLastChildNode(const KrAppendLastChildNodeInfo* pAppend
 KrResult KRContext::updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
 {
   return KR_ERROR_NOT_IMPLEMENTED;
+}
+
+void KRContext::addResource(KRResource* resource, const std::string& name)
+{
+  std::string lowerName = name;
+  std::transform(lowerName.begin(), lowerName.end(),
+    lowerName.begin(), ::tolower);
+
+  m_resources.insert(std::pair<std::string, KRResource*>(lowerName, resource));
+}
+
+void KRContext::removeResource(KRResource* resource)
+{
+  std::string lowerName = resource->getName();
+  std::transform(lowerName.begin(), lowerName.end(),
+    lowerName.begin(), ::tolower);
+
+  std::pair<unordered_multimap<std::string, KRResource*>::iterator, unordered_multimap<std::string, KRResource*>::iterator> range = m_resources.equal_range(lowerName);
+  for (unordered_multimap<std::string, KRResource*>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
+    if (itr_match->second == resource) {
+      m_resources.erase(itr_match);
+      return;
+    }
+  }
 }

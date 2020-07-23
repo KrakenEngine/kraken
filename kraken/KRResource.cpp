@@ -9,12 +9,14 @@
 #include "KREngine-common.h"
 #include "KRResource.h"
 #include "KRBundle.h"
+#include "KRContext.h"
 
 KRResource::KRResource(KRContext &context, std::string name) : KRContextObject(context) {
     m_name = name;
+    context.addResource(this, name);
 }
 KRResource::~KRResource() {
-    
+  m_pContext->removeResource(this);
 }
 
 std::string KRResource::getName()

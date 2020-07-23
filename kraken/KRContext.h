@@ -126,7 +126,8 @@ public:
 #if TARGET_OS_MAC
     static void attachToView(void *view);
 #endif
-    
+    void addResource(KRResource* resource, const std::string& name);
+    void removeResource(KRResource* resource);
 private:
     KRBundleManager *m_pBundleManager;
     KRSceneManager *m_pSceneManager;
@@ -167,6 +168,8 @@ private:
     
     void createDeviceContexts();
     void destroyDeviceContexts();
+
+    unordered_multimap<std::string, KRResource*> m_resources;
 };
 
 #endif
