@@ -1007,6 +1007,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     swapExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, MAX_WIDTH));
     swapExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, MAX_HEIGHT));
    }
+  info.swapChainExtent = swapExtent;
 
   uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
   if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount) {
@@ -1048,6 +1049,38 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     return KR_ERROR_VULKAN_SWAP_CHAIN;
   }
 
+  vkGetSwapchainImagesKHR(info.logicalDevice, info.swapChain, &imageCount, nullptr);
+  info.swapChainImages.resize(imageCount);
+  vkGetSwapchainImagesKHR(info.logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
+
+  info.swapChainImageFormat = selectedSurfaceFormat.format;
+
+  info.swapChainImageViews.resize(info.swapChainImages.size());
+  for (size_t i = 0; i < info.swapChainImages.size(); i++) {
+    VkImageViewCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = info.swapChainImages[i];
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = info.swapChainImageFormat;
+    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+    if (vkCreateImageView(info.logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
+      for (size_t j = 0; j < i; j++) {
+        vkDestroyImageView(info.logicalDevice, info.swapChainImageViews[j], nullptr);
+      }
+      vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+      vkDestroyDevice(info.logicalDevice, nullptr);
+      return KR_ERROR_VULKAN_SWAP_CHAIN;
+    }
+  }
+
   return KR_SUCCESS;
 #else
   // Not implemented for this platform
@@ -1068,6 +1101,9 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
     return KR_ERROR_NOT_FOUND;
   }
   SurfaceInfo* surfaceInfo = &(*itr).second;
+  for (auto imageView : surfaceInfo->swapChainImageViews) {
+    vkDestroyImageView(surfaceInfo->logicalDevice, imageView, nullptr);
+  }
   vkDestroySwapchainKHR(surfaceInfo->logicalDevice, surfaceInfo->swapChain, nullptr);
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
   vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
