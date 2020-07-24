@@ -180,6 +180,8 @@ private:
       VkPhysicalDevice device;
       VkDevice logicalDevice;
       VkQueue graphicsQueue;
+      VkQueue presentQueue;
+      VkSwapchainKHR swapChain;
 #ifdef WIN32
       HWND hWnd;
 #endif

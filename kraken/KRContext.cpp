@@ -725,6 +725,7 @@ KRContext::destroySurfaces()
   }
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
     SurfaceInfo* surfaceInfo = &(*itr).second;
+    vkDestroySwapchainKHR(surfaceInfo->logicalDevice, surfaceInfo->swapChain, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
     vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   }
@@ -858,6 +859,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
 
   int selectedDeviceGraphicsFamilyQueue = -1;
+  int selectedDevicePresentFamilyQueue = -1;
 
   for (const auto& device : devices) {
     VkPhysicalDeviceProperties deviceProperties;
@@ -872,10 +874,16 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     int graphicsFamilyQueue = -1;
+    int presentFamilyQueue = -1;
     int i = 0;
     for (const auto& queueFamily : queueFamilies) {
       if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
         graphicsFamilyQueue = i;
+      }
+      VkBool32 presentSupport = false;
+      vkGetPhysicalDeviceSurfaceSupportKHR(device, graphicsFamilyQueue, info.surface, &presentSupport);
+      if (presentSupport) {
+        presentFamilyQueue = i;
       }
       i++;
     }
@@ -883,13 +891,11 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
       // No graphics queue family, not suitable
       continue;
     }
-
-    VkBool32 presentSupport = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device, graphicsFamilyQueue, info.surface, &presentSupport);
-    if (!presentSupport) {
-      // Can't present to this surface, not suitable
+    if (presentFamilyQueue == -1) {
+      // No present queue family, not suitable
       continue;
     }
+
 
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -911,6 +917,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     if (info.device == VK_NULL_HANDLE) {
       info.device = device;
       selectedDeviceGraphicsFamilyQueue = graphicsFamilyQueue;
+      selectedDevicePresentFamilyQueue = presentFamilyQueue;
     } else {
       // We need to choose the best one...
       // TODO - Implement
@@ -921,18 +928,23 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     return KR_ERROR_NO_DEVICE;
   }
 
-
-  VkDeviceQueueCreateInfo queueCreateInfo{};
-  queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueCreateInfo.queueFamilyIndex = selectedDeviceGraphicsFamilyQueue;
-  queueCreateInfo.queueCount = 1;
+  VkDeviceQueueCreateInfo queueCreateInfo[2]{};
   float queuePriority = 1.0f;
-  queueCreateInfo.pQueuePriorities = &queuePriority;
+  queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueCreateInfo[0].queueFamilyIndex = selectedDeviceGraphicsFamilyQueue;
+  queueCreateInfo[0].queueCount = 1;
+  queueCreateInfo[0].pQueuePriorities = &queuePriority;
+  if (selectedDeviceGraphicsFamilyQueue != selectedDevicePresentFamilyQueue) {
+    queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo[1].queueFamilyIndex = selectedDevicePresentFamilyQueue;
+    queueCreateInfo[1].queueCount = 1;
+    queueCreateInfo[1].pQueuePriorities = &queuePriority;
+  }
 
   VkDeviceCreateInfo deviceCreateInfo{};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-  deviceCreateInfo.queueCreateInfoCount = 1;
+  deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
+  deviceCreateInfo.queueCreateInfoCount = selectedDeviceGraphicsFamilyQueue == selectedDevicePresentFamilyQueue ? 1 : 2;
   VkPhysicalDeviceFeatures deviceFeatures{};
   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
   deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
@@ -942,6 +954,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     return KR_ERROR_NO_DEVICE;
   }
   vkGetDeviceQueue(info.logicalDevice, selectedDeviceGraphicsFamilyQueue, 0, &info.graphicsQueue);
+  vkGetDeviceQueue(info.logicalDevice, selectedDevicePresentFamilyQueue, 0, &info.presentQueue);
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities{};
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.device, info.surface, &surfaceCapabilities);
@@ -995,6 +1008,46 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     swapExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, MAX_HEIGHT));
    }
 
+  uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
+  if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount) {
+    imageCount = surfaceCapabilities.maxImageCount;
+  }
+
+  VkSwapchainCreateInfoKHR swapChainCreateInfo{};
+  swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  swapChainCreateInfo.surface = info.surface;
+  swapChainCreateInfo.minImageCount = imageCount;
+  swapChainCreateInfo.imageFormat = selectedSurfaceFormat.format;
+  swapChainCreateInfo.imageColorSpace = selectedSurfaceFormat.colorSpace;
+  swapChainCreateInfo.imageExtent = swapExtent;
+  swapChainCreateInfo.imageArrayLayers = 1;
+  swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+  uint32_t queueFamilyIndices[] = {
+    selectedDeviceGraphicsFamilyQueue,
+    selectedDevicePresentFamilyQueue
+  };
+  if (selectedDeviceGraphicsFamilyQueue == selectedDevicePresentFamilyQueue) {
+    swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    swapChainCreateInfo.queueFamilyIndexCount = 0; // Optional
+    swapChainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+  } else {
+    swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+    swapChainCreateInfo.queueFamilyIndexCount = 2;
+    swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+  }
+  swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
+  swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  swapChainCreateInfo.presentMode = selectedPresentMode;
+  swapChainCreateInfo.clipped = VK_TRUE;
+  swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
+
+  if (vkCreateSwapchainKHR(info.logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
+    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+    vkDestroyDevice(info.logicalDevice, nullptr);
+    return KR_ERROR_VULKAN_SWAP_CHAIN;
+  }
+
   return KR_SUCCESS;
 #else
   // Not implemented for this platform
@@ -1015,6 +1068,7 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
     return KR_ERROR_NOT_FOUND;
   }
   SurfaceInfo* surfaceInfo = &(*itr).second;
+  vkDestroySwapchainKHR(surfaceInfo->logicalDevice, surfaceInfo->swapChain, nullptr);
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
   vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   m_surfaces.erase(itr);
