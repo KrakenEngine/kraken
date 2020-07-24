@@ -943,7 +943,57 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   }
   vkGetDeviceQueue(info.logicalDevice, selectedDeviceGraphicsFamilyQueue, 0, &info.graphicsQueue);
 
+  VkSurfaceCapabilitiesKHR surfaceCapabilities{};
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.device, info.surface, &surfaceCapabilities);
+
+  std::vector<VkSurfaceFormatKHR> surfaceFormats;
+  uint32_t formatCount = 0;
+  vkGetPhysicalDeviceSurfaceFormatsKHR(info.device, info.surface, &formatCount, nullptr);
+
+
   m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
+  if (formatCount != 0) {
+    surfaceFormats.resize(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(info.device, info.surface, &formatCount, surfaceFormats.data());
+  }
+
+  std::vector<VkPresentModeKHR> surfacePresentModes;
+
+  uint32_t presentModeCount = 0;
+  vkGetPhysicalDeviceSurfacePresentModesKHR(info.device, info.surface, &presentModeCount, nullptr);
+
+  if (presentModeCount != 0) {
+    surfacePresentModes.resize(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(info.device, info.surface, &presentModeCount, surfacePresentModes.data());
+  }
+
+  VkSurfaceFormatKHR selectedSurfaceFormat = surfaceFormats[0];
+  for (const auto& availableFormat : surfaceFormats) {
+    if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+      selectedSurfaceFormat = availableFormat;
+      break;
+    }
+  }
+
+  // VK_PRESENT_MODE_FIFO_KHR is always available
+  VkPresentModeKHR selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+  // Try to find a better mode
+  for (const auto& availablePresentMode : surfacePresentModes) {
+    if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+      selectedPresentMode = availablePresentMode;
+    }
+  }
+
+  VkExtent2D swapExtent;
+  if (surfaceCapabilities.currentExtent.width != UINT32_MAX) {
+    swapExtent = surfaceCapabilities.currentExtent;
+  } else {
+    const uint32_t MAX_WIDTH = 8192;
+    const uint32_t MAX_HEIGHT = 8192;
+    swapExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, MAX_WIDTH));
+    swapExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, MAX_HEIGHT));
+   }
 
   return KR_SUCCESS;
 #else
