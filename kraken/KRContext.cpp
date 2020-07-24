@@ -671,9 +671,9 @@ KRContext::createDeviceContexts()
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   app_info.pNext = NULL;
   app_info.pApplicationName = "Test"; // TODO - Change Me!
-  app_info.applicationVersion = 1;
+  app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
   app_info.pEngineName = "Kraken Engine";
-  app_info.engineVersion = 1;
+  app_info.engineVersion = VK_MAKE_VERSION(0, 1, 0);
   app_info.apiVersion = VK_API_VERSION_1_0;
 
   // VK_KHR_surface and VK_KHR_win32_surface
@@ -726,6 +726,7 @@ KRContext::destroySurfaces()
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
     SurfaceInfo* surfaceInfo = &(*itr).second;
     vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
+    vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   }
   m_surfaces.clear();
 }
@@ -826,8 +827,20 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (m_surfaces.count(createWindowSurfaceInfo->surfaceHandle)) {
     return KR_ERROR_DUPLICATE_HANDLE;
   }
+  uint32_t deviceCount = 0;
+  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
+  if (deviceCount == 0) {
+    destroyDeviceContexts();
+    return KR_ERROR_NO_DEVICE;
+  }
+
+  const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
+
   SurfaceInfo info{};
   info.surfaceHandle = createWindowSurfaceInfo->surfaceHandle;
+  info.device = VK_NULL_HANDLE;
 
 #ifdef WIN32
   info.hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
@@ -840,6 +853,96 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if(vkCreateWin32SurfaceKHR(m_vulkanInstance, &createInfo, nullptr, &info.surface) != VK_SUCCESS) {
     return KR_ERROR_VULKAN;
   }
+
+  std::vector<VkPhysicalDevice> devices(deviceCount);
+  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
+
+  int selectedDeviceGraphicsFamilyQueue = -1;
+
+  for (const auto& device : devices) {
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    int graphicsFamilyQueue = -1;
+    int i = 0;
+    for (const auto& queueFamily : queueFamilies) {
+      if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+        graphicsFamilyQueue = i;
+      }
+      i++;
+    }
+    if (graphicsFamilyQueue == -1) {
+      // No graphics queue family, not suitable
+      continue;
+    }
+
+    VkBool32 presentSupport = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device, graphicsFamilyQueue, info.surface, &presentSupport);
+    if (!presentSupport) {
+      // Can't present to this surface, not suitable
+      continue;
+    }
+
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions) {
+      requiredExtensions.erase(extension.extensionName);
+    }
+    if (!requiredExtensions.empty()) {
+      // Missing a required extension
+      continue;
+    }
+
+    // This one will work
+    if (info.device == VK_NULL_HANDLE) {
+      info.device = device;
+      selectedDeviceGraphicsFamilyQueue = graphicsFamilyQueue;
+    } else {
+      // We need to choose the best one...
+      // TODO - Implement
+    }
+  }
+  if (info.device == VK_NULL_HANDLE) {
+    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+    return KR_ERROR_NO_DEVICE;
+  }
+
+
+  VkDeviceQueueCreateInfo queueCreateInfo{};
+  queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueCreateInfo.queueFamilyIndex = selectedDeviceGraphicsFamilyQueue;
+  queueCreateInfo.queueCount = 1;
+  float queuePriority = 1.0f;
+  queueCreateInfo.pQueuePriorities = &queuePriority;
+
+  VkDeviceCreateInfo deviceCreateInfo{};
+  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+  deviceCreateInfo.queueCreateInfoCount = 1;
+  VkPhysicalDeviceFeatures deviceFeatures{};
+  deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+  deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
+  if (vkCreateDevice(info.device, &deviceCreateInfo, nullptr, &info.logicalDevice) != VK_SUCCESS) {
+    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+    return KR_ERROR_NO_DEVICE;
+  }
+  vkGetDeviceQueue(info.logicalDevice, selectedDeviceGraphicsFamilyQueue, 0, &info.graphicsQueue);
+
   m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
 
   return KR_SUCCESS;
@@ -863,6 +966,7 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   }
   SurfaceInfo* surfaceInfo = &(*itr).second;
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
+  vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
 }

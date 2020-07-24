@@ -177,6 +177,9 @@ private:
     typedef struct {
       KrSurfaceHandle surfaceHandle;
       VkSurfaceKHR surface;
+      VkPhysicalDevice device;
+      VkDevice logicalDevice;
+      VkQueue graphicsQueue;
 #ifdef WIN32
       HWND hWnd;
 #endif
