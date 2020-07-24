@@ -42,20 +42,20 @@ KrResult KrShutdown()
   return KR_SUCCESS;
 }
 
-KrResult KrCreateSurface(const KrCreateWindowSurfaceInfo* pCreateSurfaceInfo)
+KrResult KrCreateWindowSurface(const KrCreateWindowSurfaceInfo* pCreateWindowSurfaceInfo)
 {
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return sContext->createWindowSurface(pCreateSurfaceInfo);
+  return sContext->createWindowSurface(pCreateWindowSurfaceInfo);
 }
 
-KrResult KrDeleteSurface(const KrDeleteWindowSurfaceInfo* pDeleteSurfaceInfo)
+KrResult KrDeleteWindowSurface(const KrDeleteWindowSurfaceInfo* pDeleteWindowSurfaceInfo)
 {
   if (!sContext) {
     return KR_ERROR_NOT_INITIALIZED;
   }
-  return sContext->deleteWindowSurface(pDeleteSurfaceInfo);
+  return sContext->deleteWindowSurface(pDeleteWindowSurfaceInfo);
 }
 
 KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo)

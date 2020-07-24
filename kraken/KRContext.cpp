@@ -164,7 +164,7 @@ KRContext::~KRContext() {
         delete m_pBundleManager;
         m_pBundleManager = NULL;
     }
-    
+    destroySurfaces();
     destroyDeviceContexts();
     if (m_resourceMap) {
         delete m_resourceMap;
@@ -676,6 +676,14 @@ KRContext::createDeviceContexts()
   app_info.engineVersion = 1;
   app_info.apiVersion = VK_API_VERSION_1_0;
 
+  // VK_KHR_surface and VK_KHR_win32_surface
+
+  char* extensions[] = {
+    "VK_KHR_surface",
+#ifdef WIN32
+    "VK_KHR_win32_surface",
+#endif
+  };
 
   // initialize the VkInstanceCreateInfo structure
   VkInstanceCreateInfo inst_info = {};
@@ -683,8 +691,12 @@ KRContext::createDeviceContexts()
   inst_info.pNext = NULL;
   inst_info.flags = 0;
   inst_info.pApplicationInfo = &app_info;
-  inst_info.enabledExtensionCount = 0;
-  inst_info.ppEnabledExtensionNames = NULL;
+#ifdef WIN32
+  inst_info.enabledExtensionCount = 2;
+#else
+  inst_info.enabledExtensionCount = 1;
+#endif
+  inst_info.ppEnabledExtensionNames = extensions;
   inst_info.enabledLayerCount = 0;
   inst_info.ppEnabledLayerNames = NULL;
 
@@ -703,6 +715,19 @@ KRContext::destroyDeviceContexts()
     vkDestroyInstance(m_vulkanInstance, NULL);
     m_vulkanInstance = VK_NULL_HANDLE;
   }
+}
+
+void
+KRContext::destroySurfaces()
+{
+  if (m_vulkanInstance == VK_NULL_HANDLE) {
+    return;
+  }
+  for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
+    SurfaceInfo* surfaceInfo = &(*itr).second;
+    vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
+  }
+  m_surfaces.clear();
 }
 
 void
@@ -795,16 +820,29 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (createWindowSurfaceInfo->surfaceHandle < 0) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
+  if (m_vulkanInstance == VK_NULL_HANDLE) {
+    return KR_ERROR_VULKAN_REQUIRED;
+  }
   if (m_surfaces.count(createWindowSurfaceInfo->surfaceHandle)) {
     return KR_ERROR_DUPLICATE_HANDLE;
   }
   SurfaceInfo info{};
   info.surfaceHandle = createWindowSurfaceInfo->surfaceHandle;
+
 #ifdef WIN32
   info.hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
+
+  VkWin32SurfaceCreateInfoKHR createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+  createInfo.hinstance = GetModuleHandle(nullptr);
+  createInfo.hwnd = info.hWnd;
+  
+  if(vkCreateWin32SurfaceKHR(m_vulkanInstance, &createInfo, nullptr, &info.surface) != VK_SUCCESS) {
+    return KR_ERROR_VULKAN;
+  }
   m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
-  // TODO - Complete implementation
-  return KR_ERROR_NOT_IMPLEMENTED;
+
+  return KR_SUCCESS;
 #else
   // Not implemented for this platform
   return KR_ERROR_NOT_IMPLEMENTED;
@@ -816,6 +854,15 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   if (deleteWindowSurfaceInfo->surfaceHandle < 0) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  // TODO - Complete implementation
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (m_vulkanInstance == VK_NULL_HANDLE) {
+    return KR_ERROR_VULKAN_REQUIRED;
+  }
+  auto itr = m_surfaces.find(deleteWindowSurfaceInfo->surfaceHandle);
+  if (itr == m_surfaces.end()) {
+    return KR_ERROR_NOT_FOUND;
+  }
+  SurfaceInfo* surfaceInfo = &(*itr).second;
+  vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
+  m_surfaces.erase(itr);
+  return KR_SUCCESS;
 }

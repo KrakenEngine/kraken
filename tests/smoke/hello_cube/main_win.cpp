@@ -17,12 +17,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   if (!RegisterClass(&wc))
     return 1;
 
-  if (!CreateWindow(wc.lpszClassName,
+  HWND hWnd = CreateWindow(wc.lpszClassName,
     L"Kraken Smoke: Cube",
     WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-    0, 0, 640, 480, 0, 0, hInstance, NULL))
-    return 2;
+    0, 0, 640, 480, 0, 0, hInstance, NULL);
 
+  if (!hWnd) {
+    return 2;
+  }
 
   KrInitializeInfo init_info = {};
   init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
@@ -44,10 +46,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	  return 1;
   }
 
+  KrCreateWindowSurfaceInfo create_surface_info = {};
+  create_surface_info.sType = KR_STRUCTURE_TYPE_CREATE_WINDOW_SURFACE;
+  create_surface_info.surfaceHandle = 1;
+  create_surface_info.hWnd = static_cast<void*>(hWnd);
+  res = KrCreateWindowSurface(&create_surface_info);
+  if (res != KR_SUCCESS) {
+    //printf("Failed to create window surface.\n");
+    KrShutdown();
+    return 1;
+  }
+
   smoke_load();
 
   while (GetMessage(&msg, NULL, 0, 0) > 0)
     DispatchMessage(&msg);
+
+  // KrShutdown will delete the window surfaces for us; however, we
+  // include this here for code coverage in tests.
+  KrDeleteWindowSurfaceInfo delete_surface_info = {};
+  delete_surface_info.sType = KR_STRUCTURE_TYPE_DELETE_WINDOW_SURFACE;
+  delete_surface_info.surfaceHandle = 1;
+  res = KrDeleteWindowSurface(&delete_surface_info);
+  if (res != KR_SUCCESS) {
+    //printf("Failed to delete window surface.\n");
+    KrShutdown();
+    return 1;
+  }
 
   KrShutdown();
 

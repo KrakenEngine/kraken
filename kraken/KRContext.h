@@ -171,10 +171,12 @@ private:
     
     void createDeviceContexts();
     void destroyDeviceContexts();
+    void destroySurfaces();
 
     unordered_multimap<std::string, KRResource*> m_resources;
     typedef struct {
       KrSurfaceHandle surfaceHandle;
+      VkSurfaceKHR surface;
 #ifdef WIN32
       HWND hWnd;
 #endif
