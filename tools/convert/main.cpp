@@ -16,6 +16,10 @@ int main( int argc, char *argv[] )
   bool failed = false;
   printf("Kraken Convert\n");
   printf("Initializing Kraken...\n");
+  printf("%i arguments:\n", argc);
+  for (int i = 0; i < argc; i++) {
+    printf("argv[%i]: %s\n", i, argv[i]);
+  }
   KrInitializeInfo init_info = {};
   init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
   init_info.resourceMapSize = 1024;
@@ -143,5 +147,10 @@ int main( int argc, char *argv[] )
   }
 
   KrShutdown();
+  printf("--- after shutdown ----\n");
+  printf("%i arguments:\n", argc);
+  for (int i = 0; i < argc; i++) {
+    printf("argv[%i]: %s\n", i, argv[i]);
+  }
   return failed ? 1 : 0;
 }
