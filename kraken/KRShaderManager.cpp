@@ -115,3 +115,8 @@ const unordered_map<std::string, KRShader *> &KRShaderManager::get(const std::st
     return m_shaders[lower_extension];
 }
 
+
+bool KRShaderManager::compileAll()
+{
+  return true;
+}

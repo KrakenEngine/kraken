@@ -114,6 +114,14 @@ KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo)
   return sContext->moveToBundle(pMoveToBundleInfo);
 }
 
+KrResult KrCompileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->compileAllShaders(pCompileAllShadersInfo);
+}
+
 KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo)
 {
   if (!sContext) {

@@ -106,6 +106,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #endif
     
     createDeviceContexts();
+    glslang::InitializeProcess();
 }
 
 KRContext::~KRContext() {
@@ -170,6 +171,7 @@ KRContext::~KRContext() {
         delete m_resourceMap;
         m_resourceMap = NULL;
     }
+    glslang::FinalizeProcess();
 }
 
 void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)
@@ -491,6 +493,15 @@ KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
     return KR_ERROR_INCORRECT_TYPE;
   }
   return resource->moveToBundle(bundle);
+}
+
+KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo) {
+  bool success = m_pShaderManager->compileAll();
+  if (success) {
+    // TODO - Save log to a resource
+    return KR_SUCCESS;
+  }
+  return KR_ERROR_SHADER_COMPILE_FAILED;
 }
 
 KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)

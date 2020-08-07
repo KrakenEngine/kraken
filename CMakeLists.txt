@@ -237,7 +237,7 @@ SET(STANDARD_ASSET_BUNDLE "${CMAKE_BINARY_DIR}/output/assets/standard_assets.krb
 
 add_custom_command(
     OUTPUT ${STANDARD_ASSET_BUNDLE}
-    COMMAND kraken_convert -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
+    COMMAND kraken_convert -c -o ${STANDARD_ASSET_BUNDLE} ${KRAKEN_STANDARD_ASSETS}
     DEPENDS kraken_convert ${KRAKEN_STANDARD_ASSETS}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	COMMENT "Creating Standard Assets"

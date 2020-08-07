@@ -51,6 +51,8 @@ public:
     KrResult unmapResource(const KrUnmapResourceInfo* unmapResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);
 
+    KrResult compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo);
+
     KrResult createScene(const KrCreateSceneInfo* createSceneInfo);
     KrResult findNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);
     KrResult findAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo);

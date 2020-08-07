@@ -50,6 +50,7 @@ typedef enum {
   KR_ERROR_VULKAN_REQUIRED,
   KR_ERROR_VULKAN_SWAP_CHAIN,
   KR_ERROR_NO_DEVICE,
+  KR_ERROR_SHADER_COMPILE_FAILED,
   KR_ERROR_UNEXPECTED = 0x10000000,
   KR_RESULT_MAX_ENUM = 0x7FFFFFFF
 } KrResult;
@@ -68,6 +69,8 @@ typedef enum {
   KR_STRUCTURE_TYPE_UNMAP_RESOURCE,
   KR_STRUCTURE_TYPE_CREATE_BUNDLE,
   KR_STRUCTURE_TYPE_MOVE_TO_BUNDLE,
+
+  KR_STRUCTURE_TYPE_COMPILE_ALL_SHADERS,
 
   KR_STRUCTURE_TYPE_CREATE_SCENE     = 0x00020000,
 
@@ -164,6 +167,11 @@ typedef struct {
   KrResourceMapIndex resourceHandle;
   KrResourceMapIndex bundleHandle;
 } KrMoveToBundleInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrResourceMapIndex logHandle;
+} KrCompileAllShadersInfo;
 
 typedef struct {
   KrStructureType sType;
@@ -394,6 +402,8 @@ KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo);
 KrResult KrCreateBundle(const KrCreateBundleInfo* pCreateBundleInfo);
 KrResult KrMoveToBundle(const KrMoveToBundleInfo* pMoveToBundleInfo);
 KrResult KrInitNodeInfo(KrNodeInfo* pNodeInfo, KrStructureType nodeType);
+
+KrResult KrCompileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo);
 
 KrResult KrCreateScene(const KrCreateSceneInfo* pCreateSceneInfo);
 KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);

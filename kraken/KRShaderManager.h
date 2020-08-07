@@ -52,7 +52,8 @@ public:
     
     KRShader *load(const std::string &name, const std::string &extension, KRDataBlock *data);
     KRShader *get(const std::string &name, const std::string &extension);
-    
+
+    bool compileAll();
 
     const unordered_map<std::string, KRShader *> &get(const std::string &extension);
     
