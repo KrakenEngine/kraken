@@ -61,6 +61,7 @@ public:
     
 private:
     unordered_map<std::string, unordered_map<std::string, KRShader *> > m_shaders;
+    bool m_initializedGlslang;
 };
 
 #endif /* defined(KRUNKNOWN_MANAGER_H) */

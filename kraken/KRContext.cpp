@@ -106,7 +106,6 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #endif
     
     createDeviceContexts();
-    glslang::InitializeProcess();
 }
 
 KRContext::~KRContext() {
@@ -171,7 +170,6 @@ KRContext::~KRContext() {
         delete m_resourceMap;
         m_resourceMap = NULL;
     }
-    glslang::FinalizeProcess();
 }
 
 void KRContext::SetLogCallback(log_callback *log_callback, void *user_data)

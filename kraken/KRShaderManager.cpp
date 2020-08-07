@@ -33,6 +33,7 @@
 #include "KREngine-common.h"
 
 KRShaderManager::KRShaderManager(KRContext &context) : KRResourceManager(context)
+, m_initializedGlslang(false)
 {
     
 }
@@ -43,6 +44,9 @@ KRShaderManager::~KRShaderManager()
         for(unordered_map<std::string, KRShader *>::iterator name_itr=(*extension_itr).second.begin(); name_itr != (*extension_itr).second.end(); name_itr++) {
             delete (*name_itr).second;
         }
+    }
+    if (m_initializedGlslang) {
+        glslang::FinalizeProcess();
     }
 }
 
@@ -118,5 +122,9 @@ const unordered_map<std::string, KRShader *> &KRShaderManager::get(const std::st
 
 bool KRShaderManager::compileAll()
 {
+  if (!m_initializedGlslang) {
+    glslang::InitializeProcess();
+    m_initializedGlslang = true;
+  }
   return true;
 }
