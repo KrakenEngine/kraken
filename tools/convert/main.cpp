@@ -47,26 +47,52 @@ int main( int argc, char *argv[] )
   char* output_bundle = nullptr;
   bool compile_shaders = false;
 
+  char command = '\0';
   for (int i = 1; i < argc && !failed; i++) {
     char *arg = argv[i];
-	  if (arg[0] == '-') {
-	    continue;
-	  }
-	  if (i > 1 && argv[i - 1][0] == '-') {
-      char command = argv[i - 1][1];
+    if (arg[0] == '-') {
+      if (command != '\0') {
+        // The last command is expecting a parameter, not another command.
+        printf("Invalid syntax. '%s' not expected after '-%c'\n", arg, command);
+        failed = true;
+        continue;
+      }
+      if (arg[1] == '\0') {
+        // We received a lonely '-'
+        printf("Invalid syntax. '-' must be followed by a command.\n");
+        failed = true;
+        continue;
+      }
+      if (arg[2] != '\0') {
+        // All commands are currently one character long
+        printf("Unknown command: '%s'\n", arg);
+        failed = true;
+        continue;
+      }
+      command = arg[1];
       switch (command) {
-      case 'o':
-        output_bundle = arg;
-        break;
       case 'c':
         compile_shaders = true;
+        command = '\0';
+        break;
+      case 'o':
+        // Next arg will be the output path
         break;
       default:
-        printf("Unknown command: -%c\n", command);
-        break;
+        printf("Unknown command: '%s'\n", arg);
+        failed = true;
+        continue;
       }
       continue;
-	  }
+    }
+
+    // Process commands that receive arguments
+    switch (command) {
+      case 'o':
+        output_bundle = arg;
+        command = '\0';
+        continue;
+    }
 
     load_resource_info.pResourcePath = arg;
 	  printf("loading %s... ", arg);
@@ -74,20 +100,20 @@ int main( int argc, char *argv[] )
       if (res != KR_SUCCESS) {
         printf("[FAIL] (KrLoadResource)\n");
         failed = true;
-		  continue;
+		    continue;
       }
       move_to_bundle_info.resourceHandle = ResourceMapping::loaded_resource;
       res = KrMoveToBundle(&move_to_bundle_info);
       if (res != KR_SUCCESS) {
         printf("[FAIL] (KrMoveToBundle)\n");
         failed = true;
-		  continue;
+		    continue;
     }
 	  printf("[GOOD]\n");
   }
 
   if (compile_shaders && !failed) {
-    printf("Compiling Shaders...\n");
+    printf("Compiling Shaders... ");
     KrCompileAllShadersInfo compile_all_shaders_info = {};
     compile_all_shaders_info.sType = KR_STRUCTURE_TYPE_COMPILE_ALL_SHADERS;
     compile_all_shaders_info.logHandle = ResourceMapping::shader_compile_log;
