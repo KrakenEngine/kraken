@@ -1,6 +1,10 @@
 #include "main.h"
 
 #include <stdio.h>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
 #include "kraken.h"
 
 using namespace kraken;
@@ -16,10 +20,6 @@ int main( int argc, char *argv[] )
   bool failed = false;
   printf("Kraken Convert\n");
   printf("Initializing Kraken...\n");
-  printf("%i arguments:\n", argc);
-  for (int i = 0; i < argc; i++) {
-    printf("argv[%i]: %s\n", i, argv[i]);
-  }
   KrInitializeInfo init_info = {};
   init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
   init_info.resourceMapSize = 1024;
@@ -50,6 +50,9 @@ int main( int argc, char *argv[] )
 
   char* output_bundle = nullptr;
   bool compile_shaders = false;
+  char* input_list_file = nullptr;
+
+  std::vector<std::string> input_files;
 
   char command = '\0';
   for (int i = 1; i < argc && !failed; i++) {
@@ -79,6 +82,7 @@ int main( int argc, char *argv[] )
         compile_shaders = true;
         command = '\0';
         break;
+      case 'i':
       case 'o':
         // Next arg will be the output path
         break;
@@ -92,28 +96,55 @@ int main( int argc, char *argv[] )
 
     // Process commands that receive arguments
     switch (command) {
+      case 'i':
+        input_list_file = arg;
+        command = '\0';
+        continue;
       case 'o':
         output_bundle = arg;
         command = '\0';
         continue;
     }
 
-    load_resource_info.pResourcePath = arg;
-	  printf("loading %s... ", arg);
-      res = KrLoadResource(&load_resource_info);
-      if (res != KR_SUCCESS) {
-        printf("[FAIL] (KrLoadResource)\n");
-        failed = true;
-		    continue;
+    input_files.push_back(arg);
+  }
+
+  if (input_list_file != nullptr) {
+    printf("Reading %s... ", input_list_file);
+    std::ifstream in(input_list_file);
+    if (!in) {
+      printf("[FAIL]\n");
+      failed = true;
+    } else {
+      for (std::string line; std::getline(in, line); ) {
+        const std::string ws = "\t ";
+        line.erase(0, line.find_first_not_of(ws));
+        line.erase(line.find_last_not_of(ws) + 1);
+        if (!line.empty()) {
+          input_files.push_back(line);
+        }
       }
-      move_to_bundle_info.resourceHandle = ResourceMapping::loaded_resource;
-      res = KrMoveToBundle(&move_to_bundle_info);
-      if (res != KR_SUCCESS) {
-        printf("[FAIL] (KrMoveToBundle)\n");
-        failed = true;
-		    continue;
     }
-	  printf("[GOOD]\n");
+    printf("[GOOD]\n");
+  }
+
+  for (const std::string& file_name : input_files) {
+    load_resource_info.pResourcePath = file_name.c_str();
+    printf("loading %s... ", load_resource_info.pResourcePath);
+    res = KrLoadResource(&load_resource_info);
+    if (res != KR_SUCCESS) {
+      printf("[FAIL] (KrLoadResource)\n");
+      failed = true;
+      continue;
+    }
+    move_to_bundle_info.resourceHandle = ResourceMapping::loaded_resource;
+    res = KrMoveToBundle(&move_to_bundle_info);
+    if (res != KR_SUCCESS) {
+      printf("[FAIL] (KrMoveToBundle)\n");
+      failed = true;
+      continue;
+    }
+    printf("[GOOD]\n");
   }
 
   if (compile_shaders && !failed) {
@@ -147,10 +178,5 @@ int main( int argc, char *argv[] )
   }
 
   KrShutdown();
-  printf("--- after shutdown ----\n");
-  printf("%i arguments:\n", argc);
-  for (int i = 0; i < argc; i++) {
-    printf("argv[%i]: %s\n", i, argv[i]);
-  }
   return failed ? 1 : 0;
 }
