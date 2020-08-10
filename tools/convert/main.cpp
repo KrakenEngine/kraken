@@ -165,7 +165,7 @@ int main( int argc, char *argv[] )
         } else {
           // result.data will be a null terminated string
           if (result.data != nullptr) {
-            printf("Shader compile log:\n%s\n", result.data);
+            printf("Shader compile log:\n%s\n", static_cast<char *>(result.data));
           }
         }
       });
