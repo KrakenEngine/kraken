@@ -449,6 +449,32 @@ KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
   return KR_SUCCESS;
 }
 
+KrResult KRContext::getResourceData(const KrGetResourceDataInfo* getResourceDataInfo, KrGetResourceDataCallback callback)
+{
+  if (getResourceDataInfo->resourceHandle < 0 || getResourceDataInfo->resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  // TODO - This will be asynchronous...
+  KRDataBlock data;
+  KrGetResourceDataResult result = {};
+  if (m_resourceMap[getResourceDataInfo->resourceHandle] == nullptr) {
+    result.result = KR_ERROR_NOT_MAPPED;
+    callback(result);
+  } else if (m_resourceMap[getResourceDataInfo->resourceHandle]->save(data)) {
+    data.lock();
+    result.data = data.getStart();
+    result.length = static_cast<size_t>(data.getSize());
+    result.result = KR_SUCCESS;
+    callback(result);
+    data.unlock();
+  } else {
+    result.result = KR_ERROR_UNEXPECTED;
+    callback(result);
+  }
+ 
+  return KR_SUCCESS;
+}
+
 KrResult KRContext::createScene(const KrCreateSceneInfo* createSceneInfo)
 {
   if (createSceneInfo->resourceHandle < 0 || createSceneInfo->resourceHandle >= m_resourceMapSize) {
@@ -493,8 +519,26 @@ KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
   return resource->moveToBundle(bundle);
 }
 
-KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo) {
-  bool success = m_pShaderManager->compileAll();
+KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo)
+{
+  if (pCompileAllShadersInfo->logHandle < -1 || pCompileAllShadersInfo->logHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+
+  KRResource* existing_log = m_pUnknownManager->getResource("shader_compile", "log");
+  KRUnknown* logResource = nullptr;
+  if (existing_log != nullptr) {
+    logResource = dynamic_cast<KRUnknown*>(existing_log);
+  }
+  if (logResource == nullptr) {
+    logResource = new KRUnknown(*this, "shader_compile", "log");
+    m_pUnknownManager->add(logResource);
+  }
+  if (pCompileAllShadersInfo->logHandle != -1) {
+    m_resourceMap[pCompileAllShadersInfo->logHandle] = logResource;
+  }
+
+  bool success = m_pShaderManager->compileAll(logResource);
   if (success) {
     // TODO - Save log to a resource
     return KR_SUCCESS;

@@ -74,6 +74,15 @@ KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo)
   return sContext->unloadResource(pUnloadResourceInfo);
 }
 
+
+KrResult KrGetResourceData(const KrGetResourceDataInfo* pGetResourceDataInfo, KrGetResourceDataCallback callback)
+{
+  if (!sContext) {
+    return KR_ERROR_NOT_INITIALIZED;
+  }
+  return sContext->getResourceData(pGetResourceDataInfo, callback);
+}
+
 KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo)
 {
   if (!sContext) {

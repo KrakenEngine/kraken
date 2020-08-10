@@ -64,6 +64,7 @@ typedef enum {
 
   KR_STRUCTURE_TYPE_LOAD_RESOURCE    = 0x00010000,
   KR_STRUCTURE_TYPE_UNLOAD_RESOURCE,
+  KR_STRUCTURE_TYPE_GET_RESOURCE_DATA,
   KR_STRUCTURE_TYPE_SAVE_RESOURCE,
   KR_STRUCTURE_TYPE_MAP_RESOURCE,
   KR_STRUCTURE_TYPE_UNMAP_RESOURCE,
@@ -138,6 +139,19 @@ typedef struct {
   KrStructureType sType;
   KrResourceMapIndex resourceHandle;
 } KrUnloadResourceInfo;
+
+typedef struct {
+  KrStructureType sType;
+  KrResourceMapIndex resourceHandle;
+} KrGetResourceDataInfo;
+
+typedef struct {
+  KrResult result;
+  void* data;
+  size_t length;
+} KrGetResourceDataResult;
+
+typedef void (*KrGetResourceDataCallback)(const KrGetResourceDataResult&);
 
 typedef struct {
   KrStructureType sType;
@@ -396,6 +410,7 @@ KrResult KrDeleteWindowSurface(const KrDeleteWindowSurfaceInfo* pDeleteWindowSur
 
 KrResult KrLoadResource(const KrLoadResourceInfo* pLoadResourceInfo);
 KrResult KrUnloadResource(const KrUnloadResourceInfo* pUnloadResourceInfo);
+KrResult KrGetResourceData(const KrGetResourceDataInfo* pGetResourceDataInfo, KrGetResourceDataCallback callback);
 KrResult KrSaveResource(const KrSaveResourceInfo* pSaveResourceInfo);
 KrResult KrMapResource(const KrMapResourceInfo* pMapResourceInfo);
 KrResult KrUnmapResource(const KrUnmapResourceInfo* pUnmapResourceInfo);

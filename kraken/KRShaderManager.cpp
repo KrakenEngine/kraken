@@ -33,6 +33,8 @@
 #include "KREngine-common.h"
 #include "KRContext.h"
 #include "KRSourceManager.h"
+#include "KRUnknownManager.h"
+#include "KRUnknown.h"
 
 KRShaderManager::KRShaderManager(KRContext &context) : KRResourceManager(context)
 , m_initializedGlslang(false)
@@ -229,7 +231,7 @@ const TBuiltInResource DefaultTBuiltInResource = {
 } };
 
 
-bool KRShaderManager::compileAll()
+bool KRShaderManager::compileAll(KRUnknown* logResource)
 {
   bool success = true;
   if (!m_initializedGlslang) {
@@ -285,7 +287,8 @@ bool KRShaderManager::compileAll()
         program.addShader(&shader);
       } else {
         const char* log = shader.getInfoLog();
-        printf("Failed to compile shader, %s.  Log:\n%s\n", sourceName.c_str(), log);
+        logResource->getData()->append(log);
+        logResource->getData()->append("\n");
         success = false;
       }
     };
@@ -295,7 +298,8 @@ bool KRShaderManager::compileAll()
     
     if (!program.link(messages)) {
       const char* log = program.getInfoLog();
-      printf("Link failed.  Log:\n%s\n", log);
+      logResource->getData()->append(log);
+      logResource->getData()->append("\n");
       success = false;
     }
     

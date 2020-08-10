@@ -47,6 +47,7 @@ public:
     KrResult moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo);
     KrResult loadResource(const KrLoadResourceInfo* loadResourceInfo);
     KrResult unloadResource(const KrUnloadResourceInfo* unloadResourceInfo);
+    KrResult getResourceData(const KrGetResourceDataInfo* getResourceDataInfo, KrGetResourceDataCallback callback);
     KrResult mapResource(const KrMapResourceInfo* mapResourceInfo);
     KrResult unmapResource(const KrUnmapResourceInfo* unmapResourceInfo);
     KrResult saveResource(const KrSaveResourceInfo* saveResourceInfo);

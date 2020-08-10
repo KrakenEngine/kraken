@@ -155,6 +155,20 @@ int main( int argc, char *argv[] )
     res = KrCompileAllShaders(&compile_all_shaders_info);
     if (res != KR_SUCCESS) {
       printf("[FAIL] (Error %i)\n", res);
+      KrGetResourceDataInfo get_resource_data_info = {};
+      get_resource_data_info.sType = KR_STRUCTURE_TYPE_GET_RESOURCE_DATA;
+      get_resource_data_info.resourceHandle = ResourceMapping::shader_compile_log;
+      res = KrGetResourceData(&get_resource_data_info, [](const KrGetResourceDataResult& result) {
+        // TODO - This will later be asynchronous...  Will need to block rest of execution until returned
+        if (result.result != KR_SUCCESS) {
+          printf("Failed to get shader compile log.  (Error %i)\n", result.result);
+        } else {
+          // result.data will be a null terminated string
+          if (result.data != nullptr) {
+            printf("Shader compile log:\n%s\n", result.data);
+          }
+        }
+      });
       failed = true;
     }
     else {

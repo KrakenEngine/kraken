@@ -318,11 +318,24 @@ void KRDataBlock::append(KRDataBlock &data) {
     data.unlock();
 }
 
-// Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
+// Append string to the end of the block, increasing the size of the block and making it read-write.  The resulting datablock includes a terminating character
 void KRDataBlock::append(const std::string &s)
 {
-    const char *szText = s.c_str();
-    append((void *)szText, strlen(szText)+1);
+  const char* szText = s.c_str();
+  size_t text_length = strlen(szText);
+  size_t prev_size = getSize();
+  if (prev_size == 0) {
+    // First string appended to data block, just memcpy it..
+    append((void*)szText, text_length + 1);
+  } else {
+    // prev_size includes a null terminating character, don't need to add two.
+    expand(prev_size + text_length);
+    lock();
+    // Copy new string, overwriting prior null terminating character and
+    // including new terminating character
+    memcpy((unsigned char*)m_data + prev_size - 1, szText, text_length + 1);
+    unlock();
+  }
 }
 
 // Save the data to a file.
