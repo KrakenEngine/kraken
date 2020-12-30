@@ -252,6 +252,7 @@ add_custom_command(
 
 add_custom_target(standard_assets ALL
     DEPENDS ${STANDARD_ASSET_BUNDLE}
+    SOURCES ${KRAKEN_STANDARD_ASSETS}
     VERBATIM
 )
 
