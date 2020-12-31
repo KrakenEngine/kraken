@@ -1,4 +1,4 @@
-//  Copyright 2019 Kearwood Gilbert. All rights reserved.
+//  Copyright 2020 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -30,13 +30,13 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (std140, binding = 0) uniform buf {
-        mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
+    mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 } ubuf;
 layout (location = 0) in vec4 vertex_position;
 layout (location = 1) in vec2 vertex_uv;
 layout (location = 0) out vec2 textureCoordinate;
 
 void main() {
-   textureCoordinate = vertex_uv;
-   gl_Position = ubuf.mvp_matrix * vertex_position;
+    textureCoordinate = vertex_uv;
+    gl_Position = ubuf.mvp_matrix * vertex_position;
 }

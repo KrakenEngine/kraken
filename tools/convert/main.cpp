@@ -169,7 +169,7 @@ int main( int argc, char *argv[] )
         printf("Failed to get shader compile log.  (Error %i)\n", result.result);
       } else {
         // result.data will be a null terminated string
-        if (result.data != nullptr && static_cast<char*>(result.data)[0] != '\0') {
+        if (result.data != nullptr && result.length > 0) {
           printf("Shader compile log:\n%s\n", static_cast<char *>(result.data));
         }
       }

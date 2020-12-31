@@ -1,19 +1,15 @@
+//  Copyright 2020 Kearwood Gilbert. All rights reserved.
 //
-//  sprite.fsh
-//  KREngine
-//
-//  Copyright 2012 Kearwood Gilbert. All rights reserved.
-//  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
-//  
+//
 //  1. Redistributions of source code must retain the above copyright notice, this list of
 //  conditions and the following disclaimer.
-//  
+//
 //  2. Redistributions in binary form must reproduce the above copyright notice, this list
 //  of conditions and the following disclaimer in the documentation and/or other materials
 //  provided with the distribution.
-//  
+//
 //  THIS SOFTWARE IS PROVIDED BY KEARWOOD GILBERT ''AS IS'' AND ANY EXPRESS OR IMPLIED
 //  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 //  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL KEARWOOD GILBERT OR
@@ -23,18 +19,24 @@
 //  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 //  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  
+//
 //  The views and conclusions contained in the software and documentation are those of the
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
 
-out vec4 colorOut;
+#version 400
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
 
-in mediump vec2 texCoord;
-uniform sampler2D diffuseTexture;
-uniform lowp float material_alpha;
+layout (std140, binding = 0) uniform buf {
+        mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
+        vec4 viewport;
+} ubuf;
+layout (location = 0) in vec2 vertex_uv;
+layout (location = 0) out vec2 textureCoordinate;
 
 void main() {
-    colorOut = vec4(vec3(texture(diffuseTexture, texCoord)), 1.0) * material_alpha;
+    textureCoordinate = vertex_uv;
+    gl_Position = ubuf.mvp_matrix * vec4(vertex_uv.x * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 1.0);
 }

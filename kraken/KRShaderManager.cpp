@@ -288,8 +288,10 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
         program.addShader(&shader);
       } else {
         const char* log = shader.getInfoLog();
-        logResource->getData()->append(log);
-        logResource->getData()->append("\n");
+        if (log[0] != '\0') {
+          logResource->getData()->append(log);
+          logResource->getData()->append("\n");
+        }
         success = false;
       }
     };
@@ -299,8 +301,10 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
     
     if (!program.link(messages)) {
       const char* log = program.getInfoLog();
-      logResource->getData()->append(log);
-      logResource->getData()->append("\n");
+      if (log[0] != '\0') {
+        logResource->getData()->append(log);
+        logResource->getData()->append("\n");
+      }
       success = false;
     }
 
@@ -312,8 +316,11 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
           spv::SpvBuildLogger logger;
           glslang::SpvOptions spvOptions;
           glslang::GlslangToSpv(*program.getIntermediate((EShLanguage)stage), spirv, &logger, &spvOptions);
-          logResource->getData()->append(logger.getAllMessages().c_str());
-          logResource->getData()->append("\n");
+          std::string messages = logger.getAllMessages();
+          if (!messages.empty()) {
+            logResource->getData()->append(messages.c_str());
+            logResource->getData()->append("\n");
+          }
 
           std::string shader_name;
           switch (stage)

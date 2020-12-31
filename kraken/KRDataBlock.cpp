@@ -329,7 +329,7 @@ void KRDataBlock::append(const std::string &s)
     append((void*)szText, text_length + 1);
   } else {
     // prev_size includes a null terminating character, don't need to add two.
-    expand(prev_size + text_length);
+    expand(text_length);
     lock();
     // Copy new string, overwriting prior null terminating character and
     // including new terminating character
