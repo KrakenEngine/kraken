@@ -231,8 +231,9 @@ const TBuiltInResource DefaultTBuiltInResource = {
 } };
 
 
-bool KRShaderManager::compileAll(KRUnknown* logResource)
+bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
 {
+  // TODO - Refactoring / cleanup needed once Vulkan shaders working...
   bool success = true;
   if (!m_initializedGlslang) {
     glslang::InitializeProcess();
@@ -301,6 +302,40 @@ bool KRShaderManager::compileAll(KRUnknown* logResource)
       logResource->getData()->append(log);
       logResource->getData()->append("\n");
       success = false;
+    }
+
+    if (success) {
+      for (int stage = 0; stage < EShLangCount; ++stage) {
+
+        if (program.getIntermediate((EShLanguage)stage)) {
+          std::vector<unsigned int> spirv;
+          spv::SpvBuildLogger logger;
+          glslang::SpvOptions spvOptions;
+          glslang::GlslangToSpv(*program.getIntermediate((EShLanguage)stage), spirv, &logger, &spvOptions);
+          logResource->getData()->append(logger.getAllMessages().c_str());
+          logResource->getData()->append("\n");
+
+          std::string shader_name;
+          switch (stage)
+          {
+          case EShLangVertex:
+            shader_name = vertSourceName;
+            break;
+          case EShLangFragment:
+            shader_name = fragSourceName;
+            break;
+          }
+          if (!shader_name.empty()) {
+            KRDataBlock* data = new KRDataBlock();
+            data->append(static_cast<void*>(spirv.data()), spirv.size() * sizeof(unsigned int));
+            KRShader* shader = new KRShader(getContext(), shader_name, "spv", data);
+            add(shader);
+            if (outputBundle) {
+              shader->moveToBundle(outputBundle);
+            }
+          }
+        }
+      }
     }
     
     if (vertSource) {

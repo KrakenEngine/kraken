@@ -184,6 +184,7 @@ typedef struct {
 
 typedef struct {
   KrStructureType sType;
+  KrResourceMapIndex bundleHandle;
   KrResourceMapIndex logHandle;
 } KrCompileAllShadersInfo;
 

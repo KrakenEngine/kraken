@@ -35,6 +35,7 @@ using namespace kraken;
 
 #include "../3rdparty/tinyxml2/tinyxml2.h"
 #include "../3rdparty/glslang/glslang/Public/ShaderLang.h"
+#include "../3rdparty/glslang/SPIRV/GlslangToSpv.h"
 #if defined(__APPLE__)
 
 #include <sys/mman.h>

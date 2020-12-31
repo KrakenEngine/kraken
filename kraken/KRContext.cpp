@@ -521,6 +521,17 @@ KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
 
 KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo)
 {
+  if (pCompileAllShadersInfo->bundleHandle < 0 || pCompileAllShadersInfo->bundleHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* bundleResource = m_resourceMap[pCompileAllShadersInfo->bundleHandle];
+  if (bundleResource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRBundle* bundle = dynamic_cast<KRBundle*>(bundleResource);
+  if (bundle == nullptr) {
+    return KR_ERROR_INCORRECT_TYPE;
+  }
   if (pCompileAllShadersInfo->logHandle < -1 || pCompileAllShadersInfo->logHandle >= m_resourceMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
@@ -538,9 +549,8 @@ KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAll
     m_resourceMap[pCompileAllShadersInfo->logHandle] = logResource;
   }
 
-  bool success = m_pShaderManager->compileAll(logResource);
+  bool success = m_pShaderManager->compileAll(bundle, logResource);
   if (success) {
-    // TODO - Save log to a resource
     return KR_SUCCESS;
   }
   return KR_ERROR_SHADER_COMPILE_FAILED;
