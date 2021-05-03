@@ -182,6 +182,8 @@ private:
       VkSurfaceKHR surface;
       VkPhysicalDevice device;
       VkDevice logicalDevice;
+      VkPhysicalDeviceProperties deviceProperties;
+      VkPhysicalDeviceFeatures deviceFeatures;
       VkQueue graphicsQueue;
       VkQueue presentQueue;
       VkSwapchainKHR swapChain;

@@ -924,7 +924,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   int selectedDeviceGraphicsFamilyQueue = -1;
   int selectedDevicePresentFamilyQueue = -1;
 
-  for (const auto& device : devices) {
+  for (const VkPhysicalDevice& device : devices) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -976,14 +976,28 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
       continue;
     }
 
-    // This one will work
+    bool bestDevice = false;
     if (info.device == VK_NULL_HANDLE) {
+      bestDevice = true;
+    }
+    else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+      // Discrete GPU's are always the best choice
+      bestDevice = true;
+    }
+    else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+      // Integrated GPU's are the second best choice
+      bestDevice = true;
+    } else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+      // Virtual GPU's are the 3rd best choice
+      bestDevice = true;
+    }
+    // TODO - We should resolve any remaining options based on user preference
+    if (bestDevice) {
       info.device = device;
+      info.deviceProperties = deviceProperties;
+      info.deviceFeatures = deviceFeatures;
       selectedDeviceGraphicsFamilyQueue = graphicsFamilyQueue;
       selectedDevicePresentFamilyQueue = presentFamilyQueue;
-    } else {
-      // We need to choose the best one...
-      // TODO - Implement
     }
   }
   if (info.device == VK_NULL_HANDLE) {
