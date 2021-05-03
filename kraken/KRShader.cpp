@@ -63,3 +63,20 @@ KRDataBlock *KRShader::getData()
 {
     return m_pData;
 }
+
+bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
+{
+  bool success = true;
+  VkShaderModuleCreateInfo createInfo{};
+  m_pData->lock();
+  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.codeSize = m_pData->getSize();
+  createInfo.pCode = reinterpret_cast<const uint32_t*>(m_pData->getStart());
+  
+  VkShaderModule shaderModule;
+  if (vkCreateShaderModule(device, &createInfo, nullptr, &module) != VK_SUCCESS) {
+    success = false;
+  }
+  m_pData->unlock();
+  return success;
+}
