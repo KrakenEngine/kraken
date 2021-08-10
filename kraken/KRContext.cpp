@@ -921,8 +921,8 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
 
-  int selectedDeviceGraphicsFamilyQueue = -1;
-  int selectedDevicePresentFamilyQueue = -1;
+  uint32_t selectedDeviceGraphicsFamilyQueue = -1;
+  uint32_t selectedDevicePresentFamilyQueue = -1;
 
   for (const VkPhysicalDevice& device : devices) {
     VkPhysicalDeviceProperties deviceProperties;
@@ -936,9 +936,9 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    int graphicsFamilyQueue = -1;
-    int presentFamilyQueue = -1;
-    int i = 0;
+    uint32_t graphicsFamilyQueue = -1;
+    uint32_t presentFamilyQueue = -1;
+    uint32_t i = 0;
     for (const auto& queueFamily : queueFamilies) {
       if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
         graphicsFamilyQueue = i;
