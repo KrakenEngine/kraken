@@ -1,15 +1,8 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.16)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-else(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    # Likely MSVC...
-    # Build with more cores
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (WIN32)
   add_definitions(-D_HAS_EXCEPTIONS=0)
@@ -18,9 +11,6 @@ endif()
 if (NOT WIN32 AND NOT ANDROID)
   set(CMAKE_CXX_COMPILER "clang++")
 endif()
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project (Kraken)
 
@@ -205,7 +195,7 @@ PROPERTIES
   PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
   PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
   ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
-  OUTPUT_NAME kraken
+  OUTPUT_NAME kraken_static
 )
 
 add_library(kraken_dynamic SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
