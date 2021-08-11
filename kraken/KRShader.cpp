@@ -42,6 +42,7 @@ KRShader::KRShader(KRContext &context, std::string name, std::string extension, 
 {
     m_pData = data;
     m_extension = extension;
+    m_subExtension = KRResource::GetFileExtension(name);
 }
 
 KRShader::~KRShader()
