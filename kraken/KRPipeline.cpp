@@ -35,6 +35,7 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
+#include "KRContext.h"
 
 
 const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
@@ -112,15 +113,13 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
-  VkExtent2D swapChainExtent;
-  swapChainExtent.width = 1024; // TODO - Test code
-  swapChainExtent.height = 768; // TODO - Test code
+  m_graphicsPipeline = nullptr;
+  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(0); // TODO - Support multiple surfaces
 
   strcpy(m_szKey, szKey);
 
   const int kMaxStages = 4;
   VkPipelineShaderStageCreateInfo stages[kMaxStages];
-  std::vector<std::string> stageNames;
   memset(static_cast<void*>(stages), 0, sizeof(VkPipelineShaderStageCreateInfo) * kMaxStages);
   size_t stage_count = 0;
 
@@ -139,10 +138,38 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
       // failed! TODO - Error handling
     }
     stageInfo.module = shaderModule;
-    const std::string& stageName = stageNames.emplace_back(shader->getName());
-    
+    stageInfo.pName = "main";
+  }
 
-    stageInfo.pName = stageName.c_str();
+  VkAttachmentDescription colorAttachment{};
+  colorAttachment.format = surface.swapChainImageFormat;
+  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference colorAttachmentRef{};
+  colorAttachmentRef.attachment = 0;
+  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkSubpassDescription subpass{};
+  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.colorAttachmentCount = 1;
+  subpass.pColorAttachments = &colorAttachmentRef;
+
+  VkRenderPass renderPass = nullptr;
+  VkRenderPassCreateInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderPassInfo.attachmentCount = 1;
+  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.subpassCount = 1;
+  renderPassInfo.pSubpasses = &subpass;
+
+  if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+    // failed! TODO - Error handling
   }
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -160,14 +187,14 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float)swapChainExtent.width;
-  viewport.height = (float)swapChainExtent.height;
+  viewport.width = (float)surface.swapChainExtent.width;
+  viewport.height = (float)surface.swapChainExtent.height;
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor{};
   scissor.offset = { 0, 0 };
-  scissor.extent = swapChainExtent;
+  scissor.extent = surface.swapChainExtent;
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -226,12 +253,32 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-  VkPipelineLayout pipelineLayout;
+  VkPipelineLayout pipelineLayout = nullptr;
   if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
-  // TODO - WIP, need to complete
+  VkGraphicsPipelineCreateInfo pipelineInfo{};
+  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipelineInfo.stageCount = stage_count;
+  pipelineInfo.pStages = stages;
+  pipelineInfo.pVertexInputState = &vertexInputInfo;
+  pipelineInfo.pInputAssemblyState = &inputAssembly;
+  pipelineInfo.pViewportState = &viewportState;
+  pipelineInfo.pRasterizationState = &rasterizer;
+  pipelineInfo.pMultisampleState = &multisampling;
+  pipelineInfo.pDepthStencilState = nullptr;
+  pipelineInfo.pColorBlendState = &colorBlending;
+  pipelineInfo.pDynamicState = nullptr;
+  pipelineInfo.layout = pipelineLayout;
+  pipelineInfo.renderPass = renderPass;
+  pipelineInfo.subpass = 0;
+  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+  pipelineInfo.basePipelineIndex = -1;
+
+  if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
+    // Failed! TODO - Error handling
+  }
 }
 
 KRPipeline::KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
@@ -343,7 +390,12 @@ KRPipeline::KRPipeline(KRContext &context, char *szKey, std::string options, std
 }
 
 KRPipeline::~KRPipeline() {
+  if (m_graphicsPipeline) {
+    // TODO: vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
+  }
+  
   // TODO: vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+  // TODO: vkDestroyRenderPass(device, renderPass, nullptr);
 
     if(m_iProgram) {
         GLDEBUG(glDeleteProgram(m_iProgram));
