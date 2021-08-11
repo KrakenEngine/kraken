@@ -196,6 +196,10 @@ private:
 #endif
     } SurfaceInfo;
     unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
+    std::thread m_presentationThread;
+    void presentationThreadFunc();
+    std::atomic<bool> m_stop;
+    void renderFrame();
 };
 
 #endif

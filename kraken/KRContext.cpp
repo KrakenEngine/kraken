@@ -106,9 +106,13 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #endif
     
     createDeviceContexts();
+
+    m_presentationThread = std::thread(&KRContext::presentationThreadFunc, this);
 }
 
 KRContext::~KRContext() {
+  m_stop = true;
+  m_presentationThread.join();
     if(m_pSceneManager) {
         delete m_pSceneManager;
         m_pSceneManager = NULL;
@@ -1186,4 +1190,28 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
+}
+
+void KRContext::presentationThreadFunc()
+{
+#if defined(ANDROID)
+  // TODO - Set thread names on Android
+#elif defined(_WIN32) || defined(_WIN64)
+  // TODO - Set thread names on windows
+#else
+  pthread_setname_np("Kraken - Presentation");
+#endif
+
+  std::chrono::microseconds sleep_duration(15000);
+
+  while (!m_stop)
+  {
+    renderFrame();
+    std::this_thread::sleep_for(sleep_duration);
+  }
+}
+
+void KRContext::renderFrame()
+{
+
 }
