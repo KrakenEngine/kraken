@@ -62,6 +62,21 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
+void KRPipelineManager::createPipelines(VkDevice& device)
+{
+  {
+    // simple_blit
+    std::string pipeline_name = "simple_blit";
+    std::vector<KRShader*> shaders;
+    shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".vert", "spv"));
+    shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".frag", "spv"));
+    KRPipeline* pipeline = new KRPipeline(*m_pContext, device, pipeline_name.c_str(), shaders);
+    std::pair<std::string, std::vector<int> > key;
+    key.first = pipeline_name;
+    m_pipelines[key] = pipeline;
+  }
+}
+
 
 KRPipeline *KRPipelineManager::getPipeline(const std::string &pipeline_name, KRCamera *pCamera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, bool bRimColor) {
     

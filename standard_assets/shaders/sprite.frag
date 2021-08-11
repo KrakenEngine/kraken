@@ -38,8 +38,6 @@ layout (binding = 1) uniform sampler2D diffuseTexture;
 layout (location = 0) in vec2 textureCoordinate;
 layout (location = 0) out vec4 colorOut;
 
-in mediump vec2 texCoord;
-
 void main() {
-    colorOut = vec4(vec3(texture(diffuseTexture, texCoord)), 1.0) * material.alpha;
+    colorOut = vec4(vec3(texture(diffuseTexture, textureCoordinate)), 1.0) * material.alpha;
 }

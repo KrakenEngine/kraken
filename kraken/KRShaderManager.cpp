@@ -257,6 +257,8 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
     glslang::TShader::ForbidIncluder includer;
     glslang::TShader vertShader(EShLangVertex);
     glslang::TShader fragShader(EShLangFragment);
+    vertShader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_5);
+    fragShader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_5);
     glslang::TProgram program; // this must be declared after the TShader's to ensure it is deallocated before the TShader's
     if (vertSource) {
       vertSource->getData()->lock();

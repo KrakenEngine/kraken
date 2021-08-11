@@ -40,8 +40,11 @@
 #include "KRNode.h"
 #include "KRViewport.h"
 
+class KRShader;
+
 class KRPipeline  : public KRContextObject {
 public:
+    KRPipeline(KRContext& context, VkDevice& device, const char* szKey, const std::vector<KRShader*>& shaders);
     KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRPipeline();
     const char *getKey() const;
@@ -119,18 +122,6 @@ public:
         KRENGINE_UNIFORM_FADE_COLOR,
         KRENGINE_NUM_UNIFORMS
     };
-    /*
-    typedef enum {
-        KRENGINE_UNIFORM_TYPE_UNKNOWN,
-        KRENGINE_UNIFORM_TYPE_FLOAT,
-        KRENGINE_UNIFORM_TYPE_INT,
-        KRENGINE_UNIFORM_TYPE_VECTOR2,
-        KRENGINE_UNIFORM_TYPE_VECTOR3,
-        KRENGINE_UNIFORM_TYPE_VECTOR4,
-        KRENGINE_UNIFORM_TYPE_MAT4
-    } uniform_type_t;
-     uniform_type_t m_uniform_type[KRENGINE_NUM_UNIFORMS];
-     */
     
     static const char *KRENGINE_UNIFORM_NAMES[];
     GLint m_uniforms[KRENGINE_NUM_UNIFORMS];

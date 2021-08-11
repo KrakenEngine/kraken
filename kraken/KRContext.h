@@ -128,6 +128,28 @@ public:
 
     static void activateStreamerContext();
     static void activateRenderContext();
+
+    typedef struct {
+      KrSurfaceHandle surfaceHandle;
+      VkSurfaceKHR surface;
+      VkPhysicalDevice device;
+      VkDevice logicalDevice;
+      VkPhysicalDeviceProperties deviceProperties;
+      VkPhysicalDeviceFeatures deviceFeatures;
+      VkQueue graphicsQueue;
+      VkQueue presentQueue;
+      VkSwapchainKHR swapChain;
+      std::vector<VkImage> swapChainImages;
+      VkFormat swapChainImageFormat;
+      VkExtent2D swapChainExtent;
+      std::vector<VkImageView> swapChainImageViews;
+#ifdef WIN32
+      HWND hWnd;
+#endif
+    } SurfaceInfo;
+
+    SurfaceInfo& GetSurfaceInfo(size_t index);
+    size_t GetSurfaceCount() const;
     
 #if TARGET_OS_MAC
     static void attachToView(void *view);
@@ -177,24 +199,7 @@ private:
     void destroySurfaces();
 
     unordered_multimap<std::string, KRResource*> m_resources;
-    typedef struct {
-      KrSurfaceHandle surfaceHandle;
-      VkSurfaceKHR surface;
-      VkPhysicalDevice device;
-      VkDevice logicalDevice;
-      VkPhysicalDeviceProperties deviceProperties;
-      VkPhysicalDeviceFeatures deviceFeatures;
-      VkQueue graphicsQueue;
-      VkQueue presentQueue;
-      VkSwapchainKHR swapChain;
-      std::vector<VkImage> swapChainImages;
-      VkFormat swapChainImageFormat;
-      VkExtent2D swapChainExtent;
-      std::vector<VkImageView> swapChainImageViews;
-#ifdef WIN32
-      HWND hWnd;
-#endif
-    } SurfaceInfo;
+
     unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
     std::thread m_presentationThread;
     void presentationThreadFunc();

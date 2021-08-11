@@ -108,6 +108,41 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
+KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, const std::vector<KRShader*>& shaders)
+  : KRContextObject(context)
+  , m_iProgram(0) // not used for Vulkan
+{
+  strcpy(m_szKey, szKey);
+
+  const int kMaxStages = 4;
+  VkPipelineShaderStageCreateInfo stages[kMaxStages];
+  std::vector<std::string> stageNames;
+  memset(static_cast<void*>(stages), 0, sizeof(VkPipelineShaderStageCreateInfo) * kMaxStages);
+  size_t stage_count = 0;
+
+  for (KRShader* shader : shaders) {
+    VkShaderModule shaderModule;
+    if (!shader->createShaderModule(device, shaderModule)) {
+      // failed! TODO - Error handling
+    }
+    VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
+    stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    if (shader->getSubExtension().compare("vert") == 0) {
+      stageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    } else if (shader->getSubExtension().compare("frag") == 0) {
+      stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    } else {
+      // failed! TODO - Error handling
+    }
+    stageInfo.module = shaderModule;
+    const std::string& stageName = stageNames.emplace_back(shader->getName());
+    
+
+    stageInfo.pName = stageName.c_str();
+  }
+  // TODO - WIP, need to complete
+}
+
 KRPipeline::KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
 {
     strcpy(m_szKey, szKey);

@@ -35,6 +35,7 @@ KRShader::KRShader(KRContext &context, std::string name, std::string extension) 
 {
     m_pData = new KRDataBlock();
     m_extension = extension;
+    m_subExtension = KRResource::GetFileExtension(name);
 }
 
 KRShader::KRShader(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
@@ -51,6 +52,11 @@ KRShader::~KRShader()
 std::string KRShader::getExtension()
 {
     return m_extension;
+}
+
+std::string& KRShader::getSubExtension()
+{
+  return m_subExtension;
 }
 
 bool KRShader::save(KRDataBlock &data)
@@ -73,8 +79,9 @@ bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
   createInfo.codeSize = m_pData->getSize();
   createInfo.pCode = reinterpret_cast<const uint32_t*>(m_pData->getStart());
   
-  VkShaderModule shaderModule;
-  if (vkCreateShaderModule(device, &createInfo, nullptr, &module) != VK_SUCCESS) {
+  VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &module);
+      
+  if(result != VK_SUCCESS) {
     success = false;
   }
   m_pData->unlock();

@@ -1162,6 +1162,8 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     }
   }
 
+  m_pPipelineManager->createPipelines(info.logicalDevice); // TODO - Support multiple surfaces.  Device needs to be passed in.
+
   return KR_SUCCESS;
 #else
   // Not implemented for this platform
@@ -1214,4 +1216,15 @@ void KRContext::presentationThreadFunc()
 void KRContext::renderFrame()
 {
 
+}
+
+KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(size_t index)
+{
+  assert(index < m_surfaces.size());
+  return m_surfaces[index];
+}
+
+size_t KRContext::GetSurfaceCount() const
+{
+  return m_surfaces.size();
 }

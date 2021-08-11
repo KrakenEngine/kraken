@@ -45,6 +45,7 @@ public:
     virtual ~KRShader();
     
     virtual std::string getExtension();
+    std::string& getSubExtension();
 
     bool createShaderModule(VkDevice& device, VkShaderModule& module);
     
@@ -55,6 +56,7 @@ public:
 private:
     
     std::string m_extension;
+    std::string m_subExtension;
     KRDataBlock *m_pData;
 };
 
