@@ -109,8 +109,7 @@ typedef enum {
 
 typedef int KrResourceMapIndex;
 typedef int KrSceneNodeMapIndex;
-typedef int KrSurfaceHandle;
-typedef int KrDeviceHandle;
+typedef int KrSurfaceMapIndex;
 
 typedef struct {
   KrStructureType sType;
@@ -119,7 +118,7 @@ typedef struct {
 
 typedef struct {
   KrStructureType sType;
-  KrSurfaceHandle surfaceHandle;
+  KrSurfaceMapIndex surfaceHandle;
 #if defined(_WIN32) || defined(_WIN64)
   void* hWnd; // Can static cast to HWND
 #endif
@@ -127,7 +126,7 @@ typedef struct {
 
 typedef struct {
   KrStructureType sType;
-  KrSurfaceHandle surfaceHandle;
+  KrSurfaceMapIndex surfaceHandle;
 } KrDeleteWindowSurfaceInfo;
 
 typedef struct {

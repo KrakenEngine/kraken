@@ -129,6 +129,7 @@ public:
     static void activateStreamerContext();
     static void activateRenderContext();
 
+    typedef int KrDeviceHandle;
     typedef struct {
       VkPhysicalDevice device;
       VkDevice logicalDevice;
@@ -140,6 +141,7 @@ public:
       VkQueue computeQueue;
     } DeviceInfo;
 
+    typedef int KrSurfaceHandle;
     typedef struct {
       KrSurfaceHandle surfaceHandle;
       KrDeviceHandle deviceHandle;
