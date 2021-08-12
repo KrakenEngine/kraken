@@ -59,6 +59,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   : m_streamer(*this)
   , m_vulkanInstance(VK_NULL_HANDLE)
   , m_resourceMapSize(initializeInfo->resourceMapSize)
+  , m_topDeviceHandle(0)
 {
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
     memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
@@ -770,14 +771,23 @@ KRContext::createDeviceContexts()
   res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
   if (res != VK_SUCCESS) {
     destroyDeviceContexts();
+    return;
   }
 
   volkLoadInstance(m_vulkanInstance);
+
+  createDevices();
 }
 
 void
 KRContext::destroyDeviceContexts()
 {
+  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
+    DeviceInfo* deviceInfo = &(*itr).second;
+    vkDestroyDevice(deviceInfo->logicalDevice, nullptr);
+  }
+  
+  m_devices.clear();
   if (m_vulkanInstance != VK_NULL_HANDLE) {
     vkDestroyInstance(m_vulkanInstance, NULL);
     m_vulkanInstance = VK_NULL_HANDLE;
@@ -791,10 +801,11 @@ KRContext::destroySurfaces()
     return;
   }
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
-    SurfaceInfo* surfaceInfo = &(*itr).second;
-    vkDestroySwapchainKHR(surfaceInfo->logicalDevice, surfaceInfo->swapChain, nullptr);
-    vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
-    vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
+    SurfaceInfo& surfaceInfo = (*itr).second;
+    DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
+    vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo.swapChain, nullptr);
+    vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo.surface, nullptr);
+    
   }
   m_surfaces.clear();
 }
@@ -895,170 +906,66 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (m_surfaces.count(createWindowSurfaceInfo->surfaceHandle)) {
     return KR_ERROR_DUPLICATE_HANDLE;
   }
-  uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
-  if (deviceCount == 0) {
-    destroyDeviceContexts();
+
+  if (m_devices.size() == 0) {
     return KR_ERROR_NO_DEVICE;
   }
 
-  const std::vector<const char*> deviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-  };
+  // TODO - Support multiple devices rather than just choosing the first
+  DeviceInfo* deviceInfo = nullptr;
+
+#ifdef WIN32
+  HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
 
   SurfaceInfo info{};
   info.surfaceHandle = createWindowSurfaceInfo->surfaceHandle;
-  info.device = VK_NULL_HANDLE;
-
-#ifdef WIN32
-  info.hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
+  info.hWnd = hWnd;
 
   VkWin32SurfaceCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hinstance = GetModuleHandle(nullptr);
-  createInfo.hwnd = info.hWnd;
-  
-  if(vkCreateWin32SurfaceKHR(m_vulkanInstance, &createInfo, nullptr, &info.surface) != VK_SUCCESS) {
+  createInfo.hwnd = hWnd;
+  if (vkCreateWin32SurfaceKHR(m_vulkanInstance, &createInfo, nullptr, &info.surface) != VK_SUCCESS) {
     return KR_ERROR_VULKAN;
   }
 
-  std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
-
-  uint32_t selectedDeviceGraphicsFamilyQueue = -1;
-  uint32_t selectedDevicePresentFamilyQueue = -1;
-
-  for (const VkPhysicalDevice& device : devices) {
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-    uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-    uint32_t graphicsFamilyQueue = -1;
-    uint32_t presentFamilyQueue = -1;
-    uint32_t i = 0;
-    for (const auto& queueFamily : queueFamilies) {
-      if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-        graphicsFamilyQueue = i;
-      }
-      VkBool32 presentSupport = false;
-      vkGetPhysicalDeviceSurfaceSupportKHR(device, graphicsFamilyQueue, info.surface, &presentSupport);
-      if (presentSupport) {
-        presentFamilyQueue = i;
-      }
-      i++;
-    }
-    if (graphicsFamilyQueue == -1) {
-      // No graphics queue family, not suitable
-      continue;
-    }
-    if (presentFamilyQueue == -1) {
-      // No present queue family, not suitable
-      continue;
-    }
-
-
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-    for (const auto& extension : availableExtensions) {
-      requiredExtensions.erase(extension.extensionName);
-    }
-    if (!requiredExtensions.empty()) {
-      // Missing a required extension
-      continue;
-    }
-
-    bool bestDevice = false;
-    if (info.device == VK_NULL_HANDLE) {
-      bestDevice = true;
-    }
-    else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-      // Discrete GPU's are always the best choice
-      bestDevice = true;
-    }
-    else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
-      // Integrated GPU's are the second best choice
-      bestDevice = true;
-    } else if (info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && info.deviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
-      // Virtual GPU's are the 3rd best choice
-      bestDevice = true;
-    }
-    // TODO - We should resolve any remaining options based on user preference
-    if (bestDevice) {
-      info.device = device;
-      info.deviceProperties = deviceProperties;
-      info.deviceFeatures = deviceFeatures;
-      selectedDeviceGraphicsFamilyQueue = graphicsFamilyQueue;
-      selectedDevicePresentFamilyQueue = presentFamilyQueue;
+  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
+    DeviceInfo* device = &(*itr).second;
+    VkBool32 canPresent = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device->device, device->graphicsFamilyQueueIndex, info.surface, &canPresent);
+    if (canPresent) {
+      info.deviceHandle = (*itr).first;
+      deviceInfo = device;
+      break;
     }
   }
-  if (info.device == VK_NULL_HANDLE) {
+
+  if (deviceInfo == nullptr) {
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_NO_DEVICE;
   }
-
-  VkDeviceQueueCreateInfo queueCreateInfo[2]{};
-  float queuePriority = 1.0f;
-  queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueCreateInfo[0].queueFamilyIndex = selectedDeviceGraphicsFamilyQueue;
-  queueCreateInfo[0].queueCount = 1;
-  queueCreateInfo[0].pQueuePriorities = &queuePriority;
-  if (selectedDeviceGraphicsFamilyQueue != selectedDevicePresentFamilyQueue) {
-    queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo[1].queueFamilyIndex = selectedDevicePresentFamilyQueue;
-    queueCreateInfo[1].queueCount = 1;
-    queueCreateInfo[1].pQueuePriorities = &queuePriority;
-  }
-
-  VkDeviceCreateInfo deviceCreateInfo{};
-  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-  deviceCreateInfo.queueCreateInfoCount = selectedDeviceGraphicsFamilyQueue == selectedDevicePresentFamilyQueue ? 1 : 2;
-  VkPhysicalDeviceFeatures deviceFeatures{};
-  deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-  deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
-  if (vkCreateDevice(info.device, &deviceCreateInfo, nullptr, &info.logicalDevice) != VK_SUCCESS) {
-    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    return KR_ERROR_NO_DEVICE;
-  }
-  vkGetDeviceQueue(info.logicalDevice, selectedDeviceGraphicsFamilyQueue, 0, &info.graphicsQueue);
-  vkGetDeviceQueue(info.logicalDevice, selectedDevicePresentFamilyQueue, 0, &info.presentQueue);
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities{};
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.device, info.surface, &surfaceCapabilities);
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceInfo->device, info.surface, &surfaceCapabilities);
 
   std::vector<VkSurfaceFormatKHR> surfaceFormats;
   uint32_t formatCount = 0;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(info.device, info.surface, &formatCount, nullptr);
+  vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->device, info.surface, &formatCount, nullptr);
 
-
-  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
+  
   if (formatCount != 0) {
     surfaceFormats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(info.device, info.surface, &formatCount, surfaceFormats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->device, info.surface, &formatCount, surfaceFormats.data());
   }
 
   std::vector<VkPresentModeKHR> surfacePresentModes;
 
   uint32_t presentModeCount = 0;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(info.device, info.surface, &presentModeCount, nullptr);
+  vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->device, info.surface, &presentModeCount, nullptr);
 
   if (presentModeCount != 0) {
     surfacePresentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(info.device, info.surface, &presentModeCount, surfacePresentModes.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->device, info.surface, &presentModeCount, surfacePresentModes.data());
   }
 
   VkSurfaceFormatKHR selectedSurfaceFormat = surfaceFormats[0];
@@ -1106,33 +1013,33 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
   uint32_t queueFamilyIndices[] = {
-    selectedDeviceGraphicsFamilyQueue,
-    selectedDevicePresentFamilyQueue
+    deviceInfo->graphicsFamilyQueueIndex,
+    deviceInfo->computeFamilyQueueIndex
   };
-  if (selectedDeviceGraphicsFamilyQueue == selectedDevicePresentFamilyQueue) {
+  if (deviceInfo->graphicsFamilyQueueIndex == deviceInfo->computeFamilyQueueIndex) {
     swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    swapChainCreateInfo.queueFamilyIndexCount = 0; // Optional
-    swapChainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+    swapChainCreateInfo.queueFamilyIndexCount = 0;
+    swapChainCreateInfo.pQueueFamilyIndices = nullptr;
   } else {
     swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     swapChainCreateInfo.queueFamilyIndexCount = 2;
     swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
   }
+
   swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
   swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   swapChainCreateInfo.presentMode = selectedPresentMode;
   swapChainCreateInfo.clipped = VK_TRUE;
   swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(info.logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
+  if (vkCreateSwapchainKHR(deviceInfo->logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    vkDestroyDevice(info.logicalDevice, nullptr);
     return KR_ERROR_VULKAN_SWAP_CHAIN;
   }
 
-  vkGetSwapchainImagesKHR(info.logicalDevice, info.swapChain, &imageCount, nullptr);
+  vkGetSwapchainImagesKHR(deviceInfo->logicalDevice, info.swapChain, &imageCount, nullptr);
   info.swapChainImages.resize(imageCount);
-  vkGetSwapchainImagesKHR(info.logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
+  vkGetSwapchainImagesKHR(deviceInfo->logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
 
   info.swapChainImageFormat = selectedSurfaceFormat.format;
 
@@ -1152,17 +1059,18 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
-    if (vkCreateImageView(info.logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
+    if (vkCreateImageView(deviceInfo->logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
       for (size_t j = 0; j < i; j++) {
-        vkDestroyImageView(info.logicalDevice, info.swapChainImageViews[j], nullptr);
+        vkDestroyImageView(deviceInfo->logicalDevice, info.swapChainImageViews[j], nullptr);
       }
       vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-      vkDestroyDevice(info.logicalDevice, nullptr);
       return KR_ERROR_VULKAN_SWAP_CHAIN;
     }
   }
 
-  m_pPipelineManager->createPipelines(info.logicalDevice); // TODO - Support multiple surfaces.  Device needs to be passed in.
+  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
+
+  m_pPipelineManager->createPipelines(deviceInfo->logicalDevice); // TODO - Support multiple surfaces.  Device needs to be passed in.
 
   return KR_SUCCESS;
 #else
@@ -1184,12 +1092,12 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
     return KR_ERROR_NOT_FOUND;
   }
   SurfaceInfo* surfaceInfo = &(*itr).second;
+  DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo->deviceHandle);
   for (auto imageView : surfaceInfo->swapChainImageViews) {
-    vkDestroyImageView(surfaceInfo->logicalDevice, imageView, nullptr);
+    vkDestroyImageView(deviceInfo.logicalDevice, imageView, nullptr);
   }
-  vkDestroySwapchainKHR(surfaceInfo->logicalDevice, surfaceInfo->swapChain, nullptr);
+  vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo->swapChain, nullptr);
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
-  vkDestroyDevice(surfaceInfo->logicalDevice, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
 }
@@ -1218,13 +1126,150 @@ void KRContext::renderFrame()
 
 }
 
-KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(size_t index)
+KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
 {
-  assert(index < m_surfaces.size());
-  return m_surfaces[index];
+  auto itr = m_surfaces.find(handle);
+  if (itr == m_surfaces.end()) {
+    assert(false);
+  }
+  return m_surfaces[handle];
 }
 
-size_t KRContext::GetSurfaceCount() const
+KRContext::DeviceInfo& KRContext::GetDeviceInfo(KrDeviceHandle handle)
 {
-  return m_surfaces.size();
+  return m_devices[handle];
+}
+
+void KRContext::createDevices()
+{
+  if (m_devices.size() > 0) {
+    return;
+  }
+  uint32_t deviceCount = 0;
+  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
+  if (deviceCount == 0) {
+    return;
+  }
+
+  std::vector<VkPhysicalDevice> devices(deviceCount);
+  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
+
+  const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
+
+  std::vector<DeviceInfo> deviceInfos;
+
+  for (const VkPhysicalDevice& device : devices) {
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    uint32_t graphicsFamilyQueue = -1;
+    uint32_t computeFamilyQueue = -1;
+    uint32_t i = 0;
+    for (const auto& queueFamily : queueFamilies) {
+      if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+        graphicsFamilyQueue = i;
+      }
+      if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+        computeFamilyQueue = i;
+      }
+      i++;
+    }
+    if (graphicsFamilyQueue == -1) {
+      // No graphics queue family, not suitable
+      continue;
+    }
+    if (computeFamilyQueue == -1) {
+      // No compute queue family, not suitable
+      continue;
+    }
+
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions) {
+      requiredExtensions.erase(extension.extensionName);
+    }
+    if (!requiredExtensions.empty()) {
+      // Missing a required extension
+      continue;
+    }
+
+    bool addDevice = false;
+
+
+    if (deviceInfos.empty()) {
+      addDevice = true;
+    } else {
+      VkPhysicalDeviceType collectedType = deviceInfos[0].deviceProperties.deviceType;
+      if (collectedType == deviceProperties.deviceType) {
+        addDevice = true;
+      } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+        // Discrete GPU's are always the best choice
+        deviceInfos.clear();
+        addDevice = true;
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+        // Integrated GPU's are the second best choice
+        deviceInfos.clear();
+        addDevice = true;
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+        // Virtual GPU's are the 3rd best choice
+        deviceInfos.clear();
+        addDevice = true;
+      }
+    }
+    if (addDevice) {
+      DeviceInfo& info = deviceInfos.emplace_back(DeviceInfo{});
+      info.device = device;
+      info.deviceProperties = deviceProperties;
+      info.deviceFeatures = deviceFeatures;
+      info.graphicsFamilyQueueIndex = graphicsFamilyQueue;
+      info.computeFamilyQueueIndex = computeFamilyQueue;     
+    }
+  }
+
+  for (DeviceInfo& info: deviceInfos) {
+    VkDeviceQueueCreateInfo queueCreateInfo[2]{};
+    float queuePriority = 1.0f;
+    queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo[0].queueFamilyIndex = info.graphicsFamilyQueueIndex;
+    queueCreateInfo[0].queueCount = 1;
+    queueCreateInfo[0].pQueuePriorities = &queuePriority;
+    if (info.graphicsFamilyQueueIndex != info.computeFamilyQueueIndex) {
+      queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      queueCreateInfo[1].queueFamilyIndex = info.computeFamilyQueueIndex;
+      queueCreateInfo[1].queueCount = 1;
+      queueCreateInfo[1].pQueuePriorities = &queuePriority;
+    }
+
+    VkDeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
+    deviceCreateInfo.queueCreateInfoCount = info.graphicsFamilyQueueIndex == info.computeFamilyQueueIndex ? 1 : 2;
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    if (vkCreateDevice(info.device, &deviceCreateInfo, nullptr, &info.logicalDevice) != VK_SUCCESS) {
+      // TODO - Log a warning...
+      continue;
+    }
+    vkGetDeviceQueue(info.logicalDevice, info.graphicsFamilyQueueIndex, 0, &info.graphicsQueue);
+    vkGetDeviceQueue(info.logicalDevice, info.computeFamilyQueueIndex, 0, &info.computeQueue);
+    m_devices[++m_topDeviceHandle] = info;
+  }
 }

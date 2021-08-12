@@ -130,14 +130,20 @@ public:
     static void activateRenderContext();
 
     typedef struct {
-      KrSurfaceHandle surfaceHandle;
-      VkSurfaceKHR surface;
       VkPhysicalDevice device;
       VkDevice logicalDevice;
       VkPhysicalDeviceProperties deviceProperties;
       VkPhysicalDeviceFeatures deviceFeatures;
+      uint32_t graphicsFamilyQueueIndex;
       VkQueue graphicsQueue;
-      VkQueue presentQueue;
+      uint32_t computeFamilyQueueIndex;
+      VkQueue computeQueue;
+    } DeviceInfo;
+
+    typedef struct {
+      KrSurfaceHandle surfaceHandle;
+      KrDeviceHandle deviceHandle;
+      VkSurfaceKHR surface;
       VkSwapchainKHR swapChain;
       std::vector<VkImage> swapChainImages;
       VkFormat swapChainImageFormat;
@@ -148,8 +154,8 @@ public:
 #endif
     } SurfaceInfo;
 
-    SurfaceInfo& GetSurfaceInfo(size_t index);
-    size_t GetSurfaceCount() const;
+    DeviceInfo& GetDeviceInfo(KrDeviceHandle handle);
+    SurfaceInfo& GetSurfaceInfo(KrSurfaceHandle handle);
     
 #if TARGET_OS_MAC
     static void attachToView(void *view);
@@ -195,16 +201,22 @@ private:
     VkInstance m_vulkanInstance;
     
     void createDeviceContexts();
+    void createDevices();
     void destroyDeviceContexts();
     void destroySurfaces();
 
     unordered_multimap<std::string, KRResource*> m_resources;
 
+    
     unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
+
     std::thread m_presentationThread;
     void presentationThreadFunc();
     std::atomic<bool> m_stop;
     void renderFrame();
+
+    unordered_map<KrDeviceHandle, DeviceInfo> m_devices;
+    KrDeviceHandle m_topDeviceHandle;
 };
 
 #endif

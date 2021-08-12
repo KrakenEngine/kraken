@@ -113,8 +113,10 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
+  m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
-  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(0); // TODO - Support multiple surfaces
+  m_renderPass = nullptr;
+  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(1); // TODO - Support multiple surfaces
 
   strcpy(m_szKey, szKey);
 
@@ -160,7 +162,6 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
-  VkRenderPass renderPass = nullptr;
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderPassInfo.attachmentCount = 1;
@@ -168,7 +169,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
 
-  if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+  if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -253,8 +254,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-  VkPipelineLayout pipelineLayout = nullptr;
-  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -270,8 +270,8 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   pipelineInfo.pDepthStencilState = nullptr;
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = nullptr;
-  pipelineInfo.layout = pipelineLayout;
-  pipelineInfo.renderPass = renderPass;
+  pipelineInfo.layout = m_pipelineLayout;
+  pipelineInfo.renderPass = m_renderPass;
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
@@ -393,9 +393,12 @@ KRPipeline::~KRPipeline() {
   if (m_graphicsPipeline) {
     // TODO: vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
   }
-  
-  // TODO: vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-  // TODO: vkDestroyRenderPass(device, renderPass, nullptr);
+  if (m_pipelineLayout) {
+    // TODO: vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
+  }
+  if (m_renderPass) {
+    // TODO: vkDestroyRenderPass(device, m_renderPass, nullptr);
+  }
 
     if(m_iProgram) {
         GLDEBUG(glDeleteProgram(m_iProgram));

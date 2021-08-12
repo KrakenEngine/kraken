@@ -110,6 +110,7 @@ typedef enum {
 typedef int KrResourceMapIndex;
 typedef int KrSceneNodeMapIndex;
 typedef int KrSurfaceHandle;
+typedef int KrDeviceHandle;
 
 typedef struct {
   KrStructureType sType;

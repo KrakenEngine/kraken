@@ -147,7 +147,10 @@ public:
     
 private:
     GLuint m_iProgram;
+    VkRenderPass m_renderPass;
+    VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
+    
 };
 
 #endif
