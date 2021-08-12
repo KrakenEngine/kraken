@@ -60,6 +60,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   , m_vulkanInstance(VK_NULL_HANDLE)
   , m_resourceMapSize(initializeInfo->resourceMapSize)
   , m_topDeviceHandle(0)
+  , m_topSurfaceHandle(0)
 {
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
     memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
@@ -808,6 +809,7 @@ KRContext::destroySurfaces()
     
   }
   m_surfaces.clear();
+  m_surfaceHandleMap.clear();
 }
 
 void
@@ -1068,9 +1070,12 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     }
   }
 
-  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(createWindowSurfaceInfo->surfaceHandle, info));
+  KrSurfaceHandle surfaceHandle = ++m_topSurfaceHandle;
+  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(surfaceHandle, info));
 
-  m_pPipelineManager->createPipelines(deviceInfo->logicalDevice); // TODO - Support multiple surfaces.  Device needs to be passed in.
+  m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
+  
+  m_pPipelineManager->createPipelines(surfaceHandle);
 
   return KR_SUCCESS;
 #else
@@ -1087,7 +1092,15 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   if (m_vulkanInstance == VK_NULL_HANDLE) {
     return KR_ERROR_VULKAN_REQUIRED;
   }
-  auto itr = m_surfaces.find(deleteWindowSurfaceInfo->surfaceHandle);
+
+  auto handleItr = m_surfaceHandleMap.find(deleteWindowSurfaceInfo->surfaceHandle);
+  if (handleItr == m_surfaceHandleMap.end()) {
+    return KR_ERROR_NOT_FOUND;
+  }
+  KrSurfaceHandle surfaceHandle = (*handleItr).second;
+  m_surfaceHandleMap.erase(handleItr);
+  
+  auto itr = m_surfaces.find(surfaceHandle);
   if (itr == m_surfaces.end()) {
     return KR_ERROR_NOT_FOUND;
   }

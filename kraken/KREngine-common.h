@@ -234,6 +234,9 @@ typedef enum {
     STREAM_LEVEL_IN_HQ
 } kraken_stream_level;
 
+typedef int KrDeviceHandle;
+typedef int KrSurfaceHandle;
+
 #include "KRBehavior.h"
 
 #endif

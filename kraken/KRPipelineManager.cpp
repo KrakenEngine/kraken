@@ -62,7 +62,7 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
-void KRPipelineManager::createPipelines(VkDevice& device)
+void KRPipelineManager::createPipelines(KrSurfaceHandle surface)
 {
   {
     // simple_blit
@@ -70,7 +70,7 @@ void KRPipelineManager::createPipelines(VkDevice& device)
     std::vector<KRShader*> shaders;
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".vert", "spv"));
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".frag", "spv"));
-    KRPipeline* pipeline = new KRPipeline(*m_pContext, device, pipeline_name.c_str(), shaders);
+    KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, pipeline_name.c_str(), shaders);
     std::pair<std::string, std::vector<int> > key;
     key.first = pipeline_name;
     m_pipelines[key] = pipeline;

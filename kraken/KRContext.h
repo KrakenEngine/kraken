@@ -129,7 +129,7 @@ public:
     static void activateStreamerContext();
     static void activateRenderContext();
 
-    typedef int KrDeviceHandle;
+    
     typedef struct {
       VkPhysicalDevice device;
       VkDevice logicalDevice;
@@ -141,7 +141,6 @@ public:
       VkQueue computeQueue;
     } DeviceInfo;
 
-    typedef int KrSurfaceHandle;
     typedef struct {
       KrSurfaceHandle surfaceHandle;
       KrDeviceHandle deviceHandle;
@@ -209,9 +208,6 @@ private:
 
     unordered_multimap<std::string, KRResource*> m_resources;
 
-    
-    unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
-
     std::thread m_presentationThread;
     void presentationThreadFunc();
     std::atomic<bool> m_stop;
@@ -219,6 +215,11 @@ private:
 
     unordered_map<KrDeviceHandle, DeviceInfo> m_devices;
     KrDeviceHandle m_topDeviceHandle;
+
+    unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
+    KrDeviceHandle m_topSurfaceHandle;
+
+    unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;
 };
 
 #endif

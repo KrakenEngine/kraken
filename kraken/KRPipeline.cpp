@@ -109,14 +109,15 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, const std::vector<KRShader*>& shaders)
+KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const char* szKey, const std::vector<KRShader*>& shaders)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
   m_renderPass = nullptr;
-  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(1); // TODO - Support multiple surfaces
+  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(surfaceHandle);
+  KRContext::DeviceInfo& device = m_pContext->GetDeviceInfo(surface.deviceHandle);
 
   strcpy(m_szKey, szKey);
 
@@ -127,7 +128,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
 
   for (KRShader* shader : shaders) {
     VkShaderModule shaderModule;
-    if (!shader->createShaderModule(device, shaderModule)) {
+    if (!shader->createShaderModule(device.logicalDevice, shaderModule)) {
       // failed! TODO - Error handling
     }
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
@@ -169,7 +170,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
 
-  if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
+  if (vkCreateRenderPass(device.logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -254,7 +255,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device.logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -276,7 +277,7 @@ KRPipeline::KRPipeline(KRContext& context, VkDevice& device, const char* szKey, 
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
 
-  if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(device.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
     // Failed! TODO - Error handling
   }
 }
