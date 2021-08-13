@@ -785,6 +785,8 @@ KRContext::destroyDeviceContexts()
 {
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
     DeviceInfo* deviceInfo = &(*itr).second;
+    vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->graphicsCommandPool, nullptr);
+    vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->computeCommandPool, nullptr);
     vkDestroyDevice(deviceInfo->logicalDevice, nullptr);
   }
   
@@ -1311,6 +1313,26 @@ void KRContext::createDevices()
     }
     vkGetDeviceQueue(info.logicalDevice, info.graphicsFamilyQueueIndex, 0, &info.graphicsQueue);
     vkGetDeviceQueue(info.logicalDevice, info.computeFamilyQueueIndex, 0, &info.computeQueue);
+
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = info.graphicsFamilyQueueIndex;
+    poolInfo.flags = 0;
+
+    if (vkCreateCommandPool(info.logicalDevice, &poolInfo, nullptr, &info.graphicsCommandPool) != VK_SUCCESS) {
+      vkDestroyDevice(info.logicalDevice, nullptr);
+      // TODO - Log a warning...
+      continue;
+    }
+
+    poolInfo.queueFamilyIndex = info.computeFamilyQueueIndex;
+    if (vkCreateCommandPool(info.logicalDevice, &poolInfo, nullptr, &info.computeCommandPool) != VK_SUCCESS) {
+      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.logicalDevice, nullptr);
+      // TODO - Log a warning...
+      continue;
+    }
+
     m_devices[++m_topDeviceHandle] = info;
   }
 }

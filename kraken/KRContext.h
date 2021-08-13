@@ -139,6 +139,8 @@ public:
       VkQueue graphicsQueue;
       uint32_t computeFamilyQueueIndex;
       VkQueue computeQueue;
+      VkCommandPool graphicsCommandPool;
+      VkCommandPool computeCommandPool;
     } DeviceInfo;
 
     typedef struct {
