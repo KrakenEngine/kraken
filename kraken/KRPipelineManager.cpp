@@ -65,8 +65,8 @@ KRPipelineManager::~KRPipelineManager() {
 void KRPipelineManager::createPipelines(KrSurfaceHandle surface)
 {
   {
-    // simple_blit
-    std::string pipeline_name = "simple_blit";
+    // vulkan_test
+    std::string pipeline_name = "vulkan_test";
     std::vector<KRShader*> shaders;
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".vert", "spv"));
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".frag", "spv"));

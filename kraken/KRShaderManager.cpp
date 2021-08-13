@@ -258,7 +258,9 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
     glslang::TShader vertShader(EShLangVertex);
     glslang::TShader fragShader(EShLangFragment);
     vertShader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
+    vertShader.setEnvClient(glslang::EShClientVulkan, glslang::EshTargetClientVersion::EShTargetVulkan_1_1);
     fragShader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_3);
+    fragShader.setEnvClient(glslang::EShClientVulkan, glslang::EshTargetClientVersion::EShTargetVulkan_1_1);
     glslang::TProgram program; // this must be declared after the TShader's to ensure it is deallocated before the TShader's
     if (vertSource) {
       vertSource->getData()->lock();

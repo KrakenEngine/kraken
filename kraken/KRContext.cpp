@@ -1106,7 +1106,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   m_pPipelineManager->createPipelines(surfaceHandle);
 
   {
-    KRPipeline* testPipeline = m_pPipelineManager->get("simple_blit");
+    KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
     SurfaceInfo& surface = m_surfaces[surfaceHandle];
     surface.swapChainFramebuffers.resize(surface.swapChainImageViews.size());
 
@@ -1200,9 +1200,13 @@ void KRContext::renderFrame()
   for (auto surfaceItr = m_surfaces.begin(); surfaceItr != m_surfaces.end(); surfaceItr++) {
     SurfaceInfo& surface = (*surfaceItr).second;
     DeviceInfo& device = GetDeviceInfo(surface.deviceHandle);
+
+    uint32_t imageIndex = 0;
+    vkAcquireNextImageKHR(device.logicalDevice, surface.swapChain, UINT64_MAX, surface.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
     // TODO - this will break with more than one surface...  Expect to refactor this out
-    VkCommandBuffer commandBuffer = device.graphicsCommandBuffers[frameIndex % device.graphicsCommandBuffers.size()];
-    KRPipeline* testPipeline = m_pPipelineManager->get("simple_blit");
+    VkCommandBuffer commandBuffer = device.graphicsCommandBuffers[imageIndex];
+    KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1231,6 +1235,35 @@ void KRContext::renderFrame()
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
       // TODO - Add error handling...
     }
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = { surface.imageAvailableSemaphore };
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    VkSemaphore signalSemaphores[] = { surface.renderFinishedSemaphore };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+      // TODO - Add error handling...
+    }
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &surface.swapChain;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr;
+    vkQueuePresentKHR(device.graphicsQueue, &presentInfo);
   }
 
   frameIndex++;
