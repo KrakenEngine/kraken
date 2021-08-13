@@ -47,6 +47,8 @@ int KRContext::KRENGINE_SYS_PAGE_SIZE;
 
 #endif
 
+std::mutex KRContext::g_SurfaceInfoMutex;
+std::mutex KRContext::g_DeviceInfoMutex;
 
 const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
     "GL_EXT_texture_storage"
@@ -783,6 +785,7 @@ KRContext::createDeviceContexts()
 void
 KRContext::destroyDeviceContexts()
 {
+  const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
     DeviceInfo* deviceInfo = &(*itr).second;
     vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->graphicsCommandPool, nullptr);
@@ -803,6 +806,7 @@ KRContext::destroySurfaces()
   if (m_vulkanInstance == VK_NULL_HANDLE) {
     return;
   }
+  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
     SurfaceInfo& surfaceInfo = (*itr).second;
     DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
@@ -810,8 +814,9 @@ KRContext::destroySurfaces()
       vkDestroyFramebuffer(deviceInfo.logicalDevice, framebuffer, nullptr);
     } 
     vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo.swapChain, nullptr);
+    vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo.renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo.imageAvailableSemaphore, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo.surface, nullptr);
-    
   }
   m_surfaces.clear();
   m_surfaceHandleMap.clear();
@@ -918,13 +923,15 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     return KR_ERROR_NO_DEVICE;
   }
 
+  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
+  const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
+
   DeviceInfo* deviceInfo = nullptr;
 
 #ifdef WIN32
   HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
 
   SurfaceInfo info{};
-  info.surfaceHandle = createWindowSurfaceInfo->surfaceHandle;
   info.hWnd = hWnd;
 
   VkWin32SurfaceCreateInfoKHR createInfo{};
@@ -949,6 +956,18 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (deviceInfo == nullptr) {
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_NO_DEVICE;
+  }
+
+  VkSemaphoreCreateInfo semaphoreInfo{};
+  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  if (vkCreateSemaphore(deviceInfo->logicalDevice, &semaphoreInfo, nullptr, &info.imageAvailableSemaphore) != VK_SUCCESS) {
+    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+    return KR_ERROR_VULKAN;
+  }
+  if (vkCreateSemaphore(deviceInfo->logicalDevice, &semaphoreInfo, nullptr, &info.renderFinishedSemaphore) != VK_SUCCESS) {
+    vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
+    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
+    return KR_ERROR_VULKAN;
   }
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities{};
@@ -1039,6 +1058,8 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
   if (vkCreateSwapchainKHR(deviceInfo->logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
+    vkDestroySemaphore(deviceInfo->logicalDevice, info.renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_VULKAN_SWAP_CHAIN;
   }
@@ -1069,6 +1090,8 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
       for (size_t j = 0; j < i; j++) {
         vkDestroyImageView(deviceInfo->logicalDevice, info.swapChainImageViews[j], nullptr);
       }
+      vkDestroySemaphore(deviceInfo->logicalDevice, info.renderFinishedSemaphore, nullptr);
+      vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
       vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
       return KR_ERROR_VULKAN_SWAP_CHAIN;
     }
@@ -1094,7 +1117,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
 
       VkFramebufferCreateInfo framebufferInfo{};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = testPipeline->GetRenderPass();
+      framebufferInfo.renderPass = testPipeline->getRenderPass();
       framebufferInfo.attachmentCount = 1;
       framebufferInfo.pAttachments = attachments;
       framebufferInfo.width = surface.swapChainExtent.width;
@@ -1140,6 +1163,8 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
     vkDestroyImageView(deviceInfo.logicalDevice, imageView, nullptr);
   }
   vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo->swapChain, nullptr);
+  vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo->renderFinishedSemaphore, nullptr);
+  vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo->imageAvailableSemaphore, nullptr);
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
@@ -1166,7 +1191,49 @@ void KRContext::presentationThreadFunc()
 
 void KRContext::renderFrame()
 {
+  // TODO - Eliminate this and use system wide index once Vulkan path is working
+  static uint64_t frameIndex = 0;
 
+  // TODO - We should use fences to eliminate this mutex
+  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
+
+  for (auto surfaceItr = m_surfaces.begin(); surfaceItr != m_surfaces.end(); surfaceItr++) {
+    SurfaceInfo& surface = (*surfaceItr).second;
+    DeviceInfo& device = GetDeviceInfo(surface.deviceHandle);
+    // TODO - this will break with more than one surface...  Expect to refactor this out
+    VkCommandBuffer commandBuffer = device.graphicsCommandBuffers[frameIndex % device.graphicsCommandBuffers.size()];
+    KRPipeline* testPipeline = m_pPipelineManager->get("simple_blit");
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = 0;
+    beginInfo.pInheritanceInfo = nullptr;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+      // TODO - Add error handling...
+    }
+
+    VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = testPipeline->getRenderPass();
+    renderPassInfo.framebuffer = surface.swapChainFramebuffers[frameIndex % surface.swapChainFramebuffers.size()];
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = surface.swapChainExtent;
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
+    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    vkCmdEndRenderPass(commandBuffer);
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+      // TODO - Add error handling...
+    }
+  }
+
+  frameIndex++;
 }
 
 KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
@@ -1185,6 +1252,7 @@ KRContext::DeviceInfo& KRContext::GetDeviceInfo(KrDeviceHandle handle)
 
 void KRContext::createDevices()
 {
+  const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
   if (m_devices.size() > 0) {
     return;
   }
@@ -1355,6 +1423,8 @@ void KRContext::createDevices()
     allocInfo.commandPool = info.computeCommandPool;
     allocInfo.commandBufferCount = (uint32_t)info.computeCommandBuffers.size();
     if (vkAllocateCommandBuffers(info.logicalDevice, &allocInfo, info.computeCommandBuffers.data()) != VK_SUCCESS) {
+      // Note - this repeated cleanup will likely be eliminated with later refactoring to split vulkan
+      // object generation out of KRContext
       vkDestroyCommandPool(info.logicalDevice, info.computeCommandPool, nullptr);
       vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
       vkDestroyDevice(info.logicalDevice, nullptr);

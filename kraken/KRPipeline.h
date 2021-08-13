@@ -145,7 +145,8 @@ public:
     void setUniform(int location, const Vector4 &value);
     void setUniform(int location, const Matrix4 &value);
 
-    VkRenderPass& GetRenderPass();
+    VkRenderPass& getRenderPass();
+    VkPipeline& getPipeline();
     
 private:
     GLuint m_iProgram;

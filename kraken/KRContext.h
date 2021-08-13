@@ -128,7 +128,6 @@ public:
 
     static void activateStreamerContext();
     static void activateRenderContext();
-
     
     typedef struct {
       VkPhysicalDevice device;
@@ -146,7 +145,6 @@ public:
     } DeviceInfo;
 
     typedef struct {
-      KrSurfaceHandle surfaceHandle;
       KrDeviceHandle deviceHandle;
       VkSurfaceKHR surface;
       VkSwapchainKHR swapChain;
@@ -155,10 +153,15 @@ public:
       VkExtent2D swapChainExtent;
       std::vector<VkImageView> swapChainImageViews;
       std::vector<VkFramebuffer> swapChainFramebuffers;
+      VkSemaphore imageAvailableSemaphore;
+      VkSemaphore renderFinishedSemaphore;
 #ifdef WIN32
       HWND hWnd;
 #endif
     } SurfaceInfo;
+
+    static std::mutex g_SurfaceInfoMutex;
+    static std::mutex g_DeviceInfoMutex;
 
     DeviceInfo& GetDeviceInfo(KrDeviceHandle handle);
     SurfaceInfo& GetSurfaceInfo(KrSurfaceHandle handle);

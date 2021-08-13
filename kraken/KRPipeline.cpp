@@ -764,7 +764,12 @@ const char *KRPipeline::getKey() const {
     return m_szKey;
 }
 
-VkRenderPass& KRPipeline::GetRenderPass()
+VkRenderPass& KRPipeline::getRenderPass()
 {
   return m_renderPass;
+}
+
+VkPipeline& KRPipeline::getPipeline()
+{
+  return m_graphicsPipeline;
 }
