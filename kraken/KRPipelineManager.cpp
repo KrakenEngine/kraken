@@ -286,3 +286,15 @@ bool KRPipelineManager::selectPipeline(KRCamera &camera, KRPipeline *pPipeline, 
 size_t KRPipelineManager::getPipelineHandlesUsed() {
     return m_pipelines.size();
 }
+
+
+KRPipeline* KRPipelineManager::get(const char* name)
+{
+  std::pair<std::string, std::vector<int> > key;
+  key.first = name;
+  auto itr = m_pipelines.find(key);
+  if (itr == m_pipelines.end()) {
+    return nullptr;
+  }
+  return (*itr).second;
+}

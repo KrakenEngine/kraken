@@ -804,6 +804,9 @@ KRContext::destroySurfaces()
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
     SurfaceInfo& surfaceInfo = (*itr).second;
     DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
+    for (auto framebuffer : surfaceInfo.swapChainFramebuffers) {
+      vkDestroyFramebuffer(deviceInfo.logicalDevice, framebuffer, nullptr);
+    } 
     vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo.swapChain, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo.surface, nullptr);
     
@@ -913,7 +916,6 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     return KR_ERROR_NO_DEVICE;
   }
 
-  // TODO - Support multiple devices rather than just choosing the first
   DeviceInfo* deviceInfo = nullptr;
 
 #ifdef WIN32
@@ -1072,10 +1074,36 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
 
   KrSurfaceHandle surfaceHandle = ++m_topSurfaceHandle;
   m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(surfaceHandle, info));
+  
 
   m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
   
   m_pPipelineManager->createPipelines(surfaceHandle);
+
+  {
+    KRPipeline* testPipeline = m_pPipelineManager->get("simple_blit");
+    SurfaceInfo& surface = m_surfaces[surfaceHandle];
+    surface.swapChainFramebuffers.resize(surface.swapChainImageViews.size());
+
+    for (size_t i = 0; i < surface.swapChainImageViews.size(); i++) {
+      VkImageView attachments[] = {
+          surface.swapChainImageViews[i]
+      };
+
+      VkFramebufferCreateInfo framebufferInfo{};
+      framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+      framebufferInfo.renderPass = testPipeline->GetRenderPass();
+      framebufferInfo.attachmentCount = 1;
+      framebufferInfo.pAttachments = attachments;
+      framebufferInfo.width = surface.swapChainExtent.width;
+      framebufferInfo.height = surface.swapChainExtent.height;
+      framebufferInfo.layers = 1;
+
+      if (vkCreateFramebuffer(deviceInfo->logicalDevice, &framebufferInfo, nullptr, &surface.swapChainFramebuffers[i]) != VK_SUCCESS) {
+        // TODO - Error Handling
+      }
+    }
+  }
 
   return KR_SUCCESS;
 #else

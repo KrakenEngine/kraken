@@ -763,3 +763,8 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
 const char *KRPipeline::getKey() const {
     return m_szKey;
 }
+
+VkRenderPass& KRPipeline::GetRenderPass()
+{
+  return m_renderPass;
+}
