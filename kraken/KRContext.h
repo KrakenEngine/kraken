@@ -141,6 +141,8 @@ public:
       VkQueue computeQueue;
       VkCommandPool graphicsCommandPool;
       VkCommandPool computeCommandPool;
+      std::vector<VkCommandBuffer> graphicsCommandBuffers;
+      std::vector<VkCommandBuffer> computeCommandBuffers;
     } DeviceInfo;
 
     typedef struct {

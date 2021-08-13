@@ -1333,6 +1333,34 @@ void KRContext::createDevices()
       continue;
     }
 
+    const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
+    info.graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
+
+    const int kMaxComputeCommandBuffers = 4; // TODO - This needs to be dynamic?
+    info.computeCommandBuffers.resize(kMaxComputeCommandBuffers);
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = info.graphicsCommandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)info.graphicsCommandBuffers.size();
+
+    if (vkAllocateCommandBuffers(info.logicalDevice, &allocInfo, info.graphicsCommandBuffers.data()) != VK_SUCCESS) {
+      vkDestroyCommandPool(info.logicalDevice, info.computeCommandPool, nullptr);
+      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.logicalDevice, nullptr);
+      // TODO - Log a warning
+    }
+
+    allocInfo.commandPool = info.computeCommandPool;
+    allocInfo.commandBufferCount = (uint32_t)info.computeCommandBuffers.size();
+    if (vkAllocateCommandBuffers(info.logicalDevice, &allocInfo, info.computeCommandBuffers.data()) != VK_SUCCESS) {
+      vkDestroyCommandPool(info.logicalDevice, info.computeCommandPool, nullptr);
+      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.logicalDevice, nullptr);
+      // TODO - Log a warning
+    }
+
     m_devices[++m_topDeviceHandle] = info;
   }
 }
