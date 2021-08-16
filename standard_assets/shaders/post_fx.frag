@@ -1,4 +1,8 @@
-//  Copyright 2019 Kearwood Gilbert. All rights reserved.
+//
+//  post_fx.frag
+//  Kraken Engine
+//
+//  Copyright 2021 Kearwood Gilbert. All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
@@ -24,6 +28,7 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
+
 
 #define ENABLE_VIDEO_BG 0
 #define PIXEL_SHIFT_1 0.001

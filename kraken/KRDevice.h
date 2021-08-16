@@ -1,6 +1,6 @@
 //
 //  KRDevice.h
-//  KREngine
+//  Kraken Engine
 //
 //  Copyright 2021 Kearwood Gilbert. All rights reserved.
 //
