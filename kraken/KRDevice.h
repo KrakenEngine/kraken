@@ -37,18 +37,21 @@
 class KRDevice
 {
 public:
-  VkPhysicalDevice device;
-  VkDevice logicalDevice;
-  VkPhysicalDeviceProperties deviceProperties;
-  VkPhysicalDeviceFeatures deviceFeatures;
-  uint32_t graphicsFamilyQueueIndex;
-  VkQueue graphicsQueue;
-  uint32_t computeFamilyQueueIndex;
-  VkQueue computeQueue;
-  VkCommandPool graphicsCommandPool;
-  VkCommandPool computeCommandPool;
-  std::vector<VkCommandBuffer> graphicsCommandBuffers;
-  std::vector<VkCommandBuffer> computeCommandBuffers;
+
+  void destroy();
+
+  VkPhysicalDevice m_device;
+  VkDevice m_logicalDevice;
+  VkPhysicalDeviceProperties m_deviceProperties;
+  VkPhysicalDeviceFeatures m_deviceFeatures;
+  uint32_t m_graphicsFamilyQueueIndex;
+  VkQueue m_graphicsQueue;
+  uint32_t m_computeFamilyQueueIndex;
+  VkQueue m_computeQueue;
+  VkCommandPool m_graphicsCommandPool;
+  VkCommandPool m_computeCommandPool;
+  std::vector<VkCommandBuffer> m_graphicsCommandBuffers;
+  std::vector<VkCommandBuffer> m_computeCommandBuffers;
 private:
 };
 

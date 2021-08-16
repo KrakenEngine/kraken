@@ -31,3 +31,9 @@
 
 #include "KRDevice.h"
 
+void KRDevice::destroy()
+{
+  vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
+  vkDestroyCommandPool(m_logicalDevice, m_computeCommandPool, nullptr);
+  vkDestroyDevice(m_logicalDevice, nullptr);
+}

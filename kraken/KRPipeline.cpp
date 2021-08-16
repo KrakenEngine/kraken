@@ -128,7 +128,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
 
   for (KRShader* shader : shaders) {
     VkShaderModule shaderModule;
-    if (!shader->createShaderModule(device.logicalDevice, shaderModule)) {
+    if (!shader->createShaderModule(device.m_logicalDevice, shaderModule)) {
       // failed! TODO - Error handling
     }
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
@@ -180,7 +180,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  if (vkCreateRenderPass(device.logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
+  if (vkCreateRenderPass(device.m_logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -265,7 +265,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-  if (vkCreatePipelineLayout(device.logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device.m_logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -287,7 +287,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
 
-  if (vkCreateGraphicsPipelines(device.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(device.m_logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
     // Failed! TODO - Error handling
   }
 }

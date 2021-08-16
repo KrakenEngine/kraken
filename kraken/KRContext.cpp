@@ -811,9 +811,7 @@ KRContext::destroyDeviceContexts()
   const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
     KRDevice* deviceInfo = &(*itr).second;
-    vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->graphicsCommandPool, nullptr);
-    vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->computeCommandPool, nullptr);
-    vkDestroyDevice(deviceInfo->logicalDevice, nullptr);
+    deviceInfo->destroy();
   }
   
   m_devices.clear();
@@ -834,11 +832,11 @@ KRContext::destroySurfaces()
     KRSurface& surfaceInfo = (*itr).second;
     KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
     for (auto framebuffer : surfaceInfo.swapChainFramebuffers) {
-      vkDestroyFramebuffer(deviceInfo.logicalDevice, framebuffer, nullptr);
+      vkDestroyFramebuffer(deviceInfo.m_logicalDevice, framebuffer, nullptr);
     } 
-    vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo.swapChain, nullptr);
-    vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo.renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo.imageAvailableSemaphore, nullptr);
+    vkDestroySwapchainKHR(deviceInfo.m_logicalDevice, surfaceInfo.swapChain, nullptr);
+    vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo.renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo.imageAvailableSemaphore, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo.surface, nullptr);
   }
   m_surfaces.clear();
@@ -968,7 +966,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
     KRDevice* device = &(*itr).second;
     VkBool32 canPresent = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device->device, device->graphicsFamilyQueueIndex, info.surface, &canPresent);
+    vkGetPhysicalDeviceSurfaceSupportKHR(device->m_device, device->m_graphicsFamilyQueueIndex, info.surface, &canPresent);
     if (canPresent) {
       info.deviceHandle = (*itr).first;
       deviceInfo = device;
@@ -983,37 +981,37 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
 
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  if (vkCreateSemaphore(deviceInfo->logicalDevice, &semaphoreInfo, nullptr, &info.imageAvailableSemaphore) != VK_SUCCESS) {
+  if (vkCreateSemaphore(deviceInfo->m_logicalDevice, &semaphoreInfo, nullptr, &info.imageAvailableSemaphore) != VK_SUCCESS) {
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_VULKAN;
   }
-  if (vkCreateSemaphore(deviceInfo->logicalDevice, &semaphoreInfo, nullptr, &info.renderFinishedSemaphore) != VK_SUCCESS) {
-    vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
+  if (vkCreateSemaphore(deviceInfo->m_logicalDevice, &semaphoreInfo, nullptr, &info.renderFinishedSemaphore) != VK_SUCCESS) {
+    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_VULKAN;
   }
 
   VkSurfaceCapabilitiesKHR surfaceCapabilities{};
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceInfo->device, info.surface, &surfaceCapabilities);
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceInfo->m_device, info.surface, &surfaceCapabilities);
 
   std::vector<VkSurfaceFormatKHR> surfaceFormats;
   uint32_t formatCount = 0;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->device, info.surface, &formatCount, nullptr);
+  vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->m_device, info.surface, &formatCount, nullptr);
 
   
   if (formatCount != 0) {
     surfaceFormats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->device, info.surface, &formatCount, surfaceFormats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->m_device, info.surface, &formatCount, surfaceFormats.data());
   }
 
   std::vector<VkPresentModeKHR> surfacePresentModes;
 
   uint32_t presentModeCount = 0;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->device, info.surface, &presentModeCount, nullptr);
+  vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->m_device, info.surface, &presentModeCount, nullptr);
 
   if (presentModeCount != 0) {
     surfacePresentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->device, info.surface, &presentModeCount, surfacePresentModes.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->m_device, info.surface, &presentModeCount, surfacePresentModes.data());
   }
 
   VkSurfaceFormatKHR selectedSurfaceFormat = surfaceFormats[0];
@@ -1061,10 +1059,10 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
   uint32_t queueFamilyIndices[] = {
-    deviceInfo->graphicsFamilyQueueIndex,
-    deviceInfo->computeFamilyQueueIndex
+    deviceInfo->m_graphicsFamilyQueueIndex,
+    deviceInfo->m_computeFamilyQueueIndex
   };
-  if (deviceInfo->graphicsFamilyQueueIndex == deviceInfo->computeFamilyQueueIndex) {
+  if (deviceInfo->m_graphicsFamilyQueueIndex == deviceInfo->m_computeFamilyQueueIndex) {
     swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     swapChainCreateInfo.queueFamilyIndexCount = 0;
     swapChainCreateInfo.pQueueFamilyIndices = nullptr;
@@ -1080,16 +1078,16 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   swapChainCreateInfo.clipped = VK_TRUE;
   swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(deviceInfo->logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
-    vkDestroySemaphore(deviceInfo->logicalDevice, info.renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
+  if (vkCreateSwapchainKHR(deviceInfo->m_logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
+    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
     vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
     return KR_ERROR_VULKAN_SWAP_CHAIN;
   }
 
-  vkGetSwapchainImagesKHR(deviceInfo->logicalDevice, info.swapChain, &imageCount, nullptr);
+  vkGetSwapchainImagesKHR(deviceInfo->m_logicalDevice, info.swapChain, &imageCount, nullptr);
   info.swapChainImages.resize(imageCount);
-  vkGetSwapchainImagesKHR(deviceInfo->logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
+  vkGetSwapchainImagesKHR(deviceInfo->m_logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
 
   info.swapChainImageFormat = selectedSurfaceFormat.format;
 
@@ -1109,12 +1107,12 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
-    if (vkCreateImageView(deviceInfo->logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
+    if (vkCreateImageView(deviceInfo->m_logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
       for (size_t j = 0; j < i; j++) {
-        vkDestroyImageView(deviceInfo->logicalDevice, info.swapChainImageViews[j], nullptr);
+        vkDestroyImageView(deviceInfo->m_logicalDevice, info.swapChainImageViews[j], nullptr);
       }
-      vkDestroySemaphore(deviceInfo->logicalDevice, info.renderFinishedSemaphore, nullptr);
-      vkDestroySemaphore(deviceInfo->logicalDevice, info.imageAvailableSemaphore, nullptr);
+      vkDestroySemaphore(deviceInfo->m_logicalDevice, info.renderFinishedSemaphore, nullptr);
+      vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
       vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
       return KR_ERROR_VULKAN_SWAP_CHAIN;
     }
@@ -1147,7 +1145,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
       framebufferInfo.height = surface.swapChainExtent.height;
       framebufferInfo.layers = 1;
 
-      if (vkCreateFramebuffer(deviceInfo->logicalDevice, &framebufferInfo, nullptr, &surface.swapChainFramebuffers[i]) != VK_SUCCESS) {
+      if (vkCreateFramebuffer(deviceInfo->m_logicalDevice, &framebufferInfo, nullptr, &surface.swapChainFramebuffers[i]) != VK_SUCCESS) {
         // TODO - Error Handling
       }
     }
@@ -1183,11 +1181,11 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   KRSurface* surfaceInfo = &(*itr).second;
   KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo->deviceHandle);
   for (auto imageView : surfaceInfo->swapChainImageViews) {
-    vkDestroyImageView(deviceInfo.logicalDevice, imageView, nullptr);
+    vkDestroyImageView(deviceInfo.m_logicalDevice, imageView, nullptr);
   }
-  vkDestroySwapchainKHR(deviceInfo.logicalDevice, surfaceInfo->swapChain, nullptr);
-  vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo->renderFinishedSemaphore, nullptr);
-  vkDestroySemaphore(deviceInfo.logicalDevice, surfaceInfo->imageAvailableSemaphore, nullptr);
+  vkDestroySwapchainKHR(deviceInfo.m_logicalDevice, surfaceInfo->swapChain, nullptr);
+  vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo->renderFinishedSemaphore, nullptr);
+  vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo->imageAvailableSemaphore, nullptr);
   vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
@@ -1225,10 +1223,10 @@ void KRContext::renderFrame()
     KRDevice& device = GetDeviceInfo(surface.deviceHandle);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device.logicalDevice, surface.swapChain, UINT64_MAX, surface.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(device.m_logicalDevice, surface.swapChain, UINT64_MAX, surface.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     // TODO - this will break with more than one surface...  Expect to refactor this out
-    VkCommandBuffer commandBuffer = device.graphicsCommandBuffers[imageIndex];
+    VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
     KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
 
     VkCommandBufferBeginInfo beginInfo{};
@@ -1274,7 +1272,7 @@ void KRContext::renderFrame()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
       // TODO - Add error handling...
     }
 
@@ -1286,7 +1284,7 @@ void KRContext::renderFrame()
     presentInfo.pSwapchains = &surface.swapChain;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
-    vkQueuePresentKHR(device.graphicsQueue, &presentInfo);
+    vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);
   }
 
   frameIndex++;
@@ -1382,7 +1380,7 @@ void KRContext::createDevices()
     if (deviceInfos.empty()) {
       addDevice = true;
     } else {
-      VkPhysicalDeviceType collectedType = deviceInfos[0].deviceProperties.deviceType;
+      VkPhysicalDeviceType collectedType = deviceInfos[0].m_deviceProperties.deviceType;
       if (collectedType == deviceProperties.deviceType) {
         addDevice = true;
       } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
@@ -1401,11 +1399,11 @@ void KRContext::createDevices()
     }
     if (addDevice) {
       KRDevice& info = deviceInfos.emplace_back(KRDevice{});
-      info.device = device;
-      info.deviceProperties = deviceProperties;
-      info.deviceFeatures = deviceFeatures;
-      info.graphicsFamilyQueueIndex = graphicsFamilyQueue;
-      info.computeFamilyQueueIndex = computeFamilyQueue;     
+      info.m_device = device;
+      info.m_deviceProperties = deviceProperties;
+      info.m_deviceFeatures = deviceFeatures;
+      info.m_graphicsFamilyQueueIndex = graphicsFamilyQueue;
+      info.m_computeFamilyQueueIndex = computeFamilyQueue;     
     }
   }
 
@@ -1413,12 +1411,12 @@ void KRContext::createDevices()
     VkDeviceQueueCreateInfo queueCreateInfo[2]{};
     float queuePriority = 1.0f;
     queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo[0].queueFamilyIndex = info.graphicsFamilyQueueIndex;
+    queueCreateInfo[0].queueFamilyIndex = info.m_graphicsFamilyQueueIndex;
     queueCreateInfo[0].queueCount = 1;
     queueCreateInfo[0].pQueuePriorities = &queuePriority;
-    if (info.graphicsFamilyQueueIndex != info.computeFamilyQueueIndex) {
+    if (info.m_graphicsFamilyQueueIndex != info.m_computeFamilyQueueIndex) {
       queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-      queueCreateInfo[1].queueFamilyIndex = info.computeFamilyQueueIndex;
+      queueCreateInfo[1].queueFamilyIndex = info.m_computeFamilyQueueIndex;
       queueCreateInfo[1].queueCount = 1;
       queueCreateInfo[1].pQueuePriorities = &queuePriority;
     }
@@ -1426,64 +1424,64 @@ void KRContext::createDevices()
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-    deviceCreateInfo.queueCreateInfoCount = info.graphicsFamilyQueueIndex == info.computeFamilyQueueIndex ? 1 : 2;
+    deviceCreateInfo.queueCreateInfoCount = info.m_graphicsFamilyQueueIndex == info.m_computeFamilyQueueIndex ? 1 : 2;
     VkPhysicalDeviceFeatures deviceFeatures{};
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
-    if (vkCreateDevice(info.device, &deviceCreateInfo, nullptr, &info.logicalDevice) != VK_SUCCESS) {
+    if (vkCreateDevice(info.m_device, &deviceCreateInfo, nullptr, &info.m_logicalDevice) != VK_SUCCESS) {
       // TODO - Log a warning...
       continue;
     }
-    vkGetDeviceQueue(info.logicalDevice, info.graphicsFamilyQueueIndex, 0, &info.graphicsQueue);
-    vkGetDeviceQueue(info.logicalDevice, info.computeFamilyQueueIndex, 0, &info.computeQueue);
+    vkGetDeviceQueue(info.m_logicalDevice, info.m_graphicsFamilyQueueIndex, 0, &info.m_graphicsQueue);
+    vkGetDeviceQueue(info.m_logicalDevice, info.m_computeFamilyQueueIndex, 0, &info.m_computeQueue);
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = info.graphicsFamilyQueueIndex;
+    poolInfo.queueFamilyIndex = info.m_graphicsFamilyQueueIndex;
     poolInfo.flags = 0;
 
-    if (vkCreateCommandPool(info.logicalDevice, &poolInfo, nullptr, &info.graphicsCommandPool) != VK_SUCCESS) {
-      vkDestroyDevice(info.logicalDevice, nullptr);
+    if (vkCreateCommandPool(info.m_logicalDevice, &poolInfo, nullptr, &info.m_graphicsCommandPool) != VK_SUCCESS) {
+      vkDestroyDevice(info.m_logicalDevice, nullptr);
       // TODO - Log a warning...
       continue;
     }
 
-    poolInfo.queueFamilyIndex = info.computeFamilyQueueIndex;
-    if (vkCreateCommandPool(info.logicalDevice, &poolInfo, nullptr, &info.computeCommandPool) != VK_SUCCESS) {
-      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.logicalDevice, nullptr);
+    poolInfo.queueFamilyIndex = info.m_computeFamilyQueueIndex;
+    if (vkCreateCommandPool(info.m_logicalDevice, &poolInfo, nullptr, &info.m_computeCommandPool) != VK_SUCCESS) {
+      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.m_logicalDevice, nullptr);
       // TODO - Log a warning...
       continue;
     }
 
     const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
-    info.graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
+    info.m_graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
 
     const int kMaxComputeCommandBuffers = 4; // TODO - This needs to be dynamic?
-    info.computeCommandBuffers.resize(kMaxComputeCommandBuffers);
+    info.m_computeCommandBuffers.resize(kMaxComputeCommandBuffers);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = info.graphicsCommandPool;
+    allocInfo.commandPool = info.m_graphicsCommandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)info.graphicsCommandBuffers.size();
+    allocInfo.commandBufferCount = (uint32_t)info.m_graphicsCommandBuffers.size();
 
-    if (vkAllocateCommandBuffers(info.logicalDevice, &allocInfo, info.graphicsCommandBuffers.data()) != VK_SUCCESS) {
-      vkDestroyCommandPool(info.logicalDevice, info.computeCommandPool, nullptr);
-      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.logicalDevice, nullptr);
+    if (vkAllocateCommandBuffers(info.m_logicalDevice, &allocInfo, info.m_graphicsCommandBuffers.data()) != VK_SUCCESS) {
+      vkDestroyCommandPool(info.m_logicalDevice, info.m_computeCommandPool, nullptr);
+      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.m_logicalDevice, nullptr);
       // TODO - Log a warning
     }
 
-    allocInfo.commandPool = info.computeCommandPool;
-    allocInfo.commandBufferCount = (uint32_t)info.computeCommandBuffers.size();
-    if (vkAllocateCommandBuffers(info.logicalDevice, &allocInfo, info.computeCommandBuffers.data()) != VK_SUCCESS) {
+    allocInfo.commandPool = info.m_computeCommandPool;
+    allocInfo.commandBufferCount = (uint32_t)info.m_computeCommandBuffers.size();
+    if (vkAllocateCommandBuffers(info.m_logicalDevice, &allocInfo, info.m_computeCommandBuffers.data()) != VK_SUCCESS) {
       // Note - this repeated cleanup will likely be eliminated with later refactoring to split vulkan
       // object generation out of KRContext
-      vkDestroyCommandPool(info.logicalDevice, info.computeCommandPool, nullptr);
-      vkDestroyCommandPool(info.logicalDevice, info.graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.logicalDevice, nullptr);
+      vkDestroyCommandPool(info.m_logicalDevice, info.m_computeCommandPool, nullptr);
+      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
+      vkDestroyDevice(info.m_logicalDevice, nullptr);
       // TODO - Log a warning
     }
 
