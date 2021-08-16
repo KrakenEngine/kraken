@@ -22,6 +22,8 @@
 #include "KRShaderManager.h"
 #include "KRSourceManager.h"
 #include "KRStreamer.h"
+#include "KRDevice.h"
+#include "KRSurface.h"
 
 class KRAudioManager;
 
@@ -128,43 +130,12 @@ public:
 
     static void activateStreamerContext();
     static void activateRenderContext();
-    
-    typedef struct {
-      VkPhysicalDevice device;
-      VkDevice logicalDevice;
-      VkPhysicalDeviceProperties deviceProperties;
-      VkPhysicalDeviceFeatures deviceFeatures;
-      uint32_t graphicsFamilyQueueIndex;
-      VkQueue graphicsQueue;
-      uint32_t computeFamilyQueueIndex;
-      VkQueue computeQueue;
-      VkCommandPool graphicsCommandPool;
-      VkCommandPool computeCommandPool;
-      std::vector<VkCommandBuffer> graphicsCommandBuffers;
-      std::vector<VkCommandBuffer> computeCommandBuffers;
-    } DeviceInfo;
-
-    typedef struct {
-      KrDeviceHandle deviceHandle;
-      VkSurfaceKHR surface;
-      VkSwapchainKHR swapChain;
-      std::vector<VkImage> swapChainImages;
-      VkFormat swapChainImageFormat;
-      VkExtent2D swapChainExtent;
-      std::vector<VkImageView> swapChainImageViews;
-      std::vector<VkFramebuffer> swapChainFramebuffers;
-      VkSemaphore imageAvailableSemaphore;
-      VkSemaphore renderFinishedSemaphore;
-#ifdef WIN32
-      HWND hWnd;
-#endif
-    } SurfaceInfo;
 
     static std::mutex g_SurfaceInfoMutex;
     static std::mutex g_DeviceInfoMutex;
 
-    DeviceInfo& GetDeviceInfo(KrDeviceHandle handle);
-    SurfaceInfo& GetSurfaceInfo(KrSurfaceHandle handle);
+    KRDevice& GetDeviceInfo(KrDeviceHandle handle);
+    KRSurface& GetSurfaceInfo(KrSurfaceHandle handle);
     
 #if TARGET_OS_MAC
     static void attachToView(void *view);
@@ -221,10 +192,10 @@ private:
     std::atomic<bool> m_stop;
     void renderFrame();
 
-    unordered_map<KrDeviceHandle, DeviceInfo> m_devices;
+    unordered_map<KrDeviceHandle, KRDevice> m_devices;
     KrDeviceHandle m_topDeviceHandle;
 
-    unordered_map<KrSurfaceHandle, SurfaceInfo> m_surfaces;
+    unordered_map<KrSurfaceHandle, KRSurface> m_surfaces;
     KrDeviceHandle m_topSurfaceHandle;
 
     unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;

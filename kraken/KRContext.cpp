@@ -787,7 +787,7 @@ KRContext::destroyDeviceContexts()
 {
   const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    DeviceInfo* deviceInfo = &(*itr).second;
+    KRDevice* deviceInfo = &(*itr).second;
     vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->graphicsCommandPool, nullptr);
     vkDestroyCommandPool(deviceInfo->logicalDevice, deviceInfo->computeCommandPool, nullptr);
     vkDestroyDevice(deviceInfo->logicalDevice, nullptr);
@@ -808,8 +808,8 @@ KRContext::destroySurfaces()
   }
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
   for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
-    SurfaceInfo& surfaceInfo = (*itr).second;
-    DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
+    KRSurface& surfaceInfo = (*itr).second;
+    KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
     for (auto framebuffer : surfaceInfo.swapChainFramebuffers) {
       vkDestroyFramebuffer(deviceInfo.logicalDevice, framebuffer, nullptr);
     } 
@@ -926,12 +926,12 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
   const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
 
-  DeviceInfo* deviceInfo = nullptr;
+  KRDevice* deviceInfo = nullptr;
 
 #ifdef WIN32
   HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
 
-  SurfaceInfo info{};
+  KRSurface info{};
   info.hWnd = hWnd;
 
   VkWin32SurfaceCreateInfoKHR createInfo{};
@@ -943,7 +943,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   }
 
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    DeviceInfo* device = &(*itr).second;
+    KRDevice* device = &(*itr).second;
     VkBool32 canPresent = false;
     vkGetPhysicalDeviceSurfaceSupportKHR(device->device, device->graphicsFamilyQueueIndex, info.surface, &canPresent);
     if (canPresent) {
@@ -1098,7 +1098,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   }
 
   KrSurfaceHandle surfaceHandle = ++m_topSurfaceHandle;
-  m_surfaces.insert(std::pair<KrSurfaceHandle, SurfaceInfo>(surfaceHandle, info));
+  m_surfaces.insert(std::pair<KrSurfaceHandle, KRSurface>(surfaceHandle, info));
   
 
   m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
@@ -1107,7 +1107,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
 
   {
     KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
-    SurfaceInfo& surface = m_surfaces[surfaceHandle];
+    KRSurface& surface = m_surfaces[surfaceHandle];
     surface.swapChainFramebuffers.resize(surface.swapChainImageViews.size());
 
     for (size_t i = 0; i < surface.swapChainImageViews.size(); i++) {
@@ -1157,8 +1157,8 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   if (itr == m_surfaces.end()) {
     return KR_ERROR_NOT_FOUND;
   }
-  SurfaceInfo* surfaceInfo = &(*itr).second;
-  DeviceInfo& deviceInfo = GetDeviceInfo(surfaceInfo->deviceHandle);
+  KRSurface* surfaceInfo = &(*itr).second;
+  KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo->deviceHandle);
   for (auto imageView : surfaceInfo->swapChainImageViews) {
     vkDestroyImageView(deviceInfo.logicalDevice, imageView, nullptr);
   }
@@ -1198,8 +1198,8 @@ void KRContext::renderFrame()
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
 
   for (auto surfaceItr = m_surfaces.begin(); surfaceItr != m_surfaces.end(); surfaceItr++) {
-    SurfaceInfo& surface = (*surfaceItr).second;
-    DeviceInfo& device = GetDeviceInfo(surface.deviceHandle);
+    KRSurface& surface = (*surfaceItr).second;
+    KRDevice& device = GetDeviceInfo(surface.deviceHandle);
 
     uint32_t imageIndex = 0;
     vkAcquireNextImageKHR(device.logicalDevice, surface.swapChain, UINT64_MAX, surface.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
@@ -1269,7 +1269,7 @@ void KRContext::renderFrame()
   frameIndex++;
 }
 
-KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
+KRSurface& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
 {
   auto itr = m_surfaces.find(handle);
   if (itr == m_surfaces.end()) {
@@ -1278,7 +1278,7 @@ KRContext::SurfaceInfo& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
   return m_surfaces[handle];
 }
 
-KRContext::DeviceInfo& KRContext::GetDeviceInfo(KrDeviceHandle handle)
+KRDevice& KRContext::GetDeviceInfo(KrDeviceHandle handle)
 {
   return m_devices[handle];
 }
@@ -1302,7 +1302,7 @@ void KRContext::createDevices()
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
   };
 
-  std::vector<DeviceInfo> deviceInfos;
+  std::vector<KRDevice> deviceInfos;
 
   for (const VkPhysicalDevice& device : devices) {
     VkPhysicalDeviceProperties deviceProperties;
@@ -1377,7 +1377,7 @@ void KRContext::createDevices()
       }
     }
     if (addDevice) {
-      DeviceInfo& info = deviceInfos.emplace_back(DeviceInfo{});
+      KRDevice& info = deviceInfos.emplace_back(KRDevice{});
       info.device = device;
       info.deviceProperties = deviceProperties;
       info.deviceFeatures = deviceFeatures;
@@ -1386,7 +1386,7 @@ void KRContext::createDevices()
     }
   }
 
-  for (DeviceInfo& info: deviceInfos) {
+  for (KRDevice& info: deviceInfos) {
     VkDeviceQueueCreateInfo queueCreateInfo[2]{};
     float queuePriority = 1.0f;
     queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

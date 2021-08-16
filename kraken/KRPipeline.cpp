@@ -116,8 +116,8 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
   m_renderPass = nullptr;
-  KRContext::SurfaceInfo& surface = m_pContext->GetSurfaceInfo(surfaceHandle);
-  KRContext::DeviceInfo& device = m_pContext->GetDeviceInfo(surface.deviceHandle);
+  KRSurface& surface = m_pContext->GetSurfaceInfo(surfaceHandle);
+  KRDevice& device = m_pContext->GetDeviceInfo(surface.deviceHandle);
 
   strcpy(m_szKey, szKey);
 
