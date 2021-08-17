@@ -62,16 +62,16 @@ KrResult KRSurface::initialize()
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hinstance = GetModuleHandle(nullptr);
   createInfo.hwnd = m_hWnd;
-  if (vkCreateWin32SurfaceKHR(m_pContext->GetVulkanInstance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+  if (vkCreateWin32SurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
     return KR_ERROR_VULKAN;
   }
 
-  m_deviceHandle = m_pContext->GetBestDeviceForSurface(m_surface);
+  m_deviceHandle = m_pContext->getDeviceManager()->getBestDeviceForSurface(m_surface);
   if (m_deviceHandle == 0) {
     return KR_ERROR_NO_DEVICE;
   }
 
-  KRDevice* deviceInfo = &m_pContext->GetDeviceInfo(m_deviceHandle);
+  KRDevice* deviceInfo = &m_pContext->getDeviceManager()->getDeviceInfo(m_deviceHandle);
 
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -230,7 +230,7 @@ KrResult KRSurface::initialize()
 
 void KRSurface::destroy()
 {
-  KRDevice& deviceInfo = m_pContext->GetDeviceInfo(m_deviceHandle);
+  KRDevice& deviceInfo = m_pContext->getDeviceManager()->getDeviceInfo(m_deviceHandle);
 
   for (auto framebuffer : m_swapChainFramebuffers) {
     vkDestroyFramebuffer(deviceInfo.m_logicalDevice, framebuffer, nullptr);
@@ -258,7 +258,7 @@ void KRSurface::destroy()
   }
   
   if (m_surface != VK_NULL_HANDLE) {
-    vkDestroySurfaceKHR(m_pContext->GetVulkanInstance(), m_surface, nullptr);
+    vkDestroySurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), m_surface, nullptr);
     m_surface = VK_NULL_HANDLE;
   }
 

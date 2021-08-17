@@ -37,7 +37,6 @@
 #include "KRAudioSample.h"
 #include "KRBundle.h"
 #include "KRPresentationThread.h"
-#include "KRSurfaceManager.h"
 
 #if defined(ANDROID)
 #include <chrono>
@@ -84,9 +83,7 @@ void *KRContext::s_log_callback_user_data = NULL;
 
 KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   : m_streamer(*this)
-  , m_vulkanInstance(VK_NULL_HANDLE)
   , m_resourceMapSize(initializeInfo->resourceMapSize)
-  , m_topDeviceHandle(0)
 {
     m_presentationThread = std::make_unique<KRPresentationThread>(*this);
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
@@ -114,6 +111,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_pUnknownManager = new KRUnknownManager(*this);
     m_pShaderManager = new KRShaderManager(*this);
     m_pSourceManager = new KRSourceManager(*this);
+    m_deviceManager = std::make_unique<KRDeviceManager>(*this);
     m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
     m_streamingEnabled = true;
 
@@ -133,7 +131,8 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #error Unsupported
 #endif
     
-    createDeviceContexts();
+    m_deviceManager->initialize();
+    
     m_presentationThread->start();
 }
 
@@ -195,8 +194,8 @@ KRContext::~KRContext() {
         m_pBundleManager = NULL;
     }
     m_surfaceManager.reset();
+    m_deviceManager.reset();
  
-    destroyDeviceContexts();
     if (m_resourceMap) {
         delete m_resourceMap;
         m_resourceMap = NULL;
@@ -264,6 +263,9 @@ KRSourceManager *KRContext::getSourceManager() {
 }
 KRSurfaceManager* KRContext::getSurfaceManager() {
   return m_surfaceManager.get();
+}
+KRDeviceManager* KRContext::getDeviceManager() {
+  return m_deviceManager.get();
 }
 KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
@@ -754,70 +756,6 @@ void KRContext::receivedMemoryWarning()
   m_last_memory_warning_frame = m_current_frame;
 }
 
-void
-KRContext::createDeviceContexts()
-{
-  VkResult res = volkInitialize();
-  if (res != VK_SUCCESS) {
-    destroyDeviceContexts();
-    return;
-  }
-
-  // initialize the VkApplicationInfo structure
-  VkApplicationInfo app_info = {};
-  app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-  app_info.pNext = NULL;
-  app_info.pApplicationName = "Test"; // TODO - Change Me!
-  app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
-  app_info.pEngineName = "Kraken Engine";
-  app_info.engineVersion = VK_MAKE_VERSION(0, 1, 0);
-  app_info.apiVersion = VK_API_VERSION_1_0;
-
-  // VK_KHR_surface and VK_KHR_win32_surface
-
-  char* extensions[] = {
-    "VK_KHR_surface",
-#ifdef WIN32
-    "VK_KHR_win32_surface",
-#endif
-  };
-
-  // initialize the VkInstanceCreateInfo structure
-  VkInstanceCreateInfo inst_info = {};
-  inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  inst_info.pNext = NULL;
-  inst_info.flags = 0;
-  inst_info.pApplicationInfo = &app_info;
-#ifdef WIN32
-  inst_info.enabledExtensionCount = 2;
-#else
-  inst_info.enabledExtensionCount = 1;
-#endif
-  inst_info.ppEnabledExtensionNames = extensions;
-  inst_info.enabledLayerCount = 0;
-  inst_info.ppEnabledLayerNames = NULL;
-
-  res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
-  if (res != VK_SUCCESS) {
-    destroyDeviceContexts();
-    return;
-  }
-
-  volkLoadInstance(m_vulkanInstance);
-
-  createDevices();
-}
-
-void
-KRContext::destroyDeviceContexts()
-{
-  const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
-  m_devices.clear();
-  if (m_vulkanInstance != VK_NULL_HANDLE) {
-    vkDestroyInstance(m_vulkanInstance, NULL);
-    m_vulkanInstance = VK_NULL_HANDLE;
-  }
-}
 
 void
 KRContext::activateStreamerContext()
@@ -904,34 +842,19 @@ void KRContext::removeResource(KRResource* resource)
   }
 }
 
-KrSurfaceHandle KRContext::GetBestDeviceForSurface(const VkSurfaceKHR& surface)
-{
-  KrDeviceHandle deviceHandle = 0;
-  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    KRDevice& device = *(*itr).second;
-    VkBool32 canPresent = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device.m_device, device.m_graphicsFamilyQueueIndex, surface, &canPresent);
-    if (canPresent) {
-      deviceHandle = (*itr).first;
-      break;
-    }
-  }
-  return deviceHandle;
-}
-
 KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createWindowSurfaceInfo)
 {
   if (createWindowSurfaceInfo->surfaceHandle < 0) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  if (m_vulkanInstance == VK_NULL_HANDLE) {
+  if (!m_deviceManager->haveVulkan()) {
     return KR_ERROR_VULKAN_REQUIRED;
   }
   if (m_surfaceHandleMap.count(createWindowSurfaceInfo->surfaceHandle)) {
     return KR_ERROR_DUPLICATE_HANDLE;
   }
 
-  if (m_devices.size() == 0) {
+  if (!m_deviceManager->haveDevice()) {
     return KR_ERROR_NO_DEVICE;
   }
 
@@ -960,7 +883,7 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   if (deleteWindowSurfaceInfo->surfaceHandle < 0) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  if (m_vulkanInstance == VK_NULL_HANDLE) {
+  if (!m_deviceManager->haveVulkan()) {
     return KR_ERROR_VULKAN_REQUIRED;
   }
 
@@ -972,73 +895,4 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   m_surfaceHandleMap.erase(handleItr);
   
   return m_surfaceManager->destroy(surfaceHandle);
-}
-
-KRDevice& KRContext::GetDeviceInfo(KrDeviceHandle handle)
-{
-  return *m_devices[handle];
-}
-
-void KRContext::createDevices()
-{
-  const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
-  if (m_devices.size() > 0) {
-    return;
-  }
-  uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, nullptr);
-  if (deviceCount == 0) {
-    return;
-  }
-
-  std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, physicalDevices.data());
-
-  const std::vector<const char*> deviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-  };
-
-  std::vector<std::unique_ptr<KRDevice>> candidateDevices;
-
-  for (const VkPhysicalDevice& physicalDevice : physicalDevices) {
-    std::unique_ptr<KRDevice> device = std::make_unique<KRDevice>(physicalDevice);
-    if (!device->initialize(deviceExtensions)) {
-      continue;
-    }
-
-    bool addDevice = false;
-    if (candidateDevices.empty()) {
-      addDevice = true;
-    } else {
-      VkPhysicalDeviceType collectedType = candidateDevices[0]->m_deviceProperties.deviceType;
-      if (collectedType == device->m_deviceProperties.deviceType) {
-        addDevice = true;
-      } else if (device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-        // Discrete GPU's are always the best choice
-        candidateDevices.clear();
-        addDevice = true;
-      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
-        // Integrated GPU's are the second best choice
-        candidateDevices.clear();
-        addDevice = true;
-      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
-        // Virtual GPU's are the 3rd best choice
-        candidateDevices.clear();
-        addDevice = true;
-      }
-    }
-    if (addDevice) {
-      candidateDevices.push_back(std::move(device));
-    }
-  }
-
-  for (auto itr = candidateDevices.begin(); itr != candidateDevices.end(); itr++) {
-    std::unique_ptr<KRDevice> device = std::move(*itr);
-     m_devices[++m_topDeviceHandle] = std::move(device);
-  }
-}
-
-VkInstance& KRContext::GetVulkanInstance()
-{
-  return m_vulkanInstance;
 }

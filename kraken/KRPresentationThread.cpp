@@ -96,7 +96,7 @@ void KRPresentationThread::renderFrame()
 
   for (auto surfaceItr = surfaces.begin(); surfaceItr != surfaces.end(); surfaceItr++) {
     KRSurface& surface = *(*surfaceItr).second;
-    KRDevice& device = m_pContext->GetDeviceInfo(surface.m_deviceHandle);
+    KRDevice& device = m_pContext->getDeviceManager()->getDeviceInfo(surface.m_deviceHandle);
 
     uint32_t imageIndex = 0;
     vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);

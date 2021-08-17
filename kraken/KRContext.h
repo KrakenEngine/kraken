@@ -45,6 +45,7 @@
 #include "KRShaderManager.h"
 #include "KRSourceManager.h"
 #include "KRSurfaceManager.h"
+#include "KRDeviceManager.h"
 #include "KRStreamer.h"
 #include "KRDevice.h"
 #include "KRSurface.h"
@@ -111,6 +112,7 @@ public:
     KRShaderManager *getShaderManager();
     KRSourceManager *getSourceManager();
     KRSurfaceManager* getSurfaceManager();
+    KRDeviceManager* getDeviceManager();
     
     KRCamera *createCamera(int width, int height);
     
@@ -159,11 +161,12 @@ public:
 
     static std::mutex g_SurfaceInfoMutex;
     static std::mutex g_DeviceInfoMutex;
-
+    /*
     KRDevice& GetDeviceInfo(KrDeviceHandle handle);
     KRSurface& GetSurfaceInfo(KrSurfaceHandle handle);
     VkInstance& GetVulkanInstance();
     KrSurfaceHandle GetBestDeviceForSurface(const VkSurfaceKHR& surface);
+    */
     
 #if TARGET_OS_MAC
     static void attachToView(void *view);
@@ -183,6 +186,7 @@ private:
     KRUnknownManager *m_pUnknownManager;
     KRShaderManager *m_pShaderManager;
     KRSourceManager *m_pSourceManager;
+    std::unique_ptr<KRDeviceManager> m_deviceManager;
     std::unique_ptr<KRSurfaceManager> m_surfaceManager;
 
     KRResource** m_resourceMap;
@@ -207,19 +211,11 @@ private:
     static void *s_log_callback_user_data;
     
     KRStreamer m_streamer;
-    VkInstance m_vulkanInstance;
-    
-    void createDeviceContexts();
-    void createDevices();
-    void destroyDeviceContexts();
 
     unordered_multimap<std::string, KRResource*> m_resources;
 
     
     std::unique_ptr<KRPresentationThread> m_presentationThread;
-
-    unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>> m_devices;
-    KrDeviceHandle m_topDeviceHandle;
 
     unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;
 };
