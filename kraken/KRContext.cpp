@@ -712,13 +712,6 @@ void KRContext::receivedMemoryWarning()
   m_last_memory_warning_frame = m_current_frame;
 }
 
-
-void
-KRContext::activateStreamerContext()
-{
-
-}
-
 KrResult KRContext::findNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo)
 {
   return KR_ERROR_NOT_IMPLEMENTED;

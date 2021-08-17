@@ -47,7 +47,6 @@ void KRStreamer::startStreamer()
 {
     if(!m_running) {
         m_running = true;
-        KRContext::activateStreamerContext();
         
         m_thread = std::thread(&KRStreamer::run, this);
     }
@@ -74,8 +73,6 @@ void KRStreamer::run()
 #endif
 
     std::chrono::microseconds sleep_duration( 15000 );
-    
-    KRContext::activateStreamerContext();
 
     while(!m_stop)
     {

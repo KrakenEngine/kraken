@@ -156,9 +156,6 @@ public:
     void doStreaming();
     void receivedMemoryWarning();
 
-    static void activateStreamerContext();
-    static void activateRenderContext();
-
     static std::mutex g_SurfaceInfoMutex;
     static std::mutex g_DeviceInfoMutex;
 
