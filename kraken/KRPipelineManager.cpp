@@ -62,7 +62,7 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
-void KRPipelineManager::createPipelines(KrSurfaceHandle surface)
+void KRPipelineManager::createPipelines(KRSurface& surface)
 {
   {
     // vulkan_test
@@ -70,7 +70,7 @@ void KRPipelineManager::createPipelines(KrSurfaceHandle surface)
     std::vector<KRShader*> shaders;
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".vert", "spv"));
     shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".frag", "spv"));
-    KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, pipeline_name.c_str(), shaders);
+    KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, surface.m_swapChainImageFormat, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height , pipeline_name.c_str(), shaders);
     std::pair<std::string, std::vector<int> > key;
     key.first = pipeline_name;
     m_pipelines[key] = pipeline;

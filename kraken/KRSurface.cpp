@@ -202,6 +202,29 @@ KrResult KRSurface::initialize()
     }
   }
 
+  KRPipelineManager* pipelineManager = m_pContext->getPipelineManager();
+  pipelineManager->createPipelines(*this);
+
+  KRPipeline* testPipeline = pipelineManager->get("vulkan_test");
+  m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
+
+  for (size_t i = 0; i < m_swapChainImageViews.size(); i++) {
+    VkImageView attachments[] = { m_swapChainImageViews[i] };
+
+    VkFramebufferCreateInfo framebufferInfo{};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.renderPass = testPipeline->getRenderPass();
+    framebufferInfo.attachmentCount = 1;
+    framebufferInfo.pAttachments = attachments;
+    framebufferInfo.width = m_swapChainExtent.width;
+    framebufferInfo.height = m_swapChainExtent.height;
+    framebufferInfo.layers = 1;
+
+    if (vkCreateFramebuffer(deviceInfo->m_logicalDevice, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN_FRAMEBUFFER;
+    }
+  }
+
   return KR_SUCCESS;
 }
 

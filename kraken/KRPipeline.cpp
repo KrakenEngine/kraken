@@ -109,15 +109,14 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const char* szKey, const std::vector<KRShader*>& shaders)
+KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat swapChainImageFormat, uint32_t swapChainWidth, uint32_t swapChainHeight, const char* szKey, const std::vector<KRShader*>& shaders)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
   m_renderPass = nullptr;
-  KRSurface& surface = m_pContext->GetSurfaceInfo(surfaceHandle);
-  KRDevice& device = m_pContext->GetDeviceInfo(surface.m_deviceHandle);
+  KRDevice& device = m_pContext->GetDeviceInfo(deviceHandle);
 
   strcpy(m_szKey, szKey);
 
@@ -145,7 +144,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   }
 
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = surface.m_swapChainImageFormat;
+  colorAttachment.format = swapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -199,14 +198,15 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float)surface.m_swapChainExtent.width;
-  viewport.height = (float)surface.m_swapChainExtent.height;
+  viewport.width = static_cast<float>(swapChainWidth);
+  viewport.height = static_cast<float>(swapChainHeight);
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor{};
   scissor.offset = { 0, 0 };
-  scissor.extent = surface.m_swapChainExtent;
+  scissor.extent.width = swapChainWidth;
+  scissor.extent.height = swapChainHeight;
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

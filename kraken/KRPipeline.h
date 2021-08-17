@@ -44,7 +44,7 @@ class KRShader;
 
 class KRPipeline  : public KRContextObject {
 public:
-    KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const char* szKey, const std::vector<KRShader*>& shaders);
+    KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat swapChainImageFormat, uint32_t swapChainWidth, uint32_t swapChainHeight, const char* szKey, const std::vector<KRShader*>& shaders);
     KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRPipeline();
     const char *getKey() const;

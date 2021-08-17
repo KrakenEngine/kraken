@@ -932,7 +932,7 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (m_vulkanInstance == VK_NULL_HANDLE) {
     return KR_ERROR_VULKAN_REQUIRED;
   }
-  if (m_surfaces.count(createWindowSurfaceInfo->surfaceHandle)) {
+  if (m_surfaceHandleMap.count(createWindowSurfaceInfo->surfaceHandle)) {
     return KR_ERROR_DUPLICATE_HANDLE;
   }
 
@@ -958,33 +958,6 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   m_surfaces.insert(std::pair<KrSurfaceHandle, std::unique_ptr<KRSurface>>(surfaceHandle, std::move(info)));
   
   m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
-  
-  m_pPipelineManager->createPipelines(surfaceHandle);
-
-  {
-    KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
-    KRSurface& surface = *m_surfaces[surfaceHandle];
-    surface.m_swapChainFramebuffers.resize(surface.m_swapChainImageViews.size());
-
-    for (size_t i = 0; i < surface.m_swapChainImageViews.size(); i++) {
-      VkImageView attachments[] = {
-          surface.m_swapChainImageViews[i]
-      };
-
-      VkFramebufferCreateInfo framebufferInfo{};
-      framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = testPipeline->getRenderPass();
-      framebufferInfo.attachmentCount = 1;
-      framebufferInfo.pAttachments = attachments;
-      framebufferInfo.width = surface.m_swapChainExtent.width;
-      framebufferInfo.height = surface.m_swapChainExtent.height;
-      framebufferInfo.layers = 1;
-
-      if (vkCreateFramebuffer(deviceInfo->m_logicalDevice, &framebufferInfo, nullptr, &surface.m_swapChainFramebuffers[i]) != VK_SUCCESS) {
-        // TODO - Error Handling
-      }
-    }
-  }
 
   return KR_SUCCESS;
 #else
