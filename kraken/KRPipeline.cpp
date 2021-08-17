@@ -117,7 +117,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   m_graphicsPipeline = nullptr;
   m_renderPass = nullptr;
   KRSurface& surface = m_pContext->GetSurfaceInfo(surfaceHandle);
-  KRDevice& device = m_pContext->GetDeviceInfo(surface.deviceHandle);
+  KRDevice& device = m_pContext->GetDeviceInfo(surface.m_deviceHandle);
 
   strcpy(m_szKey, szKey);
 
@@ -145,7 +145,7 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   }
 
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = surface.swapChainImageFormat;
+  colorAttachment.format = surface.m_swapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -199,14 +199,14 @@ KRPipeline::KRPipeline(KRContext& context, KrSurfaceHandle surfaceHandle, const 
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float)surface.swapChainExtent.width;
-  viewport.height = (float)surface.swapChainExtent.height;
+  viewport.width = (float)surface.m_swapChainExtent.width;
+  viewport.height = (float)surface.m_swapChainExtent.height;
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor{};
   scissor.offset = { 0, 0 };
-  scissor.extent = surface.swapChainExtent;
+  scissor.extent = surface.m_swapChainExtent;
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

@@ -30,26 +30,41 @@
 //
 
 #include "KREngine-common.h"
+#include "KRContext.h"
 
 #ifndef KRSURFACE_H
 #define KRSURFACE_H
 
-class KRSurface
+class KRSurface : public KRContextObject
 {
 public:
-  KrDeviceHandle deviceHandle;
-  VkSurfaceKHR surface;
-  VkSwapchainKHR swapChain;
-  std::vector<VkImage> swapChainImages;
-  VkFormat swapChainImageFormat;
-  VkExtent2D swapChainExtent;
-  std::vector<VkImageView> swapChainImageViews;
-  std::vector<VkFramebuffer> swapChainFramebuffers;
-  VkSemaphore imageAvailableSemaphore;
-  VkSemaphore renderFinishedSemaphore;
 #ifdef WIN32
-  HWND hWnd;
+  KRSurface(KRContext& context, HWND hWnd);
+#else
+  KRSurface(KRContext& context);
 #endif
+  ~KRSurface();
+  void destroy();
+
+  KRSurface(const KRSurface&) = delete;
+  KRSurface& operator=(const KRSurface&) = delete;
+
+  KrResult initialize();
+
+#ifdef WIN32
+  HWND m_hWnd;
+#endif
+  KrDeviceHandle m_deviceHandle;
+  VkSurfaceKHR m_surface;
+  VkSwapchainKHR m_swapChain;
+  std::vector<VkImage> m_swapChainImages;
+  VkFormat m_swapChainImageFormat;
+  VkExtent2D m_swapChainExtent;
+  std::vector<VkImageView> m_swapChainImageViews;
+  std::vector<VkFramebuffer> m_swapChainFramebuffers;
+  VkSemaphore m_imageAvailableSemaphore;
+  VkSemaphore m_renderFinishedSemaphore;
+
 
 private:
 };

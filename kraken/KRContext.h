@@ -159,6 +159,8 @@ public:
 
     KRDevice& GetDeviceInfo(KrDeviceHandle handle);
     KRSurface& GetSurfaceInfo(KrSurfaceHandle handle);
+    VkInstance& GetVulkanInstance();
+    KrSurfaceHandle GetBestDeviceForSurface(const VkSurfaceKHR& surface);
     
 #if TARGET_OS_MAC
     static void attachToView(void *view);
@@ -218,7 +220,7 @@ private:
     unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>> m_devices;
     KrDeviceHandle m_topDeviceHandle;
 
-    unordered_map<KrSurfaceHandle, KRSurface> m_surfaces;
+    unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>> m_surfaces;
     KrDeviceHandle m_topSurfaceHandle;
 
     unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;

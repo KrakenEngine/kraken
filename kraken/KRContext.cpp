@@ -819,21 +819,7 @@ KRContext::destroyDeviceContexts()
 void
 KRContext::destroySurfaces()
 {
-  if (m_vulkanInstance == VK_NULL_HANDLE) {
-    return;
-  }
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
-  for (auto itr = m_surfaces.begin(); itr != m_surfaces.end(); itr++) {
-    KRSurface& surfaceInfo = (*itr).second;
-    KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo.deviceHandle);
-    for (auto framebuffer : surfaceInfo.swapChainFramebuffers) {
-      vkDestroyFramebuffer(deviceInfo.m_logicalDevice, framebuffer, nullptr);
-    } 
-    vkDestroySwapchainKHR(deviceInfo.m_logicalDevice, surfaceInfo.swapChain, nullptr);
-    vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo.renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo.imageAvailableSemaphore, nullptr);
-    vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo.surface, nullptr);
-  }
   m_surfaces.clear();
   m_surfaceHandleMap.clear();
 }
@@ -923,6 +909,21 @@ void KRContext::removeResource(KRResource* resource)
   }
 }
 
+KrSurfaceHandle KRContext::GetBestDeviceForSurface(const VkSurfaceKHR& surface)
+{
+  KrDeviceHandle deviceHandle = 0;
+  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
+    KRDevice& device = *(*itr).second;
+    VkBool32 canPresent = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device.m_device, device.m_graphicsFamilyQueueIndex, surface, &canPresent);
+    if (canPresent) {
+      deviceHandle = (*itr).first;
+      break;
+    }
+  }
+  return deviceHandle;
+}
+
 KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createWindowSurfaceInfo)
 {
   if (createWindowSurfaceInfo->surfaceHandle < 0) {
@@ -942,193 +943,32 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
   const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
 
-  KRDevice* deviceInfo = nullptr;
-
 #ifdef WIN32
   HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
+  std::unique_ptr<KRSurface> info = std::make_unique<KRSurface>(*this, hWnd);
 
-  KRSurface info{};
-  info.hWnd = hWnd;
-
-  VkWin32SurfaceCreateInfoKHR createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-  createInfo.hinstance = GetModuleHandle(nullptr);
-  createInfo.hwnd = hWnd;
-  if (vkCreateWin32SurfaceKHR(m_vulkanInstance, &createInfo, nullptr, &info.surface) != VK_SUCCESS) {
-    return KR_ERROR_VULKAN;
+  KrResult initialize_result = info->initialize();
+  if (initialize_result != KR_SUCCESS) {
+    return initialize_result;
   }
 
-  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    KRDevice& device = *(*itr).second;
-    VkBool32 canPresent = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device.m_device, device.m_graphicsFamilyQueueIndex, info.surface, &canPresent);
-    if (canPresent) {
-      info.deviceHandle = (*itr).first;
-      deviceInfo = &device;
-      break;
-    }
-  }
-
-  if (deviceInfo == nullptr) {
-    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    return KR_ERROR_NO_DEVICE;
-  }
-
-  VkSemaphoreCreateInfo semaphoreInfo{};
-  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  if (vkCreateSemaphore(deviceInfo->m_logicalDevice, &semaphoreInfo, nullptr, &info.imageAvailableSemaphore) != VK_SUCCESS) {
-    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    return KR_ERROR_VULKAN;
-  }
-  if (vkCreateSemaphore(deviceInfo->m_logicalDevice, &semaphoreInfo, nullptr, &info.renderFinishedSemaphore) != VK_SUCCESS) {
-    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
-    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    return KR_ERROR_VULKAN;
-  }
-
-  VkSurfaceCapabilitiesKHR surfaceCapabilities{};
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceInfo->m_device, info.surface, &surfaceCapabilities);
-
-  std::vector<VkSurfaceFormatKHR> surfaceFormats;
-  uint32_t formatCount = 0;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->m_device, info.surface, &formatCount, nullptr);
-
-  
-  if (formatCount != 0) {
-    surfaceFormats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->m_device, info.surface, &formatCount, surfaceFormats.data());
-  }
-
-  std::vector<VkPresentModeKHR> surfacePresentModes;
-
-  uint32_t presentModeCount = 0;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->m_device, info.surface, &presentModeCount, nullptr);
-
-  if (presentModeCount != 0) {
-    surfacePresentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(deviceInfo->m_device, info.surface, &presentModeCount, surfacePresentModes.data());
-  }
-
-  VkSurfaceFormatKHR selectedSurfaceFormat = surfaceFormats[0];
-  for (const auto& availableFormat : surfaceFormats) {
-    if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-      selectedSurfaceFormat = availableFormat;
-      break;
-    }
-  }
-
-  // VK_PRESENT_MODE_FIFO_KHR is always available
-  VkPresentModeKHR selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-
-  // Try to find a better mode
-  for (const auto& availablePresentMode : surfacePresentModes) {
-    if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-      selectedPresentMode = availablePresentMode;
-    }
-  }
-
-  VkExtent2D swapExtent;
-  if (surfaceCapabilities.currentExtent.width != UINT32_MAX) {
-    swapExtent = surfaceCapabilities.currentExtent;
-  } else {
-    const uint32_t MAX_WIDTH = 8192;
-    const uint32_t MAX_HEIGHT = 8192;
-    swapExtent.width = std::max(surfaceCapabilities.minImageExtent.width, std::min(surfaceCapabilities.maxImageExtent.width, MAX_WIDTH));
-    swapExtent.height = std::max(surfaceCapabilities.minImageExtent.height, std::min(surfaceCapabilities.maxImageExtent.height, MAX_HEIGHT));
-   }
-  info.swapChainExtent = swapExtent;
-
-  uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
-  if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount) {
-    imageCount = surfaceCapabilities.maxImageCount;
-  }
-
-  VkSwapchainCreateInfoKHR swapChainCreateInfo{};
-  swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  swapChainCreateInfo.surface = info.surface;
-  swapChainCreateInfo.minImageCount = imageCount;
-  swapChainCreateInfo.imageFormat = selectedSurfaceFormat.format;
-  swapChainCreateInfo.imageColorSpace = selectedSurfaceFormat.colorSpace;
-  swapChainCreateInfo.imageExtent = swapExtent;
-  swapChainCreateInfo.imageArrayLayers = 1;
-  swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-  uint32_t queueFamilyIndices[] = {
-    deviceInfo->m_graphicsFamilyQueueIndex,
-    deviceInfo->m_computeFamilyQueueIndex
-  };
-  if (deviceInfo->m_graphicsFamilyQueueIndex == deviceInfo->m_computeFamilyQueueIndex) {
-    swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    swapChainCreateInfo.queueFamilyIndexCount = 0;
-    swapChainCreateInfo.pQueueFamilyIndices = nullptr;
-  } else {
-    swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-    swapChainCreateInfo.queueFamilyIndexCount = 2;
-    swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
-  }
-
-  swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
-  swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-  swapChainCreateInfo.presentMode = selectedPresentMode;
-  swapChainCreateInfo.clipped = VK_TRUE;
-  swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
-
-  if (vkCreateSwapchainKHR(deviceInfo->m_logicalDevice, &swapChainCreateInfo, nullptr, &info.swapChain) != VK_SUCCESS) {
-    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
-    vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-    return KR_ERROR_VULKAN_SWAP_CHAIN;
-  }
-
-  vkGetSwapchainImagesKHR(deviceInfo->m_logicalDevice, info.swapChain, &imageCount, nullptr);
-  info.swapChainImages.resize(imageCount);
-  vkGetSwapchainImagesKHR(deviceInfo->m_logicalDevice, info.swapChain, &imageCount, info.swapChainImages.data());
-
-  info.swapChainImageFormat = selectedSurfaceFormat.format;
-
-  info.swapChainImageViews.resize(info.swapChainImages.size());
-  for (size_t i = 0; i < info.swapChainImages.size(); i++) {
-    VkImageViewCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.image = info.swapChainImages[i];
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    createInfo.format = info.swapChainImageFormat;
-    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = 1;
-    createInfo.subresourceRange.baseArrayLayer = 0;
-    createInfo.subresourceRange.layerCount = 1;
-    if (vkCreateImageView(deviceInfo->m_logicalDevice, &createInfo, nullptr, &info.swapChainImageViews[i]) != VK_SUCCESS) {
-      for (size_t j = 0; j < i; j++) {
-        vkDestroyImageView(deviceInfo->m_logicalDevice, info.swapChainImageViews[j], nullptr);
-      }
-      vkDestroySemaphore(deviceInfo->m_logicalDevice, info.renderFinishedSemaphore, nullptr);
-      vkDestroySemaphore(deviceInfo->m_logicalDevice, info.imageAvailableSemaphore, nullptr);
-      vkDestroySurfaceKHR(m_vulkanInstance, info.surface, nullptr);
-      return KR_ERROR_VULKAN_SWAP_CHAIN;
-    }
-  }
+  KRDevice* deviceInfo  = &GetDeviceInfo(info->m_deviceHandle);
 
   KrSurfaceHandle surfaceHandle = ++m_topSurfaceHandle;
-  m_surfaces.insert(std::pair<KrSurfaceHandle, KRSurface>(surfaceHandle, info));
+  m_surfaces.insert(std::pair<KrSurfaceHandle, std::unique_ptr<KRSurface>>(surfaceHandle, std::move(info)));
   
-
   m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
   
   m_pPipelineManager->createPipelines(surfaceHandle);
 
   {
     KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
-    KRSurface& surface = m_surfaces[surfaceHandle];
-    surface.swapChainFramebuffers.resize(surface.swapChainImageViews.size());
+    KRSurface& surface = *m_surfaces[surfaceHandle];
+    surface.m_swapChainFramebuffers.resize(surface.m_swapChainImageViews.size());
 
-    for (size_t i = 0; i < surface.swapChainImageViews.size(); i++) {
+    for (size_t i = 0; i < surface.m_swapChainImageViews.size(); i++) {
       VkImageView attachments[] = {
-          surface.swapChainImageViews[i]
+          surface.m_swapChainImageViews[i]
       };
 
       VkFramebufferCreateInfo framebufferInfo{};
@@ -1136,11 +976,11 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
       framebufferInfo.renderPass = testPipeline->getRenderPass();
       framebufferInfo.attachmentCount = 1;
       framebufferInfo.pAttachments = attachments;
-      framebufferInfo.width = surface.swapChainExtent.width;
-      framebufferInfo.height = surface.swapChainExtent.height;
+      framebufferInfo.width = surface.m_swapChainExtent.width;
+      framebufferInfo.height = surface.m_swapChainExtent.height;
       framebufferInfo.layers = 1;
 
-      if (vkCreateFramebuffer(deviceInfo->m_logicalDevice, &framebufferInfo, nullptr, &surface.swapChainFramebuffers[i]) != VK_SUCCESS) {
+      if (vkCreateFramebuffer(deviceInfo->m_logicalDevice, &framebufferInfo, nullptr, &surface.m_swapChainFramebuffers[i]) != VK_SUCCESS) {
         // TODO - Error Handling
       }
     }
@@ -1173,15 +1013,6 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   if (itr == m_surfaces.end()) {
     return KR_ERROR_NOT_FOUND;
   }
-  KRSurface* surfaceInfo = &(*itr).second;
-  KRDevice& deviceInfo = GetDeviceInfo(surfaceInfo->deviceHandle);
-  for (auto imageView : surfaceInfo->swapChainImageViews) {
-    vkDestroyImageView(deviceInfo.m_logicalDevice, imageView, nullptr);
-  }
-  vkDestroySwapchainKHR(deviceInfo.m_logicalDevice, surfaceInfo->swapChain, nullptr);
-  vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo->renderFinishedSemaphore, nullptr);
-  vkDestroySemaphore(deviceInfo.m_logicalDevice, surfaceInfo->imageAvailableSemaphore, nullptr);
-  vkDestroySurfaceKHR(m_vulkanInstance, surfaceInfo->surface, nullptr);
   m_surfaces.erase(itr);
   return KR_SUCCESS;
 }
@@ -1214,11 +1045,11 @@ void KRContext::renderFrame()
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
 
   for (auto surfaceItr = m_surfaces.begin(); surfaceItr != m_surfaces.end(); surfaceItr++) {
-    KRSurface& surface = (*surfaceItr).second;
-    KRDevice& device = GetDeviceInfo(surface.deviceHandle);
+    KRSurface& surface = *(*surfaceItr).second;
+    KRDevice& device = GetDeviceInfo(surface.m_deviceHandle);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device.m_logicalDevice, surface.swapChain, UINT64_MAX, surface.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     // TODO - this will break with more than one surface...  Expect to refactor this out
     VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
@@ -1238,9 +1069,9 @@ void KRContext::renderFrame()
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = testPipeline->getRenderPass();
-    renderPassInfo.framebuffer = surface.swapChainFramebuffers[frameIndex % surface.swapChainFramebuffers.size()];
+    renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[frameIndex % surface.m_swapChainFramebuffers.size()];
     renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = surface.swapChainExtent;
+    renderPassInfo.renderArea.extent = surface.m_swapChainExtent;
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -1255,7 +1086,7 @@ void KRContext::renderFrame()
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = { surface.imageAvailableSemaphore };
+    VkSemaphore waitSemaphores[] = { surface.m_imageAvailableSemaphore };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -1263,7 +1094,7 @@ void KRContext::renderFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    VkSemaphore signalSemaphores[] = { surface.renderFinishedSemaphore };
+    VkSemaphore signalSemaphores[] = { surface.m_renderFinishedSemaphore };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -1276,7 +1107,7 @@ void KRContext::renderFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &surface.swapChain;
+    presentInfo.pSwapchains = &surface.m_swapChain;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
     vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);
@@ -1291,7 +1122,7 @@ KRSurface& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
   if (itr == m_surfaces.end()) {
     assert(false);
   }
-  return m_surfaces[handle];
+  return *m_surfaces[handle];
 }
 
 KRDevice& KRContext::GetDeviceInfo(KrDeviceHandle handle)
@@ -1356,4 +1187,9 @@ void KRContext::createDevices()
     std::unique_ptr<KRDevice> device = std::move(*itr);
      m_devices[++m_topDeviceHandle] = std::move(device);
   }
+}
+
+VkInstance& KRContext::GetVulkanInstance()
+{
+  return m_vulkanInstance;
 }
