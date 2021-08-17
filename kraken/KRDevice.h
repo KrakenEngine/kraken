@@ -37,8 +37,14 @@
 class KRDevice
 {
 public:
+  KRDevice(const VkPhysicalDevice& device);
+  ~KRDevice();
+
+  KRDevice(const KRDevice&) = delete;
+  KRDevice& operator=(const KRDevice&) = delete;
 
   void destroy();
+  bool initialize(const std::vector<const char*>& deviceExtensions);
 
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;

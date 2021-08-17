@@ -215,7 +215,7 @@ private:
     std::atomic<bool> m_stop;
     void renderFrame();
 
-    unordered_map<KrDeviceHandle, KRDevice> m_devices;
+    unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>> m_devices;
     KrDeviceHandle m_topDeviceHandle;
 
     unordered_map<KrSurfaceHandle, KRSurface> m_surfaces;

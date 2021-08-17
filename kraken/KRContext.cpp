@@ -809,11 +809,6 @@ void
 KRContext::destroyDeviceContexts()
 {
   const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
-  for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    KRDevice* deviceInfo = &(*itr).second;
-    deviceInfo->destroy();
-  }
-  
   m_devices.clear();
   if (m_vulkanInstance != VK_NULL_HANDLE) {
     vkDestroyInstance(m_vulkanInstance, NULL);
@@ -964,12 +959,12 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   }
 
   for (auto itr = m_devices.begin(); itr != m_devices.end(); itr++) {
-    KRDevice* device = &(*itr).second;
+    KRDevice& device = *(*itr).second;
     VkBool32 canPresent = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device->m_device, device->m_graphicsFamilyQueueIndex, info.surface, &canPresent);
+    vkGetPhysicalDeviceSurfaceSupportKHR(device.m_device, device.m_graphicsFamilyQueueIndex, info.surface, &canPresent);
     if (canPresent) {
       info.deviceHandle = (*itr).first;
-      deviceInfo = device;
+      deviceInfo = &device;
       break;
     }
   }
@@ -1301,7 +1296,7 @@ KRSurface& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
 
 KRDevice& KRContext::GetDeviceInfo(KrDeviceHandle handle)
 {
-  return m_devices[handle];
+  return *m_devices[handle];
 }
 
 void KRContext::createDevices()
@@ -1316,175 +1311,49 @@ void KRContext::createDevices()
     return;
   }
 
-  std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, devices.data());
+  std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+  vkEnumeratePhysicalDevices(m_vulkanInstance, &deviceCount, physicalDevices.data());
 
   const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
   };
 
-  std::vector<KRDevice> deviceInfos;
+  std::vector<std::unique_ptr<KRDevice>> candidateDevices;
 
-  for (const VkPhysicalDevice& device : devices) {
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-    uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-    uint32_t graphicsFamilyQueue = -1;
-    uint32_t computeFamilyQueue = -1;
-    uint32_t i = 0;
-    for (const auto& queueFamily : queueFamilies) {
-      if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-        graphicsFamilyQueue = i;
-      }
-      if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
-        computeFamilyQueue = i;
-      }
-      i++;
-    }
-    if (graphicsFamilyQueue == -1) {
-      // No graphics queue family, not suitable
-      continue;
-    }
-    if (computeFamilyQueue == -1) {
-      // No compute queue family, not suitable
-      continue;
-    }
-
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-    for (const auto& extension : availableExtensions) {
-      requiredExtensions.erase(extension.extensionName);
-    }
-    if (!requiredExtensions.empty()) {
-      // Missing a required extension
+  for (const VkPhysicalDevice& physicalDevice : physicalDevices) {
+    std::unique_ptr<KRDevice> device = std::make_unique<KRDevice>(physicalDevice);
+    if (!device->initialize(deviceExtensions)) {
       continue;
     }
 
     bool addDevice = false;
-
-
-    if (deviceInfos.empty()) {
+    if (candidateDevices.empty()) {
       addDevice = true;
     } else {
-      VkPhysicalDeviceType collectedType = deviceInfos[0].m_deviceProperties.deviceType;
-      if (collectedType == deviceProperties.deviceType) {
+      VkPhysicalDeviceType collectedType = candidateDevices[0]->m_deviceProperties.deviceType;
+      if (collectedType == device->m_deviceProperties.deviceType) {
         addDevice = true;
-      } else if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+      } else if (device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
         // Discrete GPU's are always the best choice
-        deviceInfos.clear();
+        candidateDevices.clear();
         addDevice = true;
-      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
         // Integrated GPU's are the second best choice
-        deviceInfos.clear();
+        candidateDevices.clear();
         addDevice = true;
-      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
         // Virtual GPU's are the 3rd best choice
-        deviceInfos.clear();
+        candidateDevices.clear();
         addDevice = true;
       }
     }
     if (addDevice) {
-      KRDevice& info = deviceInfos.emplace_back(KRDevice{});
-      info.m_device = device;
-      info.m_deviceProperties = deviceProperties;
-      info.m_deviceFeatures = deviceFeatures;
-      info.m_graphicsFamilyQueueIndex = graphicsFamilyQueue;
-      info.m_computeFamilyQueueIndex = computeFamilyQueue;     
+      candidateDevices.push_back(std::move(device));
     }
   }
 
-  for (KRDevice& info: deviceInfos) {
-    VkDeviceQueueCreateInfo queueCreateInfo[2]{};
-    float queuePriority = 1.0f;
-    queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo[0].queueFamilyIndex = info.m_graphicsFamilyQueueIndex;
-    queueCreateInfo[0].queueCount = 1;
-    queueCreateInfo[0].pQueuePriorities = &queuePriority;
-    if (info.m_graphicsFamilyQueueIndex != info.m_computeFamilyQueueIndex) {
-      queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-      queueCreateInfo[1].queueFamilyIndex = info.m_computeFamilyQueueIndex;
-      queueCreateInfo[1].queueCount = 1;
-      queueCreateInfo[1].pQueuePriorities = &queuePriority;
-    }
-
-    VkDeviceCreateInfo deviceCreateInfo{};
-    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-    deviceCreateInfo.queueCreateInfoCount = info.m_graphicsFamilyQueueIndex == info.m_computeFamilyQueueIndex ? 1 : 2;
-    VkPhysicalDeviceFeatures deviceFeatures{};
-    deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
-    if (vkCreateDevice(info.m_device, &deviceCreateInfo, nullptr, &info.m_logicalDevice) != VK_SUCCESS) {
-      // TODO - Log a warning...
-      continue;
-    }
-    vkGetDeviceQueue(info.m_logicalDevice, info.m_graphicsFamilyQueueIndex, 0, &info.m_graphicsQueue);
-    vkGetDeviceQueue(info.m_logicalDevice, info.m_computeFamilyQueueIndex, 0, &info.m_computeQueue);
-
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = info.m_graphicsFamilyQueueIndex;
-    poolInfo.flags = 0;
-
-    if (vkCreateCommandPool(info.m_logicalDevice, &poolInfo, nullptr, &info.m_graphicsCommandPool) != VK_SUCCESS) {
-      vkDestroyDevice(info.m_logicalDevice, nullptr);
-      // TODO - Log a warning...
-      continue;
-    }
-
-    poolInfo.queueFamilyIndex = info.m_computeFamilyQueueIndex;
-    if (vkCreateCommandPool(info.m_logicalDevice, &poolInfo, nullptr, &info.m_computeCommandPool) != VK_SUCCESS) {
-      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.m_logicalDevice, nullptr);
-      // TODO - Log a warning...
-      continue;
-    }
-
-    const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
-    info.m_graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
-
-    const int kMaxComputeCommandBuffers = 4; // TODO - This needs to be dynamic?
-    info.m_computeCommandBuffers.resize(kMaxComputeCommandBuffers);
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = info.m_graphicsCommandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)info.m_graphicsCommandBuffers.size();
-
-    if (vkAllocateCommandBuffers(info.m_logicalDevice, &allocInfo, info.m_graphicsCommandBuffers.data()) != VK_SUCCESS) {
-      vkDestroyCommandPool(info.m_logicalDevice, info.m_computeCommandPool, nullptr);
-      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.m_logicalDevice, nullptr);
-      // TODO - Log a warning
-    }
-
-    allocInfo.commandPool = info.m_computeCommandPool;
-    allocInfo.commandBufferCount = (uint32_t)info.m_computeCommandBuffers.size();
-    if (vkAllocateCommandBuffers(info.m_logicalDevice, &allocInfo, info.m_computeCommandBuffers.data()) != VK_SUCCESS) {
-      // Note - this repeated cleanup will likely be eliminated with later refactoring to split vulkan
-      // object generation out of KRContext
-      vkDestroyCommandPool(info.m_logicalDevice, info.m_computeCommandPool, nullptr);
-      vkDestroyCommandPool(info.m_logicalDevice, info.m_graphicsCommandPool, nullptr);
-      vkDestroyDevice(info.m_logicalDevice, nullptr);
-      // TODO - Log a warning
-    }
-
-    m_devices[++m_topDeviceHandle] = info;
+  for (auto itr = candidateDevices.begin(); itr != candidateDevices.end(); itr++) {
+    std::unique_ptr<KRDevice> device = std::move(*itr);
+     m_devices[++m_topDeviceHandle] = std::move(device);
   }
 }
