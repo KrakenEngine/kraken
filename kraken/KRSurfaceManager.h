@@ -1,5 +1,5 @@
 //
-//  KRPresentationThread.h
+//  KRSurfaceManager.h
 //  Kraken Engine
 //
 //  Copyright 2021 Kearwood Gilbert. All rights reserved.
@@ -32,45 +32,28 @@
 #include "KREngine-common.h"
 
 #include "KRContext.h"
+#include "KRSurface.h"
 
-using std::map;
-using std::vector;
+#ifndef KRSURFACEMANAGER_H
+#define KRSURFACEMANAGER_H
 
-#include "KRPipeline.h"
-
-#ifndef KRPRESENTATIONTHREAD_H
-#define KRPRESENTATIONTHREAD_H
-
-class KRPresentationThread : KRContextObject
+class KRSurfaceManager : KRContextObject
 {
 public:
-  KRPresentationThread(KRContext& context);
-  ~KRPresentationThread();
-  void start();
-  void stop();
-
-  enum class PresentThreadRequest
-  {
-    stop = 0,
-    run,
-    pause
-  };
-
-  std::atomic<PresentThreadRequest> m_requestedState;
-
-  enum class PresentThreadState
-  {
-    stop = 0,
-    run,
-    pause,
-    wait_recreate_swapchain
-  };
-  std::atomic<PresentThreadState> m_activeState;
+  KRSurfaceManager(KRContext& context);
+  ~KRSurfaceManager();
+#ifdef WIN32
+  KrResult create(HWND hWnd, KrSurfaceHandle& surfaceHandle);
+#endif
+  KRSurface& get(KrSurfaceHandle surfaceHandle);
+  KrResult destroy(KrSurfaceHandle& surfaceHandle);
+  unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& getSurfaces();
 
 private:
-  std::thread m_thread;
-  void run();
-  void renderFrame();
+  unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>> m_surfaces;
+  KrDeviceHandle m_topSurfaceHandle;
+
+  void destroySurfaces();
 };
 
-#endif // KRPRESENTATIONTHREAD_H
+#endif // KRSURFACEMANAGER_H

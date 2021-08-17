@@ -92,7 +92,7 @@ void KRPresentationThread::renderFrame()
   // TODO - We should use fences to eliminate this mutex
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
 
-  unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& surfaces = m_pContext->GetSurfaces();
+  unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& surfaces = m_pContext->getSurfaceManager()->getSurfaces();
 
   for (auto surfaceItr = surfaces.begin(); surfaceItr != surfaces.end(); surfaceItr++) {
     KRSurface& surface = *(*surfaceItr).second;

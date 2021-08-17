@@ -37,6 +37,7 @@
 #include "KRAudioSample.h"
 #include "KRBundle.h"
 #include "KRPresentationThread.h"
+#include "KRSurfaceManager.h"
 
 #if defined(ANDROID)
 #include <chrono>
@@ -86,7 +87,6 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   , m_vulkanInstance(VK_NULL_HANDLE)
   , m_resourceMapSize(initializeInfo->resourceMapSize)
   , m_topDeviceHandle(0)
-  , m_topSurfaceHandle(0)
 {
     m_presentationThread = std::make_unique<KRPresentationThread>(*this);
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
@@ -114,9 +114,8 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_pUnknownManager = new KRUnknownManager(*this);
     m_pShaderManager = new KRShaderManager(*this);
     m_pSourceManager = new KRSourceManager(*this);
+    m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
     m_streamingEnabled = true;
-
-
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -195,7 +194,8 @@ KRContext::~KRContext() {
         delete m_pBundleManager;
         m_pBundleManager = NULL;
     }
-    destroySurfaces();
+    m_surfaceManager.reset();
+ 
     destroyDeviceContexts();
     if (m_resourceMap) {
         delete m_resourceMap;
@@ -261,6 +261,9 @@ KRShaderManager *KRContext::getShaderManager() {
 }
 KRSourceManager *KRContext::getSourceManager() {
     return m_pSourceManager;
+}
+KRSurfaceManager* KRContext::getSurfaceManager() {
+  return m_surfaceManager.get();
 }
 KRUnknownManager *KRContext::getUnknownManager() {
     return m_pUnknownManager;
@@ -817,14 +820,6 @@ KRContext::destroyDeviceContexts()
 }
 
 void
-KRContext::destroySurfaces()
-{
-  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
-  m_surfaces.clear();
-  m_surfaceHandleMap.clear();
-}
-
-void
 KRContext::activateStreamerContext()
 {
 
@@ -945,17 +940,11 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
 
 #ifdef WIN32
   HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
-  std::unique_ptr<KRSurface> info = std::make_unique<KRSurface>(*this, hWnd);
-
-  KrResult initialize_result = info->initialize();
-  if (initialize_result != KR_SUCCESS) {
-    return initialize_result;
+  KrSurfaceHandle surfaceHandle = 0;
+  KrResult result = m_surfaceManager->create(hWnd, surfaceHandle);
+  if (result != KR_SUCCESS) {
+    return result;
   }
-
-  KRDevice* deviceInfo  = &GetDeviceInfo(info->m_deviceHandle);
-
-  KrSurfaceHandle surfaceHandle = ++m_topSurfaceHandle;
-  m_surfaces.insert(std::pair<KrSurfaceHandle, std::unique_ptr<KRSurface>>(surfaceHandle, std::move(info)));
   
   m_surfaceHandleMap.insert(std::pair<KrSurfaceMapIndex, KrSurfaceHandle>(createWindowSurfaceInfo->surfaceHandle, surfaceHandle));
 
@@ -982,21 +971,7 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   KrSurfaceHandle surfaceHandle = (*handleItr).second;
   m_surfaceHandleMap.erase(handleItr);
   
-  auto itr = m_surfaces.find(surfaceHandle);
-  if (itr == m_surfaces.end()) {
-    return KR_ERROR_NOT_FOUND;
-  }
-  m_surfaces.erase(itr);
-  return KR_SUCCESS;
-}
-
-KRSurface& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
-{
-  auto itr = m_surfaces.find(handle);
-  if (itr == m_surfaces.end()) {
-    assert(false);
-  }
-  return *m_surfaces[handle];
+  return m_surfaceManager->destroy(surfaceHandle);
 }
 
 KRDevice& KRContext::GetDeviceInfo(KrDeviceHandle handle)
@@ -1066,9 +1041,4 @@ void KRContext::createDevices()
 VkInstance& KRContext::GetVulkanInstance()
 {
   return m_vulkanInstance;
-}
-
-unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& KRContext::GetSurfaces()
-{
-  return m_surfaces;
 }

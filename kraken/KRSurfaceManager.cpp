@@ -1,5 +1,5 @@
 //
-//  KRPresentationThread.h
+//  KRSurfaceManager.cpp
 //  Kraken Engine
 //
 //  Copyright 2021 Kearwood Gilbert. All rights reserved.
@@ -29,48 +29,67 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
+#include "KRSurfaceManager.h"
 
-#include "KRContext.h"
 
-using std::map;
-using std::vector;
-
-#include "KRPipeline.h"
-
-#ifndef KRPRESENTATIONTHREAD_H
-#define KRPRESENTATIONTHREAD_H
-
-class KRPresentationThread : KRContextObject
+KRSurfaceManager::KRSurfaceManager(KRContext& context)
+  : KRContextObject(context)
+  , m_topSurfaceHandle(0)
 {
-public:
-  KRPresentationThread(KRContext& context);
-  ~KRPresentationThread();
-  void start();
-  void stop();
+}
 
-  enum class PresentThreadRequest
-  {
-    stop = 0,
-    run,
-    pause
-  };
+KRSurfaceManager::~KRSurfaceManager()
+{
+  destroySurfaces();
+}
 
-  std::atomic<PresentThreadRequest> m_requestedState;
+void KRSurfaceManager::destroySurfaces()
+{
+  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
+  m_surfaces.clear();
+}
 
-  enum class PresentThreadState
-  {
-    stop = 0,
-    run,
-    pause,
-    wait_recreate_swapchain
-  };
-  std::atomic<PresentThreadState> m_activeState;
+#ifdef WIN32
+KrResult KRSurfaceManager::create(HWND hWnd, KrSurfaceHandle& surfaceHandle)
+{
+  surfaceHandle = 0;
 
-private:
-  std::thread m_thread;
-  void run();
-  void renderFrame();
-};
+  std::unique_ptr<KRSurface> surface = std::make_unique<KRSurface>(*m_pContext, hWnd);
 
-#endif // KRPRESENTATIONTHREAD_H
+  KrResult initialize_result = surface->initialize();
+  if (initialize_result != KR_SUCCESS) {
+    return initialize_result;
+  }
+
+  surfaceHandle = ++m_topSurfaceHandle;
+  m_surfaces.insert(std::pair<KrSurfaceHandle, std::unique_ptr<KRSurface>>(surfaceHandle, std::move(surface)));
+
+  return KR_SUCCESS;
+}
+
+#endif
+
+KrResult KRSurfaceManager::destroy(KrSurfaceHandle& surfaceHandle)
+{
+  auto itr = m_surfaces.find(surfaceHandle);
+  if (itr == m_surfaces.end()) {
+    return KR_ERROR_NOT_FOUND;
+  }
+  m_surfaces.erase(itr);
+  return KR_SUCCESS;
+}
+
+KRSurface& KRSurfaceManager::get(KrSurfaceHandle surfaceHandle)
+{
+  auto itr = m_surfaces.find(surfaceHandle);
+  if (itr == m_surfaces.end()) {
+    assert(false);
+  }
+  return *m_surfaces[surfaceHandle];
+}
+
+
+unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& KRSurfaceManager::getSurfaces()
+{
+  return m_surfaces;
+}
