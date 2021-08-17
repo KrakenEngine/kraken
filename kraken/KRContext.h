@@ -186,9 +186,6 @@ private:
     KRResource** m_resourceMap;
     size_t m_resourceMapSize;
     
-    void detectExtensions();
-    bool m_bDetectedExtensions;
-    
     long m_current_frame; // TODO - Does this need to be atomic?
     long m_last_memory_warning_frame; // TODO - Does this need to be atomic?
     long m_last_fully_streamed_frame; // TODO - Does this need to be atomic?

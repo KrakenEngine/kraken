@@ -93,7 +93,6 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     mach_timebase_info(&m_timebase_info);
 #endif
     
-    m_bDetectedExtensions = false;
     m_current_frame = 0;
     m_last_memory_warning_frame = 0;
     m_last_fully_streamed_frame = 0;
@@ -567,11 +566,6 @@ KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)
     return KR_SUCCESS;
   }
   return KR_ERROR_UNEXPECTED;
-}
-
-void KRContext::detectExtensions() {
-    m_bDetectedExtensions = true;
-    
 }
 
 void KRContext::startFrame(float deltaTime)
