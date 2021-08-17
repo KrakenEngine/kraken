@@ -36,6 +36,7 @@
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
 #include "KRBundle.h"
+#include "KRPresentationThread.h"
 
 #if defined(ANDROID)
 #include <chrono>
@@ -87,6 +88,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   , m_topDeviceHandle(0)
   , m_topSurfaceHandle(0)
 {
+    m_presentationThread = std::make_unique<KRPresentationThread>(*this);
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
     memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
     m_streamingEnabled = false;
@@ -133,13 +135,11 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #endif
     
     createDeviceContexts();
-
-    m_presentationThread = std::thread(&KRContext::presentationThreadFunc, this);
+    m_presentationThread->start();
 }
 
 KRContext::~KRContext() {
-  m_stop = true;
-  m_presentationThread.join();
+    m_presentationThread->stop();
     if(m_pSceneManager) {
         delete m_pSceneManager;
         m_pSceneManager = NULL;
@@ -990,105 +990,6 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   return KR_SUCCESS;
 }
 
-void KRContext::presentationThreadFunc()
-{
-#if defined(ANDROID)
-  // TODO - Set thread names on Android
-#elif defined(_WIN32) || defined(_WIN64)
-  // TODO - Set thread names on windows
-#else
-  pthread_setname_np("Kraken - Presentation");
-#endif
-
-  std::chrono::microseconds sleep_duration(15000);
-
-  while (!m_stop)
-  {
-    renderFrame();
-    std::this_thread::sleep_for(sleep_duration);
-  }
-}
-
-void KRContext::renderFrame()
-{
-  // TODO - Eliminate this and use system wide index once Vulkan path is working
-  static uint64_t frameIndex = 0;
-
-  // TODO - We should use fences to eliminate this mutex
-  const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
-
-  for (auto surfaceItr = m_surfaces.begin(); surfaceItr != m_surfaces.end(); surfaceItr++) {
-    KRSurface& surface = *(*surfaceItr).second;
-    KRDevice& device = GetDeviceInfo(surface.m_deviceHandle);
-
-    uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
-
-    // TODO - this will break with more than one surface...  Expect to refactor this out
-    VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
-    KRPipeline* testPipeline = m_pPipelineManager->get("vulkan_test");
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = 0;
-    beginInfo.pInheritanceInfo = nullptr;
-
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-      // TODO - Add error handling...
-    }
-
-    VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
-
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = testPipeline->getRenderPass();
-    renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[frameIndex % surface.m_swapChainFramebuffers.size()];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = surface.m_swapChainExtent;
-    renderPassInfo.clearValueCount = 1;
-    renderPassInfo.pClearValues = &clearColor;
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-    vkCmdEndRenderPass(commandBuffer);
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-      // TODO - Add error handling...
-    }
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore waitSemaphores[] = { surface.m_imageAvailableSemaphore };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    VkSemaphore signalSemaphores[] = { surface.m_renderFinishedSemaphore };
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-
-    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
-      // TODO - Add error handling...
-    }
-
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &surface.m_swapChain;
-    presentInfo.pImageIndices = &imageIndex;
-    presentInfo.pResults = nullptr;
-    vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);
-  }
-
-  frameIndex++;
-}
-
 KRSurface& KRContext::GetSurfaceInfo(KrSurfaceHandle handle)
 {
   auto itr = m_surfaces.find(handle);
@@ -1165,4 +1066,9 @@ void KRContext::createDevices()
 VkInstance& KRContext::GetVulkanInstance()
 {
   return m_vulkanInstance;
+}
+
+unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& KRContext::GetSurfaces()
+{
+  return m_surfaces;
 }

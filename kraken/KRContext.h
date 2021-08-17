@@ -49,6 +49,7 @@
 #include "KRSurface.h"
 
 class KRAudioManager;
+class KRPresentationThread;
 
 class KRContext {
 public:
@@ -159,6 +160,7 @@ public:
 
     KRDevice& GetDeviceInfo(KrDeviceHandle handle);
     KRSurface& GetSurfaceInfo(KrSurfaceHandle handle);
+    unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& GetSurfaces();
     VkInstance& GetVulkanInstance();
     KrSurfaceHandle GetBestDeviceForSurface(const VkSurfaceKHR& surface);
     
@@ -212,10 +214,8 @@ private:
 
     unordered_multimap<std::string, KRResource*> m_resources;
 
-    std::thread m_presentationThread;
-    void presentationThreadFunc();
-    std::atomic<bool> m_stop;
-    void renderFrame();
+    
+    std::unique_ptr<KRPresentationThread> m_presentationThread;
 
     unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>> m_devices;
     KrDeviceHandle m_topDeviceHandle;
