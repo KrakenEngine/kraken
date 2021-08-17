@@ -161,13 +161,7 @@ public:
 
     static std::mutex g_SurfaceInfoMutex;
     static std::mutex g_DeviceInfoMutex;
-    /*
-    KRDevice& GetDeviceInfo(KrDeviceHandle handle);
-    KRSurface& GetSurfaceInfo(KrSurfaceHandle handle);
-    VkInstance& GetVulkanInstance();
-    KrSurfaceHandle GetBestDeviceForSurface(const VkSurfaceKHR& surface);
-    */
-    
+
 #if TARGET_OS_MAC
     static void attachToView(void *view);
 #endif
