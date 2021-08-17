@@ -96,6 +96,7 @@ class KRAudioManager : public KRResourceManager {
 public:
     KRAudioManager(KRContext &context);
     virtual ~KRAudioManager();
+    void destroy();
 
     virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
     virtual KRResource* getResource(const std::string& name, const std::string& extension) override;

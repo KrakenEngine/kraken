@@ -42,6 +42,7 @@ KRDeviceManager::KRDeviceManager(KRContext& context)
 KRDeviceManager::~KRDeviceManager()
 {
   destroyDevices();
+  
   if (m_vulkanInstance != VK_NULL_HANDLE) {
     vkDestroyInstance(m_vulkanInstance, NULL);
     m_vulkanInstance = VK_NULL_HANDLE;

@@ -53,10 +53,17 @@ KRTextureManager::KRTextureManager(KRContext &context) : KRResourceManager(conte
     _clearGLState();
 }
 
+void KRTextureManager::destroy()
+{
+  for (unordered_map<std::string, KRTexture*>::iterator itr = m_textures.begin(); itr != m_textures.end(); ++itr) {
+    delete (*itr).second;
+  }
+  m_textures.clear();
+}
+
 KRTextureManager::~KRTextureManager() {
-    for(unordered_map<std::string, KRTexture *>::iterator itr = m_textures.begin(); itr != m_textures.end(); ++itr){
-        delete (*itr).second;
-    }
+  // Must call destroy() first
+  assert(m_textures.empty());
 }
 
 void KRTextureManager::_clearGLState()

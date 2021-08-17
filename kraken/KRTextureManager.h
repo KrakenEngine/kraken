@@ -47,6 +47,7 @@ class KRTextureManager : public KRResourceManager {
 public:
     KRTextureManager(KRContext &context);
     virtual ~KRTextureManager();
+    void destroy();
 
     virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
     virtual KRResource* getResource(const std::string& name, const std::string& extension) override;

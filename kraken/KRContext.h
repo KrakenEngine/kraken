@@ -168,18 +168,18 @@ public:
     void addResource(KRResource* resource, const std::string& name);
     void removeResource(KRResource* resource);
 private:
-    KRBundleManager *m_pBundleManager;
-    KRSceneManager *m_pSceneManager;
-    KRTextureManager *m_pTextureManager;
-    KRMaterialManager *m_pMaterialManager;
-    KRPipelineManager *m_pPipelineManager;
-    KRMeshManager *m_pMeshManager;
-    KRAnimationManager *m_pAnimationManager;
-    KRAnimationCurveManager *m_pAnimationCurveManager;
-    KRAudioManager *m_pSoundManager;
-    KRUnknownManager *m_pUnknownManager;
-    KRShaderManager *m_pShaderManager;
-    KRSourceManager *m_pSourceManager;
+    std::unique_ptr<KRBundleManager> m_pBundleManager;
+    std::unique_ptr<KRSceneManager> m_pSceneManager;
+    std::unique_ptr<KRTextureManager> m_pTextureManager;
+    std::unique_ptr<KRMaterialManager> m_pMaterialManager;
+    std::unique_ptr<KRPipelineManager> m_pPipelineManager;
+    std::unique_ptr<KRMeshManager> m_pMeshManager;
+    std::unique_ptr<KRAnimationManager> m_pAnimationManager;
+    std::unique_ptr<KRAnimationCurveManager> m_pAnimationCurveManager;
+    std::unique_ptr<KRAudioManager> m_pSoundManager;
+    std::unique_ptr<KRUnknownManager> m_pUnknownManager;
+    std::unique_ptr<KRShaderManager> m_pShaderManager;
+    std::unique_ptr<KRSourceManager> m_pSourceManager;
     std::unique_ptr<KRDeviceManager> m_deviceManager;
     std::unique_ptr<KRSurfaceManager> m_surfaceManager;
 

@@ -99,18 +99,18 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_last_fully_streamed_frame = 0;
     m_absolute_time = 0.0f;
     
-    m_pBundleManager = new KRBundleManager(*this);
-    m_pPipelineManager = new KRPipelineManager(*this);
-    m_pTextureManager = new KRTextureManager(*this);
-    m_pMaterialManager = new KRMaterialManager(*this, m_pTextureManager, m_pPipelineManager);
-    m_pMeshManager = new KRMeshManager(*this);
-    m_pSceneManager = new KRSceneManager(*this);
-    m_pAnimationManager = new KRAnimationManager(*this);
-    m_pAnimationCurveManager = new KRAnimationCurveManager(*this);
-    m_pSoundManager = new KRAudioManager(*this);
-    m_pUnknownManager = new KRUnknownManager(*this);
-    m_pShaderManager = new KRShaderManager(*this);
-    m_pSourceManager = new KRSourceManager(*this);
+    m_pBundleManager = std::make_unique<KRBundleManager>(*this);
+    m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
+    m_pTextureManager = std::make_unique<KRTextureManager>(*this);
+    m_pMaterialManager = std::make_unique<KRMaterialManager>(*this, m_pTextureManager.get(), m_pPipelineManager.get());
+    m_pMeshManager = std::make_unique<KRMeshManager>(*this);
+    m_pSceneManager = std::make_unique<KRSceneManager>(*this);
+    m_pAnimationManager = std::make_unique<KRAnimationManager>(*this);
+    m_pAnimationCurveManager = std::make_unique<KRAnimationCurveManager>(*this);
+    m_pSoundManager = std::make_unique<KRAudioManager>(*this);
+    m_pUnknownManager = std::make_unique<KRUnknownManager>(*this);
+    m_pShaderManager = std::make_unique<KRShaderManager>(*this);
+    m_pSourceManager = std::make_unique<KRSourceManager>(*this);
     m_deviceManager = std::make_unique<KRDeviceManager>(*this);
     m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
     m_streamingEnabled = true;
@@ -138,63 +138,25 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 
 KRContext::~KRContext() {
     m_presentationThread->stop();
-    if(m_pSceneManager) {
-        delete m_pSceneManager;
-        m_pSceneManager = NULL;
-    }
-    
-    if(m_pMeshManager) {
-        delete m_pMeshManager;
-        m_pMeshManager = NULL;
-    }
-    
-    if(m_pTextureManager) {
-        delete m_pTextureManager;
-        m_pTextureManager = NULL;
-    }
-    
-    if(m_pMaterialManager) {
-        delete m_pMaterialManager;
-        m_pMaterialManager = NULL;
-    }
-    
-    if(m_pPipelineManager) {
-        delete m_pPipelineManager;
-        m_pPipelineManager = NULL;
-    }
-    
-    if(m_pAnimationManager) {
-        delete m_pAnimationManager;
-        m_pAnimationManager = NULL;
-    }
-    
-    if(m_pAnimationCurveManager) {
-        delete m_pAnimationCurveManager;
-        m_pAnimationCurveManager = NULL;
-    }
-    
-    if(m_pSoundManager) {
-        delete m_pSoundManager;
-        m_pSoundManager = NULL;
-    }
-
-    if(m_pSourceManager) {
-        delete m_pSourceManager;
-        m_pSourceManager = NULL;
-    }
-
-    if(m_pUnknownManager) {
-        delete m_pUnknownManager;
-        m_pUnknownManager = NULL;
-    }
-    
-    // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
-    if(m_pBundleManager) {
-        delete m_pBundleManager;
-        m_pBundleManager = NULL;
-    }
+    m_pSceneManager.reset();
+    m_pMeshManager.reset();
+    m_pMaterialManager.reset();
+    m_pTextureManager->destroy();
+    m_pTextureManager.reset();
+    m_pPipelineManager.reset();
+    m_pAnimationManager.reset();
+    m_pAnimationCurveManager.reset();
+    m_pSoundManager->destroy();
+    m_pSoundManager.reset();
+    m_pSourceManager.reset();
+    m_pUnknownManager.reset();
+    m_pShaderManager.reset();
     m_surfaceManager.reset();
     m_deviceManager.reset();
+    
+    // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
+    m_pBundleManager.reset();
+
  
     if (m_resourceMap) {
         delete m_resourceMap;
@@ -229,37 +191,37 @@ void KRContext::Log(log_level level, const std::string message_format, ...)
 }
 
 KRBundleManager *KRContext::getBundleManager() {
-    return m_pBundleManager;
+    return m_pBundleManager.get();
 }
 KRSceneManager *KRContext::getSceneManager() {
-    return m_pSceneManager;
+    return m_pSceneManager.get();
 }
 KRTextureManager *KRContext::getTextureManager() {
-    return m_pTextureManager;
+    return m_pTextureManager.get();
 }
 KRMaterialManager *KRContext::getMaterialManager() {
-    return m_pMaterialManager;
+    return m_pMaterialManager.get();
 }
 KRPipelineManager *KRContext::getPipelineManager() {
-    return m_pPipelineManager;
+    return m_pPipelineManager.get();
 }
 KRMeshManager *KRContext::getMeshManager() {
-    return m_pMeshManager;
+    return m_pMeshManager.get();
 }
 KRAnimationManager *KRContext::getAnimationManager() {
-    return m_pAnimationManager;
+    return m_pAnimationManager.get();
 }
 KRAnimationCurveManager *KRContext::getAnimationCurveManager() {
-    return m_pAnimationCurveManager;
+    return m_pAnimationCurveManager.get();
 }
 KRAudioManager *KRContext::getAudioManager() {
-    return m_pSoundManager;
+    return m_pSoundManager.get();
 }
 KRShaderManager *KRContext::getShaderManager() {
-    return m_pShaderManager;
+    return m_pShaderManager.get();
 }
 KRSourceManager *KRContext::getSourceManager() {
-    return m_pSourceManager;
+    return m_pSourceManager.get();
 }
 KRSurfaceManager* KRContext::getSurfaceManager() {
   return m_surfaceManager.get();
@@ -268,7 +230,7 @@ KRDeviceManager* KRContext::getDeviceManager() {
   return m_deviceManager.get();
 }
 KRUnknownManager *KRContext::getUnknownManager() {
-    return m_pUnknownManager;
+    return m_pUnknownManager.get();
 }
 std::vector<KRResource *> KRContext::getResources()
 {

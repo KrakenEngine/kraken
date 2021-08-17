@@ -1185,15 +1185,24 @@ void KRAudioManager::cleanupAudio()
 
 KRAudioManager::~KRAudioManager()
 {
-    for(unordered_map<std::string, KRAudioSample *>::iterator name_itr=m_sounds.begin(); name_itr != m_sounds.end(); name_itr++) {
-        delete (*name_itr).second;
-    }
-    
-    cleanupAudio();
-    
-    for(std::vector<KRDataBlock *>::iterator itr = m_bufferPoolIdle.begin(); itr != m_bufferPoolIdle.end(); itr++) {
-        delete *itr;
-    }
+  // Must call destroy first
+  assert(m_sounds.empty());
+  assert(m_bufferPoolIdle.empty());
+}
+
+void KRAudioManager::destroy()
+{
+  for (unordered_map<std::string, KRAudioSample*>::iterator name_itr = m_sounds.begin(); name_itr != m_sounds.end(); name_itr++) {
+    delete (*name_itr).second;
+  }
+  m_sounds.clear();
+
+  cleanupAudio();
+
+  for (std::vector<KRDataBlock*>::iterator itr = m_bufferPoolIdle.begin(); itr != m_bufferPoolIdle.end(); itr++) {
+    delete* itr;
+  }
+  m_bufferPoolIdle.clear();
 }
 
 void KRAudioManager::makeCurrentContext()
