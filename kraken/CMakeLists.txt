@@ -26,7 +26,7 @@ add_sources(KRDevice.cpp)
 add_sources(KRDeviceManager.cpp)
 add_sources(KRSurface.cpp)
 add_sources(KRSurfaceManager.cpp)
-add_sources(KRStreamer.cpp)
+add_sources(KRStreamerThread.cpp)
 IF(APPLE)
   add_sources(KREngine.mm)
   

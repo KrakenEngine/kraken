@@ -41,7 +41,7 @@
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 #include "KRContext.h"
-#include "KRStreamer.h"
+#include "KRStreamerThread.h"
 
 class KRTextureManager : public KRResourceManager {
 public:

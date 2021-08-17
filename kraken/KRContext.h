@@ -46,12 +46,12 @@
 #include "KRSourceManager.h"
 #include "KRSurfaceManager.h"
 #include "KRDeviceManager.h"
-#include "KRStreamer.h"
 #include "KRDevice.h"
 #include "KRSurface.h"
 
 class KRAudioManager;
 class KRPresentationThread;
+class KRStreamerThread;
 
 class KRContext {
 public:
@@ -198,11 +198,12 @@ private:
     static log_callback *s_log_callback;
     static void *s_log_callback_user_data;
     
-    KRStreamer m_streamer;
+    
 
     unordered_multimap<std::string, KRResource*> m_resources;
 
     
+    std::unique_ptr<KRStreamerThread> m_streamerThread;
     std::unique_ptr<KRPresentationThread> m_presentationThread;
 
     unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;

@@ -37,6 +37,7 @@
 #include "KRAudioSample.h"
 #include "KRBundle.h"
 #include "KRPresentationThread.h"
+#include "KRStreamerThread.h"
 
 #if defined(ANDROID)
 #include <chrono>
@@ -82,10 +83,10 @@ KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 
 KRContext::KRContext(const KrInitializeInfo* initializeInfo)
-  : m_streamer(*this)
-  , m_resourceMapSize(initializeInfo->resourceMapSize)
+  : m_resourceMapSize(initializeInfo->resourceMapSize)
 {
     m_presentationThread = std::make_unique<KRPresentationThread>(*this);
+    m_streamerThread = std::make_unique<KRStreamerThread>(*this);
     m_resourceMap = (KRResource **)malloc(sizeof(KRResource*) * m_resourceMapSize);
     memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
     m_streamingEnabled = false;
@@ -133,10 +134,12 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_deviceManager->initialize();
     
     m_presentationThread->start();
+    m_streamerThread->start();
 }
 
 KRContext::~KRContext() {
     m_presentationThread->stop();
+    m_streamerThread->stop();
     m_pSceneManager.reset();
     m_pMeshManager.reset();
     m_pMaterialManager.reset();
@@ -570,7 +573,6 @@ KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)
 
 void KRContext::startFrame(float deltaTime)
 {
-    m_streamer.startStreamer();
     m_pTextureManager->startFrame(deltaTime);
     m_pAnimationManager->startFrame(deltaTime);
     m_pSoundManager->startFrame(deltaTime);
