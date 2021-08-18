@@ -50,6 +50,7 @@ public:
   KRSurface& operator=(const KRSurface&) = delete;
 
   KrResult initialize();
+  KrResult recreateSwapChain();
 
 #ifdef WIN32
   HWND m_hWnd;
@@ -57,7 +58,7 @@ public:
   KrDeviceHandle m_deviceHandle;
   VkSurfaceKHR m_surface;
   VkSwapchainKHR m_swapChain;
-  std::vector<VkImage> m_swapChainImages;
+  std::vector<VkImage> m_swapChainImages; 
   VkFormat m_swapChainImageFormat;
   VkExtent2D m_swapChainExtent;
   std::vector<VkImageView> m_swapChainImageViews;
@@ -67,6 +68,8 @@ public:
 
 
 private:
+  void destroySwapChain();
+  KrResult createSwapChain();
 };
 
 #endif // KRSURFACE_H

@@ -82,13 +82,42 @@ KrResult KRSurface::initialize()
     return KR_ERROR_VULKAN;
   }
 
+  return createSwapChain();
+}
+
+void KRSurface::destroy()
+{
+  KRDevice& deviceInfo = m_pContext->getDeviceManager()->getDeviceInfo(m_deviceHandle);
+
+  destroySwapChain();
+  
+  if (m_renderFinishedSemaphore != VK_NULL_HANDLE) {
+    vkDestroySemaphore(deviceInfo.m_logicalDevice, m_renderFinishedSemaphore, nullptr);
+    m_renderFinishedSemaphore = VK_NULL_HANDLE;
+  }
+  
+  if (m_imageAvailableSemaphore != VK_NULL_HANDLE) {
+    vkDestroySemaphore(deviceInfo.m_logicalDevice, m_imageAvailableSemaphore, nullptr);
+    m_imageAvailableSemaphore = VK_NULL_HANDLE;
+  }
+  
+  if (m_surface != VK_NULL_HANDLE) {
+    vkDestroySurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), m_surface, nullptr);
+    m_surface = VK_NULL_HANDLE;
+  }
+
+}
+
+KrResult KRSurface::createSwapChain()
+{
+  KRDevice* deviceInfo = &m_pContext->getDeviceManager()->getDeviceInfo(m_deviceHandle);
+
   VkSurfaceCapabilitiesKHR surfaceCapabilities{};
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(deviceInfo->m_device, m_surface, &surfaceCapabilities);
 
   std::vector<VkSurfaceFormatKHR> surfaceFormats;
   uint32_t formatCount = 0;
   vkGetPhysicalDeviceSurfaceFormatsKHR(deviceInfo->m_device, m_surface, &formatCount, nullptr);
-
 
   if (formatCount != 0) {
     surfaceFormats.resize(formatCount);
@@ -228,8 +257,11 @@ KrResult KRSurface::initialize()
   return KR_SUCCESS;
 }
 
-void KRSurface::destroy()
+void KRSurface::destroySwapChain()
 {
+  KRPipelineManager* pipelineManager = m_pContext->getPipelineManager();
+  // TODO - Destroy the dependent pipeline..
+
   KRDevice& deviceInfo = m_pContext->getDeviceManager()->getDeviceInfo(m_deviceHandle);
 
   for (auto framebuffer : m_swapChainFramebuffers) {
@@ -246,20 +278,15 @@ void KRSurface::destroy()
     vkDestroySwapchainKHR(deviceInfo.m_logicalDevice, m_swapChain, nullptr);
     m_swapChain = VK_NULL_HANDLE;
   }
-  
-  if (m_renderFinishedSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(deviceInfo.m_logicalDevice, m_renderFinishedSemaphore, nullptr);
-    m_renderFinishedSemaphore = VK_NULL_HANDLE;
-  }
-  
-  if (m_imageAvailableSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(deviceInfo.m_logicalDevice, m_imageAvailableSemaphore, nullptr);
-    m_imageAvailableSemaphore = VK_NULL_HANDLE;
-  }
-  
-  if (m_surface != VK_NULL_HANDLE) {
-    vkDestroySurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), m_surface, nullptr);
-    m_surface = VK_NULL_HANDLE;
-  }
-
 }
+
+KrResult KRSurface::recreateSwapChain()
+{
+  destroySwapChain();
+  KrResult result = createSwapChain();
+  if (result != KR_SUCCESS) {
+    destroySwapChain();
+  }
+  return result;
+}
+

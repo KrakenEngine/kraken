@@ -71,15 +71,24 @@ void KRPresentationThread::run()
   m_activeState = PresentThreadState::run;
   while (m_requestedState != PresentThreadRequest::stop)
   {
-    while (m_requestedState == PresentThreadRequest::run) {
-      m_activeState = PresentThreadState::run;
-      renderFrame();
-      std::this_thread::sleep_for(sleep_duration);
+    switch (m_activeState) {
+    case PresentThreadState::pause:
+    case PresentThreadState::stop:
+      if (m_requestedState == PresentThreadRequest::run) {
+        m_activeState = PresentThreadState::run;
+      }
+      break;
+    case PresentThreadState::run:
+      if (m_requestedState == PresentThreadRequest::pause) {
+        m_activeState = PresentThreadState::pause;
+      } else {
+        renderFrame();
+      }
+      break;
+    case PresentThreadState::error:
+      break;
     }
-    while (m_requestedState == PresentThreadRequest::pause) {
-      m_activeState = PresentThreadState::pause;
-      std::this_thread::sleep_for(sleep_duration);
-    }
+    std::this_thread::sleep_for(sleep_duration);
   }
   m_activeState = PresentThreadState::stop;
 }
@@ -99,7 +108,19 @@ void KRPresentationThread::renderFrame()
     KRDevice& device = m_pContext->getDeviceManager()->getDeviceInfo(surface.m_deviceHandle);
 
     uint32_t imageIndex = 0;
-    vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+      // TODO - Must explicitly detect resize and trigger swapchain re-creation as well
+      vkDeviceWaitIdle(device.m_logicalDevice);
+      if (surface.recreateSwapChain() != VK_SUCCESS) {
+        m_activeState = PresentThreadState::error;
+      }
+      break;
+    } else if (result != VK_SUCCESS) {
+      m_activeState = PresentThreadState::error;
+      break;
+    }
 
     // TODO - this will break with more than one surface...  Expect to refactor this out
     VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
@@ -111,6 +132,7 @@ void KRPresentationThread::renderFrame()
     beginInfo.pInheritanceInfo = nullptr;
 
     if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+      m_activeState = PresentThreadState::error;
       // TODO - Add error handling...
     }
 
@@ -130,6 +152,7 @@ void KRPresentationThread::renderFrame()
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
     vkCmdEndRenderPass(commandBuffer);
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+      m_activeState = PresentThreadState::error;
       // TODO - Add error handling...
     }
 
@@ -149,6 +172,7 @@ void KRPresentationThread::renderFrame()
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+      m_activeState = PresentThreadState::error;
       // TODO - Add error handling...
     }
 

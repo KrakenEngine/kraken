@@ -63,7 +63,7 @@ public:
     stop = 0,
     run,
     pause,
-    wait_recreate_swapchain
+    error
   };
   std::atomic<PresentThreadState> m_activeState;
 
