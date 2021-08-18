@@ -107,10 +107,24 @@ void KRPresentationThread::renderFrame()
     KRSurface& surface = *(*surfaceItr).second;
     KRDevice& device = m_pContext->getDeviceManager()->getDeviceInfo(surface.m_deviceHandle);
 
+    VkSurfaceCapabilitiesKHR surfaceCapabilities{};
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.m_device, surface.m_surface, &surfaceCapabilities);
+    if (surfaceCapabilities.currentExtent.width == 0 || surfaceCapabilities.currentExtent.height == 0) {
+      // The window may be minimized...  Pause rendering until restored.
+      break;
+    }
+    bool resized = false;
+    if (surface.m_swapChainExtent.width != surfaceCapabilities.currentExtent.width ||
+      surface.m_swapChainExtent.height != surfaceCapabilities.currentExtent.height) {
+      // We can't rely on VK_ERROR_OUT_OF_DATE_KHR to always signal when a resize has happend.
+      // This must also be checked for explicitly.
+      resized = true;
+    }
+
     uint32_t imageIndex = 0;
     VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || resized) {
       // TODO - Must explicitly detect resize and trigger swapchain re-creation as well
       vkDeviceWaitIdle(device.m_logicalDevice);
       if (surface.recreateSwapChain() != VK_SUCCESS) {
