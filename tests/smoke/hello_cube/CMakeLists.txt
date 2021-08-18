@@ -29,7 +29,7 @@ endif(WIN32)
 add_dependencies(kraken_cube kraken_cube_assets)
 target_include_directories(kraken_cube PRIVATE ${CMAKE_SOURCE_DIR}/hydra/include ${CMAKE_SOURCE_DIR}/kraken/public) 
 
-TARGET_LINK_LIBRARIES( kraken_cube kraken ${EXTRA_LIBS} )
+TARGET_LINK_LIBRARIES( kraken_cube kraken shcore ${EXTRA_LIBS} )
 
 set_target_properties( kraken_cube PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CMAKE_BINARY_DIR}/output/tests

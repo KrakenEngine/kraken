@@ -30,6 +30,7 @@
 //
 
 #include <windows.h>
+#include <shellscalingapi.h>
 #include "kraken.h"
 #include "hello_cube.h"
 
@@ -39,6 +40,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+
   MSG msg = { 0 };
   WNDCLASS wc = { 0 };
   wc.lpfnWndProc = WndProc;
