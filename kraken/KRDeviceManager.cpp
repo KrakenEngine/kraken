@@ -31,6 +31,12 @@
 
 #include "KRDeviceManager.h"
 
+// VMA_IMPLEMENTATION must only be defined in a single CPP file
+#define VMA_IMPLEMENTATION
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+#include "vk_mem_alloc.h"
+
 KRDeviceManager::KRDeviceManager(KRContext& context)
   : KRContextObject(context)
   , m_vulkanInstance(VK_NULL_HANDLE)
@@ -142,7 +148,7 @@ void KRDeviceManager::createDevices()
   std::vector<std::unique_ptr<KRDevice>> candidateDevices;
 
   for (const VkPhysicalDevice& physicalDevice : physicalDevices) {
-    std::unique_ptr<KRDevice> device = std::make_unique<KRDevice>(physicalDevice);
+    std::unique_ptr<KRDevice> device = std::make_unique<KRDevice>(*m_pContext, physicalDevice);
     if (!device->initialize(deviceExtensions)) {
       continue;
     }

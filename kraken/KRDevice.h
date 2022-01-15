@@ -30,15 +30,16 @@
 //
 
 #include "KREngine-common.h"
+#include "KRContextObject.h"
 
 #ifndef KRDEVICE_H
 #define KRDEVICE_H
 
-class KRDevice
+class KRDevice : public KRContextObject
 {
 public:
-  KRDevice(const VkPhysicalDevice& device);
-  ~KRDevice();
+  KRDevice(KRContext& context, const VkPhysicalDevice& device);
+  virtual ~KRDevice();
 
   KRDevice(const KRDevice&) = delete;
   KRDevice& operator=(const KRDevice&) = delete;
@@ -58,6 +59,7 @@ public:
   VkCommandPool m_computeCommandPool;
   std::vector<VkCommandBuffer> m_graphicsCommandBuffers;
   std::vector<VkCommandBuffer> m_computeCommandBuffers;
+  VmaAllocator m_allocator;
 private:
 };
 

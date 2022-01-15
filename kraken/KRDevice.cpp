@@ -30,9 +30,11 @@
 //
 
 #include "KRDevice.h"
+#include "KRDeviceManager.h"
 
-KRDevice::KRDevice(const VkPhysicalDevice& device)
-  : m_device(device)
+KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
+  : KRContextObject(context)
+  , m_device(device)
   , m_logicalDevice(VK_NULL_HANDLE)
   , m_deviceProperties {}
   , m_deviceFeatures{}
@@ -42,6 +44,7 @@ KRDevice::KRDevice(const VkPhysicalDevice& device)
   , m_computeQueue(VK_NULL_HANDLE)
   , m_graphicsCommandPool(VK_NULL_HANDLE)
   , m_computeCommandPool(VK_NULL_HANDLE)
+  , m_allocator(VK_NULL_HANDLE)
 {
 
 }
@@ -66,6 +69,11 @@ void KRDevice::destroy()
   if (m_logicalDevice != VK_NULL_HANDLE) {
     vkDestroyDevice(m_logicalDevice, nullptr);
     m_logicalDevice = VK_NULL_HANDLE;
+  }
+
+  if (m_allocator != VK_NULL_HANDLE) {
+    vmaDestroyAllocator(m_allocator);
+    m_allocator = VK_NULL_HANDLE;
   }
 }
 
@@ -157,15 +165,14 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   poolInfo.flags = 0;
 
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_graphicsCommandPool) != VK_SUCCESS) {
-    vkDestroyDevice(m_logicalDevice, nullptr);
+    destroy();
     // TODO - Log a warning...
     return false;
   }
 
   poolInfo.queueFamilyIndex = m_computeFamilyQueueIndex;
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_computeCommandPool) != VK_SUCCESS) {
-    vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
-    vkDestroyDevice(m_logicalDevice, nullptr);
+    destroy();
     // TODO - Log a warning...
     return false;
   }
@@ -183,9 +190,7 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   allocInfo.commandBufferCount = (uint32_t)m_graphicsCommandBuffers.size();
 
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_graphicsCommandBuffers.data()) != VK_SUCCESS) {
-    vkDestroyCommandPool(m_logicalDevice, m_computeCommandPool, nullptr);
-    vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
-    vkDestroyDevice(m_logicalDevice, nullptr);
+    destroy();
     // TODO - Log a warning
     return false;
   }
@@ -193,13 +198,33 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   allocInfo.commandPool = m_computeCommandPool;
   allocInfo.commandBufferCount = (uint32_t)m_computeCommandBuffers.size();
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_computeCommandBuffers.data()) != VK_SUCCESS) {
-    // Note - this repeated cleanup will likely be eliminated with later refactoring to split vulkan
-    // object generation out of KRContext
-    vkDestroyCommandPool(m_logicalDevice, m_computeCommandPool, nullptr);
-    vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
-    vkDestroyDevice(m_logicalDevice, nullptr);
+    destroy();
     // TODO - Log a warning
     return false;
   }
+
+  // Create Vulkan Memory Allocator instance for this device
+
+  // We are dynamically linking Vulkan, so we need to give VMA some hints
+  // on finding the function pointers
+  VmaVulkanFunctions vmaVulkanFunctions{};
+  vmaVulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+  vmaVulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+
+  VmaAllocatorCreateInfo vmaCreateInfo{};
+  vmaCreateInfo.flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
+  // TODO - Hook vmaCreateInfo.pAllocationCallbacks;
+
+  vmaCreateInfo.physicalDevice = m_device;
+  vmaCreateInfo.device = m_logicalDevice;
+  vmaCreateInfo.instance = m_pContext->getDeviceManager()->getVulkanInstance();
+  vmaCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+  vmaCreateInfo.pVulkanFunctions = &vmaVulkanFunctions;
+  if (vmaCreateAllocator(&vmaCreateInfo, &m_allocator) != VK_SUCCESS) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
+
   return true;
 }
