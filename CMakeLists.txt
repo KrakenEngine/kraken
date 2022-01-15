@@ -130,6 +130,9 @@ endif()
 
 list (APPEND EXTRA_LIBS vulkan)
 
+# ---- Vulkan Memory Allocator ----
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/vma/include")
+
 # ---- Volk ----
 # volk
 set(VOLK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/volk")

@@ -124,6 +124,7 @@ using std::unordered_multimap;
 using std::hash;
 
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 #include <volk.h>
 #if defined(ANDROID)
 #include <GLES3/gl3.h>
