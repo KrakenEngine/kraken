@@ -48,12 +48,16 @@
 #include <windows.h>
 #endif
 
-int KRContext::KRENGINE_MAX_PIPELINE_HANDLES;
-int KRContext::KRENGINE_GPU_MEM_MAX;
-int KRContext::KRENGINE_GPU_MEM_TARGET;
-int KRContext::KRENGINE_MAX_TEXTURE_DIM;
-int KRContext::KRENGINE_MIN_TEXTURE_DIM;
-int KRContext::KRENGINE_PRESTREAM_DISTANCE;
+ // TODO - Make values dynamic after Vulkan conversion:
+int KRContext::KRENGINE_MAX_PIPELINE_HANDLES = 4000;
+int KRContext::KRENGINE_GPU_MEM_MAX = 256000000;
+int KRContext::KRENGINE_GPU_MEM_TARGET = 192000000;
+int KRContext::KRENGINE_MAX_TEXTURE_DIM = 8192;
+int KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
+
+// TODO - This should be configured per-scene?  Or auto/dynamic?
+int KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
+
 int KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY;
 int KRContext::KRENGINE_SYS_PAGE_SIZE;
 
