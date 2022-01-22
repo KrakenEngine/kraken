@@ -228,3 +228,9 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
 
   return true;
 }
+
+VmaAllocator KRDevice::getAllocator()
+{
+  assert(m_allocator != VK_NULL_HANDLE);
+  return m_allocator;
+}

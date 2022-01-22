@@ -50,6 +50,7 @@ public:
   KRDevice& getDeviceInfo(KrDeviceHandle handle);
   VkInstance& getVulkanInstance();
   KrSurfaceHandle getBestDeviceForSurface(const VkSurfaceKHR& surface);
+  unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>>& getDevices();
 
 private:
   unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>> m_devices;

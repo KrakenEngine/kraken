@@ -213,3 +213,8 @@ KrSurfaceHandle KRDeviceManager::getBestDeviceForSurface(const VkSurfaceKHR& sur
   }
   return deviceHandle;
 }
+
+unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>>& KRDeviceManager::getDevices()
+{
+  return m_devices;
+}

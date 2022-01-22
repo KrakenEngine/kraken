@@ -118,6 +118,16 @@ public:
         bool m_static_vbo;
         bool m_is_vbo_loaded;
         bool m_is_vbo_ready;
+
+        typedef struct {
+          KrDeviceHandle device;
+          VkBuffer vertex_buffer;
+          VmaAllocation vertex_allocation;
+          VkBuffer index_buffer;
+          VmaAllocation index_allocation;
+        } AllocationInfo;
+
+        AllocationInfo m_allocations[KRENGINE_MAX_GPU_COUNT];
     };
     
     void bindVBO(KRVBOData *vbo_data, float lodCoverage);

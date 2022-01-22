@@ -534,10 +534,13 @@ KRMeshManager::KRVBOData::KRVBOData()
     
     m_last_frame_used = 0;
     m_last_frame_max_lod_coverage = 0.0f;
+
+    memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
 }
 
 KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
 {
+    memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
     m_is_vbo_loaded = false;
     m_is_vbo_ready = false;
     init(manager, data,index_data,vertex_attrib_flags, static_vbo, t);
@@ -573,11 +576,38 @@ KRMeshManager::KRVBOData::~KRVBOData()
 
 void KRMeshManager::KRVBOData::load()
 {
+  // TODO - We should load on each GPU only if there is a surface using the mesh
     if(isVBOLoaded()) {
         return;
     }
 
+    KRDeviceManager* deviceManager = m_manager->getContext().getDeviceManager();
+    int iAllocation = 0;
+    
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end() && iAllocation < KRENGINE_MAX_GPU_COUNT; deviceItr++, iAllocation++) {
+      KRDevice& device = *(*deviceItr).second;
+      KrDeviceHandle deviceHandle = (*deviceItr).first;
+      AllocationInfo& allocation = m_allocations[iAllocation];
 
+      allocation.device = deviceHandle;
+      
+      VmaAllocator allocator = device.getAllocator();
+
+      VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+      bufferInfo.size = m_data->getSize();
+      bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+      VmaAllocationCreateInfo allocInfo = {};
+      allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+
+      VkResult res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.vertex_buffer, &allocation.vertex_allocation, nullptr);
+
+      if (m_index_data->getSize() > 0) {
+        bufferInfo.size = m_index_data->getSize();
+        bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.index_buffer, &allocation.index_allocation, nullptr);
+      }
+    }
 
     // TODO - Replace OpenGL code below...
     /*

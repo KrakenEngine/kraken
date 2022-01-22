@@ -33,6 +33,8 @@
 #ifndef KRENGINE_COMMON_H
 #define KRENGINE_COMMON_H
 
+#define KRENGINE_MAX_GPU_COUNT 4
+
 #include "public/kraken.h"
 #include "KRHelpers.h"
 using namespace kraken;

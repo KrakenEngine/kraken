@@ -47,6 +47,8 @@ public:
   void destroy();
   bool initialize(const std::vector<const char*>& deviceExtensions);
 
+  VmaAllocator getAllocator();
+
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;
   VkPhysicalDeviceProperties m_deviceProperties;
