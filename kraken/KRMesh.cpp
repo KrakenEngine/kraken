@@ -211,21 +211,6 @@ void KRMesh::preStream(float lodCoverage)
     }
 }
 
-void KRMesh::load()
-{
-    // Load immediately into the GPU rather than passing through the streamer
-    getSubmeshes();
-    getMaterials();
-    
-    int cSubmeshes = (int)m_submeshes.size();
-    for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
-        for(auto vbo_data_itr = m_submeshes[iSubmesh]->vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh]->vbo_data_blocks.end(); vbo_data_itr++) {
-            (*vbo_data_itr)->resetPoolExpiry(1.0f);
-            (*vbo_data_itr)->load();
-        }
-    }
-}
-
 kraken_stream_level KRMesh::getStreamLevel()
 {
     kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
@@ -390,13 +375,13 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
                 }
                 vbo_index++;
                 
+                
                 int vertex_draw_count = cVertexes;
                 if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
                 
                 cVertexes -= vertex_draw_count;
                 index_group_offset = 0;
             }
-            
         } else {
             int cBuffers = (vertex_count + MAX_VBO_SIZE - 1) / MAX_VBO_SIZE;
             int iVertex = pSubmesh->start_vertex;
@@ -761,6 +746,12 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
     // ----
     
     optimize();
+
+    if (m_constant) {
+      // Ensure that constant models loaded immediately by the streamer
+      getSubmeshes();
+      getMaterials();
+    }
 }
 
 Vector3 KRMesh::getMinPoint() const {

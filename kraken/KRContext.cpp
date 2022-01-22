@@ -108,6 +108,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
     m_pTextureManager = std::make_unique<KRTextureManager>(*this);
     m_pMaterialManager = std::make_unique<KRMaterialManager>(*this, m_pTextureManager.get(), m_pPipelineManager.get());
     m_pMeshManager = std::make_unique<KRMeshManager>(*this);
+    m_pMeshManager->init();
     m_pSceneManager = std::make_unique<KRSceneManager>(*this);
     m_pAnimationManager = std::make_unique<KRAnimationManager>(*this);
     m_pAnimationCurveManager = std::make_unique<KRAnimationCurveManager>(*this);

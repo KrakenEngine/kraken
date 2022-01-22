@@ -48,6 +48,7 @@ public:
     static const int KRENGINE_MAX_RANDOM_PARTICLES=150000;
     
     KRMeshManager(KRContext &context);
+    void init();
     virtual ~KRMeshManager();
 
     virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
@@ -55,7 +56,6 @@ public:
     
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
-    void firstFrame();
     
     KRMesh *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRMesh *> getModel(const char *szName);
@@ -197,8 +197,6 @@ private:
     std::vector<draw_call_info> m_draw_calls;
     bool m_draw_call_logging_enabled;
     bool m_draw_call_log_used;
-    
-    bool m_first_frame;
     
     std::mutex m_streamerFenceMutex;
     bool m_streamerComplete;

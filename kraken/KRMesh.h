@@ -217,8 +217,6 @@ public:
 
     static int GetLODCoverage(const std::string &name);
 
-    void load(); // Load immediately into the GPU rather than passing through the streamer
-
 protected:
     bool m_constant; // TRUE if this should be always loaded and should not be passed through the streamer
 

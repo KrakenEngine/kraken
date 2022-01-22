@@ -170,6 +170,11 @@ void KRPresentationThread::renderFrame()
       // TODO - Add error handling...
     }
 
+    // TODO - This needs to be moved to the Render thread...
+    float deltaTime = 0.005; // TODO - Replace dummy value
+    m_pContext->startFrame(deltaTime);
+    m_pContext->endFrame(deltaTime);
+
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 

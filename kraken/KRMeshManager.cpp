@@ -38,18 +38,22 @@
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
-KRMeshManager::KRMeshManager(KRContext &context) : KRResourceManager(context) {
-    m_currentVBO = NULL;
-    m_vboMemUsed = 0;
-    m_memoryTransferredThisFrame = 0;
-    m_first_frame = true;
-    m_streamerComplete = true;
-    
-    addModel(new KRMeshCube(context));
-    addModel(new KRMeshQuad(context));
-    addModel(new KRMeshSphere(context));
-    m_draw_call_logging_enabled = false;
-    m_draw_call_log_used = false;
+KRMeshManager::KRMeshManager(KRContext& context)
+  : KRResourceManager(context)
+  , m_currentVBO(NULL)
+  , m_vboMemUsed(0)
+  , m_memoryTransferredThisFrame(0)
+  , m_streamerComplete(true)
+  , m_draw_call_logging_enabled(false)
+  , m_draw_call_log_used(false)
+{
+ 
+}
+
+void KRMeshManager::init() {
+    addModel(new KRMeshCube(*m_pContext));
+    addModel(new KRMeshQuad(*m_pContext));
+    addModel(new KRMeshSphere(*m_pContext));
     
     // ----  Initialize stock models ----
     static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
@@ -214,12 +218,7 @@ void KRMeshManager::startFrame(float deltaTime)
         m_draw_call_logging_enabled = true;
     }
     m_draw_calls.clear();
-    
-    if(m_first_frame) {
-        m_first_frame = false;
-        firstFrame();
-    }
-    
+       
     // TODO - Implement proper double-buffering to reduce copy operations
     m_streamerFenceMutex.lock();
     
@@ -232,7 +231,11 @@ void KRMeshManager::startFrame(float deltaTime)
         for(auto itr=m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
             KRVBOData *activeVBO = (*itr).second;
             activeVBO->_swapHandles();
-            if(activeVBO->getLastFrameUsed() + KRENGINE_VBO_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
+            if (activeVBO->getType() == KRVBOData::CONSTANT) {
+              // Ensure that CONSTANT data is always loaded
+              float priority = std::numeric_limits<float>::max();
+              m_activeVBOs_streamer_copy.push_back(std::pair<float, KRVBOData*>(priority, activeVBO));
+            } else if(activeVBO->getLastFrameUsed() + KRENGINE_VBO_EXPIRY_FRAMES < getContext().getCurrentFrame()) {
                 // Expire VBO's that haven't been used in a long time
                 
                 switch(activeVBO->getType()) {
@@ -248,11 +251,9 @@ void KRMeshManager::startFrame(float deltaTime)
                 }
                 
                 expiredVBOs.insert(activeVBO);
-            } else {
-                if(activeVBO->getType() == KRVBOData::STREAMING) {
-                    float priority = activeVBO->getStreamPriority();
-                    m_activeVBOs_streamer_copy.push_back(std::pair<float, KRVBOData *>(priority, activeVBO));
-                }
+            } else if(activeVBO->getType() == KRVBOData::STREAMING) {
+                float priority = activeVBO->getStreamPriority();
+                m_activeVBOs_streamer_copy.push_back(std::pair<float, KRVBOData *>(priority, activeVBO));
             }
         }
         for(std::set<KRVBOData *>::iterator itr=expiredVBOs.begin(); itr != expiredVBOs.end(); itr++) {
@@ -270,16 +271,6 @@ void KRMeshManager::startFrame(float deltaTime)
 void KRMeshManager::endFrame(float deltaTime)
 {
     
-}
-
-void KRMeshManager::firstFrame()
-{
-    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.load();
-    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.load();
-    
-    getModel("__sphere")[0]->load();
-    getModel("__cube")[0]->load();
-    getModel("__quad")[0]->load();
 }
 
 void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
@@ -566,6 +557,10 @@ void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, K
     if(m_index_data != NULL) {
         m_size += m_index_data->getSize();
     }
+
+    if (t == KRVBOData::CONSTANT) {
+      m_manager->primeVBO(this);
+    }
 }
 
 KRMeshManager::KRVBOData::~KRVBOData()
@@ -647,6 +642,7 @@ void KRMeshManager::KRVBOData::load()
 
 void KRMeshManager::KRVBOData::unload()
 {
+  // TODO - We need to properly unload these in the streamer thread
     if(isVBOLoaded()) {
         m_manager->m_vboMemUsed -= getSize();
     }
