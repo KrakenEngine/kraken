@@ -309,7 +309,10 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
         memoryRemaining -= vbo_size;
     }
     
+    // TODO - Replace OpenGL code below...
+    /*
     glFinish();
+    */
 }
 
 void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage)
@@ -573,6 +576,11 @@ void KRMeshManager::KRVBOData::load()
     if(isVBOLoaded()) {
         return;
     }
+
+
+
+    // TODO - Replace OpenGL code below...
+    /*
     assert(m_vao_handle == -1);
     assert(m_vbo_handle == -1);
     assert(m_vbo_handle_indexes == -1);
@@ -629,6 +637,7 @@ void KRMeshManager::KRVBOData::load()
             m_index_data->unlock();
         }
     }
+    */
     
     m_is_vbo_loaded = true;
 
@@ -707,6 +716,8 @@ float KRMeshManager::KRVBOData::getStreamPriority()
 
 void KRMeshManager::KRVBOData::_swapHandles()
 {
+    // TODO - Replace OpenGL code below...
+  /*
     if(m_is_vbo_loaded) {
         assert(m_vbo_handle != -1);
     }
@@ -725,6 +736,7 @@ void KRMeshManager::KRVBOData::_swapHandles()
         }
     }
 #endif
+*/
     
     m_is_vbo_ready = m_is_vbo_loaded;
 }
