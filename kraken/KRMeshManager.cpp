@@ -594,19 +594,34 @@ void KRMeshManager::KRVBOData::load()
       
       VmaAllocator allocator = device.getAllocator();
 
+      // TODO - Use staging buffers
+
       VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
       bufferInfo.size = m_data->getSize();
       bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
       VmaAllocationCreateInfo allocInfo = {};
       allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+      allocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
       VkResult res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.vertex_buffer, &allocation.vertex_allocation, nullptr);
+      void* mappedData = nullptr;
+      m_data->lock();
+      vmaMapMemory(allocator, allocation.vertex_allocation, &mappedData);
+      memcpy(mappedData, m_data->getStart(), m_data->getSize());
+      vmaUnmapMemory(allocator, allocation.vertex_allocation);
+      m_data->unlock();
 
       if (m_index_data->getSize() > 0) {
         bufferInfo.size = m_index_data->getSize();
         bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.index_buffer, &allocation.index_allocation, nullptr);
+        mappedData = nullptr;
+        m_index_data->lock();
+        vmaMapMemory(allocator, allocation.index_allocation, &mappedData);
+        memcpy(mappedData, m_index_data->getStart(), m_index_data->getSize());
+        vmaUnmapMemory(allocator, allocation.index_allocation);
+        m_index_data->unlock();
       }
     }
 
