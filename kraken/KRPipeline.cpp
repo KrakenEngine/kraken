@@ -116,7 +116,8 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
   m_renderPass = nullptr;
-  KRDevice& device = m_pContext->getDeviceManager()->getDeviceInfo(deviceHandle);
+  KRDevice& device = *m_pContext->getDeviceManager()->getDevice(deviceHandle);
+  // TODO - Handle device removal
 
   strcpy(m_szKey, szKey);
 

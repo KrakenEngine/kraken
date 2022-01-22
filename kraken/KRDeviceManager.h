@@ -47,7 +47,7 @@ public:
   bool haveVulkan() const;
   bool haveDevice() const;
 
-  KRDevice& getDeviceInfo(KrDeviceHandle handle);
+  std::unique_ptr<KRDevice>& getDevice(KrDeviceHandle handle);
   VkInstance& getVulkanInstance();
   KrSurfaceHandle getBestDeviceForSurface(const VkSurfaceKHR& surface);
   unordered_map<KrDeviceHandle, std::unique_ptr<KRDevice>>& getDevices();

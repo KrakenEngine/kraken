@@ -571,12 +571,13 @@ void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, K
 
 KRMeshManager::KRVBOData::~KRVBOData()
 {
+    // TODO - This needs to be done by the streamer thread, and asserted here...
     unload();
 }
 
 void KRMeshManager::KRVBOData::load()
 {
-  // TODO - We should load on each GPU only if there is a surface using the mesh
+    // TODO - We should load on each GPU only if there is a surface using the mesh
     if(isVBOLoaded()) {
         return;
     }
@@ -681,29 +682,28 @@ void KRMeshManager::KRVBOData::load()
 
 void KRMeshManager::KRVBOData::unload()
 {
-  // TODO - We need to properly unload these in the streamer thread
-    if(isVBOLoaded()) {
-        m_manager->m_vboMemUsed -= getSize();
+  KRDeviceManager* deviceManager = m_manager->getContext().getDeviceManager();
+  for (int i = 0; i < KRENGINE_MAX_GPU_COUNT; i++) {
+    AllocationInfo& allocation = m_allocations[i];
+    if (allocation.device) {
+      std::unique_ptr<KRDevice>& device = deviceManager->getDevice(allocation.device);
+      if (device) {
+        VmaAllocator allocator = device->getAllocator();
+        vmaDestroyBuffer(allocator, allocation.vertex_buffer, allocation.vertex_allocation);
+        if (allocation.index_buffer) {
+          vmaDestroyBuffer(allocator, allocation.index_buffer, allocation.index_allocation);
+        }
+      }
     }
+    memset(&allocation, 0, sizeof(AllocationInfo));
+  }
+
+  if(isVBOLoaded()) {
+      m_manager->m_vboMemUsed -= getSize();
+  }
     
-#if GL_OES_vertex_array_object
-    if(m_vao_handle != -1) {
-        GLDEBUG(glDeleteVertexArraysOES(1, &m_vao_handle));
-        m_vao_handle = -1;
-    }
-#endif
-    if(m_vbo_handle != -1) {
-        GLDEBUG(glDeleteBuffers(1, &m_vbo_handle));
-        m_vbo_handle = -1;
-    }
-    
-    if(m_vbo_handle_indexes != -1) {
-        GLDEBUG(glDeleteBuffers(1, &m_vbo_handle_indexes));
-        m_vbo_handle_indexes = -1;
-    }
-    
-    m_is_vbo_loaded = false;
-    m_is_vbo_ready = false;
+  m_is_vbo_loaded = false;
+  m_is_vbo_ready = false;
 }
 
 void KRMeshManager::KRVBOData::bind()

@@ -105,7 +105,8 @@ void KRPresentationThread::renderFrame()
 
   for (auto surfaceItr = surfaces.begin(); surfaceItr != surfaces.end(); surfaceItr++) {
     KRSurface& surface = *(*surfaceItr).second;
-    KRDevice& device = m_pContext->getDeviceManager()->getDeviceInfo(surface.m_deviceHandle);
+    KRDevice& device = *m_pContext->getDeviceManager()->getDevice(surface.m_deviceHandle);
+    // TODO - Handle device removal
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities{};
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.m_device, surface.m_surface, &surfaceCapabilities);

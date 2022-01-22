@@ -189,9 +189,9 @@ void KRDeviceManager::createDevices()
   }
 }
 
-KRDevice& KRDeviceManager::getDeviceInfo(KrDeviceHandle handle)
+std::unique_ptr<KRDevice>& KRDeviceManager::getDevice(KrDeviceHandle handle)
 {
-  return *m_devices[handle];
+  return m_devices[handle];
 }
 
 VkInstance& KRDeviceManager::getVulkanInstance()
