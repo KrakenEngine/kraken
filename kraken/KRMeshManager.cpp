@@ -79,7 +79,11 @@ void KRMeshManager::init() {
     memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT);
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT
+#if KRENGINE_DEBUG_GPU_LABELS
+      , "Cube Mesh [built-in]"
+#endif
+    );
     
     
     
@@ -95,7 +99,11 @@ void KRMeshManager::init() {
     memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT);
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT
+#if KRENGINE_DEBUG_GPU_LABELS
+      , "Square Mesh [built-in]"
+#endif
+    );
     
 }
 
@@ -315,9 +323,17 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
     */
 }
 
-void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage)
+void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
+#if KRENGINE_DEBUG_GPU_LABELS
+  , const char* debug_label
+#endif
+)
 {
-    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::TEMPORARY);
+    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::TEMPORARY
+#if KRENGINE_DEBUG_GPU_LABELS
+      , debug_label
+#endif
+    );
     vbo_data->load();
     bindVBO(vbo_data, lodCoverage);
 }
@@ -520,6 +536,7 @@ std::vector<KRMeshManager::draw_call_info> KRMeshManager::getDrawCalls()
 
 KRMeshManager::KRVBOData::KRVBOData()
 {
+    m_debugLabel[0] = '\0';
     m_is_vbo_loaded = false;
     m_is_vbo_ready = false;
     m_manager = NULL;
@@ -538,16 +555,32 @@ KRMeshManager::KRVBOData::KRVBOData()
     memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+#if KRENGINE_DEBUG_GPU_LABELS
+  , const char* debug_label
+#endif
+)
 {
+    m_debugLabel[0] = '\0';
     memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
     m_is_vbo_loaded = false;
     m_is_vbo_ready = false;
-    init(manager, data,index_data,vertex_attrib_flags, static_vbo, t);
+    init(manager, data,index_data,vertex_attrib_flags, static_vbo, t
+#if KRENGINE_DEBUG_GPU_LABELS
+      , debug_label
+#endif
+    );
 }
 
-void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t)
+void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+#if KRENGINE_DEBUG_GPU_LABELS
+  , const char* debug_label
+#endif
+)
 {
+#if KRENGINE_DEBUG_GPU_LABELS
+  snprintf(m_debugLabel, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, debug_label);
+#endif //KRENGINE_DEBUG_GPU_LABELS
     m_manager = manager;
     m_type = t;
     m_static_vbo = static_vbo;
@@ -605,6 +638,36 @@ void KRMeshManager::KRVBOData::load()
       allocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
       VkResult res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.vertex_buffer, &allocation.vertex_allocation, nullptr);
+
+#if KRENGINE_DEBUG_GPU_LABELS
+      char debug_label[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
+
+      char* type_label = "";
+
+      switch (m_type) {
+      case vbo_type::STREAMING:
+        type_label = "Streaming";
+        break;
+      case vbo_type::CONSTANT:
+        type_label = "Constant";
+        break;
+      case vbo_type::TEMPORARY:
+        type_label = "Temporary";
+        break;
+      default:
+        assert(false);
+      }
+
+      snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Vertices: %s", type_label, m_debugLabel);
+
+      VkDebugUtilsObjectNameInfoEXT debugInfo{};
+      debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+      debugInfo.objectHandle = (uint64_t)allocation.vertex_buffer;
+      debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
+      debugInfo.pObjectName = debug_label;
+      res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
+#endif // KRENGINE_DEBUG_GPU_LABELS
+
       void* mappedData = nullptr;
       m_data->lock();
       vmaMapMemory(allocator, allocation.vertex_allocation, &mappedData);
@@ -616,6 +679,16 @@ void KRMeshManager::KRVBOData::load()
         bufferInfo.size = m_index_data->getSize();
         bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.index_buffer, &allocation.index_allocation, nullptr);
+#if KRENGINE_DEBUG_GPU_LABELS
+        snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Indexes: %s", type_label, m_debugLabel);
+
+        VkDebugUtilsObjectNameInfoEXT debugInfo{};
+        debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        debugInfo.objectHandle = (uint64_t)allocation.index_buffer;
+        debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
+        debugInfo.pObjectName = debug_label;
+        res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
+#endif // KRENGINE_DEBUG_GPU_LABELS
         mappedData = nullptr;
         m_index_data->lock();
         vmaMapMemory(allocator, allocation.index_allocation, &mappedData);

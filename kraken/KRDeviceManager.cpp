@@ -95,6 +95,9 @@ KRDeviceManager::initialize()
 
   char* extensions[] = {
     "VK_KHR_surface",
+#if KRENGINE_DEBUG_GPU_LABELS
+    "VK_EXT_debug_utils",
+#endif
 #ifdef WIN32
     "VK_KHR_win32_surface",
 #endif
@@ -106,14 +109,17 @@ KRDeviceManager::initialize()
   inst_info.pNext = NULL;
   inst_info.flags = 0;
   inst_info.pApplicationInfo = &app_info;
-#ifdef WIN32
-  inst_info.enabledExtensionCount = 2;
-#else
   inst_info.enabledExtensionCount = 1;
-#endif
   inst_info.ppEnabledExtensionNames = extensions;
   inst_info.enabledLayerCount = 0;
   inst_info.ppEnabledLayerNames = NULL;
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  inst_info.enabledExtensionCount++;
+#endif
+#ifdef WIN32
+  inst_info.enabledExtensionCount++;
+#endif
 
   res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
   if (res != VK_SUCCESS) {

@@ -891,7 +891,12 @@ void KRCamera::renderPost()
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
         KRDataBlock index_data;
-        m_pContext->getMeshManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f);
+        m_pContext->getMeshManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
+
+#if KRENGINE_DEBUG_GPU_LABELS
+          , "Debug Text"
+#endif
+        );
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
         

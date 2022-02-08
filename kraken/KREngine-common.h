@@ -34,6 +34,8 @@
 #define KRENGINE_COMMON_H
 
 #define KRENGINE_MAX_GPU_COUNT 4
+#define KRENGINE_DEBUG_GPU_LABELS 1
+#define KRENGINE_DEBUG_GPU_LABEL_MAX_LEN 128
 
 #include "public/kraken.h"
 #include "KRHelpers.h"

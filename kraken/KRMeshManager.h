@@ -75,8 +75,16 @@ public:
         } vbo_type;
         
         KRVBOData();
-        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t);
-        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t);
+        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+#if KRENGINE_DEBUG_GPU_LABELS
+            , const char* debug_label
+#endif
+          );
+        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+#if KRENGINE_DEBUG_GPU_LABELS
+          , const char* debug_label
+#endif
+        );
         ~KRVBOData();
         
         
@@ -128,10 +136,18 @@ public:
         } AllocationInfo;
 
         AllocationInfo m_allocations[KRENGINE_MAX_GPU_COUNT];
+
+#if KRENGINE_DEBUG_GPU_LABELS
+        char m_debugLabel[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
+#endif
     };
     
     void bindVBO(KRVBOData *vbo_data, float lodCoverage);
-    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage);
+    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
+#if KRENGINE_DEBUG_GPU_LABELS
+      , const char* debug_label
+#endif
+    );
     void unbindVBO();
     long getMemUsed();
     long getMemActive();
