@@ -86,5 +86,17 @@ bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
     success = false;
   }
   m_pData->unlock();
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  if (success) {
+    std::string& name = getName();
+    VkDebugUtilsObjectNameInfoEXT debugInfo{};
+    debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+    debugInfo.objectHandle = (uint64_t)module;
+    debugInfo.objectType = VK_OBJECT_TYPE_SHADER_MODULE;
+    debugInfo.pObjectName = name.c_str();
+    VkResult res = vkSetDebugUtilsObjectNameEXT(device, &debugInfo);
+  }
+#endif // KRENGINE_DEBUG_GPU_LABELS
   return success;
 }
