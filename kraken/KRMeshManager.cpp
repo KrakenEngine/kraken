@@ -865,3 +865,16 @@ void KRMeshManager::primeVBO(KRVBOData *vbo_data)
         m_vbosActive[vbo_data->m_data] = vbo_data;
     }
 }
+
+
+VkBuffer& KRMeshManager::KRVBOData::getVertexBuffer()
+{
+  assert(m_is_vbo_ready);
+  return m_allocations->vertex_buffer;
+}
+
+VkBuffer& KRMeshManager::KRVBOData::getIndexBuffer()
+{
+  assert(m_is_vbo_ready);
+  return m_allocations->index_buffer;
+}

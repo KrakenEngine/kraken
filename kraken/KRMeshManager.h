@@ -111,6 +111,9 @@ public:
         float getStreamPriority();
         
         void _swapHandles();
+
+        VkBuffer& getVertexBuffer();
+        VkBuffer& getIndexBuffer();
         
     private:
         KRMeshManager *m_manager;

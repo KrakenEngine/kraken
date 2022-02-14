@@ -141,6 +141,9 @@ void KRPresentationThread::renderFrame()
     VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
     KRPipeline* testPipeline = m_pContext->getPipelineManager()->get("vulkan_test");
 
+    KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+    bool haveMesh = testVertices.isVBOReady();
+
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
@@ -164,7 +167,14 @@ void KRPresentationThread::renderFrame()
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    if (haveMesh) {
+
+      VkBuffer vertexBuffers[] = { testVertices.getVertexBuffer() };
+      VkDeviceSize offsets[] = { 0 };
+      vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+      vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    }
+
     vkCmdEndRenderPass(commandBuffer);
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
       m_activeState = PresentThreadState::error;

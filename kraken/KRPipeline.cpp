@@ -184,12 +184,32 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
     // failed! TODO - Error handling
   }
 
+  // TODO - Make bindings dynamic...
+  VkVertexInputBindingDescription bindingDescription{};
+  bindingDescription.binding = 0;
+  bindingDescription.stride = sizeof(float) * 3 + sizeof(uint16_t) * 2;
+  bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+  const int kMaxVertexDescriptions = 16;
+  VkVertexInputAttributeDescription vertexAttributeDescriptions[kMaxVertexDescriptions]{};
+  // position
+  vertexAttributeDescriptions[0].binding = 0;
+  vertexAttributeDescriptions[0].location = 0;
+  vertexAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+  vertexAttributeDescriptions[0].offset = 0;
+
+  // uv
+  vertexAttributeDescriptions[1].binding = 0;
+  vertexAttributeDescriptions[1].location = 1;
+  vertexAttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+  vertexAttributeDescriptions[1].offset = sizeof(float) * 3;
+
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexBindingDescriptionCount = 0;
-  vertexInputInfo.pVertexBindingDescriptions = nullptr; // TODO
-  vertexInputInfo.vertexAttributeDescriptionCount = 0;
-  vertexInputInfo.pVertexAttributeDescriptions = nullptr; // TODO
+  vertexInputInfo.vertexBindingDescriptionCount = 1;
+  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+  vertexInputInfo.vertexAttributeDescriptionCount = 2;
+  vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDescriptions;
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
