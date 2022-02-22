@@ -19,3 +19,6 @@
 [submodule "3rdparty/vma"]
 	path = 3rdparty/vma
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "spirvreflect"]
+	path = 3rdparty/spirv-reflect
+	url = https://github.com/KhronosGroup/SPIRV-Reflect.git

@@ -161,6 +161,10 @@ list (APPEND EXTRA_LIBS "glslang")
 list (APPEND EXTRA_LIBS "SPIRV")
 endif()
 
+# ---- SPIRV-Reflect ----
+include_directories(3rdparty/spirv-reflect)
+add_sources(3rdparty/spirv-reflect/spirv_reflect.c)
+
 # ---- OpenGL ----
 if(ANDROID)
 list (APPEND EXTRA_LIBS "EGL")
