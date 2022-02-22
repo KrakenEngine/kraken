@@ -30,12 +30,16 @@
 //
 
 #include "KRShader.h"
+#include "spirv_reflect.h"
 
 KRShader::KRShader(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
 {
     m_pData = new KRDataBlock();
     m_extension = extension;
     m_subExtension = KRResource::GetFileExtension(name);
+    m_reflectionValid = false;
+
+    getReflection();
 }
 
 KRShader::KRShader(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
@@ -43,10 +47,12 @@ KRShader::KRShader(KRContext &context, std::string name, std::string extension, 
     m_pData = data;
     m_extension = extension;
     m_subExtension = KRResource::GetFileExtension(name);
+    m_reflectionValid = false;
 }
 
 KRShader::~KRShader()
 {
+    freeReflection();
     delete m_pData;
 }
 
@@ -99,4 +105,40 @@ bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
   }
 #endif // KRENGINE_DEBUG_GPU_LABELS
   return success;
+}
+
+void KRShader::parseReflection()
+{
+  if (m_reflectionValid) {
+    return;
+  }
+  m_pData->lock();
+
+  // Generate reflection data for a shader
+  SpvReflectResult result = spvReflectCreateShaderModule(m_pData->getSize(), m_pData->getStart(), &m_reflection);
+  if (result != SPV_REFLECT_RESULT_SUCCESS) {
+    // TODO - Log error
+    return;
+  }
+
+  m_pData->unlock();
+}
+
+void KRShader::freeReflection()
+{
+  if (!m_reflectionValid) {
+    return;
+  }
+  spvReflectDestroyShaderModule(&m_reflection);
+  m_reflectionValid = false;
+}
+
+
+const SpvReflectShaderModule* KRShader::getReflection()
+{
+  parseReflection();
+  if (m_reflectionValid) {
+    return &m_reflection;
+  }
+  return nullptr;
 }

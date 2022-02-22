@@ -36,6 +36,7 @@
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 #include "KRResource.h"
+#include "spirv_reflect.h"
 
 class KRShader : public KRResource {
     
@@ -52,12 +53,18 @@ public:
     virtual bool save(KRDataBlock &data);
     
     KRDataBlock *getData();
-
+    const SpvReflectShaderModule* getReflection();
+    
 private:
     
     std::string m_extension;
     std::string m_subExtension;
     KRDataBlock *m_pData;
+    SpvReflectShaderModule m_reflection;
+    bool m_reflectionValid;
+
+    void parseReflection();
+    void freeReflection();
 };
 
 #endif /* defined(KRSHADER_H) */
