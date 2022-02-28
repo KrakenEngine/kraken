@@ -168,11 +168,8 @@ void KRPresentationThread::renderFrame()
 
     if (haveMesh) {
       KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes());
-      vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
-
-      VkBuffer vertexBuffers[] = { testVertices.getVertexBuffer() };
-      VkDeviceSize offsets[] = { 0 };
-      vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+      testPipeline->bind(commandBuffer);
+      testVertices.bind(commandBuffer);
       vkCmdDraw(commandBuffer, 3, 1, 0, 0);
     }
 

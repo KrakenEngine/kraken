@@ -809,6 +809,13 @@ void KRMeshManager::KRVBOData::bind()
 #endif
 }
 
+void KRMeshManager::KRVBOData::bind(VkCommandBuffer& commandBuffer)
+{
+  VkBuffer vertexBuffers[] = { getVertexBuffer() };
+  VkDeviceSize offsets[] = { 0 };
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+}
+
 void KRMeshManager::KRVBOData::resetPoolExpiry(float lodCoverage)
 {
     long current_frame = m_manager->getContext().getCurrentFrame();

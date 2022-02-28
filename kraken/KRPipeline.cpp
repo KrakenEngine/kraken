@@ -548,6 +548,11 @@ void KRPipeline::setUniform(int location, const Matrix4 &value)
     }
 }
 
+void KRPipeline::bind(VkCommandBuffer& commandBuffer)
+{
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+}
+
 bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;

@@ -96,6 +96,7 @@ public:
         void load();
         void unload();
         void bind();
+        void bind(VkCommandBuffer& commandBuffer);
         
         // Disable copy constructors
         KRVBOData(const KRVBOData& o) = delete;

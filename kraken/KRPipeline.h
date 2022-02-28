@@ -51,7 +51,8 @@ public:
     const char *getKey() const;
     
     bool bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
-    
+    void bind(VkCommandBuffer& commandBuffer);
+
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,
         KRENGINE_UNIFORM_MATERIAL_DIFFUSE,
