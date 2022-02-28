@@ -62,21 +62,29 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
-void KRPipelineManager::createPipelines(KRSurface& surface)
+KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const std::string& shader_name, uint32_t vertexAttributes)
 {
-  {
-    // vulkan_test
-    std::string pipeline_name = "vulkan_test";
-    std::vector<KRShader*> shaders;
-    shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".vert", "spv"));
-    shaders.push_back(m_pContext->getShaderManager()->get(pipeline_name + ".frag", "spv"));
-    KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, surface.m_swapChainImageFormat, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height , pipeline_name.c_str(), shaders);
-    std::pair<std::string, std::vector<int> > key;
-    key.first = pipeline_name;
-    m_pipelines[key] = pipeline;
+  std::pair<std::string, std::vector<int> > key;
+  key.first = shader_name;
+  key.second.push_back(surface.m_deviceHandle);
+  key.second.push_back(surface.m_swapChainImageFormat);
+  key.second.push_back(surface.m_swapChainExtent.width);
+  key.second.push_back(surface.m_swapChainExtent.height);
+  key.second.push_back(vertexAttributes);
+  PipelineMap::iterator itr = m_pipelines.find(key);
+  if (itr != m_pipelines.end()) {
+    return itr->second;
   }
-}
 
+  std::vector<KRShader*> shaders;
+  shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".vert", "spv"));
+  shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".frag", "spv"));
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, shader_name.c_str(), shaders, vertexAttributes);
+
+  m_pipelines[key] = pipeline;
+
+  return pipeline;
+}
 
 KRPipeline *KRPipelineManager::getPipeline(const std::string &pipeline_name, KRCamera *pCamera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, bool bRimColor) {
     

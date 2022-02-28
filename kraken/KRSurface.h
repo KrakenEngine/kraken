@@ -35,6 +35,8 @@
 #ifndef KRSURFACE_H
 #define KRSURFACE_H
 
+class KRDevice;
+
 class KRSurface : public KRContextObject
 {
 public:
@@ -45,12 +47,17 @@ public:
 #endif
   ~KRSurface();
   void destroy();
+  uint32_t getWidth() const;
+  uint32_t getHeight() const;
 
   KRSurface(const KRSurface&) = delete;
   KRSurface& operator=(const KRSurface&) = delete;
+  std::unique_ptr<KRDevice>& getDevice();
 
   KrResult initialize();
   KrResult recreateSwapChain();
+  void createRenderPasses();
+  VkRenderPass& getRenderPass();
 
 #ifdef WIN32
   HWND m_hWnd;
@@ -66,6 +73,8 @@ public:
   VkSemaphore m_imageAvailableSemaphore;
   VkSemaphore m_renderFinishedSemaphore;
 
+  // TODO - Move this to a higher context
+  VkRenderPass m_renderPass;
 
 private:
   void destroySwapChain();

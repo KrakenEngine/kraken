@@ -4,6 +4,9 @@
 // See https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 0) in vec3 vertex_position;
+layout(location = 1) in vec3 vertex_uv;
+layout(constant_id = 0) const int QUALITY_LEVEL = 64; // Specialization constant test
 
 vec2 positions[3] = vec2[](
     vec2(0.0, -0.5),

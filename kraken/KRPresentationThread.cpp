@@ -139,10 +139,11 @@ void KRPresentationThread::renderFrame()
 
     // TODO - this will break with more than one surface...  Expect to refactor this out
     VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
-    KRPipeline* testPipeline = m_pContext->getPipelineManager()->get("vulkan_test");
 
     KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
     bool haveMesh = testVertices.isVBOReady();
+
+    KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes());
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -158,7 +159,7 @@ void KRPresentationThread::renderFrame()
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = testPipeline->getRenderPass();
+    renderPassInfo.renderPass = surface.getRenderPass();
     renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[frameIndex % surface.m_swapChainFramebuffers.size()];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = surface.m_swapChainExtent;

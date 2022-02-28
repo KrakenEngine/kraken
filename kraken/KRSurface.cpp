@@ -47,6 +47,7 @@ KRSurface::KRSurface(KRContext& context)
   , m_swapChainExtent({ 0, 0  })
   , m_imageAvailableSemaphore(VK_NULL_HANDLE)
   , m_renderFinishedSemaphore(VK_NULL_HANDLE)
+  , m_renderPass(VK_NULL_HANDLE)
 {
 
 }
@@ -90,6 +91,11 @@ void KRSurface::destroy()
   destroySwapChain();
 
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
+ 
+  if (m_renderPass) {
+    vkDestroyRenderPass(device->m_logicalDevice, m_renderPass, nullptr);
+    m_renderPass = VK_NULL_HANDLE;
+  }
 
   if (device && m_renderFinishedSemaphore != VK_NULL_HANDLE) {
     vkDestroySemaphore(device->m_logicalDevice, m_renderFinishedSemaphore, nullptr);
@@ -230,10 +236,8 @@ KrResult KRSurface::createSwapChain()
     }
   }
 
-  KRPipelineManager* pipelineManager = m_pContext->getPipelineManager();
-  pipelineManager->createPipelines(*this);
+  createRenderPasses();
 
-  KRPipeline* testPipeline = pipelineManager->get("vulkan_test");
   m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
 
   for (size_t i = 0; i < m_swapChainImageViews.size(); i++) {
@@ -241,7 +245,7 @@ KrResult KRSurface::createSwapChain()
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = testPipeline->getRenderPass();
+    framebufferInfo.renderPass = getRenderPass();
     framebufferInfo.attachmentCount = 1;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = m_swapChainExtent.width;
@@ -291,3 +295,71 @@ KrResult KRSurface::recreateSwapChain()
   return result;
 }
 
+void KRSurface::createRenderPasses()
+{
+  if (m_renderPass) {
+    return;
+  }
+
+  VkAttachmentDescription colorAttachment{};
+  colorAttachment.format = m_swapChainImageFormat;
+  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference colorAttachmentRef{};
+  colorAttachmentRef.attachment = 0;
+  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkSubpassDescription subpass{};
+  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.colorAttachmentCount = 1;
+  subpass.pColorAttachments = &colorAttachmentRef;
+
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+  VkRenderPassCreateInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderPassInfo.attachmentCount = 1;
+  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.subpassCount = 1;
+  renderPassInfo.pSubpasses = &subpass;
+  renderPassInfo.dependencyCount = 1;
+  renderPassInfo.pDependencies = &dependency;
+
+  std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
+
+  if (vkCreateRenderPass(device->m_logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
+    // failed! TODO - Error handling
+  }
+}
+
+VkRenderPass& KRSurface::getRenderPass()
+{
+  return m_renderPass;
+}
+
+std::unique_ptr<KRDevice>& KRSurface::getDevice()
+{
+  return m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
+}
+
+uint32_t KRSurface::getWidth() const
+{
+  return m_swapChainExtent.width;
+}
+
+uint32_t KRSurface::getHeight() const
+{
+  return m_swapChainExtent.height;
+}
