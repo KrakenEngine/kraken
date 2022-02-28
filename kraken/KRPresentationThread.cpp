@@ -140,11 +140,6 @@ void KRPresentationThread::renderFrame()
     // TODO - this will break with more than one surface...  Expect to refactor this out
     VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
 
-    KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
-    bool haveMesh = testVertices.isVBOReady();
-
-    KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes());
-
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
@@ -167,8 +162,13 @@ void KRPresentationThread::renderFrame()
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
+
+    KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+    bool haveMesh = testVertices.isVBOReady();
+
     if (haveMesh) {
+      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes());
+      vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testPipeline->getPipeline());
 
       VkBuffer vertexBuffers[] = { testVertices.getVertexBuffer() };
       VkDeviceSize offsets[] = { 0 };
