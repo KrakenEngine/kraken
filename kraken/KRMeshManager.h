@@ -114,6 +114,7 @@ public:
 
         VkBuffer& getVertexBuffer();
         VkBuffer& getIndexBuffer();
+        uint32_t getVertexAttributes();
         
     private:
         KRMeshManager *m_manager;

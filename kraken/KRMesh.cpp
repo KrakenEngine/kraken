@@ -1082,6 +1082,29 @@ size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_
     return VertexSizeForAttributes(mask);
 }
 
+VkFormat KRMesh::AttributeVulkanFormat(__int32 vertex_attrib)
+{
+  switch (vertex_attrib) {
+    case KRENGINE_ATTRIB_VERTEX:
+    case KRENGINE_ATTRIB_NORMAL:
+    case KRENGINE_ATTRIB_TANGENT:
+    case KRENGINE_ATTRIB_BONEWEIGHTS:
+      return VK_FORMAT_R32G32B32_SFLOAT;
+    case KRENGINE_ATTRIB_TEXUVA:
+    case KRENGINE_ATTRIB_TEXUVB:
+      return VK_FORMAT_R32G32_SFLOAT;
+    case KRENGINE_ATTRIB_BONEINDEXES:
+      return VK_FORMAT_R8G8B8A8_UINT;
+    case KRENGINE_ATTRIB_VERTEX_SHORT:
+    case KRENGINE_ATTRIB_NORMAL_SHORT:
+    case KRENGINE_ATTRIB_TANGENT_SHORT:
+      return VK_FORMAT_R16G16B16_SFLOAT;
+    case KRENGINE_ATTRIB_TEXUVA_SHORT:
+    case KRENGINE_ATTRIB_TEXUVB_SHORT:
+      return VK_FORMAT_R16G16_SFLOAT;
+  }
+}
+
 int KRMesh::getBoneCount()
 {
     pack_header *header = getHeader();

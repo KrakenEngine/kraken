@@ -109,14 +109,14 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat swapChainImageFormat, uint32_t swapChainWidth, uint32_t swapChainHeight, const char* szKey, const std::vector<KRShader*>& shaders)
+KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
-  m_renderPass = nullptr;
-  KRDevice& device = *m_pContext->getDeviceManager()->getDevice(deviceHandle);
+
+  std::unique_ptr<KRDevice>& device = surface.getDevice();
   // TODO - Handle device removal
 
   strcpy(m_szKey, szKey);
@@ -126,15 +126,55 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
   memset(static_cast<void*>(stages), 0, sizeof(VkPipelineShaderStageCreateInfo) * kMaxStages);
   size_t stage_count = 0;
 
+  // TODO - Refactor this...  These lookup tables should be in KRMesh...
+  static const KRMesh::vertex_attrib_t attribute_mapping[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {
+    KRMesh::KRENGINE_ATTRIB_VERTEX,
+    KRMesh::KRENGINE_ATTRIB_NORMAL,
+    KRMesh::KRENGINE_ATTRIB_TANGENT,
+    KRMesh::KRENGINE_ATTRIB_TEXUVA,
+    KRMesh::KRENGINE_ATTRIB_TEXUVB,
+    KRMesh::KRENGINE_ATTRIB_BONEINDEXES,
+    KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS,
+    KRMesh::KRENGINE_ATTRIB_VERTEX,
+    KRMesh::KRENGINE_ATTRIB_NORMAL,
+    KRMesh::KRENGINE_ATTRIB_TANGENT,
+    KRMesh::KRENGINE_ATTRIB_TEXUVA,
+    KRMesh::KRENGINE_ATTRIB_TEXUVB,
+  };
+
+  uint32_t attribute_locations[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {};
+
   for (KRShader* shader : shaders) {
     VkShaderModule shaderModule;
-    if (!shader->createShaderModule(device.m_logicalDevice, shaderModule)) {
+    if (!shader->createShaderModule(device->m_logicalDevice, shaderModule)) {
       // failed! TODO - Error handling
     }
+    const SpvReflectShaderModule* reflection = shader->getReflection();
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     if (shader->getSubExtension().compare("vert") == 0) {
       stageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+
+      for (uint32_t i = 0; i < reflection->input_variable_count; i++) {
+        // TODO - We should have an interface to allow classes such as KRMesh to expose bindings
+        SpvReflectInterfaceVariable& input_var = *reflection->input_variables[i];
+        if (strcmp(input_var.name, "vertex_position") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_VERTEX] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_normal") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_NORMAL] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TANGENT] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_uv") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVA] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_lightmap_uv") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVB] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "bone_indexes") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEINDEXES] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "bone_weights") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS] = input_var.location + 1;
+        }
+      }
+
     } else if (shader->getSubExtension().compare("frag") == 0) {
       stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     } else {
@@ -144,71 +184,31 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
     stageInfo.pName = "main";
   }
 
-  VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = swapChainImageFormat;
-  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-  VkAttachmentReference colorAttachmentRef{};
-  colorAttachmentRef.attachment = 0;
-  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-  VkSubpassDescription subpass{};
-  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-  subpass.colorAttachmentCount = 1;
-  subpass.pColorAttachments = &colorAttachmentRef;
-
-  VkSubpassDependency dependency{};
-  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dependency.dstSubpass = 0;
-  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.srcAccessMask = 0;
-  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-  VkRenderPassCreateInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = 1;
-  renderPassInfo.pAttachments = &colorAttachment;
-  renderPassInfo.subpassCount = 1;
-  renderPassInfo.pSubpasses = &subpass;
-  renderPassInfo.dependencyCount = 1;
-  renderPassInfo.pDependencies = &dependency;
-
-  if (vkCreateRenderPass(device.m_logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
-    // failed! TODO - Error handling
-  }
-
-  // TODO - Make bindings dynamic...
   VkVertexInputBindingDescription bindingDescription{};
   bindingDescription.binding = 0;
-  bindingDescription.stride = sizeof(float) * 3 + sizeof(uint16_t) * 2;
+  bindingDescription.stride = KRMesh::VertexSizeForAttributes(vertexAttributes);
   bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-  const int kMaxVertexDescriptions = 16;
-  VkVertexInputAttributeDescription vertexAttributeDescriptions[kMaxVertexDescriptions]{};
-  // position
-  vertexAttributeDescriptions[0].binding = 0;
-  vertexAttributeDescriptions[0].location = 0;
-  vertexAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-  vertexAttributeDescriptions[0].offset = 0;
+  uint32_t vertexAttributeCount = 0;
+  VkVertexInputAttributeDescription vertexAttributeDescriptions[KRMesh::KRENGINE_NUM_ATTRIBUTES]{};
 
-  // uv
-  vertexAttributeDescriptions[1].binding = 0;
-  vertexAttributeDescriptions[1].location = 1;
-  vertexAttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-  vertexAttributeDescriptions[1].offset = sizeof(float) * 3;
+  for (int i = KRMesh::KRENGINE_ATTRIB_VERTEX; i < KRMesh::KRENGINE_NUM_ATTRIBUTES; i++) {
+    KRMesh::vertex_attrib_t mesh_attrib = static_cast<KRMesh::vertex_attrib_t>(i);
+    int location_attrib = attribute_mapping[i];
+    if (KRMesh::has_vertex_attribute(vertexAttributes, (KRMesh::vertex_attrib_t)i) && attribute_locations[location_attrib]) {
+      VkVertexInputAttributeDescription& desc = vertexAttributeDescriptions[vertexAttributeCount++];
+      desc.binding = 0;
+      desc.location = attribute_locations[location_attrib] - 1;
+      desc.format = KRMesh::AttributeVulkanFormat(mesh_attrib);
+      desc.offset = KRMesh::AttributeOffset(mesh_attrib, vertexAttributes);
+    }
+  }
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   vertexInputInfo.vertexBindingDescriptionCount = 1;
   vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-  vertexInputInfo.vertexAttributeDescriptionCount = 2;
+  vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributeCount;
   vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDescriptions;
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -219,15 +219,15 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = static_cast<float>(swapChainWidth);
-  viewport.height = static_cast<float>(swapChainHeight);
+  viewport.width = static_cast<float>(surface.getWidth());
+  viewport.height = static_cast<float>(surface.getHeight());
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor{};
   scissor.offset = { 0, 0 };
-  scissor.extent.width = swapChainWidth;
-  scissor.extent.height = swapChainHeight;
+  scissor.extent.width = surface.getWidth();
+  scissor.extent.height = surface.getHeight();
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -286,7 +286,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-  if (vkCreatePipelineLayout(device.m_logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device->m_logicalDevice, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
 
@@ -303,12 +303,12 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = nullptr;
   pipelineInfo.layout = m_pipelineLayout;
-  pipelineInfo.renderPass = m_renderPass;
+  pipelineInfo.renderPass = surface.getRenderPass();
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
 
-  if (vkCreateGraphicsPipelines(device.m_logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(device->m_logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
     // Failed! TODO - Error handling
   }
 }
@@ -427,9 +427,6 @@ KRPipeline::~KRPipeline() {
   }
   if (m_pipelineLayout) {
     // TODO: vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
-  }
-  if (m_renderPass) {
-    // TODO: vkDestroyRenderPass(device, m_renderPass, nullptr);
   }
 
     if(m_iProgram) {
@@ -793,11 +790,6 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
 
 const char *KRPipeline::getKey() const {
     return m_szKey;
-}
-
-VkRenderPass& KRPipeline::getRenderPass()
-{
-  return m_renderPass;
 }
 
 VkPipeline& KRPipeline::getPipeline()

@@ -878,3 +878,9 @@ VkBuffer& KRMeshManager::KRVBOData::getIndexBuffer()
   assert(m_is_vbo_ready);
   return m_allocations->index_buffer;
 }
+
+
+uint32_t KRMeshManager::KRVBOData::getVertexAttributes()
+{
+  return m_vertex_attrib_flags;
+}

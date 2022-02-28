@@ -41,10 +41,11 @@
 #include "KRViewport.h"
 
 class KRShader;
+class KRSurface;
 
 class KRPipeline  : public KRContextObject {
 public:
-    KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, VkFormat swapChainImageFormat, uint32_t swapChainWidth, uint32_t swapChainHeight, const char* szKey, const std::vector<KRShader*>& shaders);
+    KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes);
     KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRPipeline();
     const char *getKey() const;
@@ -145,12 +146,10 @@ public:
     void setUniform(int location, const Vector4 &value);
     void setUniform(int location, const Matrix4 &value);
 
-    VkRenderPass& getRenderPass();
     VkPipeline& getPipeline();
     
 private:
     GLuint m_iProgram;
-    VkRenderPass m_renderPass;
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
     

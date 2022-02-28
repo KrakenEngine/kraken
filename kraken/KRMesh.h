@@ -203,6 +203,7 @@ public:
 
     static size_t VertexSizeForAttributes(__int32_t vertex_attrib_flags);
     static size_t AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags);
+    static VkFormat AttributeVulkanFormat(__int32 vertex_attrib);
 
     int getBoneCount();
     char *getBoneName(int bone_index);

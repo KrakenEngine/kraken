@@ -121,6 +121,7 @@ void KRShader::parseReflection()
     return;
   }
 
+  m_reflectionValid = true;
   m_pData->unlock();
 }
 
