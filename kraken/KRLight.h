@@ -64,7 +64,7 @@ public:
     void setFlareOcclusionSize(float occlusion_size);
     void deleteBuffers();
 
-    virtual void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+    virtual void render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
     
     int getShadowBufferCount();
     GLuint *getShadowTextures();
@@ -102,7 +102,7 @@ protected:
     void invalidateShadowBuffers();
     
     virtual int configureShadowBufferViewports(const KRViewport &viewport);
-    void renderShadowBuffers(KRCamera *pCamera);
+    void renderShadowBuffers(VkCommandBuffer& commandBuffer, KRCamera *pCamera);
 };
 
 #endif

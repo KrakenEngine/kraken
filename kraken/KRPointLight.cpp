@@ -69,11 +69,11 @@ AABB KRPointLight::getBounds() {
     return AABB::Create(Vector3::Create(-influence_radius), Vector3::Create(influence_radius), getModelMatrix());
 }
 
-void KRPointLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
 {
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRLight::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRLight::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.bShowDeferred;
     

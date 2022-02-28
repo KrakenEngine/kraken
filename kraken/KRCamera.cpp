@@ -101,7 +101,7 @@ const std::string KRCamera::getSkyBox() const
     return m_skyBox;
 }
 
-void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
+void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
 {
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
@@ -132,13 +132,13 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     scene.updateOctree(m_viewport);
     
     // ----====---- Pre-stream resources ----====----
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
+    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
     
     // ----====---- Generate Shadowmaps for Lights ----====----
     if(settings.m_cShadowBuffers > 0) {
         GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
         
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
         GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
         GL_POP_GROUP_MARKER;
     }
@@ -177,7 +177,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
         
         
         GL_POP_GROUP_MARKER;
@@ -208,7 +208,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
         
         GL_POP_GROUP_MARKER;
         
@@ -243,7 +243,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         
         // Render the geometry
         // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, 0);
@@ -289,7 +289,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
         
         
         // Render the geometry
-        scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
         
         GL_POP_GROUP_MARKER;
     }
@@ -361,7 +361,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
     
     // Render all transparent geometry
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
+    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
     GL_POP_GROUP_MARKER;
     
@@ -389,7 +389,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // ----====---- Perform Occlusion Tests ----====----
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
+    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
     GL_POP_GROUP_MARKER;
     
@@ -416,7 +416,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
     
     // Render all flares
-    scene.render(this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
+    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
     GL_POP_GROUP_MARKER;
     
@@ -446,7 +446,7 @@ void KRCamera::renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint rend
             GLDEBUG(glDepthRangef(0.0, 1.0));
         }
         
-        scene.render(this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
+        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
         
         if(settings.volumetric_environment_downsample != 0) {
             // Set render target

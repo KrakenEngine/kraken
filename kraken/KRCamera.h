@@ -53,7 +53,7 @@ public:
     KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
 
-    void renderFrame(GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight);
+    void renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight);
     
     KRRenderSettings settings;
     

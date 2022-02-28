@@ -159,7 +159,7 @@ void KRModel::loadModel() {
     }
 }
 
-void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRModel::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && renderPass == KRNode::RENDER_PASS_PRESTREAM) {
         preStream(viewport);
@@ -167,7 +167,7 @@ void KRModel::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_light
     
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && renderPass != KRNode::RENDER_PASS_PRESTREAM) {
         loadModel();

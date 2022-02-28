@@ -54,7 +54,7 @@ KRScene::~KRScene() {
     m_pRootNode = NULL;
 }
 
-void KRScene::renderFrame(GLint defaultFBO, float deltaTime, int width, int height) {
+void KRScene::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, float deltaTime, int width, int height) {
     getContext().startFrame(deltaTime);
     KRCamera *camera = find<KRCamera>("default_camera");
     if(camera == NULL) {
@@ -70,7 +70,7 @@ void KRScene::renderFrame(GLint defaultFBO, float deltaTime, int width, int heig
     getContext().getAudioManager()->setReverbMaxLength(camera->settings.siren_reverb_max_length);
     getContext().getTextureManager()->setMaxAnisotropy(camera->settings.max_anisotropy);
     
-    camera->renderFrame(defaultFBO, width, height);
+    camera->renderFrame(commandBuffer, defaultFBO, width, height);
     getContext().endFrame(deltaTime);
     physicsUpdate(deltaTime);
 }
@@ -97,7 +97,7 @@ std::set<KRLight *> &KRScene::getLights()
     return m_lights;
 }
 
-void KRScene::render(KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
@@ -143,7 +143,7 @@ void KRScene::render(KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds,
     // Render outer nodes
     for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
         KRNode *node = (*itr);
-        node->render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+        node->render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     }
     
     std::vector<KROctreeNode *> remainingOctrees;
@@ -159,10 +159,10 @@ void KRScene::render(KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds,
         newRemainingOctrees.clear();
         newRemainingOctreesTestResults.clear();
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+            render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
         }
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-            render(*octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
+            render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
         }
         remainingOctrees = newRemainingOctrees;
         remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -171,11 +171,11 @@ void KRScene::render(KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds,
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-        render(*octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+        render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
     }
 }
 
-void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -360,14 +360,14 @@ void KRScene::render(KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibl
                     // Render objects that are at this octree level
                     for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
                         //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-                        (*itr)->render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+                        (*itr)->render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
                     }
                     
                     // Render child octrees
                     const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
                     
                     for(int i=0; i<8; i++) {
-                        render(pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+                        render(commandBuffer, pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
                     }
                     
                     // Remove lights added at this octree level from the stack

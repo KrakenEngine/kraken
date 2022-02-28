@@ -78,11 +78,11 @@ bool KRParticleSystemNewtonian::hasPhysics()
     return true;
 }
 
-void KRParticleSystemNewtonian::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRParticleSystemNewtonian::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
     
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(viewport.visible(getBounds())) {

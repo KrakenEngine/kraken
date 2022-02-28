@@ -47,7 +47,7 @@ public:
     virtual void loadXML(tinyxml2::XMLElement *e);
     virtual AABB getBounds();
     
-    void render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
+    void render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass);
 
     void setBindPose(const Matrix4 &pose);
     const Matrix4 &getBindPose();

@@ -213,15 +213,15 @@ float KRLight::getDecayStart() {
     return m_decayStart;
 }
 
-void KRLight::render(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
 
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
     
     if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->settings.volumetric_environment_enable || pCamera->settings.dust_particle_enable || (pCamera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
         allocateShadowBuffers(configureShadowBufferViewports(viewport));
-        renderShadowBuffers(pCamera);
+        renderShadowBuffers(commandBuffer, pCamera);
     }
     
     if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->settings.dust_particle_enable) {
@@ -461,7 +461,7 @@ int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
     return 0;
 }
 
-void KRLight::renderShadowBuffers(KRCamera *pCamera)
+void KRLight::renderShadowBuffers(VkCommandBuffer& commandBuffer, KRCamera *pCamera)
 {
     for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
         if(!shadowValid[iShadow]) {
@@ -501,7 +501,7 @@ void KRLight::renderShadowBuffers(KRCamera *pCamera)
             getContext().getPipelineManager()->selectPipeline(*pCamera, shadowShader, m_shadowViewports[iShadow], Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             
-            getScene().render(pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+            getScene().render(commandBuffer, pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
             
             GLDEBUG(glEnable(GL_CULL_FACE));
         }
