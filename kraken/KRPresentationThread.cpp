@@ -167,10 +167,10 @@ void KRPresentationThread::renderFrame()
     bool haveMesh = testVertices.isVBOReady();
 
     if (haveMesh) {
-      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes());
+      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
       testPipeline->bind(commandBuffer);
       testVertices.bind(commandBuffer);
-      vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+      vkCmdDraw(commandBuffer, 4, 1, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffer);

@@ -109,7 +109,7 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes)
+KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
@@ -160,24 +160,32 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey
         SpvReflectInterfaceVariable& input_var = *reflection->input_variables[i];
         if (strcmp(input_var.name, "vertex_position") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_VERTEX] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_normal") == 0) {
+        }
+        else if (strcmp(input_var.name, "vertex_normal") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_NORMAL] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
+        }
+        else if (strcmp(input_var.name, "vertex_tangent") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TANGENT] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_uv") == 0) {
+        }
+        else if (strcmp(input_var.name, "vertex_uv") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVA] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_lightmap_uv") == 0) {
+        }
+        else if (strcmp(input_var.name, "vertex_lightmap_uv") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVB] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "bone_indexes") == 0) {
+        }
+        else if (strcmp(input_var.name, "bone_indexes") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEINDEXES] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "bone_weights") == 0) {
+        }
+        else if (strcmp(input_var.name, "bone_weights") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS] = input_var.location + 1;
         }
       }
 
-    } else if (shader->getSubExtension().compare("frag") == 0) {
+    }
+    else if (shader->getSubExtension().compare("frag") == 0) {
       stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    } else {
+    }
+    else {
       // failed! TODO - Error handling
     }
     stageInfo.module = shaderModule;
@@ -213,7 +221,17 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  switch (modelFormat) {
+  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    break;
+  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    break;
+  }
+
   inputAssembly.primitiveRestartEnable = VK_FALSE;
 
   VkViewport viewport{};
