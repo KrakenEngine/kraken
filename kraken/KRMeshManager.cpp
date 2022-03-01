@@ -690,28 +690,6 @@ float KRMeshManager::KRVBOData::getStreamPriority()
 
 void KRMeshManager::KRVBOData::_swapHandles()
 {
-    // TODO - Replace OpenGL code below...
-  /*
-    if(m_is_vbo_loaded) {
-        assert(m_vbo_handle != -1);
-    }
-    
-#if GL_OES_vertex_array_object
-    if(m_is_vbo_loaded && m_vao_handle == -1) {
-        GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
-        GLDEBUG(glBindVertexArrayOES(m_vao_handle));
-        
-        GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
-        KRMeshManager::configureAttribs(m_vertex_attrib_flags);
-        if(m_vbo_handle_indexes == -1) {
-            GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-        } else {
-            GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
-        }
-    }
-#endif
-*/
-    
     m_is_vbo_ready = m_is_vbo_loaded;
 }
 

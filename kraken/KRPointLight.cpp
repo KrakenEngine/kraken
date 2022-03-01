@@ -127,9 +127,6 @@ void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
                     m_pContext->getMeshManager()->bindVBO(commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
-#if GL_OES_vertex_array_object
-                    GLDEBUG(glBindVertexArrayOES(0));
-#endif
                     // Render sphere of light's influence
                     generateMesh();
                 
