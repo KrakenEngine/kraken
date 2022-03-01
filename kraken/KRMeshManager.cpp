@@ -338,75 +338,6 @@ void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, K
     bindVBO(commandBuffer, vbo_data, lodCoverage);
 }
 
-void KRMeshManager::configureAttribs(__int32_t attributes)
-{
-    GLsizei data_size = (GLsizei)KRMesh::VertexSizeForAttributes(attributes);
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_VERTEX_SHORT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_VERTEX));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_SHORT, GL_TRUE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_VERTEX_SHORT, attributes))));
-    } else if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_VERTEX)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_VERTEX));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_VERTEX, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_VERTEX));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_NORMAL_SHORT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_NORMAL));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_NORMAL, 3, GL_SHORT, GL_TRUE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_NORMAL_SHORT, attributes))));
-    } else if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_NORMAL)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_NORMAL));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_NORMAL, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_NORMAL));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TANGENT_SHORT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TANGENT));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TANGENT, 3, GL_SHORT, GL_TRUE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TANGENT_SHORT, attributes))));
-    } else if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TANGENT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TANGENT));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TANGENT, 3, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TANGENT, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TANGENT));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TEXUVA_SHORT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVA));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVA, 2, GL_SHORT, GL_TRUE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TEXUVA_SHORT, attributes))));
-    } else if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TEXUVA)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVA));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVA, 2, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TEXUVA, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVA));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TEXUVB_SHORT)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVB));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVB, 2, GL_SHORT, GL_TRUE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TEXUVB_SHORT, attributes))));
-    } else if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_TEXUVB)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVB));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_TEXUVB, 2, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_TEXUVB, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_TEXUVB));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_BONEINDEXES)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_BONEINDEXES));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_BONEINDEXES, 4, GL_UNSIGNED_BYTE, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_BONEINDEXES, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_BONEINDEXES));
-    }
-    
-    if(KRMesh::has_vertex_attribute(attributes, KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS)) {
-        GLDEBUG(glEnableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS));
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, 4, GL_FLOAT, GL_FALSE, data_size, BUFFER_OFFSET(KRMesh::AttributeOffset(KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, attributes))));
-    } else {
-        GLDEBUG(glDisableVertexAttribArray(KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS));
-    }
-}
-
 long KRMeshManager::getMemUsed()
 {
     return m_vboMemUsed;
@@ -482,22 +413,22 @@ KRDataBlock &KRMeshManager::getRandomParticles()
             vertex_data[iVertex].vertex.x = (float)(rand() % 2000) / 1000.0f - 1000.0f;
             vertex_data[iVertex].vertex.y = (float)(rand() % 2000) / 1000.0f - 1000.0f;
             vertex_data[iVertex].vertex.z = (float)(rand() % 2000) / 1000.0f - 1000.0f;
-            vertex_data[iVertex].uva.u = -0.5f;
-            vertex_data[iVertex].uva.v = -inscribed_circle_radius;
+            vertex_data[iVertex].uva.x = -0.5f;
+            vertex_data[iVertex].uva.y = -inscribed_circle_radius;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = vertex_data[iVertex-1].vertex.x;
             vertex_data[iVertex].vertex.y = vertex_data[iVertex-1].vertex.y;
             vertex_data[iVertex].vertex.z = vertex_data[iVertex-1].vertex.z;
-            vertex_data[iVertex].uva.u = 0.5f;
-            vertex_data[iVertex].uva.v = -inscribed_circle_radius;
+            vertex_data[iVertex].uva.x = 0.5f;
+            vertex_data[iVertex].uva.y = -inscribed_circle_radius;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = vertex_data[iVertex-1].vertex.x;
             vertex_data[iVertex].vertex.y = vertex_data[iVertex-1].vertex.y;
             vertex_data[iVertex].vertex.z = vertex_data[iVertex-1].vertex.z;
-            vertex_data[iVertex].uva.u = 0.0f;
-            vertex_data[iVertex].uva.v = -inscribed_circle_radius + equilateral_triangle_height;
+            vertex_data[iVertex].uva.x = 0.0f;
+            vertex_data[iVertex].uva.y = -inscribed_circle_radius + equilateral_triangle_height;
             iVertex++;
         }
         m_randomParticleVertexData.unlock();
@@ -544,9 +475,6 @@ KRMeshManager::KRVBOData::KRVBOData()
     m_data = NULL;
     m_index_data = NULL;
     m_vertex_attrib_flags = 0;
-    m_vbo_handle = -1;
-    m_vbo_handle_indexes = -1;
-    m_vao_handle = -1;
     m_size = 0;
     
     m_last_frame_used = 0;
@@ -587,10 +515,6 @@ void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, K
     m_data = &data;
     m_index_data = &index_data;
     m_vertex_attrib_flags = vertex_attrib_flags;
-    
-    m_vbo_handle = -1;
-    m_vbo_handle_indexes = -1;
-    m_vao_handle = -1;
     
     m_size = m_data->getSize();
     if(m_index_data != NULL) {

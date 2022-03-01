@@ -119,10 +119,7 @@ public:
     private:
         KRMeshManager *m_manager;
         int m_vertex_attrib_flags;
-        GLuint m_vbo_handle;
-        GLuint m_vbo_handle_indexes;
-        GLuint m_vao_handle;
-        GLsizeiptr m_size;
+        long m_size;
         
         long m_last_frame_used;
         float m_last_frame_max_lod_coverage;
@@ -156,26 +153,13 @@ public:
     long getMemUsed();
     long getMemActive();
     
-    static void configureAttribs(__int32_t attributes);
-    
     typedef struct {
-        GLfloat x;
-        GLfloat y;
-        GLfloat z;
-    } Vector3D;
-    
-    typedef struct {
-        GLfloat u;
-        GLfloat v;
-    } TexCoord;
-    
-    typedef struct {
-        Vector3D vertex;
-        TexCoord uva;
+        Vector3 vertex;
+        Vector2 uva;
     } RandomParticleVertexData;
     
     typedef struct {
-        Vector3D vertex;
+        Vector3 vertex;
     } VolumetricLightingVertexData;
     
 

@@ -130,7 +130,6 @@ void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
 #if GL_OES_vertex_array_object
                     GLDEBUG(glBindVertexArrayOES(0));
 #endif
-                    m_pContext->getMeshManager()->configureAttribs(1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
                     // Render sphere of light's influence
                     generateMesh();
                 
