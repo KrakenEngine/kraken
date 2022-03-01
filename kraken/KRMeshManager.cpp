@@ -621,66 +621,6 @@ void KRMeshManager::KRVBOData::load()
         m_index_data->unlock();
       }
     }
-
-    // TODO - Replace OpenGL code below...
-    /*
-    assert(m_vao_handle == -1);
-    assert(m_vbo_handle == -1);
-    assert(m_vbo_handle_indexes == -1);
-    
-    GLDEBUG(glGenBuffers(1, &m_vbo_handle));
-    if(m_index_data->getSize() > 0) {
-        GLDEBUG(glGenBuffers(1, &m_vbo_handle_indexes));
-    }
-    
-#if GL_OES_vertex_array_object
-    if(m_type == CONSTANT) {
-        GLDEBUG(glGenVertexArraysOES(1, &m_vao_handle));
-        GLDEBUG(glBindVertexArrayOES(m_vao_handle));
-    }
-#endif
-    
-    GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
-    
-    bool use_mapbuffer = true;
-#if GL_OES_mapbuffer
-    if(use_mapbuffer) {
-        GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        GLDEBUG(void *map_ptr = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-        m_data->copy(map_ptr);
-        GLDEBUG(glUnmapBufferOES(GL_ARRAY_BUFFER));
-    }
-    else
-#endif
-    {
-        m_data->lock();
-        GLDEBUG(glBufferData(GL_ARRAY_BUFFER, m_data->getSize(), m_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        m_data->unlock();
-    }
-    
-    configureAttribs(m_vertex_attrib_flags);
-    
-    if(m_index_data->getSize() == 0) {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    } else {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
-        
-#if GL_OES_mapbuffer
-        if(use_mapbuffer) {
-            GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), NULL, m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-            GLDEBUG(void *map_ptr = glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES));
-            m_index_data->copy(map_ptr);
-            GLDEBUG(glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER));
-        }
-        else
-#endif
-        {
-            m_index_data->lock();
-            GLDEBUG(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_index_data->getSize(), m_index_data->getStart(), m_static_vbo ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-            m_index_data->unlock();
-        }
-    }
-    */
     
     m_is_vbo_loaded = true;
 
