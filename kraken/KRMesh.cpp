@@ -240,7 +240,7 @@ kraken_stream_level KRMesh::getStreamLevel()
     return stream_level;
 }
 
-void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
+void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
 
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
     if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
@@ -261,7 +261,7 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
 
                         if(!pMaterial->isTransparent()) {
                             // Exclude transparent and semi-transparent meshes from shadow maps
-                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
                         }
                     }
                     
@@ -283,19 +283,19 @@ void KRMesh::render(const std::string &object_name, KRCamera *pCamera, std::vect
                                     switch(pMaterial->getAlphaMode()) {
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                             // Render back faces first
                                             GLDEBUG(glCullFace(GL_FRONT));
-                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
 
                                             // Render front faces second
                                             GLDEBUG(glCullFace(GL_BACK));
-                                            renderSubmesh(iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                     }
                                 }
@@ -426,7 +426,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
     }
 }
 
-void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage) {
+void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage) {
     getSubmeshes();
     
     Submesh *pSubmesh = m_submeshes[iSubmesh];
@@ -445,7 +445,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             KRMeshManager::KRVBOData *vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index++];
             assert(vbo_data_block->isVBOReady());
             
-            m_pContext->getMeshManager()->bindVBO(vbo_data_block, lodCoverage);
+            m_pContext->getMeshManager()->bindVBO(commandBuffer, vbo_data_block, lodCoverage);
             
             
             int vertex_draw_count = cVertexes;
@@ -467,7 +467,7 @@ void KRMesh::renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const st
             
             KRMeshManager::KRVBOData *vbo_data_block = m_submeshes[iSubmesh]->vbo_data_blocks[vbo_index++];
             assert(vbo_data_block->isVBOReady());
-            m_pContext->getMeshManager()->bindVBO(vbo_data_block, lodCoverage);
+            m_pContext->getMeshManager()->bindVBO(commandBuffer, vbo_data_block, lodCoverage);
             
             
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {

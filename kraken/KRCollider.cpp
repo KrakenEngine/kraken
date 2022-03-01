@@ -223,7 +223,7 @@ void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::
 
 
                 for(int i=0; i < m_models[0]->getSubmeshCount(); i++) {
-                    m_models[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay", 1.0f);
+                    m_models[0]->renderSubmesh(commandBuffer, i, renderPass, getName(), "visualize_overlay", 1.0f);
                 }
             
                 // Enable alpha blending

@@ -112,7 +112,7 @@ public:
         std::vector<std::vector<float> > bone_weights;
     } mesh_info;
 
-    void render(const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
+    void render(VkCommandBuffer& commandBuffer, const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage = 0.0f);
 
     std::string m_lodBaseName;
 
@@ -127,7 +127,7 @@ public:
     void optimize();
     void optimizeIndexes();
 
-    void renderSubmesh(int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage);
+    void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage);
 
     GLfloat getMaxDimension();
 

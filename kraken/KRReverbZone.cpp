@@ -147,7 +147,7 @@ void KRReverbZone::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
             std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                    sphereModels[0]->renderSubmesh(i, renderPass, getName(), "visualize_overlay", 1.0f);
+                    sphereModels[0]->renderSubmesh(commandBuffer, i, renderPass, getName(), "visualize_overlay", 1.0f);
                 }
             }
             

@@ -185,7 +185,7 @@ void KRMeshManager::unbindVBO() {
     }
 }
 
-void KRMeshManager::bindVBO(KRVBOData *vbo_data, float lodCoverage)
+void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRVBOData *vbo_data, float lodCoverage)
 {
     vbo_data->resetPoolExpiry(lodCoverage);
     
@@ -209,7 +209,7 @@ void KRMeshManager::bindVBO(KRVBOData *vbo_data, float lodCoverage)
             m_vbosActive[vbo_data->m_data] = m_currentVBO;
         }
         
-        m_currentVBO->bind();
+        m_currentVBO->bind(commandBuffer);
     }
     
     if(!used_vbo_data && vbo_data->getType() == KRVBOData::TEMPORARY) {
@@ -323,7 +323,7 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
     */
 }
 
-void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
+void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -335,7 +335,7 @@ void KRMeshManager::bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vert
 #endif
     );
     vbo_data->load();
-    bindVBO(vbo_data, lodCoverage);
+    bindVBO(commandBuffer, vbo_data, lodCoverage);
 }
 
 void KRMeshManager::configureAttribs(__int32_t attributes)
@@ -792,21 +792,6 @@ void KRMeshManager::KRVBOData::unload()
     
   m_is_vbo_loaded = false;
   m_is_vbo_ready = false;
-}
-
-void KRMeshManager::KRVBOData::bind()
-{
-#if GL_OES_vertex_array_object
-    GLDEBUG(glBindVertexArrayOES(m_vao_handle));
-#else
-    GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle));
-    KRMeshManager::configureAttribs(m_vertex_attrib_flags);
-    if(m_vbo_handle_indexes == -1) {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    } else {
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo_handle_indexes));
-    }
-#endif
 }
 
 void KRMeshManager::KRVBOData::bind(VkCommandBuffer& commandBuffer)

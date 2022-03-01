@@ -324,7 +324,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
         // Render a full screen quad
-        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+        m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
@@ -482,7 +482,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         
         KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
-        m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
+        m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
         for(unordered_map<AABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
@@ -503,7 +503,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     GL_PUSH_GROUP_MARKER("Post Processing");
 
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
-    renderPost();
+    renderPost(commandBuffer);
     m_pContext->getMeshManager()->unbindVBO();
     
     GL_POP_GROUP_MARKER;
@@ -669,7 +669,7 @@ void KRCamera::destroyBuffers()
     }
 }
 
-void KRCamera::renderPost()
+void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
 {
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
@@ -712,7 +712,7 @@ void KRCamera::renderPost()
     }
 	
 	// Update attribute values.
-    m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+    m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
 	
     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     
@@ -891,7 +891,7 @@ void KRCamera::renderPost()
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
         KRDataBlock index_data;
-        m_pContext->getMeshManager()->bindVBO(m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
+        m_pContext->getMeshManager()->bindVBO(commandBuffer, m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
 
 #if KRENGINE_DEBUG_GPU_LABELS
           , "Debug Text"

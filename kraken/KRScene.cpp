@@ -280,7 +280,7 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                     Matrix4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
+                    getContext().getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
                     
                     // Enable additive blending
                     if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {

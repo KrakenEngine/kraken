@@ -216,7 +216,7 @@ void KRModel::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                     matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
+                pModel->render(commandBuffer, getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
             }
         }
     }

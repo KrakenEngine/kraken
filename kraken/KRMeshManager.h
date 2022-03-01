@@ -95,7 +95,6 @@ public:
         bool isVBOReady() { return m_is_vbo_ready; }
         void load();
         void unload();
-        void bind();
         void bind(VkCommandBuffer& commandBuffer);
         
         // Disable copy constructors
@@ -147,8 +146,8 @@ public:
 #endif
     };
     
-    void bindVBO(KRVBOData *vbo_data, float lodCoverage);
-    void bindVBO(KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
+    void bindVBO(VkCommandBuffer& commandBuffer, KRVBOData *vbo_data, float lodCoverage);
+    void bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
 #if KRENGINE_DEBUG_GPU_LABELS
       , const char* debug_label
 #endif

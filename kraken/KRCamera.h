@@ -88,7 +88,7 @@ private:
     
     GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
     
-    void renderPost();
+    void renderPost(VkCommandBuffer& commandBuffer);
         
     void destroyBuffers();
     

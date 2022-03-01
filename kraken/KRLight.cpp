@@ -268,7 +268,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                     pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                     
                     KRDataBlock particle_index_data;
-                    m_pContext->getMeshManager()->bindVBO(m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
+                    m_pContext->getMeshManager()->bindVBO(commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
                       , "Light Particles"
 #endif
@@ -312,7 +312,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
             pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
             
             KRDataBlock index_data;
-            m_pContext->getMeshManager()->bindVBO(m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
+            m_pContext->getMeshManager()->bindVBO(commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
               , "Participating Media"
 #endif
@@ -345,7 +345,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                 std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
                 if(sphereModels.size()) {
                     for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                        sphereModels[0]->renderSubmesh(i, renderPass, getName(), "occlusion_test", 1.0f);
+                        sphereModels[0]->renderSubmesh(commandBuffer, i, renderPass, getName(), "occlusion_test", 1.0f);
                     }
                 }
 
@@ -385,7 +385,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-                            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+                            m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
                             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                         }
                     }
