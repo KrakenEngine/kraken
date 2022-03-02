@@ -49,6 +49,7 @@ public:
   void destroy();
   uint32_t getWidth() const;
   uint32_t getHeight() const;
+  VkFormat getDepthFormat() const;
 
   KRSurface(const KRSurface&) = delete;
   KRSurface& operator=(const KRSurface&) = delete;
