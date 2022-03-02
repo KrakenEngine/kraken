@@ -70,6 +70,10 @@ public:
   VkExtent2D m_swapChainExtent;
   std::vector<VkImageView> m_swapChainImageViews;
   std::vector<VkFramebuffer> m_swapChainFramebuffers;
+  VkFormat m_depthImageFormat;
+  VkImage m_depthImage;
+  VmaAllocation m_depthImageAllocation;
+  VkImageView m_depthImageView;
   VkSemaphore m_imageAvailableSemaphore;
   VkSemaphore m_renderFinishedSemaphore;
 
