@@ -96,9 +96,6 @@ void KRPresentationThread::run()
 
 void KRPresentationThread::renderFrame()
 {
-  // TODO - Eliminate this and use system wide index once Vulkan path is working
-  static uint64_t frameIndex = 0;
-
   // TODO - We should use fences to eliminate this mutex
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
 
@@ -155,7 +152,7 @@ void KRPresentationThread::renderFrame()
     }
 
     KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
-    forwardOpaquePass.begin(commandBuffer, surface, frameIndex);
+    forwardOpaquePass.begin(commandBuffer, surface);
 
     KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
     bool haveMesh = testVertices.isVBOReady();
@@ -209,7 +206,7 @@ void KRPresentationThread::renderFrame()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
     vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);
-  }
 
-  frameIndex++;
+    surface.endFrame();
+  }
 }

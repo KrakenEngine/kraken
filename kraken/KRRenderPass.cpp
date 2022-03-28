@@ -117,7 +117,7 @@ void KRRenderPass::destroy(KRDevice &device)
   }
 }
 
-void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface, uint64_t frameIndex)
+void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
   std::array<VkClearValue, 2> clearValues{};
   clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
@@ -126,7 +126,7 @@ void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface, uin
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = m_renderPass;
-  renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[frameIndex % surface.m_swapChainFramebuffers.size()];
+  renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[surface.m_frameIndex % surface.m_swapChainFramebuffers.size()];
   renderPassInfo.renderArea.offset = { 0, 0 };
   renderPassInfo.renderArea.extent = surface.m_swapChainExtent;
   renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

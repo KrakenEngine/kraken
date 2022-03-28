@@ -72,6 +72,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& ren
   key.second.push_back(surface.m_swapChainExtent.height);
   key.second.push_back(vertexAttributes);
   key.second.push_back(modelFormat);
+  // TODO - Add renderPass unique identifier to key
   PipelineMap::iterator itr = m_pipelines.find(key);
   if (itr != m_pipelines.end()) {
     return itr->second;

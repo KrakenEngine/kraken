@@ -61,6 +61,8 @@ public:
   void createRenderPasses();
   KRRenderPass& getForwardOpaquePass();
 
+  void endFrame();
+
 #ifdef WIN32
   HWND m_hWnd;
 #endif
@@ -80,6 +82,9 @@ public:
   VkSemaphore m_renderFinishedSemaphore;
 
   std::unique_ptr<KRRenderPass> m_forwardOpaquePass;
+
+  // TODO - This needs to be advanced per swap chain
+  uint64_t m_frameIndex;
 
 private:
   void destroySwapChain();

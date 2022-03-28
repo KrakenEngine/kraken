@@ -45,7 +45,7 @@ public:
   void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat);
   void destroy(KRDevice& device);
 
-  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface, uint64_t frameIndex);
+  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface);
   void end(VkCommandBuffer& commandBuffer);
 
 // private:

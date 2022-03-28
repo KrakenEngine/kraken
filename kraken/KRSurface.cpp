@@ -52,6 +52,7 @@ KRSurface::KRSurface(KRContext& context)
   , m_depthImageView(VK_NULL_HANDLE)
   , m_imageAvailableSemaphore(VK_NULL_HANDLE)
   , m_renderFinishedSemaphore(VK_NULL_HANDLE)
+  , m_frameIndex(0)
 {
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
 }
@@ -415,4 +416,9 @@ VkFormat KRSurface::getDepthFormat() const
 KRRenderPass& KRSurface::getForwardOpaquePass()
 {
   return *m_forwardOpaquePass;
+}
+
+void KRSurface::endFrame()
+{
+  m_frameIndex++;;
 }
