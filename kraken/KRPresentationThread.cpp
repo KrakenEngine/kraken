@@ -103,6 +103,9 @@ void KRPresentationThread::renderFrame()
 
   unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& surfaces = m_pContext->getSurfaceManager()->getSurfaces();
 
+  KRSceneManager* sceneManager = m_pContext->getSceneManager();
+  KRScene *scene = sceneManager->getFirstScene();
+
   for (auto surfaceItr = surfaces.begin(); surfaceItr != surfaces.end(); surfaceItr++) {
     KRSurface& surface = *(*surfaceItr).second;
     KRDevice& device = *m_pContext->getDeviceManager()->getDevice(surface.m_deviceHandle);
@@ -183,8 +186,9 @@ void KRPresentationThread::renderFrame()
 
     // TODO - This needs to be moved to the Render thread...
     float deltaTime = 0.005; // TODO - Replace dummy value
-    m_pContext->startFrame(deltaTime);
-    m_pContext->endFrame(deltaTime);
+    if (scene) {
+      scene->renderFrame(commandBuffer, 0, deltaTime, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height);
+    }
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

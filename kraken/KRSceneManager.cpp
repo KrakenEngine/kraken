@@ -59,6 +59,7 @@ KRResource* KRSceneManager::getResource(const std::string& name, const std::stri
 }
 
 KRScene *KRSceneManager::loadScene(const std::string &name, KRDataBlock *data) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
@@ -79,6 +80,7 @@ KRScene* KRSceneManager::createScene(const std::string& name)
 
 void KRSceneManager::add(KRScene *scene)
 {
+  std::lock_guard<std::mutex> lock(m_mutex);
     std::string lowerName = scene->getName();
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
@@ -86,6 +88,7 @@ void KRSceneManager::add(KRScene *scene)
 }
 
 KRScene *KRSceneManager::getScene(const std::string &name) {
+  std::lock_guard<std::mutex> lock(m_mutex);
     std::string lowerName = name;
     std::transform(lowerName.begin(), lowerName.end(),
                    lowerName.begin(), ::tolower);
@@ -99,7 +102,8 @@ KRScene *KRSceneManager::getScene(const std::string &name) {
 }
 
 KRScene *KRSceneManager::getFirstScene() {
-    static unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
+    std::lock_guard<std::mutex> lock(m_mutex);
+    unordered_map<std::string, KRScene *>::iterator scene_itr = m_scenes.begin();
     if(scene_itr != m_scenes.end()) {
         return (*scene_itr).second;
     } else {

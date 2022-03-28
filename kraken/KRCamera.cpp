@@ -253,6 +253,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====----
         
+        // TODO - Vulkan refactoring...
+        /*
+
         GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
         
         // Set render target
@@ -286,17 +289,21 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         GLDEBUG(glDepthFunc(GL_LEQUAL));
         GLDEBUG(glDepthRangef(0.0, 1.0));
         
-        
+        */
         
         // Render the geometry
         scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
         
+        // TODO - Vulkan refactoring...
+/*
         GL_POP_GROUP_MARKER;
+*/
     }
     
     // ----====---- Sky Box ----====----
     
-    
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Sky Box");
     
     // Set render target
@@ -313,6 +320,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     GLDEBUG(glEnable(GL_DEPTH_TEST));
     GLDEBUG(glDepthFunc(GL_LEQUAL));
     GLDEBUG(glDepthRangef(0.0, 1.0));
+    */
     
     if(!m_pSkyBoxTexture && m_skyBox.length()) {
         m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBox.c_str());
@@ -328,11 +336,16 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_POP_GROUP_MARKER;
+    */
     
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Forward Rendering - Transparent");
 
 //    Note: These parameters have already been set up by the skybox render above
@@ -359,14 +372,21 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     // Enable alpha blending
     GLDEBUG(glEnable(GL_BLEND));
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+
+    */
     
     // Render all transparent geometry
     scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_POP_GROUP_MARKER;
+    */
     
     // ----====---- Particle Occlusion Tests ----====----
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Particle Occlusion Tests");
     
     // Set render target
@@ -387,14 +407,21 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     // Enable additive blending
     GLDEBUG(glEnable(GL_BLEND));
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+
+    */
     
     // ----====---- Perform Occlusion Tests ----====----
     scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_POP_GROUP_MARKER;
+    */
     
     // ----====---- Flares ----====----
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Additive Particles");
     
     // Set render target
@@ -414,11 +441,16 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     // Enable additive blending
     GLDEBUG(glEnable(GL_BLEND));
     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
+
+    */
     
     // Render all flares
     scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_POP_GROUP_MARKER;
+    */
     
     // ----====---- Volumetric Lighting ----====----
     
@@ -463,7 +495,10 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
     
     // ----====---- Debug Overlay ----====----
     
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Debug Overlays");
+    */
     
     if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
         // Enable z-buffer test
@@ -493,32 +528,40 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         }
     }
     
+    // TODO - Vulkan refactoring...
+/*
     // Re-enable z-buffer write
     GLDEBUG(glDepthMask(GL_TRUE));
     
     GL_POP_GROUP_MARKER;
+    */
     
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
+    // TODO - Vulkan refactoring...
+    /*
     GL_PUSH_GROUP_MARKER("Post Processing");
 
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
+
     renderPost(commandBuffer);
     m_pContext->getMeshManager()->unbindVBO();
     
     GL_POP_GROUP_MARKER;
-    
+
     
 #if GL_EXT_discard_framebuffer
 
     GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
     GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
 #endif
+    */
 }
 
 
 void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) {
-    
+  // TODO - Vulkan Refactoring..
+/*
     if(renderBufferWidth != m_backingWidth || renderBufferHeight != m_backingHeight) {
         m_backingWidth = renderBufferWidth;
         m_backingHeight = renderBufferHeight;
@@ -629,10 +672,13 @@ void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight) 
             GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, volumetricLightAccumulationTexture, 0));
         }
     }
+    */
 }
 
 void KRCamera::destroyBuffers()
 {
+  // TODO - Vulkan Refactoring..
+  /*
     if (compositeDepthTexture) {
         GLDEBUG(glDeleteTextures(1, &compositeDepthTexture));
         compositeDepthTexture = 0;
@@ -667,6 +713,7 @@ void KRCamera::destroyBuffers()
         GLDEBUG(glDeleteFramebuffers(1, &volumetricLightAccumulationBuffer));
         volumetricLightAccumulationBuffer = 0;
     }
+    */
 }
 
 void KRCamera::renderPost(VkCommandBuffer& commandBuffer)

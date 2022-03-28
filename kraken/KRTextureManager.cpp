@@ -71,7 +71,7 @@ void KRTextureManager::_clearGLState()
     for(int i=0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
         m_wrapModeS[i] = 0;
         m_wrapModeT[i] = 0;
-        m_maxAnisotropy[i] = -1.0f;
+        m_maxAnisotropy = -1.0f;
         selectTexture(i, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
     }
     
@@ -95,22 +95,9 @@ void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)
     }
 }
 
-void KRTextureManager::_setMaxAnisotropy(int i, float max_anisotropy)
-{
-#if !defined(ANDROID)
-    if(m_maxAnisotropy[i] != max_anisotropy) {
-        _setActiveTexture(i);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
-        m_maxAnisotropy[i] = max_anisotropy;
-    }
-#endif
-}
-
 void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
 {
-    for(int i=0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
-        _setMaxAnisotropy(i, max_anisotropy);
-    }
+    m_maxAnisotropy = max_anisotropy;
 }
 
 void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)

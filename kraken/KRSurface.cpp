@@ -30,6 +30,7 @@
 //
 
 #include "KRSurface.h"
+#include "KRRenderPass.h"
 
 #ifdef WIN32
 KRSurface::KRSurface(KRContext& context, HWND hWnd)
@@ -51,9 +52,8 @@ KRSurface::KRSurface(KRContext& context)
   , m_depthImageView(VK_NULL_HANDLE)
   , m_imageAvailableSemaphore(VK_NULL_HANDLE)
   , m_renderFinishedSemaphore(VK_NULL_HANDLE)
-  , m_renderPass(VK_NULL_HANDLE)
 {
-
+  m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
 }
 
 KRSurface::~KRSurface()
@@ -95,10 +95,9 @@ void KRSurface::destroy()
   destroySwapChain();
 
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
- 
-  if (m_renderPass) {
-    vkDestroyRenderPass(device->m_logicalDevice, m_renderPass, nullptr);
-    m_renderPass = VK_NULL_HANDLE;
+
+  if (m_forwardOpaquePass) {
+    m_forwardOpaquePass->destroy(*device);
   }
 
   if (device && m_renderFinishedSemaphore != VK_NULL_HANDLE) {
@@ -388,74 +387,13 @@ KrResult KRSurface::recreateSwapChain()
 
 void KRSurface::createRenderPasses()
 {
-  if (m_renderPass) {
-    return;
-  }
-
-  VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = m_swapChainImageFormat;
-  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-
-  VkAttachmentDescription depthAttachment{};
-  depthAttachment.format = m_depthImageFormat;
-  depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-  VkAttachmentReference depthAttachmentRef{};
-  depthAttachmentRef.attachment = 1;
-  depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-  VkAttachmentReference colorAttachmentRef{};
-  colorAttachmentRef.attachment = 0;
-  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-  VkSubpassDescription subpass{};
-  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-  subpass.colorAttachmentCount = 1;
-  subpass.pColorAttachments = &colorAttachmentRef;
-  subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-  VkSubpassDependency dependency{};
-  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dependency.dstSubpass = 0;
-  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-  dependency.srcAccessMask = 0;
-  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-  std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-
-  VkRenderPassCreateInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-  renderPassInfo.pAttachments = attachments.data();
-  renderPassInfo.subpassCount = 1;
-  renderPassInfo.pSubpasses = &subpass;
-  renderPassInfo.dependencyCount = 1;
-  renderPassInfo.pDependencies = &dependency;
-
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
-
-  if (vkCreateRenderPass(device->m_logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
-    // failed! TODO - Error handling
-  }
+  m_forwardOpaquePass->create(*device, m_swapChainImageFormat, m_depthImageFormat);
 }
 
 VkRenderPass& KRSurface::getRenderPass()
 {
-  return m_renderPass;
+  return m_forwardOpaquePass->m_renderPass;
 }
 
 std::unique_ptr<KRDevice>& KRSurface::getDevice()

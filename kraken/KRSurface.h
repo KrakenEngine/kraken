@@ -36,6 +36,7 @@
 #define KRSURFACE_H
 
 class KRDevice;
+class KRRenderPass;
 
 class KRSurface : public KRContextObject
 {
@@ -78,8 +79,7 @@ public:
   VkSemaphore m_imageAvailableSemaphore;
   VkSemaphore m_renderFinishedSemaphore;
 
-  // TODO - Move this to a higher context
-  VkRenderPass m_renderPass;
+  std::unique_ptr<KRRenderPass> m_forwardOpaquePass;
 
 private:
   void destroySwapChain();

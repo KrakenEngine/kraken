@@ -79,7 +79,6 @@ public:
     void _setActiveTexture(int i);
     void _setWrapModeS(GLuint i, GLuint wrap_mode);
     void _setWrapModeT(GLuint i, GLuint wrap_mode);
-    void _setMaxAnisotropy(int i, float max_anisotropy);
     
     void _clearGLState();
     void setMaxAnisotropy(float max_anisotropy);
@@ -98,7 +97,7 @@ private:
     int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
     GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
-    float m_maxAnisotropy[KRENGINE_MAX_TEXTURE_UNITS];
+    float m_maxAnisotropy;
     
     
     std::set<KRTexture *> m_activeTextures;
