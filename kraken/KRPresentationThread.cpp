@@ -151,30 +151,15 @@ void KRPresentationThread::renderFrame()
       // TODO - Add error handling...
     }
 
-    KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
-    forwardOpaquePass.begin(commandBuffer, surface);
-
-    KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
-    bool haveMesh = testVertices.isVBOReady();
-
-    if (haveMesh) {
-      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, forwardOpaquePass, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
-      testPipeline->bind(commandBuffer);
-      testVertices.bind(commandBuffer);
-      vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+    // TODO - This needs to be moved to the Render thread...
+    float deltaTime = 0.005; // TODO - Replace dummy value
+    if (scene) {
+      scene->renderFrame(commandBuffer, surface, 0, deltaTime, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height);
     }
-
-    forwardOpaquePass.end(commandBuffer);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
       m_activeState = PresentThreadState::error;
       // TODO - Add error handling...
-    }
-
-    // TODO - This needs to be moved to the Render thread...
-    float deltaTime = 0.005; // TODO - Replace dummy value
-    if (scene) {
-      scene->renderFrame(commandBuffer, 0, deltaTime, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height);
     }
 
     VkSubmitInfo submitInfo{};

@@ -33,6 +33,7 @@
 #include "KRCamera.h"
 #include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
+#include "KRRenderPass.h"
 
 /* static */
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
@@ -101,7 +102,7 @@ const std::string KRCamera::getSkyBox() const
     return m_skyBox;
 }
 
-void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
+void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
 {
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
@@ -252,8 +253,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         GL_POP_GROUP_MARKER;
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====----
-        
-        // TODO - Vulkan refactoring...
         /*
 
         GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
@@ -290,14 +289,29 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, GLint defaultFBO, GLi
         GLDEBUG(glDepthRangef(0.0, 1.0));
         
         */
+
+        KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
+        forwardOpaquePass.begin(commandBuffer, surface);
         
         // Render the geometry
         scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
-        
-        // TODO - Vulkan refactoring...
-/*
-        GL_POP_GROUP_MARKER;
-*/
+
+
+        // ----------  Start: Vulkan Debug Code ----------
+        KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+        bool haveMesh = testVertices.isVBOReady();
+
+        if (haveMesh) {
+          KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, forwardOpaquePass, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
+          testPipeline->bind(commandBuffer);
+          testVertices.bind(commandBuffer);
+          vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+        }
+
+        // ----------  End: Vulkan Debug Code ----------
+
+
+        forwardOpaquePass.end(commandBuffer);
     }
     
     // ----====---- Sky Box ----====----
