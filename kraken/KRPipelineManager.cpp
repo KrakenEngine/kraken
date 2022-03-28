@@ -62,7 +62,7 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
-KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const std::string& shader_name, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
+KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& renderPass, const std::string& shader_name, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
 {
   std::pair<std::string, std::vector<int> > key;
   key.first = shader_name;
@@ -80,7 +80,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const std::string
   std::vector<KRShader*> shaders;
   shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".vert", "spv"));
   shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".frag", "spv"));
-  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, shader_name.c_str(), shaders, vertexAttributes, modelFormat);
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, renderPass, shader_name.c_str(), shaders, vertexAttributes, modelFormat);
 
   m_pipelines[key] = pipeline;
 

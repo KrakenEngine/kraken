@@ -36,6 +36,7 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 
 
 const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
@@ -109,7 +110,7 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
+KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, KRRenderPass& renderPass, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
@@ -333,7 +334,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const char* szKey
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = nullptr;
   pipelineInfo.layout = m_pipelineLayout;
-  pipelineInfo.renderPass = surface.getRenderPass();
+  pipelineInfo.renderPass = renderPass.m_renderPass;
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;

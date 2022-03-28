@@ -43,11 +43,12 @@
 
 class KRShader;
 class KRSurface;
+class KRRenderPass;
 
 
 class KRPipeline  : public KRContextObject {
 public:
-    KRPipeline(KRContext& context, KRSurface& surface, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
+    KRPipeline(KRContext& context, KRSurface& surface, KRRenderPass& renderPass, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
     KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRPipeline();
     const char *getKey() const;

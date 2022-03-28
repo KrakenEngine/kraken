@@ -59,7 +59,7 @@ public:
   KrResult initialize();
   KrResult recreateSwapChain();
   void createRenderPasses();
-  VkRenderPass& getRenderPass();
+  KRRenderPass& getForwardOpaquePass();
 
 #ifdef WIN32
   HWND m_hWnd;

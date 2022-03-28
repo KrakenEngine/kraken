@@ -30,6 +30,7 @@
 //
 
 #include "KRPresentationThread.h"
+#include "KRRenderPass.h"
 
 KRPresentationThread::KRPresentationThread(KRContext& context)
   : KRContextObject(context)
@@ -153,32 +154,21 @@ void KRPresentationThread::renderFrame()
       // TODO - Add error handling...
     }
 
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = surface.getRenderPass();
-    renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[frameIndex % surface.m_swapChainFramebuffers.size()];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = surface.m_swapChainExtent;
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
+    forwardOpaquePass.begin(commandBuffer, surface, frameIndex);
 
     KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
     bool haveMesh = testVertices.isVBOReady();
 
     if (haveMesh) {
-      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
+      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, forwardOpaquePass, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
       testPipeline->bind(commandBuffer);
       testVertices.bind(commandBuffer);
       vkCmdDraw(commandBuffer, 4, 1, 0, 0);
     }
 
-    vkCmdEndRenderPass(commandBuffer);
+    forwardOpaquePass.end(commandBuffer);
+
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
       m_activeState = PresentThreadState::error;
       // TODO - Add error handling...

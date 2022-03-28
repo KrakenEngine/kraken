@@ -323,7 +323,7 @@ KrResult KRSurface::createSwapChain()
 
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = getRenderPass();
+    framebufferInfo.renderPass = m_forwardOpaquePass->m_renderPass;
     framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     framebufferInfo.pAttachments = attachments.data();
     framebufferInfo.width = m_swapChainExtent.width;
@@ -391,11 +391,6 @@ void KRSurface::createRenderPasses()
   m_forwardOpaquePass->create(*device, m_swapChainImageFormat, m_depthImageFormat);
 }
 
-VkRenderPass& KRSurface::getRenderPass()
-{
-  return m_forwardOpaquePass->m_renderPass;
-}
-
 std::unique_ptr<KRDevice>& KRSurface::getDevice()
 {
   return m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
@@ -414,4 +409,10 @@ uint32_t KRSurface::getHeight() const
 VkFormat KRSurface::getDepthFormat() const
 {
   return m_depthImageFormat;
+}
+
+
+KRRenderPass& KRSurface::getForwardOpaquePass()
+{
+  return *m_forwardOpaquePass;
 }

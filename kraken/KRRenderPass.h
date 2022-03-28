@@ -35,6 +35,8 @@
 #include "KREngine-common.h"
 #include "KRContext.h"
 
+class KRSurface;
+
 class KRRenderPass : public KRContextObject
 {
 public:
@@ -42,6 +44,9 @@ public:
   ~KRRenderPass();
   void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat);
   void destroy(KRDevice& device);
+
+  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface, uint64_t frameIndex);
+  void end(VkCommandBuffer& commandBuffer);
 
 // private:
   VkRenderPass m_renderPass;
