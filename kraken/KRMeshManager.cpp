@@ -56,7 +56,7 @@ void KRMeshManager::init() {
     addModel(new KRMeshSphere(*m_pContext));
     
     // ----  Initialize stock models ----
-    static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
+    static const float _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
         1.0, 1.0, 1.0,
         -1.0, 1.0, 1.0,
         1.0,-1.0, 1.0,
@@ -74,9 +74,9 @@ void KRMeshManager::init() {
     };
     
     KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
-    KRENGINE_VBO_3D_CUBE_VERTICES.expand(sizeof(GLfloat) * 3 * 14);
+    KRENGINE_VBO_3D_CUBE_VERTICES.expand(sizeof(float) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.lock();
-    memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
+    memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(float) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
     KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT
@@ -87,16 +87,16 @@ void KRMeshManager::init() {
     
     
     
-    static const GLfloat _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
+    static const float _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
         -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
         1.0f,  1.0f, 0.0f, 1.0f, 1.0f
     };
     KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-    KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(GLfloat) * 5 * 4);
+    KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(float) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
-    memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
+    memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
     
     KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT
@@ -362,32 +362,32 @@ KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
         for(int iPlane=0; iPlane < KRENGINE_MAX_VOLUMETRIC_PLANES; iPlane++) {
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = -1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = -1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
             
             vertex_data[iVertex].vertex.x = 1.0f;
             vertex_data[iVertex].vertex.y = 1.0f;
-            vertex_data[iVertex].vertex.z = (GLfloat)iPlane;
+            vertex_data[iVertex].vertex.z = (float)iPlane;
             iVertex++;
 
         }

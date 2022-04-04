@@ -234,9 +234,9 @@ void KRPointLight::generateMesh() {
             }
         }
         
-        m_sphereVertices = (GLfloat *)malloc(sizeof(GLfloat) * m_cVertices * 3);
+        m_sphereVertices = (float*)malloc(sizeof(float) * m_cVertices * 3);
         assert(m_sphereVertices != NULL);
-        GLfloat *pDest = m_sphereVertices;
+        float*pDest = m_sphereVertices;
         for(int facet_index=0; facet_index < facet_count; facet_index++) {
             *pDest++ = f[facet_index].p1.x;
             *pDest++ = f[facet_index].p1.y;

@@ -48,8 +48,8 @@ KRMaterial::KRMaterial(KRContext &context, const char *szName) : KRResource(cont
     m_diffuseColor = Vector3::One();
     m_specularColor = Vector3::One();
     m_reflectionColor = Vector3::Zero();
-    m_tr = (GLfloat)1.0f;
-    m_ns = (GLfloat)0.0f;
+    m_tr = 1.0f;
+    m_ns = 0.0f;
     m_ambientMap = "";
     m_diffuseMap = "";
     m_specularMap = "";
@@ -202,14 +202,14 @@ void KRMaterial::setReflection(const Vector3 &c) {
     m_reflectionColor = c;
 }
 
-void KRMaterial::setTransparency(GLfloat a) {
+void KRMaterial::setTransparency(float a) {
     if(a < 1.0f && m_alpha_mode == KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE) {
         setAlphaMode(KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE);
     }
     m_tr = a;
 }
 
-void KRMaterial::setShininess(GLfloat s) {
+void KRMaterial::setShininess(float s) {
     m_ns = s;
 }
 
@@ -329,8 +329,8 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     
     // Bind bones
     if(pShader->m_uniforms[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-        GLfloat bone_mats[256 * 16];
-        GLfloat *bone_mat_component = bone_mats;
+        float bone_mats[256 * 16];
+        float *bone_mat_component = bone_mats;
         for(int bone_index=0; bone_index < bones.size(); bone_index++) {
             KRBone *bone = bones[bone_index];
             

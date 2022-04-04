@@ -737,10 +737,10 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
     
     if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT, Vector4::Create(
-                (GLfloat)0.0,
-                (GLfloat)0.0,
-                (GLfloat)viewport.getSize().x,
-                (GLfloat)viewport.getSize().y
+                (float)0.0,
+                (float)0.0,
+                (float)viewport.getSize().x,
+                (float)viewport.getSize().y
             )
         );
     }

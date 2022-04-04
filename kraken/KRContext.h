@@ -114,8 +114,6 @@ public:
     KRSurfaceManager* getSurfaceManager();
     KRDeviceManager* getDeviceManager();
     
-    KRCamera *createCamera(int width, int height);
-    
     enum {
         KRENGINE_GL_EXT_texture_storage,
         KRENGINE_NUM_EXTENSIONS

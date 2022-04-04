@@ -49,7 +49,7 @@ public:
 private:
     void generateMesh();
     
-    GLfloat *m_sphereVertices;
+    float *m_sphereVertices;
     int m_cVertices;
 };
 

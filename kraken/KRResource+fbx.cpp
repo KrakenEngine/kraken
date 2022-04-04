@@ -1685,8 +1685,8 @@ KRNode *LoadCamera(KRNode *parent_node, FbxNode* pNode) {
 }
 
 KRNode *LoadLight(KRNode *parent_node, FbxNode* pNode) {
-    const GLfloat PI = 3.14159265;
-    const GLfloat d2r = PI * 2 / 360;
+    const float PI = 3.14159265;
+    const float d2r = PI * 2 / 360;
     
     FbxLight* pLight = (FbxLight*) pNode->GetNodeAttribute();
     const char *szName = pNode->GetName();

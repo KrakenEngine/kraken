@@ -35,7 +35,7 @@
 #include "KRMesh.h"
 #include "KRDataBlock.h"
 /*
-static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
+static const float _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
     1.0, 1.0, 1.0,
     -1.0, 1.0, 1.0,
     1.0,-1.0, 1.0,
@@ -53,11 +53,11 @@ static const GLfloat _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
 };
 
 static KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
-KRENGINE_VBO_3D_CUBE_VERTICES.load((void *)_KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(GLfloat) * 3 * 14);
+KRENGINE_VBO_3D_CUBE_VERTICES.load((void *)_KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(float) * 3 * 14);
 
 static const __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
 
-static const GLfloat _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
+static const float _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
     -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
@@ -65,7 +65,7 @@ static const GLfloat _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
 };
 
 static KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
-KRENGINE_VBO_2D_SQUARE_VERTICES.load((void *)_KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(GLfloat) * 5 * 4);
+KRENGINE_VBO_2D_SQUARE_VERTICES.load((void *)_KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
 static const __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
 */
 #endif

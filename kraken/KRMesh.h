@@ -129,7 +129,7 @@ public:
 
     void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage);
 
-    GLfloat getMaxDimension();
+    float getMaxDimension();
 
     Vector3 getMinPoint() const;
     Vector3 getMaxPoint() const;

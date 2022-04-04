@@ -73,8 +73,8 @@ public:
     void setDiffuse(const Vector3 &c);    
     void setSpecular(const Vector3 &c);
     void setReflection(const Vector3 &c);
-    void setTransparency(GLfloat a);
-    void setShininess(GLfloat s);
+    void setTransparency(float a);
+    void setShininess(float s);
     void setAlphaMode(alpha_mode_type blend_mode);
     alpha_mode_type getAlphaMode();
     
@@ -121,13 +121,13 @@ private:
     Vector3 m_specularColor; // Specular rgb
     Vector3 m_reflectionColor; // Reflection rgb
     
-    //GLfloat m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
-    //GLfloat m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb
-    //GLfloat m_ks_r, m_ks_g, m_ks_b; // Specular rgb
-    //GLfloat m_kr_r, m_kr_g, m_kr_b; // Reflection rgb
+    //float m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
+    //float m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb
+    //float m_ks_r, m_ks_g, m_ks_b; // Specular rgb
+    //float m_kr_r, m_kr_g, m_kr_b; // Reflection rgb
     
-    GLfloat m_tr; // Transparency
-    GLfloat m_ns; // Shininess
+    float m_tr; // Transparency
+    float m_ns; // Shininess
     
     alpha_mode_type m_alpha_mode;
     

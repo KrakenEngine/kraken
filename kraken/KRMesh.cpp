@@ -308,8 +308,8 @@ void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_na
     }
 }
 
-GLfloat KRMesh::getMaxDimension() {
-    GLfloat m = 0.0;
+float KRMesh::getMaxDimension() {
+  float m = 0.0;
     if(m_maxPoint.x - m_minPoint.x > m) m = m_maxPoint.x - m_minPoint.x;
     if(m_maxPoint.y - m_minPoint.y > m) m = m_maxPoint.y - m_minPoint.y;
     if(m_maxPoint.z - m_minPoint.z > m) m = m_maxPoint.z - m_minPoint.z;
