@@ -35,7 +35,6 @@
 #include "KRPipeline.h"
 #include "KRContext.h"
 #include "assert.h"
-#include "KRStockGeometry.h"
 
 /* static */
 void KRDirectionalLight::InitNodeInfo(KrNodeInfo* nodeInfo)

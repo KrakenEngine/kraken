@@ -34,7 +34,6 @@
 #include "KRPointLight.h"
 #include "KRCamera.h"
 #include "KRContext.h"
-#include "KRStockGeometry.h"
 
 /* static */
 void KRPointLight::InitNodeInfo(KrNodeInfo* nodeInfo)

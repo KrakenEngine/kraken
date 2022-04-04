@@ -35,7 +35,6 @@
 
 #include "KRScene.h"
 #include "KRNode.h"
-#include "KRStockGeometry.h"
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
