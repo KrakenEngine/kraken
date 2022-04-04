@@ -159,9 +159,6 @@ public:
     static std::mutex g_SurfaceInfoMutex;
     static std::mutex g_DeviceInfoMutex;
 
-#if TARGET_OS_MAC
-    static void attachToView(void *view);
-#endif
     void addResource(KRResource* resource, const std::string& name);
     void removeResource(KRResource* resource);
 private:
