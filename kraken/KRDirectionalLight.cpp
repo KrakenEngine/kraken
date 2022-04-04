@@ -130,6 +130,9 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
         std::vector<KRDirectionalLight *> this_light;
         this_light.push_back(this);
 
+        std::vector<KRPointLight*> no_point_lights;
+        std::vector<KRSpotLight*> no_spot_lights;
+
         Matrix4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
         matModelViewInverseTranspose.transpose();
         matModelViewInverseTranspose.invert();
@@ -138,8 +141,17 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
         light_direction_view_space = Matrix4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline("light_directional", pCamera, std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), std::vector<KRPointLight *>(), this_light, std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        KRPipelineManager::PipelineInfo info{};
+        std::string shader_name("light_directional");
+        info.shader_name = &shader_name;
+        info.pCamera = pCamera;
+        info.point_lights = &no_point_lights;
+        info.directional_lights = &this_light;
+        info.spot_lights = &no_spot_lights;
+        info.renderPass = renderPass;
+
+        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
+        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), no_point_lights, this_light, no_spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

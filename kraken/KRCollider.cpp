@@ -204,7 +204,16 @@ void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::
             
             GL_PUSH_GROUP_MARKER("Debug Overlays");
             
-            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline("visualize_overlay", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRPipelineManager::PipelineInfo info{};
+            std::string shader_name("visualize_overlay");
+            info.shader_name = &shader_name;
+            info.pCamera = pCamera;
+            info.point_lights = &point_lights;
+            info.directional_lights = &directional_lights;
+            info.spot_lights = &spot_lights;
+            info.renderPass = renderPass;
+
+            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
             
             if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 

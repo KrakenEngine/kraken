@@ -258,7 +258,15 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                     this_point_light.push_back(point_light);
                 }
                 
-                KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline("dust_particle", pCamera, this_point_light, this_directional_light, this_spot_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                KRPipelineManager::PipelineInfo info{};
+                std::string shader_name("dust_particle");
+                info.shader_name = &shader_name;
+                info.pCamera = pCamera;
+                info.point_lights = &this_point_light;
+                info.directional_lights = &this_directional_light;
+                info.spot_lights = &this_spot_light;
+                info.renderPass = renderPass;
+                KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(info);
                 
                 if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, particleModelMatrix, this_point_light, this_directional_light, this_spot_light, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     
@@ -297,8 +305,16 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
         if(point_light) {
             this_point_light.push_back(point_light);
         }
+
+        KRPipelineManager::PipelineInfo info{};
+        info.shader_name = &shader_name;
+        info.pCamera = pCamera;
+        info.point_lights = &this_point_light;
+        info.directional_lights = &this_directional_light;
+        info.spot_lights = &this_spot_light;
+        info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
         
-        KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(shader_name, pCamera, this_point_light, this_directional_light, this_spot_light, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_ADDITIVE_PARTICLES);
+        KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(info);
         
         if(getContext().getPipelineManager()->selectPipeline(*pCamera, pFogShader, viewport, Matrix4(), this_point_light, this_directional_light, this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             int slice_count = (int)(pCamera->settings.volumetric_environment_quality * 495.0) + 5;
@@ -376,9 +392,17 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                         // Disable z-buffer test
                         GLDEBUG(glDisable(GL_DEPTH_TEST));
                         GLDEBUG(glDepthRangef(0.0, 1.0));
-                        
+
                         // Render light flare on transparency pass
-                        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline("flare", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+                        KRPipelineManager::PipelineInfo info{};
+                        std::string shader_name("flare");
+                        info.shader_name = &shader_name;
+                        info.pCamera = pCamera;
+                        info.point_lights = &point_lights;
+                        info.directional_lights = &directional_lights;
+                        info.spot_lights = &spot_lights;
+                        info.renderPass = renderPass;
+                        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
 
                         if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
@@ -495,7 +519,18 @@ void KRLight::renderShadowBuffers(VkCommandBuffer& commandBuffer, KRCamera *pCam
             GLDEBUG(glDisable(GL_BLEND));
             
             // Use shader program
-            KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline("ShadowShader", pCamera, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+            std::vector<KRPointLight*> no_point_lights;
+            std::vector<KRDirectionalLight*> no_directional_lights;
+            std::vector<KRSpotLight*> no_spot_lights;
+            KRPipelineManager::PipelineInfo info{};
+            std::string shader_name("ShadowShader");
+            info.shader_name = &shader_name;
+            info.pCamera = pCamera;
+            info.point_lights = &no_point_lights;
+            info.directional_lights = &no_directional_lights;
+            info.spot_lights = &no_spot_lights;
+            info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+            KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(info);
             
             getContext().getPipelineManager()->selectPipeline(*pCamera, shadowShader, m_shadowViewports[iShadow], Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             

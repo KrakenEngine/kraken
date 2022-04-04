@@ -96,7 +96,17 @@ void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
             
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
             
-            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"), pCamera, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            std::vector<KRDirectionalLight*> no_directional_lights;
+            std::vector<KRSpotLight*> no_spot_lights;
+            std::string shader_name(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"));
+            KRPipelineManager::PipelineInfo info{};
+            info.shader_name = &shader_name;
+            info.pCamera = pCamera;
+            info.point_lights = &this_light;
+            info.directional_lights = &no_directional_lights;
+            info.spot_lights = &no_spot_lights;
+            info.renderPass = renderPass;
+            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
             if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, sphereModelMatrix, this_light, std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 

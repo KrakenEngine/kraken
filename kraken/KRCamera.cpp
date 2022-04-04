@@ -338,7 +338,21 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     }
     
     if(m_pSkyBoxTexture) {
-        getContext().getPipelineManager()->selectPipeline("sky_box", *this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, m_viewport, Matrix4(), false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
+
+        std::string shader_name("sky_box");
+        std::vector<KRPointLight*> no_point_lights;
+        std::vector<KRDirectionalLight*> no_directional_lights;
+        std::vector<KRSpotLight*> no_spot_lights;
+        KRPipelineManager::PipelineInfo info{};
+        info.shader_name = &shader_name;
+        info.pCamera = this;
+        info.point_lights = &no_point_lights;
+        info.directional_lights = &no_directional_lights;
+        info.spot_lights = &no_spot_lights;
+        info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
+
+        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(info);
+        getContext().getPipelineManager()->selectPipeline(*this, pPipeline, m_viewport, Matrix4(), no_point_lights, no_directional_lights, no_spot_lights, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
@@ -525,8 +539,18 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glEnable(GL_BLEND));
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
         
-        
-        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline("visualize_overlay", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        std::vector<KRPointLight*> no_point_lights;
+        std::vector<KRDirectionalLight*> no_directional_lights;
+        std::vector<KRSpotLight*> no_spot_lights;
+        KRPipelineManager::PipelineInfo info{};
+        std::string shader_name("visualize_overlay");
+        info.shader_name = &shader_name;
+        info.pCamera = this;
+        info.point_lights = &no_point_lights;
+        info.directional_lights = &no_directional_lights;
+        info.spot_lights = &no_spot_lights;
+        info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(info);
         
         m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
         for(unordered_map<AABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
@@ -757,7 +781,20 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
 
 	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
     GLDEBUG(glDisable(GL_DEPTH_TEST));
-    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline("PostShader", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+
+    std::vector<KRPointLight*> no_point_lights;
+    std::vector<KRDirectionalLight*> no_directional_lights;
+    std::vector<KRSpotLight*> no_spot_lights;
+    KRPipelineManager::PipelineInfo info{};
+    std::string shader_name("PostShader");
+    info.shader_name = &shader_name;
+    info.pCamera = this;
+    info.point_lights = &no_point_lights;
+    info.directional_lights = &no_directional_lights;
+    info.spot_lights = &no_spot_lights;
+    info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+
+    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(info);
     
     Vector3 rim_color;
     getContext().getPipelineManager()->selectPipeline(*this, postShader, m_viewport, Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
@@ -942,8 +979,18 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
         // Enable alpha blending
         GLDEBUG(glEnable(GL_BLEND));
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-        
-        KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline("debug_font", this, std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+        std::vector<KRPointLight*> no_point_lights;
+        std::vector<KRDirectionalLight*> no_directional_lights;
+        std::vector<KRSpotLight*> no_spot_lights;
+        KRPipelineManager::PipelineInfo info{};
+        std::string shader_name("debug_font");
+        info.shader_name = &shader_name;
+        info.pCamera = this;
+        info.point_lights = &no_point_lights;
+        info.directional_lights = &no_directional_lights;
+        info.spot_lights = &no_spot_lights;
+        info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+        KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(info);
         getContext().getPipelineManager()->selectPipeline(*this, fontShader, m_viewport, Matrix4(), std::vector<KRPointLight *>(), std::vector<KRDirectionalLight *>(), std::vector<KRSpotLight *>(), 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);

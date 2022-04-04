@@ -96,8 +96,15 @@ void KRParticleSystemNewtonian::render(VkCommandBuffer& commandBuffer, KRCamera 
             m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 0.0f, KRTexture::TEXTURE_USAGE_PARTICLE);
             
             int particle_count = 10000;
-            
-            KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline("dust_particle", pCamera, point_lights, directional_lights, spot_lights, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass);
+            KRPipelineManager::PipelineInfo info{};
+            std::string shader_name("dust_particle");
+            info.shader_name = &shader_name;
+            info.pCamera = pCamera;
+            info.point_lights = &point_lights;
+            info.directional_lights = &directional_lights;
+            info.spot_lights = &spot_lights;
+            info.renderPass = renderPass;
+            KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(info);
             
             // Vector3 rim_color; Vector4 fade_color;
             if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {

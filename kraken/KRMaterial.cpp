@@ -319,8 +319,34 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
     bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
     
-    KRPipeline *pShader = getContext().getPipelineManager()->getPipeline("ObjectShader", pCamera, point_lights, directional_lights, spot_lights, (int)bones.size(), bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, m_diffuseMapScale != default_scale && bDiffuseMap, m_specularMapScale != default_scale && bSpecMap, m_normalMapScale != default_scale && bNormalMap, m_reflectionMapScale != default_scale && bReflectionMap, m_diffuseMapOffset != default_offset && bDiffuseMap, m_specularMapOffset != default_offset && bSpecMap, m_normalMapOffset != default_offset && bNormalMap, m_reflectionMapOffset != default_offset && bReflectionMap, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
-
+    KRPipelineManager::PipelineInfo info{};
+    std::string shader_name("ObjectShader");
+    info.shader_name = &shader_name;
+    info.pCamera = pCamera;
+    info.point_lights = &point_lights;
+    info.directional_lights = &directional_lights;
+    info.spot_lights = &spot_lights;
+    info.bone_count = (int)bones.size();
+    info.renderPass = renderPass;
+    info.bDiffuseMap = bDiffuseMap;
+    info.bNormalMap = bNormalMap;
+    info.bSpecMap = bSpecMap;
+    info.bReflectionMap = bReflectionMap;
+    info.bReflectionCubeMap = bReflectionCubeMap;
+    info.bLightMap = bLightMap;
+    info.bDiffuseMapScale = m_diffuseMapScale != default_scale && bDiffuseMap;
+    info.bSpecMapScale = m_specularMapScale != default_scale && bSpecMap;
+    info.bNormalMapScale = m_normalMapScale != default_scale && bNormalMap;
+    info.bReflectionMapScale = m_reflectionMapScale != default_scale && bReflectionMap;
+    info.bDiffuseMapOffset = m_diffuseMapOffset != default_offset && bDiffuseMap;
+    info.bSpecMapOffset = m_specularMapOffset != default_offset && bSpecMap;
+    info.bNormalMapOffset = m_normalMapOffset != default_offset && bNormalMap;
+    info.bReflectionMapOffset = m_reflectionMapOffset != default_offset && bReflectionMap;
+    info.bAlphaTest = bAlphaTest;
+    info.bAlphaBlend = bAlphaBlend;
+    info.bRimColor = rim_power != 0.0f;
+    info.renderPass = renderPass;
+    KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
     
     Vector4 fade_color;
     if(!getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {

@@ -89,36 +89,6 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& ren
   return pipeline;
 }
 
-KRPipeline* KRPipelineManager::getPipeline(const std::string& pipeline_name, KRCamera* pCamera, const std::vector<KRPointLight*>& point_lights, const std::vector<KRDirectionalLight*>& directional_lights, const std::vector<KRSpotLight*>& spot_lights, int bone_count, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale, bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, bool bRimColor) {
-  PipelineInfo info;
-  info.shader_name = &pipeline_name;
-  info.pCamera = pCamera;
-  info.point_lights = &point_lights;
-  info.directional_lights = &directional_lights;
-  info.spot_lights = &spot_lights;
-  info.bone_count = bone_count;
-  info.bDiffuseMap = bDiffuseMap;
-  info.bNormalMap = bNormalMap;
-  info.bSpecMap = bSpecMap;
-  info.bReflectionMap = bReflectionMap;
-  info.bReflectionCubeMap = bReflectionCubeMap;
-  info.bLightMap = bLightMap;
-  info.bDiffuseMapScale = bDiffuseMapScale;
-  info.bSpecMapScale = bSpecMapScale;
-  info.bNormalMapScale = bNormalMapScale;
-  info.bReflectionMapScale = bReflectionMapScale;
-  info.bDiffuseMapOffset = bDiffuseMapOffset;
-  info.bSpecMapOffset = bDiffuseMapOffset;
-  info.bNormalMapOffset = bNormalMapOffset;
-  info.bReflectionMapOffset = bReflectionMapOffset;
-  info.bAlphaTest = bAlphaTest;
-  info.bAlphaBlend = bAlphaBlend;
-  info.renderPass = renderPass;
-  info.bRimColor = bRimColor;
-  
-  return getPipeline(info);
-}
-
 KRPipeline *KRPipelineManager::getPipeline(const PipelineInfo &info) {
     
     int iShadowQuality = 0; // FINDME - HACK - Placeholder code, need to iterate through lights and dynamically build shader
@@ -311,7 +281,33 @@ KRPipeline *KRPipelineManager::getPipeline(const PipelineInfo &info) {
 
 bool KRPipelineManager::selectPipeline(const std::string &pipeline_name, KRCamera &camera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRViewport &viewport, const Matrix4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color)
 {
-    KRPipeline *pPipeline = getPipeline(pipeline_name, &camera, point_lights, directional_lights, spot_lights, bone_count, bDiffuseMap, bNormalMap, bSpecMap, bReflectionMap, bReflectionCubeMap, bLightMap, bDiffuseMapScale, bSpecMapScale, bNormalMapScale, bReflectionMapScale, bDiffuseMapOffset, bSpecMapOffset, bNormalMapOffset, bReflectionMapOffset, bAlphaTest, bAlphaBlend, renderPass, rim_power != 0.0f);
+    PipelineInfo info{};
+    info.shader_name = &pipeline_name;
+    info.pCamera = &camera;
+    info.point_lights = &point_lights;
+    info.directional_lights = &directional_lights;
+    info.spot_lights = &spot_lights;
+    info.bone_count = bone_count;
+    info.bDiffuseMap = bDiffuseMap;
+    info.bNormalMap = bNormalMap;
+    info.bSpecMap = bSpecMap;
+    info.bReflectionMap = bReflectionMap;
+    info.bReflectionCubeMap = bReflectionCubeMap;
+    info.bLightMap = bLightMap;
+    info.bDiffuseMapScale = bDiffuseMapScale;
+    info.bSpecMapScale = bSpecMapScale;
+    info.bNormalMapScale = bNormalMapScale;
+    info.bReflectionMapScale = bReflectionMapScale;
+    info.bDiffuseMapOffset = bDiffuseMapOffset;
+    info.bSpecMapOffset = bDiffuseMapOffset;
+    info.bNormalMapOffset = bNormalMapOffset;
+    info.bReflectionMapOffset = bReflectionMapOffset;
+    info.bAlphaTest = bAlphaTest;
+    info.bAlphaBlend = bAlphaBlend;
+    info.renderPass = renderPass;
+    info.bRimColor = rim_power != 0.0f;
+
+    KRPipeline *pPipeline = getPipeline(info);
     return selectPipeline(camera, pPipeline, viewport, matModel, point_lights, directional_lights, spot_lights, bone_count, renderPass, rim_color, rim_power, fade_color);
 }
 
