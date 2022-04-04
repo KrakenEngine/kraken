@@ -49,6 +49,10 @@ public:
 
   VmaAllocator getAllocator();
 
+  KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
+  KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
+  KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode);
+
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;
   VkPhysicalDeviceProperties m_deviceProperties;

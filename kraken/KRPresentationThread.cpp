@@ -31,6 +31,7 @@
 
 #include "KRPresentationThread.h"
 #include "KRRenderPass.h"
+#include "KRSwapchain.h"
 
 KRPresentationThread::KRPresentationThread(KRContext& context)
   : KRContextObject(context)
@@ -116,15 +117,15 @@ void KRPresentationThread::renderFrame()
       break;
     }
     bool resized = false;
-    if (surface.m_swapChainExtent.width != surfaceCapabilities.currentExtent.width ||
-      surface.m_swapChainExtent.height != surfaceCapabilities.currentExtent.height) {
+    if (surface.m_swapChain->m_extent.width != surfaceCapabilities.currentExtent.width ||
+      surface.m_swapChain->m_extent.height != surfaceCapabilities.currentExtent.height) {
       // We can't rely on VK_ERROR_OUT_OF_DATE_KHR to always signal when a resize has happend.
       // This must also be checked for explicitly.
       resized = true;
     }
 
     uint32_t imageIndex = 0;
-    VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain->m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || resized) {
       // TODO - Must explicitly detect resize and trigger swapchain re-creation as well
@@ -154,7 +155,7 @@ void KRPresentationThread::renderFrame()
     // TODO - This needs to be moved to the Render thread...
     float deltaTime = 0.005; // TODO - Replace dummy value
     if (scene) {
-      scene->renderFrame(commandBuffer, surface, 0, deltaTime, surface.m_swapChainExtent.width, surface.m_swapChainExtent.height);
+      scene->renderFrame(commandBuffer, surface, 0, deltaTime, surface.m_swapChain->m_extent.width, surface.m_swapChain->m_extent.height);
     }
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
@@ -187,7 +188,7 @@ void KRPresentationThread::renderFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &surface.m_swapChain;
+    presentInfo.pSwapchains = &surface.m_swapChain->m_swapChain;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
     vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);

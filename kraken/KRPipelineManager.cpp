@@ -36,6 +36,7 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
+#include "KRSwapchain.h"
 
 #ifndef ANDROID
 #include "glslang/Public/ShaderLang.h"
@@ -67,9 +68,9 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& ren
   std::pair<std::string, std::vector<int> > key;
   key.first = shader_name;
   key.second.push_back(surface.m_deviceHandle);
-  key.second.push_back(surface.m_swapChainImageFormat);
-  key.second.push_back(surface.m_swapChainExtent.width);
-  key.second.push_back(surface.m_swapChainExtent.height);
+  key.second.push_back(surface.m_swapChain->m_imageFormat);
+  key.second.push_back(surface.m_swapChain->m_extent.width);
+  key.second.push_back(surface.m_swapChain->m_extent.height);
   key.second.push_back(vertexAttributes);
   key.second.push_back(modelFormat);
   // TODO - Add renderPass unique identifier to key

@@ -28,6 +28,7 @@ add_sources(KRRenderPass.cpp)
 add_sources(KRSurface.cpp)
 add_sources(KRSurfaceManager.cpp)
 add_sources(KRStreamerThread.cpp)
+add_sources(KRSwapchain.cpp)
 IF(APPLE)
   add_sources(KREngine.mm)
   

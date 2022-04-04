@@ -30,7 +30,8 @@
 //
 
 #include "KRRenderPass.h"
-#include "KRSurface.h""
+#include "KRSurface.h"
+#include "KRSwapchain.h"
 
 KRRenderPass::KRRenderPass(KRContext& context)
   : KRContextObject(context)
@@ -126,9 +127,9 @@ void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = m_renderPass;
-  renderPassInfo.framebuffer = surface.m_swapChainFramebuffers[surface.m_frameIndex % surface.m_swapChainFramebuffers.size()];
+  renderPassInfo.framebuffer = surface.m_swapChain->m_framebuffers[surface.m_frameIndex % surface.m_swapChain->m_framebuffers.size()];
   renderPassInfo.renderArea.offset = { 0, 0 };
-  renderPassInfo.renderArea.extent = surface.m_swapChainExtent;
+  renderPassInfo.renderArea.extent = surface.m_swapChain->m_extent;
   renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
   renderPassInfo.pClearValues = clearValues.data();
 

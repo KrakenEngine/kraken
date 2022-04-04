@@ -234,3 +234,81 @@ VmaAllocator KRDevice::getAllocator()
   assert(m_allocator != VK_NULL_HANDLE);
   return m_allocator;
 }
+
+KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat)
+{
+
+  std::vector<VkSurfaceFormatKHR> surfaceFormats;
+  uint32_t formatCount = 0;
+  if (vkGetPhysicalDeviceSurfaceFormatsKHR(m_device, surface, &formatCount, nullptr) != VK_SUCCESS) {
+    return KR_ERROR_VULKAN_SWAP_CHAIN;
+  }
+
+  if (formatCount != 0) {
+    surfaceFormats.resize(formatCount);
+    if (vkGetPhysicalDeviceSurfaceFormatsKHR(m_device, surface, &formatCount, surfaceFormats.data()) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN_SWAP_CHAIN;
+    }
+  }
+
+  selectedFormat = surfaceFormats[0];
+  for (const auto& availableFormat : surfaceFormats) {
+    if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+      selectedFormat = availableFormat;
+      break;
+    }
+  }
+  return KR_SUCCESS;
+}
+
+KrResult KRDevice::selectDepthFormat(VkFormat& selectedDepthFormat)
+{
+  selectedDepthFormat = VK_FORMAT_UNDEFINED;
+  VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+  std::vector<VkFormat> candidateFormats;
+  candidateFormats.push_back(VK_FORMAT_D32_SFLOAT_S8_UINT);
+  candidateFormats.push_back(VK_FORMAT_D24_UNORM_S8_UINT);
+  for (VkFormat format : candidateFormats) {
+    VkFormatProperties props;
+    vkGetPhysicalDeviceFormatProperties(m_device, format, &props);
+
+    if ((props.optimalTilingFeatures & requiredFeatures) == requiredFeatures) {
+      selectedDepthFormat = format;
+      break;
+    }
+  }
+
+  if (selectedDepthFormat == VK_FORMAT_UNDEFINED) {
+    return KR_ERROR_VULKAN_DEPTHBUFFER;
+  }
+
+  return KR_SUCCESS;
+}
+
+KrResult KRDevice::selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode)
+{
+  // VK_PRESENT_MODE_FIFO_KHR is always available
+  selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+  std::vector<VkPresentModeKHR> surfacePresentModes;
+
+  uint32_t presentModeCount = 0;
+  if (vkGetPhysicalDeviceSurfacePresentModesKHR(m_device, surface, &presentModeCount, nullptr) != VK_SUCCESS) {
+    return KR_ERROR_VULKAN_SWAP_CHAIN;
+  }
+
+  if (presentModeCount != 0) {
+    surfacePresentModes.resize(presentModeCount);
+    if (vkGetPhysicalDeviceSurfacePresentModesKHR(m_device, surface, &presentModeCount, surfacePresentModes.data()) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN_SWAP_CHAIN;
+    }
+  }
+
+  // Try to find a better mode
+  for (const auto& availablePresentMode : surfacePresentModes) {
+    if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+      selectedPresentMode = availablePresentMode;
+    }
+  }
+  return KR_SUCCESS;
+}
