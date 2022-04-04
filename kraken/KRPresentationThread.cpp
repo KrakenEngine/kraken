@@ -155,7 +155,7 @@ void KRPresentationThread::renderFrame()
     // TODO - This needs to be moved to the Render thread...
     float deltaTime = 0.005; // TODO - Replace dummy value
     if (scene) {
-      scene->renderFrame(commandBuffer, surface, 0, deltaTime, surface.m_swapChain->m_extent.width, surface.m_swapChain->m_extent.height);
+      scene->renderFrame(commandBuffer, surface, deltaTime);
     }
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {

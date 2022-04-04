@@ -46,8 +46,6 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_last_frame_start = 0;
     
     m_particlesAbsoluteTime = 0.0f;
-    m_backingWidth = 0;
-    m_backingHeight = 0;
     volumetricBufferWidth = 0;
     volumetricBufferHeight = 0;
     m_pSkyBoxTexture = NULL;
@@ -102,7 +100,7 @@ const std::string KRCamera::getSkyBox() const
     return m_skyBox;
 }
 
-void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight)
+void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
     // ----====---- Record timing information for measuring FPS ----====----
     uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
@@ -112,7 +110,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, G
     }
     m_last_frame_start = current_time;
 
-    createBuffers(renderBufferWidth, renderBufferHeight);
+    createBuffers(surface.getWidth(), surface.getHeight());
     
     KRScene &scene = getScene();
     
@@ -121,7 +119,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, G
     
     //Matrix4 viewMatrix = Matrix4::Invert(getModelMatrix());
     
-    settings.setViewportSize(Vector2::Create((float)m_backingWidth, (float)m_backingHeight));
+    settings.setViewportSize(Vector2::Create((float)surface.getWidth(), (float)surface.getHeight()));
     Matrix4 projectionMatrix;
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
