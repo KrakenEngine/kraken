@@ -183,17 +183,6 @@ include_directories(${GLAD_INCLUDE_DIRS})
 list (APPEND EXTRA_LIBS "glad")
 endif()
 
-# ---- GLFW ----
-if(NOT ANDROID)
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs")
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
-add_subdirectory(3rdparty/glfw)
-include_directories(3rdparty/glfw/include)
-list (APPEND EXTRA_LIBS "${GLFW_LIBRARIES}")
-endif()
-
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
