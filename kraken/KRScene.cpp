@@ -54,7 +54,7 @@ KRScene::~KRScene() {
     m_pRootNode = NULL;
 }
 
-void KRScene::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO, float deltaTime, int width, int height) {
+void KRScene::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO, float deltaTime) {
     getContext().startFrame(deltaTime);
     KRCamera *camera = find<KRCamera>("default_camera");
     if(camera == NULL) {
@@ -70,7 +70,7 @@ void KRScene::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GL
     getContext().getAudioManager()->setReverbMaxLength(camera->settings.siren_reverb_max_length);
     getContext().getTextureManager()->setMaxAnisotropy(camera->settings.max_anisotropy);
     
-    camera->renderFrame(commandBuffer, surface, defaultFBO, width, height);
+    camera->renderFrame(commandBuffer, surface, defaultFBO);
     getContext().endFrame(deltaTime);
     physicsUpdate(deltaTime);
 }

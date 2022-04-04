@@ -54,7 +54,7 @@ public:
     KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
 
-    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO, GLint renderBufferWidth, GLint renderBufferHeight);
+    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, GLint defaultFBO);
     
     KRRenderSettings settings;
     
@@ -80,7 +80,6 @@ public:
 private:
     void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
     
-    GLint m_backingWidth, m_backingHeight;
     GLint volumetricBufferWidth, volumetricBufferHeight;
     
     GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
@@ -104,11 +103,11 @@ private:
     Vector4 m_fade_color;
     
     typedef struct {
-        GLfloat x;
-        GLfloat y;
-        GLfloat z;
-        GLfloat u;
-        GLfloat v;
+        float x;
+        float y;
+        float z;
+        float u;
+        float v;
     } DebugTextVertexData;
     
     KRDataBlock m_debug_text_vertices;
