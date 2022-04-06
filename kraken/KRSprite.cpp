@@ -165,7 +165,7 @@ void KRSprite::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::ve
                 info.spot_lights = &spot_lights;
                 info.renderPass = renderPass;
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
-                if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
                     m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
                     m_pContext->getMeshManager()->bindVBO(commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);

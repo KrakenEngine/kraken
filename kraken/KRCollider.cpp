@@ -215,7 +215,7 @@ void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::
 
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
             
-            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 // Enable additive blending
                 GLDEBUG(glEnable(GL_BLEND));

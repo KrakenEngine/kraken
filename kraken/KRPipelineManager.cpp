@@ -98,9 +98,16 @@ KRPipeline *KRPipelineManager::getPipeline(const PipelineInfo &info) {
     int light_point_count = 0;
     int light_spot_count = 0;
     if(info.renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && info.renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && info.renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && info.renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
-        light_directional_count = (int)info.directional_lights->size();
-        light_point_count = (int)info.point_lights->size();
-        light_spot_count = (int)info.spot_lights->size();
+        if (info.directional_lights) {
+          light_directional_count = (int)info.directional_lights->size();
+        }
+        
+        if (info.point_lights) {
+          light_point_count = (int)info.point_lights->size();
+        }
+        if (info.spot_lights) {
+          light_spot_count = (int)info.spot_lights->size();
+        }
         for(std::vector<KRDirectionalLight *>::const_iterator light_itr=info.directional_lights->begin(); light_itr != info.directional_lights->end(); light_itr++) {
             KRDirectionalLight *directional_light =(*light_itr);
             iShadowQuality = directional_light->getShadowBufferCount();
@@ -282,10 +289,10 @@ KRPipeline *KRPipelineManager::getPipeline(const PipelineInfo &info) {
 bool KRPipelineManager::selectPipeline(const PipelineInfo& info, const KRViewport& viewport, const Matrix4& matModel, const Vector3& rim_color, float rim_power, const Vector4& fade_color)
 {
   KRPipeline* pPipeline = getPipeline(info);
-  return selectPipeline(*info.pCamera, pPipeline, viewport, matModel, *info.point_lights, *info.directional_lights, *info.spot_lights, info.bone_count, info.renderPass, rim_color, rim_power, fade_color);
+  return selectPipeline(*info.pCamera, pPipeline, viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.bone_count, info.renderPass, rim_color, rim_power, fade_color);
 }
 
-bool KRPipelineManager::selectPipeline(KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color)
+bool KRPipelineManager::selectPipeline(KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color)
 {
     if(pPipeline) {
         return pPipeline->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass, rim_color, rim_power, fade_color);

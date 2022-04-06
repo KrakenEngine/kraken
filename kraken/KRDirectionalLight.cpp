@@ -130,9 +130,6 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
         std::vector<KRDirectionalLight *> this_light;
         this_light.push_back(this);
 
-        std::vector<KRPointLight*> no_point_lights;
-        std::vector<KRSpotLight*> no_spot_lights;
-
         Matrix4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
         matModelViewInverseTranspose.transpose();
         matModelViewInverseTranspose.invert();
@@ -145,13 +142,11 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
         std::string shader_name("light_directional");
         info.shader_name = &shader_name;
         info.pCamera = pCamera;
-        info.point_lights = &no_point_lights;
         info.directional_lights = &this_light;
-        info.spot_lights = &no_spot_lights;
         info.renderPass = renderPass;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), no_point_lights, this_light, no_spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), nullptr, &this_light, nullptr, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

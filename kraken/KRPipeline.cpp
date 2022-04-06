@@ -584,7 +584,7 @@ void KRPipeline::bind(VkCommandBuffer& commandBuffer)
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 }
 
-bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
+bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
     if(m_iProgram == 0) {
         return false;
     }
@@ -606,58 +606,60 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
     if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
         
         
-        for(std::vector<KRDirectionalLight *>::const_iterator light_itr=directional_lights.begin(); light_itr != directional_lights.end(); light_itr++) {
-            KRDirectionalLight *directional_light = (*light_itr);
-            if(light_directional_count == 0) {
-                int cShadowBuffers = directional_light->getShadowBufferCount();
-                if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
-                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                    }
-                    
-                    m_pContext->getTextureManager()->_setWrapModeS(3, GL_CLAMP_TO_EDGE);
-                    m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
-                }
-                
-                if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
-                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                    }
-                    m_pContext->getTextureManager()->_setWrapModeS(4, GL_CLAMP_TO_EDGE);
-                    m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
-                }
-                
-                if(m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
-                    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-                        GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-                    }
-                    m_pContext->getTextureManager()->_setWrapModeS(5, GL_CLAMP_TO_EDGE);
-                    m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
-                }
-                
-                Matrix4 matBias;
-                matBias.translate(1.0, 1.0, 1.0);
-                matBias.scale(0.5);
-                for(int iShadow=0; iShadow < cShadowBuffers; iShadow++) {
-                    setUniform(KRENGINE_UNIFORM_SHADOWMVP1 + iShadow, matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
-                }
-                
-                if(m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
-                    Matrix4 inverseModelMatrix = matModel;
-                    inverseModelMatrix.invert();
-                    
-                    // Bind the light direction vector
-                    Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
-                    lightDirObject.normalize();
-                    setUniform(KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE, lightDirObject);
-                }
+      if (directional_lights) {
+        for (std::vector<KRDirectionalLight*>::const_iterator light_itr = directional_lights->begin(); light_itr != directional_lights->end(); light_itr++) {
+          KRDirectionalLight* directional_light = (*light_itr);
+          if (light_directional_count == 0) {
+            int cShadowBuffers = directional_light->getShadowBufferCount();
+            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
+              if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+              }
+
+              m_pContext->getTextureManager()->_setWrapModeS(3, GL_CLAMP_TO_EDGE);
+              m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
             }
-            
-            light_directional_count++;
+
+            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+              if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+              }
+              m_pContext->getTextureManager()->_setWrapModeS(4, GL_CLAMP_TO_EDGE);
+              m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
+            }
+
+            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+              if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+              }
+              m_pContext->getTextureManager()->_setWrapModeS(5, GL_CLAMP_TO_EDGE);
+              m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
+            }
+
+            Matrix4 matBias;
+            matBias.translate(1.0, 1.0, 1.0);
+            matBias.scale(0.5);
+            for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
+              setUniform(KRENGINE_UNIFORM_SHADOWMVP1 + iShadow, matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
+            }
+
+            if (m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
+              Matrix4 inverseModelMatrix = matModel;
+              inverseModelMatrix.invert();
+
+              // Bind the light direction vector
+              Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
+              lightDirObject.normalize();
+              setUniform(KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE, lightDirObject);
+            }
+          }
+
+          light_directional_count++;
         }
+      }
 
         //light_point_count = point_lights.size();
         //light_spot_count = spot_lights.size();

@@ -140,7 +140,7 @@ void KRAmbientZone::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, st
         
         KRPipeline *pPipeline = getContext().getPipelineManager()->getPipeline(info);
         
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pPipeline, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pPipeline, viewport, sphereModelMatrix, &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
             // Enable additive blending
             GLDEBUG(glEnable(GL_BLEND));

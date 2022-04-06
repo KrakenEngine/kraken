@@ -349,7 +349,7 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
     
     Vector4 fade_color;
-    if(!getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, matModel, point_lights, directional_lights, spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {
+    if(!getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, matModel, &point_lights, &directional_lights, &spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {
         return false;
     }
     

@@ -102,7 +102,7 @@ void KRBone::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vect
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
         
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, sphereModelMatrix, point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, sphereModelMatrix, &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
             if(sphereModels.size()) {
                 for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {

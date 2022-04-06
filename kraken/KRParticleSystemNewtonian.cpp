@@ -107,7 +107,7 @@ void KRParticleSystemNewtonian::render(VkCommandBuffer& commandBuffer, KRCamera 
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(info);
             
             // Vector3 rim_color; Vector4 fade_color;
-            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, getModelMatrix(), point_lights, directional_lights, spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 KRDataBlock index_data;
