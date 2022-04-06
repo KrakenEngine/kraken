@@ -85,9 +85,8 @@ public:
     KRPipeline *getPipeline(KRSurface& surface, KRRenderPass& renderPass, const std::string& shader_name, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
     KRPipeline* getPipeline(const PipelineInfo& info);
     bool selectPipeline(KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
-    
-    bool selectPipeline(const std::string &pipeline_name, KRCamera &camera, const std::vector<KRPointLight *> &point_lights, const std::vector<KRDirectionalLight *> &directional_lights, const std::vector<KRSpotLight *>&spot_lights, int bone_count, const KRViewport &viewport, const Matrix4 &matModel, bool bDiffuseMap, bool bNormalMap, bool bSpecMap, bool bReflectionMap, bool bReflectionCubeMap, bool bLightMap, bool bDiffuseMapScale,bool bSpecMapScale, bool bNormalMapScale, bool bReflectionMapScale, bool bDiffuseMapOffset, bool bSpecMapOffset, bool bNormalMapOffset, bool bReflectionMapOffset, bool bAlphaTest, bool bAlphaBlend, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
-    
+    bool selectPipeline(const PipelineInfo& info, const KRViewport& viewport, const Matrix4& matModel, const Vector3& rim_color, float rim_power, const Vector4& fade_color);
+
     size_t getPipelineHandlesUsed();
     
     KRPipeline *m_active_pipeline;

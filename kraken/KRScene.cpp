@@ -296,8 +296,16 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                         // Disable z-buffer write
                         GLDEBUG(glDepthMask(GL_FALSE));
                     }
-                    
-                    if(getContext().getPipelineManager()->selectPipeline("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, matModel, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                    KRPipelineManager::PipelineInfo info{};
+                    std::string shader_name("occlusion_test");
+                    info.shader_name = &shader_name;
+                    info.pCamera = pCamera;
+                    info.point_lights = &point_lights;
+                    info.directional_lights = &directional_lights;
+                    info.spot_lights = &spot_lights;
+                    info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+
+                    if(getContext().getPipelineManager()->selectPipeline(info, viewport, matModel, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
                     }

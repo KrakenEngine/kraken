@@ -348,7 +348,16 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                 occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
             }
 
-            if(getContext().getPipelineManager()->selectPipeline("occlusion_test", *pCamera, point_lights, directional_lights, spot_lights, 0, viewport, occlusion_test_sphere_matrix, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            KRPipelineManager::PipelineInfo info{};
+            std::string shader_name("occlusion_test");
+            info.shader_name = &shader_name;
+            info.pCamera = pCamera;
+            info.point_lights = &point_lights;
+            info.directional_lights = &directional_lights;
+            info.spot_lights = &spot_lights;
+            info.renderPass = renderPass;
+
+            if(getContext().getPipelineManager()->selectPipeline(info, viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
 
                 GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
 #if TARGET_OS_IPHONE || defined(ANDROID)
