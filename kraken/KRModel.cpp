@@ -34,6 +34,7 @@
 #include "KRModel.h"
 #include "KRContext.h"
 #include "KRMesh.h"
+#include "KRNode.h"
 
 /* static */
 void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
@@ -159,17 +160,22 @@ void KRModel::loadModel() {
     }
 }
 
-void KRModel::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRModel::render(KRNode::RenderInfo& ri) {
 
-    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && renderPass == KRNode::RENDER_PASS_PRESTREAM) {
-        preStream(viewport);
+    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+        preStream(ri.viewport);
     }
     
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(ri);
     
-    if(renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && renderPass != KRNode::RENDER_PASS_PRESTREAM) {
+    if(ri.renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS
+      && ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES
+      && ri.renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION
+      && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
+      && ri.renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS
+      && ri.renderPass != KRNode::RENDER_PASS_PRESTREAM) {
         loadModel();
         
         if(m_models.size() > 0) {
@@ -184,7 +190,7 @@ void KRModel::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
             }
             */
             
-            float lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
+            float lod_coverage = ri.viewport.coverage(getBounds()); // This also checks the view frustrum culling
             
             if(lod_coverage > m_min_lod_coverage) {
                 
@@ -205,18 +211,18 @@ void KRModel::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                     m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
                 }
                 
-                if(m_pLightMap && pCamera->settings.bEnableLightMap && renderPass != RENDER_PASS_SHADOWMAP && renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
+                if(m_pLightMap && ri.camera->settings.bEnableLightMap && ri.renderPass != RENDER_PASS_SHADOWMAP && ri.renderPass != RENDER_PASS_GENERATE_SHADOWMAPS) {
                     m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
                 }
                 
                 Matrix4 matModel = getModelMatrix();
                 if(m_faces_camera) {
                     Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
-                    Vector3 camera_pos = viewport.getCameraPosition();
+                    Vector3 camera_pos = ri.viewport.getCameraPosition();
                     matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
                 }
                 
-                pModel->render(commandBuffer, getName(), pCamera, point_lights, directional_lights, spot_lights, viewport, matModel, m_pLightMap, renderPass, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
+                pModel->render(ri, getName(), matModel, m_pLightMap, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
             }
         }
     }

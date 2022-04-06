@@ -192,13 +192,13 @@ void KRCollider::setAudioOcclusion(float audio_occlusion)
 }
 
 
-void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRCollider::render(RenderInfo& ri)
 {
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(ri);
     
-    if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
+    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
         loadModel();
         if(m_models.size()) {
             
@@ -207,15 +207,15 @@ void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::
             KRPipelineManager::PipelineInfo info{};
             std::string shader_name("visualize_overlay");
             info.shader_name = &shader_name;
-            info.pCamera = pCamera;
-            info.point_lights = &point_lights;
-            info.directional_lights = &directional_lights;
-            info.spot_lights = &spot_lights;
-            info.renderPass = renderPass;
+            info.pCamera = ri.camera;
+            info.point_lights = &ri.point_lights;
+            info.directional_lights = &ri.directional_lights;
+            info.spot_lights = &ri.spot_lights;
+            info.renderPass = ri.renderPass;
 
-            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
+            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             
-            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 // Enable additive blending
                 GLDEBUG(glEnable(GL_BLEND));
@@ -232,7 +232,7 @@ void KRCollider::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::
 
 
                 for(int i=0; i < m_models[0]->getSubmeshCount(); i++) {
-                    m_models[0]->renderSubmesh(commandBuffer, i, renderPass, getName(), "visualize_overlay", 1.0f);
+                    m_models[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
                 }
             
                 // Enable alpha blending

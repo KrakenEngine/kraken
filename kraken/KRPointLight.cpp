@@ -68,15 +68,15 @@ AABB KRPointLight::getBounds() {
     return AABB::Create(Vector3::Create(-influence_radius), Vector3::Create(influence_radius), getModelMatrix());
 }
 
-void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass)
+void KRPointLight::render(RenderInfo& ri)
 {
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRLight::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRLight::render(ri);
     
-    bool bVisualize = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && pCamera->settings.bShowDeferred;
+    bool bVisualize = ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.bShowDeferred;
     
-    if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
+    if(ri.renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
         // Lights are rendered on the second pass of the deferred renderer
         
         std::vector<KRPointLight *> this_light;
@@ -90,20 +90,20 @@ void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
         sphereModelMatrix.scale(influence_radius);
         sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
 
-        if(viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
+        if(ri.viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
 
-            Vector3 view_light_position = Matrix4::Dot(viewport.getViewMatrix(), light_position);
+            Vector3 view_light_position = Matrix4::Dot(ri.viewport.getViewMatrix(), light_position);
             
-            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + pCamera->settings.getPerspectiveNearZ()) * (influence_radius + pCamera->settings.getPerspectiveNearZ());
+            bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + ri.camera->settings.getPerspectiveNearZ()) * (influence_radius + ri.camera->settings.getPerspectiveNearZ());
             
             std::string shader_name(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"));
             KRPipelineManager::PipelineInfo info{};
             info.shader_name = &shader_name;
-            info.pCamera = pCamera;
+            info.pCamera = ri.camera;
             info.point_lights = &this_light;
-            info.renderPass = renderPass;
-            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
-            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, sphereModelMatrix, &this_light, nullptr, nullptr, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            info.renderPass = ri.renderPass;
+            KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
                 
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
@@ -129,7 +129,7 @@ void KRPointLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std
                     GLDEBUG(glDisable(GL_DEPTH_TEST));
                     
                     // Render a full screen quad
-                    m_pContext->getMeshManager()->bindVBO(commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
                     GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                 } else {
                     // Render sphere of light's influence

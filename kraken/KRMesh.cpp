@@ -240,10 +240,11 @@ kraken_stream_level KRMesh::getStreamLevel()
     return stream_level;
 }
 
-void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_name, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const std::vector<KRBone *> &bones, const Vector3 &rim_color, float rim_power, float lod_coverage) {
 
+void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name, const Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const Vector3& rim_color, float rim_power, float lod_coverage)
+{
     //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
-    if(renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+    if(ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
         preStream(lod_coverage);
         if(getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
             
@@ -253,7 +254,7 @@ void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_na
             getMaterials();
             
             int cSubmeshes = (int)m_submeshes.size();
-            if(renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+            if(ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
                 for(int iSubmesh=0; iSubmesh<cSubmeshes; iSubmesh++) {
                     KRMaterial *pMaterial = m_materials[iSubmesh];
                     
@@ -261,7 +262,7 @@ void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_na
 
                         if(!pMaterial->isTransparent()) {
                             // Exclude transparent and semi-transparent meshes from shadow maps
-                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                         }
                     }
                     
@@ -273,29 +274,29 @@ void KRMesh::render(VkCommandBuffer& commandBuffer, const std::string &object_na
                         KRMaterial *pMaterial = m_materials[iSubmesh];
                         
                         if(pMaterial != NULL && pMaterial == (*mat_itr)) {
-                            if((!pMaterial->isTransparent() && renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+                            if((!pMaterial->isTransparent() && ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
                                 std::vector<Matrix4> bone_bind_poses;
                                 for(int i=0; i < (int)bones.size(); i++) {
                                     bone_bind_poses.push_back(getBoneBindPose(i));
                                 }
-                                if(pMaterial->bind(pCamera, point_lights, directional_lights, spot_lights, bones, bone_bind_poses, viewport, matModel, pLightMap, renderPass, rim_color, rim_power, lod_coverage)) {
+                                if(pMaterial->bind(ri, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage)) {
                                 
                                     switch(pMaterial->getAlphaMode()) {
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                         case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                                             // Render back faces first
                                             GLDEBUG(glCullFace(GL_FRONT));
-                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
 
                                             // Render front faces second
                                             GLDEBUG(glCullFace(GL_BACK));
-                                            renderSubmesh(commandBuffer, iSubmesh, renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                                             break;
                                     }
                                 }

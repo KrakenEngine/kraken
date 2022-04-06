@@ -50,6 +50,7 @@ class KRMaterialManager;
 class KRTextureManager;
 class KRContext;
 class KRScene;
+class KRSurface;
 
 class KRNode;
 class KRPointLight;
@@ -81,6 +82,27 @@ public:
         LOD_VISIBILITY_HIDDEN,
         LOD_VISIBILITY_PRESTREAM,
         LOD_VISIBILITY_VISIBLE
+    };
+
+    class RenderInfo {
+    public:
+      RenderInfo(VkCommandBuffer& cb)
+        : commandBuffer(cb)
+      {
+
+      }
+
+      RenderInfo(const RenderInfo&) = delete;
+      RenderInfo& operator=(const RenderInfo&) = delete;
+
+      VkCommandBuffer& commandBuffer;
+      KRCamera* camera;
+      KRSurface* surface;
+      std::vector<KRPointLight*> point_lights;
+      std::vector<KRDirectionalLight*> directional_lights;
+      std::vector<KRSpotLight*> spot_lights;
+      KRViewport viewport;
+      RenderPass renderPass;
     };
 
     static void InitNodeInfo(KrNodeInfo* nodeInfo);
@@ -193,7 +215,7 @@ public:
     
     KRScene &getScene();
     
-    virtual void render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, RenderPass renderPass);
+    virtual void render(const RenderInfo& ri);
     
     virtual void physicsUpdate(float deltaTime);
     virtual bool hasPhysics();

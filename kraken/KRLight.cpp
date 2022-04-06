@@ -212,22 +212,22 @@ float KRLight::getDecayStart() {
     return m_decayStart;
 }
 
-void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRLight::render(RenderInfo& ri) {
 
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(ri);
     
-    if(renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (pCamera->settings.volumetric_environment_enable || pCamera->settings.dust_particle_enable || (pCamera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
-        allocateShadowBuffers(configureShadowBufferViewports(viewport));
-        renderShadowBuffers(commandBuffer, pCamera);
+    if(ri.renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
+        allocateShadowBuffers(configureShadowBufferViewports(ri.viewport));
+        renderShadowBuffers(ri);
     }
     
-    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && pCamera->settings.dust_particle_enable) {
+    if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.camera->settings.dust_particle_enable) {
         // Render brownian particles for dust floating in air
         if(m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
             
-            if(viewport.visible(getBounds()) || true) { // FINDME, HACK need to remove "|| true"?
+            if(ri.viewport.visible(getBounds()) || true) { // FINDME, HACK need to remove "|| true"?
                 
                 float particle_range = 600.0f;
                 
@@ -240,7 +240,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
 
                 Matrix4 particleModelMatrix;
                 particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
-                particleModelMatrix.translate(viewport.getCameraPosition());
+                particleModelMatrix.translate(ri.viewport.getCameraPosition());
                 
                 std::vector<KRDirectionalLight *> this_directional_light;
                 std::vector<KRSpotLight *> this_spot_light;
@@ -261,21 +261,21 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                 KRPipelineManager::PipelineInfo info{};
                 std::string shader_name("dust_particle");
                 info.shader_name = &shader_name;
-                info.pCamera = pCamera;
+                info.pCamera = ri.camera;
                 info.point_lights = &this_point_light;
                 info.directional_lights = &this_directional_light;
                 info.spot_lights = &this_spot_light;
-                info.renderPass = renderPass;
-                KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(info);
+                info.renderPass = ri.renderPass;
+                KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
                 
-                if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     
-                    pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * pCamera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+                    pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
                     pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
                     pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                     
                     KRDataBlock particle_index_data;
-                    m_pContext->getMeshManager()->bindVBO(commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
+                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
                       , "Light Particles"
 #endif
@@ -287,8 +287,8 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
     }
 
     
-    if(renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && pCamera->settings.volumetric_environment_enable && m_light_shafts) {
-        std::string shader_name = pCamera->settings.volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
+    if(ri.renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && ri.camera->settings.volumetric_environment_enable && m_light_shafts) {
+        std::string shader_name = ri.camera->settings.volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
         
         std::vector<KRDirectionalLight *> this_directional_light;
         std::vector<KRSpotLight *> this_spot_light;
@@ -308,26 +308,26 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
 
         KRPipelineManager::PipelineInfo info{};
         info.shader_name = &shader_name;
-        info.pCamera = pCamera;
+        info.pCamera = ri.camera;
         info.point_lights = &this_point_light;
         info.directional_lights = &this_directional_light;
         info.spot_lights = &this_spot_light;
         info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
         
-        KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(info);
+        KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pFogShader, viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-            int slice_count = (int)(pCamera->settings.volumetric_environment_quality * 495.0) + 5;
+        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pFogShader, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
             
-            float slice_near = -pCamera->settings.getPerspectiveNearZ();
-            float slice_far = -pCamera->settings.volumetric_environment_max_distance;
+            float slice_near = -ri.camera->settings.getPerspectiveNearZ();
+            float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
             float slice_spacing = (slice_far - slice_near) / slice_count;
             
             pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
-            pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * pCamera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
+            pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
             
             KRDataBlock index_data;
-            m_pContext->getMeshManager()->bindVBO(commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
               , "Participating Media"
 #endif
@@ -337,7 +337,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
 
     }
     
-    if(renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
+    if(ri.renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             
             
@@ -351,13 +351,13 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
             KRPipelineManager::PipelineInfo info{};
             std::string shader_name("occlusion_test");
             info.shader_name = &shader_name;
-            info.pCamera = pCamera;
-            info.point_lights = &point_lights;
-            info.directional_lights = &directional_lights;
-            info.spot_lights = &spot_lights;
-            info.renderPass = renderPass;
+            info.pCamera = ri.camera;
+            info.point_lights = &ri.point_lights;
+            info.directional_lights = &ri.directional_lights;
+            info.spot_lights = &ri.spot_lights;
+            info.renderPass = ri.renderPass;
 
-            if(getContext().getPipelineManager()->selectPipeline(info, viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
 
                 GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
 #if TARGET_OS_IPHONE || defined(ANDROID)
@@ -369,7 +369,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                 std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
                 if(sphereModels.size()) {
                     for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                        sphereModels[0]->renderSubmesh(commandBuffer, i, renderPass, getName(), "occlusion_test", 1.0f);
+                        sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "occlusion_test", 1.0f);
                     }
                 }
 
@@ -383,7 +383,7 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
         }
     }
     
-    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+    if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
             
             if(m_occlusionQuery) {
@@ -406,18 +406,18 @@ void KRLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vec
                         KRPipelineManager::PipelineInfo info{};
                         std::string shader_name("flare");
                         info.shader_name = &shader_name;
-                        info.pCamera = pCamera;
-                        info.point_lights = &point_lights;
-                        info.directional_lights = &directional_lights;
-                        info.spot_lights = &spot_lights;
-                        info.renderPass = renderPass;
-                        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
+                        info.pCamera = ri.camera;
+                        info.point_lights = &ri.point_lights;
+                        info.directional_lights = &ri.directional_lights;
+                        info.spot_lights = &ri.spot_lights;
+                        info.renderPass = ri.renderPass;
+                        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
-                        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                             m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-                            m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+                            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
                             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                         }
                     }
@@ -493,7 +493,7 @@ int KRLight::configureShadowBufferViewports(const KRViewport &viewport)
     return 0;
 }
 
-void KRLight::renderShadowBuffers(VkCommandBuffer& commandBuffer, KRCamera *pCamera)
+void KRLight::renderShadowBuffers(RenderInfo& ri)
 {
     for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
         if(!shadowValid[iShadow]) {
@@ -531,14 +531,14 @@ void KRLight::renderShadowBuffers(VkCommandBuffer& commandBuffer, KRCamera *pCam
             KRPipelineManager::PipelineInfo info{};
             std::string shader_name("ShadowShader");
             info.shader_name = &shader_name;
-            info.pCamera = pCamera;
+            info.pCamera = ri.camera;
             info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-            KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(info);
+            KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
-            getContext().getPipelineManager()->selectPipeline(*pCamera, shadowShader, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
+            getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, shadowShader, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             
-            getScene().render(commandBuffer, pCamera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+            getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
             
             GLDEBUG(glEnable(GL_CULL_FACE));
         }

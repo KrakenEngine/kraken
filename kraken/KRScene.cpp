@@ -96,7 +96,7 @@ std::set<KRLight *> &KRScene::getLights()
     return m_lights;
 }
 
-void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
+void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame) {
     if(new_frame) {
         // Expire cached occlusion test results.
         // Cached "failed" results are expired on the next frame (marked with .second of -1)
@@ -115,6 +115,11 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordere
     if(getFirstLight() == NULL) {
         addDefaultLights();
     }
+
+    KRNode::RenderInfo ri(commandBuffer);
+    ri.camera = pCamera;
+    ri.viewport = viewport;
+    ri.renderPass = renderPass;
     
     std::vector<KRPointLight *> point_lights;
     std::vector<KRDirectionalLight *>directional_lights;
@@ -142,7 +147,7 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordere
     // Render outer nodes
     for(std::set<KRNode *>::iterator itr=outerNodes.begin(); itr != outerNodes.end(); itr++) {
         KRNode *node = (*itr);
-        node->render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+        node->render(ri);
     }
     
     std::vector<KROctreeNode *> remainingOctrees;
@@ -158,10 +163,10 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordere
         newRemainingOctrees.clear();
         newRemainingOctreesTestResults.clear();
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-            render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+            render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
         }
         for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-            render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
+            render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
         }
         remainingOctrees = newRemainingOctrees;
         remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -170,11 +175,11 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, unordere
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for(std::vector<KROctreeNode *>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-        render(commandBuffer, *octree_itr, visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+        render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
     }
 }
 
-void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibleBounds, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordered_map<AABB, int>& visibleBounds, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {    
     if(pOctreeNode) {
         
@@ -205,12 +210,12 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
             }
         } else {
             bool in_viewport = false;
-            if(renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+            if(ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
                 // When pre-streaming, objects are streamed in behind and in-front of the camera
-                AABB viewportExtents = AABB::Create(viewport.getCameraPosition() - Vector3::Create(pCamera->settings.getPerspectiveFarZ()), viewport.getCameraPosition() + Vector3::Create(pCamera->settings.getPerspectiveFarZ()));
+                AABB viewportExtents = AABB::Create(ri.viewport.getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport.getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
                 in_viewport = octreeBounds.intersects(viewportExtents);
             } else {
-                in_viewport = viewport.visible(pOctreeNode->getBounds());
+                in_viewport = ri.viewport.visible(pOctreeNode->getBounds());
             }
             if(in_viewport) {
 
@@ -218,7 +223,7 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                 bool bVisible = false;
                 bool bNeedOcclusionTest = true;
                 
-                if(!pCamera->settings.getEnableRealtimeOcclusion()) {
+                if(!ri.camera->settings.getEnableRealtimeOcclusion()) {
                     bVisible = true;
                     bNeedOcclusionTest = false;
                 }
@@ -226,7 +231,7 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                 if(!bVisible) {
                     // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
                     // The near clipping plane of the camera is taken into consideration by expanding the match area
-                    AABB cameraExtents = AABB::Create(viewport.getCameraPosition() - Vector3::Create(pCamera->settings.getPerspectiveNearZ()), viewport.getCameraPosition() + Vector3::Create(pCamera->settings.getPerspectiveNearZ()));
+                    AABB cameraExtents = AABB::Create(ri.viewport.getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveNearZ()), ri.viewport.getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveNearZ()));
                     bVisible = octreeBounds.intersects(cameraExtents);
                     if(bVisible) {
                         // Record the frame number in which the camera was within the bounds
@@ -276,54 +281,54 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                     Matrix4 matModel = Matrix4();
                     matModel.scale(octreeBounds.size() * 0.5f);
                     matModel.translate(octreeBounds.center());
-                    Matrix4 mvpmatrix = matModel * viewport.getViewProjectionMatrix();
+                    Matrix4 mvpmatrix = matModel * ri.viewport.getViewProjectionMatrix();
                     
 
-                    getContext().getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
+                    getContext().getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
                     
                     // Enable additive blending
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+                    if(ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
                         GLDEBUG(glEnable(GL_BLEND));
                     }
                     GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
                     
                     
-                    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
-                       renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
-                       renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
-                       renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+                    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
+                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
+                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
+                      ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
                         
-                        // Disable z-buffer write
-                        GLDEBUG(glDepthMask(GL_FALSE));
+                      // Disable z-buffer write
+                      GLDEBUG(glDepthMask(GL_FALSE));
                     }
                     KRPipelineManager::PipelineInfo info{};
                     std::string shader_name("occlusion_test");
                     info.shader_name = &shader_name;
-                    info.pCamera = pCamera;
-                    info.point_lights = &point_lights;
-                    info.directional_lights = &directional_lights;
-                    info.spot_lights = &spot_lights;
+                    info.pCamera = ri.camera;
+                    info.point_lights = &ri.point_lights;
+                    info.directional_lights = &ri.directional_lights;
+                    info.spot_lights = &ri.spot_lights;
                     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
 
-                    if(getContext().getPipelineManager()->selectPipeline(info, viewport, matModel, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                    if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, matModel, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
-                        m_pContext->getMeshManager()->log_draw_call(renderPass, "octree", "occlusion_test", 14);
+                        m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
                     }
                     
-                    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
-                       renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
-                       renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
-                       renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+                    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
+                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
+                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
+                      ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
                         
-                        // Re-enable z-buffer write
-                        GLDEBUG(glDepthMask(GL_TRUE));
+                      // Re-enable z-buffer write
+                      GLDEBUG(glDepthMask(GL_TRUE));
                     }
                     
                     pOctreeNode->endOcclusionQuery();
                     
-                    if(renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+                    if(ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
                         GLDEBUG(glDisable(GL_BLEND));
-                    } else if(renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
+                    } else if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
                         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
                     } else {
                         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE)); // RENDER_PASS_FORWARD_TRANSPARENT and RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
@@ -349,17 +354,17 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                         KRNode *node = (*itr);
                         KRDirectionalLight *directional_light = dynamic_cast<KRDirectionalLight *>(node);
                         if(directional_light) {
-                            directional_lights.push_back(directional_light);
+                            ri.directional_lights.push_back(directional_light);
                             directional_light_count++;
                         }
                         KRSpotLight *spot_light = dynamic_cast<KRSpotLight *>(node);
                         if(spot_light) {
-                            spot_lights.push_back(spot_light);
+                            ri.spot_lights.push_back(spot_light);
                             spot_light_count++;
                         }
                         KRPointLight *point_light = dynamic_cast<KRPointLight *>(node);
                         if(point_light) {
-                            point_lights.push_back(point_light);
+                            ri.point_lights.push_back(point_light);
                             point_light_count++;
                         }
                     }
@@ -367,25 +372,25 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KROctreeNode *pOctreeNode, 
                     // Render objects that are at this octree level
                     for(std::set<KRNode *>::iterator itr=pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
                         //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-                        (*itr)->render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+                        (*itr)->render(ri);
                     }
                     
                     // Render child octrees
-                    const int *childOctreeOrder = renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? viewport.getBackToFrontOrder() : viewport.getFrontToBackOrder();
+                    const int *childOctreeOrder = ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport.getBackToFrontOrder() : ri.viewport.getFrontToBackOrder();
                     
                     for(int i=0; i<8; i++) {
-                        render(commandBuffer, pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+                        render(ri, pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
                     }
                     
                     // Remove lights added at this octree level from the stack
                     while(directional_light_count--) {
-                        directional_lights.pop_back();
+                      ri.directional_lights.pop_back();
                     }
                     while(spot_light_count--) {
-                        spot_lights.pop_back();
+                      ri.spot_lights.pop_back();
                     }
                     while(point_light_count--) {
-                        point_lights.pop_back();
+                      ri.point_lights.pop_back();
                     }
                 }
             }

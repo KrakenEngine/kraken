@@ -302,8 +302,9 @@ void KRMaterial::getTextures()
     }
 }
 
-bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const KRViewport &viewport, const Matrix4 &matModel, KRTexture *pLightMap, KRNode::RenderPass renderPass, const Vector3 &rim_color, float rim_power, float lod_coverage) {
-    bool bLightMap = pLightMap && pCamera->settings.bEnableLightMap;
+bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const Matrix4 &matModel, KRTexture *pLightMap, const Vector3 &rim_color, float rim_power, float lod_coverage)
+{
+    bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
     
     getTextures();
     
@@ -311,23 +312,23 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     Vector2 default_offset = Vector2::Zero();
     
     bool bHasReflection = m_reflectionColor != Vector3::Zero();
-    bool bDiffuseMap = m_pDiffuseMap != NULL && pCamera->settings.bEnableDiffuseMap;
-    bool bNormalMap = m_pNormalMap != NULL && pCamera->settings.bEnableNormalMap;
-    bool bSpecMap = m_pSpecularMap != NULL && pCamera->settings.bEnableSpecMap;
-    bool bReflectionMap = m_pReflectionMap != NULL && pCamera->settings.bEnableReflectionMap && pCamera->settings.bEnableReflection && bHasReflection;
-    bool bReflectionCubeMap = m_pReflectionCube != NULL && pCamera->settings.bEnableReflection && bHasReflection;
+    bool bDiffuseMap = m_pDiffuseMap != NULL && ri.camera->settings.bEnableDiffuseMap;
+    bool bNormalMap = m_pNormalMap != NULL && ri.camera->settings.bEnableNormalMap;
+    bool bSpecMap = m_pSpecularMap != NULL && ri.camera->settings.bEnableSpecMap;
+    bool bReflectionMap = m_pReflectionMap != NULL && ri.camera->settings.bEnableReflectionMap && ri.camera->settings.bEnableReflection && bHasReflection;
+    bool bReflectionCubeMap = m_pReflectionCube != NULL && ri.camera->settings.bEnableReflection && bHasReflection;
     bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
     bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
     
     KRPipelineManager::PipelineInfo info{};
     std::string shader_name("ObjectShader");
     info.shader_name = &shader_name;
-    info.pCamera = pCamera;
-    info.point_lights = &point_lights;
-    info.directional_lights = &directional_lights;
-    info.spot_lights = &spot_lights;
+    info.pCamera = ri.camera;
+    info.point_lights = &ri.point_lights;
+    info.directional_lights = &ri.directional_lights;
+    info.spot_lights = &ri.spot_lights;
     info.bone_count = (int)bones.size();
-    info.renderPass = renderPass;
+    info.renderPass = ri.renderPass;
     info.bDiffuseMap = bDiffuseMap;
     info.bNormalMap = bNormalMap;
     info.bSpecMap = bSpecMap;
@@ -345,11 +346,11 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     info.bAlphaTest = bAlphaTest;
     info.bAlphaBlend = bAlphaBlend;
     info.bRimColor = rim_power != 0.0f;
-    info.renderPass = renderPass;
-    KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
+    info.renderPass = ri.renderPass;
+    KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     
     Vector4 fade_color;
-    if(!getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, matModel, &point_lights, &directional_lights, &spot_lights, 0, renderPass, rim_color, rim_power, fade_color)) {
+    if(!getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, rim_color, rim_power, fade_color)) {
         return false;
     }
     
@@ -387,18 +388,18 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
     }
 
     
-    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_AMBIENT, m_ambientColor + pCamera->settings.ambient_intensity);
+    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_AMBIENT, m_ambientColor + ri.camera->settings.ambient_intensity);
     
-    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3::Create(m_diffuseColor.x * pCamera->settings.light_intensity.x, m_diffuseColor.y * pCamera->settings.light_intensity.y, m_diffuseColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, Vector3::Create(m_diffuseColor.x * ri.camera->settings.light_intensity.x, m_diffuseColor.y * ri.camera->settings.light_intensity.y, m_diffuseColor.z * ri.camera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_DIFFUSE, m_diffuseColor);
     }
     
-    if(renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
         // We pre-multiply the light color with the material color in the forward renderer
-        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3::Create(m_specularColor.x * pCamera->settings.light_intensity.x, m_specularColor.y * pCamera->settings.light_intensity.y, m_specularColor.z * pCamera->settings.light_intensity.z));
+        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_SPECULAR, Vector3::Create(m_specularColor.x * ri.camera->settings.light_intensity.x, m_specularColor.y * ri.camera->settings.light_intensity.y, m_specularColor.z * ri.camera->settings.light_intensity.z));
     } else {
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_SPECULAR, m_specularColor);
     }
@@ -428,11 +429,11 @@ bool KRMaterial::bind(KRCamera *pCamera, std::vector<KRPointLight *> &point_ligh
         m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
     }
     
-    if(bReflectionCubeMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+    if(bReflectionCubeMap && (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
         m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
     }
     
-    if(bReflectionMap && (renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
+    if(bReflectionMap && (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
         // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
         m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     }

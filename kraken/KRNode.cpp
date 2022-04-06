@@ -491,7 +491,7 @@ KRNode *KRNode::LoadXML(KRScene &scene, tinyxml2::XMLElement *e) {
     return new_node;
 }
 
-void KRNode::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, RenderPass renderPass)
+void KRNode::render(const RenderInfo& ri)
 {
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     

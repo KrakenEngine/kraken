@@ -119,7 +119,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     //Matrix4 viewMatrix = Matrix4::Invert(getModelMatrix());
     
     settings.setViewportSize(Vector2::Create((float)surface.getWidth(), (float)surface.getHeight()));
-    Matrix4 projectionMatrix;
+    Matrix4 projectionMatrix{};
     projectionMatrix.perspective(settings.perspective_fov, settings.m_viewportSize.x / settings.m_viewportSize.y, settings.perspective_nearz, settings.perspective_farz);
     m_viewport = KRViewport(settings.getViewportSize(), viewMatrix, projectionMatrix);
     m_viewport.setLODBias(settings.getLODBias());
@@ -130,13 +130,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     scene.updateOctree(m_viewport);
     
     // ----====---- Pre-stream resources ----====----
-    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
+    scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
     
     // ----====---- Generate Shadowmaps for Lights ----====----
     if(settings.m_cShadowBuffers > 0) {
         GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
         
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
         GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
         GL_POP_GROUP_MARKER;
     }
@@ -175,7 +175,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glDisable(GL_BLEND));
         
         // Render the geometry
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
         
         
         GL_POP_GROUP_MARKER;
@@ -206,7 +206,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         
         // Render the geometry
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
         
         GL_POP_GROUP_MARKER;
         
@@ -241,7 +241,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         // Render the geometry
         // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
         
         // Deactivate source buffer texture units
         m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, 0);
@@ -291,7 +291,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         forwardOpaquePass.begin(commandBuffer, surface);
         
         // Render the geometry
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
 
 
         // ----------  Start: Vulkan Debug Code ----------
@@ -345,8 +345,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
 
-        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(info);
-        getContext().getPipelineManager()->selectPipeline(*this, pPipeline, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
+        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(surface, info);
+        getContext().getPipelineManager()->selectPipeline(surface, *this, pPipeline, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
@@ -395,7 +395,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     */
     
     // Render all transparent geometry
-    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
+    scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
     
     // TODO - Vulkan refactoring...
     /*
@@ -430,7 +430,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     */
     
     // ----====---- Perform Occlusion Tests ----====----
-    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
+    scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
     // TODO - Vulkan refactoring...
     /*
@@ -464,7 +464,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     */
     
     // Render all flares
-    scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
+    scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
     // TODO - Vulkan refactoring...
     /*
@@ -497,7 +497,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
             GLDEBUG(glDepthRangef(0.0, 1.0));
         }
         
-        scene.render(commandBuffer, this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
+        scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
         
         if(settings.volumetric_environment_downsample != 0) {
             // Set render target
@@ -538,14 +538,14 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(info);
+        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(surface, info);
         
         m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
         for(unordered_map<AABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
-            if(getContext().getPipelineManager()->selectPipeline(*this, pVisShader, m_viewport, matModel, nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(surface, *this, pVisShader, m_viewport, matModel, nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
             }
         }
@@ -739,7 +739,7 @@ void KRCamera::destroyBuffers()
     */
 }
 
-void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
+void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
     // Disable alpha blending
     GLDEBUG(glDisable(GL_BLEND));
@@ -776,10 +776,10 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
     info.pCamera = this;
     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
 
-    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(info);
+    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
     
     Vector3 rim_color;
-    getContext().getPipelineManager()->selectPipeline(*this, postShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
+    getContext().getPipelineManager()->selectPipeline(surface, *this, postShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
     
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -966,8 +966,8 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer)
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-        KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(info);
-        getContext().getPipelineManager()->selectPipeline(*this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
+        KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
+        getContext().getPipelineManager()->selectPipeline(surface, *this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         

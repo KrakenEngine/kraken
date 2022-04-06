@@ -78,14 +78,14 @@ bool KRParticleSystemNewtonian::hasPhysics()
     return true;
 }
 
-void KRParticleSystemNewtonian::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRParticleSystemNewtonian::render(RenderInfo& ri) {
     
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRNode::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRNode::render(ri);
     
-    if(renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
-        if(viewport.visible(getBounds())) {
+    if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+        if(ri.viewport.visible(getBounds())) {
             
 
             // Enable z-buffer test
@@ -99,19 +99,19 @@ void KRParticleSystemNewtonian::render(VkCommandBuffer& commandBuffer, KRCamera 
             KRPipelineManager::PipelineInfo info{};
             std::string shader_name("dust_particle");
             info.shader_name = &shader_name;
-            info.pCamera = pCamera;
-            info.point_lights = &point_lights;
-            info.directional_lights = &directional_lights;
-            info.spot_lights = &spot_lights;
-            info.renderPass = renderPass;
-            KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(info);
+            info.pCamera = ri.camera;
+            info.point_lights = &ri.point_lights;
+            info.directional_lights = &ri.directional_lights;
+            info.spot_lights = &ri.spot_lights;
+            info.renderPass = ri.renderPass;
+            KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             // Vector3 rim_color; Vector4 fade_color;
-            if(getContext().getPipelineManager()->selectPipeline(*pCamera, pParticleShader, viewport, getModelMatrix(), &point_lights, &directional_lights, &spot_lights, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
                 KRDataBlock index_data;
-                m_pContext->getMeshManager()->bindVBO(commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f
                 
 #if KRENGINE_DEBUG_GPU_LABELS
                   , "Newtonian Particles"

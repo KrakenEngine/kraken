@@ -118,19 +118,19 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport &viewpor
     return 1;
 }
 
-void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamera, std::vector<KRPointLight *> &point_lights, std::vector<KRDirectionalLight *> &directional_lights, std::vector<KRSpotLight *>&spot_lights, const KRViewport &viewport, KRNode::RenderPass renderPass) {
+void KRDirectionalLight::render(RenderInfo& ri) {
     
     if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
     
-    KRLight::render(commandBuffer, pCamera, point_lights, directional_lights, spot_lights, viewport, renderPass);
+    KRLight::render(ri);
 
-    if(renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
+    if(ri.renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
         // Lights are rendered on the second pass of the deferred renderer
         
         std::vector<KRDirectionalLight *> this_light;
         this_light.push_back(this);
 
-        Matrix4 matModelViewInverseTranspose = viewport.getViewMatrix() * getModelMatrix();
+        Matrix4 matModelViewInverseTranspose = ri.viewport.getViewMatrix() * getModelMatrix();
         matModelViewInverseTranspose.transpose();
         matModelViewInverseTranspose.invert();
         
@@ -141,12 +141,12 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
         KRPipelineManager::PipelineInfo info{};
         std::string shader_name("light_directional");
         info.shader_name = &shader_name;
-        info.pCamera = pCamera;
+        info.pCamera = ri.camera;
         info.directional_lights = &this_light;
-        info.renderPass = renderPass;
+        info.renderPass = ri.renderPass;
 
-        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(info);
-        if(getContext().getPipelineManager()->selectPipeline(*pCamera, pShader, viewport, getModelMatrix(), nullptr, &this_light, nullptr, 0, renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
@@ -159,7 +159,7 @@ void KRDirectionalLight::render(VkCommandBuffer& commandBuffer, KRCamera *pCamer
             GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             // Render a full screen quad
-            m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
             GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
         }
     }
