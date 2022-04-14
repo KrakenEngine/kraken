@@ -97,7 +97,7 @@ void KRPointLight::render(RenderInfo& ri)
             bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + ri.camera->settings.getPerspectiveNearZ()) * (influence_radius + ri.camera->settings.getPerspectiveNearZ());
             
             std::string shader_name(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"));
-            KRPipelineManager::PipelineInfo info{};
+            PipelineInfo info{};
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;
             info.point_lights = &this_light;

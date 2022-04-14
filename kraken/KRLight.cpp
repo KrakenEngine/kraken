@@ -258,7 +258,7 @@ void KRLight::render(RenderInfo& ri) {
                     this_point_light.push_back(point_light);
                 }
                 
-                KRPipelineManager::PipelineInfo info{};
+                PipelineInfo info{};
                 std::string shader_name("dust_particle");
                 info.shader_name = &shader_name;
                 info.pCamera = ri.camera;
@@ -306,7 +306,7 @@ void KRLight::render(RenderInfo& ri) {
             this_point_light.push_back(point_light);
         }
 
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         info.shader_name = &shader_name;
         info.pCamera = ri.camera;
         info.point_lights = &this_point_light;
@@ -348,7 +348,7 @@ void KRLight::render(RenderInfo& ri) {
                 occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
             }
 
-            KRPipelineManager::PipelineInfo info{};
+            PipelineInfo info{};
             std::string shader_name("occlusion_test");
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;
@@ -403,7 +403,7 @@ void KRLight::render(RenderInfo& ri) {
                         GLDEBUG(glDepthRangef(0.0, 1.0));
 
                         // Render light flare on transparency pass
-                        KRPipelineManager::PipelineInfo info{};
+                        PipelineInfo info{};
                         std::string shader_name("flare");
                         info.shader_name = &shader_name;
                         info.pCamera = ri.camera;
@@ -528,7 +528,7 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             GLDEBUG(glDisable(GL_BLEND));
             
             // Use shader program
-            KRPipelineManager::PipelineInfo info{};
+            PipelineInfo info{};
             std::string shader_name("ShadowShader");
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;

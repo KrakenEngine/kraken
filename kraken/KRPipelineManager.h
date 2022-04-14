@@ -47,42 +47,17 @@ using std::vector;
 #define KRPIPELINEMANAGER_H
 
 class KRPipeline;
+class PipelineInfo;
 class KRCamera;
 
 class KRPipelineManager : public KRContextObject {
 public:
-  typedef struct {
-    const std::string* shader_name;
-    KRCamera* pCamera;
-    const std::vector<KRPointLight*>* point_lights;
-    const std::vector<KRDirectionalLight*>* directional_lights;
-    const std::vector<KRSpotLight*>* spot_lights;
-    int bone_count;
-    bool bDiffuseMap : 1;
-    bool bNormalMap : 1;
-    bool bSpecMap : 1;
-    bool bReflectionMap : 1;
-    bool bReflectionCubeMap : 1;
-    bool bLightMap : 1;
-    bool bDiffuseMapScale : 1;
-    bool bSpecMapScale : 1;
-    bool bNormalMapScale : 1;
-    bool bReflectionMapScale : 1;
-    bool bDiffuseMapOffset : 1;
-    bool bSpecMapOffset : 1;
-    bool bNormalMapOffset : 1;
-    bool bReflectionMapOffset : 1;
-    bool bAlphaTest : 1;
-    bool bAlphaBlend : 1;
-    bool bRimColor : 1;
-    KRNode::RenderPass renderPass;
-  } PipelineInfo;
 
     KRPipelineManager(KRContext &context);
     virtual ~KRPipelineManager();
     KRPipeline* get(const char* szKey);
     
-    KRPipeline *getPipeline(KRSurface& surface, KRRenderPass& renderPass, const std::string& shader_name, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
+    KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
     KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info);
     bool selectPipeline(KRSurface& surface, KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
     bool selectPipeline(KRSurface& surface, const PipelineInfo& info, const KRViewport& viewport, const Matrix4& matModel, const Vector3& rim_color, float rim_power, const Vector4& fade_color);

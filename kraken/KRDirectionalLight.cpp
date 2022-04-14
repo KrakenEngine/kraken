@@ -138,7 +138,7 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         light_direction_view_space = Matrix4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
         
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         std::string shader_name("light_directional");
         info.shader_name = &shader_name;
         info.pCamera = ri.camera;

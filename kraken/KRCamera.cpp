@@ -33,6 +33,7 @@
 #include "KRCamera.h"
 #include "KRDirectionalLight.h"
 #include "KRRenderPass.h"
+#include "KRPipeline.h"
 
 /* static */
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
@@ -299,7 +300,12 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         bool haveMesh = testVertices.isVBOReady();
 
         if (haveMesh) {
-          KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, forwardOpaquePass, "vulkan_test", testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
+          PipelineInfo info{};
+          std::string shader_name("vulkan_test");
+          info.shader_name = &shader_name;
+          info.pCamera = this;
+          info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+          KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, info, testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
           testPipeline->bind(commandBuffer);
           testVertices.bind(commandBuffer);
           vkCmdDraw(commandBuffer, 4, 1, 0, 0);
@@ -340,7 +346,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     if(m_pSkyBoxTexture) {
 
         std::string shader_name("sky_box");
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
@@ -533,7 +539,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glEnable(GL_BLEND));
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
         
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
         info.pCamera = this;
@@ -770,7 +776,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
     GLDEBUG(glDisable(GL_DEPTH_TEST));
 
-    KRPipelineManager::PipelineInfo info{};
+    PipelineInfo info{};
     std::string shader_name("PostShader");
     info.shader_name = &shader_name;
     info.pCamera = this;
@@ -961,7 +967,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         // Enable alpha blending
         GLDEBUG(glEnable(GL_BLEND));
         GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         std::string shader_name("debug_font");
         info.shader_name = &shader_name;
         info.pCamera = this;

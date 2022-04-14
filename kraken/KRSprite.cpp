@@ -156,7 +156,7 @@ void KRSprite::render(RenderInfo& ri) {
                 GLDEBUG(glDepthRangef(0.0, 1.0));
                 
                 // Render light sprite on transparency pass
-                KRPipelineManager::PipelineInfo info{};
+                PipelineInfo info{};
                 std::string shader_name("sprite");
                 info.shader_name = &shader_name;
                 info.pCamera = ri.camera;

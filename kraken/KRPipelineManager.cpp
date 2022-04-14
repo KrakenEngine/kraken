@@ -63,10 +63,10 @@ KRPipelineManager::~KRPipelineManager() {
 #endif // ANDROID
 }
 
-KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& renderPass, const std::string& shader_name, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
+KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInfo& info, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
 {
   std::pair<std::string, std::vector<int> > key;
-  key.first = shader_name;
+  key.first = *info.shader_name;
   key.second.push_back(surface.m_deviceHandle);
   key.second.push_back(surface.m_swapChain->m_imageFormat);
   key.second.push_back(surface.m_swapChain->m_extent.width);
@@ -80,9 +80,9 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, KRRenderPass& ren
   }
 
   std::vector<KRShader*> shaders;
-  shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".vert", "spv"));
-  shaders.push_back(m_pContext->getShaderManager()->get(shader_name + ".frag", "spv"));
-  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, renderPass, shader_name.c_str(), shaders, vertexAttributes, modelFormat);
+  shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".vert", "spv"));
+  shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".frag", "spv"));
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, info, info.shader_name->c_str(), shaders, vertexAttributes, modelFormat);
 
   m_pipelines[key] = pipeline;
 
@@ -166,6 +166,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     key.second.push_back((int)(info.pCamera->settings.vignette_falloff * 1000.0f));
     key.second.push_back(info.bRimColor);
     key.second.push_back(bFadeColorEnabled);
+    key.second.push_back((int)info.rasterMode);
               
                          
     KRPipeline *pPipeline = m_pipelines[key];

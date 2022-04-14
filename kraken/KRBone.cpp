@@ -91,7 +91,7 @@ void KRBone::render(RenderInfo& ri)
         // Disable z-buffer test
         GLDEBUG(glDisable(GL_DEPTH_TEST));
 
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
         info.pCamera = ri.camera;

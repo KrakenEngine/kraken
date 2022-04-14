@@ -196,7 +196,7 @@ void KRAudioSource::render(RenderInfo& ri)
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
         Matrix4 sphereModelMatrix = getModelMatrix();
 
-        KRPipelineManager::PipelineInfo info{};
+        PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
         info.pCamera = ri.camera;

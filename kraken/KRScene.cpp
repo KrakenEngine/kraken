@@ -301,7 +301,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                       // Disable z-buffer write
                       GLDEBUG(glDepthMask(GL_FALSE));
                     }
-                    KRPipelineManager::PipelineInfo info{};
+                    PipelineInfo info{};
                     std::string shader_name("occlusion_test");
                     info.shader_name = &shader_name;
                     info.pCamera = ri.camera;

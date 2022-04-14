@@ -110,7 +110,7 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, KRRenderPass& renderPass, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
+KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
   : KRContextObject(context)
   , m_iProgram(0) // not used for Vulkan
 {
@@ -320,6 +320,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, KRRenderPass& ren
   depthStencil.stencilTestEnable = VK_FALSE;
   depthStencil.front = {};
   depthStencil.back = {};
+
+  KRRenderPass& renderPass = surface.getForwardOpaquePass(); // TODO - This needs to be selected dynamically from info.render_pass
 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

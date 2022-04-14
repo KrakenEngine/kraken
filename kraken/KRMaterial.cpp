@@ -320,7 +320,7 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
     bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
     
-    KRPipelineManager::PipelineInfo info{};
+    PipelineInfo info{};
     std::string shader_name("ObjectShader");
     info.shader_name = &shader_name;
     info.pCamera = ri.camera;

@@ -35,7 +35,6 @@
 #define KRPIPELINE_H
 
 #include "KREngine-common.h"
-#include "KRPipeline.h"
 #include "KRCamera.h"
 #include "KRNode.h"
 #include "KRViewport.h"
@@ -45,10 +44,44 @@ class KRShader;
 class KRSurface;
 class KRRenderPass;
 
-
-class KRPipeline  : public KRContextObject {
+class PipelineInfo {
 public:
-    KRPipeline(KRContext& context, KRSurface& surface, KRRenderPass& renderPass, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
+  enum class RasterMode : uint32_t {
+    kOpaque = 0,
+    kAlphaBlend = 1,
+    kAdditive = 2
+  };
+  const std::string* shader_name;
+  KRCamera* pCamera;
+  const std::vector<KRPointLight*>* point_lights;
+  const std::vector<KRDirectionalLight*>* directional_lights;
+  const std::vector<KRSpotLight*>* spot_lights;
+  int bone_count;
+  bool bDiffuseMap : 1;
+  bool bNormalMap : 1;
+  bool bSpecMap : 1;
+  bool bReflectionMap : 1;
+  bool bReflectionCubeMap : 1;
+  bool bLightMap : 1;
+  bool bDiffuseMapScale : 1;
+  bool bSpecMapScale : 1;
+  bool bNormalMapScale : 1;
+  bool bReflectionMapScale : 1;
+  bool bDiffuseMapOffset : 1;
+  bool bSpecMapOffset : 1;
+  bool bNormalMapOffset : 1;
+  bool bReflectionMapOffset : 1;
+  bool bAlphaTest : 1;
+  bool bAlphaBlend : 1;
+  bool bRimColor : 1;
+  RasterMode rasterMode;
+  KRNode::RenderPass renderPass;
+};
+
+class KRPipeline : public KRContextObject {
+public:
+
+    KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
     KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource);
     virtual ~KRPipeline();
     const char *getKey() const;
