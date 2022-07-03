@@ -72,7 +72,6 @@ public:
   bool bNormalMapOffset : 1;
   bool bReflectionMapOffset : 1;
   bool bAlphaTest : 1;
-  bool bAlphaBlend : 1;
   bool bRimColor : 1;
   RasterMode rasterMode;
   KRNode::RenderPass renderPass;

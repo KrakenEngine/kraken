@@ -344,7 +344,7 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     info.bNormalMapOffset = m_normalMapOffset != default_offset && bNormalMap;
     info.bReflectionMapOffset = m_reflectionMapOffset != default_offset && bReflectionMap;
     info.bAlphaTest = bAlphaTest;
-    info.bAlphaBlend = bAlphaBlend;
+    info.rasterMode = bAlphaBlend ? PipelineInfo::RasterMode::kAlphaBlend : PipelineInfo::RasterMode::kOpaque;
     info.bRimColor = rim_power != 0.0f;
     info.renderPass = ri.renderPass;
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
