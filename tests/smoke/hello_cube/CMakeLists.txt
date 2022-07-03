@@ -8,8 +8,7 @@ SET(KRAKEN_CUBE_BUNDLE "${CMAKE_BINARY_DIR}/output/tests/kraken_cube.krbundle")
 add_custom_command(
     OUTPUT ${KRAKEN_CUBE_BUNDLE}
     COMMAND kraken_convert -o ${KRAKEN_CUBE_BUNDLE} ${STANDARD_ASSET_BUNDLE}
-    MAIN_DEPENDENCY ${STANDARD_ASSET_BUNDLE}
-    DEPENDS kraken_convert kraken_sdk
+    DEPENDS kraken_convert kraken_sdk standard_assets
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	COMMENT "Creating Cube Test Assets"
 )
