@@ -90,10 +90,8 @@ public:
     // Disable z-buffer write
     glDepthMask(GL_FALSE);
 
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
+    // Disalbe z-buffer test
+    glDisable(GL_DEPTH_TEST)
 */
     kAdditive = 3,
 /*
@@ -106,22 +104,24 @@ public:
     // Disable z-buffer write
     glDepthMask(GL_FALSE);
 
-    // Disalbe z-buffer test
-    glDisable(GL_DEPTH_TEST)
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LEQUAL);
+    glDepthRangef(0.0, 1.0);
 */
     kAdditiveNoTest = 4,
     /*
-      kAdditive is equivalent to:
+    kAdditive is equivalent to:
 
-      // Enable additive blending
-      glEnable(GL_BLEND));
-      glBlendFunc(GL_ONE, GL_ONE));
+    // Enable additive blending
+    glEnable(GL_BLEND));
+    glBlendFunc(GL_ONE, GL_ONE));
 
-      // Disable z-buffer write
-      glDepthMask(GL_FALSE);
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
 
-      // Disalbe z-buffer test
-      glDisable(GL_DEPTH_TEST)
+    // Disalbe z-buffer test
+    glDisable(GL_DEPTH_TEST)
     */
   };
   const std::string* shader_name;
