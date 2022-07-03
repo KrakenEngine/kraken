@@ -212,16 +212,11 @@ void KRCollider::render(RenderInfo& ri)
             info.directional_lights = &ri.directional_lights;
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
+            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
 
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             
             if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                
-                // Enable additive blending
-                GLDEBUG(glEnable(GL_BLEND));
-                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-                
-                
                 // Disable z-buffer write
                 GLDEBUG(glDepthMask(GL_FALSE));
                 
@@ -230,14 +225,9 @@ void KRCollider::render(RenderInfo& ri)
                 GLDEBUG(glDepthFunc(GL_LEQUAL));
                 GLDEBUG(glDepthRangef(0.0, 1.0));
 
-
                 for(int i=0; i < m_models[0]->getSubmeshCount(); i++) {
                     m_models[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
                 }
-            
-                // Enable alpha blending
-                GLDEBUG(glEnable(GL_BLEND));
-                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
             }
             
             GL_POP_GROUP_MARKER;

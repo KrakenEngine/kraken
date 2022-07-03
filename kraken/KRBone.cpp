@@ -80,11 +80,6 @@ void KRBone::render(RenderInfo& ri)
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
         Matrix4 sphereModelMatrix = getModelMatrix();
         
-        // Enable additive blending
-        GLDEBUG(glEnable(GL_BLEND));
-        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-        
-        
         // Disable z-buffer write
         GLDEBUG(glDepthMask(GL_FALSE));
         
@@ -99,6 +94,7 @@ void KRBone::render(RenderInfo& ri)
         info.directional_lights = &ri.directional_lights;
         info.spot_lights = &ri.spot_lights;
         info.renderPass = ri.renderPass;
+        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         
@@ -111,10 +107,6 @@ void KRBone::render(RenderInfo& ri)
             }
 
         }
-        
-        // Enable alpha blending
-        GLDEBUG(glEnable(GL_BLEND));
-        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
         
         // Enable z-buffer test
         GLDEBUG(glEnable(GL_DEPTH_TEST));

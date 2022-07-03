@@ -286,13 +286,6 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
 
                     getContext().getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
                     
-                    // Enable additive blending
-                    if(ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-                        GLDEBUG(glEnable(GL_BLEND));
-                    }
-                    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-                    
-                    
                     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
                       ri.renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
                       ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
@@ -309,6 +302,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     info.directional_lights = &ri.directional_lights;
                     info.spot_lights = &ri.spot_lights;
                     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+                    info.rasterMode = PipelineInfo::RasterMode::kAdditive;
 
                     if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, matModel, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
@@ -325,15 +319,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     }
                     
                     pOctreeNode->endOcclusionQuery();
-                    
-                    if(ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-                        GLDEBUG(glDisable(GL_BLEND));
-                    } else if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT) {
-                        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-                    } else {
-                        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE)); // RENDER_PASS_FORWARD_TRANSPARENT and RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
-                    }
-                    
+
                     
                     if(bVisible) {
                         // Schedule a pass to get the result of the occlusion test only for future frames and passes, without rendering the model or recurring further

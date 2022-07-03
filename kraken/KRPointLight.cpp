@@ -102,6 +102,7 @@ void KRPointLight::render(RenderInfo& ri)
             info.pCamera = ri.camera;
             info.point_lights = &this_light;
             info.renderPass = ri.renderPass;
+            info.rasterMode = bVisualize ? PipelineInfo::RasterMode::kAdditive : PipelineInfo::RasterMode::kAlphaBlend;
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                 
@@ -111,13 +112,6 @@ void KRPointLight::render(RenderInfo& ri)
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
-
-                
-                if(bVisualize) {
-                    // Enable additive blending
-                    GLDEBUG(glEnable(GL_BLEND));
-                    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-                }
                 
                 // Disable z-buffer write
                 GLDEBUG(glDepthMask(GL_FALSE));
@@ -143,11 +137,6 @@ void KRPointLight::render(RenderInfo& ri)
                     GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
                     GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
                 }
-            }
-            if(bVisualize) {
-                // Enable alpha blending
-                GLDEBUG(glEnable(GL_BLEND));
-                GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
             }
         }
     }

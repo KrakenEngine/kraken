@@ -535,15 +535,12 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
         
-        // Enable additive blending
-        GLDEBUG(glEnable(GL_BLEND));
-        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-        
         PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
         KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(surface, info);
         
         m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
@@ -964,14 +961,12 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glDisable(GL_DEPTH_TEST));
 //        GLDEBUG(glDepthRangef(0.0, 1.0));
         
-        // Enable alpha blending
-        GLDEBUG(glEnable(GL_BLEND));
-        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
         PipelineInfo info{};
         std::string shader_name("debug_font");
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+        info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
         getContext().getPipelineManager()->selectPipeline(surface, *this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
