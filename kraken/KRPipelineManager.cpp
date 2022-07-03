@@ -218,7 +218,9 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         
         stream << "\n#define ALPHA_TEST " << (info.bAlphaTest ? "1" : "0");
         stream << "\n#define ALPHA_BLEND " << ((info.rasterMode == PipelineInfo::RasterMode::kAlphaBlend
-          || info.rasterMode == PipelineInfo::RasterMode::kAdditive) ? "1" : "0");
+          || info.rasterMode == PipelineInfo::RasterMode::kAlphaBlendNoTest
+          || info.rasterMode == PipelineInfo::RasterMode::kAdditive
+          || info.rasterMode == PipelineInfo::RasterMode::kAdditiveNoTest) ? "1" : "0");
         
         stream << "\n#define ENABLE_PER_PIXEL " << (info.pCamera->settings.bEnablePerPixel ? "1" : "0");
         stream << "\n#define DEBUG_PSSM " << (info.pCamera->settings.bDebugPSSM ? "1" : "0");

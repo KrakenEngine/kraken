@@ -217,14 +217,6 @@ void KRCollider::render(RenderInfo& ri)
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             
             if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                // Disable z-buffer write
-                GLDEBUG(glDepthMask(GL_FALSE));
-                
-                // Enable z-buffer test
-                GLDEBUG(glEnable(GL_DEPTH_TEST));
-                GLDEBUG(glDepthFunc(GL_LEQUAL));
-                GLDEBUG(glDepthRangef(0.0, 1.0));
-
                 for(int i=0; i < m_models[0]->getSubmeshCount(); i++) {
                     m_models[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
                 }

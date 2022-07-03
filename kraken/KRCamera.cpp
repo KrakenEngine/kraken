@@ -525,11 +525,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     GL_PUSH_GROUP_MARKER("Debug Overlays");
     */
     
-    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
+    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {       
         
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
@@ -554,11 +550,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         }
     }
     
-    // TODO - Vulkan refactoring...
 /*
-    // Re-enable z-buffer write
-    GLDEBUG(glDepthMask(GL_TRUE));
-    
     GL_POP_GROUP_MARKER;
     */
     
@@ -954,19 +946,12 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         // Disable backface culling
         GLDEBUG(glDisable(GL_CULL_FACE));
         
-        // Disable z-buffer write
-        GLDEBUG(glDepthMask(GL_FALSE));
-        
-        // Disable z-buffer test
-        GLDEBUG(glDisable(GL_DEPTH_TEST));
-//        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
         PipelineInfo info{};
         std::string shader_name("debug_font");
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-        info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
+        info.rasterMode = PipelineInfo::RasterMode::kAlphaBlendNoTest;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
         getContext().getPipelineManager()->selectPipeline(surface, *this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         

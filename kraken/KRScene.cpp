@@ -276,8 +276,6 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                 if(bNeedOcclusionTest) {
                     pOctreeNode->beginOcclusionQuery();
                     
-
-
                     Matrix4 matModel = Matrix4();
                     matModel.scale(octreeBounds.size() * 0.5f);
                     matModel.translate(octreeBounds.center());
@@ -286,14 +284,6 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
 
                     getContext().getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
                     
-                    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
-                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
-                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
-                      ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
-                        
-                      // Disable z-buffer write
-                      GLDEBUG(glDepthMask(GL_FALSE));
-                    }
                     PipelineInfo info{};
                     std::string shader_name("occlusion_test");
                     info.shader_name = &shader_name;
@@ -308,16 +298,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
                         m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
                     }
-                    
-                    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE ||
-                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_GBUFFER ||
-                      ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE ||
-                      ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
-                        
-                      // Re-enable z-buffer write
-                      GLDEBUG(glDepthMask(GL_TRUE));
-                    }
-                    
+
                     pOctreeNode->endOcclusionQuery();
 
                     

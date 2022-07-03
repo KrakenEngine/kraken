@@ -46,10 +46,83 @@ class KRRenderPass;
 
 class PipelineInfo {
 public:
+  // Note: RasterMode is likely to be refactored later to a bitfield
   enum class RasterMode : uint32_t {
     kOpaque = 0,
+/*
+    kOpaque is equivalent to:
+
+    // Disable blending
+    glDisable(GL_BLEND));
+
+    // Enable z-buffer write
+    glDepthMask(GL_TRUE);
+
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LEQUAL);
+    glDepthRangef(0.0, 1.0);
+*/
     kAlphaBlend = 1,
-    kAdditive = 2
+/*
+    kAlphaBlend is equivalent to:
+
+    // Enable alpha blending
+    glEnable(GL_BLEND));
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
+
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LEQUAL);
+    glDepthRangef(0.0, 1.0);
+*/
+    kAlphaBlendNoTest = 2,
+/*
+    kAlphaBlendNoTest is equivalent to:
+
+    // Enable alpha blending
+    glEnable(GL_BLEND));
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
+
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LEQUAL);
+    glDepthRangef(0.0, 1.0);
+*/
+    kAdditive = 3,
+/*
+    kAdditive is equivalent to:
+
+    // Enable additive blending
+    glEnable(GL_BLEND));
+    glBlendFunc(GL_ONE, GL_ONE));
+
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
+
+    // Disalbe z-buffer test
+    glDisable(GL_DEPTH_TEST)
+*/
+    kAdditiveNoTest = 4,
+    /*
+      kAdditive is equivalent to:
+
+      // Enable additive blending
+      glEnable(GL_BLEND));
+      glBlendFunc(GL_ONE, GL_ONE));
+
+      // Disable z-buffer write
+      glDepthMask(GL_FALSE);
+
+      // Disalbe z-buffer test
+      glDisable(GL_DEPTH_TEST)
+    */
   };
   const std::string* shader_name;
   KRCamera* pCamera;

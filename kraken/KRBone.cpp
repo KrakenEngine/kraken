@@ -80,12 +80,6 @@ void KRBone::render(RenderInfo& ri)
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
         Matrix4 sphereModelMatrix = getModelMatrix();
         
-        // Disable z-buffer write
-        GLDEBUG(glDepthMask(GL_FALSE));
-        
-        // Disable z-buffer test
-        GLDEBUG(glDisable(GL_DEPTH_TEST));
-
         PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
@@ -94,7 +88,7 @@ void KRBone::render(RenderInfo& ri)
         info.directional_lights = &ri.directional_lights;
         info.spot_lights = &ri.spot_lights;
         info.renderPass = ri.renderPass;
-        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         

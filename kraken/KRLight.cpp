@@ -521,7 +521,7 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             
             // Enable z-buffer test
             GLDEBUG(glEnable(GL_DEPTH_TEST));
-            GLDEBUG(glDepthFunc(GL_LESS));
+            GLDEBUG(glDepthFunc(GL_LESS)); // CAREFUL WHEN REFACTORING!  GL_LESS! not GL_LEQUAL
             GLDEBUG(glDepthRangef(0.0, 1.0));
             
             // Disable alpha blending as we are using alpha channel for packed depth info

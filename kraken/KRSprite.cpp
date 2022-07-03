@@ -138,20 +138,9 @@ void KRSprite::render(RenderInfo& ri) {
                 m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
             }
             
-            if(m_pSpriteTexture) {
-                /*
-                
-                // Disable z-buffer write
-                GLDEBUG(glDepthMask(GL_FALSE));
-                 */
-                
+            if(m_pSpriteTexture) {               
                 // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
-                
-                // Enable z-buffer test
-                GLDEBUG(glEnable(GL_DEPTH_TEST));
-                GLDEBUG(glDepthFunc(GL_LEQUAL));
-                GLDEBUG(glDepthRangef(0.0, 1.0));
-                
+                               
                 // Render light sprite on transparency pass
                 PipelineInfo info{};
                 std::string shader_name("sprite");
