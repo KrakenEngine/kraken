@@ -90,7 +90,7 @@ public:
     // Disable z-buffer write
     glDepthMask(GL_FALSE);
 
-    // Disalbe z-buffer test
+    // Disable z-buffer test
     glDisable(GL_DEPTH_TEST)
 */
     kAdditive = 3,
@@ -120,7 +120,7 @@ public:
     // Disable z-buffer write
     glDepthMask(GL_FALSE);
 
-    // Disalbe z-buffer test
+    // Disable z-buffer test
     glDisable(GL_DEPTH_TEST)
     */
   };
