@@ -279,10 +279,30 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
 
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
   colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-  colorBlendAttachment.blendEnable = VK_FALSE;
-  colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-  colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-  colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+
+  switch (info.rasterMode) {
+  case PipelineInfo::RasterMode::kOpaque:
+  case PipelineInfo::RasterMode::kOpaqueLessTest:
+    colorBlendAttachment.blendEnable = VK_FALSE;
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    break;
+  case PipelineInfo::RasterMode::kAlphaBlend:
+  case PipelineInfo::RasterMode::kAlphaBlendNoTest:
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    break;
+  case PipelineInfo::RasterMode::kAdditive:
+  case PipelineInfo::RasterMode::kAdditiveNoTest:
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    break;
+  }
   colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
   colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
   colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
@@ -311,9 +331,30 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
 
   VkPipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-  depthStencil.depthTestEnable = VK_TRUE;
-  depthStencil.depthWriteEnable = VK_TRUE;
-  depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+  switch (info.rasterMode) {
+  case PipelineInfo::RasterMode::kOpaque:
+  case PipelineInfo::RasterMode::kOpaqueLessTest:
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    break;
+  case PipelineInfo::RasterMode::kAlphaBlend:
+  case PipelineInfo::RasterMode::kAdditive:
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_FALSE;
+    break;
+  case PipelineInfo::RasterMode::kAlphaBlendNoTest:
+  case PipelineInfo::RasterMode::kAdditiveNoTest:
+    depthStencil.depthTestEnable = VK_FALSE;
+    depthStencil.depthWriteEnable = VK_FALSE;
+    break;
+  }
+
+  if (info.rasterMode == PipelineInfo::RasterMode::kOpaqueLessTest) {
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+  } else {
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+  }
+  
   depthStencil.depthBoundsTestEnable = VK_FALSE;
   depthStencil.minDepthBounds = 0.0f;
   depthStencil.maxDepthBounds = 1.0f;
