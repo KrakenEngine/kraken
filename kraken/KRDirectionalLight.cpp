@@ -144,6 +144,7 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         info.pCamera = ri.camera;
         info.directional_lights = &this_light;
         info.renderPass = ri.renderPass;
+        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
@@ -151,12 +152,6 @@ void KRDirectionalLight::render(RenderInfo& ri) {
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
-            
-            // Disable z-buffer write
-            GLDEBUG(glDepthMask(GL_FALSE));
-            
-            // Disable z-buffer test
-            GLDEBUG(glDisable(GL_DEPTH_TEST));
             
             // Render a full screen quad
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);

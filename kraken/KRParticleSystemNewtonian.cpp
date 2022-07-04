@@ -86,12 +86,6 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
     
     if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
         if(ri.viewport.visible(getBounds())) {
-            
-
-            // Enable z-buffer test
-            GLDEBUG(glEnable(GL_DEPTH_TEST));
-            GLDEBUG(glDepthRangef(0.0, 1.0));
-            
             KRTexture *pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
             m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 0.0f, KRTexture::TEXTURE_USAGE_PARTICLE);
             
@@ -104,6 +98,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
             info.directional_lights = &ri.directional_lights;
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
+            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             // Vector3 rim_color; Vector4 fade_color;

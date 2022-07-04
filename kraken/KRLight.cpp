@@ -232,11 +232,9 @@ void KRLight::render(RenderInfo& ri) {
                 float particle_range = 600.0f;
                 
                 int particle_count = (int)(m_dust_particle_density * pow(particle_range, 3));
-                if(particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
-                
-                // Enable z-buffer test
-                GLDEBUG(glEnable(GL_DEPTH_TEST));
-                GLDEBUG(glDepthRangef(0.0, 1.0));
+                if (particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) {
+                  particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
+                }
 
                 Matrix4 particleModelMatrix;
                 particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
@@ -266,6 +264,7 @@ void KRLight::render(RenderInfo& ri) {
                 info.directional_lights = &this_directional_light;
                 info.spot_lights = &this_spot_light;
                 info.renderPass = ri.renderPass;
+                info.rasterMode = PipelineInfo::RasterMode::kAdditive;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
                 
                 if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
@@ -313,6 +312,7 @@ void KRLight::render(RenderInfo& ri) {
         info.directional_lights = &this_directional_light;
         info.spot_lights = &this_spot_light;
         info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
+        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         
@@ -398,10 +398,6 @@ void KRLight::render(RenderInfo& ri) {
                     }
                     
                     if(m_pFlareTexture) {
-                        // Disable z-buffer test
-                        GLDEBUG(glDisable(GL_DEPTH_TEST));
-                        GLDEBUG(glDepthRangef(0.0, 1.0));
-
                         // Render light flare on transparency pass
                         PipelineInfo info{};
                         std::string shader_name("flare");
@@ -411,6 +407,7 @@ void KRLight::render(RenderInfo& ri) {
                         info.directional_lights = &ri.directional_lights;
                         info.spot_lights = &ri.spot_lights;
                         info.renderPass = ri.renderPass;
+                        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
                         if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
@@ -519,20 +516,13 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             //GLDEBUG(glEnable(GL_CULL_FACE));
             GLDEBUG(glDisable(GL_CULL_FACE));
             
-            // Enable z-buffer test
-            GLDEBUG(glEnable(GL_DEPTH_TEST));
-            GLDEBUG(glDepthFunc(GL_LESS)); // CAREFUL WHEN REFACTORING!  GL_LESS! not GL_LEQUAL
-            GLDEBUG(glDepthRangef(0.0, 1.0));
-            
-            // Disable alpha blending as we are using alpha channel for packed depth info
-            GLDEBUG(glDisable(GL_BLEND));
-            
             // Use shader program
             PipelineInfo info{};
             std::string shader_name("ShadowShader");
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;
             info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+            info.rasterMode = PipelineInfo::RasterMode::kOpaqueLessTest;
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, shadowShader, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());

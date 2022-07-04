@@ -63,7 +63,22 @@ public:
     glDepthFunc(GL_LEQUAL);
     glDepthRangef(0.0, 1.0);
 */
-    kAlphaBlend = 1,
+  kOpaqueLessTest,
+/*
+    kOpaqueLessTest is equivalent to:
+
+    // Disable blending
+    glDisable(GL_BLEND));
+
+    // Enable z-buffer write
+    glDepthMask(GL_TRUE);
+
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LESS);
+    glDepthRangef(0.0, 1.0);
+*/
+    kAlphaBlend,
 /*
     kAlphaBlend is equivalent to:
 
@@ -79,7 +94,7 @@ public:
     glDepthFunc(GL_LEQUAL);
     glDepthRangef(0.0, 1.0);
 */
-    kAlphaBlendNoTest = 2,
+    kAlphaBlendNoTest,
 /*
     kAlphaBlendNoTest is equivalent to:
 
@@ -93,7 +108,7 @@ public:
     // Disable z-buffer test
     glDisable(GL_DEPTH_TEST)
 */
-    kAdditive = 3,
+    kAdditive,
 /*
     kAdditive is equivalent to:
 
@@ -109,7 +124,7 @@ public:
     glDepthFunc(GL_LEQUAL);
     glDepthRangef(0.0, 1.0);
 */
-    kAdditiveNoTest = 4,
+    kAdditiveNoTest,
     /*
     kAdditive is equivalent to:
 

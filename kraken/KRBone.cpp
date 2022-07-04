@@ -101,13 +101,6 @@ void KRBone::render(RenderInfo& ri)
             }
 
         }
-        
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthFunc(GL_LEQUAL));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
-
     }
 }
 
