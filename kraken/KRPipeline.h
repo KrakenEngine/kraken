@@ -63,6 +63,21 @@ public:
     glDepthFunc(GL_LEQUAL);
     glDepthRangef(0.0, 1.0);
 */
+  kOpaqueNoDepthWrite,
+/*
+    kOpaque is equivalent to:
+
+    // Disable blending
+    glDisable(GL_BLEND));
+
+    // Disable z-buffer write
+    glDepthMask(GL_FALSE);
+
+    // Enable z-buffer test
+    glEnable(GL_DEPTH_TEST))
+    glDepthFunc(GL_LEQUAL);
+    glDepthRangef(0.0, 1.0);
+*/
   kOpaqueLessTest,
 /*
     kOpaqueLessTest is equivalent to:

@@ -157,9 +157,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
 #endif
         
-        // Enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
-        
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
@@ -167,17 +164,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
         
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthFunc(GL_LEQUAL));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
-        // Disable alpha blending
-        GLDEBUG(glDisable(GL_BLEND));
-        
         // Render the geometry
         scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
-        
         
         GL_POP_GROUP_MARKER;
         
@@ -194,17 +182,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
-        // Enable additive blending
-        GLDEBUG(glEnable(GL_BLEND));
-        GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-        
-        // Disable z-buffer write
-        GLDEBUG(glDepthMask(GL_FALSE));
-        
         // Set source to buffers from pass 1
         m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, compositeColorTexture);
         m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 7, compositeDepthTexture);
-        
         
         // Render the geometry
         scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
@@ -219,9 +199,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
         
-        // Disable alpha blending
-        GLDEBUG(glDisable(GL_BLEND));
-        
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
         
@@ -231,14 +208,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         // Enable backface culling
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
-        
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthFunc(GL_LEQUAL));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
-        // Enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
         
         // Render the geometry
         // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
@@ -251,23 +220,16 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GL_POP_GROUP_MARKER;
     } else {
         // ----====---- Opaque Geometry, Forward Rendering ----====----
+        GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
         /*
 
-        GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
-        
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
         GLDEBUG(glViewport(0, 0, (GLsizei)(m_viewport.getSize().x * m_downsample.x), (GLsizei)(m_viewport.getSize().y * m_downsample.y)));
         
-        // Disable alpha blending
-        GLDEBUG(glDisable(GL_BLEND));
-        
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-        
-        // Enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
-        
+
         
 #if GL_EXT_discard_framebuffer
         GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
@@ -279,13 +241,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glCullFace(GL_BACK));
         GLDEBUG(glEnable(GL_CULL_FACE));
         
-
-        
-        // Enable z-buffer test
-        GLDEBUG(glEnable(GL_DEPTH_TEST));
-        GLDEBUG(glDepthFunc(GL_LEQUAL));
-        GLDEBUG(glDepthRangef(0.0, 1.0));
-        
         */
 
         KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
@@ -293,7 +248,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         // Render the geometry
         scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
-
+        
+        GL_POP_GROUP_MARKER;
 
         // ----------  Start: Vulkan Debug Code ----------
         KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
@@ -319,9 +275,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     
     // ----====---- Sky Box ----====----
     
+    GL_PUSH_GROUP_MARKER("Sky Box");
     // TODO - Vulkan refactoring...
     /*
-    GL_PUSH_GROUP_MARKER("Sky Box");
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -329,14 +285,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     
     // Disable backface culling
     GLDEBUG(glDisable(GL_CULL_FACE));
-    
-    // Disable z-buffer write
-    GLDEBUG(glDepthMask(GL_FALSE));
-    
-    // Enable z-buffer test
-    GLDEBUG(glEnable(GL_DEPTH_TEST));
-    GLDEBUG(glDepthFunc(GL_LEQUAL));
-    GLDEBUG(glDepthRangef(0.0, 1.0));
     */
     
     if(!m_pSkyBoxTexture && m_skyBox.length()) {
@@ -350,6 +298,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
+        info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoDepthWrite;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(surface, info);
         getContext().getPipelineManager()->selectPipeline(surface, *this, pPipeline, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
@@ -361,10 +310,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
     
-    // TODO - Vulkan refactoring...
-    /*
     GL_POP_GROUP_MARKER;
-    */
     
     
     // ----====---- Transparent Geometry, Forward Rendering ----====----
