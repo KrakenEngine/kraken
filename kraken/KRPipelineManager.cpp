@@ -128,6 +128,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     key.second.push_back(info.pCamera->settings.fog_type);
     key.second.push_back(info.pCamera->settings.bEnablePerPixel);
     key.second.push_back((int)info.rasterMode);
+    key.second.push_back((int)info.cullMode);
     key.second.push_back(info.bAlphaTest);
     key.second.push_back(info.bDiffuseMap);
     key.second.push_back(info.bNormalMap);
@@ -166,8 +167,6 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     key.second.push_back((int)(info.pCamera->settings.vignette_falloff * 1000.0f));
     key.second.push_back(info.bRimColor);
     key.second.push_back(bFadeColorEnabled);
-    key.second.push_back((int)info.rasterMode);
-              
                          
     KRPipeline *pPipeline = m_pipelines[key];
     
@@ -281,7 +280,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         Vector4 fade_color = info.pCamera->getFadeColor();
         
         char szKey[256];
-        sprintf(szKey, "%i_%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f", (int)info.rasterMode, light_directional_count, light_point_count, light_spot_count, info.bone_count, info.pCamera->settings.fog_type, info.pCamera->settings.bEnablePerPixel, info.bAlphaTest, info.bDiffuseMap, info.bNormalMap, info.bSpecMap, info.bReflectionMap, info.bReflectionCubeMap, info.pCamera->settings.bDebugPSSM, iShadowQuality, info.pCamera->settings.bEnableAmbient, info.pCamera->settings.bEnableDiffuse, info.pCamera->settings.bEnableSpecular, info.bLightMap, info.bDiffuseMapScale, info.bSpecMapScale, info.bReflectionMapScale, info.bNormalMapScale, info.bDiffuseMapOffset, info.bSpecMapOffset, info.bReflectionMapOffset, info.bNormalMapOffset, info.pCamera->settings.volumetric_environment_enable && info.pCamera->settings.volumetric_environment_downsample != 0, info.renderPass, info.shader_name->c_str(), info.pCamera->settings.dof_quality, info.pCamera->settings.bEnableFlash, info.pCamera->settings.bEnableVignette, info.pCamera->settings.dof_depth, info.pCamera->settings.dof_falloff, info.pCamera->settings.flash_depth, info.pCamera->settings.flash_falloff, info.pCamera->settings.flash_intensity, info.pCamera->settings.vignette_radius, info.pCamera->settings.vignette_falloff, fade_color.x, fade_color.y, fade_color.z, fade_color.w);
+        sprintf(szKey, "%i_%i_%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f", (int)info.rasterMode, (int)info.cullMode, light_directional_count, light_point_count, light_spot_count, info.bone_count, info.pCamera->settings.fog_type, info.pCamera->settings.bEnablePerPixel, info.bAlphaTest, info.bDiffuseMap, info.bNormalMap, info.bSpecMap, info.bReflectionMap, info.bReflectionCubeMap, info.pCamera->settings.bDebugPSSM, iShadowQuality, info.pCamera->settings.bEnableAmbient, info.pCamera->settings.bEnableDiffuse, info.pCamera->settings.bEnableSpecular, info.bLightMap, info.bDiffuseMapScale, info.bSpecMapScale, info.bReflectionMapScale, info.bNormalMapScale, info.bDiffuseMapOffset, info.bSpecMapOffset, info.bReflectionMapOffset, info.bNormalMapOffset, info.pCamera->settings.volumetric_environment_enable && info.pCamera->settings.volumetric_environment_downsample != 0, info.renderPass, info.shader_name->c_str(), info.pCamera->settings.dof_quality, info.pCamera->settings.bEnableFlash, info.pCamera->settings.bEnableVignette, info.pCamera->settings.dof_depth, info.pCamera->settings.dof_falloff, info.pCamera->settings.flash_depth, info.pCamera->settings.flash_falloff, info.pCamera->settings.flash_intensity, info.pCamera->settings.vignette_radius, info.pCamera->settings.vignette_falloff, fade_color.x, fade_color.y, fade_color.z, fade_color.w);
         
         pPipeline = new KRPipeline(getContext(), szKey, options, vertSource->getData()->getString(), fragSource->getData()->getString());
 

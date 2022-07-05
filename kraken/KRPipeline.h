@@ -167,6 +167,11 @@ public:
     glDisable(GL_DEPTH_TEST)
     */
   };
+  enum class CullMode : uint32_t {
+    kCullBack = 0,
+    kCullFront,
+    kCullNone
+  };
   const std::string* shader_name;
   KRCamera* pCamera;
   const std::vector<KRPointLight*>* point_lights;
@@ -190,6 +195,7 @@ public:
   bool bAlphaTest : 1;
   bool bRimColor : 1;
   RasterMode rasterMode;
+  CullMode cullMode;
   KRNode::RenderPass renderPass;
 };
 

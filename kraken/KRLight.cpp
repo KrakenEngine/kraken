@@ -265,6 +265,7 @@ void KRLight::render(RenderInfo& ri) {
                 info.spot_lights = &this_spot_light;
                 info.renderPass = ri.renderPass;
                 info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+                info.cullMode = PipelineInfo::CullMode::kCullNone;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
                 
                 if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
@@ -313,6 +314,7 @@ void KRLight::render(RenderInfo& ri) {
         info.spot_lights = &this_spot_light;
         info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
         info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+        info.cullMode = PipelineInfo::CullMode::kCullNone;
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         
@@ -357,6 +359,7 @@ void KRLight::render(RenderInfo& ri) {
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
             info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+            info.cullMode = PipelineInfo::CullMode::kCullNone;
 
             if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
 
@@ -409,6 +412,7 @@ void KRLight::render(RenderInfo& ri) {
                         info.spot_lights = &ri.spot_lights;
                         info.renderPass = ri.renderPass;
                         info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
+                        info.cullMode = PipelineInfo::CullMode::kCullNone;
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
                         if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
@@ -513,10 +517,6 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             
             GLDEBUG(glDisable(GL_DITHER));
             
-            //GLDEBUG(glCullFace(GL_BACK)); // Enable frontface culling, which eliminates some self-cast shadow artifacts
-            //GLDEBUG(glEnable(GL_CULL_FACE));
-            GLDEBUG(glDisable(GL_CULL_FACE));
-            
             // Use shader program
             PipelineInfo info{};
             std::string shader_name("ShadowShader");
@@ -524,14 +524,13 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             info.pCamera = ri.camera;
             info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
             info.rasterMode = PipelineInfo::RasterMode::kOpaqueLessTest;
+            info.cullMode = PipelineInfo::CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, shadowShader, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             
             getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
-            
-            GLDEBUG(glEnable(GL_CULL_FACE));
         }
     }
 }

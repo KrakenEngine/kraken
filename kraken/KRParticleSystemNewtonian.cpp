@@ -99,6 +99,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
             info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+            info.cullMode = PipelineInfo::CullMode::kCullNone;
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             // Vector3 rim_color; Vector4 fade_color;

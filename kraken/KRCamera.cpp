@@ -160,10 +160,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
-        // Enable backface culling
-        GLDEBUG(glCullFace(GL_BACK));
-        GLDEBUG(glEnable(GL_CULL_FACE));
-        
         // Render the geometry
         scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
         
@@ -204,11 +200,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         // Set source to buffers from pass 2
         m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, lightAccumulationTexture);
-        
-        // Enable backface culling
-        GLDEBUG(glCullFace(GL_BACK));
-        GLDEBUG(glEnable(GL_CULL_FACE));
-        
+                
         // Render the geometry
         // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
         scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
@@ -235,12 +227,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
         GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
 #endif
-        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-        // Enable backface culling
-        GLDEBUG(glCullFace(GL_BACK));
-        GLDEBUG(glEnable(GL_CULL_FACE));
-        
+        GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));       
         */
 
         KRRenderPass& forwardOpaquePass = surface.getForwardOpaquePass();
@@ -284,8 +271,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
     
-    // Disable backface culling
-    GLDEBUG(glDisable(GL_CULL_FACE));
     */
     
     if(!m_pSkyBoxTexture && m_skyBox.length()) {
@@ -300,6 +285,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
         info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoDepthWrite;
+        info.cullMode = PipelineInfo::CullMode::kCullNone;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(surface, info);
         getContext().getPipelineManager()->selectPipeline(surface, *this, pPipeline, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
@@ -324,13 +310,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
 //    // Set render target
 //    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
 //    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-//    
-//    // Disable backface culling
-//    GLDEBUG(glDisable(GL_CULL_FACE));
-//
-    // Enable backface culling
-    GLDEBUG(glCullFace(GL_BACK));
-    GLDEBUG(glEnable(GL_CULL_FACE));
 
     */
     
@@ -346,9 +325,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    
-    // Disable backface culling
-    GLDEBUG(glDisable(GL_CULL_FACE));
     */
     
     // ----====---- Perform Occlusion Tests ----====----
@@ -361,13 +337,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     GL_PUSH_GROUP_MARKER("Additive Particles");
 
     /*
-    
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    
-    // Disable backface culling
-    GLDEBUG(glDisable(GL_CULL_FACE));
     */
     
     // Render all flares
@@ -421,12 +393,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     // TODO - Vulkan refactoring...
     GL_PUSH_GROUP_MARKER("Debug Overlays");
     
-    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {       
-        
-        // Enable backface culling
-        GLDEBUG(glCullFace(GL_BACK));
-        GLDEBUG(glEnable(GL_CULL_FACE));
-        
+    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {               
         PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
@@ -831,15 +798,13 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
             }
         }
         
-        // Disable backface culling
-        GLDEBUG(glDisable(GL_CULL_FACE));
-        
         PipelineInfo info{};
         std::string shader_name("debug_font");
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
         info.rasterMode = PipelineInfo::RasterMode::kAlphaBlendNoTest;
+        info.cullMode = PipelineInfo::CullMode::kCullNone;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
         getContext().getPipelineManager()->selectPipeline(surface, *this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         

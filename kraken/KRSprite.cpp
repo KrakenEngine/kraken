@@ -151,6 +151,7 @@ void KRSprite::render(RenderInfo& ri) {
                 info.spot_lights = &ri.spot_lights;
                 info.renderPass = ri.renderPass;
                 info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+                info.cullMode = PipelineInfo::CullMode::kCullNone;
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                 if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);

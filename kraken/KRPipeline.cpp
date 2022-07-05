@@ -261,7 +261,17 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
   rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+  switch (info.cullMode) {
+  case PipelineInfo::CullMode::kCullBack:
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    break;
+  case PipelineInfo::CullMode::kCullFront:
+    rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+    break;
+  case PipelineInfo::CullMode::kCullNone:
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    break;
+  }
   rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
   rasterizer.depthBiasEnable = VK_FALSE;
   rasterizer.depthBiasConstantFactor = 0.0f;
