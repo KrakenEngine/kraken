@@ -151,12 +151,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         // Set render target
         GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
         
-        
-#if GL_EXT_discard_framebuffer
-        GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
-        GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
-#endif
-        
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
@@ -222,11 +216,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 
-        
-#if GL_EXT_discard_framebuffer
-        GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
-        GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
-#endif
         GLDEBUG(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));       
         */
 
@@ -415,24 +404,17 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     GL_POP_GROUP_MARKER;
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
-    // TODO - Vulkan refactoring...
-    /*
+
     GL_PUSH_GROUP_MARKER("Post Processing");
 
+    /*
+    
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
 
-    renderPost(commandBuffer);
-    m_pContext->getMeshManager()->unbindVBO();
+    renderPost(commandBuffer, surface); // FINDME!  Re-enable with Vulkan refactoring
+    */
     
     GL_POP_GROUP_MARKER;
-
-    
-#if GL_EXT_discard_framebuffer
-
-    GLenum attachments[2] = {GL_DEPTH_ATTACHMENT, GL_COLOR_ATTACHMENT0};
-    GLDEBUG(glDiscardFramebufferEXT(GL_FRAMEBUFFER, 2, attachments));
-#endif
-    */
 }
 
 
