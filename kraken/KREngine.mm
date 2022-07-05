@@ -197,16 +197,6 @@ void kraken::set_debug_text(const std::string &print_text)
     pScene->renderFrame(defaultFBO, deltaTime, width, height);
 }
 
-/*
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime
-{    
-    GLint renderBufferWidth = 0, renderBufferHeight = 0;
-    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth));
-    GLDEBUG(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight));
-    [self renderScene:pScene WithDeltaTime:deltaTime AndWidth:renderBufferWidth AndHeight:renderBufferHeight];
-}
-*/
-
 - (BOOL)loadShaders
 {
 #if TARGET_OS_IPHONE

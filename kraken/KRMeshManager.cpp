@@ -177,14 +177,6 @@ unordered_multimap<std::string, KRMesh *> &KRMeshManager::getModels() {
     return m_models;
 }
 
-void KRMeshManager::unbindVBO() {
-    if(m_currentVBO != NULL) {
-        GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        GLDEBUG(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-        m_currentVBO = NULL;
-    }
-}
-
 void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRVBOData *vbo_data, float lodCoverage)
 {
     vbo_data->resetPoolExpiry(lodCoverage);

@@ -149,7 +149,6 @@ public:
       , const char* debug_label
 #endif
     );
-    void unbindVBO();
     long getMemUsed();
     long getMemActive();
     
