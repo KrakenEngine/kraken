@@ -356,6 +356,7 @@ void KRLight::render(RenderInfo& ri) {
             info.directional_lights = &ri.directional_lights;
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
+            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
 
             if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
 

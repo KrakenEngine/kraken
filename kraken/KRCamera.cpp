@@ -261,6 +261,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
           info.shader_name = &shader_name;
           info.pCamera = this;
           info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+          info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
           KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(surface, info, testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
           testPipeline->bind(commandBuffer);
           testVertices.bind(commandBuffer);
@@ -316,9 +317,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     // ----====---- Transparent Geometry, Forward Rendering ----====----
     
     // TODO - Vulkan refactoring...
-    /*
     GL_PUSH_GROUP_MARKER("Forward Rendering - Transparent");
-
+    /*
 //    Note: These parameters have already been set up by the skybox render above
 //
 //    // Set render target
@@ -331,69 +331,36 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     // Enable backface culling
     GLDEBUG(glCullFace(GL_BACK));
     GLDEBUG(glEnable(GL_CULL_FACE));
-    
-    // Disable z-buffer write
-    GLDEBUG(glDepthMask(GL_FALSE));
-//    
-//    // Enable z-buffer test
-//    GLDEBUG(glEnable(GL_DEPTH_TEST));
-//    GLDEBUG(glDepthFunc(GL_LEQUAL));
-//    GLDEBUG(glDepthRangef(0.0, 1.0));
-    
-    // Enable alpha blending
-    GLDEBUG(glEnable(GL_BLEND));
-    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
 
     */
     
     // Render all transparent geometry
     scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
-    
-    // TODO - Vulkan refactoring...
-    /*
+
     GL_POP_GROUP_MARKER;
-    */
     
     // ----====---- Particle Occlusion Tests ----====----
     
-    // TODO - Vulkan refactoring...
-    /*
     GL_PUSH_GROUP_MARKER("Particle Occlusion Tests");
-    
+    /*
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
     
     // Disable backface culling
     GLDEBUG(glDisable(GL_CULL_FACE));
-    
-    // Disable z-buffer write
-    GLDEBUG(glDepthMask(GL_FALSE));
-    
-    // Enable z-buffer test
-    GLDEBUG(glEnable(GL_DEPTH_TEST));
-    GLDEBUG(glDepthFunc(GL_LEQUAL));
-    GLDEBUG(glDepthRangef(0.0, 1.0));
-    
-    // Enable additive blending
-    GLDEBUG(glEnable(GL_BLEND));
-    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-
     */
     
     // ----====---- Perform Occlusion Tests ----====----
     scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
     
-    // TODO - Vulkan refactoring...
-    /*
     GL_POP_GROUP_MARKER;
-    */
     
     // ----====---- Flares ----====----
     
-    // TODO - Vulkan refactoring...
-    /*
     GL_PUSH_GROUP_MARKER("Additive Particles");
+
+    /*
     
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, compositeFramebuffer));
@@ -401,27 +368,12 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     
     // Disable backface culling
     GLDEBUG(glDisable(GL_CULL_FACE));
-    
-    // Disable z-buffer write
-    GLDEBUG(glDepthMask(GL_FALSE));
-    
-    // Disable z-buffer test
-    GLDEBUG(glDisable(GL_DEPTH_TEST));
-    GLDEBUG(glDepthRangef(0.0, 1.0));
-    
-    // Enable additive blending
-    GLDEBUG(glEnable(GL_BLEND));
-    GLDEBUG(glBlendFunc(GL_ONE, GL_ONE));
-
     */
     
     // Render all flares
     scene.render(commandBuffer, surface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
     
-    // TODO - Vulkan refactoring...
-    /*
     GL_POP_GROUP_MARKER;
-    */
     
     // ----====---- Volumetric Lighting ----====----
     
@@ -467,9 +419,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
     // ----====---- Debug Overlay ----====----
     
     // TODO - Vulkan refactoring...
-    /*
     GL_PUSH_GROUP_MARKER("Debug Overlays");
-    */
     
     if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {       
         
@@ -495,11 +445,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface)
             }
         }
     }
-    
-/*
     GL_POP_GROUP_MARKER;
-    */
-    
 
 //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
     // TODO - Vulkan refactoring...
@@ -682,10 +628,6 @@ void KRCamera::destroyBuffers()
 
 void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
-    // Disable alpha blending
-    GLDEBUG(glDisable(GL_BLEND));
-    
-
 /*
    FINDME - Determine if we still need this...
 
@@ -709,13 +651,14 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 	
 
 	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
-    GLDEBUG(glDisable(GL_DEPTH_TEST));
+    
 
     PipelineInfo info{};
     std::string shader_name("PostShader");
     info.shader_name = &shader_name;
     info.pCamera = this;
     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+    info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoTest;
 
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
     
@@ -888,7 +831,6 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
             }
         }
         
-        
         // Disable backface culling
         GLDEBUG(glDisable(GL_CULL_FACE));
         
@@ -912,9 +854,6 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         );
         
         GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
-        
-        // Re-enable z-buffer write
-        GLDEBUG(glDepthMask(GL_TRUE));
         
         m_debug_text_vertices.unlock();
 

@@ -283,6 +283,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   switch (info.rasterMode) {
   case PipelineInfo::RasterMode::kOpaque:
   case PipelineInfo::RasterMode::kOpaqueLessTest:
+  case PipelineInfo::RasterMode::kOpaqueNoTest:
   case PipelineInfo::RasterMode::kOpaqueNoDepthWrite:
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
@@ -336,6 +337,10 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   case PipelineInfo::RasterMode::kOpaque:
   case PipelineInfo::RasterMode::kOpaqueLessTest:
     depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    break;
+  case PipelineInfo::RasterMode::kOpaqueNoTest:
+    depthStencil.depthTestEnable = VK_FALSE;
     depthStencil.depthWriteEnable = VK_TRUE;
     break;
   case PipelineInfo::RasterMode::kOpaqueNoDepthWrite:
