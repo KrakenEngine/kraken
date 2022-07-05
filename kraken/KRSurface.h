@@ -61,6 +61,9 @@ public:
   KrResult recreateSwapChain();
   KRRenderPass& getForwardOpaquePass();
 
+  KRRenderPass& getDeferredGBufferPass();
+  KRRenderPass& getDeferredOpaquePass();
+
   void endFrame();
 
 #ifdef WIN32
@@ -74,6 +77,8 @@ public:
 
   std::unique_ptr<KRSwapchain> m_swapChain;
   std::unique_ptr<KRRenderPass> m_forwardOpaquePass;
+  std::unique_ptr<KRRenderPass> m_deferredGBufferPass;
+  std::unique_ptr<KRRenderPass> m_deferredOpaquePass;
 
   // TODO - This needs to be advanced per swap chain
   uint64_t m_frameIndex;

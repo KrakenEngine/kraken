@@ -54,7 +54,7 @@ public:
     KRCamera(KRScene &scene, std::string name);
     virtual ~KRCamera();
 
-    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface);
+    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
     
     KRRenderSettings settings;
     

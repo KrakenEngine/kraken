@@ -42,10 +42,17 @@ class KRRenderPass : public KRContextObject
 public:
   KRRenderPass(KRContext& context);
   ~KRRenderPass();
-  void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat);
+
+  struct RenderPassInfo
+  {
+    bool clearDepth;
+    bool keepDepth;
+  };
+
+  void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info);
   void destroy(KRDevice& device);
 
-  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface);
+  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface, const Vector4& clearColor);
   void end(VkCommandBuffer& commandBuffer);
 
 // private:

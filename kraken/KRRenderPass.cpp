@@ -45,7 +45,7 @@ KRRenderPass::~KRRenderPass()
   assert(m_renderPass == VK_NULL_HANDLE);
 }
 
-void KRRenderPass::create(KRDevice &device, VkFormat swapChainImageFormat, VkFormat depthImageFormat)
+void KRRenderPass::create(KRDevice &device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info)
 {
   if (m_renderPass) {
     return;
@@ -65,8 +65,8 @@ void KRRenderPass::create(KRDevice &device, VkFormat swapChainImageFormat, VkFor
   VkAttachmentDescription depthAttachment{};
   depthAttachment.format = depthImageFormat;
   depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-  depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.loadOp = info.clearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+  depthAttachment.storeOp = info.keepDepth ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -118,10 +118,13 @@ void KRRenderPass::destroy(KRDevice &device)
   }
 }
 
-void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
+void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface, const Vector4& clearColor)
 {
   std::array<VkClearValue, 2> clearValues{};
-  clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+  clearValues[0].color.float32[0] = clearColor[0];
+  clearValues[0].color.float32[1] = clearColor[1];
+  clearValues[0].color.float32[2] = clearColor[2];
+  clearValues[0].color.float32[3] = clearColor[3];
   clearValues[1].depthStencil = { 1.0f, 0 };
 
   VkRenderPassBeginInfo renderPassInfo{};

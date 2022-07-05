@@ -49,6 +49,8 @@ KRSurface::KRSurface(KRContext& context)
   , m_frameIndex(0)
 {
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
+  m_deferredGBufferPass = std::make_unique<KRRenderPass>(context);
+  m_deferredOpaquePass = std::make_unique<KRRenderPass>(context);
   m_swapChain = std::make_unique<KRSwapchain>(context);
 }
 
@@ -94,6 +96,14 @@ void KRSurface::destroy()
 
   if (m_forwardOpaquePass) {
     m_forwardOpaquePass->destroy(*device);
+  }
+
+  if (m_deferredGBufferPass) {
+    m_deferredGBufferPass->destroy(*device);
+  }
+
+  if (m_deferredOpaquePass) {
+    m_deferredOpaquePass->destroy(*device);
   }
 
   if (device && m_renderFinishedSemaphore != VK_NULL_HANDLE) {
@@ -147,7 +157,19 @@ KrResult KRSurface::createSwapChain()
   }
 
 
-  m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat);
+  KRRenderPass::RenderPassInfo info{};
+  info.clearDepth = true;
+  info.keepDepth = false;
+  m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  
+  info.clearDepth = true;
+  info.keepDepth = true;
+  m_deferredGBufferPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+
+  info.clearDepth = false;
+  info.keepDepth = false;
+  m_deferredOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+
   m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_forwardOpaquePass);
 
   return KR_SUCCESS;
@@ -196,10 +218,19 @@ VkFormat KRSurface::getDepthFormat() const
   return m_swapChain->m_depthFormat;
 }
 
-
 KRRenderPass& KRSurface::getForwardOpaquePass()
 {
   return *m_forwardOpaquePass;
+}
+
+KRRenderPass& KRSurface::getDeferredGBufferPass()
+{
+  return *m_deferredGBufferPass;
+}
+
+KRRenderPass& KRSurface::getDeferredOpaquePass()
+{
+  return *m_deferredOpaquePass;
 }
 
 void KRSurface::endFrame()
