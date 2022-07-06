@@ -100,6 +100,9 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
             info.renderPass = ri.renderPass;
             info.rasterMode = PipelineInfo::RasterMode::kAdditive;
             info.cullMode = PipelineInfo::CullMode::kCullNone;
+            info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+            info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
             // Vector3 rim_color; Vector4 fade_color;
@@ -113,7 +116,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
                   , "Newtonian Particles"
 #endif
                 );
-                GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
+                vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
             }
         }
     }

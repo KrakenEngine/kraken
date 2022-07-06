@@ -137,6 +137,8 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         Vector3 light_direction_view_space = getWorldLightDirection();
         light_direction_view_space = Matrix4::Dot(matModelViewInverseTranspose, light_direction_view_space);
         light_direction_view_space.normalize();
+
+        KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
         
         PipelineInfo info{};
         std::string shader_name("light_directional");
@@ -146,6 +148,9 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         info.renderPass = ri.renderPass;
         info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
 
+        info.vertexAttributes = vertices.getVertexAttributes();
+        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
             
@@ -154,8 +159,8 @@ void KRDirectionalLight::render(RenderInfo& ri) {
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
             
             // Render a full screen quad
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+            vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
         }
     }
 }

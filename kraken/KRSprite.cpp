@@ -140,7 +140,9 @@ void KRSprite::render(RenderInfo& ri) {
             
             if(m_pSpriteTexture) {               
                 // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
-                               
+
+                KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+
                 // Render light sprite on transparency pass
                 PipelineInfo info{};
                 std::string shader_name("sprite");
@@ -152,12 +154,15 @@ void KRSprite::render(RenderInfo& ri) {
                 info.renderPass = ri.renderPass;
                 info.rasterMode = PipelineInfo::RasterMode::kAdditive;
                 info.cullMode = PipelineInfo::CullMode::kCullNone;
+                info.vertexAttributes = vertices.getVertexAttributes();
+                info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                 if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
                     pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
                     m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
-                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+                    vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
                 }
             }
         }
