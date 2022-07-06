@@ -229,7 +229,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
           info.pCamera = this;
           info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
           info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
-          KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info, testVertices.getVertexAttributes(), KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP);
+          info.vertexAttributes = testVertices.getVertexAttributes();
+          info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+          KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
           testPipeline->bind(commandBuffer);
           testVertices.bind(commandBuffer);
           vkCmdDraw(commandBuffer, 4, 1, 0, 0);

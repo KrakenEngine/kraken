@@ -196,6 +196,8 @@ public:
   bool bRimColor : 1;
   RasterMode rasterMode;
   CullMode cullMode;
+  uint32_t vertexAttributes;
+  KRMesh::model_format_t modelFormat;
   KRNode::RenderPass renderPass;
 };
 
