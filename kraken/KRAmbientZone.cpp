@@ -140,13 +140,12 @@ void KRAmbientZone::render(RenderInfo& ri)
         info.rasterMode = PipelineInfo::RasterMode::kAdditive;
         
         KRPipeline *pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        
-        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pPipeline, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-            if(sphereModels.size()) {
-                for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                    sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-                }
+        pPipeline->bind(*ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+
+        std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
+        if(sphereModels.size()) {
+            for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
+                sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
             }
         }
     }

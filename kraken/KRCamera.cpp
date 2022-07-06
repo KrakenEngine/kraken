@@ -262,7 +262,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
         info.cullMode = PipelineInfo::CullMode::kCullNone;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
-        getContext().getPipelineManager()->selectPipeline(compositeSurface, *this, pPipeline, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
+        pPipeline->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
@@ -352,9 +352,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
             Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
-            if(getContext().getPipelineManager()->selectPipeline(compositeSurface, *this, pVisShader, m_viewport, matModel, nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
-            }
+            pVisShader->bind(*this, m_viewport, matModel, nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
+            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
         }
     }
     GL_POP_GROUP_MARKER;

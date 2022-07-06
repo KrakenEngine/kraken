@@ -266,22 +266,23 @@ void KRLight::render(RenderInfo& ri) {
                 info.renderPass = ri.renderPass;
                 info.rasterMode = PipelineInfo::RasterMode::kAdditive;
                 info.cullMode = PipelineInfo::CullMode::kCullNone;
+                info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+                info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
                 
-                if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+                pParticleShader->bind(*ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
+                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                     
-                    pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-                    pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-                    pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
-                    
-                    KRDataBlock particle_index_data;
-                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
+                KRDataBlock particle_index_data;
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
-                      , "Light Particles"
+                  , "Light Particles"
 #endif
-                    );
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
-                }
+                );
+                GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
+                vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
             }
         }
     }
@@ -360,30 +361,31 @@ void KRLight::render(RenderInfo& ri) {
             info.renderPass = ri.renderPass;
             info.rasterMode = PipelineInfo::RasterMode::kAdditive;
             info.cullMode = PipelineInfo::CullMode::kCullNone;
+            // TODO: set info.vertexAttributes and info.modelFormat
 
-            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, occlusion_test_sphere_matrix, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+            pPipeline->bind(*info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
-                GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+            GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
 #if TARGET_OS_IPHONE || defined(ANDROID)
-                GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
+            GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
 #else
-                GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
+            GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
 #endif
 
-                std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-                if(sphereModels.size()) {
-                    for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                        sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "occlusion_test", 1.0f);
-                    }
+            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
+            if(sphereModels.size()) {
+                for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
+                    sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "occlusion_test", 1.0f);
                 }
+            }
 
 #if TARGET_OS_IPHONE || defined(ANDROID)
-                GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
+            GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
 #else
-                GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
+            GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
 #endif
 
-            }
         }
     }
     
