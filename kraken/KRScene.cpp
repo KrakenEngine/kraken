@@ -281,8 +281,9 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     matModel.translate(octreeBounds.center());
                     Matrix4 mvpmatrix = matModel * ri.viewport.getViewProjectionMatrix();
                     
+                    KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
 
-                    getContext().getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
+                    getContext().getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
                     
                     PipelineInfo info{};
                     std::string shader_name("occlusion_test");
@@ -293,15 +294,16 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     info.spot_lights = &ri.spot_lights;
                     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
                     info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+                    info.vertexAttributes = vertices.getVertexAttributes();
+                    info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
 
-                    if(getContext().getPipelineManager()->selectPipeline(*ri.surface, info, ri.viewport, matModel, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
-                        m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
-                    }
+                    KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+                    pPipeline->bind(*info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                    vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
+                    m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
 
                     pOctreeNode->endOcclusionQuery();
 
-                    
                     if(bVisible) {
                         // Schedule a pass to get the result of the occlusion test only for future frames and passes, without rendering the model or recurring further
                         remainingOctreesTestResultsOnly.push_back(pOctreeNode);
