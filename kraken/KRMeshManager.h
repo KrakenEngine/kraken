@@ -59,6 +59,7 @@ public:
     
     KRMesh *loadModel(const char *szName, KRDataBlock *pData);
     std::vector<KRMesh *> getModel(const char *szName);
+    KRMesh* KRMeshManager::getMaxLODModel(const char* szName);
     void addModel(KRMesh *model);
     
     std::vector<std::string> getModelNames();

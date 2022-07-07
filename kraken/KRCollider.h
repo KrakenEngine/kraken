@@ -72,7 +72,7 @@ public:
     void render(RenderInfo& ri);
     
 private:
-    std::vector<KRMesh *> m_models;
+    KRMesh* m_model;
     std::string m_model_name;
     
     unsigned int m_layer_mask;

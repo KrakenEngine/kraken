@@ -343,8 +343,8 @@ void KRLight::render(RenderInfo& ri) {
     
     if(ri.renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
-            std::vector<KRMesh*> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-            if (sphereModels.size()) {
+            KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+            if (sphereModel) {
             
               Matrix4 occlusion_test_sphere_matrix = Matrix4();
               occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
@@ -363,8 +363,8 @@ void KRLight::render(RenderInfo& ri) {
               info.renderPass = ri.renderPass;
               info.rasterMode = PipelineInfo::RasterMode::kAdditive;
               info.cullMode = PipelineInfo::CullMode::kCullNone;
-              info.modelFormat = sphereModels[0]->getModelFormat();
-              info.vertexAttributes = sphereModels[0]->getVertexAttributes();
+              info.modelFormat = sphereModel->getModelFormat();
+              info.vertexAttributes = sphereModel->getVertexAttributes();
 
               KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
               pPipeline->bind(*info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
@@ -376,7 +376,7 @@ void KRLight::render(RenderInfo& ri) {
               GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
   #endif
 
-              sphereModels[0]->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "occlusion_test", 1.0f);
+              sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "occlusion_test", 1.0f);
 
 #if TARGET_OS_IPHONE || defined(ANDROID)
               GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));

@@ -151,6 +151,15 @@ void KRMeshManager::addModel(KRMesh *model) {
     m_models.insert(std::pair<std::string, KRMesh *>(lowerName, model));
 }
 
+KRMesh* KRMeshManager::getMaxLODModel(const char* szName) {
+  std::vector<KRMesh*> models = getModel(szName);
+  // models are always in order of highest LOD first
+  if (models.size()) {
+    return models[0];
+  }
+  return nullptr;
+}
+
 std::vector<KRMesh *> KRMeshManager::getModel(const char *szName) {
     std::string lowerName = szName;
     std::transform(lowerName.begin(), lowerName.end(),

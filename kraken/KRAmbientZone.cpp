@@ -127,8 +127,8 @@ void KRAmbientZone::render(RenderInfo& ri)
     bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES;
     
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        std::vector<KRMesh*> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-        if (sphereModels.size()) {
+        KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+        if (sphereModel) {
 
           Matrix4 sphereModelMatrix = getModelMatrix();
 
@@ -141,14 +141,14 @@ void KRAmbientZone::render(RenderInfo& ri)
           info.spot_lights = &ri.spot_lights;
           info.renderPass = ri.renderPass;
           info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-          info.modelFormat = sphereModels[0]->getModelFormat();
-          info.vertexAttributes = sphereModels[0]->getVertexAttributes();
+          info.modelFormat = sphereModel->getModelFormat();
+          info.vertexAttributes = sphereModel->getVertexAttributes();
         
           KRPipeline *pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
           pPipeline->bind(*ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
-          sphereModels[0]->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-        } // sphereModels.size()
+          sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+        } // sphereModel
     }
 }
 
