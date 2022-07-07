@@ -427,6 +427,14 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
     }
 }
 
+void KRMesh::renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage)
+{
+  int submesh_count = getSubmeshCount();
+  for (int i = 0; i < submesh_count; i++) {
+    renderSubmesh(commandBuffer, i, renderPass, object_name, material_name, lodCoverage);
+  }
+}
+
 void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage) {
     getSubmeshes();
     
@@ -857,6 +865,13 @@ int KRMesh::getSubmeshCount() const
 int KRMesh::getVertexCount(int submesh) const
 {
     return getSubmesh(submesh)->vertex_count;
+}
+
+__uint32_t KRMesh::getVertexAttributes() const
+{
+  pack_header* header = getHeader();
+  __uint32_t attributes = header->vertex_attrib_flags;
+  return attributes;
 }
 
 Vector3 KRMesh::getVertexPosition(int index) const

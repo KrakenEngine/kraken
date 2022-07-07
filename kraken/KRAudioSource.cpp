@@ -194,6 +194,8 @@ void KRAudioSource::render(RenderInfo& ri)
     bool bVisualize = false;
     
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+      std::vector<KRMesh*> sphereModels = getContext().getMeshManager()->getModel("__sphere");
+      if (sphereModels.size()) {
         Matrix4 sphereModelMatrix = getModelMatrix();
 
         PipelineInfo info{};
@@ -205,16 +207,14 @@ void KRAudioSource::render(RenderInfo& ri)
         info.spot_lights = &ri.spot_lights;
         info.renderPass = ri.renderPass;
         info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-        
-        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+        info.modelFormat = sphereModels[0]->getModelFormat();
+        info.vertexAttributes = sphereModels[0]->getVertexAttributes();
+
+        KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         pShader->bind(*ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
-        
-        std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-        if(sphereModels.size()) {
-            for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-            }
-        }
+
+        sphereModels[0]->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+      } // sphereModels.size()
     }
 }
 

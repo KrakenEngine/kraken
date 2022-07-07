@@ -338,22 +338,26 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     
     GL_PUSH_GROUP_MARKER("Debug Overlays");
     
-    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {               
+    if(settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {            
+        KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
+
         PipelineInfo info{};
         std::string shader_name("visualize_overlay");
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
         info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
+        info.vertexAttributes = vertices.getVertexAttributes();
+        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+        KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(compositeSurface, info);       
         
-        m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES, 1.0f);
+        m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
         for(unordered_map<AABB, int>::iterator itr=m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
             Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
             pVisShader->bind(*this, m_viewport, matModel, nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
-            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 14));
+            vkCmdDraw(commandBuffer, 14, 1, 0, 0);
         }
     }
     GL_POP_GROUP_MARKER;
@@ -557,19 +561,20 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
     
 
+    KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+
     PipelineInfo info{};
     std::string shader_name("PostShader");
     info.shader_name = &shader_name;
     info.pCamera = this;
     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
     info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoTest;
+    info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+    info.vertexAttributes = vertices.getVertexAttributes();
 
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
     
-    Vector3 rim_color;
-
-
-    postShader->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
+    postShader->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, m_fade_color);
     
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -579,13 +584,10 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     }
 	
 	// Update attribute values.
-    m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+    m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
 	
-    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-    
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, 0);
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, 0);
-    
+    vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+   
     
 //    if(bShowShadowBuffer) {
 //        KRPipeline *blitShader = m_pContext->getPipelineManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
@@ -744,6 +746,8 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
         info.rasterMode = PipelineInfo::RasterMode::kAlphaBlendNoTest;
         info.cullMode = PipelineInfo::CullMode::kCullNone;
+        info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
         fontShader->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
@@ -757,7 +761,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 #endif
         );
         
-        GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
+        vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
         
         m_debug_text_vertices.unlock();
 

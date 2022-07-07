@@ -78,27 +78,27 @@ void KRBone::render(RenderInfo& ri)
     bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES;
     
     if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        Matrix4 sphereModelMatrix = getModelMatrix();
+        std::vector<KRMesh*> sphereModels = getContext().getMeshManager()->getModel("__sphere");
+        if (sphereModels.size()) {
+          Matrix4 sphereModelMatrix = getModelMatrix();
         
-        PipelineInfo info{};
-        std::string shader_name("visualize_overlay");
-        info.shader_name = &shader_name;
-        info.pCamera = ri.camera;
-        info.point_lights = &ri.point_lights;
-        info.directional_lights = &ri.directional_lights;
-        info.spot_lights = &ri.spot_lights;
-        info.renderPass = ri.renderPass;
-        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
+          PipelineInfo info{};
+          std::string shader_name("visualize_overlay");
+          info.shader_name = &shader_name;
+          info.pCamera = ri.camera;
+          info.point_lights = &ri.point_lights;
+          info.directional_lights = &ri.directional_lights;
+          info.spot_lights = &ri.spot_lights;
+          info.renderPass = ri.renderPass;
+          info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
+          info.modelFormat = sphereModels[0]->getModelFormat();
+          info.vertexAttributes = sphereModels[0]->getVertexAttributes();
 
-        KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->bind(*ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+          KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+          pShader->bind(*ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
-        std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-        if(sphereModels.size()) {
-            for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-            }
-        }
+          sphereModels[0]->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+        } // sphereModels.size()
     }
 }
 
