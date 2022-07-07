@@ -294,15 +294,6 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
 }
 */
 
-bool KRPipelineManager::selectPipeline(KRSurface& surface, KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color)
-{
-    if(pPipeline) {
-        return pPipeline->bind(camera, viewport, matModel, point_lights, directional_lights, spot_lights, renderPass, rim_color, rim_power, fade_color);
-    } else {
-        return false;
-    }
-}
-
 size_t KRPipelineManager::getPipelineHandlesUsed() {
     return m_pipelines.size();
 }

@@ -110,26 +110,26 @@ void KRPointLight::render(RenderInfo& ri)
             }
             
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
+            pShader->bind(*ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
                 
-                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
-                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
-                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
-                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
-                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
+            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
+            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
+            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
+            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
+            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
                 
-                if(bInsideLight) {
-                    // Render a full screen quad
-                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-                    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-                } else {
-                    // Render sphere of light's influence
-                    generateMesh();
+            if(bInsideLight) {
+                // Render a full screen quad
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+                GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+            } else {
+                // Render sphere of light's influence
+                generateMesh();
                     
-                    GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
-                    GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
-                }
+                GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+                GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, m_cVertices));
             }
+
         }
     }
 }

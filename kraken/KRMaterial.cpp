@@ -349,10 +349,7 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     info.renderPass = ri.renderPass;
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     
-    Vector4 fade_color;
-    if(!getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, rim_color, rim_power, fade_color)) {
-        return false;
-    }
+    pShader->bind(*ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power, Vector4::Zero());
     
     // Bind bones
     if(pShader->m_uniforms[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {

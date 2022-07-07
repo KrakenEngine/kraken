@@ -105,19 +105,17 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
 
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
-            // Vector3 rim_color; Vector4 fade_color;
-            if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pParticleShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
+            pParticleShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+            pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
-                KRDataBlock index_data;
-                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f
+            KRDataBlock index_data;
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f
                 
 #if KRENGINE_DEBUG_GPU_LABELS
-                  , "Newtonian Particles"
+              , "Newtonian Particles"
 #endif
-                );
-                vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
-            }
+            );
+            vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
         }
     }
 }

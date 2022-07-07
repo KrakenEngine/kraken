@@ -158,14 +158,14 @@ void KRSprite::render(RenderInfo& ri) {
                 info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
 
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-                if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
-                    m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
-                    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-                    vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-                }
+
+                pShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+
+                pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
+                m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+                vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
             }
         }
-        
     }
 }

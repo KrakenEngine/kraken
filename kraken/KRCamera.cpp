@@ -567,7 +567,9 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
     
     Vector3 rim_color;
-    getContext().getPipelineManager()->selectPipeline(surface, *this, postShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
+
+
+    postShader->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, rim_color, 0.0f, m_fade_color);
     
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -743,7 +745,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.rasterMode = PipelineInfo::RasterMode::kAlphaBlendNoTest;
         info.cullMode = PipelineInfo::CullMode::kCullNone;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
-        getContext().getPipelineManager()->selectPipeline(surface, *this, fontShader, m_viewport, Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
+        fontShader->bind(*this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         

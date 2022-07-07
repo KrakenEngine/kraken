@@ -318,25 +318,25 @@ void KRLight::render(RenderInfo& ri) {
         info.cullMode = PipelineInfo::CullMode::kCullNone;
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
+
+        pFogShader->bind(*ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero());
         
-        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pFogShader, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, 0, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-            int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
+        int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
             
-            float slice_near = -ri.camera->settings.getPerspectiveNearZ();
-            float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
-            float slice_spacing = (slice_far - slice_near) / slice_count;
+        float slice_near = -ri.camera->settings.getPerspectiveNearZ();
+        float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
+        float slice_spacing = (slice_far - slice_near) / slice_count;
             
-            pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
-            pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
+        pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
+        pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
             
-            KRDataBlock index_data;
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
+        KRDataBlock index_data;
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
 #if KRENGINE_DEBUG_GPU_LABELS
-              , "Participating Media"
+          , "Participating Media"
 #endif
-            );
-            GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
-        }
+        );
+        GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
 
     }
     
@@ -417,13 +417,13 @@ void KRLight::render(RenderInfo& ri) {
                         info.cullMode = PipelineInfo::CullMode::kCullNone;
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
-                        if(getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, pShader, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, 0, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero())) {
-                            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
-                            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
-                            m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-                            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-                            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
-                        }
+                        pShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+
+                        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
+                        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
+                        m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
+                        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
                     }
                 }
             }
@@ -525,12 +525,11 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;
             info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-            info.rasterMode = PipelineInfo::RasterMode::kOpaqueLessTest;
+            info.rasterMode = PipelineInfo::RasterMode::kOpaqueLessTest; // TODO - This is sub-optimal.  Evaluate increasing depth buffer resolution instead of disabling depth test.
             info.cullMode = PipelineInfo::CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-            
-            getContext().getPipelineManager()->selectPipeline(*ri.surface, *ri.camera, shadowShader, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, 0, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
-            
+
+            shadowShader->bind(*ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
         }

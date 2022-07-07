@@ -58,7 +58,6 @@ public:
     KRPipeline* get(const char* szKey);
     
     KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info);
-    bool selectPipeline(KRSurface& surface, KRCamera &camera, KRPipeline *pPipeline, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, int bone_count, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color);
 
     size_t getPipelineHandlesUsed();
     
