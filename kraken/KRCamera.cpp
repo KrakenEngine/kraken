@@ -219,22 +219,20 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
         GL_POP_GROUP_MARKER;
 
         // ----------  Start: Vulkan Debug Code ----------
-        KRMeshManager::KRVBOData& testVertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
-        bool haveMesh = testVertices.isVBOReady();
 
-        if (haveMesh) {
+        KRMesh* sphereMesh = getContext().getMeshManager()->getMaxLODModel("__sphere");
+        if (sphereMesh && sphereMesh->isReady()) {
           PipelineInfo info{};
           std::string shader_name("vulkan_test");
           info.shader_name = &shader_name;
           info.pCamera = this;
           info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
           info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
-          info.vertexAttributes = testVertices.getVertexAttributes();
-          info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+          info.vertexAttributes = sphereMesh->getVertexAttributes();
+          info.modelFormat = sphereMesh->getModelFormat();
           KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
           testPipeline->bind(commandBuffer);
-          testVertices.bind(commandBuffer);
-          vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+          sphereMesh->renderNoMaterials(commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
         }
 
         // ----------  End: Vulkan Debug Code ----------

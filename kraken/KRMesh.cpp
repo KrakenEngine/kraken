@@ -435,6 +435,21 @@ void KRMesh::renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPas
   }
 }
 
+bool KRMesh::isReady() const
+{
+  // TODO - This should be cached...
+  int submesh_count = getSubmeshCount();
+  for (int i = 0; i < submesh_count; i++) {
+    for (int j = 0; j < m_submeshes[i]->vbo_data_blocks.size(); j++) {
+      KRMeshManager::KRVBOData* vbo_data_block = m_submeshes[i]->vbo_data_blocks[j];
+      if (!vbo_data_block->isVBOReady()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage) {
     getSubmeshes();
     
@@ -460,7 +475,8 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
             int vertex_draw_count = cVertexes;
             if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
             
-            glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
+            //glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
+            vkCmdDrawIndexed(commandBuffer, vertex_draw_count, 1, index_group_offset, 0, 0);
             m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
             cVertexes -= vertex_draw_count;
             index_group_offset = 0;

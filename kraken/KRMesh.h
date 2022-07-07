@@ -128,6 +128,7 @@ public:
     void optimizeIndexes();
 
     void renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
+    bool isReady() const;
 
     float getMaxDimension();
 
