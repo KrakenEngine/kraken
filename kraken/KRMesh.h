@@ -127,7 +127,7 @@ public:
     void optimize();
     void optimizeIndexes();
 
-    void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string &object_name, const std::string &material_name, float lodCoverage);
+    void renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
 
     float getMaxDimension();
 
@@ -184,6 +184,8 @@ public:
 
     int getSubmeshCount() const;
     int getVertexCount(int submesh) const;
+    __uint32_t getVertexAttributes() const;
+    
     int getTriangleVertexIndex(int submesh, int index) const;
     Vector3 getVertexPosition(int index) const;
     Vector3 getVertexNormal(int index) const;
@@ -228,6 +230,7 @@ private:
 
     void getSubmeshes();
     void getMaterials();
+    void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
 
     static bool rayCast(const Vector3 &start, const Vector3 &dir, const Triangle3 &tri, const Vector3 &tri_n0, const Vector3 &tri_n1, const Vector3 &tri_n2, HitInfo &hitinfo);
     static bool sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const Vector3 &v1, float radius, const Triangle3 &tri, HitInfo &hitinfo);

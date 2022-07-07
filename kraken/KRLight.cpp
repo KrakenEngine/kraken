@@ -281,7 +281,6 @@ void KRLight::render(RenderInfo& ri) {
                   , "Light Particles"
 #endif
                 );
-                GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, particle_count*3));
                 vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
             }
         }
@@ -316,6 +315,8 @@ void KRLight::render(RenderInfo& ri) {
         info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
         info.rasterMode = PipelineInfo::RasterMode::kAdditive;
         info.cullMode = PipelineInfo::CullMode::kCullNone;
+        info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
+        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
@@ -336,55 +337,53 @@ void KRLight::render(RenderInfo& ri) {
           , "Participating Media"
 #endif
         );
-        GLDEBUG(glDrawArrays(GL_TRIANGLES, 0, slice_count*6));
+        vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
 
     }
     
     if(ri.renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
         if(m_flareTexture.size() && m_flareSize > 0.0f) {
+            std::vector<KRMesh*> sphereModels = getContext().getMeshManager()->getModel("__sphere");
+            if (sphereModels.size()) {
             
-            
-            Matrix4 occlusion_test_sphere_matrix = Matrix4();
-            occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
-            occlusion_test_sphere_matrix.translate(m_localTranslation);
-            if(m_parentNode) {
-                occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
-            }
+              Matrix4 occlusion_test_sphere_matrix = Matrix4();
+              occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
+              occlusion_test_sphere_matrix.translate(m_localTranslation);
+              if(m_parentNode) {
+                  occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
+              }
 
-            PipelineInfo info{};
-            std::string shader_name("occlusion_test");
-            info.shader_name = &shader_name;
-            info.pCamera = ri.camera;
-            info.point_lights = &ri.point_lights;
-            info.directional_lights = &ri.directional_lights;
-            info.spot_lights = &ri.spot_lights;
-            info.renderPass = ri.renderPass;
-            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-            info.cullMode = PipelineInfo::CullMode::kCullNone;
-            // TODO: set info.vertexAttributes and info.modelFormat
+              PipelineInfo info{};
+              std::string shader_name("occlusion_test");
+              info.shader_name = &shader_name;
+              info.pCamera = ri.camera;
+              info.point_lights = &ri.point_lights;
+              info.directional_lights = &ri.directional_lights;
+              info.spot_lights = &ri.spot_lights;
+              info.renderPass = ri.renderPass;
+              info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+              info.cullMode = PipelineInfo::CullMode::kCullNone;
+              info.modelFormat = sphereModels[0]->getModelFormat();
+              info.vertexAttributes = sphereModels[0]->getVertexAttributes();
 
-            KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            pPipeline->bind(*info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+              KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+              pPipeline->bind(*info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
-            GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
-#if TARGET_OS_IPHONE || defined(ANDROID)
-            GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
-#else
-            GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
-#endif
+              GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+  #if TARGET_OS_IPHONE || defined(ANDROID)
+              GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
+  #else
+              GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
+  #endif
 
-            std::vector<KRMesh *> sphereModels = getContext().getMeshManager()->getModel("__sphere");
-            if(sphereModels.size()) {
-                for(int i=0; i < sphereModels[0]->getSubmeshCount(); i++) {
-                    sphereModels[0]->renderSubmesh(ri.commandBuffer, i, ri.renderPass, getName(), "occlusion_test", 1.0f);
-                }
-            }
+              sphereModels[0]->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "occlusion_test", 1.0f);
 
 #if TARGET_OS_IPHONE || defined(ANDROID)
-            GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
+              GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
 #else
-            GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
+              GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
 #endif
+            }
 
         }
     }
@@ -404,6 +403,8 @@ void KRLight::render(RenderInfo& ri) {
                     }
                     
                     if(m_pFlareTexture) {
+                        KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+
                         // Render light flare on transparency pass
                         PipelineInfo info{};
                         std::string shader_name("flare");
@@ -415,6 +416,10 @@ void KRLight::render(RenderInfo& ri) {
                         info.renderPass = ri.renderPass;
                         info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
                         info.cullMode = PipelineInfo::CullMode::kCullNone;
+                        info.vertexAttributes = vertices.getVertexAttributes();
+                        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+
+
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
                         pShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
@@ -422,8 +427,8 @@ void KRLight::render(RenderInfo& ri) {
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                         m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-                        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+                        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+                        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
                     }
                 }
             }
