@@ -517,10 +517,8 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
                 
                 switch (getModelFormat()) {
                     case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
-                        break;
                     case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, cVertexes));
+                        vkCmdDraw(commandBuffer, cVertexes, 1, iVertex, 0);
                         break;
                     default:
                         break;
