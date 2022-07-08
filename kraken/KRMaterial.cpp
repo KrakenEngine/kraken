@@ -349,10 +349,10 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     info.renderPass = ri.renderPass;
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     
-    pShader->bind(*ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power, Vector4::Zero());
+    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power, Vector4::Zero());
     
     // Bind bones
-    if(pShader->m_uniforms[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+    if(pShader->m_pushConstantOffset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
         float bone_mats[256 * 16];
         float *bone_mat_component = bone_mats;
         for(int bone_index=0; bone_index < bones.size(); bone_index++) {
@@ -379,8 +379,8 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
                 *bone_mat_component++ = t[i];
             }
         }
-        if(pShader->m_uniforms[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-            glUniformMatrix4fv(pShader->m_uniforms[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats);
+        if(pShader->m_pushConstantOffset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+            glUniformMatrix4fv(pShader->m_pushConstantOffset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats);
         }
     }
 

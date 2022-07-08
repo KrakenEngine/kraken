@@ -270,7 +270,7 @@ void KRLight::render(RenderInfo& ri) {
                 info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
                 
-                pParticleShader->bind(*ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
@@ -320,7 +320,7 @@ void KRLight::render(RenderInfo& ri) {
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-        pFogShader->bind(*ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero());
+        pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero());
         
         int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
             
@@ -367,7 +367,7 @@ void KRLight::render(RenderInfo& ri) {
               info.vertexAttributes = sphereModel->getVertexAttributes();
 
               KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-              pPipeline->bind(*info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+              pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
               GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
   #if TARGET_OS_IPHONE || defined(ANDROID)
@@ -422,7 +422,7 @@ void KRLight::render(RenderInfo& ri) {
 
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
-                        pShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
@@ -534,7 +534,7 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             info.cullMode = PipelineInfo::CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-            shadowShader->bind(*ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
+            shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
             
             getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
         }

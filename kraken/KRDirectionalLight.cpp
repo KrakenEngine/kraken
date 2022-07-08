@@ -152,7 +152,7 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->bind(*ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
 
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

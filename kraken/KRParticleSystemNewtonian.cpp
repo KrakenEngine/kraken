@@ -105,7 +105,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
 
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             
-            pParticleShader->bind(*ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+            pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
             pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
 
             KRDataBlock index_data;

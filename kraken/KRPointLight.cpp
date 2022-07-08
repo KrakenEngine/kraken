@@ -110,7 +110,7 @@ void KRPointLight::render(RenderInfo& ri)
             }
             
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            pShader->bind(*ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+            pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
                 
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);

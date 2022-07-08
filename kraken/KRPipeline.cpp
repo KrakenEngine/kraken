@@ -112,10 +112,15 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
 
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
   : KRContextObject(context)
-  , m_iProgram(0) // not used for Vulkan
+  , m_pushConstantBuffer(nullptr)
+  , m_pushConstantBufferSize(0)
 {
+  memset(m_pushConstantSize, 0, KRENGINE_NUM_UNIFORMS);
+  memset(m_pushConstantOffset, 0, KRENGINE_NUM_UNIFORMS * sizeof(int));
+
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
+  m_pushConstantsLayout = nullptr;
 
   std::unique_ptr<KRDevice>& device = surface.getDevice();
   // TODO - Handle device removal
@@ -179,6 +184,29 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
         }
         else if (strcmp(input_var.name, "bone_weights") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS] = input_var.location + 1;
+        }
+      }
+
+      for(int i=0; i<reflection->push_constant_block_count; i++) {
+        const SpvReflectBlockVariable& block = reflection->push_constant_blocks[i];
+        if (stricmp(block.name, "constants") == 0) {
+          if (block.size > 0) {
+            m_pushConstantBuffer = (__uint8_t*)malloc(block.size);
+            memset(m_pushConstantBuffer, 0, block.size);
+            m_pushConstantBufferSize = block.size;
+
+            // Get push constant offsets
+            for (int iUniform = 0; iUniform < KRENGINE_NUM_UNIFORMS; iUniform++) {
+              for (int iMember = 0; iMember < block.member_count; iMember++) {
+                const SpvReflectBlockVariable& member = block.members[iMember];
+                if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0)
+                {
+                  m_pushConstantOffset[iUniform] = member.offset;
+                  m_pushConstantSize[iUniform] = member.size;
+                }
+              }
+            }
+          }
         }
       }
 
@@ -341,6 +369,27 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
     // failed! TODO - Error handling
   }
 
+  if (m_pushConstantBuffer) {
+    VkPipelineLayoutCreateInfo pushConstantsLayoutInfo{};
+    pushConstantsLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pushConstantsLayoutInfo.setLayoutCount = 0;
+    pushConstantsLayoutInfo.pSetLayouts = nullptr;
+    pushConstantsLayoutInfo.pushConstantRangeCount = 0;
+    pushConstantsLayoutInfo.pPushConstantRanges = nullptr;
+
+    // TODO - We need to support push constants for other shader stages
+    VkPushConstantRange push_constant{};
+    push_constant.offset = 0;
+    push_constant.size = m_pushConstantBufferSize;
+    push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantsLayoutInfo.pPushConstantRanges = &push_constant;
+    pushConstantsLayoutInfo.pushConstantRangeCount = 1;
+
+    if (vkCreatePipelineLayout(device->m_logicalDevice, &pushConstantsLayoutInfo, nullptr, &m_pushConstantsLayout) != VK_SUCCESS) {
+      // failed! TODO - Error handling
+    }
+  }
+
   VkPipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
   switch (info.rasterMode) {
@@ -404,114 +453,6 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   }
 }
 
-KRPipeline::KRPipeline(KRContext &context, char *szKey, std::string options, std::string vertShaderSource, const std::string fragShaderSource) : KRContextObject(context)
-{
-    strcpy(m_szKey, szKey);
-    m_iProgram = 0;
-    
-    
-    GLuint vertexShader = 0, fragShader = 0;
-
-    const GLchar *vertSource[2] = {options.c_str(), vertShaderSource.c_str()};
-    const GLchar *fragSource[2] = {options.c_str(), fragShaderSource.c_str()};
-    
-    // Create shader program.
-    GLDEBUG(m_iProgram = glCreateProgram());
-    
-    // Create and compile vertex shader.
-    GLDEBUG(vertexShader = glCreateShader(GL_VERTEX_SHADER));
-    GLDEBUG(glShaderSource(vertexShader, 2, vertSource, NULL));
-    GLDEBUG(glCompileShader(vertexShader));
-    
-    // Report any compile issues to stderr
-    GLint logLength = 0;
-    GLDEBUG(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength + 1);
-        assert(log != NULL);
-        log[0] = '\0'; // In case glGetShaderInfoLog fails
-        GLDEBUG(glGetShaderInfoLog(vertexShader, logLength, &logLength, log));
-        log[logLength] = '\0';
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile vertex shader: %s\nShader compile log:\n%s", szKey, log);
-        free(log);
-    }
-
-    
-    // Create and compile vertex shader.
-    GLDEBUG(fragShader = glCreateShader(GL_FRAGMENT_SHADER));
-    GLDEBUG(glShaderSource(fragShader, 2, fragSource, NULL));
-    GLDEBUG(glCompileShader(fragShader));
-    
-    // Report any compile issues to stderr
-    logLength = 0; // In case glGetShaderiv fails
-    GLDEBUG(glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength));
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength + 1);
-        assert(log != NULL);
-        log[0] = '\0'; // In case glGetShaderInfoLog fails
-        GLDEBUG(glGetShaderInfoLog(fragShader, logLength, &logLength, log));
-        log[logLength] = '\0';
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to compile fragment shader: %s\nShader compile log:\n%s", szKey, log);
-        free(log);
-    }
-    
-    // Attach vertex shader to program.
-    GLDEBUG(glAttachShader(m_iProgram, vertexShader));
-    
-    // Attach fragment shader to program.
-    GLDEBUG(glAttachShader(m_iProgram, fragShader));
-    
-    // Bind attribute locations.
-    // This needs to be done prior to linking.
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_VERTEX, "vertex_position"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_NORMAL, "vertex_normal"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TANGENT, "vertex_tangent"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVA, "vertex_uv"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_TEXUVB, "vertex_lightmap_uv"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEINDEXES, "bone_indexes"));
-    GLDEBUG(glBindAttribLocation(m_iProgram, KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS, "bone_weights"));
-    
-    // Link program.
-    GLDEBUG(glLinkProgram(m_iProgram));
-    
-    GLint link_success = GL_FALSE;
-    GLDEBUG(glGetProgramiv(m_iProgram, GL_LINK_STATUS, &link_success));
-    
-    if(link_success != GL_TRUE) {
-        // Report any linking issues to stderr
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to link shader program: %s", szKey);
-        logLength = 0; // In case glGetProgramiv fails
-        GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
-        if (logLength > 0)
-        {
-            GLchar *log = (GLchar *)malloc(logLength + 1);
-            assert(log != NULL);
-            log[0] = '\0'; // In case glGetProgramInfoLog fails
-            GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-            log[logLength] = '\0';
-            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program link log:\n%s", log);
-            free(log);
-        }
-        GLDEBUG(glDeleteProgram(m_iProgram));
-        m_iProgram = 0;
-    } else {
-    
-        // Get uniform locations
-        for(int i=0; i < KRENGINE_NUM_UNIFORMS; i++ ){
-            GLDEBUG(m_uniforms[i] = glGetUniformLocation(m_iProgram, KRENGINE_UNIFORM_NAMES[i]));
-            m_uniform_value_index[i] = -1;
-        }
-    }
-
-    // Release vertex and fragment shaders.
-    if (vertexShader) {
-        GLDEBUG(glDeleteShader(vertexShader));
-	}
-    if (fragShader) {
-        GLDEBUG(glDeleteShader(fragShader));
-	}
-}
-
 KRPipeline::~KRPipeline() {
   if (m_graphicsPipeline) {
     // TODO: vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
@@ -519,144 +460,68 @@ KRPipeline::~KRPipeline() {
   if (m_pipelineLayout) {
     // TODO: vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
   }
+  if (m_pushConstantsLayout) {
+    // TODO: vkDestroyPipelineLayout(device, m_pushConstantsLayout, nullptr);
+  }
 
-    if(m_iProgram) {
-        GLDEBUG(glDeleteProgram(m_iProgram));
-        if(getContext().getPipelineManager()->m_active_pipeline == this) {
-            getContext().getPipelineManager()->m_active_pipeline = NULL;
-        }
-    }
+  if(getContext().getPipelineManager()->m_active_pipeline == this) {
+      getContext().getPipelineManager()->m_active_pipeline = NULL;
+  }
+  if (m_pushConstantBuffer) {
+    delete m_pushConstantBuffer;
+    m_pushConstantBuffer = nullptr;
+  }
 }
 
 void KRPipeline::setUniform(int location, float value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_float.size();
-            m_uniform_value_float.push_back(value);
-        } else if(m_uniform_value_float[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_float[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniform1f(m_uniforms[location], value));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    float* constant = (float*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
+
 void KRPipeline::setUniform(int location, int value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_int.size();
-            m_uniform_value_int.push_back(value);
-        } else if(m_uniform_value_int[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_int[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniform1i(m_uniforms[location], value));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    int* constant = (int*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
 
 void KRPipeline::setUniform(int location, const Vector2 &value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_vector2.size();
-            m_uniform_value_vector2.push_back(value);
-        } else if(m_uniform_value_vector2[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_vector2[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniform2f(m_uniforms[location], value.x, value.y));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    Vector2* constant = (Vector2*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
 void KRPipeline::setUniform(int location, const Vector3 &value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_vector3.size();
-            m_uniform_value_vector3.push_back(value);
-        } else if(m_uniform_value_vector3[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_vector3[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniform3f(m_uniforms[location], value.x, value.y, value.z));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    Vector3* constant = (Vector3*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
+
 void KRPipeline::setUniform(int location, const Vector4 &value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_vector4.size();
-            m_uniform_value_vector4.push_back(value);
-        } else if(m_uniform_value_vector4[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_vector4[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniform4f(m_uniforms[location], value.x, value.y, value.z, value.w));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    Vector4* constant = (Vector4*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
 
 void KRPipeline::setUniform(int location, const Matrix4 &value)
 {
-    if(m_uniforms[location] != -1) {
-        int value_index = m_uniform_value_index[location];
-        bool needs_update = true;
-        if(value_index == -1) {
-            m_uniform_value_index[location] = (int)m_uniform_value_mat4.size();
-            m_uniform_value_mat4.push_back(value);
-        } else if(m_uniform_value_mat4[value_index] == value) {
-            needs_update = false;
-        } else {
-            m_uniform_value_mat4[value_index] = value;
-        }
-        if(needs_update) {
-            GLDEBUG(glUniformMatrix4fv(m_uniforms[location], 1, GL_FALSE, value.c));
-        }
-    }
+  if (m_pushConstantSize[location] == sizeof(value)) {
+    Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+    *constant = value;
+  }
 }
 
-void KRPipeline::bind(VkCommandBuffer& commandBuffer)
+bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color)
 {
-  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
-}
-
-bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power, const Vector4 &fade_color) {
-    if(m_iProgram == 0) {
-        return false;
-    }
-    
-    bool shander_changed = false;
-    if(getContext().getPipelineManager()->m_active_pipeline != this) {
-        getContext().getPipelineManager()->m_active_pipeline = this;
-        GLDEBUG(glUseProgram(m_iProgram));
-        shander_changed = true;
-    }
-    
-    
     setUniform(KRENGINE_UNIFORM_ABSOLUTE_TIME, getContext().getAbsoluteTime());
     
     int light_directional_count = 0;
@@ -671,7 +536,7 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
           KRDirectionalLight* directional_light = (*light_itr);
           if (light_directional_count == 0) {
             int cShadowBuffers = directional_light->getShadowBufferCount();
-            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE1] != -1 && cShadowBuffers > 0) {
+            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE1] && cShadowBuffers > 0) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -681,7 +546,7 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
               m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
             }
 
-            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE2] != -1 && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE2] && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -690,7 +555,7 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
               m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
             }
 
-            if (m_uniforms[KRENGINE_UNIFORM_SHADOWTEXTURE3] != -1 && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE3] && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -706,7 +571,7 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
               setUniform(KRENGINE_UNIFORM_SHADOWMVP1 + iShadow, matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
             }
 
-            if (m_uniforms[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE] != -1) {
+            if (m_pushConstantSize[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE]) {
               Matrix4 inverseModelMatrix = matModel;
               inverseModelMatrix.invert();
 
@@ -724,41 +589,39 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
         //light_point_count = point_lights.size();
         //light_spot_count = spot_lights.size();
     }
-    
 
-    
-    if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
         Matrix4 inverseModelMatrix = matModel;
         inverseModelMatrix.invert();
         
-        if(m_uniforms[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE] != -1) {
+        if(m_pushConstantSize[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
             // Transform location of camera to object space for calculation of specular halfVec
             Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
             setUniform(KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE, cameraPosObject);
         }
     }
     
-    if(m_uniforms[KRENGINE_UNIFORM_MVP] != -1 || m_uniforms[KRPipeline::KRENGINE_UNIFORM_INVMVP] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_MVP] || m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
         // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
         Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
         setUniform(KRENGINE_UNIFORM_MVP, mvpMatrix);
         
-        if(m_uniforms[KRPipeline::KRENGINE_UNIFORM_INVMVP] != -1) {
+        if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
             setUniform(KRPipeline::KRENGINE_UNIFORM_INVMVP, Matrix4::Invert(mvpMatrix));
         }
     }
     
-    if(m_uniforms[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1 || m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1 || m_uniforms[KRPipeline::KRENGINE_UNIFORM_MODEL_VIEW] != -1) {
+    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] || m_pushConstantSize[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] || m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_MODEL_VIEW]) {
         Matrix4 matModelView = matModel * viewport.getViewMatrix();
         setUniform(KRENGINE_UNIFORM_MODEL_VIEW, matModelView);
         
         
-        if(m_uniforms[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] != -1) {
+        if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN]) {
             Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
             setUniform(KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN, view_space_model_origin);
         }
         
-        if(m_uniforms[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] != -1) {
+        if(m_pushConstantSize[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE]) {
             Matrix4 matModelViewInverseTranspose = matModelView;
             matModelViewInverseTranspose.transpose();
             matModelViewInverseTranspose.invert();
@@ -766,18 +629,18 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
         }
     }
     
-    if(m_uniforms[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE]) {
         Matrix4 matModelInverseTranspose = matModel;
         matModelInverseTranspose.transpose();
         matModelInverseTranspose.invert();
         setUniform(KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE, matModelInverseTranspose);
     }
     
-    if(m_uniforms[KRPipeline::KRENGINE_UNIFORM_INVP] != -1) {
+    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVP]) {
         setUniform(KRENGINE_UNIFORM_INVP, viewport.getInverseProjectionMatrix());
     }
     
-    if(m_uniforms[KRPipeline::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE] != -1) {
+    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE]) {
         Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
         // Remove the translation
         matInvMVPNoTranslate.getPointer()[3] = 0;
@@ -793,11 +656,11 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
     }
     
     setUniform(KRENGINE_UNIFORM_MODEL_MATRIX, matModel);
-    if(m_uniforms[KRENGINE_UNIFORM_PROJECTION_MATRIX] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_PROJECTION_MATRIX]) {
         setUniform(KRENGINE_UNIFORM_PROJECTION_MATRIX, viewport.getProjectionMatrix());
     }
     
-    if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_VIEWPORT]) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT, Vector4::Create(
                 (float)0.0,
                 (float)0.0,
@@ -807,7 +670,7 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
         );
     }
     
-    if(m_uniforms[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE]) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
     }
     
@@ -824,13 +687,13 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
     setUniform(KRENGINE_UNIFORM_FOG_DENSITY, camera.settings.fog_density);
     setUniform(KRENGINE_UNIFORM_FOG_COLOR, camera.settings.fog_color);
     
-    if(m_uniforms[KRENGINE_UNIFORM_FOG_SCALE] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_FOG_SCALE]) {
         setUniform(KRENGINE_UNIFORM_FOG_SCALE, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
     }
-    if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL]) {
         setUniform(KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
     }
-    if(m_uniforms[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED] != -1) {
+    if(m_pushConstantSize[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED]) {
         setUniform(KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
     }
     
@@ -855,33 +718,12 @@ bool KRPipeline::bind(KRCamera &camera, const KRViewport &viewport, const Matrix
     setUniform(KRENGINE_UNIFORM_DEPTH_FRAME, 0);
     setUniform(KRENGINE_UNIFORM_RENDER_FRAME, 1);
     setUniform(KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME, 2);
-    
-#if defined(DEBUG)
-    if(shander_changed) { // FINDME!! KIP!! HACK!!
-        GLint logLength;
-        
-        GLint validate_status = GL_FALSE;
-        GLDEBUG(glValidateProgram(m_iProgram));
-        GLDEBUG(glGetProgramiv(m_iProgram, GL_VALIDATE_STATUS, &validate_status));
-        if(validate_status != GL_TRUE) {
-            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KREngine - Failed to validate shader program: %s", m_szKey);
-            logLength = 0; // In case glGetProgramiv fails
-            GLDEBUG(glGetProgramiv(m_iProgram, GL_INFO_LOG_LENGTH, &logLength));
-            if (logLength > 0)
-            {
-                GLchar *log = (GLchar *)malloc(logLength + 1);
-                assert(log != NULL);
-                log[0] = '\0'; // In case glGetProgramInfoLog fails
-                GLDEBUG(glGetProgramInfoLog(m_iProgram, logLength, &logLength, log));
-                log[logLength] = '\0';
-                KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Program validate log:\n%s", log);
-                free(log);
-                
-            }
-            return false;
-        }
+
+    if(m_pushConstantBuffer) {
+      vkCmdPushConstants(commandBuffer, m_pushConstantsLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, m_pushConstantBufferSize, m_pushConstantBuffer);
     }
-#endif
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
     return true;
 }

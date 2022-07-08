@@ -9,6 +9,12 @@ layout(location = 1) in vec3 vertex_normal;
 layout(location = 2) in vec3 vertex_tangent;
 layout(constant_id = 0) const int QUALITY_LEVEL = 64; // Specialization constant test
 
+layout( push_constant ) uniform constants
+{
+	vec3 fade_color;
+	mat4 model_matrix;
+} PushConstants;
+
 void main() {
     gl_Position = vec4(vertex_position * 0.5, 1.0);
     fragColor = vertex_normal * 0.25 + vec3(0.5, 0.5, 0.5);
