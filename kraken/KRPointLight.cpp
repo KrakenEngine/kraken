@@ -117,7 +117,7 @@ void KRPointLight::render(RenderInfo& ri)
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
-            pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+            pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass, Vector3::Zero(), 0.0f);
                 
             if(bInsideLight) {
                 // Render a full screen quad

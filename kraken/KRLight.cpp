@@ -273,7 +273,7 @@ void KRLight::render(RenderInfo& ri) {
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
-                pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass, Vector3::Zero(), 0.0f);
                     
                 KRDataBlock particle_index_data;
                 m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
@@ -328,7 +328,7 @@ void KRLight::render(RenderInfo& ri) {
             
         pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
         pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
-        pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f, Vector4::Zero());
+        pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, Vector3::Zero(), 0.0f);
             
         KRDataBlock index_data;
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
@@ -366,7 +366,7 @@ void KRLight::render(RenderInfo& ri) {
               info.vertexAttributes = sphereModel->getVertexAttributes();
 
               KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-              pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+              pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f);
 
               GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
   #if TARGET_OS_IPHONE || defined(ANDROID)
@@ -422,7 +422,7 @@ void KRLight::render(RenderInfo& ri) {
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
                         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
-                        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f);
 
                         m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
                         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
@@ -532,7 +532,7 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             info.cullMode = CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-            shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());
+            shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f);
             
             getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
         }

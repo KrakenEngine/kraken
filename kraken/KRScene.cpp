@@ -298,7 +298,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
                     KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-                    pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                    pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f);
                     vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
                     m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
 

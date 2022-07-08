@@ -159,7 +159,7 @@ void KRSprite::render(RenderInfo& ri) {
 
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);
-                pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+                pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, Vector3::Zero(), 0.0f);
 
                 m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
                 m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

@@ -155,7 +155,7 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
-        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());
+        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass, Vector3::Zero(), 0.0f);
             
         // Render a full screen quad
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

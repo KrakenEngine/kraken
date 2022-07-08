@@ -436,7 +436,7 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
         m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     }
 
-    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power, Vector4::Zero());
+    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power);
 }
 
 const std::string &KRMaterial::getName() const
