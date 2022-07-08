@@ -231,7 +231,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
           info.vertexAttributes = sphereMesh->getVertexAttributes();
           info.modelFormat = sphereMesh->getModelFormat();
           KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
-          testPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f);
+          testPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE);
           sphereMesh->renderNoMaterials(commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
         }
 
@@ -260,7 +260,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
         info.cullMode = CullMode::kCullNone;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
-        pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f);
+        pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE);
 
         getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
         
@@ -354,7 +354,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
             Matrix4 matModel = Matrix4();
             matModel.scale((*itr).first.size() * 0.5f);
             matModel.translate((*itr).first.center());
-            pVisShader->bind(commandBuffer, *this, m_viewport, matModel, nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f);
+            pVisShader->bind(commandBuffer, *this, m_viewport, matModel, nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
             vkCmdDraw(commandBuffer, 14, 1, 0, 0);
         }
     }
@@ -573,7 +573,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
     
     postShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FADE_COLOR, m_fade_color);
-    postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f);
+    postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
     
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -748,7 +748,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
-        fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f);
+        fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         

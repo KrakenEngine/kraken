@@ -520,7 +520,7 @@ void KRPipeline::setUniform(int location, const Matrix4 &value)
   }
 }
 
-bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power)
+bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass)
 {
     setUniform(KRENGINE_UNIFORM_ABSOLUTE_TIME, getContext().getAbsoluteTime());
     
@@ -673,10 +673,6 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
     if(m_pushConstantSize[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE]) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
     }
-    
-    // Rim highlighting parameters
-    setUniform(KRENGINE_UNIFORM_RIM_COLOR, rim_color);
-    setUniform(KRENGINE_UNIFORM_RIM_POWER, rim_power);
     
     // Fog parameters
     setUniform(KRENGINE_UNIFORM_FOG_NEAR, camera.settings.fog_near);

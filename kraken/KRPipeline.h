@@ -210,7 +210,7 @@ public:
     virtual ~KRPipeline();
     const char *getKey() const;
     
-    bool bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *>*spot_lights, const KRNode::RenderPass &renderPass, const Vector3 &rim_color, float rim_power);
+    bool bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *>*spot_lights, const KRNode::RenderPass &renderPass);
 
     enum {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,

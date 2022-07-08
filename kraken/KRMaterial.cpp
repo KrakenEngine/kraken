@@ -351,6 +351,10 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
     info.vertexAttributes = vertexAttributes;
     info.cullMode = cullMode;
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+
+    // Rim highlighting parameters
+    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_RIM_COLOR, rim_color);
+    pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_RIM_POWER, rim_power);
     
     // Bind bones
     if(pShader->m_pushConstantOffset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
@@ -436,7 +440,7 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
         m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     }
 
-    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power);
+    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 }
 
 const std::string &KRMaterial::getName() const
