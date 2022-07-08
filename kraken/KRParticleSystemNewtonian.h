@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRPARTICLESYSTEMNEWTONIAN_H
-#define KRPARTICLESYSTEMNEWTONIAN_H
+#pragma once
 
 #include "KRParticleSystem.h"
 
@@ -54,5 +53,3 @@ public:
 private:
     float m_particlesAbsoluteTime;
 };
-
-#endif

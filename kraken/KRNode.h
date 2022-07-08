@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRNODE_H
-#define KRNODE_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRViewport.h"
@@ -345,6 +344,3 @@ public:
         return NULL;
     }
 };
-
-
-#endif

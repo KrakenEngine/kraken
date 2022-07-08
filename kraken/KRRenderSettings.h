@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRRENDERSETTINGS_H
-#define KRRENDERSETTINGS_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -135,5 +134,3 @@ private:
     float m_lodBias;
     bool m_enable_realtime_occlusion;
 };
-
-#endif

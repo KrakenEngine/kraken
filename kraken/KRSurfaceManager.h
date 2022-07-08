@@ -29,13 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 
 #include "KRContext.h"
 #include "KRSurface.h"
-
-#ifndef KRSURFACEMANAGER_H
-#define KRSURFACEMANAGER_H
 
 class KRSurfaceManager : KRContextObject
 {
@@ -55,5 +54,3 @@ private:
 
   void destroySurfaces();
 };
-
-#endif // KRSURFACEMANAGER_H

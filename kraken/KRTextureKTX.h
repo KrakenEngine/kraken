@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTUREKTX_H
-#define KRTEXTUREKTX_H
+#pragma once
 
 #include "KRTexture2D.h"
 
@@ -70,5 +69,3 @@ protected:
     
     KTXHeader m_header;
 };
-
-#endif

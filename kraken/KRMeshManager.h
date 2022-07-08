@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMESHMANAGER_H
-#define KRMESHMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -220,5 +219,3 @@ private:
     void primeVBO(KRVBOData *vbo_data);
 
 };
-
-#endif

@@ -52,6 +52,7 @@ class KRAudioManager;
 class KRPresentationThread;
 class KRStreamerThread;
 class KRDeviceManager;
+class KRSurfaceManager;
 
 class KRContext {
 public:

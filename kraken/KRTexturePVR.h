@@ -28,8 +28,8 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#ifndef KRTEXTUREPVR_H
-#define KRTEXTUREPVR_H
+
+#pragma once
 
 #include "KRTexture2D.h"
 
@@ -53,5 +53,3 @@ protected:
     
     std::list<KRDataBlock *> m_blocks;
 };
-
-#endif

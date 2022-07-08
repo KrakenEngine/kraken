@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRREVERB_ZONE_H
-#define KRREVERB_ZONE_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -72,6 +71,3 @@ private:
     std::string m_reverb;
     float m_reverb_gain;
 };
-
-
-#endif

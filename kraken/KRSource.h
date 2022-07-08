@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSOURCE_H
-#define KRSOURCE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
@@ -55,5 +54,3 @@ private:
     std::string m_extension;
     KRDataBlock *m_pData;
 };
-
-#endif /* defined(KRSOURCE_H) */

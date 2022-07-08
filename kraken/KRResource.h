@@ -29,12 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-#ifndef KRRESOURCE_H
-#define KRRESOURCE_H
 class KRBundle;
 class KRScene;
 class KRMesh;
@@ -69,5 +69,3 @@ private:
     
 
 };
-
-#endif

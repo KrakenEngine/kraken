@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSPRITE_H
-#define KRSPRITE_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -61,5 +60,3 @@ protected:
     KRTexture *m_pSpriteTexture;
     float m_spriteAlpha;
 };
-
-#endif

@@ -29,10 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KREngine-common.h"
+#pragma once
 
-#ifndef KRMODEL_H
-#define KRMODEL_H
+#include "KREngine-common.h"
 
 #include "KRMesh.h"
 #include "KRModel.h"
@@ -93,6 +92,3 @@ private:
     Vector3 m_rim_color;
     float m_rim_power;
 };
-
-
-#endif

@@ -29,9 +29,6 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef HELLO_CUBE_H
-#define HELLO_CUBE_H
+#pragma once
 
 void smoke_load();
-
-#endif // HELLO_CUBE_H

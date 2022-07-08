@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSCENE_H
-#define KRSCENE_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -123,7 +122,3 @@ public:
         return NULL;
     }
 };
-
-
-
-#endif

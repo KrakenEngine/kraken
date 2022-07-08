@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTURECUBE_H
-#define KRTEXTURECUBE_H
+#pragma once
 
 #include "KRTexture.h"
 
@@ -71,6 +70,3 @@ private:
     
     KRTexture2D *m_textures[6];
 };
-
-
-#endif /* defined(KRTEXTURECUBE_H) */

@@ -29,13 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
 
 using std::list;
-
-#ifndef KRTEXTURE2D_H
-#define KRTEXTURE2D_H
 
 #include "KRTexture.h"
 
@@ -54,5 +53,3 @@ protected:
     
     virtual bool createGLTexture(int lod_max_dim);
 };
-
-#endif

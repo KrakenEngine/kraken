@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRENGINE_KRSCENEMANAGER_H
-#define KRENGINE_KRSCENEMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -66,5 +65,3 @@ private:
     std::mutex m_mutex;
     
 };
-
-#endif

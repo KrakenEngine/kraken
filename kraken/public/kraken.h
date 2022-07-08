@@ -28,8 +28,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAKEN_H
-#define KRAKEN_H
+#pragma once
 
 #include "context.h"
 #include "hydra.h"
@@ -435,5 +434,3 @@ KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
 KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
 KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
 KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
-
-#endif // KRAKEN_H

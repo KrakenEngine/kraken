@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSOURCE_MANAGER_H
-#define KRSOURCE_MANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -59,5 +58,3 @@ public:
 private:
     unordered_map<std::string, unordered_map<std::string, KRSource *> > m_sources;
 };
-
-#endif /* defined(KRUNKNOWN_MANAGER_H) */

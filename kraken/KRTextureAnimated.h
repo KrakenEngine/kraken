@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTUREANIMATED_H
-#define KRTEXTUREANIMATED_H
+#pragma once
 
 #include "KRTexture.h"
 #include "KRTexture2D.h"
@@ -62,6 +61,3 @@ private:
     std::string textureNameForFrame(int frame);
     KRTexture2D *textureForFrame(int frame);
 };
-
-
-#endif /* defined(KRTEXTURECUBE_H) */

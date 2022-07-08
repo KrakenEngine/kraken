@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMESHQUAD_H
-#define KRMESHQUAD_H
+#pragma once
 
 #include "KRMesh.h"
 
@@ -40,5 +39,3 @@ public:
     virtual ~KRMeshQuad();
 private:
 };
-
-#endif

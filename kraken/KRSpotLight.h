@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KREngine_KRSpotLight_h
-#define KREngine_KRSpotLight_h
+#pragma once
 
 #include "KRLight.h"
 
@@ -55,6 +54,3 @@ private:
     float m_innerAngle; // Inner angle of the cone, in radians.  Inside this radius, the light will be at full brightness
     float m_outerAngle; // Outer angle of the cone, in radians.  Outside this radius, the light will be completely attenuated
 };
-
-
-#endif

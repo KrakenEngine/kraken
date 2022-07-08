@@ -29,10 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
-
-#ifndef KRTEXTURE_H
-#define KRTEXTURE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
@@ -113,6 +110,3 @@ private:
     std::atomic<long> m_textureMemUsed;
     std::atomic<long> m_newTextureMemUsed;
 };
-
-
-#endif /* defined(KRTEXTURE_H) */

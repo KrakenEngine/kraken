@@ -28,8 +28,8 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#ifndef KRENGINE_KRVIEWPORT_H
-#define KRENGINE_KRVIEWPORT_H
+
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -90,8 +90,4 @@ private:
     void calculateDerivedValues();
     
     unordered_map<AABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
-    
-    
 };
-
-#endif

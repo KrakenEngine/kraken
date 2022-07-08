@@ -29,10 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
-
-#ifndef KRSWAPCHAIN_H
-#define KRSWAPCHAIN_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContext.h"
@@ -62,5 +59,3 @@ public:
   std::vector<VkFramebuffer> m_framebuffers;
 
 };
-
-#endif KRSWAPCHAIN_H

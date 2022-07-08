@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRUNKNOWN_MANAGER_H
-#define KRUNKNOWN_MANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -61,5 +60,3 @@ public:
 private:
     unordered_map<std::string, unordered_map<std::string, KRUnknown *> > m_unknowns;
 };
-
-#endif /* defined(KRUNKNOWN_MANAGER_H) */

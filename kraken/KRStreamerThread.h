@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSTREAMERTHREAD_H
-#define KRSTREAMERTHREAD_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -57,5 +56,3 @@ private:
     
     void run();
 };
-
-#endif // KRSTREAMERTHREAD_H

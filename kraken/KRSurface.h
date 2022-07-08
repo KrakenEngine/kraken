@@ -29,11 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 #include "KRContext.h"
-
-#ifndef KRSURFACE_H
-#define KRSURFACE_H
 
 class KRDevice;
 class KRRenderPass;
@@ -87,5 +86,3 @@ private:
   void destroySwapChain();
   KrResult createSwapChain();
 };
-
-#endif // KRSURFACE_H

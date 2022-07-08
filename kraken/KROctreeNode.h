@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KROCTREENODE_H
-#define KROCTREENODE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "hitinfo.h"
@@ -83,6 +82,3 @@ private:
 
     std::set<KRNode *>m_sceneNodes;
 };
-
-
-#endif /* defined(KROCTREENODE_H) */

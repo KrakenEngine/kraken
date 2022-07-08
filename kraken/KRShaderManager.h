@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSHADER_MANAGER_H
-#define KRSHADER_MANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -65,5 +64,3 @@ private:
     unordered_map<std::string, unordered_map<std::string, KRShader *> > m_shaders;
     bool m_initializedGlslang;
 };
-
-#endif /* defined(KRUNKNOWN_MANAGER_H) */

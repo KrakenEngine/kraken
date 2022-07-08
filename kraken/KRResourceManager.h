@@ -29,8 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRRESOURCEMANAGER_H
-#define KRRESOURCEMANAGER_H
+#pragma once
+
 #include "KREngine-common.h"
 
 #include "KRResource.h"
@@ -45,5 +45,3 @@ public:
     virtual KRResource* loadResource(const std::string &name, const std::string &extension, KRDataBlock *data) = 0;
     virtual KRResource* getResource(const std::string &name, const std::string &extension) = 0;
 };
-
-#endif // KRRESOURCEMANAGER_H

@@ -29,6 +29,8 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 
 #include "KRContext.h"
@@ -38,8 +40,6 @@ using std::vector;
 
 #include "KRPipeline.h"
 
-#ifndef KRPRESENTATIONTHREAD_H
-#define KRPRESENTATIONTHREAD_H
 
 class KRPresentationThread : KRContextObject
 {
@@ -72,5 +72,3 @@ private:
   void run();
   void renderFrame();
 };
-
-#endif // KRPRESENTATIONTHREAD_H

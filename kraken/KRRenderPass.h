@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRRENDERPASS_H
-#define KRRENDERPASS_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContext.h"
@@ -58,6 +57,3 @@ public:
 // private:
   VkRenderPass m_renderPass;
 };
-
-
-#endif // KRRENDERPASS_H

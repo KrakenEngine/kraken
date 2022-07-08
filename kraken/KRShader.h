@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRSHADER_H
-#define KRSHADER_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
@@ -66,5 +65,3 @@ private:
     void parseReflection();
     void freeReflection();
 };
-
-#endif /* defined(KRSHADER_H) */

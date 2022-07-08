@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTUREMANAGER_H
-#define KRTEXTUREMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -112,5 +111,3 @@ private:
     
     std::mutex m_streamerFenceMutex;
 };
-
-#endif

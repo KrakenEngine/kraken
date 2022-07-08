@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRPARTICLESYSTEM_H
-#define KRPARTICLESYSTEM_H
+#pragma once
 
 #include "KRNode.h"
 
@@ -51,5 +50,3 @@ protected:
 private:
     
 };
-
-#endif

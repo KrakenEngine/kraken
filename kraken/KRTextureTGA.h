@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRTEXTURETGA_H
-#define KRTEXTURETGA_H
+#pragma once
 
 #include "KRTexture2D.h"
 
@@ -51,5 +50,3 @@ public:
 private:
     long m_imageSize;
 };
-
-#endif

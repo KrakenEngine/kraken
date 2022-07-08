@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMESHSPHERE_H
-#define KRMESHSPHERE_H
+#pragma once
 
 #include "KRMesh.h"
 
@@ -40,5 +39,3 @@ public:
     virtual ~KRMeshSphere();
 private:
 };
-
-#endif

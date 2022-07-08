@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRPOINTLIGHT_H
-#define KRPOINTLIGHT_H
+#pragma once
 
 #include "KRLight.h"
 
@@ -52,5 +51,3 @@ private:
     float *m_sphereVertices;
     int m_cVertices;
 };
-
-#endif

@@ -28,8 +28,8 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#ifndef KRRESOURCE_BLEND_H
-#define KRRESOURCE_BLEND_H
+
+#pragma once
 
 class KRBlendFile {
 public:
@@ -66,7 +66,3 @@ private:
     
     std::vector<Block> m_blocks;
 };
-
-
-
-#endif

@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAKEN_CONTEXT_H
-#define KRAKEN_CONTEXT_H
+#pragma once
 
 namespace kraken {
 
@@ -47,5 +46,3 @@ private:
 };
 
 } // namepsace kraken
-
-#endif // KRAKEN_CONTEXT_H

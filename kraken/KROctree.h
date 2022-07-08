@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KROCTREE_H
-#define KROCTREE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KROctreeNode.h"
@@ -59,5 +58,3 @@ private:
 
     void shrink();
 };
-
-#endif /* defined(KROCTREE_H) */
