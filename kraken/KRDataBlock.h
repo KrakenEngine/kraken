@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KREngine_KRDataBlock_h
-#define KREngine_KRDataBlock_h
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -127,5 +126,3 @@ private:
     void assertLocked();
 
 };
-
-#endif

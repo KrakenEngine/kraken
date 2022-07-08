@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KREngine_KRDirectionalLight_h
-#define KREngine_KRDirectionalLight_h
+#pragma once
 
 #include "KRLight.h"
 
@@ -55,5 +54,3 @@ protected:
     
 };
 
-
-#endif

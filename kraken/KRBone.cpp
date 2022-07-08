@@ -90,7 +90,7 @@ void KRBone::render(RenderInfo& ri)
           info.directional_lights = &ri.directional_lights;
           info.spot_lights = &ri.spot_lights;
           info.renderPass = ri.renderPass;
-          info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
+          info.rasterMode = RasterMode::kAdditiveNoTest;
           info.modelFormat = sphereModel->getModelFormat();
           info.vertexAttributes = sphereModel->getVertexAttributes();
 

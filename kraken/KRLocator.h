@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRLOCATOR_H
-#define KRLOCATOR_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -56,6 +55,3 @@ private:
     unordered_map<std::string, bool> m_userBoolAttributes;
     unordered_map<std::string, std::string> m_userStringAttributes;
 };
-
-
-#endif

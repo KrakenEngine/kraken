@@ -152,10 +152,10 @@ void KRSprite::render(RenderInfo& ri) {
                 info.directional_lights = &ri.directional_lights;
                 info.spot_lights = &ri.spot_lights;
                 info.renderPass = ri.renderPass;
-                info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-                info.cullMode = PipelineInfo::CullMode::kCullNone;
+                info.rasterMode = RasterMode::kAdditive;
+                info.cullMode = CullMode::kCullNone;
                 info.vertexAttributes = vertices.getVertexAttributes();
-                info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+                info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
                 KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                 pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, m_spriteAlpha);

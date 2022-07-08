@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRHELPERS_H
-#define KRHELPERS_H
+#pragma once
 
 #include "vector2.h"
 #include "vector3.h"
@@ -65,4 +64,3 @@ namespace kraken {
   const Vector3 getXMLAttribute(const std::string &base_name, ::tinyxml2::XMLElement *e, const Vector3 &default_value);
 } // namespace kraken
 
-#endif

@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAUDIO_BUFFER_H
-#define KRAUDIO_BUFFER_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRDataBlock.h"
@@ -61,5 +60,3 @@ private:
 
     KRAudioSample *m_audioSample;
 };
-
-#endif /* defined(KRAUDIO_BUFFER_H) */

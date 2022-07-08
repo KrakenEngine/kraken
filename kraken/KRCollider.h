@@ -29,10 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 
-#ifndef KRCOLLIDER_H
-#define KRCOLLIDER_H
 
 #define KRAKEN_COLLIDER_PHYSICS 1
 #define KRAKEN_COLLIDER_AUDIO 2
@@ -80,5 +80,3 @@ private:
     
     void loadModel();
 };
-
-#endif /* defined(KRCOLLIDER_H) */

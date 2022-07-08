@@ -279,26 +279,27 @@ void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name
                                 for(int i=0; i < (int)bones.size(); i++) {
                                     bone_bind_poses.push_back(getBoneBindPose(i));
                                 }
-                                if(pMaterial->bind(ri, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage)) {
                                 
-                                    switch(pMaterial->getAlphaMode()) {
-                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
-                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                                            break;
-                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                                            break;
-                                        case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
-                                            // Render back faces first
-                                            GLDEBUG(glCullFace(GL_FRONT));
-                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                
+                                switch(pMaterial->getAlphaMode()) {
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+                                        pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage);
+                                        renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                        break;
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
+                                        pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage);
+                                        renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                        break;
+                                    case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+                                        // Render back faces first
+                                        pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage);
+                                        renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
 
-                                            // Render front faces second
-                                            GLDEBUG(glCullFace(GL_BACK));
-                                            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                                            break;
-                                    }
+                                        // Render front faces second
+                                        pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, rim_color, rim_power, lod_coverage);
+                                        renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                                        break;
                                 }
                             }
                         }
@@ -357,7 +358,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         int32_t vertex_count = pHeader->vertex_count;
         
         int vbo_index=0;
-        if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+        if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
             
             int index_group = getSubmesh(iSubmesh)->index_group;
             int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
@@ -457,7 +458,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
     int cVertexes = pSubmesh->vertex_count;
     
     int vbo_index=0;
-    if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+    if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
         
         int index_group = getSubmesh(iSubmesh)->index_group;
         int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
@@ -497,12 +498,12 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
                 assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
                 switch (getModelFormat()) {
-                case KRENGINE_MODEL_FORMAT_TRIANGLES:
-                case KRENGINE_MODEL_FORMAT_STRIP:
+                case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+                case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
                     vkCmdDraw(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0);
                     break;
-                case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-                case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
                     vkCmdDrawIndexed(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0, 0);
                     break;
                 }
@@ -515,10 +516,10 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
                 assert(iVertex + cVertexes <= cBufferVertexes);
                 
                 switch (getModelFormat()) {
-                    case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                    case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
                         GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, cVertexes));
                         break;
-                    case KRENGINE_MODEL_FORMAT_STRIP:
+                    case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
                         GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, cVertexes));
                         break;
                     default:
@@ -626,7 +627,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
     pHeader->bone_count = (__int32_t)bone_count;
     pHeader->index_count = (__int32_t)index_count;
     pHeader->index_base_count = (__int32_t)index_base_count;
-    pHeader->model_format = mi.format;
+    pHeader->model_format = (__int32_t)mi.format;
     strcpy(pHeader->szTag, "KROBJPACK1.2   ");
     updateAttributeOffsets();
     
@@ -704,7 +705,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info &mi, bool calculate_normals, bool 
         *index_base_data++ = (*itr).second;
     }
     
-    if(getModelFormat() == KRENGINE_MODEL_FORMAT_TRIANGLES) {
+    if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES) {
         // Calculate missing surface normals and tangents
         //cout << "  Calculate surface normals and tangents\n";
         if(calculate_normals || calculate_tangents) {
@@ -1147,9 +1148,9 @@ Matrix4 KRMesh::getBoneBindPose(int bone_index)
     return Matrix4::Create(getBone(bone_index)->bind_pose);
 }
 
-KRMesh::model_format_t KRMesh::getModelFormat() const
+ModelFormat KRMesh::getModelFormat() const
 {
-    model_format_t f = (model_format_t)getHeader()->model_format;
+    ModelFormat f = (ModelFormat)getHeader()->model_format;
     return f;
 }
 
@@ -1195,8 +1196,8 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, HitInfo &hitinfo)
 //        int vertex_start = getSubmesh(submesh_index)->start_vertex;
         int vertex_count = getVertexCount(submesh_index);
         switch(getModelFormat()) {
-            case KRENGINE_MODEL_FORMAT_TRIANGLES:
-            case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
                 for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
                     int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
                     tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index*3);
@@ -1212,8 +1213,8 @@ bool KRMesh::rayCast(const Vector3 &start, const Vector3 &dir, HitInfo &hitinfo)
              
              NOTE: Not yet supported:
              
-            case KRENGINE_MODEL_FORMAT_STRIP:
-            case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
                 for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
                     int tri_vert_index[3];
                     tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
@@ -1241,8 +1242,8 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
     for(int submesh_index=0; submesh_index < getSubmeshCount(); submesh_index++) {
         int vertex_count = getVertexCount(submesh_index);
         switch(getModelFormat()) {
-            case KRENGINE_MODEL_FORMAT_TRIANGLES:
-            case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+            case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
                 for(int triangle_index=0; triangle_index < vertex_count / 3; triangle_index++) {
                     int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
                     tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index*3);
@@ -1264,8 +1265,8 @@ bool KRMesh::sphereCast(const Matrix4 &model_to_world, const Vector3 &v0, const 
                  
                  NOTE: Not yet supported:
                  
-                 case KRENGINE_MODEL_FORMAT_STRIP:
-                 case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                 case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+                 case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
                  for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
                  int tri_vert_index[3];
                  tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
@@ -1511,7 +1512,7 @@ void KRMesh::convertToIndexed()
     KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
     
-    mi.format = KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
     
     m_pData->unlock();
     LoadData(mi, false, false);
@@ -1520,7 +1521,7 @@ void KRMesh::convertToIndexed()
 void KRMesh::optimize()
 {
     switch(getModelFormat()) {
-        case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
             optimizeIndexes();
             break;
         default:
@@ -1546,7 +1547,7 @@ void KRMesh::getIndexedRange(int index_group, int &start_index_offset, int &star
 int KRMesh::getTriangleVertexIndex(int submesh, int index) const
 {
     switch(getModelFormat()) {
-        case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
             {
                 __uint16_t *index_data = getIndexData();
                 
@@ -1572,7 +1573,7 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
 void KRMesh::optimizeIndexes()
 {
     m_pData->lock();
-    if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+    if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
 
         __uint16_t *new_indices = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
         __uint16_t *vertex_mapping = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
@@ -1653,7 +1654,7 @@ void KRMesh::optimizeIndexes()
         free(new_indices);
         free(vertex_mapping);
         free(new_vertex_data);
-    } // if(getModelFormat() == KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES)
+    } // if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES)
     
     m_pData->unlock();
 }

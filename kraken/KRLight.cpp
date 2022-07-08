@@ -264,10 +264,10 @@ void KRLight::render(RenderInfo& ri) {
                 info.directional_lights = &this_directional_light;
                 info.spot_lights = &this_spot_light;
                 info.renderPass = ri.renderPass;
-                info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-                info.cullMode = PipelineInfo::CullMode::kCullNone;
+                info.rasterMode = RasterMode::kAdditive;
+                info.cullMode = CullMode::kCullNone;
                 info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-                info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+                info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
@@ -313,10 +313,10 @@ void KRLight::render(RenderInfo& ri) {
         info.directional_lights = &this_directional_light;
         info.spot_lights = &this_spot_light;
         info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
-        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-        info.cullMode = PipelineInfo::CullMode::kCullNone;
+        info.rasterMode = RasterMode::kAdditive;
+        info.cullMode = CullMode::kCullNone;
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
-        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         
         KRPipeline *pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
@@ -360,8 +360,8 @@ void KRLight::render(RenderInfo& ri) {
               info.directional_lights = &ri.directional_lights;
               info.spot_lights = &ri.spot_lights;
               info.renderPass = ri.renderPass;
-              info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-              info.cullMode = PipelineInfo::CullMode::kCullNone;
+              info.rasterMode = RasterMode::kAdditive;
+              info.cullMode = CullMode::kCullNone;
               info.modelFormat = sphereModel->getModelFormat();
               info.vertexAttributes = sphereModel->getVertexAttributes();
 
@@ -413,10 +413,10 @@ void KRLight::render(RenderInfo& ri) {
                         info.directional_lights = &ri.directional_lights;
                         info.spot_lights = &ri.spot_lights;
                         info.renderPass = ri.renderPass;
-                        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
-                        info.cullMode = PipelineInfo::CullMode::kCullNone;
+                        info.rasterMode = RasterMode::kAdditiveNoTest;
+                        info.cullMode = CullMode::kCullNone;
                         info.vertexAttributes = vertices.getVertexAttributes();
-                        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+                        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
 
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
@@ -528,8 +528,8 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
             info.shader_name = &shader_name;
             info.pCamera = ri.camera;
             info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-            info.rasterMode = PipelineInfo::RasterMode::kOpaqueLessTest; // TODO - This is sub-optimal.  Evaluate increasing depth buffer resolution instead of disabling depth test.
-            info.cullMode = PipelineInfo::CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
+            info.rasterMode = RasterMode::kOpaqueLessTest; // TODO - This is sub-optimal.  Evaluate increasing depth buffer resolution instead of disabling depth test.
+            info.cullMode = CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
             KRPipeline *shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
             shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP, Vector3::Zero(), 0.0f, Vector4::Zero());

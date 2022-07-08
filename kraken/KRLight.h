@@ -28,8 +28,7 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#ifndef KRLIGHT_H
-#define KRLIGHT_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -104,5 +103,3 @@ protected:
     virtual int configureShadowBufferViewports(const KRViewport &viewport);
     void renderShadowBuffers(RenderInfo& ri);
 };
-
-#endif

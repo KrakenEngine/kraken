@@ -28,8 +28,7 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-#ifndef KRBUNDLE_H
-#define KRBUNDLE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRResource.h"
@@ -50,5 +49,3 @@ private:
     KRDataBlock *m_pData;
     static size_t RoundUpSize(size_t s);
 };
-
-#endif /* defined(KRBUNDLE_H) */

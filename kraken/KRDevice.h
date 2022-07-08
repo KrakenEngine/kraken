@@ -32,8 +32,7 @@
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 
-#ifndef KRDEVICE_H
-#define KRDEVICE_H
+#pragma once
 
 class KRDevice : public KRContextObject
 {
@@ -68,5 +67,3 @@ public:
   VmaAllocator m_allocator;
 private:
 };
-
-#endif // KRDEVICE_H

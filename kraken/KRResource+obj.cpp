@@ -349,7 +349,7 @@ KRMesh* KRResource::LoadObj(KRContext &context, const std::string& path)
 //        std::vector<__uint16_t> vertex_indexes;
 //        std::vector<std::pair<int, int> > vertex_index_bases;
         
-        mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
+        mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         new_mesh->LoadData(mi, true, false);
     }
     

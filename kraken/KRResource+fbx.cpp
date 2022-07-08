@@ -1282,7 +1282,7 @@ void LoadMaterial(KRContext &context, FbxSurfaceMaterial *pMaterial) {
 
 void LoadMesh(KRContext &context, FbxScene* pFbxScene, FbxGeometryConverter *pGeometryConverter, FbxMesh* pMesh) {   
     KRMesh::mesh_info mi;
-    mi.format = KRMesh::KRENGINE_MODEL_FORMAT_TRIANGLES;
+    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
     
     typedef struct {
         float weights[KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX];

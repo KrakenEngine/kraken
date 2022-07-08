@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONCURVE_H
-#define KRANIMATIONCURVE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
@@ -82,5 +81,3 @@ private:
 
 };
 
-
-#endif

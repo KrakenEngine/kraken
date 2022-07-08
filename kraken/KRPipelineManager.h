@@ -29,6 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -42,9 +43,6 @@ using std::map;
 using std::vector;
 
 #include "KRPipeline.h"
-
-#ifndef KRPIPELINEMANAGER_H
-#define KRPIPELINEMANAGER_H
 
 class KRPipeline;
 class PipelineInfo;
@@ -67,5 +65,3 @@ private:
   typedef std::map<std::pair<std::string, std::vector<int> >, KRPipeline*> PipelineMap;
   PipelineMap m_pipelines;
 };
-
-#endif

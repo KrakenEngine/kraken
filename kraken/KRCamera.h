@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRCAMERA_H
-#define KRCAMERA_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -118,5 +117,3 @@ private:
     int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
     int m_frame_times_filled;
 };
-
-#endif

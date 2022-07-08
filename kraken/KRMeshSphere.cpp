@@ -112,7 +112,7 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     mi.material_names.push_back("");
     
 
-    mi.format = KRENGINE_MODEL_FORMAT_TRIANGLES;
+    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
     LoadData(mi, true, true);
 }
 

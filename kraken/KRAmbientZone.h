@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAMBIENT_ZONE_H
-#define KRAMBIENT_ZONE_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -72,6 +71,3 @@ private:
     std::string m_ambient;
     float m_ambient_gain;
 };
-
-
-#endif

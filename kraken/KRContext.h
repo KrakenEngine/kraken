@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KREngine_KRContext_h
-#define KREngine_KRContext_h
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRBundleManager.h"
@@ -52,6 +51,7 @@
 class KRAudioManager;
 class KRPresentationThread;
 class KRStreamerThread;
+class KRDeviceManager;
 
 class KRContext {
 public:
@@ -203,5 +203,3 @@ private:
 
     unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;
 };
-
-#endif

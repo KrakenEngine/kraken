@@ -29,13 +29,12 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
 
 #include "KRContext.h"
 #include "KRDevice.h"
-
-#ifndef KRDEVICEMANAGER_H
-#define KRDEVICEMANAGER_H
 
 class KRDeviceManager : KRContextObject
 {
@@ -61,5 +60,3 @@ private:
   VkInstance m_vulkanInstance;
 
 };
-
-#endif // KRDEVICEMANAGER_H

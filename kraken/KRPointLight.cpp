@@ -103,13 +103,13 @@ void KRPointLight::render(RenderInfo& ri)
             info.point_lights = &this_light;
             info.renderPass = ri.renderPass;
             if (bInsideLight) {
-              info.rasterMode = bVisualize ? PipelineInfo::RasterMode::kAdditiveNoTest : PipelineInfo::RasterMode::kAlphaBlendNoTest;
+              info.rasterMode = bVisualize ? RasterMode::kAdditiveNoTest : RasterMode::kAlphaBlendNoTest;
             }
             else {
-              info.rasterMode = bVisualize ? PipelineInfo::RasterMode::kAdditive : PipelineInfo::RasterMode::kAlphaBlend;
+              info.rasterMode = bVisualize ? RasterMode::kAdditive : RasterMode::kAlphaBlend;
             }
             info.vertexAttributes = bInsideLight ? m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getVertexAttributes() : 1 << KRMesh::KRENGINE_ATTRIB_VERTEX;
-            info.modelFormat = bInsideLight ? KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP : KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+            info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);

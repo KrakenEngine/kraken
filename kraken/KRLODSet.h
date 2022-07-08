@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRLODSET_H
-#define KRLODSET_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -52,6 +51,3 @@ public:
     
     virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
 };
-
-
-#endif

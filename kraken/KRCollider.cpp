@@ -213,7 +213,7 @@ void KRCollider::render(RenderInfo& ri)
             info.directional_lights = &ri.directional_lights;
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
-            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+            info.rasterMode = RasterMode::kAdditive;
             info.modelFormat = m_model->getModelFormat();
             info.vertexAttributes = m_model->getVertexAttributes();
 

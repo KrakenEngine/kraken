@@ -293,9 +293,9 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
                     info.directional_lights = &ri.directional_lights;
                     info.spot_lights = &ri.spot_lights;
                     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-                    info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+                    info.rasterMode = RasterMode::kAdditive;
                     info.vertexAttributes = vertices.getVertexAttributes();
-                    info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+                    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
                     KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
                     pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass, Vector3::Zero(), 0.0f, Vector4::Zero());

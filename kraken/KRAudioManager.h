@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAUDIO_MANAGER_H
-#define KRAUDIO_MANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -254,5 +253,3 @@ private:
     bool m_anticlick_block;
     bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };
-
-#endif /* defined(KRAUDIO_MANAGER_H) */

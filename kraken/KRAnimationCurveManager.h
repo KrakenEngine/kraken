@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONCURVEMANAGER_H
-#define KRANIMATIONCURVEMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -61,6 +60,3 @@ private:
     unordered_map<std::string, KRAnimationCurve *> m_animationCurves;
 };
 
-
-
-#endif

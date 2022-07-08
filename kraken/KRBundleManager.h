@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRBUNDLEMANAGER_H
-#define KRBUNDLEMANAGER_H
+#pragma once
 
 #include "KRResourceManager.h"
 
@@ -59,5 +58,3 @@ public:
 private:
     unordered_map<std::string, KRBundle *> m_bundles;
 };
-
-#endif /* defined(KRBUNDLEMANAGER_H) */

@@ -72,7 +72,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
   key.second.push_back(surface.m_swapChain->m_extent.width);
   key.second.push_back(surface.m_swapChain->m_extent.height);
   key.second.push_back(info.vertexAttributes);
-  key.second.push_back(info.modelFormat);
+  key.second.push_back((int)info.modelFormat);
   // TODO - Add renderPass unique identifier to key
   PipelineMap::iterator itr = m_pipelines.find(key);
   if (itr != m_pipelines.end()) {
@@ -220,10 +220,10 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define HAS_REFLECTION_CUBE_MAP " << (info.bReflectionCubeMap ? "1" : "0");
         
         stream << "\n#define ALPHA_TEST " << (info.bAlphaTest ? "1" : "0");
-        stream << "\n#define ALPHA_BLEND " << ((info.rasterMode == PipelineInfo::RasterMode::kAlphaBlend
-          || info.rasterMode == PipelineInfo::RasterMode::kAlphaBlendNoTest
-          || info.rasterMode == PipelineInfo::RasterMode::kAdditive
-          || info.rasterMode == PipelineInfo::RasterMode::kAdditiveNoTest) ? "1" : "0");
+        stream << "\n#define ALPHA_BLEND " << ((info.rasterMode == RasterMode::kAlphaBlend
+          || info.rasterMode == RasterMode::kAlphaBlendNoTest
+          || info.rasterMode == RasterMode::kAdditive
+          || info.rasterMode == RasterMode::kAdditiveNoTest) ? "1" : "0");
         
         stream << "\n#define ENABLE_PER_PIXEL " << (info.pCamera->settings.bEnablePerPixel ? "1" : "0");
         stream << "\n#define DEBUG_PSSM " << (info.pCamera->settings.bDebugPSSM ? "1" : "0");

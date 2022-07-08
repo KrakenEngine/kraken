@@ -98,10 +98,10 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
             info.directional_lights = &ri.directional_lights;
             info.spot_lights = &ri.spot_lights;
             info.renderPass = ri.renderPass;
-            info.rasterMode = PipelineInfo::RasterMode::kAdditive;
-            info.cullMode = PipelineInfo::CullMode::kCullNone;
+            info.rasterMode = RasterMode::kAdditive;
+            info.cullMode = CullMode::kCullNone;
             info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-            info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+            info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
             KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
             pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);

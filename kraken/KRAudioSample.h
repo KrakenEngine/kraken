@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAUDIOSAMPLE_H
-#define KRAUDIOSAMPLE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
@@ -109,5 +108,3 @@ private:
 
     static void PopulateBuffer(KRAudioSample *sound, int index, void *data);
 };
-
-#endif /* defined(KRAUDIOSAMPLE_H) */

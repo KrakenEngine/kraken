@@ -110,7 +110,7 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
     "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
 };
 
-KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat)
+KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
   , m_pushConstantBuffer(nullptr)
   , m_pushConstantBufferSize(0)
@@ -251,12 +251,12 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   switch (modelFormat) {
-  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES:
+  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+  case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     break;
-  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-  case KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP:
+  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+  case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
     break;
   }
@@ -290,13 +290,13 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
   rasterizer.lineWidth = 1.0f;
   switch (info.cullMode) {
-  case PipelineInfo::CullMode::kCullBack:
+  case CullMode::kCullBack:
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     break;
-  case PipelineInfo::CullMode::kCullFront:
+  case CullMode::kCullFront:
     rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
     break;
-  case PipelineInfo::CullMode::kCullNone:
+  case CullMode::kCullNone:
     rasterizer.cullMode = VK_CULL_MODE_NONE;
     break;
   }
@@ -319,24 +319,24 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
   switch (info.rasterMode) {
-  case PipelineInfo::RasterMode::kOpaque:
-  case PipelineInfo::RasterMode::kOpaqueLessTest:
-  case PipelineInfo::RasterMode::kOpaqueNoTest:
-  case PipelineInfo::RasterMode::kOpaqueNoDepthWrite:
+  case RasterMode::kOpaque:
+  case RasterMode::kOpaqueLessTest:
+  case RasterMode::kOpaqueNoTest:
+  case RasterMode::kOpaqueNoDepthWrite:
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
     break;
-  case PipelineInfo::RasterMode::kAlphaBlend:
-  case PipelineInfo::RasterMode::kAlphaBlendNoTest:
+  case RasterMode::kAlphaBlend:
+  case RasterMode::kAlphaBlendNoTest:
     colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
     break;
-  case PipelineInfo::RasterMode::kAdditive:
-  case PipelineInfo::RasterMode::kAdditiveNoTest:
+  case RasterMode::kAdditive:
+  case RasterMode::kAdditiveNoTest:
     colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
@@ -393,29 +393,29 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   VkPipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
   switch (info.rasterMode) {
-  case PipelineInfo::RasterMode::kOpaque:
-  case PipelineInfo::RasterMode::kOpaqueLessTest:
+  case RasterMode::kOpaque:
+  case RasterMode::kOpaqueLessTest:
     depthStencil.depthTestEnable = VK_TRUE;
     depthStencil.depthWriteEnable = VK_TRUE;
     break;
-  case PipelineInfo::RasterMode::kOpaqueNoTest:
+  case RasterMode::kOpaqueNoTest:
     depthStencil.depthTestEnable = VK_FALSE;
     depthStencil.depthWriteEnable = VK_TRUE;
     break;
-  case PipelineInfo::RasterMode::kOpaqueNoDepthWrite:
-  case PipelineInfo::RasterMode::kAlphaBlend:
-  case PipelineInfo::RasterMode::kAdditive:
+  case RasterMode::kOpaqueNoDepthWrite:
+  case RasterMode::kAlphaBlend:
+  case RasterMode::kAdditive:
     depthStencil.depthTestEnable = VK_TRUE;
     depthStencil.depthWriteEnable = VK_FALSE;
     break;
-  case PipelineInfo::RasterMode::kAlphaBlendNoTest:
-  case PipelineInfo::RasterMode::kAdditiveNoTest:
+  case RasterMode::kAlphaBlendNoTest:
+  case RasterMode::kAdditiveNoTest:
     depthStencil.depthTestEnable = VK_FALSE;
     depthStencil.depthWriteEnable = VK_FALSE;
     break;
   }
 
-  if (info.rasterMode == PipelineInfo::RasterMode::kOpaqueLessTest) {
+  if (info.rasterMode == RasterMode::kOpaqueLessTest) {
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
   } else {
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;

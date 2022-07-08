@@ -227,7 +227,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
           info.shader_name = &shader_name;
           info.pCamera = this;
           info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-          info.rasterMode = PipelineInfo::RasterMode::kAlphaBlend;
+          info.rasterMode = RasterMode::kAlphaBlend;
           info.vertexAttributes = sphereMesh->getVertexAttributes();
           info.modelFormat = sphereMesh->getModelFormat();
           KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
@@ -256,8 +256,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
-        info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoDepthWrite;
-        info.cullMode = PipelineInfo::CullMode::kCullNone;
+        info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
+        info.cullMode = CullMode::kCullNone;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
         pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE, Vector3::Zero(), 0.0f, Vector4::Zero());
@@ -344,9 +344,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-        info.rasterMode = PipelineInfo::RasterMode::kAdditive;
+        info.rasterMode = RasterMode::kAdditive;
         info.vertexAttributes = vertices.getVertexAttributes();
-        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
         KRPipeline *pVisShader = getContext().getPipelineManager()->getPipeline(compositeSurface, info);       
         
         m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
@@ -566,8 +566,8 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     info.shader_name = &shader_name;
     info.pCamera = this;
     info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-    info.rasterMode = PipelineInfo::RasterMode::kOpaqueNoTest;
-    info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+    info.rasterMode = RasterMode::kOpaqueNoTest;
+    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
     info.vertexAttributes = vertices.getVertexAttributes();
 
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
@@ -742,10 +742,10 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         info.shader_name = &shader_name;
         info.pCamera = this;
         info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-        info.rasterMode = PipelineInfo::RasterMode::kAlphaBlendNoTest;
-        info.cullMode = PipelineInfo::CullMode::kCullNone;
+        info.rasterMode = RasterMode::kAlphaBlendNoTest;
+        info.cullMode = CullMode::kCullNone;
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_TRIANGLES;
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline *fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
         fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, Vector3::Zero(), 0.0f, Vector4::Zero());
         

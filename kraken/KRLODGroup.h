@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRLODGROUP_H
-#define KRLODGROUP_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -62,6 +61,3 @@ private:
     AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
     bool m_use_world_units;
 };
-
-
-#endif

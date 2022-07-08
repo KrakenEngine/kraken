@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef _KRDSP_H
-#define _KRDSP_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -90,5 +89,3 @@ void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
 void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count);
 
 } // namespace KRDSP
-
-#endif // _KRDSP_H

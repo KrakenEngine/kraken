@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONLAYER_H
-#define KRANIMATIONLAYER_H
+#pragma once
 
 #include "KRContextObject.h"
 #include "KREngine-common.h"
@@ -92,5 +91,3 @@ private:
     
     std::vector<KRAnimationAttribute *> m_attributes;
 };
-
-#endif

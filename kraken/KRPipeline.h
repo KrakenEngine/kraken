@@ -30,9 +30,7 @@
 //
 
 
-
-#ifndef KRPIPELINE_H
-#define KRPIPELINE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRCamera.h"
@@ -44,134 +42,138 @@ class KRShader;
 class KRSurface;
 class KRRenderPass;
 
+enum class ModelFormat : __uint8_t;
+
+enum class CullMode : uint32_t {
+  kCullBack = 0,
+  kCullFront,
+  kCullNone
+};
+
+// Note: RasterMode is likely to be refactored later to a bitfield
+enum class RasterMode : uint32_t {
+  kOpaque = 0,
+  /*
+      kOpaque is equivalent to:
+
+      // Disable blending
+      glDisable(GL_BLEND));
+
+      // Enable z-buffer write
+      glDepthMask(GL_TRUE);
+
+      // Enable z-buffer test
+      glEnable(GL_DEPTH_TEST))
+      glDepthFunc(GL_LEQUAL);
+      glDepthRangef(0.0, 1.0);
+  */
+  kOpaqueNoDepthWrite,
+  /*
+      kOpaque is equivalent to:
+
+      // Disable blending
+      glDisable(GL_BLEND));
+
+      // Disable z-buffer write
+      glDepthMask(GL_FALSE);
+
+      // Enable z-buffer test
+      glEnable(GL_DEPTH_TEST))
+      glDepthFunc(GL_LEQUAL);
+      glDepthRangef(0.0, 1.0);
+  */
+  kOpaqueLessTest,
+  /*
+      kOpaqueLessTest is equivalent to:
+
+      // Disable blending
+      glDisable(GL_BLEND));
+
+      // Enable z-buffer write
+      glDepthMask(GL_TRUE);
+
+      // Enable z-buffer test
+      glEnable(GL_DEPTH_TEST))
+      glDepthFunc(GL_LESS);
+      glDepthRangef(0.0, 1.0);
+  */
+  kOpaqueNoTest,
+  /*
+      kOpaqueNoTest is equivalent to:
+
+      // Disable blending
+      glDisable(GL_BLEND));
+
+      // Enable z-buffer write
+      glDepthMask(GL_TRUE);
+
+      // Disable z-buffer test
+      glDisable(GL_DEPTH_TEST)
+  */
+  kAlphaBlend,
+  /*
+      kAlphaBlend is equivalent to:
+
+      // Enable alpha blending
+      glEnable(GL_BLEND));
+      glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+
+      // Disable z-buffer write
+      glDepthMask(GL_FALSE);
+
+      // Enable z-buffer test
+      glEnable(GL_DEPTH_TEST))
+      glDepthFunc(GL_LEQUAL);
+      glDepthRangef(0.0, 1.0);
+  */
+  kAlphaBlendNoTest,
+  /*
+      kAlphaBlendNoTest is equivalent to:
+
+      // Enable alpha blending
+      glEnable(GL_BLEND));
+      glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+
+      // Disable z-buffer write
+      glDepthMask(GL_FALSE);
+
+      // Disable z-buffer test
+      glDisable(GL_DEPTH_TEST)
+  */
+  kAdditive,
+  /*
+      kAdditive is equivalent to:
+
+      // Enable additive blending
+      glEnable(GL_BLEND));
+      glBlendFunc(GL_ONE, GL_ONE));
+
+      // Disable z-buffer write
+      glDepthMask(GL_FALSE);
+
+      // Enable z-buffer test
+      glEnable(GL_DEPTH_TEST))
+      glDepthFunc(GL_LEQUAL);
+      glDepthRangef(0.0, 1.0);
+  */
+  kAdditiveNoTest,
+  /*
+  kAdditive is equivalent to:
+
+  // Enable additive blending
+  glEnable(GL_BLEND));
+  glBlendFunc(GL_ONE, GL_ONE));
+
+  // Disable z-buffer write
+  glDepthMask(GL_FALSE);
+
+  // Disable z-buffer test
+  glDisable(GL_DEPTH_TEST)
+  */
+};
+
 class PipelineInfo {
 public:
-  // Note: RasterMode is likely to be refactored later to a bitfield
-  enum class RasterMode : uint32_t {
-    kOpaque = 0,
-/*
-    kOpaque is equivalent to:
-
-    // Disable blending
-    glDisable(GL_BLEND));
-
-    // Enable z-buffer write
-    glDepthMask(GL_TRUE);
-
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
-*/
-  kOpaqueNoDepthWrite,
-/*
-    kOpaque is equivalent to:
-
-    // Disable blending
-    glDisable(GL_BLEND));
-
-    // Disable z-buffer write
-    glDepthMask(GL_FALSE);
-
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
-*/
-  kOpaqueLessTest,
-/*
-    kOpaqueLessTest is equivalent to:
-
-    // Disable blending
-    glDisable(GL_BLEND));
-
-    // Enable z-buffer write
-    glDepthMask(GL_TRUE);
-
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LESS);
-    glDepthRangef(0.0, 1.0);
-*/
-  kOpaqueNoTest,
-/*
-    kOpaqueNoTest is equivalent to:
-
-    // Disable blending
-    glDisable(GL_BLEND));
-
-    // Enable z-buffer write
-    glDepthMask(GL_TRUE);
-
-    // Disable z-buffer test
-    glDisable(GL_DEPTH_TEST)
-*/
-    kAlphaBlend,
-/*
-    kAlphaBlend is equivalent to:
-
-    // Enable alpha blending
-    glEnable(GL_BLEND));
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-
-    // Disable z-buffer write
-    glDepthMask(GL_FALSE);
-
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
-*/
-    kAlphaBlendNoTest,
-/*
-    kAlphaBlendNoTest is equivalent to:
-
-    // Enable alpha blending
-    glEnable(GL_BLEND));
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-
-    // Disable z-buffer write
-    glDepthMask(GL_FALSE);
-
-    // Disable z-buffer test
-    glDisable(GL_DEPTH_TEST)
-*/
-    kAdditive,
-/*
-    kAdditive is equivalent to:
-
-    // Enable additive blending
-    glEnable(GL_BLEND));
-    glBlendFunc(GL_ONE, GL_ONE));
-
-    // Disable z-buffer write
-    glDepthMask(GL_FALSE);
-
-    // Enable z-buffer test
-    glEnable(GL_DEPTH_TEST))
-    glDepthFunc(GL_LEQUAL);
-    glDepthRangef(0.0, 1.0);
-*/
-    kAdditiveNoTest,
-    /*
-    kAdditive is equivalent to:
-
-    // Enable additive blending
-    glEnable(GL_BLEND));
-    glBlendFunc(GL_ONE, GL_ONE));
-
-    // Disable z-buffer write
-    glDepthMask(GL_FALSE);
-
-    // Disable z-buffer test
-    glDisable(GL_DEPTH_TEST)
-    */
-  };
-  enum class CullMode : uint32_t {
-    kCullBack = 0,
-    kCullFront,
-    kCullNone
-  };
   const std::string* shader_name;
   KRCamera* pCamera;
   const std::vector<KRPointLight*>* point_lights;
@@ -197,14 +199,14 @@ public:
   RasterMode rasterMode;
   CullMode cullMode;
   uint32_t vertexAttributes;
-  KRMesh::model_format_t modelFormat;
+  ModelFormat modelFormat;
   KRNode::RenderPass renderPass;
 };
 
 class KRPipeline : public KRContextObject {
 public:
 
-    KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, KRMesh::model_format_t modelFormat);
+    KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
     virtual ~KRPipeline();
     const char *getKey() const;
     
@@ -305,5 +307,3 @@ private:
     VkPipelineLayout m_pushConstantsLayout;
     
 };
-
-#endif

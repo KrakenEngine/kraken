@@ -29,6 +29,10 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
+
+
 #include "KREngine-common.h"
 
 #include "KRTexture.h"
@@ -39,10 +43,8 @@
 #include "KRScene.h"
 #include "KRBone.h"
 
-#ifndef KRMATERIAL_H
-#define KRMATERIAL_H
-
-
+enum class CullMode : __uint32_t;
+enum class ModelFormat : __uint8_t;
 
 class KRTextureManager;
 class KRContext;
@@ -83,7 +85,7 @@ public:
     bool isTransparent();
     const std::string &getName() const;
     
-    bool bind(const KRNode::RenderInfo& ri, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, const Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
+    void bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, const Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
     
     bool needsVertexTangents();
     
@@ -134,5 +136,3 @@ private:
     
     void getTextures();
 };
-
-#endif

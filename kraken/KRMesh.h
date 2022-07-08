@@ -28,6 +28,9 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
+
+#pragma once
+
 #include "KREngine-common.h"
 
 #include "KRContext.h"
@@ -47,15 +50,20 @@ using namespace kraken;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-#ifndef KRMesh_I
-#define KRMesh_I
-
 #include "KRMaterialManager.h"
 #include "KRCamera.h"
 #include "KRViewport.h"
 
 class KRMaterial;
 class KRNode;
+
+enum class ModelFormat : __uint8_t
+{
+  KRENGINE_MODEL_FORMAT_TRIANGLES = 0,
+  KRENGINE_MODEL_FORMAT_STRIP,
+  KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES,
+  KRENGINE_MODEL_FORMAT_INDEXED_STRIP
+};
 
 class KRMesh : public KRResource {
 
@@ -87,15 +95,10 @@ public:
         KRENGINE_NUM_ATTRIBUTES
     } vertex_attrib_t;
 
-    typedef enum {
-        KRENGINE_MODEL_FORMAT_TRIANGLES = 0,
-        KRENGINE_MODEL_FORMAT_STRIP,
-        KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES,
-        KRENGINE_MODEL_FORMAT_INDEXED_STRIP
-    } model_format_t;
+
 
     typedef struct {
-        model_format_t format;
+        ModelFormat format;
         std::vector<Vector3> vertices;
         std::vector<__uint16_t> vertex_indexes;
         std::vector<std::pair<int, int> > vertex_index_bases;
@@ -213,7 +216,7 @@ public:
     Matrix4 getBoneBindPose(int bone_index);
 
 
-    model_format_t getModelFormat() const;
+    ModelFormat getModelFormat() const;
 
     bool lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo) const;
     bool rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo) const;
@@ -289,6 +292,3 @@ private:
 
 
 };
-
-
-#endif // KRMesh_I

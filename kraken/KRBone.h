@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRBONE_H
-#define KRBONE_H
+#pragma once
 
 #include "KRResource.h"
 #include "KRNode.h"
@@ -56,6 +55,3 @@ public:
 private:
     Matrix4 m_bind_pose;
 };
-
-
-#endif

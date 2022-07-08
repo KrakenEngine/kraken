@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRAUDIOSOURCE_H
-#define KRAUDIOSOURCE_H
+#pragma once
 
 #include "KREngine-common.h"
 #include "KRResource.h"
@@ -156,5 +155,3 @@ private:
     bool m_enable_occlusion;
     bool m_enable_obstruction;
 };
-
-#endif /* defined(KRAUDIOSOURCE_H) */

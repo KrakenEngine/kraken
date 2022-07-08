@@ -302,7 +302,7 @@ void KRMaterial::getTextures()
     }
 }
 
-bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const Matrix4 &matModel, KRTexture *pLightMap, const Vector3 &rim_color, float rim_power, float lod_coverage)
+void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone *> &bones, const std::vector<Matrix4> &bind_poses, const Matrix4 &matModel, KRTexture *pLightMap, const Vector3 &rim_color, float rim_power, float lod_coverage)
 {
     bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
     
@@ -344,9 +344,12 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     info.bNormalMapOffset = m_normalMapOffset != default_offset && bNormalMap;
     info.bReflectionMapOffset = m_reflectionMapOffset != default_offset && bReflectionMap;
     info.bAlphaTest = bAlphaTest;
-    info.rasterMode = bAlphaBlend ? PipelineInfo::RasterMode::kAlphaBlend : PipelineInfo::RasterMode::kOpaque;
+    info.rasterMode = bAlphaBlend ? RasterMode::kAlphaBlend : RasterMode::kOpaque;
     info.bRimColor = rim_power != 0.0f;
     info.renderPass = ri.renderPass;
+    info.modelFormat = modelFormat;
+    info.vertexAttributes = vertexAttributes;
+    info.cullMode = cullMode;
     KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     
     // Bind bones
@@ -434,8 +437,6 @@ bool KRMaterial::bind(const KRNode::RenderInfo& ri, const std::vector<KRBone *> 
     }
 
     pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass, rim_color, rim_power, Vector4::Zero());
-    
-    return true;
 }
 
 const std::string &KRMaterial::getName() const

@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRANIMATIONMANAGER_H
-#define KRANIMATIONMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -67,6 +66,3 @@ private:
     set<KRAnimation *> m_animationsToUpdate;
 };
 
-
-
-#endif

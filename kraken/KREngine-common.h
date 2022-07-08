@@ -29,9 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-
-#ifndef KRENGINE_COMMON_H
-#define KRENGINE_COMMON_H
+#pragma once
 
 #define KRENGINE_MAX_GPU_COUNT 4
 #define KRENGINE_DEBUG_GPU_LABELS 1
@@ -265,7 +263,5 @@ typedef int KrDeviceHandle;
 typedef int KrSurfaceHandle;
 
 #include "KRBehavior.h"
-
-#endif
 
 using namespace kraken;

@@ -146,10 +146,10 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         info.pCamera = ri.camera;
         info.directional_lights = &this_light;
         info.renderPass = ri.renderPass;
-        info.rasterMode = PipelineInfo::RasterMode::kAdditiveNoTest;
+        info.rasterMode = RasterMode::kAdditiveNoTest;
 
         info.vertexAttributes = vertices.getVertexAttributes();
-        info.modelFormat = KRMesh::model_format_t::KRENGINE_MODEL_FORMAT_STRIP;
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);

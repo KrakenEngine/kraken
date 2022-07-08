@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRCONTEXTOBJECT_H
-#define KRCONTEXTOBJECT_H
+#pragma once
 
 class KRContext;
 
@@ -44,5 +43,3 @@ public:
 protected:
     KRContext *m_pContext;
 };
-
-#endif

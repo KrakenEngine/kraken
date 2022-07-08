@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRMATERIALMANAGER_H
-#define KRMATERIALMANAGER_H
+#pragma once
 
 #include "KREngine-common.h"
 
@@ -40,6 +39,7 @@
 #include "KRTextureManager.h"
 #include "KRMaterialManager.h"
 
+class KRMaterial;
 
 using std::map;
 
@@ -63,6 +63,3 @@ private:
     KRPipelineManager *m_pPipelineManager;
 
 };
-
-#endif
-

@@ -29,8 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#ifndef KRBEHAVIOR_H
-#define KRBEHAVIOR_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -69,5 +68,3 @@ public:
 private:
     KRNode *__node;
 };
-
-#endif /* defined(KRBEHAVIOR_H) */
