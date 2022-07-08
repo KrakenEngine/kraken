@@ -475,7 +475,6 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
             int vertex_draw_count = cVertexes;
             if(vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
             
-            //glDrawElements(GL_TRIANGLES, vertex_draw_count, GL_UNSIGNED_SHORT, BUFFER_OFFSET(index_group_offset * 2));
             vkCmdDrawIndexed(commandBuffer, vertex_draw_count, 1, index_group_offset, 0, 0);
             m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
             cVertexes -= vertex_draw_count;
@@ -498,20 +497,14 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
             if(iVertex + cVertexes >= MAX_VBO_SIZE) {
                 assert(iVertex + (MAX_VBO_SIZE  - iVertex) <= cBufferVertexes);
                 switch (getModelFormat()) {
-                    case KRENGINE_MODEL_FORMAT_TRIANGLES:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                        break;
-                    case KRENGINE_MODEL_FORMAT_STRIP:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                        break;
-                    case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLES, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                        break;
-                    case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-                        GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, iVertex, (MAX_VBO_SIZE  - iVertex)));
-                        break;
-                    default:
-                        break;
+                case KRENGINE_MODEL_FORMAT_TRIANGLES:
+                case KRENGINE_MODEL_FORMAT_STRIP:
+                    vkCmdDraw(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0);
+                    break;
+                case KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+                case KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+                    vkCmdDrawIndexed(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0, 0);
+                    break;
                 }
                 m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE  - iVertex));
                 
