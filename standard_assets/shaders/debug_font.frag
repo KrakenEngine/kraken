@@ -29,14 +29,14 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-out vec4 colorOut;
+#version 450
 
-in mediump vec2    textureCoordinate;
-
-uniform sampler2D 		diffuseTexture;
+layout(location = 0) in mediump vec2 textureCoordinate;
+layout(binding = 1) uniform sampler2D diffuseTexture;
+layout(location = 0) out vec4 outColor;
 
 void main()
 {
     vec4 font_color = texture(diffuseTexture, textureCoordinate);
-    colorOut = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
+    outColor = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
 }

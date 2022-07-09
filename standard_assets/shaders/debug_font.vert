@@ -29,15 +29,16 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#version 450
 
-out mediump vec2    textureCoordinate;
-
-in vec4          vertex_position;
-in lowp vec2     vertex_uv;
-uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+layout(location = 0) out mediump vec2 textureCoordinate;
+layout(location = 0) in vec3 vertex_position;
+layout(location = 1) in lowp vec2 vertex_uv;
 
 void main()
 {
-    gl_Position = /*mvp_matrix * */vertex_position;
-	textureCoordinate = vertex_uv;
+  gl_Position = vec4(vertex_position, 1.0);
+  textureCoordinate = vertex_uv;
 }
+
+
