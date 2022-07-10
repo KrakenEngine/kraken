@@ -47,7 +47,11 @@ public:
   bool initialize(const std::vector<const char*>& deviceExtensions);
 
   VmaAllocator getAllocator();
-  void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation);
+  void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
+#if KRENGINE_DEBUG_GPU_LABELS  
+    , const char* debug_label
+#endif
+  );
 
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);

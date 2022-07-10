@@ -235,7 +235,12 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
-void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation)
+
+void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
+#if KRENGINE_DEBUG_GPU_LABELS  
+  , const char* debug_label
+#endif
+)
 {
   VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
   bufferInfo.size = size;
@@ -247,6 +252,15 @@ void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
 
   VkResult res = vmaCreateBuffer(m_allocator, &bufferInfo, &allocInfo, buffer, allocation, nullptr);
   // TODO - Error Handling...
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  VkDebugUtilsObjectNameInfoEXT debugInfo{};
+  debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+  debugInfo.objectHandle = (uint64_t)*buffer;
+  debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
+  debugInfo.pObjectName = debug_label;
+  res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
+#endif // KRENGINE_DEBUG_GPU_LABELS
 }
 
 KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat)

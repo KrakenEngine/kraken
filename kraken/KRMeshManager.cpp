@@ -545,16 +545,6 @@ void KRMeshManager::KRVBOData::load()
       AllocationInfo& allocation = m_allocations[iAllocation];
       allocation.device = deviceHandle;
       
-      device.createBuffer(
-        m_data->getSize(),
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-        &allocation.vertex_buffer,
-        &allocation.vertex_allocation
-      );
-
-      // TODO - Use staging buffers     
-
 #if KRENGINE_DEBUG_GPU_LABELS
       char debug_label[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
 
@@ -575,14 +565,20 @@ void KRMeshManager::KRVBOData::load()
       }
 
       snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Vertices: %s", type_label, m_debugLabel);
-
-      VkDebugUtilsObjectNameInfoEXT debugInfo{};
-      debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-      debugInfo.objectHandle = (uint64_t)allocation.vertex_buffer;
-      debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
-      debugInfo.pObjectName = debug_label;
-      VkResult res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
 #endif // KRENGINE_DEBUG_GPU_LABELS
+
+      device.createBuffer(
+        m_data->getSize(),
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        &allocation.vertex_buffer,
+        &allocation.vertex_allocation
+#if KRENGINE_DEBUG_GPU_LABELS
+        , debug_label
+#endif // KRENGINE_DEBUG_GPU_LABELS
+      );
+
+      // TODO - Use staging buffers     
 
       void* mappedData = nullptr;
       m_data->lock();
@@ -592,24 +588,20 @@ void KRMeshManager::KRVBOData::load()
       m_data->unlock();
 
       if (m_index_data->getSize() > 0) {
+#if KRENGINE_DEBUG_GPU_LABELS
+        snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Indexes: %s", type_label, m_debugLabel);
+#endif // KRENGINE_DEBUG_GPU_LABELS
         device.createBuffer(
           m_index_data->getSize(),
           VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
           &allocation.index_buffer,
           &allocation.index_allocation
+#if KRENGINE_DEBUG_GPU_LABELS
+          , debug_label
+#endif
         );
 
-#if KRENGINE_DEBUG_GPU_LABELS
-        snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Indexes: %s", type_label, m_debugLabel);
-
-        VkDebugUtilsObjectNameInfoEXT debugInfo{};
-        debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-        debugInfo.objectHandle = (uint64_t)allocation.index_buffer;
-        debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
-        debugInfo.pObjectName = debug_label;
-        res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
-#endif // KRENGINE_DEBUG_GPU_LABELS
         mappedData = nullptr;
         m_index_data->lock();
         vmaMapMemory(allocator, allocation.index_allocation, &mappedData);
