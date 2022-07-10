@@ -534,28 +534,6 @@ void KRCamera::destroyBuffers()
 
 void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
-/*
-   FINDME - Determine if we still need this...
-
-    static const GLfloat squareVerticesShadow[3][8] = {{
-        -1.0f, -1.0f,
-        -0.60f, -1.0f,
-        -1.0f,  -0.60f,
-        -0.60f,  -0.60f,
-    },{
-        -0.50f, -1.0f,
-        -0.10f, -1.0f,
-        -0.50f,  -0.60f,
-        -0.10f,  -0.60f,
-    },{
-        0.00f, -1.0f,
-        0.40f, -1.0f,
-        0.00f,  -0.60f,
-        0.40f,  -0.60f,
-    }};
- */
-	
-
 	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
     
 
