@@ -317,11 +317,6 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
         }
         memoryRemaining -= vbo_size;
     }
-    
-    // TODO - Replace OpenGL code below...
-    /*
-    glFinish();
-    */
 }
 
 void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
