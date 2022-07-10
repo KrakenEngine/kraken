@@ -47,6 +47,7 @@ public:
   bool initialize(const std::vector<const char*>& deviceExtensions);
 
   VmaAllocator getAllocator();
+  void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation);
 
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);

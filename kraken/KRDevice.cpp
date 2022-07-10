@@ -235,6 +235,20 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
+void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation)
+{
+  VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+  bufferInfo.size = size;
+  bufferInfo.usage = usage;
+
+  VmaAllocationCreateInfo allocInfo = {};
+  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  allocInfo.requiredFlags = properties;
+
+  VkResult res = vmaCreateBuffer(m_allocator, &bufferInfo, &allocInfo, buffer, allocation, nullptr);
+  // TODO - Error Handling...
+}
+
 KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat)
 {
 

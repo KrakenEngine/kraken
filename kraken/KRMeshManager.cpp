@@ -541,23 +541,19 @@ void KRMeshManager::KRVBOData::load()
     for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end() && iAllocation < KRENGINE_MAX_GPU_COUNT; deviceItr++, iAllocation++) {
       KRDevice& device = *(*deviceItr).second;
       KrDeviceHandle deviceHandle = (*deviceItr).first;
+      VmaAllocator allocator = device.getAllocator();
       AllocationInfo& allocation = m_allocations[iAllocation];
-
       allocation.device = deviceHandle;
       
-      VmaAllocator allocator = device.getAllocator();
+      device.createBuffer(
+        m_data->getSize(),
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        &allocation.vertex_buffer,
+        &allocation.vertex_allocation
+      );
 
-      // TODO - Use staging buffers
-
-      VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-      bufferInfo.size = m_data->getSize();
-      bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-      VmaAllocationCreateInfo allocInfo = {};
-      allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-      allocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-
-      VkResult res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.vertex_buffer, &allocation.vertex_allocation, nullptr);
+      // TODO - Use staging buffers     
 
 #if KRENGINE_DEBUG_GPU_LABELS
       char debug_label[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
@@ -585,7 +581,7 @@ void KRMeshManager::KRVBOData::load()
       debugInfo.objectHandle = (uint64_t)allocation.vertex_buffer;
       debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
       debugInfo.pObjectName = debug_label;
-      res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
+      VkResult res = vkSetDebugUtilsObjectNameEXT(device.m_logicalDevice, &debugInfo);
 #endif // KRENGINE_DEBUG_GPU_LABELS
 
       void* mappedData = nullptr;
@@ -596,9 +592,14 @@ void KRMeshManager::KRVBOData::load()
       m_data->unlock();
 
       if (m_index_data->getSize() > 0) {
-        bufferInfo.size = m_index_data->getSize();
-        bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        res = vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &allocation.index_buffer, &allocation.index_allocation, nullptr);
+        device.createBuffer(
+          m_index_data->getSize(),
+          VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+          &allocation.index_buffer,
+          &allocation.index_allocation
+        );
+
 #if KRENGINE_DEBUG_GPU_LABELS
         snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Indexes: %s", type_label, m_debugLabel);
 
