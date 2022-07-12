@@ -687,6 +687,12 @@ void KRContext::doStreaming()
         m_pTextureManager->doStreaming(total_memory, free_memory);
         */
 
+    KRDeviceManager* deviceManager = getDeviceManager();
+
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
+      KRDevice& device = *(*deviceItr).second;
+      device.streamStart();
+    }
 
     long streaming_start_frame = m_current_frame;
 
@@ -698,6 +704,12 @@ void KRContext::doStreaming()
 
     if (memoryRemainingThisFrame == memoryRemainingThisFrameStart && memoryRemainingThisFrame > 0) {
       m_last_fully_streamed_frame = streaming_start_frame;
+    }
+
+    bool fullyStreamed = false;
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
+      KRDevice& device = *(*deviceItr).second;
+      device.streamEnd();
     }
 
   }
