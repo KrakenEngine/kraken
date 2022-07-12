@@ -65,10 +65,14 @@ public:
   VkQueue m_graphicsQueue;
   uint32_t m_computeFamilyQueueIndex;
   VkQueue m_computeQueue;
+  uint32_t m_transferFamilyQueueIndex;
+  VkQueue m_transferQueue;
   VkCommandPool m_graphicsCommandPool;
   VkCommandPool m_computeCommandPool;
+  VkCommandPool m_transferCommandPool;
   std::vector<VkCommandBuffer> m_graphicsCommandBuffers;
   std::vector<VkCommandBuffer> m_computeCommandBuffers;
+  std::vector<VkCommandBuffer> m_transferCommandBuffers;
   VmaAllocator m_allocator;
 
   // Staging buffer for uploading with the transfer queue

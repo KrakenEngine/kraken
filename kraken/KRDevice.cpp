@@ -42,6 +42,8 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   , m_graphicsQueue(VK_NULL_HANDLE)
   , m_computeFamilyQueueIndex(0)
   , m_computeQueue(VK_NULL_HANDLE)
+  , m_transferFamilyQueueIndex(0)
+  , m_transferQueue(VK_NULL_HANDLE)
   , m_graphicsCommandPool(VK_NULL_HANDLE)
   , m_computeCommandPool(VK_NULL_HANDLE)
   , m_allocator(VK_NULL_HANDLE)
@@ -76,7 +78,7 @@ void KRDevice::destroy()
     m_graphicsStagingBufferAllocation = VK_NULL_HANDLE;
   }
 
-  if (m_logicalDevice != VK_NULL_HANDLE) {
+  if (m_graphicsCommandPool != VK_NULL_HANDLE) {
     vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
     m_graphicsCommandPool = VK_NULL_HANDLE;
   }
@@ -84,6 +86,11 @@ void KRDevice::destroy()
   if (m_computeCommandPool != VK_NULL_HANDLE) {
     vkDestroyCommandPool(m_logicalDevice, m_computeCommandPool, nullptr);
     m_computeCommandPool = VK_NULL_HANDLE;
+  }
+
+  if (m_transferCommandPool != VK_NULL_HANDLE) {
+    vkDestroyCommandPool(m_logicalDevice, m_transferCommandPool, nullptr);
+    m_transferCommandPool = VK_NULL_HANDLE;
   }
  
   if (m_logicalDevice != VK_NULL_HANDLE) {
@@ -110,15 +117,80 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
 
   uint32_t graphicsFamilyQueue = -1;
   uint32_t computeFamilyQueue = -1;
-  uint32_t i = 0;
-  for (const auto& queueFamily : queueFamilies) {
-    if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      graphicsFamilyQueue = i;
+  uint32_t transferFamilyQueue = -1;
+
+  // First, select the transfer queue
+  for (int i = 0; i < queueFamilies.size(); i++) {
+    const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
+    if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) == 0) {
+      // This queue does not support transfers.  Skip it.
+      continue;
     }
-    if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+    if (transferFamilyQueue == -1) {
+      // If we don't already have a transfer queue, take anything that supports VK_QUEUE_TRANSFER_BIT
+      transferFamilyQueue = i;
+      continue;
+    }
+
+    VkQueueFlags priorFlags = queueFamilies[transferFamilyQueue].queueFlags;
+    if ((priorFlags & VK_QUEUE_GRAPHICS_BIT) > (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+      // This is a better queue, as it is specifically for transfers and not graphics
+      transferFamilyQueue = i;
+      continue;
+    }
+    if ((priorFlags & VK_QUEUE_COMPUTE_BIT) > (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)) {
+      // This is a better queue, as it is specifically for transfers and not graphics
+      transferFamilyQueue = i;
+      continue;
+    }
+  }
+
+  // Second, select the compute transfer queue
+  for (int i = 0; i < queueFamilies.size(); i++) {
+    const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
+    if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) == 0) {
+      // This queue does not support compute.  Skip it.
+      continue;
+    }
+    if (computeFamilyQueue == -1) {
+      // If we don't already have a compute queue, take anything that supports VK_QUEUE_COMPUTE_BIT
       computeFamilyQueue = i;
+      continue;
     }
-    i++;
+    if (computeFamilyQueue == transferFamilyQueue) {
+      // Avoid sharing a compute queue with the asset streaming
+      computeFamilyQueue = i;
+      continue;
+    }
+    VkQueueFlags priorFlags = queueFamilies[computeFamilyQueue].queueFlags;
+    if ((priorFlags & VK_QUEUE_GRAPHICS_BIT) > (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+      // This is a better queue, as it is specifically for compute and not graphics
+      computeFamilyQueue = i;
+      continue;
+    }
+  }
+
+  for (int i = 0; i < queueFamilies.size(); i++) {
+    const VkQueueFamilyProperties& queueFamily = queueFamilies[i];
+    if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) {
+      // This queue does not support graphics.  Skip it.
+      continue;
+    }
+    if (graphicsFamilyQueue == -1) {
+      // If we don't already have a graphics queue, take anything that supports VK_QUEUE_GRAPHICS_BIT
+      graphicsFamilyQueue = i;
+      continue;
+    }
+    if (graphicsFamilyQueue == transferFamilyQueue) {
+      // Avoid sharing a graphics queue with the asset streaming
+      graphicsFamilyQueue = i;
+      continue;
+    }
+    if (graphicsFamilyQueue == computeFamilyQueue) {
+      // Avoid sharing a graphics queue with compute
+      graphicsFamilyQueue = i;
+      continue;
+    }
   }
   if (graphicsFamilyQueue == -1) {
     // No graphics queue family, not suitable
@@ -130,8 +202,14 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     return false;
   }
 
+  if (transferFamilyQueue == -1) {
+    // No transfer queue family, not suitable
+    return false;
+  }
+
   m_graphicsFamilyQueueIndex = graphicsFamilyQueue;
   m_computeFamilyQueueIndex = computeFamilyQueue;
+  m_transferFamilyQueueIndex = transferFamilyQueue;
 
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, nullptr);
@@ -151,23 +229,32 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
 
   // ----
 
-  VkDeviceQueueCreateInfo queueCreateInfo[2]{};
+  VkDeviceQueueCreateInfo queueCreateInfo[3]{};
+  int queueCount = 1;
   float queuePriority = 1.0f;
   queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   queueCreateInfo[0].queueFamilyIndex = m_graphicsFamilyQueueIndex;
   queueCreateInfo[0].queueCount = 1;
   queueCreateInfo[0].pQueuePriorities = &queuePriority;
   if (m_graphicsFamilyQueueIndex != m_computeFamilyQueueIndex) {
+    queueCount++;
     queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo[1].queueFamilyIndex = m_computeFamilyQueueIndex;
     queueCreateInfo[1].queueCount = 1;
     queueCreateInfo[1].pQueuePriorities = &queuePriority;
   }
+  if (m_transferFamilyQueueIndex != m_graphicsFamilyQueueIndex && m_transferFamilyQueueIndex != m_computeFamilyQueueIndex) {
+    queueCount++;
+    queueCreateInfo[2].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo[2].queueFamilyIndex = m_transferFamilyQueueIndex;
+    queueCreateInfo[2].queueCount = 1;
+    queueCreateInfo[2].pQueuePriorities = &queuePriority;
+  }
 
   VkDeviceCreateInfo deviceCreateInfo{};
   deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-  deviceCreateInfo.queueCreateInfoCount = m_graphicsFamilyQueueIndex == m_computeFamilyQueueIndex ? 1 : 2;
+  deviceCreateInfo.queueCreateInfoCount = queueCount;
   VkPhysicalDeviceFeatures deviceFeatures{};
   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
   deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
@@ -178,6 +265,7 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   }
   vkGetDeviceQueue(m_logicalDevice, m_graphicsFamilyQueueIndex, 0, &m_graphicsQueue);
   vkGetDeviceQueue(m_logicalDevice, m_computeFamilyQueueIndex, 0, &m_computeQueue);
+  vkGetDeviceQueue(m_logicalDevice, m_transferFamilyQueueIndex, 0, &m_transferQueue);
 
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -197,11 +285,21 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     return false;
   }
 
+  poolInfo.queueFamilyIndex = m_transferFamilyQueueIndex;
+  if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_transferCommandPool) != VK_SUCCESS) {
+    destroy();
+    // TODO - Log a warning...
+    return false;
+  }
+
   const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
   m_graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
 
   const int kMaxComputeCommandBuffers = 4; // TODO - This needs to be dynamic?
   m_computeCommandBuffers.resize(kMaxComputeCommandBuffers);
+
+  const int kMaxTransferCommandBuffers = 4; // TODO - This needs to be dynamic?
+  m_transferCommandBuffers.resize(kMaxTransferCommandBuffers);
 
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -218,6 +316,14 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   allocInfo.commandPool = m_computeCommandPool;
   allocInfo.commandBufferCount = (uint32_t)m_computeCommandBuffers.size();
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_computeCommandBuffers.data()) != VK_SUCCESS) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
+
+  allocInfo.commandPool = m_transferCommandPool;
+  allocInfo.commandBufferCount = (uint32_t)m_transferCommandBuffers.size();
+  if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_transferCommandBuffers.data()) != VK_SUCCESS) {
     destroy();
     // TODO - Log a warning
     return false;
