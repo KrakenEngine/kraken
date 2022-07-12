@@ -45,6 +45,12 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   , m_graphicsCommandPool(VK_NULL_HANDLE)
   , m_computeCommandPool(VK_NULL_HANDLE)
   , m_allocator(VK_NULL_HANDLE)
+  , m_streamingStagingBuffer(VK_NULL_HANDLE)
+  , m_streamingStagingBufferAllocation(VK_NULL_HANDLE)
+  , m_streamingStagingBufferSize(0)
+  , m_graphicsStagingBuffer(VK_NULL_HANDLE)
+  , m_graphicsStagingBufferAllocation(VK_NULL_HANDLE)
+  , m_graphicsStagingBufferSize(0)
 {
 
 }
@@ -56,6 +62,20 @@ KRDevice::~KRDevice()
 
 void KRDevice::destroy()
 {
+  if (m_streamingStagingBuffer) {
+    vmaDestroyBuffer(m_allocator, m_streamingStagingBuffer, m_streamingStagingBufferAllocation);
+    m_streamingStagingBufferSize = 0;
+    m_streamingStagingBuffer = VK_NULL_HANDLE;
+    m_streamingStagingBufferAllocation = VK_NULL_HANDLE;
+  }
+
+  if (m_graphicsStagingBuffer) {
+    vmaDestroyBuffer(m_allocator, m_graphicsStagingBuffer, m_graphicsStagingBufferAllocation);
+    m_graphicsStagingBufferSize = 0;
+    m_graphicsStagingBuffer = VK_NULL_HANDLE;
+    m_graphicsStagingBufferAllocation = VK_NULL_HANDLE;
+  }
+
   if (m_logicalDevice != VK_NULL_HANDLE) {
     vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
     m_graphicsCommandPool = VK_NULL_HANDLE;
@@ -225,6 +245,41 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     // TODO - Log a warning
     return false;
   }
+
+
+  // Create Staging Buffer for the transfer queue.
+  // This will be used for asynchronous asset streaming in the streamer thread.
+  // Start with a 256MB staging buffer.
+  // TODO - Dynamically size staging buffer using heuristics
+  m_streamingStagingBufferSize = size_t(256) * 1024 * 1024;
+
+  createBuffer(
+    m_streamingStagingBufferSize,
+    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    &m_streamingStagingBuffer,
+    &m_streamingStagingBufferAllocation
+#if KRENGINE_DEBUG_GPU_LABELS
+    , "Streaming Staging Buffer"
+#endif // KRENGINE_DEBUG_GPU_LABELS
+  );
+
+  // Create Staging Buffer for the graphics queue.
+  // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
+  // Start with a 256MB staging buffer.
+  // TODO - Dynamically size staging buffer using heuristics
+  m_graphicsStagingBufferSize = size_t(256) * 1024 * 1024;
+
+  createBuffer(
+    m_graphicsStagingBufferSize,
+    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    &m_graphicsStagingBuffer,
+    &m_graphicsStagingBufferAllocation
+#if KRENGINE_DEBUG_GPU_LABELS
+    , "Streaming Staging Buffer"
+#endif // KRENGINE_DEBUG_GPU_LABELS
+  );
 
   return true;
 }

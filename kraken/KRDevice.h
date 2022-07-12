@@ -70,5 +70,17 @@ public:
   std::vector<VkCommandBuffer> m_graphicsCommandBuffers;
   std::vector<VkCommandBuffer> m_computeCommandBuffers;
   VmaAllocator m_allocator;
+
+  // Staging buffer for uploading with the transfer queue
+  // This will be used for asynchronous asset streaming in the streamer thread.
+  VkBuffer m_streamingStagingBuffer;
+  VmaAllocation m_streamingStagingBufferAllocation;
+  size_t m_streamingStagingBufferSize;
+
+  // Staging buffer for uploading with the graphics queue
+  // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
+  VkBuffer m_graphicsStagingBuffer;
+  VmaAllocation m_graphicsStagingBufferAllocation;
+  size_t m_graphicsStagingBufferSize;
 private:
 };
