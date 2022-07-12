@@ -47,7 +47,7 @@ public:
   bool initialize(const std::vector<const char*>& deviceExtensions);
 
   VmaAllocator getAllocator();
-  void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
+  bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  
     , const char* debug_label
 #endif
@@ -77,12 +77,14 @@ public:
 
   // Staging buffer for uploading with the transfer queue
   // This will be used for asynchronous asset streaming in the streamer thread.
+  // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
   VkBuffer m_streamingStagingBuffer;
   VmaAllocation m_streamingStagingBufferAllocation;
   size_t m_streamingStagingBufferSize;
 
   // Staging buffer for uploading with the graphics queue
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
+  // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
   VkBuffer m_graphicsStagingBuffer;
   VmaAllocation m_graphicsStagingBufferAllocation;
   size_t m_graphicsStagingBufferSize;

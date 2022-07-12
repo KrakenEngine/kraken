@@ -359,16 +359,20 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   // TODO - Dynamically size staging buffer using heuristics
   m_streamingStagingBufferSize = size_t(256) * 1024 * 1024;
 
-  createBuffer(
+  if (!createBuffer(
     m_streamingStagingBufferSize,
-    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
     &m_streamingStagingBuffer,
     &m_streamingStagingBufferAllocation
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  );
+  )) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
 
   // Create Staging Buffer for the graphics queue.
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
@@ -376,16 +380,20 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   // TODO - Dynamically size staging buffer using heuristics
   m_graphicsStagingBufferSize = size_t(256) * 1024 * 1024;
 
-  createBuffer(
+  if (!createBuffer(
     m_graphicsStagingBufferSize,
-    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
     &m_graphicsStagingBuffer,
     &m_graphicsStagingBufferAllocation
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  );
+  )) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
 
   return true;
 }
@@ -397,23 +405,35 @@ VmaAllocator KRDevice::getAllocator()
 }
 
 
-void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
+bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  
   , const char* debug_label
 #endif
 )
 {
+  int familyCount = 1;
+  uint32_t queueFamilyIndices[2] = {};
+  queueFamilyIndices[0] = m_graphicsFamilyQueueIndex;
+  if (m_graphicsFamilyQueueIndex != m_transferFamilyQueueIndex) {
+    queueFamilyIndices[1] = m_transferFamilyQueueIndex;
+    familyCount++;
+  }
+
   VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
   bufferInfo.size = size;
   bufferInfo.usage = usage;
-  bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+  bufferInfo.queueFamilyIndexCount = familyCount;
+  bufferInfo.pQueueFamilyIndices = queueFamilyIndices;
 
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   allocInfo.requiredFlags = properties;
 
   VkResult res = vmaCreateBuffer(m_allocator, &bufferInfo, &allocInfo, buffer, allocation, nullptr);
-  // TODO - Error Handling...
+  if (res != VK_SUCCESS) {
+    return false;
+  }
 
 #if KRENGINE_DEBUG_GPU_LABELS
   VkDebugUtilsObjectNameInfoEXT debugInfo{};
@@ -423,6 +443,8 @@ void KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
   debugInfo.pObjectName = debug_label;
   res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
 #endif // KRENGINE_DEBUG_GPU_LABELS
+
+  return true;
 }
 
 KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat)
