@@ -570,22 +570,14 @@ void KRMeshManager::KRVBOData::load()
       device.createBuffer(
         m_data->getSize(),
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         &allocation.vertex_buffer,
         &allocation.vertex_allocation
 #if KRENGINE_DEBUG_GPU_LABELS
         , debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
       );
-
-      // TODO - Use staging buffers     
-
-      void* mappedData = nullptr;
-      m_data->lock();
-      vmaMapMemory(allocator, allocation.vertex_allocation, &mappedData);
-      memcpy(mappedData, m_data->getStart(), m_data->getSize());
-      vmaUnmapMemory(allocator, allocation.vertex_allocation);
-      m_data->unlock();
+      device.streamUpload(*m_data, allocation.vertex_buffer);
 
       if (m_index_data->getSize() > 0) {
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -594,20 +586,14 @@ void KRMeshManager::KRVBOData::load()
         device.createBuffer(
           m_index_data->getSize(),
           VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
           &allocation.index_buffer,
           &allocation.index_allocation
 #if KRENGINE_DEBUG_GPU_LABELS
           , debug_label
 #endif
         );
-
-        mappedData = nullptr;
-        m_index_data->lock();
-        vmaMapMemory(allocator, allocation.index_allocation, &mappedData);
-        memcpy(mappedData, m_index_data->getStart(), m_index_data->getSize());
-        vmaUnmapMemory(allocator, allocation.index_allocation);
-        m_index_data->unlock();
+        device.streamUpload(*m_index_data, allocation.index_buffer);
       }
     }
     

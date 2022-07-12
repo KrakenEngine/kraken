@@ -694,6 +694,8 @@ void KRContext::doStreaming()
       device.streamStart();
     }
 
+    // TODO - Ensure that each iteration does not exhaust the currently fixed 256MB staging buffer
+
     long streaming_start_frame = m_current_frame;
 
     long memoryRemaining = KRENGINE_GPU_MEM_TARGET;
