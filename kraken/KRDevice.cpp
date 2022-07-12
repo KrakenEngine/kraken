@@ -36,7 +36,7 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   : KRContextObject(context)
   , m_device(device)
   , m_logicalDevice(VK_NULL_HANDLE)
-  , m_deviceProperties {}
+  , m_deviceProperties{}
   , m_deviceFeatures{}
   , m_graphicsFamilyQueueIndex(0)
   , m_graphicsQueue(VK_NULL_HANDLE)
@@ -50,9 +50,13 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   , m_streamingStagingBuffer(VK_NULL_HANDLE)
   , m_streamingStagingBufferAllocation(VK_NULL_HANDLE)
   , m_streamingStagingBufferSize(0)
+  , m_streamingStagingBufferUsage(0)
+  , m_streamingStagingBufferData(nullptr)
   , m_graphicsStagingBuffer(VK_NULL_HANDLE)
   , m_graphicsStagingBufferAllocation(VK_NULL_HANDLE)
   , m_graphicsStagingBufferSize(0)
+  , m_graphicsStagingBufferUsage(0)
+  , m_graphicsStagingBufferData(nullptr)
 {
 
 }
@@ -64,6 +68,16 @@ KRDevice::~KRDevice()
 
 void KRDevice::destroy()
 {
+  if (m_streamingStagingBufferData) {
+    vmaUnmapMemory(m_allocator, m_streamingStagingBufferAllocation);
+    m_streamingStagingBufferData = nullptr;
+  }
+
+  if (m_graphicsStagingBufferData) {
+    vmaUnmapMemory(m_allocator, m_graphicsStagingBufferAllocation);
+    m_graphicsStagingBufferData = nullptr;
+  }
+
   if (m_streamingStagingBuffer) {
     vmaDestroyBuffer(m_allocator, m_streamingStagingBuffer, m_streamingStagingBufferAllocation);
     m_streamingStagingBufferSize = 0;
@@ -373,6 +387,12 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     // TODO - Log a warning
     return false;
   }
+  VkResult res = vmaMapMemory(m_allocator, m_streamingStagingBufferAllocation, &m_streamingStagingBufferData);
+  if (res != VK_SUCCESS) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
 
   // Create Staging Buffer for the graphics queue.
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
@@ -390,6 +410,12 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
   )) {
+    destroy();
+    // TODO - Log a warning
+    return false;
+  }
+  res = vmaMapMemory(m_allocator, m_graphicsStagingBufferAllocation, &m_graphicsStagingBufferData);
+  if (res != VK_SUCCESS) {
     destroy();
     // TODO - Log a warning
     return false;
@@ -523,4 +549,55 @@ KrResult KRDevice::selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& se
     }
   }
   return KR_SUCCESS;
+}
+
+
+void KRDevice::streamStart()
+{
+  VkCommandBufferBeginInfo beginInfo{};
+  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  vkBeginCommandBuffer(m_transferCommandBuffers[0], &beginInfo);
+}
+
+size_t KRDevice::streamRemaining() const
+{
+  return m_streamingStagingBufferSize - m_streamingStagingBufferUsage;
+}
+
+void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
+{
+  data.lock();
+  streamUpload(data.getStart(), data.getSize(), destination);
+  data.unlock();
+}
+
+void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
+{
+  memcpy((uint8_t*)m_streamingStagingBufferData + m_streamingStagingBufferUsage, data, size);
+
+  // TODO - Beneficial to batch many regions in a single call?
+  VkBufferCopy copyRegion{};
+  copyRegion.srcOffset = m_streamingStagingBufferUsage;
+  copyRegion.dstOffset = 0; // Optional
+  copyRegion.size = size;
+  vkCmdCopyBuffer(m_transferCommandBuffers[0], m_streamingStagingBuffer, destination, 1, &copyRegion);
+
+  // TODO - Assert on any needed alignment?
+  m_streamingStagingBufferUsage += size;
+}
+
+void KRDevice::streamEnd()
+{
+  vkEndCommandBuffer(m_transferCommandBuffers[0]);
+
+  // TODO - Should double buffer and use a fence rather than block the thread
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &m_transferCommandBuffers[0];
+
+  vkQueueSubmit(m_transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(m_transferQueue);
 }

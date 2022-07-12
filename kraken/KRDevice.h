@@ -34,6 +34,8 @@
 
 #pragma once
 
+class KRDataBlock;
+
 class KRDevice : public KRContextObject
 {
 public:
@@ -56,6 +58,12 @@ public:
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
   KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode);
+
+  void streamStart();
+  size_t streamRemaining() const;
+  void streamUpload(KRDataBlock& data, VkBuffer destination);
+  void streamUpload(void *data, size_t size, VkBuffer destination);
+  void streamEnd();
 
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;
@@ -81,6 +89,8 @@ public:
   VkBuffer m_streamingStagingBuffer;
   VmaAllocation m_streamingStagingBufferAllocation;
   size_t m_streamingStagingBufferSize;
+  size_t m_streamingStagingBufferUsage;
+  void* m_streamingStagingBufferData;
 
   // Staging buffer for uploading with the graphics queue
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
@@ -88,5 +98,7 @@ public:
   VkBuffer m_graphicsStagingBuffer;
   VmaAllocation m_graphicsStagingBufferAllocation;
   size_t m_graphicsStagingBufferSize;
+  size_t m_graphicsStagingBufferUsage;
+  void* m_graphicsStagingBufferData;
 private:
 };
