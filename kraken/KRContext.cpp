@@ -621,17 +621,6 @@ long KRContext::getAbsoluteTimeMilliseconds()
 #endif
 }
 
-bool KRContext::getStreamingEnabled()
-{
-    return m_streamingEnabled;
-}
-
-void KRContext::setStreamingEnabled(bool enable)
-{
-    m_streamingEnabled = enable;
-}
-
-
 #if TARGET_OS_IPHONE || TARGET_OS_MAC
 
 void KRContext::getMemoryStats(long &free_memory)

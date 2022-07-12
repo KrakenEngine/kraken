@@ -133,8 +133,6 @@ public:
     long getAbsoluteTimeMilliseconds();
     
     std::vector<KRResource *> getResources();
-    bool getStreamingEnabled();
-    void setStreamingEnabled(bool enable);
     
 #if TARGET_OS_IPHONE || TARGET_OS_MAC
     // XXX This doesn't belong here, and might not actually be needed at all
@@ -188,14 +186,12 @@ private:
     mach_timebase_info_data_t    m_timebase_info;
 #endif
 
+    // m_streamingEnabled is set to true once all managers are loaded
     std::atomic<bool> m_streamingEnabled;
-    
     
     static log_callback *s_log_callback;
     static void *s_log_callback_user_data;
     
-    
-
     unordered_multimap<std::string, KRResource*> m_resources;
 
     
