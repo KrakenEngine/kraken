@@ -56,19 +56,26 @@ KRTexture::~KRTexture()
 
 void KRTexture::releaseHandles() {
     long mem_size = getMemSize();
+    KRDeviceManager* deviceManager = getContext().getDeviceManager();
     
     while(m_handle_lock.test_and_set()); // Spin lock
     
-    if(m_iNewHandle != 0) {
-        GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
-        m_iNewHandle = 0;
-        m_newTextureMemUsed = 0;
+    for (TextureHandle t : m_newHandles) {
+      std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+      VmaAllocator allocator = device->getAllocator();
+      vmaDestroyImage(allocator, t.image, t.allocation);
     }
-    if(m_iHandle != 0) {
-        GLDEBUG(glDeleteTextures(1, &m_iHandle));
-        m_iHandle = 0;
-        m_textureMemUsed = 0;
+    m_newHandles.clear();
+    m_newTextureMemUsed = 0;
+
+    for (TextureHandle t : m_handles) {
+      std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+      VmaAllocator allocator = device->getAllocator();
+      vmaDestroyImage(allocator, t.image, t.allocation);
     }
+    m_handles.clear();
+    m_textureMemUsed = 0;
+
     m_current_lod_max_dim = 0;
     m_new_lod_max_dim = 0;
     

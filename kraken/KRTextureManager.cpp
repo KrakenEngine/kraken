@@ -82,7 +82,10 @@ void KRTextureManager::_setActiveTexture(int i)
 {
     if(m_iActiveTexture != i) {
         m_iActiveTexture = i;
+        /*
+        // TODO - Vulkan refactoring
         GLDEBUG(glActiveTexture(GL_TEXTURE0 + i));
+        */
     }
 }
 

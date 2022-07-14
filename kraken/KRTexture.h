@@ -91,7 +91,16 @@ protected:
     virtual bool createGLTexture(int lod_max_dim) = 0;
     GLuint getHandle();
     
-    
+    struct TextureHandle {
+      VkImage image;
+      KrDeviceHandle device;
+      VmaAllocation allocation;
+    };
+
+    std::vector<TextureHandle> m_handles;
+    std::vector<TextureHandle> m_newHandles;
+
+    // TODO - Remove m_iHandle and m_iNewHandle once Vulkan refactoring complete
     GLuint m_iHandle;
     GLuint m_iNewHandle;
     std::atomic_flag m_handle_lock;
