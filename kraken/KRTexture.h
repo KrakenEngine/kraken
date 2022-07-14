@@ -99,6 +99,7 @@ protected:
 
     std::vector<TextureHandle> m_handles;
     std::vector<TextureHandle> m_newHandles;
+    std::atomic_bool m_haveNewHandles;
 
     // TODO - Remove m_iHandle and m_iNewHandle once Vulkan refactoring complete
     GLuint m_iHandle;

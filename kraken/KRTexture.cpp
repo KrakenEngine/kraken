@@ -47,6 +47,7 @@ KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context,
     m_last_frame_max_lod_coverage = 0.0f;
     m_last_frame_usage = TEXTURE_USAGE_NONE;
     m_handle_lock.clear();
+    m_haveNewHandles = false;
 }
 
 KRTexture::~KRTexture()
@@ -227,17 +228,22 @@ void KRTexture::bind(GLuint texture_unit) {
 
 void KRTexture::_swapHandles()
 {
+    KRDeviceManager* deviceManager = getContext().getDeviceManager();
+
     //while(m_handle_lock.test_and_set()); // Spin lock
     if(!m_handle_lock.test_and_set()) {
-        if(m_iHandle != m_iNewHandle) {
-            if(m_iHandle != 0) {
-                GLDEBUG(glDeleteTextures(1, &m_iHandle));
-                getContext().getTextureManager()->memoryChanged(-m_textureMemUsed);
+        if(m_haveNewHandles) {
+            for (TextureHandle t : m_handles) {
+              std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+              VmaAllocator allocator = device->getAllocator();
+              vmaDestroyImage(allocator, t.image, t.allocation);
             }
+            m_handles.clear();
+            m_handles.swap(m_newHandles);
             m_textureMemUsed = (long)m_newTextureMemUsed;
             m_newTextureMemUsed = 0;
-            m_iHandle = m_iNewHandle;
             m_current_lod_max_dim = m_new_lod_max_dim;
+            m_haveNewHandles = false;
         }
         m_handle_lock.clear();
     }
