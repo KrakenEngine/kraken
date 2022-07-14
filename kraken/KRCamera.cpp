@@ -364,12 +364,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     GL_PUSH_GROUP_MARKER("Post Processing");
 
-    /*
-    
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO));
-
-    renderPost(commandBuffer, compositeSurface); // FINDME!  Re-enable with Vulkan refactoring
-    */
+    renderPost(commandBuffer, compositeSurface);
     
     GL_POP_GROUP_MARKER;
 }
@@ -534,9 +529,8 @@ void KRCamera::destroyBuffers()
 
 void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
-	GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
-    
-
+  /*
+    // TODO - Re-enable once post fx shader is converted for Vulkan
     KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
     PipelineInfo info{};
@@ -564,6 +558,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
 	
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+ */
    
     
 //    if(bShowShadowBuffer) {
