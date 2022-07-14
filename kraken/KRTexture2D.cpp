@@ -42,14 +42,13 @@ KRTexture2D::~KRTexture2D() {
 }
 
 bool KRTexture2D::createGLTexture(int lod_max_dim) {
-    if(m_iHandle != m_iNewHandle) {
-        return true;
+    if (m_haveNewHandles) {
+      return true;
     }
     
     bool success = true;
     int prev_lod_max_dim = m_new_lod_max_dim;
 
-    
     m_iNewHandle = 0;
     m_new_lod_max_dim = 0;
     GLDEBUG(glGenTextures(1, &m_iNewHandle));

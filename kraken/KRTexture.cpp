@@ -98,14 +98,12 @@ void KRTexture::resize(int max_dim)
 {
     while(m_handle_lock.test_and_set()) {}; // Spin lock
 
-    if(m_iHandle == m_iNewHandle) {
-        if(max_dim == 0) {
-            m_iNewHandle = 0;
-        } else {
+    if(!m_haveNewHandles) {
+        if(max_dim > 0) {
             int target_dim = max_dim;
             if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
-            if(m_new_lod_max_dim != target_dim || (m_iHandle == 0 && m_iNewHandle == 0)) {
+            if(m_new_lod_max_dim != target_dim || m_handles.empty()) {
                 assert(m_newTextureMemUsed == 0);
                 m_newTextureMemUsed = getMemRequiredForSize(target_dim);
                 
