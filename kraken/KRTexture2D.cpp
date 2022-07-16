@@ -51,9 +51,8 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
     m_new_lod_max_dim = 0;
 
     KRDeviceManager* deviceManager = getContext().getDeviceManager();
-    int iAllocation = 0;
 
-    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end() && iAllocation < KRENGINE_MAX_GPU_COUNT; deviceItr++, iAllocation++) {
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
       KRDevice& device = *(*deviceItr).second;
       KrDeviceHandle deviceHandle = (*deviceItr).first;
       VmaAllocator allocator = device.getAllocator();
