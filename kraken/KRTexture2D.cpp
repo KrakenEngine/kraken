@@ -61,7 +61,7 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
       texture.allocation = VK_NULL_HANDLE;
       texture.image = VK_NULL_HANDLE;
 
-      if (!device.createImage(getDimensions(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation)) {
+      if (!device.createImage(getDimensions(), 0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation)) {
         success = false;
         break;
       }

@@ -55,7 +55,7 @@ public:
 #endif
   );
 
-  bool createImage(Vector2i dimensions, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation);
+  bool createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation);
 
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
@@ -103,4 +103,6 @@ public:
   size_t m_graphicsStagingBufferUsage;
   void* m_graphicsStagingBufferData;
 private:
+
+  void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount);
 };

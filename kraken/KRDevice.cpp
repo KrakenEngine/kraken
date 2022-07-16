@@ -430,17 +430,18 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
-bool KRDevice::createImage(Vector2i dimensions, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation)
+void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount)
 {
-  // TODO - Break block into own function to be shared with createBuffer
-  int familyCount = 1;
-  uint32_t queueFamilyIndices[2] = {};
+  *familyCount = 1;
   queueFamilyIndices[0] = m_graphicsFamilyQueueIndex;
   if (m_graphicsFamilyQueueIndex != m_transferFamilyQueueIndex) {
     queueFamilyIndices[1] = m_transferFamilyQueueIndex;
-    familyCount++;
+    *familyCount++;
   }
+}
 
+bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation)
+{
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -454,10 +455,13 @@ bool KRDevice::createImage(Vector2i dimensions, VkMemoryPropertyFlags properties
   imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-  imageInfo.flags = 0;
+  imageInfo.flags = imageCreateFlags;
   imageInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+
+  uint32_t queueFamilyIndices[2] = {};
   imageInfo.pQueueFamilyIndices = queueFamilyIndices;
-  imageInfo.queueFamilyIndexCount = familyCount;
+  imageInfo.queueFamilyIndexCount = 0;
+  getQueueFamiliesForSharing(queueFamilyIndices, &imageInfo.queueFamilyIndexCount);
 
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -476,20 +480,15 @@ bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
 #endif
 )
 {
-  int familyCount = 1;
-  uint32_t queueFamilyIndices[2] = {};
-  queueFamilyIndices[0] = m_graphicsFamilyQueueIndex;
-  if (m_graphicsFamilyQueueIndex != m_transferFamilyQueueIndex) {
-    queueFamilyIndices[1] = m_transferFamilyQueueIndex;
-    familyCount++;
-  }
-
   VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
   bufferInfo.size = size;
   bufferInfo.usage = usage;
   bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
-  bufferInfo.queueFamilyIndexCount = familyCount;
+
+  uint32_t queueFamilyIndices[2] = {};
   bufferInfo.pQueueFamilyIndices = queueFamilyIndices;
+  bufferInfo.queueFamilyIndexCount = 0;
+  getQueueFamiliesForSharing(queueFamilyIndices, &bufferInfo.queueFamilyIndexCount);
 
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
