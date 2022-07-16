@@ -430,7 +430,7 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
-bool KRDevice::createImage(Vector2i dimensions, VkImage* image, VmaAllocation* allocation)
+bool KRDevice::createImage(Vector2i dimensions, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation)
 {
   // TODO - Break block into own function to be shared with createBuffer
   int familyCount = 1;
@@ -441,7 +441,6 @@ bool KRDevice::createImage(Vector2i dimensions, VkImage* image, VmaAllocation* a
     familyCount++;
   }
 
-  VmaAllocationCreateInfo allocationInfo{};
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -460,7 +459,11 @@ bool KRDevice::createImage(Vector2i dimensions, VkImage* image, VmaAllocation* a
   imageInfo.pQueueFamilyIndices = queueFamilyIndices;
   imageInfo.queueFamilyIndexCount = familyCount;
 
-  VkResult res = vmaCreateImage(m_allocator, &imageInfo, &allocationInfo, image, allocation, nullptr);
+  VmaAllocationCreateInfo allocInfo = {};
+  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  allocInfo.requiredFlags = properties;
+
+  VkResult res = vmaCreateImage(m_allocator, &imageInfo, &allocInfo, image, allocation, nullptr);
   if (res != VK_SUCCESS) {
     return false;
   }

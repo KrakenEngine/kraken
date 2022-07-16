@@ -55,7 +55,7 @@ public:
 #endif
   );
 
-  bool createImage(Vector2i dimensions, VkImage* image, VmaAllocation* allocation);
+  bool createImage(Vector2i dimensions, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation);
 
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
