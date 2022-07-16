@@ -43,6 +43,7 @@ public:
     bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress = false, bool premultiply_alpha = false);
     
     virtual long getMemRequiredForSize(int max_dim);
+    virtual Vector2i getDimensions() const override;
     
 protected:
     

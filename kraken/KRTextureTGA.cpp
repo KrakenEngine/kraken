@@ -73,6 +73,8 @@ KRTextureTGA::KRTextureTGA(KRContext &context, KRDataBlock *data, std::string na
     data->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)data->getStart();
     
+    m_dimensions.x = pHeader->width;
+    m_dimensions.y = pHeader->height;
     m_max_lod_max_dim = pHeader->width > pHeader->height ? pHeader->width : pHeader->height;
     m_min_lod_max_dim = m_max_lod_max_dim; // Mipmaps not yet supported for TGA images
     switch(pHeader->imagetype) {
@@ -413,6 +415,11 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
 long KRTextureTGA::getMemRequiredForSize(int max_dim)
 {
     return m_imageSize;
+}
+
+Vector2i KRTextureTGA::getDimensions() const
+{
+  return m_dimensions;
 }
 
 std::string KRTextureTGA::getExtension()

@@ -144,6 +144,11 @@ KRTexturePVR::~KRTexturePVR() {
     m_blocks.clear();
 }
 
+Vector2i KRTexturePVR::getDimensions() const
+{
+  return Vector2i::Create(m_iWidth, m_iHeight);
+}
+
 long KRTexturePVR::getMemRequiredForSize(int max_dim)
 {
     int target_dim = max_dim;

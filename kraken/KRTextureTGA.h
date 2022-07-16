@@ -47,6 +47,8 @@ public:
 #endif
     
     virtual long getMemRequiredForSize(int max_dim);
+    virtual Vector2i getDimensions() const override;
 private:
     long m_imageSize;
+    Vector2i m_dimensions;
 };
