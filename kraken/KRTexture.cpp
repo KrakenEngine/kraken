@@ -40,7 +40,6 @@ KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context,
     m_current_lod_max_dim = 0;
     m_new_lod_max_dim = 0;
     m_iHandle = 0;
-    m_iNewHandle = 0;
     m_textureMemUsed = 0;
     m_newTextureMemUsed = 0;
     m_last_frame_used = 0;

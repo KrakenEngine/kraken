@@ -58,18 +58,55 @@ KRTextureCube::~KRTextureCube()
 
 bool KRTextureCube::createGPUTexture(int lod_max_dim)
 {
-    assert(m_iNewHandle == m_iHandle); // Only allow one resize per frame
+    assert(!m_haveNewHandles); // Only allow one resize per frame
     
     bool success = true;
-    
-    m_iNewHandle = 0;
-    GLDEBUG(glGenTextures(1, &m_iNewHandle));
-    assert(m_iNewHandle != 0);
-    
+
+    int prev_lod_max_dim = m_new_lod_max_dim;
     m_new_lod_max_dim = 0;
-    GLDEBUG(glBindTexture(GL_TEXTURE_CUBE_MAP, m_iNewHandle));
-    
     bool bMipMaps = false;
+
+    Vector2i dimensions = Vector2i::Zero();
+
+    for (int i = 0; i < 6; i++) {
+      if (!m_textures[i]) {
+        success = false;
+      } else {
+        KRTexture2D& tex = *m_textures[i];
+        Vector2i texDimensions = tex.getDimensions();
+        if (dimensions.x == 0) {
+          dimensions = texDimensions;
+        } else if (dimensions != texDimensions) {
+          success = false;
+        }
+        if (tex.hasMipmaps()) {
+          bMipMaps = true;
+        }
+      }
+    }
+    if (!success) {
+      // Not all face images were loaded, or they have
+      // mismatched dimensions
+      // TODO - Perhaps we should have multiple error result codes.
+      return false;
+    }
+    
+    KRDeviceManager* deviceManager = getContext().getDeviceManager();
+
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
+      KRDevice& device = *(*deviceItr).second;
+      KrDeviceHandle deviceHandle = (*deviceItr).first;
+      VmaAllocator allocator = device.getAllocator();
+      KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
+      texture.device = deviceHandle;
+      texture.allocation = VK_NULL_HANDLE;
+      texture.image = VK_NULL_HANDLE;
+
+      if (!device.createImage(dimensions, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation)) {
+        success = false;
+        break;
+      }
+    }
 
     for(int i=0; i<6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
@@ -78,16 +115,21 @@ bool KRTextureCube::createGPUTexture(int lod_max_dim)
             m_textures[i]->uploadTexture(TARGETS[i], lod_max_dim, m_new_lod_max_dim);
         }
     }
-    
-    if(bMipMaps) {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    } else {
-        GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        // GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-        // GLDEBUG(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
+
+    if (!success) {
+      for (TextureHandle t : m_newHandles) {
+        std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+        VmaAllocator allocator = device->getAllocator();
+        vmaDestroyImage(allocator, t.image, t.allocation);
+      }
+      m_newHandles.clear();
+      m_new_lod_max_dim = prev_lod_max_dim;
     }
 
-    
+    if (success) {
+      m_haveNewHandles = true;
+    }
+
     return success;
 }
 
