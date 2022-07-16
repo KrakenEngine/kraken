@@ -48,28 +48,44 @@ bool KRTexture2D::createGLTexture(int lod_max_dim) {
     
     bool success = true;
     int prev_lod_max_dim = m_new_lod_max_dim;
-
-    m_iNewHandle = 0;
     m_new_lod_max_dim = 0;
-    GLDEBUG(glGenTextures(1, &m_iNewHandle));
-    
-    if(m_iNewHandle == 0) {
-        success = false;
-    } else {
-    
-        GLDEBUG(glBindTexture(GL_TEXTURE_2D, m_iNewHandle));
-        if (hasMipmaps()) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-        } else {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        }
 
-        if(!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_new_lod_max_dim)) {
-            GLDEBUG(glDeleteTextures(1, &m_iNewHandle));
-            m_iNewHandle = m_iHandle;
-            m_new_lod_max_dim = prev_lod_max_dim;
-            success = false;
-        }
+    KRDeviceManager* deviceManager = getContext().getDeviceManager();
+    int iAllocation = 0;
+
+    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end() && iAllocation < KRENGINE_MAX_GPU_COUNT; deviceItr++, iAllocation++) {
+      KRDevice& device = *(*deviceItr).second;
+      KrDeviceHandle deviceHandle = (*deviceItr).first;
+      VmaAllocator allocator = device.getAllocator();
+      KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
+      texture.device = deviceHandle;
+      texture.allocation = VK_NULL_HANDLE;
+      texture.image = VK_NULL_HANDLE;
+
+      if (!device.createImage(getDimensions(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation)) {
+        success = false;
+        break;
+      }
+    }
+
+    if (success) {
+      if (!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_new_lod_max_dim)) {
+        m_new_lod_max_dim = prev_lod_max_dim;
+        success = false;
+      }
+    }
+
+    if (!success) {
+      for (TextureHandle t : m_newHandles) {
+        std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+        VmaAllocator allocator = device->getAllocator();
+        vmaDestroyImage(allocator, t.image, t.allocation);
+      }
+      m_newHandles.clear();
+    }
+
+    if (success) {
+      m_haveNewHandles = true;
     }
     
     return success;
