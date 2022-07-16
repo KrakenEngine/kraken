@@ -430,6 +430,42 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
+bool KRDevice::createImage(Vector2i dimensions, VkImage* image, VmaAllocation* allocation)
+{
+  // TODO - Break block into own function to be shared with createBuffer
+  int familyCount = 1;
+  uint32_t queueFamilyIndices[2] = {};
+  queueFamilyIndices[0] = m_graphicsFamilyQueueIndex;
+  if (m_graphicsFamilyQueueIndex != m_transferFamilyQueueIndex) {
+    queueFamilyIndices[1] = m_transferFamilyQueueIndex;
+    familyCount++;
+  }
+
+  VmaAllocationCreateInfo allocationInfo{};
+  VkImageCreateInfo imageInfo{};
+  imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  imageInfo.imageType = VK_IMAGE_TYPE_2D;
+  imageInfo.extent.width = static_cast<uint32_t>(dimensions.x);
+  imageInfo.extent.height = static_cast<uint32_t>(dimensions.y);
+  imageInfo.extent.depth = 1;
+  imageInfo.mipLevels = 1;
+  imageInfo.arrayLayers = 1;
+  imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+  imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+  imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+  imageInfo.flags = 0;
+  imageInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+  imageInfo.pQueueFamilyIndices = queueFamilyIndices;
+  imageInfo.queueFamilyIndexCount = familyCount;
+
+  VkResult res = vmaCreateImage(m_allocator, &imageInfo, &allocationInfo, image, allocation, nullptr);
+  if (res != VK_SUCCESS) {
+    return false;
+  }
+  return true;
+}
 
 bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  

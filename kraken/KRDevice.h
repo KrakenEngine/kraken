@@ -55,6 +55,8 @@ public:
 #endif
   );
 
+  bool createImage(Vector2i dimensions, VkImage* image, VmaAllocation* allocation);
+
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
   KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode);
