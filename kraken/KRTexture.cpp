@@ -110,7 +110,7 @@ void KRTexture::resize(int max_dim)
                 getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
                 getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
                 
-                if(!createGLTexture(target_dim)) {
+                if(!createGPUTexture(target_dim)) {
                     getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
                     m_newTextureMemUsed = 0;
                     assert(false);  // Failed to create the texture

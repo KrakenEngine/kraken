@@ -56,7 +56,7 @@ KRTextureCube::~KRTextureCube()
 {
 }
 
-bool KRTextureCube::createGLTexture(int lod_max_dim)
+bool KRTextureCube::createGPUTexture(int lod_max_dim)
 {
     assert(m_iNewHandle == m_iHandle); // Only allow one resize per frame
     

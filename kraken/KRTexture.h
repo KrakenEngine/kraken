@@ -88,7 +88,7 @@ public:
     void _swapHandles();
     
 protected:
-    virtual bool createGLTexture(int lod_max_dim) = 0;
+    virtual bool createGPUTexture(int lod_max_dim) = 0;
     GLuint getHandle();
     
     struct TextureHandle {

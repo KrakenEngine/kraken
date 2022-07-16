@@ -52,7 +52,7 @@ public:
     virtual void resize(int max_dim);
     
 private:
-    virtual bool createGLTexture(int lod_max_dim);
+    bool createGPUTexture(int lod_max_dim) override;
     
     float m_frame_rate;
     int m_frame_count;

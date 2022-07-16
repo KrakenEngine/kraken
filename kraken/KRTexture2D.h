@@ -52,5 +52,5 @@ public:
 protected:
     KRDataBlock *m_pData;
     
-    virtual bool createGLTexture(int lod_max_dim);
+    bool createGPUTexture(int lod_max_dim) override;
 };

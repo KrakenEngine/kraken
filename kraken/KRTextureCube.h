@@ -48,7 +48,7 @@ public:
 //    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
     
 private:
-    virtual bool createGLTexture(int lod_max_dim);
+    bool createGPUTexture(int lod_max_dim) override;
         
     const GLenum TARGETS[6] = {
         GL_TEXTURE_CUBE_MAP_POSITIVE_X,

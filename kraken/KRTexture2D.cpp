@@ -41,7 +41,7 @@ KRTexture2D::~KRTexture2D() {
     delete m_pData;
 }
 
-bool KRTexture2D::createGLTexture(int lod_max_dim) {
+bool KRTexture2D::createGPUTexture(int lod_max_dim) {
     if (m_haveNewHandles) {
       return true;
     }

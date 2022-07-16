@@ -80,7 +80,7 @@ KRTextureAnimated::~KRTextureAnimated()
 
 }
 
-bool KRTextureAnimated::createGLTexture(int lod_max_dim)
+bool KRTextureAnimated::createGPUTexture(int lod_max_dim)
 {
     return true;
 }
