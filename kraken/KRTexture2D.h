@@ -45,7 +45,7 @@ public:
     virtual bool save(const std::string& path);
     virtual bool save(KRDataBlock &data);
     
-    virtual bool uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) = 0;
+    virtual bool uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) = 0;
     virtual void bind(GLuint texture_unit);
     virtual Vector2i getDimensions() const = 0;
     

@@ -158,7 +158,7 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureKTX::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     int target_dim = lod_max_dim;
     if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -172,44 +172,7 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
 	int height = m_header.pixelHeight;
     long memoryRequired = 0;
     long memoryTransferred = 0;
-    
-    
-#if GL_EXT_texture_storage
-    
-    if(target == GL_TEXTURE_CUBE_MAP_POSITIVE_X || target == GL_TEXTURE_2D) {
-        // Call glTexStorage2DEXT only for the first uploadTexture used when creating a texture
-        int level_count=0;
-        int max_lod_width=0;
-        int max_lod_height=0;
-        for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-            if(width <= target_dim && height <= target_dim) {
-                if(max_lod_width == 0) {
-                    max_lod_width = width;
-                    max_lod_height = height;
-                }
-                
-                level_count++;
-            }
-            
-            width = width >> 1;
-            if(width < 1) {
-                width = 1;
-            }
-            height = height >> 1;
-            if(height < 1) {
-                height = 1;
-            }
-        }
-        width = m_header.pixelWidth;
-        height = m_header.pixelHeight;
-        
-        if(target == GL_TEXTURE_CUBE_MAP_POSITIVE_X) {
-            glTexStorage2DEXT(GL_TEXTURE_CUBE_MAP, level_count, (GLenum)m_header.glInternalFormat, max_lod_width, max_lod_height);
-        } else if(target == GL_TEXTURE_2D) {
-            glTexStorage2DEXT(target, level_count, (GLenum)m_header.glInternalFormat, max_lod_width, max_lod_height);
-        }
-    }
-#endif
+
     
     // Upload texture data
     int destination_level=0;
@@ -224,28 +187,15 @@ bool KRTextureKTX::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
             if(height > current_lod_max_dim) {
                 current_lod_max_dim = height;
             }
-#if GL_APPLE_copy_texture_levels && GL_EXT_texture_storage
-            if(target == GL_TEXTURE_2D && width <= m_current_lod_max_dim && height <= m_current_lod_max_dim) {
-                //GLDEBUG(glCompressedTexImage2D(target, i, (GLenum)m_header.glInternalFormat, width, height, 0, block.length, NULL)); // Allocate, but don't copy
-                //                GLDEBUG(glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
-                GLDEBUG(glCopyTextureLevelsAPPLE(m_iNewHandle, m_iHandle, source_level, 1));
-            } else {
-                block->lock();
-                GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, (GLenum)m_header.glInternalFormat, (GLsizei)block->getSize(), block->getStart()));
-                block->unlock();
-                
-                memoryTransferred += block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
-            }
-#else
+
             block->lock();
-#if GL_EXT_texture_storage
-            GLDEBUG(glCompressedTexSubImage2D(target, destination_level, 0, 0, width, height, (GLenum)m_header.glInternalFormat, (GLsizei)block->getSize(), block->getStart()));
-#else
+            /*
+            * TODO - Vulkan Refactoring
             GLDEBUG(glCompressedTexImage2D(target, destination_level, (GLenum)m_header.glInternalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
-#endif
+            */
+
             block->unlock();
             memoryTransferred += (long)block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
-#endif
             memoryRequired += (long)block->getSize();
             //
             //            err = glGetError();

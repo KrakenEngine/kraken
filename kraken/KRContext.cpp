@@ -79,10 +79,6 @@ int KRContext::KRENGINE_SYS_PAGE_SIZE;
 std::mutex KRContext::g_SurfaceInfoMutex;
 std::mutex KRContext::g_DeviceInfoMutex;
 
-const char *KRContext::extension_names[KRENGINE_NUM_EXTENSIONS] = {
-    "GL_EXT_texture_storage"
-};
-
 KRContext::log_callback *KRContext::s_log_callback = NULL;
 void *KRContext::s_log_callback_user_data = NULL;
 

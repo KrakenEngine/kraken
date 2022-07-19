@@ -114,7 +114,7 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureTGA::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
@@ -156,8 +156,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         }
                         assert(pSource <= m_pData->getEnd());
 //#endif
+                        /*
+                         * TODO - Vulkan Refactoring
                         GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                         GLDEBUG(glFinish());
+                         */
                         free(converted_image);
 
                         current_lod_max_dim = m_max_lod_max_dim;
@@ -179,9 +182,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 pSource += 4;
                             }
                             assert(pSource <= m_pData->getEnd());
-                            
+                            /*
+                             * TODO - Vulkan Refactoring
                             GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                             GLDEBUG(glFinish());
+                            */
                             free(converted_image);
                         } else {
                             unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
@@ -197,8 +202,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                                 pSource += 4;
                             }
                             assert(pSource <= m_pData->getEnd());
+                            /*
+                             * TODO - Vulkan Refactoring
                             GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
                             GLDEBUG(glFinish());
+                            */
                             free(converted_image);
                         }
                         
@@ -273,8 +281,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                         assert(pSource <= m_pData->getEnd());
                         assert(pDest == pEnd);
                     }
+                    /*
+                     * TODO - Vulkan Refactoring
                     GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     GLDEBUG(glFinish());
+                    */
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
@@ -311,8 +322,11 @@ bool KRTextureTGA::uploadTexture(GLenum target, int lod_max_dim, int &current_lo
                     }
                     assert(pSource <= m_pData->getEnd());
                     assert(pDest == pEnd);
+                    /*
+                     * TODO - Vulkan Refactoring
                     GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
                     GLDEBUG(glFinish());
+                    */
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
@@ -347,7 +361,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
     
     int current_max_dim = 0;
-    if(!uploadTexture(GL_TEXTURE_2D, m_max_lod_max_dim, current_max_dim, true, premultiply_alpha)) {
+    if(!uploadTexture(m_max_lod_max_dim, current_max_dim, true, premultiply_alpha)) {
         assert(false); // Failed to upload the texture
     }
     GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));

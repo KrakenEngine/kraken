@@ -115,14 +115,6 @@ public:
     KRSurfaceManager* getSurfaceManager();
     KRDeviceManager* getDeviceManager();
     
-    enum {
-        KRENGINE_GL_EXT_texture_storage,
-        KRENGINE_NUM_EXTENSIONS
-    };
-    
-    static const char * extension_names[KRENGINE_NUM_EXTENSIONS];
-    static bool extension_available[KRENGINE_NUM_EXTENSIONS];
-    
     void startFrame(float deltaTime);
     void endFrame(float deltaTime);
     
