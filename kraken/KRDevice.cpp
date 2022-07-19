@@ -47,16 +47,8 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   , m_graphicsCommandPool(VK_NULL_HANDLE)
   , m_computeCommandPool(VK_NULL_HANDLE)
   , m_allocator(VK_NULL_HANDLE)
-  , m_streamingStagingBuffer(VK_NULL_HANDLE)
-  , m_streamingStagingBufferAllocation(VK_NULL_HANDLE)
-  , m_streamingStagingBufferSize(0)
-  , m_streamingStagingBufferUsage(0)
-  , m_streamingStagingBufferData(nullptr)
-  , m_graphicsStagingBuffer(VK_NULL_HANDLE)
-  , m_graphicsStagingBufferAllocation(VK_NULL_HANDLE)
-  , m_graphicsStagingBufferSize(0)
-  , m_graphicsStagingBufferUsage(0)
-  , m_graphicsStagingBufferData(nullptr)
+  , m_streamingStagingBuffer{}
+  , m_graphicsStagingBuffer{}
 {
 
 }
@@ -66,31 +58,24 @@ KRDevice::~KRDevice()
   destroy();
 }
 
+void KRDevice::StagingBufferInfo::destroy(VmaAllocator& allocator)
+{
+  if (data) {
+    vmaUnmapMemory(allocator, allocation);
+    data = nullptr;
+  }
+  if (buffer) {
+    vmaDestroyBuffer(allocator, buffer, allocation);
+    size = 0;
+    buffer = VK_NULL_HANDLE;
+    allocation = VK_NULL_HANDLE;
+  }
+}
+
 void KRDevice::destroy()
 {
-  if (m_streamingStagingBufferData) {
-    vmaUnmapMemory(m_allocator, m_streamingStagingBufferAllocation);
-    m_streamingStagingBufferData = nullptr;
-  }
-
-  if (m_graphicsStagingBufferData) {
-    vmaUnmapMemory(m_allocator, m_graphicsStagingBufferAllocation);
-    m_graphicsStagingBufferData = nullptr;
-  }
-
-  if (m_streamingStagingBuffer) {
-    vmaDestroyBuffer(m_allocator, m_streamingStagingBuffer, m_streamingStagingBufferAllocation);
-    m_streamingStagingBufferSize = 0;
-    m_streamingStagingBuffer = VK_NULL_HANDLE;
-    m_streamingStagingBufferAllocation = VK_NULL_HANDLE;
-  }
-
-  if (m_graphicsStagingBuffer) {
-    vmaDestroyBuffer(m_allocator, m_graphicsStagingBuffer, m_graphicsStagingBufferAllocation);
-    m_graphicsStagingBufferSize = 0;
-    m_graphicsStagingBuffer = VK_NULL_HANDLE;
-    m_graphicsStagingBufferAllocation = VK_NULL_HANDLE;
-  }
+  m_streamingStagingBuffer.destroy(m_allocator);
+  m_graphicsStagingBuffer.destroy(m_allocator);
 
   if (m_graphicsCommandPool != VK_NULL_HANDLE) {
     vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
@@ -386,11 +371,8 @@ bool KRDevice::initStagingBuffers()
   // This will be used for asynchronous asset streaming in the streamer thread.
   // Start with a 256MB staging buffer.
   // TODO - Dynamically size staging buffer using heuristics
-  m_streamingStagingBufferSize = size_t(256) * 1024 * 1024;
-  if (!createStagingBuffer(m_streamingStagingBufferSize,
-    &m_streamingStagingBuffer,
-    &m_streamingStagingBufferAllocation,
-    &m_streamingStagingBufferData
+  size_t size = size_t(256) * 1024 * 1024;
+  if (!initStagingBuffer(size, &m_streamingStagingBuffer
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
@@ -402,11 +384,9 @@ bool KRDevice::initStagingBuffers()
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
   // Start with a 256MB staging buffer.
   // TODO - Dynamically size staging buffer using heuristics
-  m_graphicsStagingBufferSize = size_t(256) * 1024 * 1024;
-  if (!createStagingBuffer(m_graphicsStagingBufferSize,
-    &m_graphicsStagingBuffer,
-    &m_graphicsStagingBufferAllocation,
-    &m_graphicsStagingBufferData
+  size = size_t(256) * 1024 * 1024;
+  if (!initStagingBuffer(size,
+    &m_graphicsStagingBuffer
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Graphics Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
@@ -416,7 +396,7 @@ bool KRDevice::initStagingBuffers()
   return true;
 }
 
-bool KRDevice::createStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VmaAllocation* allocation, void** data
+bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
@@ -426,15 +406,15 @@ bool KRDevice::createStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VmaAlloc
     size,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-    buffer,
-    allocation
+    &info->buffer,
+    &info->allocation
 #if KRENGINE_DEBUG_GPU_LABELS
     , debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
   )) {
     return false;
   }
-  if (vmaMapMemory(m_allocator, *allocation, data) != VK_SUCCESS) {
+  if (vmaMapMemory(m_allocator, info->allocation, &info->data) != VK_SUCCESS) {
     return false;
   }
   return true;
@@ -655,7 +635,7 @@ void KRDevice::streamStart()
 
 size_t KRDevice::streamRemaining() const
 {
-  return m_streamingStagingBufferSize - m_streamingStagingBufferUsage;
+  return m_streamingStagingBuffer.size - m_streamingStagingBuffer.usage;
 }
 
 void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
@@ -667,23 +647,23 @@ void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
 
 void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
 {
-  memcpy((uint8_t*)m_streamingStagingBufferData + m_streamingStagingBufferUsage, data, size);
+  memcpy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, data, size);
 
   // TODO - Beneficial to batch many regions in a single call?
   VkBufferCopy copyRegion{};
-  copyRegion.srcOffset = m_streamingStagingBufferUsage;
+  copyRegion.srcOffset = m_streamingStagingBuffer.usage;
   copyRegion.dstOffset = 0; // Optional
   copyRegion.size = size;
-  vkCmdCopyBuffer(m_transferCommandBuffers[0], m_streamingStagingBuffer, destination, 1, &copyRegion);
+  vkCmdCopyBuffer(m_transferCommandBuffers[0], m_streamingStagingBuffer.buffer, destination, 1, &copyRegion);
 
   // TODO - Assert on any needed alignment?
-  m_streamingStagingBufferUsage += size;
+  m_streamingStagingBuffer.usage += size;
 }
 
 void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination)
 {
 
-  memcpy((uint8_t*)m_streamingStagingBufferData + m_streamingStagingBufferUsage, data, size);
+  memcpy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, data, size);
 
 
   // TODO - Refactor memory barriers into helper functions
@@ -737,7 +717,7 @@ void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImag
 
   vkCmdCopyBufferToImage(
     m_transferCommandBuffers[0],
-    m_streamingStagingBuffer,
+    m_streamingStagingBuffer.buffer,
     destination,
     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
     1,
@@ -763,7 +743,7 @@ void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImag
   );
 
   // TODO - Assert on any needed alignment?
-  m_streamingStagingBufferUsage += size;
+  m_streamingStagingBuffer.usage += size;
 }
 
 void KRDevice::streamEnd()

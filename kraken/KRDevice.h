@@ -86,23 +86,25 @@ public:
   std::vector<VkCommandBuffer> m_transferCommandBuffers;
   VmaAllocator m_allocator;
 
+  struct StagingBufferInfo {
+    VkBuffer buffer;
+    VmaAllocation allocation;
+    size_t size;
+    size_t usage;
+    void* data;
+
+    void destroy(VmaAllocator& allocator);
+  };
+
   // Staging buffer for uploading with the transfer queue
   // This will be used for asynchronous asset streaming in the streamer thread.
   // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
-  VkBuffer m_streamingStagingBuffer;
-  VmaAllocation m_streamingStagingBufferAllocation;
-  size_t m_streamingStagingBufferSize;
-  size_t m_streamingStagingBufferUsage;
-  void* m_streamingStagingBufferData;
+  StagingBufferInfo m_streamingStagingBuffer;
 
   // Staging buffer for uploading with the graphics queue
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
   // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
-  VkBuffer m_graphicsStagingBuffer;
-  VmaAllocation m_graphicsStagingBufferAllocation;
-  size_t m_graphicsStagingBufferSize;
-  size_t m_graphicsStagingBufferUsage;
-  void* m_graphicsStagingBufferData;
+  StagingBufferInfo m_graphicsStagingBuffer;
 private:
 
   void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount);
@@ -115,8 +117,7 @@ private:
   bool initCommandBuffers();
   bool initAllocator();
   bool initStagingBuffers();
-
-  bool createStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VmaAllocation* allocation, void** data
+  bool initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
 #if KRENGINE_DEBUG_GPU_LABELS
     , const char* debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
