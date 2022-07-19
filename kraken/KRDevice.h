@@ -106,4 +106,19 @@ public:
 private:
 
   void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount);
+
+  // Initialization helper functions
+  bool getAndCheckDeviceCapabilities(const std::vector<const char*>& deviceExtensions);
+  bool selectQueueFamilies();
+  bool initDeviceAndQueues(const std::vector<const char*>& deviceExtensions);
+  bool initCommandPools();
+  bool initCommandBuffers();
+  bool initAllocator();
+  bool initStagingBuffers();
+
+  bool createStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VmaAllocation* allocation, void** data
+#if KRENGINE_DEBUG_GPU_LABELS
+    , const char* debug_label
+#endif // KRENGINE_DEBUG_GPU_LABELS
+  );
 };

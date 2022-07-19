@@ -118,8 +118,9 @@ void KRDevice::destroy()
   }
 }
 
-bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
+bool KRDevice::getAndCheckDeviceCapabilities(const std::vector<const char*>& deviceExtensions)
 {
+
   vkGetPhysicalDeviceProperties(m_device, &m_deviceProperties);
   vkGetPhysicalDeviceFeatures(m_device, &m_deviceFeatures);
   uint32_t extensionCount;
@@ -141,7 +142,11 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
     // Anisotropy feature required
     return false;
   }
+  return true;
+}
 
+bool KRDevice::selectQueueFamilies()
+{
   uint32_t queueFamilyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, nullptr);
 
@@ -244,8 +249,11 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   m_computeFamilyQueueIndex = computeFamilyQueue;
   m_transferFamilyQueueIndex = transferFamilyQueue;
 
-  // ----
+  return true;
+}
 
+bool KRDevice::initDeviceAndQueues(const std::vector<const char*>& deviceExtensions)
+{
   VkDeviceQueueCreateInfo queueCreateInfo[3]{};
   int queueCount = 1;
   float queuePriority = 1.0f;
@@ -285,31 +293,34 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   vkGetDeviceQueue(m_logicalDevice, m_computeFamilyQueueIndex, 0, &m_computeQueue);
   vkGetDeviceQueue(m_logicalDevice, m_transferFamilyQueueIndex, 0, &m_transferQueue);
 
+  return true;
+}
+
+bool KRDevice::initCommandPools()
+{
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.queueFamilyIndex = m_graphicsFamilyQueueIndex;
   poolInfo.flags = 0;
 
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_graphicsCommandPool) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning...
     return false;
   }
 
   poolInfo.queueFamilyIndex = m_computeFamilyQueueIndex;
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_computeCommandPool) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning...
     return false;
   }
 
   poolInfo.queueFamilyIndex = m_transferFamilyQueueIndex;
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_transferCommandPool) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning...
     return false;
   }
+  return true;
+}
 
+bool KRDevice::initCommandBuffers()
+{
   const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
   m_graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
 
@@ -326,27 +337,26 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   allocInfo.commandBufferCount = (uint32_t)m_graphicsCommandBuffers.size();
 
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_graphicsCommandBuffers.data()) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
 
   allocInfo.commandPool = m_computeCommandPool;
   allocInfo.commandBufferCount = (uint32_t)m_computeCommandBuffers.size();
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_computeCommandBuffers.data()) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
 
   allocInfo.commandPool = m_transferCommandPool;
   allocInfo.commandBufferCount = (uint32_t)m_transferCommandBuffers.size();
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_transferCommandBuffers.data()) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
 
+  return true;
+}
+
+bool KRDevice::initAllocator()
+{
   // Create Vulkan Memory Allocator instance for this device
 
   // We are dynamically linking Vulkan, so we need to give VMA some hints
@@ -365,36 +375,26 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   vmaCreateInfo.vulkanApiVersion = VK_API_VERSION_1_2;
   vmaCreateInfo.pVulkanFunctions = &vmaVulkanFunctions;
   if (vmaCreateAllocator(&vmaCreateInfo, &m_allocator) != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
+  return true;
+}
 
-
+bool KRDevice::initStagingBuffers()
+{
   // Create Staging Buffer for the transfer queue.
   // This will be used for asynchronous asset streaming in the streamer thread.
   // Start with a 256MB staging buffer.
   // TODO - Dynamically size staging buffer using heuristics
   m_streamingStagingBufferSize = size_t(256) * 1024 * 1024;
-
-  if (!createBuffer(
-    m_streamingStagingBufferSize,
-    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+  if (!createStagingBuffer(m_streamingStagingBufferSize,
     &m_streamingStagingBuffer,
-    &m_streamingStagingBufferAllocation
+    &m_streamingStagingBufferAllocation,
+    &m_streamingStagingBufferData
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
   )) {
-    destroy();
-    // TODO - Log a warning
-    return false;
-  }
-  VkResult res = vmaMapMemory(m_allocator, m_streamingStagingBufferAllocation, &m_streamingStagingBufferData);
-  if (res != VK_SUCCESS) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
 
@@ -403,25 +403,75 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   // Start with a 256MB staging buffer.
   // TODO - Dynamically size staging buffer using heuristics
   m_graphicsStagingBufferSize = size_t(256) * 1024 * 1024;
-
-  if (!createBuffer(
-    m_graphicsStagingBufferSize,
-    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+  if (!createStagingBuffer(m_graphicsStagingBufferSize,
     &m_graphicsStagingBuffer,
-    &m_graphicsStagingBufferAllocation
+    &m_graphicsStagingBufferAllocation,
+    &m_graphicsStagingBufferData
 #if KRENGINE_DEBUG_GPU_LABELS
-    , "Streaming Staging Buffer"
+    , "Graphics Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
   )) {
-    destroy();
-    // TODO - Log a warning
     return false;
   }
-  res = vmaMapMemory(m_allocator, m_graphicsStagingBufferAllocation, &m_graphicsStagingBufferData);
-  if (res != VK_SUCCESS) {
+  return true;
+}
+
+bool KRDevice::createStagingBuffer(VkDeviceSize size, VkBuffer* buffer, VmaAllocation* allocation, void** data
+#if KRENGINE_DEBUG_GPU_LABELS
+  , const char* debug_label
+#endif // KRENGINE_DEBUG_GPU_LABELS
+  )
+{
+  if (!createBuffer(
+    size,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    buffer,
+    allocation
+#if KRENGINE_DEBUG_GPU_LABELS
+    , debug_label
+#endif // KRENGINE_DEBUG_GPU_LABELS
+  )) {
+    return false;
+  }
+  if (vmaMapMemory(m_allocator, *allocation, data) != VK_SUCCESS) {
+    return false;
+  }
+  return true;
+}
+
+bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
+{
+  // TODO - Return discrete failure codes
+  if (!getAndCheckDeviceCapabilities(deviceExtensions)) {
+    return false;
+  }
+
+  if (!selectQueueFamilies()) {
+    return false;
+  }
+
+  if (!initDeviceAndQueues(deviceExtensions)) {
+    return false;
+  }
+
+  if (!initCommandPools()) {
     destroy();
-    // TODO - Log a warning
+    return false;
+  }
+
+  if (!initCommandBuffers()) {
+    destroy();
+    return false;
+  }
+
+  if (!initAllocator()) {
+    destroy();
+    return false;
+  }
+
+  if (!initStagingBuffers()) {
+    destroy();
     return false;
   }
 
