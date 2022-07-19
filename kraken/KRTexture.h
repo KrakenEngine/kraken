@@ -101,8 +101,6 @@ protected:
     std::vector<TextureHandle> m_newHandles;
     std::atomic_bool m_haveNewHandles;
 
-    // TODO - Remove m_iHandle once Vulkan refactoring complete
-    GLuint m_iHandle;
     std::atomic_flag m_handle_lock;
     
     int m_current_lod_max_dim;
