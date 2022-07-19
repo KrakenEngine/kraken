@@ -65,26 +65,18 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
         success = false;
         break;
       }
-    }
 
-    if (success) {
-      if (!uploadTexture(lod_max_dim, m_new_lod_max_dim)) {
-        m_new_lod_max_dim = prev_lod_max_dim;
+      if (!uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim)) {
         success = false;
+        break;
       }
-    }
-
-    if (!success) {
-      for (TextureHandle t : m_newHandles) {
-        std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-        VmaAllocator allocator = device->getAllocator();
-        vmaDestroyImage(allocator, t.image, t.allocation);
-      }
-      m_newHandles.clear();
     }
 
     if (success) {
-      m_haveNewHandles = true;
+        m_new_lod_max_dim = prev_lod_max_dim;
+        m_haveNewHandles = true;
+    } else {
+      destroyNewHandles();
     }
     
     return success;

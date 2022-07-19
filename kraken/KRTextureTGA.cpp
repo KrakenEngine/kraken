@@ -114,24 +114,28 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureTGA::uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
+    // TODO - Vulkan Refactoring - Perhaps it would be more efficient to reformat the color channels during the copy to the staging buffer.
+
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
     unsigned char *pData = (unsigned char *)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
     
+    /*
+    * TODO - Vulkan refactoring to support compressing textures on load
     GLenum internal_format = GL_RGBA;
-    
-#if !TARGET_OS_IPHONE && !defined(ANDROID)
     if(compress) {
         internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     }
-#endif
+    */
     
     if(pHeader->colourmaptype != 0) {
         m_pData->unlock();
         return false; // Mapped colors not supported
     }
+
+    Vector2i dimensions = { pHeader->width, pHeader->height };
     
     switch(pHeader->imagetype) {
         case 2: // rgb
@@ -139,11 +143,6 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                 case 24:
                     {
                         unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
-//#ifdef __APPLE__
-//                        vImage_Buffer   source_image = { pData, pHeader->height, pHeader->width, pHeader->width*3 };
-//                        vImage_Buffer   dest_image = { converted_image, pHeader->height, pHeader->width, pHeader->width*4 };
-//                        vImageConvert_RGB888toRGBA8888(&source_image, NULL, 0xff, &dest_image, false, kvImageDoNotTile);
-//#else
                         unsigned char *pSource = pData;
                         unsigned char *pDest = converted_image;
                         unsigned char *pEnd = pData + pHeader->height * pHeader->width * 3;
@@ -155,12 +154,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                             pSource += 3;
                         }
                         assert(pSource <= m_pData->getEnd());
-//#endif
-                        /*
-                         * TODO - Vulkan Refactoring
-                        GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
-                        GLDEBUG(glFinish());
-                         */
+                        device.streamUpload((void *)converted_image, pDest - converted_image, dimensions, image);
                         free(converted_image);
 
                         current_lod_max_dim = m_max_lod_max_dim;
@@ -182,11 +176,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                                 pSource += 4;
                             }
                             assert(pSource <= m_pData->getEnd());
-                            /*
-                             * TODO - Vulkan Refactoring
-                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
-                            GLDEBUG(glFinish());
-                            */
+                            device.streamUpload((void*)converted_image, pDest - converted_image, dimensions, image);
                             free(converted_image);
                         } else {
                             unsigned char *converted_image = (unsigned char *)malloc(pHeader->width * pHeader->height * 4);
@@ -202,11 +192,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                                 pSource += 4;
                             }
                             assert(pSource <= m_pData->getEnd());
-                            /*
-                             * TODO - Vulkan Refactoring
-                            GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)pData));
-                            GLDEBUG(glFinish());
-                            */
+                            device.streamUpload((void*)converted_image, pDest - converted_image, dimensions, image);
                             free(converted_image);
                         }
                         
@@ -281,11 +267,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                         assert(pSource <= m_pData->getEnd());
                         assert(pDest == pEnd);
                     }
-                    /*
-                     * TODO - Vulkan Refactoring
-                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
-                    GLDEBUG(glFinish());
-                    */
+                    device.streamUpload((void*)converted_image, pDest - converted_image, dimensions, image);
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
@@ -322,11 +304,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current
                     }
                     assert(pSource <= m_pData->getEnd());
                     assert(pDest == pEnd);
-                    /*
-                     * TODO - Vulkan Refactoring
-                    GLDEBUG(glTexImage2D(target, 0, internal_format, pHeader->width, pHeader->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *)converted_image));
-                    GLDEBUG(glFinish());
-                    */
+                    device.streamUpload((void*)converted_image, pDest - converted_image, dimensions, image);
                     free(converted_image);
                     current_lod_max_dim = m_max_lod_max_dim;
                 }
