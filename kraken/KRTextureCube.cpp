@@ -106,14 +106,16 @@ bool KRTextureCube::createGPUTexture(int lod_max_dim)
         success = false;
         break;
       }
-    }
 
-    for(int i=0; i<6; i++) {
+      for (int i = 0; i < 6; i++) {
         std::string faceName = getName() + SUFFIXES[i];
-        if(m_textures[i]) {
-            if(m_textures[i]->hasMipmaps()) bMipMaps = true;
-            m_textures[i]->uploadTexture(/* TARGETS[i], */lod_max_dim, m_new_lod_max_dim);
+        if (m_textures[i]) {
+          /* TODO - Vulkan refactoring...
+          incorporate TARGETS[i],
+          */
+          m_textures[i]->uploadTexture(device, lod_max_dim, m_new_lod_max_dim);
         }
+      }
     }
 
     if (!success) {

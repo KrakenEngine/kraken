@@ -158,7 +158,7 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTextureKTX::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureKTX::uploadTexture(KRDevice& device, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     int target_dim = lod_max_dim;
     if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
@@ -168,8 +168,8 @@ bool KRTextureKTX::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool
     }
     
     // Determine how much memory will be consumed
-	int width = m_header.pixelWidth;
-	int height = m_header.pixelHeight;
+	  int width = m_header.pixelWidth;
+	  int height = m_header.pixelHeight;
     long memoryRequired = 0;
     long memoryTransferred = 0;
 

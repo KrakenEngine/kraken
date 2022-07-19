@@ -178,7 +178,7 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
     return memoryRequired;
 }
 
-bool KRTexturePVR::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTexturePVR::uploadTexture(KRDevice& device, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {    
     int target_dim = lod_max_dim;
     if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;

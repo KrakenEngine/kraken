@@ -114,7 +114,7 @@ KRTextureTGA::~KRTextureTGA()
     
 }
 
-bool KRTextureTGA::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureTGA::uploadTexture(KRDevice& device, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
     m_pData->lock();
     TGA_HEADER *pHeader = (TGA_HEADER *)m_pData->getStart();
@@ -349,6 +349,12 @@ bool KRTextureTGA::uploadTexture(int lod_max_dim, int &current_lod_max_dim, bool
 
 KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
 {
+    //  TODO - Vulkan refactoring...
+    assert(false);
+    return nullptr;
+    /*
+     * TODO - Vulkan refactoring...
+
     m_pData->lock();
     
     std::list<KRDataBlock *> blocks;
@@ -373,12 +379,6 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height));
     GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format));
     
-    /*
-    int texture_base_level = 0;
-    int texture_max_level = 0;
-    GLDEBUG(glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, &texture_base_level));
-    GLDEBUG(glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, &texture_max_level));
-    */
     switch(internal_format)
     {
         case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
@@ -423,6 +423,7 @@ KRTexture *KRTextureTGA::compress(bool premultiply_alpha)
     }
     
     return new_texture;
+    */
 }
 #endif
 

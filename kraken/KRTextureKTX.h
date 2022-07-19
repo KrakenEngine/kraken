@@ -41,7 +41,7 @@ public:
     virtual ~KRTextureKTX();
     virtual std::string getExtension();
     
-    bool uploadTexture(int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
+    bool uploadTexture(KRDevice& device, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
     
     virtual long getMemRequiredForSize(int max_dim);
     virtual Vector2i getDimensions() const override;
