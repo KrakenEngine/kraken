@@ -53,27 +53,37 @@ KRTexture::~KRTexture()
     releaseHandles();
 }
 
+void KRTexture::destroyHandles()
+{
+  KRDeviceManager* deviceManager = getContext().getDeviceManager();
+  for (TextureHandle t : m_handles) {
+    std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+    VmaAllocator allocator = device->getAllocator();
+    vmaDestroyImage(allocator, t.image, t.allocation);
+  }
+  m_handles.clear();
+  m_textureMemUsed = 0;
+}
+
+void KRTexture::destroyNewHandles()
+{
+  KRDeviceManager* deviceManager = getContext().getDeviceManager();
+  for (TextureHandle t : m_newHandles) {
+    std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
+    VmaAllocator allocator = device->getAllocator();
+    vmaDestroyImage(allocator, t.image, t.allocation);
+  }
+  m_newHandles.clear();
+  m_newTextureMemUsed = 0;
+}
+
 void KRTexture::releaseHandles() {
     long mem_size = getMemSize();
-    KRDeviceManager* deviceManager = getContext().getDeviceManager();
     
     while(m_handle_lock.test_and_set()); // Spin lock
     
-    for (TextureHandle t : m_newHandles) {
-      std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-      VmaAllocator allocator = device->getAllocator();
-      vmaDestroyImage(allocator, t.image, t.allocation);
-    }
-    m_newHandles.clear();
-    m_newTextureMemUsed = 0;
-
-    for (TextureHandle t : m_handles) {
-      std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-      VmaAllocator allocator = device->getAllocator();
-      vmaDestroyImage(allocator, t.image, t.allocation);
-    }
-    m_handles.clear();
-    m_textureMemUsed = 0;
+    destroyNewHandles();
+    destroyHandles();
 
     m_current_lod_max_dim = 0;
     m_new_lod_max_dim = 0;
@@ -225,17 +235,10 @@ void KRTexture::bind(GLuint texture_unit) {
 
 void KRTexture::_swapHandles()
 {
-    KRDeviceManager* deviceManager = getContext().getDeviceManager();
-
     //while(m_handle_lock.test_and_set()); // Spin lock
     if(!m_handle_lock.test_and_set()) {
         if(m_haveNewHandles) {
-            for (TextureHandle t : m_handles) {
-              std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-              VmaAllocator allocator = device->getAllocator();
-              vmaDestroyImage(allocator, t.image, t.allocation);
-            }
-            m_handles.clear();
+            destroyHandles();
             m_handles.swap(m_newHandles);
             m_textureMemUsed = (long)m_newTextureMemUsed;
             m_newTextureMemUsed = 0;
