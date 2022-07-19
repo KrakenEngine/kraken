@@ -122,6 +122,25 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
 {
   vkGetPhysicalDeviceProperties(m_device, &m_deviceProperties);
   vkGetPhysicalDeviceFeatures(m_device, &m_deviceFeatures);
+  uint32_t extensionCount;
+  vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, nullptr);
+
+  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+  vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, availableExtensions.data());
+
+  std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+  for (const auto& extension : availableExtensions) {
+    requiredExtensions.erase(extension.extensionName);
+  }
+  if (!requiredExtensions.empty()) {
+    // Missing a required extension
+    return false;
+  }
+  if (!m_deviceFeatures.samplerAnisotropy) {
+    // Anisotropy feature required
+    return false;
+  }
 
   uint32_t queueFamilyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, nullptr);
@@ -225,22 +244,6 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   m_computeFamilyQueueIndex = computeFamilyQueue;
   m_transferFamilyQueueIndex = transferFamilyQueue;
 
-  uint32_t extensionCount;
-  vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, nullptr);
-
-  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-  vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, availableExtensions.data());
-
-  std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-  for (const auto& extension : availableExtensions) {
-    requiredExtensions.erase(extension.extensionName);
-  }
-  if (!requiredExtensions.empty()) {
-    // Missing a required extension
-    return false;
-  }
-
   // ----
 
   VkDeviceQueueCreateInfo queueCreateInfo[3]{};
@@ -270,6 +273,7 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = queueCount;
   VkPhysicalDeviceFeatures deviceFeatures{};
+  deviceFeatures.samplerAnisotropy = VK_TRUE;
   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
   deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
   deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
