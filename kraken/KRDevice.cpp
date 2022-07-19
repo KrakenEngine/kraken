@@ -626,6 +626,92 @@ void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
   m_streamingStagingBufferUsage += size;
 }
 
+void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination)
+{
+
+  memcpy((uint8_t*)m_streamingStagingBufferData + m_streamingStagingBufferUsage, data, size);
+
+
+  // TODO - Refactor memory barriers into helper functions
+  VkPipelineStageFlags sourceStage;
+  VkPipelineStageFlags destinationStage;
+
+  VkImageMemoryBarrier barrier{};
+  barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.image = destination;
+  barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  barrier.subresourceRange.baseMipLevel = 0;
+  barrier.subresourceRange.levelCount = 1;
+  barrier.subresourceRange.baseArrayLayer = 0;
+  barrier.subresourceRange.layerCount = 1;
+
+  // For VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+  barrier.srcAccessMask = 0;
+  barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+  destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+  vkCmdPipelineBarrier(
+    m_transferCommandBuffers[0],
+    sourceStage, destinationStage,
+    0,
+    0, nullptr,
+    0, nullptr,
+    1, &barrier
+  );
+
+  VkBufferImageCopy region{};
+  region.bufferOffset = 0;
+  region.bufferRowLength = 0;
+  region.bufferImageHeight = 0;
+
+  region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  region.imageSubresource.mipLevel = 0;
+  region.imageSubresource.baseArrayLayer = 0;
+  region.imageSubresource.layerCount = 1;
+
+  region.imageOffset = { 0, 0, 0 };
+  region.imageExtent = {
+      (unsigned int)dimensions.x,
+      (unsigned int)dimensions.y,
+      1
+  };
+
+  vkCmdCopyBufferToImage(
+    m_transferCommandBuffers[0],
+    m_streamingStagingBuffer,
+    destination,
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    1,
+    &region
+  );
+
+  barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+  barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+  // For VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+  barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+  destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+  vkCmdPipelineBarrier(
+    m_transferCommandBuffers[0],
+    sourceStage, destinationStage,
+    0,
+    0, nullptr,
+    0, nullptr,
+    1, &barrier
+  );
+
+  // TODO - Assert on any needed alignment?
+  m_streamingStagingBufferUsage += size;
+}
+
 void KRDevice::streamEnd()
 {
   vkEndCommandBuffer(m_transferCommandBuffers[0]);

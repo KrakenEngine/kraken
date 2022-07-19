@@ -65,6 +65,7 @@ public:
   size_t streamRemaining() const;
   void streamUpload(KRDataBlock& data, VkBuffer destination);
   void streamUpload(void *data, size_t size, VkBuffer destination);
+  void streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination);
   void streamEnd();
 
   VkPhysicalDevice m_device;
