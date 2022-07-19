@@ -112,7 +112,7 @@ bool KRTextureCube::createGPUTexture(int lod_max_dim)
         std::string faceName = getName() + SUFFIXES[i];
         if(m_textures[i]) {
             if(m_textures[i]->hasMipmaps()) bMipMaps = true;
-            m_textures[i]->uploadTexture(TARGETS[i], lod_max_dim, m_new_lod_max_dim);
+            m_textures[i]->uploadTexture(/* TARGETS[i], */lod_max_dim, m_new_lod_max_dim);
         }
     }
 

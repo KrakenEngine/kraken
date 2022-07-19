@@ -68,7 +68,7 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
     }
 
     if (success) {
-      if (!uploadTexture(GL_TEXTURE_2D, lod_max_dim, m_new_lod_max_dim)) {
+      if (!uploadTexture(lod_max_dim, m_new_lod_max_dim)) {
         m_new_lod_max_dim = prev_lod_max_dim;
         success = false;
       }
