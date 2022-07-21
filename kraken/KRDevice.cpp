@@ -405,7 +405,7 @@ bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
   if (!createBuffer(
     size,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
     &info->buffer,
     &info->allocation
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -465,13 +465,18 @@ VmaAllocator KRDevice::getAllocator()
   return m_allocator;
 }
 
-void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount)
+void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount, VkSharingMode* sharingMode)
 {
   *familyCount = 1;
   queueFamilyIndices[0] = m_graphicsFamilyQueueIndex;
   if (m_graphicsFamilyQueueIndex != m_transferFamilyQueueIndex) {
     queueFamilyIndices[1] = m_transferFamilyQueueIndex;
-    *familyCount++;
+    (*familyCount)++;
+  }
+  if (*familyCount > 1) {
+    *sharingMode = VK_SHARING_MODE_CONCURRENT;
+  } else {
+    *sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   }
 }
 
@@ -495,12 +500,12 @@ bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFl
   imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageInfo.flags = imageCreateFlags;
-  imageInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+  
 
   uint32_t queueFamilyIndices[2] = {};
   imageInfo.pQueueFamilyIndices = queueFamilyIndices;
   imageInfo.queueFamilyIndexCount = 0;
-  getQueueFamiliesForSharing(queueFamilyIndices, &imageInfo.queueFamilyIndexCount);
+  getQueueFamiliesForSharing(queueFamilyIndices, &imageInfo.queueFamilyIndexCount, &imageInfo.sharingMode);
 
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -530,12 +535,11 @@ bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
   VkBufferCreateInfo bufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
   bufferInfo.size = size;
   bufferInfo.usage = usage;
-  bufferInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
 
   uint32_t queueFamilyIndices[2] = {};
   bufferInfo.pQueueFamilyIndices = queueFamilyIndices;
   bufferInfo.queueFamilyIndexCount = 0;
-  getQueueFamiliesForSharing(queueFamilyIndices, &bufferInfo.queueFamilyIndexCount);
+  getQueueFamiliesForSharing(queueFamilyIndices, &bufferInfo.queueFamilyIndexCount, &bufferInfo.sharingMode);
 
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -776,7 +780,12 @@ void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImag
 void KRDevice::streamEnd()
 {
   vkEndCommandBuffer(m_transferCommandBuffers[0]);
-  m_streamingStagingBuffer.usage = 0;
+
+  if (m_streamingStagingBuffer.usage > 0) {
+    VkResult res = vmaFlushAllocation(m_allocator, m_streamingStagingBuffer.allocation, 0, m_streamingStagingBuffer.usage);
+    assert(res == VK_SUCCESS);
+    m_streamingStagingBuffer.usage = 0;
+  }
 
   // TODO - Should double buffer and use a fence rather than block the thread
   VkSubmitInfo submitInfo{};

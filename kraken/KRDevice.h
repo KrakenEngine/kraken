@@ -112,7 +112,7 @@ public:
 private:
   void checkFlushStreamBuffer(size_t size);
 
-  void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount);
+  void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount, VkSharingMode* sharingMode);
 
   // Initialization helper functions
   bool getAndCheckDeviceCapabilities(const std::vector<const char*>& deviceExtensions);
