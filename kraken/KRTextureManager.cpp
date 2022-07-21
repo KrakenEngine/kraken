@@ -432,8 +432,6 @@ void KRTextureManager::balanceTextureMemory(long &memoryRemaining, long &memoryR
         //}
     }
     
-    glFlush();
-    
     //long streamerTime = getContext().getAbsoluteTimeMilliseconds() - startTime;
     //fprintf(stderr, "%i / %i\n", (int)minMipTime, (int)streamerTime);
 
