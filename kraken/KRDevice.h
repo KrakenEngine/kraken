@@ -55,7 +55,11 @@ public:
 #endif
   );
 
-  bool createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation);
+  bool createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
+#if KRENGINE_DEBUG_GPU_LABELS  
+    , const char* debug_label
+#endif
+  );
 
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat);

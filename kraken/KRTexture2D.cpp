@@ -61,7 +61,11 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
       texture.allocation = VK_NULL_HANDLE;
       texture.image = VK_NULL_HANDLE;
 
-      if (!device.createImage(getDimensions(), 0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation)) {
+      if (!device.createImage(getDimensions(), 0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
+#if KRENGINE_DEBUG_GPU_LABELS
+      , getName().c_str()
+#endif
+      )) {
         success = false;
         break;
       }

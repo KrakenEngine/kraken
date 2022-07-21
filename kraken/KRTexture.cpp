@@ -118,7 +118,9 @@ void KRTexture::resize(int max_dim)
                 getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
                 getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
                 
-                if(!createGPUTexture(target_dim)) {
+                if (createGPUTexture(target_dim)) {
+                  m_new_lod_max_dim = target_dim;
+                } else {
                     getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
                     m_newTextureMemUsed = 0;
                     assert(false);  // Failed to create the texture
@@ -131,7 +133,7 @@ void KRTexture::resize(int max_dim)
 }
 
 GLuint KRTexture::getHandle() {
-    assert(false); // TODO - Vulkan refactoring required
+    // assert(false); // TODO - Vulkan refactoring required
     resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // TODO - Pass through getHandle() arguements to replace extraneous resetPoolExpiry calls?
     return 0;
 }

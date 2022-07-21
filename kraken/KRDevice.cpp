@@ -475,7 +475,11 @@ void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t
   }
 }
 
-bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation)
+bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
+#if KRENGINE_DEBUG_GPU_LABELS  
+  , const char* debug_label
+#endif
+)
 {
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -506,6 +510,14 @@ bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFl
   if (res != VK_SUCCESS) {
     return false;
   }
+#if KRENGINE_DEBUG_GPU_LABELS
+  VkDebugUtilsObjectNameInfoEXT debugInfo{};
+  debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+  debugInfo.objectHandle = (uint64_t)*image;
+  debugInfo.objectType = VK_OBJECT_TYPE_IMAGE;
+  debugInfo.pObjectName = debug_label;
+  res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
+#endif // KRENGINE_DEBUG_GPU_LABELS
   return true;
 }
 
