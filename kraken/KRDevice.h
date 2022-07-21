@@ -66,7 +66,6 @@ public:
   KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode);
 
   void streamStart();
-  size_t streamRemaining() const;
   void streamUpload(KRDataBlock& data, VkBuffer destination);
   void streamUpload(void *data, size_t size, VkBuffer destination);
   void streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination);
@@ -96,6 +95,7 @@ public:
     size_t size;
     size_t usage;
     void* data;
+    bool started;
 
     void destroy(VmaAllocator& allocator);
   };

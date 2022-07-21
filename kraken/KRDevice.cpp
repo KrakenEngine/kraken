@@ -286,7 +286,7 @@ bool KRDevice::initCommandPools()
   VkCommandPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolInfo.queueFamilyIndex = m_graphicsFamilyQueueIndex;
-  poolInfo.flags = 0;
+  poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
   if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_graphicsCommandPool) != VK_SUCCESS) {
     return false;
@@ -640,19 +640,17 @@ KrResult KRDevice::selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& se
   return KR_SUCCESS;
 }
 
-
 void KRDevice::streamStart()
 {
-  VkCommandBufferBeginInfo beginInfo{};
-  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  if (!m_streamingStagingBuffer.started) {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-  vkBeginCommandBuffer(m_transferCommandBuffers[0], &beginInfo);
-}
+    vkBeginCommandBuffer(m_transferCommandBuffers[0], &beginInfo);
 
-size_t KRDevice::streamRemaining() const
-{
-  return m_streamingStagingBuffer.size - m_streamingStagingBuffer.usage;
+    m_streamingStagingBuffer.started = true;
+  }
 }
 
 void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
@@ -779,6 +777,9 @@ void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImag
 
 void KRDevice::streamEnd()
 {
+  if (m_streamingStagingBuffer.usage == 0) {
+    return;
+  }
   vkEndCommandBuffer(m_transferCommandBuffers[0]);
 
   if (m_streamingStagingBuffer.usage > 0) {
@@ -795,4 +796,6 @@ void KRDevice::streamEnd()
 
   vkQueueSubmit(m_transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
   vkQueueWaitIdle(m_transferQueue);
+
+  m_streamingStagingBuffer.started = false;
 }
