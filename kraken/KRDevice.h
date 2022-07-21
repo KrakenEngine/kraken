@@ -48,6 +48,15 @@ public:
   void destroy();
   bool initialize(const std::vector<const char*>& deviceExtensions);
 
+#if KRENGINE_DEBUG_GPU_LABELS
+  void setDebugLabel(uint64_t objectHandle, VkObjectType objectType, const char* debugLabel);
+  void setDebugLabel(const VkImage& image, const char* debugLabel);
+  void setDebugLabel(const VkBuffer& buffer, const char* debugLabel);
+  void setDebugLabel(const VkQueue& queue, const char* debugLabel);
+  void setDebugLabel(const VkCommandBuffer& commandBuffer, const char* debugLabel);
+  void setDebugLabel(const VkDevice& device, const char* debugLabel);
+#endif // KRENGINE_DEBUG_GPU_LABELS
+
   VmaAllocator getAllocator();
   bool createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  

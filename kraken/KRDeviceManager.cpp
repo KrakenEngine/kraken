@@ -189,8 +189,24 @@ void KRDeviceManager::createDevices()
     }
   }
 
-  for (auto itr = candidateDevices.begin(); itr != candidateDevices.end(); itr++) {
+  int iDevice = 0;
+  for (auto itr = candidateDevices.begin(); itr != candidateDevices.end(); itr++, iDevice++) {
     std::unique_ptr<KRDevice> device = std::move(*itr);
+
+#if KRENGINE_DEBUG_GPU_LABELS
+    const size_t kMaxLabel = 64;
+    char label[kMaxLabel];
+    if (iDevice == 0) {
+      strcpy(label, "Primary GPU");
+    } else if (iDevice == 1) {
+      strcpy(label, "Secondary GPU");
+    } else {
+      snprintf(label, kMaxLabel, "GPU %i", iDevice + 1);
+    }
+    device->setDebugLabel(device->m_logicalDevice, label);
+   
+#endif
+
     m_devices[++m_topDeviceHandle] = std::move(device);
   }
 }

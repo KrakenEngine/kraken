@@ -277,6 +277,11 @@ bool KRDevice::initDeviceAndQueues(const std::vector<const char*>& deviceExtensi
   vkGetDeviceQueue(m_logicalDevice, m_graphicsFamilyQueueIndex, 0, &m_graphicsQueue);
   vkGetDeviceQueue(m_logicalDevice, m_computeFamilyQueueIndex, 0, &m_computeQueue);
   vkGetDeviceQueue(m_logicalDevice, m_transferFamilyQueueIndex, 0, &m_transferQueue);
+#if KRENGINE_DEBUG_GPU_LABELS
+  setDebugLabel(m_graphicsQueue, "Graphics");
+  setDebugLabel(m_computeQueue, "Compute");
+  setDebugLabel(m_transferQueue, "Transfer");
+#endif // KRENGINE_DEBUG_GPU_LABELS
 
   return true;
 }
@@ -336,6 +341,23 @@ bool KRDevice::initCommandBuffers()
   if (vkAllocateCommandBuffers(m_logicalDevice, &allocInfo, m_transferCommandBuffers.data()) != VK_SUCCESS) {
     return false;
   }
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  const size_t kMaxLabelSize = 64;
+  char debug_label[kMaxLabelSize];
+  for (int i = 0; i < m_transferCommandBuffers.size(); i++) {
+    snprintf(debug_label, kMaxLabelSize, "Transfer %i", i);
+    setDebugLabel(m_transferCommandBuffers[i], debug_label);
+  }
+  for (int i = 0; i < m_graphicsCommandBuffers.size(); i++) {
+    snprintf(debug_label, kMaxLabelSize, "Presentation %i", i);
+    setDebugLabel(m_graphicsCommandBuffers[i], debug_label);
+  }
+  for (int i = 0; i < m_computeCommandBuffers.size(); i++) {
+    snprintf(debug_label, kMaxLabelSize, "Compute %i", i);
+    setDebugLabel(m_computeCommandBuffers[i], debug_label);
+  }
+#endif
 
   return true;
 }
@@ -480,6 +502,45 @@ void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t
   }
 }
 
+#if KRENGINE_DEBUG_GPU_LABELS
+void KRDevice::setDebugLabel(uint64_t objectHandle, VkObjectType objectType, const char* debugLabel)
+{
+  VkDebugUtilsObjectNameInfoEXT debugInfo{};
+  debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+  debugInfo.objectHandle = objectHandle;
+  debugInfo.objectType = objectType;
+  debugInfo.pObjectName = debugLabel;
+  VkResult res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
+  assert(res == VK_SUCCESS);
+}
+
+void KRDevice::setDebugLabel(const VkImage& image, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)image, VK_OBJECT_TYPE_IMAGE, debugLabel);
+}
+void KRDevice::setDebugLabel(const VkBuffer& buffer, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)buffer, VK_OBJECT_TYPE_BUFFER, debugLabel);
+}
+
+void KRDevice::setDebugLabel(const VkQueue& queue, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)queue, VK_OBJECT_TYPE_QUEUE, debugLabel);
+}
+
+void KRDevice::setDebugLabel(const VkCommandBuffer& commandBuffer, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)commandBuffer, VK_OBJECT_TYPE_COMMAND_BUFFER, debugLabel);
+}
+
+void KRDevice::setDebugLabel(const VkDevice& device, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)device, VK_OBJECT_TYPE_DEVICE, debugLabel);
+}
+
+#endif // KRENGINE_DEBUG_GPU_LABELS
+
+
 bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  
   , const char* debug_label
@@ -516,13 +577,8 @@ bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFl
     return false;
   }
 #if KRENGINE_DEBUG_GPU_LABELS
-  VkDebugUtilsObjectNameInfoEXT debugInfo{};
-  debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-  debugInfo.objectHandle = (uint64_t)*image;
-  debugInfo.objectType = VK_OBJECT_TYPE_IMAGE;
-  debugInfo.pObjectName = debug_label;
-  res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
-#endif // KRENGINE_DEBUG_GPU_LABELS
+  setDebugLabel(*image, debug_label);
+#endif
   return true;
 }
 
@@ -551,13 +607,8 @@ bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
   }
 
 #if KRENGINE_DEBUG_GPU_LABELS
-  VkDebugUtilsObjectNameInfoEXT debugInfo{};
-  debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-  debugInfo.objectHandle = (uint64_t)*buffer;
-  debugInfo.objectType = VK_OBJECT_TYPE_BUFFER;
-  debugInfo.pObjectName = debug_label;
-  res = vkSetDebugUtilsObjectNameEXT(m_logicalDevice, &debugInfo);
-#endif // KRENGINE_DEBUG_GPU_LABELS
+  setDebugLabel(*buffer, debug_label);
+#endif
 
   return true;
 }
