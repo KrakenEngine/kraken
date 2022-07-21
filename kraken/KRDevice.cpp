@@ -417,6 +417,7 @@ bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
   if (vmaMapMemory(m_allocator, info->allocation, &info->data) != VK_SUCCESS) {
     return false;
   }
+  info->size = size;
   return true;
 }
 
@@ -645,8 +646,21 @@ void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
   data.unlock();
 }
 
+void KRDevice::checkFlushStreamBuffer(size_t size)
+{
+  // Flush the buffers if we would run out of space
+  if (m_streamingStagingBuffer.usage + size > m_streamingStagingBuffer.size) {
+    // If we hit this often, then we need a larger staging buffer.
+    // TODO - Dynamically allocate more/larger staging buffers.
+    assert(size < m_streamingStagingBuffer.size);
+    streamEnd();
+    streamStart();
+  }
+}
+
 void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
 {
+  checkFlushStreamBuffer(size);
   memcpy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, data, size);
 
   // TODO - Beneficial to batch many regions in a single call?
@@ -662,6 +676,7 @@ void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
 
 void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination)
 {
+  checkFlushStreamBuffer(size);
 
   memcpy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, data, size);
 
@@ -749,6 +764,7 @@ void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImag
 void KRDevice::streamEnd()
 {
   vkEndCommandBuffer(m_transferCommandBuffers[0]);
+  m_streamingStagingBuffer.usage = 0;
 
   // TODO - Should double buffer and use a fence rather than block the thread
   VkSubmitInfo submitInfo{};

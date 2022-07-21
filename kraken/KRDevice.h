@@ -106,6 +106,7 @@ public:
   // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
   StagingBufferInfo m_graphicsStagingBuffer;
 private:
+  void checkFlushStreamBuffer(size_t size);
 
   void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount);
 
