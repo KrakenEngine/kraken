@@ -279,7 +279,7 @@ void KRMeshManager::startFrame(float deltaTime)
 
 void KRMeshManager::endFrame(float deltaTime)
 {
-    
+  m_currentVBO = nullptr;
 }
 
 void KRMeshManager::doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame)
