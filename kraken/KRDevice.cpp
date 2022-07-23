@@ -739,6 +739,21 @@ void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
   m_streamingStagingBuffer.usage += size;
 }
 
+void KRDevice::graphicsUpload(void* data, size_t size, VkBuffer destination)
+{
+  memcpy((uint8_t*)m_graphicsStagingBuffer.data + m_graphicsStagingBuffer.usage, data, size);
+
+  // TODO - Beneficial to batch many regions in a single call?
+  VkBufferCopy copyRegion{};
+  copyRegion.srcOffset = m_graphicsStagingBuffer.usage;
+  copyRegion.dstOffset = 0; // Optional
+  copyRegion.size = size;
+  vkCmdCopyBuffer(m_graphicsCommandBuffers[0], m_graphicsStagingBuffer.buffer, destination, 1, &copyRegion);
+
+  // TODO - Assert on any needed alignment?
+  m_graphicsStagingBuffer.usage += size;
+}
+
 void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination)
 {
   checkFlushStreamBuffer(size);
