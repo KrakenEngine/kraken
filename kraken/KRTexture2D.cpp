@@ -70,6 +70,22 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim) {
         break;
       }
 
+      VkImageViewCreateInfo viewInfo{};
+      viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+      viewInfo.image = texture.image;
+      viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+      viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+      viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      viewInfo.subresourceRange.baseMipLevel = 0;
+      viewInfo.subresourceRange.levelCount = 1;
+      viewInfo.subresourceRange.baseArrayLayer = 0;
+      viewInfo.subresourceRange.layerCount = 1;
+      VkResult res = vkCreateImageView(device.m_logicalDevice, &viewInfo, nullptr, &texture.fullImageView);
+      if(res != VK_SUCCESS) {
+        success = false;
+        break;
+      }
+
       if (!uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim)) {
         success = false;
         break;

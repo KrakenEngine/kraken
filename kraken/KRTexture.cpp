@@ -53,13 +53,25 @@ KRTexture::~KRTexture()
     releaseHandles();
 }
 
+void KRTexture::TextureHandle::destroy(KRDeviceManager* deviceManager)
+{
+  std::unique_ptr<KRDevice>& d = deviceManager->getDevice(device);
+  // TODO - Validate that device has not been lost
+  if (fullImageView != VK_NULL_HANDLE) {
+    vkDestroyImageView(d->m_logicalDevice, fullImageView, nullptr);
+    fullImageView = VK_NULL_HANDLE;
+  }
+  if (image != VK_NULL_HANDLE) {
+    VmaAllocator allocator = d->getAllocator();
+    vmaDestroyImage(allocator, image, allocation);
+  }
+}
+
 void KRTexture::destroyHandles()
 {
   KRDeviceManager* deviceManager = getContext().getDeviceManager();
   for (TextureHandle t : m_handles) {
-    std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-    VmaAllocator allocator = device->getAllocator();
-    vmaDestroyImage(allocator, t.image, t.allocation);
+    t.destroy(deviceManager);
   }
   m_handles.clear();
   m_textureMemUsed = 0;
@@ -69,9 +81,7 @@ void KRTexture::destroyNewHandles()
 {
   KRDeviceManager* deviceManager = getContext().getDeviceManager();
   for (TextureHandle t : m_newHandles) {
-    std::unique_ptr<KRDevice>& device = deviceManager->getDevice(t.device);
-    VmaAllocator allocator = device->getAllocator();
-    vmaDestroyImage(allocator, t.image, t.allocation);
+    t.destroy(deviceManager);
   }
   m_newHandles.clear();
   m_newTextureMemUsed = 0;

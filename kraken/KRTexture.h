@@ -37,6 +37,7 @@
 
 class KRDataBlock;
 class KRCamera;
+class KRDeviceManager;
 
 class KRTexture : public KRResource {
 public:
@@ -95,8 +96,11 @@ protected:
     
     struct TextureHandle {
       VkImage image;
+      VkImageView fullImageView;
       KrDeviceHandle device;
       VmaAllocation allocation;
+
+      void destroy(KRDeviceManager* deviceManager);
     };
 
     std::vector<TextureHandle> m_handles;
