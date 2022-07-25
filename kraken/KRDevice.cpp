@@ -711,6 +711,13 @@ void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
   data.unlock();
 }
 
+void KRDevice::graphicsUpload(KRDataBlock& data, VkBuffer destination)
+{
+  data.lock();
+  graphicsUpload(data.getStart(), data.getSize(), destination);
+  data.unlock();
+}
+
 void KRDevice::checkFlushStreamBuffer(size_t size)
 {
   // Flush the buffers if we would run out of space

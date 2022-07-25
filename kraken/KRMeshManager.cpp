@@ -577,7 +577,12 @@ void KRMeshManager::KRVBOData::load()
         , debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
       );
-      device.streamUpload(*m_data, allocation.vertex_buffer);
+      if (m_type == vbo_type::TEMPORARY) {
+        device.graphicsUpload(*m_data, allocation.vertex_buffer);
+      } else {
+        device.streamUpload(*m_data, allocation.vertex_buffer);
+      }
+      
 
       if (m_index_data->getSize() > 0) {
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -593,7 +598,11 @@ void KRMeshManager::KRVBOData::load()
           , debug_label
 #endif
         );
-        device.streamUpload(*m_index_data, allocation.index_buffer);
+        if (m_type == vbo_type::TEMPORARY) {
+          device.graphicsUpload(*m_index_data, allocation.index_buffer);
+        } else {
+          device.streamUpload(*m_index_data, allocation.index_buffer);
+        }
       }
     }
     
