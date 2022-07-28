@@ -80,8 +80,8 @@ public:
   void streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination);
   void streamEnd();
 
-  void graphicsUpload(KRDataBlock& data, VkBuffer destination);
-  void graphicsUpload(void* data, size_t size, VkBuffer destination);
+  void graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination);
+  void graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t size, VkBuffer destination);
 
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;

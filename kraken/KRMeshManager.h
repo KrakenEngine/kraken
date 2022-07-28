@@ -94,6 +94,7 @@ public:
         bool isVBOLoaded() { return m_is_vbo_loaded; }
         bool isVBOReady() { return m_is_vbo_ready; }
         void load();
+        void load(VkCommandBuffer& commandBuffer);
         void unload();
         void bind(VkCommandBuffer& commandBuffer);
         

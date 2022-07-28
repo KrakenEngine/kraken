@@ -711,10 +711,10 @@ void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
   data.unlock();
 }
 
-void KRDevice::graphicsUpload(KRDataBlock& data, VkBuffer destination)
+void KRDevice::graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination)
 {
   data.lock();
-  graphicsUpload(data.getStart(), data.getSize(), destination);
+  graphicsUpload(commandBuffer, data.getStart(), data.getSize(), destination);
   data.unlock();
 }
 
@@ -746,7 +746,7 @@ void KRDevice::streamUpload(void* data, size_t size, VkBuffer destination)
   m_streamingStagingBuffer.usage += size;
 }
 
-void KRDevice::graphicsUpload(void* data, size_t size, VkBuffer destination)
+void KRDevice::graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t size, VkBuffer destination)
 {
   memcpy((uint8_t*)m_graphicsStagingBuffer.data + m_graphicsStagingBuffer.usage, data, size);
 
@@ -755,7 +755,7 @@ void KRDevice::graphicsUpload(void* data, size_t size, VkBuffer destination)
   copyRegion.srcOffset = m_graphicsStagingBuffer.usage;
   copyRegion.dstOffset = 0; // Optional
   copyRegion.size = size;
-  vkCmdCopyBuffer(m_graphicsCommandBuffers[0], m_graphicsStagingBuffer.buffer, destination, 1, &copyRegion);
+  vkCmdCopyBuffer(commandBuffer, m_graphicsStagingBuffer.buffer, destination, 1, &copyRegion);
 
   // TODO - Assert on any needed alignment?
   m_graphicsStagingBuffer.usage += size;

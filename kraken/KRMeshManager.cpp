@@ -330,7 +330,8 @@ void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, K
       , debug_label
 #endif
     );
-    vbo_data->load();
+    vbo_data->load(commandBuffer);
+    vbo_data->_swapHandles();
     bindVBO(commandBuffer, vbo_data, lodCoverage);
 }
 
@@ -530,6 +531,13 @@ KRMeshManager::KRVBOData::~KRVBOData()
 
 void KRMeshManager::KRVBOData::load()
 {
+  // TODO - This is a bit messy.  Clean up after Vulkan refactor.
+  VkCommandBuffer noCommandBuffer = VK_NULL_HANDLE;
+  load(noCommandBuffer);
+}
+
+void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
+{
     // TODO - We should load on each GPU only if there is a surface using the mesh
     if(isVBOLoaded()) {
         return;
@@ -578,7 +586,7 @@ void KRMeshManager::KRVBOData::load()
 #endif // KRENGINE_DEBUG_GPU_LABELS
       );
       if (m_type == vbo_type::TEMPORARY) {
-        device.graphicsUpload(*m_data, allocation.vertex_buffer);
+        device.graphicsUpload(commandBuffer, *m_data, allocation.vertex_buffer);
       } else {
         device.streamUpload(*m_data, allocation.vertex_buffer);
       }
@@ -599,7 +607,7 @@ void KRMeshManager::KRVBOData::load()
 #endif
         );
         if (m_type == vbo_type::TEMPORARY) {
-          device.graphicsUpload(*m_index_data, allocation.index_buffer);
+          device.graphicsUpload(commandBuffer, *m_index_data, allocation.index_buffer);
         } else {
           device.streamUpload(*m_index_data, allocation.index_buffer);
         }
