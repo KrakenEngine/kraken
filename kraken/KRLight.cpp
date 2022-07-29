@@ -274,13 +274,9 @@ void KRLight::render(RenderInfo& ri) {
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
                 pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                 pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass);
-                    
-                KRDataBlock particle_index_data;
-                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), particle_index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
-#if KRENGINE_DEBUG_GPU_LABELS
-                  , "Light Particles"
-#endif
-                );
+                
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+
                 vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
             }
         }
@@ -329,13 +325,8 @@ void KRLight::render(RenderInfo& ri) {
         pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
         pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
         pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
-            
-        KRDataBlock index_data;
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getVolumetricLightingVertexes(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), true, 1.0f
-#if KRENGINE_DEBUG_GPU_LABELS
-          , "Participating Media"
-#endif
-        );
+        
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
         vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
 
     }

@@ -107,13 +107,8 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri) {
             pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, 1.0f);
             pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 
-            KRDataBlock index_data;
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, m_pContext->getMeshManager()->getRandomParticles(), index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, 1.0f
-                
-#if KRENGINE_DEBUG_GPU_LABELS
-              , "Newtonian Particles"
-#endif
-            );
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+
             vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
         }
     }

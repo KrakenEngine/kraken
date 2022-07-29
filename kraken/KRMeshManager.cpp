@@ -79,13 +79,14 @@ void KRMeshManager::init() {
     memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(float) * 3 * 14);
     KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT
+    KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, &KRENGINE_VBO_3D_CUBE_VERTICES, nullptr, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Cube Mesh [built-in]"
 #endif
     );
-    
-    
+
+    initRandomParticles();
+    initVolumetricLightingVertexes();
     
     static const float _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA[] = {
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -99,7 +100,7 @@ void KRMeshManager::init() {
     memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
     KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
     
-    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT
+    KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, &KRENGINE_VBO_2D_SQUARE_VERTICES, nullptr, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Square Mesh [built-in]"
 #endif
@@ -310,22 +311,6 @@ void KRMeshManager::balanceVBOMemory(long &memoryRemaining, long &memoryRemainin
     }
 }
 
-void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
-#if KRENGINE_DEBUG_GPU_LABELS
-  , const char* debug_label
-#endif
-)
-{
-    // TODO - Vulkan refactoring...  This will leak..  Update all call sites to own their own KRVBOData and then remove this function
-    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::IMMEDIATE
-#if KRENGINE_DEBUG_GPU_LABELS
-      , debug_label
-#endif
-    );
-    vbo_data->load(commandBuffer);
-    bindVBO(commandBuffer, vbo_data, lodCoverage);
-}
-
 long KRMeshManager::getMemUsed()
 {
     return m_vboMemUsed;
@@ -340,7 +325,7 @@ long KRMeshManager::getMemActive()
     return mem_active;
 }
 
-KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
+void KRMeshManager::initVolumetricLightingVertexes()
 {
     if(m_volumetricLightingVertexData.getSize() == 0) {
         m_volumetricLightingVertexData.expand(sizeof(VolumetricLightingVertexData) * KRENGINE_MAX_VOLUMETRIC_PLANES * 6);
@@ -379,12 +364,18 @@ KRDataBlock &KRMeshManager::getVolumetricLightingVertexes()
             iVertex++;
 
         }
+
+        KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.init(this, &m_volumetricLightingVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), false, KRVBOData::CONSTANT
+#if KRENGINE_DEBUG_GPU_LABELS
+          , "Volumetric Lighting Planes [built-in]"
+#endif
+        );
+
         m_volumetricLightingVertexData.unlock();
     }
-    return m_volumetricLightingVertexData;
 }
 
-KRDataBlock &KRMeshManager::getRandomParticles()
+void KRMeshManager::initRandomParticles()
 {
     if(m_randomParticleVertexData.getSize() == 0) {
         m_randomParticleVertexData.expand(sizeof(RandomParticleVertexData) * KRENGINE_MAX_RANDOM_PARTICLES * 3);
@@ -419,9 +410,15 @@ KRDataBlock &KRMeshManager::getRandomParticles()
             vertex_data[iVertex].uva.y = -inscribed_circle_radius + equilateral_triangle_height;
             iVertex++;
         }
+        
+        KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, KRVBOData::CONSTANT
+#if KRENGINE_DEBUG_GPU_LABELS
+          , "Random Particles [built-in]"
+#endif
+        );
+
         m_randomParticleVertexData.unlock();
     }
-    return m_randomParticleVertexData;
 }
 
 long KRMeshManager::getMemoryTransferedThisFrame()
@@ -471,7 +468,7 @@ KRMeshManager::KRVBOData::KRVBOData()
     memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock *data, KRDataBlock *index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -488,7 +485,7 @@ KRMeshManager::KRVBOData::KRVBOData(KRMeshManager *manager, KRDataBlock &data, K
     );
 }
 
-void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock *data, KRDataBlock *index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -500,8 +497,8 @@ void KRMeshManager::KRVBOData::init(KRMeshManager *manager, KRDataBlock &data, K
     m_manager = manager;
     m_type = t;
     m_static_vbo = static_vbo;
-    m_data = &data;
-    m_index_data = &index_data;
+    m_data = data;
+    m_index_data = index_data;
     m_vertex_attrib_flags = vertex_attrib_flags;
     
     m_size = m_data->getSize();

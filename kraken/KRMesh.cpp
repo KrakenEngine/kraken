@@ -370,7 +370,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
                 if((int)m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
                     KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
                     KRDataBlock *index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
-                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, t
+                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
                       , m_lodBaseName.c_str()
 #endif
@@ -401,7 +401,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
                 if((int)m_submeshes[iSubmesh]->vertex_data_blocks.size() <= vbo_index) {
                     KRDataBlock *index_data_block = NULL;
                     KRDataBlock *vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), *vertex_data_block, *index_data_block, vertex_attrib_flags, true, t
+                    KRMeshManager::KRVBOData *vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
                       , m_lodBaseName.c_str()
 #endif

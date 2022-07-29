@@ -81,12 +81,12 @@ public:
         } vbo_type;
         
         KRVBOData();
-        KRVBOData(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+        KRVBOData(KRMeshManager *manager, KRDataBlock *data, KRDataBlock *index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
             , const char* debug_label
 #endif
           );
-        void init(KRMeshManager *manager, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+        void init(KRMeshManager *manager, KRDataBlock *data, KRDataBlock *index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
           , const char* debug_label
 #endif
@@ -151,11 +151,6 @@ public:
     };
     
     void bindVBO(VkCommandBuffer& commandBuffer, KRVBOData *vbo_data, float lodCoverage);
-    void bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, KRDataBlock &index_data, int vertex_attrib_flags, bool static_vbo, float lodCoverage
-#if KRENGINE_DEBUG_GPU_LABELS
-      , const char* debug_label
-#endif
-    );
     long getMemUsed();
     long getMemActive();
     
@@ -166,12 +161,7 @@ public:
     
     typedef struct {
         Vector3 vertex;
-    } VolumetricLightingVertexData;
-    
-
-    KRDataBlock &getRandomParticles();
-    KRDataBlock &getVolumetricLightingVertexes();
-    
+    } VolumetricLightingVertexData; 
     
     long getMemoryTransferedThisFrame();
 
@@ -191,13 +181,16 @@ public:
 
     KRVBOData KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
     KRVBOData KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+    KRVBOData KRENGINE_VBO_DATA_RANDOM_PARTICLES;
+    KRVBOData KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING;
+
     
     void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
     
 private:
-    KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES, KRENGINE_VBO_3D_CUBE_INDEXES;
+    KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES;
     __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
-    KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES, KRENGINE_VBO_2D_SQUARE_INDEXES;
+    KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES;
     __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
     
     unordered_multimap<std::string, KRMesh *> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -224,5 +217,8 @@ private:
     void balanceVBOMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
     
     void primeVBO(KRVBOData *vbo_data);
+
+    void initRandomParticles();
+    void initVolumetricLightingVertexes();
 
 };
