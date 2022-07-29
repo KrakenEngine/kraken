@@ -592,10 +592,6 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 //        m_pContext->getTextureManager()->_setActiveTexture(0);
 //        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
 //    }
-    
-    // TODO - Test code for Vulkan conversion, remove once texture streaming working
-    // m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
-
     const char *szText = settings.m_debug_text.c_str();
     
     std::string debug_text;
@@ -605,6 +601,9 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
             szText = debug_text.c_str();
         }
     }
+
+    // TODO - Test code for Vulkan conversion, remove once texture streaming working
+    szText = "Hello, earthlings!";
     
     if(*szText) {
         int row_count = 1;

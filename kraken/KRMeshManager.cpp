@@ -644,7 +644,7 @@ void KRMeshManager::KRVBOData::bind(VkCommandBuffer& commandBuffer)
   VkDeviceSize offsets[] = { 0 };
   vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-  if (m_index_data->getSize() > 0) {
+  if (m_index_data && m_index_data->getSize() > 0) {
     // TODO - Support 32-bit index buffers
     vkCmdBindIndexBuffer(commandBuffer, getIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
   }
