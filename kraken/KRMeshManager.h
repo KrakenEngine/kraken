@@ -70,8 +70,14 @@ public:
         
         typedef enum {
             STREAMING,
+            // STREAMING data is loaded asynchronously, with transfer queues in the streamer thread.
+            
             CONSTANT,
-            TEMPORARY
+            // CONSTANT data is loaded asyncrhronously, with transfer queues in the streamer thread, but is not unloaded.
+
+            IMMEDIATE
+            // IMMEDIATE data is loaded synchronously, with graphics queues in the presentation threads.
+            // IMMEDIATE data is available for use immediately on the same frame it is generated.
         } vbo_type;
         
         KRVBOData();

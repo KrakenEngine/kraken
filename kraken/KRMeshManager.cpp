@@ -197,24 +197,17 @@ void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRVBOData *vbo_data,
         vbo_changed = true;
     }
     
-    bool used_vbo_data = false;
-    
     if(vbo_changed) {
         
         if(m_vbosActive.find(vbo_data->m_data) != m_vbosActive.end()) {
             m_currentVBO = m_vbosActive[vbo_data->m_data];
         } else {
-            used_vbo_data = true;
             m_currentVBO = vbo_data;
             
             m_vbosActive[vbo_data->m_data] = m_currentVBO;
         }
         
         m_currentVBO->bind(commandBuffer);
-    }
-    
-    if(!used_vbo_data && vbo_data->getType() == KRVBOData::TEMPORARY) {
-        delete vbo_data;
     }
 }
 
@@ -249,10 +242,8 @@ void KRMeshManager::startFrame(float deltaTime)
                 
                 switch(activeVBO->getType()) {
                     case KRVBOData::STREAMING:
+                    case KRVBOData::IMMEDIATE:
                         activeVBO->unload();
-                        break;
-                    case KRVBOData::TEMPORARY:
-                        delete activeVBO;
                         break;
                     case KRVBOData::CONSTANT:
                         // CONSTANT VBO's are not unloaded
@@ -325,7 +316,8 @@ void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, K
 #endif
 )
 {
-    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::TEMPORARY
+    // TODO - Vulkan refactoring...  This will leak..  Update all call sites to own their own KRVBOData and then remove this function
+    KRVBOData *vbo_data = new KRVBOData(this, data, index_data, vertex_attrib_flags, static_vbo, KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS
       , debug_label
 #endif
@@ -564,8 +556,8 @@ void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
       case vbo_type::CONSTANT:
         type_label = "Constant";
         break;
-      case vbo_type::TEMPORARY:
-        type_label = "Temporary";
+      case vbo_type::IMMEDIATE:
+        type_label = "Immediate";
         break;
       default:
         assert(false);
@@ -584,14 +576,14 @@ void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
         , debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
       );
-      if (m_type == vbo_type::TEMPORARY) {
+      if (m_type == vbo_type::IMMEDIATE) {
         device.graphicsUpload(commandBuffer, *m_data, allocation.vertex_buffer);
       } else {
         device.streamUpload(*m_data, allocation.vertex_buffer);
       }
       
 
-      if (m_index_data->getSize() > 0) {
+      if (m_index_data && m_index_data->getSize() > 0) {
 #if KRENGINE_DEBUG_GPU_LABELS
         snprintf(debug_label, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "%s Indexes: %s", type_label, m_debugLabel);
 #endif // KRENGINE_DEBUG_GPU_LABELS
@@ -605,7 +597,7 @@ void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
           , debug_label
 #endif
         );
-        if (m_type == vbo_type::TEMPORARY) {
+        if (m_type == vbo_type::IMMEDIATE) {
           device.graphicsUpload(commandBuffer, *m_index_data, allocation.index_buffer);
         } else {
           device.streamUpload(*m_index_data, allocation.index_buffer);

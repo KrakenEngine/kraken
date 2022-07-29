@@ -62,6 +62,12 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     m_downsample = Vector2::One();
     
     m_fade_color = Vector4::Zero();
+
+    m_debug_text_vbo_data.init(m_pContext->getMeshManager(), m_debug_text_vertices, m_debug_text_indices, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, KRMeshManager::KRVBOData::IMMEDIATE
+#if KRENGINE_DEBUG_GPU_LABELS
+      , "Debug Text"
+#endif
+    );
 }
 
 KRCamera::~KRCamera() {
@@ -728,15 +734,10 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         
         m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
         
-        KRDataBlock index_data;
-        m_pContext->getMeshManager()->bindVBO(commandBuffer, m_debug_text_vertices, index_data, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, 1.0f
-
-#if KRENGINE_DEBUG_GPU_LABELS
-          , "Debug Text"
-#endif
-        );
+        m_debug_text_vbo_data.load(commandBuffer);
+        m_debug_text_vbo_data.bind(commandBuffer);
         
-        vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+        // vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
         
         m_debug_text_vertices.unlock();
 

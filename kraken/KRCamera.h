@@ -39,6 +39,7 @@
 #include "KRContext.h"
 #include "KRViewport.h"
 #include "KRRenderSettings.h"
+#include "KRMeshManager.h"
 
 #define KRAKEN_FPS_AVERAGE_FRAME_COUNT 30
 
@@ -110,6 +111,8 @@ private:
     } DebugTextVertexData;
     
     KRDataBlock m_debug_text_vertices;
+    KRDataBlock m_debug_text_indices;
+    KRMeshManager::KRVBOData m_debug_text_vbo_data;
     
 //    std::string getDebugText();
     
