@@ -63,7 +63,7 @@ KRCamera::KRCamera(KRScene &scene, std::string name) : KRNode(scene, name) {
     
     m_fade_color = Vector4::Zero();
 
-    m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, &m_debug_text_indices, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, KRMeshManager::KRVBOData::IMMEDIATE
+    m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, KRMeshManager::KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Debug Text"
 #endif

@@ -111,7 +111,6 @@ private:
     } DebugTextVertexData;
     
     KRDataBlock m_debug_text_vertices;
-    KRDataBlock m_debug_text_indices;
     KRMeshManager::KRVBOData m_debug_text_vbo_data;
     
 //    std::string getDebugText();
