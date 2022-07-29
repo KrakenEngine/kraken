@@ -331,7 +331,6 @@ void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRDataBlock &data, K
 #endif
     );
     vbo_data->load(commandBuffer);
-    vbo_data->_swapHandles();
     bindVBO(commandBuffer, vbo_data, lodCoverage);
 }
 
@@ -619,7 +618,7 @@ void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
     m_manager->m_vboMemUsed += getSize();
     m_manager->m_memoryTransferredThisFrame += getSize();
     
-    if(m_type == CONSTANT) {
+    if(m_type != STREAMING) {
         _swapHandles();
     }
 }
