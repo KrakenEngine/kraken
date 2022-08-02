@@ -40,74 +40,74 @@
 
 
 const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
-    "material_ambient", // KRENGINE_UNIFORM_MATERIAL_AMBIENT
-    "material_diffuse", // KRENGINE_UNIFORM_MATERIAL_DIFFUSE
-    "material_specular", // KRENGINE_UNIFORM_MATERIAL_SPECULAR
-    "material_reflection", // KRENGINE_UNIFORM_MATERIAL_REFLECTION
-    "material_alpha", // KRENGINE_UNIFORM_MATERIAL_ALPHA
-    "material_shininess", // KRENGINE_UNIFORM_MATERIAL_SHININESS
-    "light_position", // KRENGINE_UNIFORM_LIGHT_POSITION
-    "light_direction_model_space", // KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE
-    "light_direction_view_space", // KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE
-    "light_color", //    KRENGINE_UNIFORM_LIGHT_COLOR
-    "light_decay_start", //    KRENGINE_UNIFORM_LIGHT_DECAY_START
-    "light_cutoff", //    KRENGINE_UNIFORM_LIGHT_CUTOFF
-    "light_intensity", //    KRENGINE_UNIFORM_LIGHT_INTENSITY
-    "flare_size", //    KRENGINE_UNIFORM_FLARE_SIZE
-    "view_space_model_origin", //    KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN
-    "mvp_matrix", //    KRENGINE_UNIFORM_MVP
-    "inv_projection_matrix", //    KRENGINE_UNIFORM_INVP
-    "inv_mvp_matrix", //    KRENGINE_UNIFORM_INVMVP
-    "inv_mvp_matrix_no_translate", //    KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE
-    "model_view_inverse_transpose_matrix", //    KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE
-    "model_inverse_transpose_matrix", //    KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE
-    "model_view_matrix", //    KRENGINE_UNIFORM_MODEL_VIEW
-    "model_matrix", //    KRENGINE_UNIFORM_MODEL_MATRIX
-    "projection_matrix", //    KRENGINE_UNIFORM_PROJECTION_MATRIX
-    "camera_position_model_space", //    KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE
-    "viewport", //    KRENGINE_UNIFORM_VIEWPORT
-    "viewport_downsample", //     KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE
-    "diffuseTexture", //    KRENGINE_UNIFORM_DIFFUSETEXTURE
-    "specularTexture", //    KRENGINE_UNIFORM_SPECULARTEXTURE
-    "reflectionCubeTexture", //    KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE
-    "reflectionTexture", //    KRENGINE_UNIFORM_REFLECTIONTEXTURE
-    "normalTexture", //    KRENGINE_UNIFORM_NORMALTEXTURE
-    "diffuseTexture_Scale", //    KRENGINE_UNIFORM_DIFFUSETEXTURE_SCALE
-    "specularTexture_Scale", //    KRENGINE_UNIFORM_SPECULARTEXTURE_SCALE
-    "reflectionTexture_Scale", //    KRENGINE_UNIFORM_REFLECTIONTEXTURE_SCALE
-    "normalTexture_Scale", //    KRENGINE_UNIFORM_NORMALTEXTURE_SCALE
-    "normalTexture_Scale", //    KRENGINE_UNIFORM_AMBIENTTEXTURE_SCALE
-    "diffuseTexture_Offset", //    KRENGINE_UNIFORM_DIFFUSETEXTURE_OFFSET
-    "specularTexture_Offset", //    KRENGINE_UNIFORM_SPECULARTEXTURE_OFFSET
-    "reflectionTexture_Offset", //    KRENGINE_UNIFORM_REFLECTIONTEXTURE_OFFSET
-    "normalTexture_Offset", //    KRENGINE_UNIFORM_NORMALTEXTURE_OFFSET
-    "ambientTexture_Offset", //    KRENGINE_UNIFORM_AMBIENTTEXTURE_OFFSET
-    "shadow_mvp1", //    KRENGINE_UNIFORM_SHADOWMVP1
-    "shadow_mvp2", //    KRENGINE_UNIFORM_SHADOWMVP2
-    "shadow_mvp3", //    KRENGINE_UNIFORM_SHADOWMVP3
-    "shadowTexture1", //    KRENGINE_UNIFORM_SHADOWTEXTURE1
-    "shadowTexture2", //    KRENGINE_UNIFORM_SHADOWTEXTURE2
-    "shadowTexture3", //    KRENGINE_UNIFORM_SHADOWTEXTURE3
-    "lightmapTexture", //    KRENGINE_UNIFORM_LIGHTMAPTEXTURE
-    "gbuffer_frame", //    KRENGINE_UNIFORM_GBUFFER_FRAME
-    "gbuffer_depth", //    KRENGINE_UNIFORM_GBUFFER_DEPTH
-    "depthFrame", //    KRENGINE_UNIFORM_DEPTH_FRAME
-    "volumetricEnvironmentFrame", //    KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME
-    "renderFrame", //    KRENGINE_UNIFORM_RENDER_FRAME
-    "time_absolute", //    KRENGINE_UNIFORM_ABSOLUTE_TIME
-    "fog_near", //    KRENGINE_UNIFORM_FOG_NEAR
-    "fog_far", //    KRENGINE_UNIFORM_FOG_FAR
-    "fog_density", //    KRENGINE_UNIFORM_FOG_DENSITY
-    "fog_color", //    KRENGINE_UNIFORM_FOG_COLOR
-    "fog_scale", //    KRENGINE_UNIFORM_FOG_SCALE
-    "fog_density_premultiplied_exponential", //    KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL
-    "fog_density_premultiplied_squared", //    KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED
-    "slice_depth_scale", //    KRENGINE_UNIFORM_SLICE_DEPTH_SCALE
-    "particle_origin", //    KRENGINE_UNIFORM_PARTICLE_ORIGIN
-    "bone_transforms", //    KRENGINE_UNIFORM_BONE_TRANSFORMS
-    "rim_color", // KRENGINE_UNIFORM_RIM_COLOR
-    "rim_power", // KRENGINE_UNIFORM_RIM_POWER
-    "fade_color", // KRENGINE_UNIFORM_FADE_COLOR
+    "material_ambient", // Uniform::material_ambient
+    "material_diffuse", // Uniform::material_diffuse
+    "material_specular", // Uniform::material_specular
+    "material_reflection", // Uniform::material_reflection
+    "material_alpha", // Uniform::material_alpha
+    "material_shininess", // Uniform::material_shininess
+    "light_position", // Uniform::light_position
+    "light_direction_model_space", // Uniform::light_direction_model_space
+    "light_direction_view_space", // Uniform::light_direction_view_space
+    "light_color", //    Uniform::light_color
+    "light_decay_start", //    Uniform::light_decay_start
+    "light_cutoff", //    Uniform::light_cutoff
+    "light_intensity", //    Uniform::light_intensity
+    "flare_size", //    Uniform::flare_size
+    "view_space_model_origin", //    Uniform::view_space_model_origin
+    "mvp_matrix", //    Uniform::mvp
+    "inv_projection_matrix", //    Uniform::invp
+    "inv_mvp_matrix", //    Uniform::invmvp
+    "inv_mvp_matrix_no_translate", //    Uniform::invmvp_no_translate
+    "model_view_inverse_transpose_matrix", //    Uniform::model_view_inverse_transpose
+    "model_inverse_transpose_matrix", //    Uniform::model_inverse_transpose
+    "model_view_matrix", //    Uniform::model_view
+    "model_matrix", //    Uniform::model_matrix
+    "projection_matrix", //    Uniform::projection_matrix
+    "camera_position_model_space", //    Uniform::camerapos_model_space
+    "viewport", //    Uniform::viewport
+    "viewport_downsample", //     Uniform::viewport_downsample
+    "diffuseTexture", //    Uniform::diffusetexture
+    "specularTexture", //    Uniform::speculartexture
+    "reflectionCubeTexture", //    Uniform::reflectioncubetexture
+    "reflectionTexture", //    Uniform::reflectiontexture
+    "normalTexture", //    Uniform::normaltexture
+    "diffuseTexture_Scale", //    Uniform::diffusetexture_scale
+    "specularTexture_Scale", //    Uniform::speculartexture_scale
+    "reflectionTexture_Scale", //    Uniform::reflectiontexture_scale
+    "normalTexture_Scale", //    Uniform::normaltexture_scale
+    "normalTexture_Scale", //    Uniform::ambienttexture_scale
+    "diffuseTexture_Offset", //    Uniform::diffusetexture_offset
+    "specularTexture_Offset", //    Uniform::speculartexture_offset
+    "reflectionTexture_Offset", //    Uniform::reflectiontexture_offset
+    "normalTexture_Offset", //    Uniform::normaltexture_offset
+    "ambientTexture_Offset", //    Uniform::ambienttexture_offset
+    "shadow_mvp1", //    Uniform::shadow_mvp1
+    "shadow_mvp2", //    Uniform::shadow_mvp2
+    "shadow_mvp3", //    Uniform::shadow_mvp3
+    "shadowTexture1", //    Uniform::shadowtexture1
+    "shadowTexture2", //    Uniform::shadowtexture2
+    "shadowTexture3", //    Uniform::shadowtexture3
+    "lightmapTexture", //    Uniform::lightmaptexture
+    "gbuffer_frame", //    Uniform::gbuffer_frame
+    "gbuffer_depth", //    Uniform::gbuffer_depth
+    "depthFrame", //    Uniform::depth_frame
+    "volumetricEnvironmentFrame", //    Uniform::volumetric_environment_frame
+    "renderFrame", //    Uniform::render_frame
+    "time_absolute", //    Uniform::absolute_time
+    "fog_near", //    Uniform::fog_near
+    "fog_far", //    Uniform::fog_far
+    "fog_density", //    Uniform::fog_density
+    "fog_color", //    Uniform::fog_color
+    "fog_scale", //    Uniform::fog_scale
+    "fog_density_premultiplied_exponential", //    Uniform::density_premultiplied_exponential
+    "fog_density_premultiplied_squared", //    Uniform::density_premultiplied_squared
+    "slice_depth_scale", //    Uniform::slice_depth_scale
+    "particle_origin", //    Uniform::particle_origin
+    "bone_transforms", //    Uniform::bone_transforms
+    "rim_color", // Uniform::rim_color
+    "rim_power", // Uniform::rim_power
+    "fade_color", // Uniform::fade_color
 };
 
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
@@ -198,7 +198,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
             m_pushConstantBufferSize = block.size;
 
             // Get push constant offsets
-            for (int iUniform = 0; iUniform < static_cast<int>(Uniform::KRENGINE_NUM_UNIFORMS); iUniform++) {
+            for (int iUniform = 0; iUniform < kUniformCount; iUniform++) {
               for (int iMember = 0; iMember < block.member_count; iMember++) {
                 const SpvReflectBlockVariable& member = block.members[iMember];
                 if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0)
@@ -535,12 +535,12 @@ void KRPipeline::setUniform(Uniform location, const Matrix4 &value)
 void KRPipeline::setUniform(Uniform location, const Matrix4* value, const size_t count)
 {
   // TODO - Vulkan refactoring
-  // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::Uniform::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+  // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::Uniform::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
 }
 
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass)
 {
-    setUniform(Uniform::KRENGINE_UNIFORM_ABSOLUTE_TIME, getContext().getAbsoluteTime());
+    setUniform(Uniform::absolute_time, getContext().getAbsoluteTime());
     
     int light_directional_count = 0;
     //int light_point_count = 0;
@@ -554,7 +554,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
           KRDirectionalLight* directional_light = (*light_itr);
           if (light_directional_count == 0) {
             int cShadowBuffers = directional_light->getShadowBufferCount();
-            if (hasUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE1) && cShadowBuffers > 0) {
+            if (hasUniform(Uniform::shadowtexture1) && cShadowBuffers > 0) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -564,7 +564,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
               m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
             }
 
-            if (hasUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+            if (hasUniform(Uniform::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -573,7 +573,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
               m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
             }
 
-            if (hasUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+            if (hasUniform(Uniform::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -586,17 +586,17 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
             matBias.translate(1.0, 1.0, 1.0);
             matBias.scale(0.5);
             for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
-              setUniform(static_cast<Uniform>(static_cast<int>(Uniform::KRENGINE_UNIFORM_SHADOWMVP1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
+              setUniform(static_cast<Uniform>(static_cast<int>(Uniform::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
             }
 
-            if (hasUniform(Uniform::KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE)) {
+            if (hasUniform(Uniform::light_direction_model_space)) {
               Matrix4 inverseModelMatrix = matModel;
               inverseModelMatrix.invert();
 
               // Bind the light direction vector
               Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
               lightDirObject.normalize();
-              setUniform(Uniform::KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE, lightDirObject);
+              setUniform(Uniform::light_direction_model_space, lightDirObject);
             }
           }
 
@@ -608,57 +608,57 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         //light_spot_count = spot_lights.size();
     }
 
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE)) {
+    if(hasUniform(Uniform::camerapos_model_space)) {
         Matrix4 inverseModelMatrix = matModel;
         inverseModelMatrix.invert();
         
-        if(hasUniform(Uniform::KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE)) {
+        if(hasUniform(Uniform::camerapos_model_space)) {
             // Transform location of camera to object space for calculation of specular halfVec
             Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
-            setUniform(Uniform::KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE, cameraPosObject);
+            setUniform(Uniform::camerapos_model_space, cameraPosObject);
         }
     }
     
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_MVP) || hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_INVMVP)) {
+    if(hasUniform(Uniform::mvp) || hasUniform(KRPipeline::Uniform::invmvp)) {
         // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
         Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
-        setUniform(Uniform::KRENGINE_UNIFORM_MVP, mvpMatrix);
+        setUniform(Uniform::mvp, mvpMatrix);
         
-        if(hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_INVMVP)) {
-            setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_INVMVP, Matrix4::Invert(mvpMatrix));
+        if(hasUniform(KRPipeline::Uniform::invmvp)) {
+            setUniform(KRPipeline::Uniform::invmvp, Matrix4::Invert(mvpMatrix));
         }
     }
     
-    if(hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN) || hasUniform(Uniform::KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE) || hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_MODEL_VIEW)) {
+    if(hasUniform(KRPipeline::Uniform::view_space_model_origin) || hasUniform(Uniform::model_view_inverse_transpose) || hasUniform(KRPipeline::Uniform::model_view)) {
         Matrix4 matModelView = matModel * viewport.getViewMatrix();
-        setUniform(Uniform::KRENGINE_UNIFORM_MODEL_VIEW, matModelView);
+        setUniform(Uniform::model_view, matModelView);
         
         
-        if(hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN)) {
+        if(hasUniform(KRPipeline::Uniform::view_space_model_origin)) {
             Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
-            setUniform(Uniform::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN, view_space_model_origin);
+            setUniform(Uniform::view_space_model_origin, view_space_model_origin);
         }
         
-        if(hasUniform(Uniform::KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE)) {
+        if(hasUniform(Uniform::model_view_inverse_transpose)) {
             Matrix4 matModelViewInverseTranspose = matModelView;
             matModelViewInverseTranspose.transpose();
             matModelViewInverseTranspose.invert();
-            setUniform(Uniform::KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE, matModelViewInverseTranspose);
+            setUniform(Uniform::model_view_inverse_transpose, matModelViewInverseTranspose);
         }
     }
     
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE)) {
+    if(hasUniform(Uniform::model_inverse_transpose)) {
         Matrix4 matModelInverseTranspose = matModel;
         matModelInverseTranspose.transpose();
         matModelInverseTranspose.invert();
-        setUniform(Uniform::KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE, matModelInverseTranspose);
+        setUniform(Uniform::model_inverse_transpose, matModelInverseTranspose);
     }
     
-    if(hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_INVP)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_INVP, viewport.getInverseProjectionMatrix());
+    if(hasUniform(KRPipeline::Uniform::invp)) {
+        setUniform(Uniform::invp, viewport.getInverseProjectionMatrix());
     }
     
-    if(hasUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE)) {
+    if(hasUniform(KRPipeline::Uniform::invmvp_no_translate)) {
         Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
         // Remove the translation
         matInvMVPNoTranslate.getPointer()[3] = 0;
@@ -670,16 +670,16 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         matInvMVPNoTranslate.getPointer()[15] = 1.0;
         matInvMVPNoTranslate = matInvMVPNoTranslate * viewport.getProjectionMatrix();
         matInvMVPNoTranslate.invert();
-        setUniform(Uniform::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE, matInvMVPNoTranslate);
+        setUniform(Uniform::invmvp_no_translate, matInvMVPNoTranslate);
     }
     
-    setUniform(Uniform::KRENGINE_UNIFORM_MODEL_MATRIX, matModel);
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_PROJECTION_MATRIX)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_PROJECTION_MATRIX, viewport.getProjectionMatrix());
+    setUniform(Uniform::model_matrix, matModel);
+    if(hasUniform(Uniform::projection_matrix)) {
+        setUniform(Uniform::projection_matrix, viewport.getProjectionMatrix());
     }
     
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_VIEWPORT)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_VIEWPORT, Vector4::Create(
+    if(hasUniform(Uniform::viewport)) {
+        setUniform(Uniform::viewport, Vector4::Create(
                 (float)0.0,
                 (float)0.0,
                 (float)viewport.getSize().x,
@@ -688,47 +688,47 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         );
     }
     
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
+    if(hasUniform(Uniform::viewport_downsample)) {
+        setUniform(Uniform::viewport_downsample, camera.getDownsample());
     }
     
     // Fog parameters
-    setUniform(Uniform::KRENGINE_UNIFORM_FOG_NEAR, camera.settings.fog_near);
-    setUniform(Uniform::KRENGINE_UNIFORM_FOG_FAR, camera.settings.fog_far);
-    setUniform(Uniform::KRENGINE_UNIFORM_FOG_DENSITY, camera.settings.fog_density);
-    setUniform(Uniform::KRENGINE_UNIFORM_FOG_COLOR, camera.settings.fog_color);
+    setUniform(Uniform::fog_near, camera.settings.fog_near);
+    setUniform(Uniform::fog_far, camera.settings.fog_far);
+    setUniform(Uniform::fog_density, camera.settings.fog_density);
+    setUniform(Uniform::fog_color, camera.settings.fog_color);
     
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_FOG_SCALE)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_FOG_SCALE, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
+    if(hasUniform(Uniform::fog_scale)) {
+        setUniform(Uniform::fog_scale, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
     }
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
+    if(hasUniform(Uniform::density_premultiplied_exponential)) {
+        setUniform(Uniform::density_premultiplied_exponential, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
     }
-    if(hasUniform(Uniform::KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED)) {
-        setUniform(Uniform::KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+    if(hasUniform(Uniform::density_premultiplied_squared)) {
+        setUniform(Uniform::density_premultiplied_squared, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
     }
     
     // Sets the diffuseTexture variable to the first texture unit
-    setUniform(Uniform::KRENGINE_UNIFORM_DIFFUSETEXTURE, 0);
+    setUniform(Uniform::diffusetexture, 0);
     
     // Sets the specularTexture variable to the second texture unit
-    setUniform(Uniform::KRENGINE_UNIFORM_SPECULARTEXTURE, 1);
+    setUniform(Uniform::speculartexture, 1);
     
     // Sets the normalTexture variable to the third texture unit
-    setUniform(Uniform::KRENGINE_UNIFORM_NORMALTEXTURE, 2);
+    setUniform(Uniform::normaltexture, 2);
     
     // Sets the shadowTexture variable to the fourth texture unit
-    setUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE1, 3);
-    setUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE2, 4);
-    setUniform(Uniform::KRENGINE_UNIFORM_SHADOWTEXTURE3, 5);
-    setUniform(Uniform::KRENGINE_UNIFORM_REFLECTIONCUBETEXTURE, 4);
-    setUniform(Uniform::KRENGINE_UNIFORM_LIGHTMAPTEXTURE, 5);
-    setUniform(Uniform::KRENGINE_UNIFORM_GBUFFER_FRAME, 6);
-    setUniform(Uniform::KRENGINE_UNIFORM_GBUFFER_DEPTH, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-    setUniform(Uniform::KRENGINE_UNIFORM_REFLECTIONTEXTURE, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
-    setUniform(Uniform::KRENGINE_UNIFORM_DEPTH_FRAME, 0);
-    setUniform(Uniform::KRENGINE_UNIFORM_RENDER_FRAME, 1);
-    setUniform(Uniform::KRENGINE_UNIFORM_VOLUMETRIC_ENVIRONMENT_FRAME, 2);
+    setUniform(Uniform::shadowtexture1, 3);
+    setUniform(Uniform::shadowtexture2, 4);
+    setUniform(Uniform::shadowtexture3, 5);
+    setUniform(Uniform::reflectioncubetexture, 4);
+    setUniform(Uniform::lightmaptexture, 5);
+    setUniform(Uniform::gbuffer_frame, 6);
+    setUniform(Uniform::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+    setUniform(Uniform::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+    setUniform(Uniform::depth_frame, 0);
+    setUniform(Uniform::render_frame, 1);
+    setUniform(Uniform::volumetric_environment_frame, 2);
 
     if(m_pushConstantBuffer) {
       vkCmdPushConstants(commandBuffer, m_pushConstantsLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, m_pushConstantBufferSize, m_pushConstantBuffer);
