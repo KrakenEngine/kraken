@@ -293,7 +293,19 @@ public:
       shaderStageCount
     };
     
-    static const char *KRENGINE_UNIFORM_NAMES[];
+    bool hasUniform(int location) const;
+    void setUniform(int location, float value);
+    void setUniform(int location, int value);
+    void setUniform(int location, const Vector2 &value);
+    void setUniform(int location, const Vector3 &value);
+    void setUniform(int location, const Vector4 &value);
+    void setUniform(int location, const Matrix4 &value);
+    void setUniform(int location, const Matrix4* value, const size_t count);
+
+    VkPipeline& getPipeline();
+    
+private:
+    static const char* KRENGINE_UNIFORM_NAMES[];
 
     struct PushConstantStageInfo
     {
@@ -304,19 +316,9 @@ public:
 
     uint8_t* m_pushConstantBuffer;
     int m_pushConstantBufferSize;
-    
-    char m_szKey[256];
-    
-    void setUniform(int location, float value);
-    void setUniform(int location, int value);
-    void setUniform(int location, const Vector2 &value);
-    void setUniform(int location, const Vector3 &value);
-    void setUniform(int location, const Vector4 &value);
-    void setUniform(int location, const Matrix4 &value);
 
-    VkPipeline& getPipeline();
-    
-private:
+    char m_szKey[256];
+
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
     VkPipelineLayout m_pushConstantsLayout;

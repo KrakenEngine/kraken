@@ -115,8 +115,10 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   , m_pushConstantBuffer(nullptr)
   , m_pushConstantBufferSize(0)
 {
-  memset(m_pushConstants[0].size, 0, KRENGINE_NUM_UNIFORMS);
-  memset(m_pushConstants[0].offset, 0, KRENGINE_NUM_UNIFORMS * sizeof(int));
+  for (int i = 0; i < static_cast<int>(ShaderStages::shaderStageCount); i++) {
+    memset(m_pushConstants[i].size, 0, KRENGINE_NUM_UNIFORMS);
+    memset(m_pushConstants[i].offset, 0, KRENGINE_NUM_UNIFORMS * sizeof(int));
+  }
 
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
@@ -481,6 +483,16 @@ void KRPipeline::setUniform(int location, float value)
   }
 }
 
+bool KRPipeline::hasUniform(int location) const
+{
+  for (int i = 0; i < static_cast<int>(ShaderStages::shaderStageCount); i++) {
+    if (m_pushConstants[i].size) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void KRPipeline::setUniform(int location, int value)
 {
   if (m_pushConstants[0].size[location] == sizeof(value)) {
@@ -518,6 +530,12 @@ void KRPipeline::setUniform(int location, const Matrix4 &value)
     Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
+}
+
+void KRPipeline::setUniform(int location, const Matrix4* value, const size_t count)
+{
+  // TODO - Vulkan refactoring
+  // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats));
 }
 
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass)

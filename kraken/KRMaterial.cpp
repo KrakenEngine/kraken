@@ -357,7 +357,7 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
     pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_RIM_POWER, rim_power);
     
     // Bind bones
-    if(pShader->m_pushConstants[0].offset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
+    if(pShader->hasUniform(KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS)) {
         float bone_mats[256 * 16];
         float *bone_mat_component = bone_mats;
         for(int bone_index=0; bone_index < bones.size(); bone_index++) {
@@ -384,8 +384,8 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
                 *bone_mat_component++ = t[i];
             }
         }
-        if(pShader->m_pushConstants[0].offset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS] != -1) {
-            glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS], (GLsizei)bones.size(), GL_FALSE, bone_mats);
+        if(pShader->hasUniform(KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS)) {
+          pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_BONE_TRANSFORMS, (Matrix4*)bone_mats, bones.size());
         }
     }
 
