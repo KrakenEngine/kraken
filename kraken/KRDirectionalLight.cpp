@@ -152,9 +152,9 @@ void KRDirectionalLight::render(RenderInfo& ri) {
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
-        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
-        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
+        pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_DIRECTION_VIEW_SPACE, light_direction_view_space);
+        pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
+        pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
         pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass);
             
         // Render a full screen quad

@@ -212,7 +212,7 @@ public:
     
     bool bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *>*spot_lights, const KRNode::RenderPass &renderPass);
 
-    enum {
+    enum class Uniform : uint8_t {
         KRENGINE_UNIFORM_MATERIAL_AMBIENT = 0,
         KRENGINE_UNIFORM_MATERIAL_DIFFUSE,
         KRENGINE_UNIFORM_MATERIAL_SPECULAR,
@@ -284,6 +284,8 @@ public:
         KRENGINE_NUM_UNIFORMS
     };
 
+    static const size_t kUniformCount = static_cast<size_t>(Uniform::KRENGINE_NUM_UNIFORMS);
+
     enum class ShaderStages : uint8_t
     {
       vertex = 0,
@@ -292,15 +294,17 @@ public:
       compute,
       shaderStageCount
     };
+
+    static const size_t kShaderStageCount = static_cast<size_t>(ShaderStages::shaderStageCount);
     
-    bool hasUniform(int location) const;
-    void setUniform(int location, float value);
-    void setUniform(int location, int value);
-    void setUniform(int location, const Vector2 &value);
-    void setUniform(int location, const Vector3 &value);
-    void setUniform(int location, const Vector4 &value);
-    void setUniform(int location, const Matrix4 &value);
-    void setUniform(int location, const Matrix4* value, const size_t count);
+    bool hasUniform(Uniform location) const;
+    void setUniform(Uniform location, float value);
+    void setUniform(Uniform location, int value);
+    void setUniform(Uniform location, const Vector2 &value);
+    void setUniform(Uniform location, const Vector3 &value);
+    void setUniform(Uniform location, const Vector4 &value);
+    void setUniform(Uniform location, const Matrix4 &value);
+    void setUniform(Uniform location, const Matrix4* value, const size_t count);
 
     VkPipeline& getPipeline();
     
@@ -309,8 +313,8 @@ private:
 
     struct PushConstantStageInfo
     {
-      int offset[KRENGINE_NUM_UNIFORMS];
-      __uint8_t size[KRENGINE_NUM_UNIFORMS];
+      int offset[kUniformCount];
+      __uint8_t size[kUniformCount];
     };
     PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
 

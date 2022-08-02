@@ -112,11 +112,11 @@ void KRPointLight::render(RenderInfo& ri)
             info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
             KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
-            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
-            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
-            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
-            pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
+            pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_COLOR, m_color);
+            pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_INTENSITY, m_intensity * 0.01f);
+            pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_DECAY_START, getDecayStart());
+            pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_CUTOFF, KRLIGHT_MIN_INFLUENCE);                
+            pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_POSITION, light_position);
             pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass);
                 
             if(bInsideLight) {

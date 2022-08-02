@@ -270,9 +270,9 @@ void KRLight::render(RenderInfo& ri) {
                 info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
                 KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-                pParticleShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
+                pParticleShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_COLOR, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+                pParticleShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_PARTICLE_ORIGIN, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
+                pParticleShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_FLARE_SIZE, m_dust_particle_size);
                 pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass);
                 
                 m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -322,8 +322,8 @@ void KRLight::render(RenderInfo& ri) {
         float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
         float slice_spacing = (slice_far - slice_near) / slice_count;
             
-        pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
-        pFogShader->setUniform(KRPipeline::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
+        pFogShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_SLICE_DEPTH_SCALE, Vector2::Create(slice_near, slice_spacing));
+        pFogShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_LIGHT_COLOR, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
         pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
         
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
@@ -411,8 +411,8 @@ void KRLight::render(RenderInfo& ri) {
 
 
                         KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-                        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
-                        pShader->setUniform(KRPipeline::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
+                        pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_MATERIAL_ALPHA, 1.0f);
+                        pShader->setUniform(KRPipeline::Uniform::KRENGINE_UNIFORM_FLARE_SIZE, m_flareSize);
                         pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 
                         m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
