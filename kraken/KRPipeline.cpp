@@ -115,8 +115,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   , m_pushConstantBuffer(nullptr)
   , m_pushConstantBufferSize(0)
 {
-  memset(m_pushConstantSize, 0, KRENGINE_NUM_UNIFORMS);
-  memset(m_pushConstantOffset, 0, KRENGINE_NUM_UNIFORMS * sizeof(int));
+  memset(m_pushConstants[0].size, 0, KRENGINE_NUM_UNIFORMS);
+  memset(m_pushConstants[0].offset, 0, KRENGINE_NUM_UNIFORMS * sizeof(int));
 
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
@@ -201,8 +201,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
                 const SpvReflectBlockVariable& member = block.members[iMember];
                 if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0)
                 {
-                  m_pushConstantOffset[iUniform] = member.offset;
-                  m_pushConstantSize[iUniform] = member.size;
+                  m_pushConstants[0].offset[iUniform] = member.offset;
+                  m_pushConstants[0].size[iUniform] = member.size;
                 }
               }
             }
@@ -475,47 +475,47 @@ KRPipeline::~KRPipeline() {
 
 void KRPipeline::setUniform(int location, float value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    float* constant = (float*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    float* constant = (float*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
 
 void KRPipeline::setUniform(int location, int value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    int* constant = (int*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    int* constant = (int*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
 
 void KRPipeline::setUniform(int location, const Vector2 &value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    Vector2* constant = (Vector2*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    Vector2* constant = (Vector2*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
 void KRPipeline::setUniform(int location, const Vector3 &value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    Vector3* constant = (Vector3*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    Vector3* constant = (Vector3*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
 
 void KRPipeline::setUniform(int location, const Vector4 &value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    Vector4* constant = (Vector4*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    Vector4* constant = (Vector4*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
 
 void KRPipeline::setUniform(int location, const Matrix4 &value)
 {
-  if (m_pushConstantSize[location] == sizeof(value)) {
-    Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstantOffset[location]);
+  if (m_pushConstants[0].size[location] == sizeof(value)) {
+    Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstants[0].offset[location]);
     *constant = value;
   }
 }
@@ -536,7 +536,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
           KRDirectionalLight* directional_light = (*light_itr);
           if (light_directional_count == 0) {
             int cShadowBuffers = directional_light->getShadowBufferCount();
-            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE1] && cShadowBuffers > 0) {
+            if (m_pushConstants[0].size[KRENGINE_UNIFORM_SHADOWTEXTURE1] && cShadowBuffers > 0) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -546,7 +546,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
               m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
             }
 
-            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE2] && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+            if (m_pushConstants[0].size[KRENGINE_UNIFORM_SHADOWTEXTURE2] && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -555,7 +555,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
               m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
             }
 
-            if (m_pushConstantSize[KRENGINE_UNIFORM_SHADOWTEXTURE3] && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+            if (m_pushConstants[0].size[KRENGINE_UNIFORM_SHADOWTEXTURE3] && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
               if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -571,7 +571,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
               setUniform(KRENGINE_UNIFORM_SHADOWMVP1 + iShadow, matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
             }
 
-            if (m_pushConstantSize[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE]) {
+            if (m_pushConstants[0].size[KRENGINE_UNIFORM_LIGHT_DIRECTION_MODEL_SPACE]) {
               Matrix4 inverseModelMatrix = matModel;
               inverseModelMatrix.invert();
 
@@ -590,38 +590,38 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         //light_spot_count = spot_lights.size();
     }
 
-    if(m_pushConstantSize[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
         Matrix4 inverseModelMatrix = matModel;
         inverseModelMatrix.invert();
         
-        if(m_pushConstantSize[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
+        if(m_pushConstants[0].size[KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE]) {
             // Transform location of camera to object space for calculation of specular halfVec
             Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
             setUniform(KRENGINE_UNIFORM_CAMERAPOS_MODEL_SPACE, cameraPosObject);
         }
     }
     
-    if(m_pushConstantSize[KRENGINE_UNIFORM_MVP] || m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_MVP] || m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
         // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
         Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
         setUniform(KRENGINE_UNIFORM_MVP, mvpMatrix);
         
-        if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
+        if(m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_INVMVP]) {
             setUniform(KRPipeline::KRENGINE_UNIFORM_INVMVP, Matrix4::Invert(mvpMatrix));
         }
     }
     
-    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] || m_pushConstantSize[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] || m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_MODEL_VIEW]) {
+    if(m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN] || m_pushConstants[0].size[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE] || m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_MODEL_VIEW]) {
         Matrix4 matModelView = matModel * viewport.getViewMatrix();
         setUniform(KRENGINE_UNIFORM_MODEL_VIEW, matModelView);
         
         
-        if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN]) {
+        if(m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN]) {
             Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
             setUniform(KRENGINE_UNIFORM_VIEW_SPACE_MODEL_ORIGIN, view_space_model_origin);
         }
         
-        if(m_pushConstantSize[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE]) {
+        if(m_pushConstants[0].size[KRENGINE_UNIFORM_MODEL_VIEW_INVERSE_TRANSPOSE]) {
             Matrix4 matModelViewInverseTranspose = matModelView;
             matModelViewInverseTranspose.transpose();
             matModelViewInverseTranspose.invert();
@@ -629,18 +629,18 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         }
     }
     
-    if(m_pushConstantSize[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE]) {
         Matrix4 matModelInverseTranspose = matModel;
         matModelInverseTranspose.transpose();
         matModelInverseTranspose.invert();
         setUniform(KRENGINE_UNIFORM_MODEL_INVERSE_TRANSPOSE, matModelInverseTranspose);
     }
     
-    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVP]) {
+    if(m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_INVP]) {
         setUniform(KRENGINE_UNIFORM_INVP, viewport.getInverseProjectionMatrix());
     }
     
-    if(m_pushConstantSize[KRPipeline::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE]) {
+    if(m_pushConstants[0].size[KRPipeline::KRENGINE_UNIFORM_INVMVP_NO_TRANSLATE]) {
         Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
         // Remove the translation
         matInvMVPNoTranslate.getPointer()[3] = 0;
@@ -656,11 +656,11 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
     }
     
     setUniform(KRENGINE_UNIFORM_MODEL_MATRIX, matModel);
-    if(m_pushConstantSize[KRENGINE_UNIFORM_PROJECTION_MATRIX]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_PROJECTION_MATRIX]) {
         setUniform(KRENGINE_UNIFORM_PROJECTION_MATRIX, viewport.getProjectionMatrix());
     }
     
-    if(m_pushConstantSize[KRENGINE_UNIFORM_VIEWPORT]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_VIEWPORT]) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT, Vector4::Create(
                 (float)0.0,
                 (float)0.0,
@@ -670,7 +670,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
         );
     }
     
-    if(m_pushConstantSize[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE]) {
         setUniform(KRENGINE_UNIFORM_VIEWPORT_DOWNSAMPLE, camera.getDownsample());
     }
     
@@ -680,13 +680,13 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
     setUniform(KRENGINE_UNIFORM_FOG_DENSITY, camera.settings.fog_density);
     setUniform(KRENGINE_UNIFORM_FOG_COLOR, camera.settings.fog_color);
     
-    if(m_pushConstantSize[KRENGINE_UNIFORM_FOG_SCALE]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_FOG_SCALE]) {
         setUniform(KRENGINE_UNIFORM_FOG_SCALE, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
     }
-    if(m_pushConstantSize[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL]) {
         setUniform(KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_EXPONENTIAL, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
     }
-    if(m_pushConstantSize[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED]) {
+    if(m_pushConstants[0].size[KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED]) {
         setUniform(KRENGINE_UNIFORM_DENSITY_PREMULTIPLIED_SQUARED, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
     }
     

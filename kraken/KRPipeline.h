@@ -283,10 +283,25 @@ public:
         KRENGINE_UNIFORM_FADE_COLOR,
         KRENGINE_NUM_UNIFORMS
     };
+
+    enum class ShaderStages : uint8_t
+    {
+      vertex = 0,
+      fragment,
+      geometry,
+      compute,
+      shaderStageCount
+    };
     
     static const char *KRENGINE_UNIFORM_NAMES[];
-    int m_pushConstantOffset[KRENGINE_NUM_UNIFORMS];
-    __uint8_t m_pushConstantSize[KRENGINE_NUM_UNIFORMS];
+
+    struct PushConstantStageInfo
+    {
+      int offset[KRENGINE_NUM_UNIFORMS];
+      __uint8_t size[KRENGINE_NUM_UNIFORMS];
+    };
+    PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
+
     uint8_t* m_pushConstantBuffer;
     int m_pushConstantBufferSize;
     
