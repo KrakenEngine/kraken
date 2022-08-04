@@ -358,7 +358,8 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         int32_t vertex_count = pHeader->vertex_count;
         
         int vbo_index=0;
-        if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+        if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES
+          || getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP) {
             
             int index_group = getSubmesh(iSubmesh)->index_group;
             int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
@@ -1509,8 +1510,16 @@ void KRMesh::convertToIndexed()
     
     KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
     
-    
-    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+    switch (getModelFormat()) {
+    case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+        mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+        break;
+    case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+      mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP;
+        break;
+    default:
+      assert(false);
+    }
     
     m_pData->unlock();
     LoadData(mi, false, false);
@@ -1520,9 +1529,11 @@ void KRMesh::optimize()
 {
     switch(getModelFormat()) {
         case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
             optimizeIndexes();
             break;
-        default:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
             convertToIndexed(); // HACK, FINDME, TODO - This may not be ideal in every case and should be exposed through the API independently
             break;
     }
@@ -1571,6 +1582,7 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
 void KRMesh::optimizeIndexes()
 {
     m_pData->lock();
+    // TODO - Implement optimization for indexed strips
     if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
 
         __uint16_t *new_indices = (__uint16_t *)malloc(0x10000 * sizeof(__uint16_t));
