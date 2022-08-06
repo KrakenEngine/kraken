@@ -475,67 +475,82 @@ KRPipeline::~KRPipeline() {
   }
 }
 
-void KRPipeline::setUniform(Uniform location, float value)
-{
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    float* constant = (float*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
-  }
-}
-
 bool KRPipeline::hasUniform(Uniform location) const
 {
-  for (int i = 0; i < static_cast<int>(ShaderStages::shaderStageCount); i++) {
-    if (m_pushConstants[i].size[static_cast<size_t>(location)]) {
+  for (const PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)]) {
       return true;
     }
   }
   return false;
 }
 
+void KRPipeline::setUniform(Uniform location, float value)
+{
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      float* constant = (float*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
+  }
+}
+
+
 void KRPipeline::setUniform(Uniform location, int value)
 {
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    int* constant = (int*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      int* constant = (int*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
   }
 }
 
 void KRPipeline::setUniform(Uniform location, const Vector2 &value)
 {
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    Vector2* constant = (Vector2*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector2* constant = (Vector2*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
   }
 }
 void KRPipeline::setUniform(Uniform location, const Vector3 &value)
 {
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    Vector3* constant = (Vector3*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector3* constant = (Vector3*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
   }
 }
 
 void KRPipeline::setUniform(Uniform location, const Vector4 &value)
 {
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    Vector4* constant = (Vector4*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector4* constant = (Vector4*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
   }
 }
 
 void KRPipeline::setUniform(Uniform location, const Matrix4 &value)
 {
-  if (m_pushConstants[0].size[static_cast<size_t>(location)] == sizeof(value)) {
-    Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
-    *constant = value;
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
+      *constant = value;
+    }
   }
 }
 
 void KRPipeline::setUniform(Uniform location, const Matrix4* value, const size_t count)
 {
-  // TODO - Vulkan refactoring
-  // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::Uniform::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+    // TODO - Vulkan refactoring
+    // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::Uniform::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+  }
 }
 
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *> *spot_lights, const KRNode::RenderPass &renderPass)
