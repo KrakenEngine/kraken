@@ -43,6 +43,7 @@ class KRSurface;
 class KRRenderPass;
 
 enum class ModelFormat : __uint8_t;
+struct SpvReflectShaderModule;
 
 enum class CullMode : uint32_t {
   kCullBack = 0,
@@ -315,16 +316,16 @@ private:
     {
       int offset[kUniformCount];
       __uint8_t size[kUniformCount];
+      uint8_t* buffer;
+      int bufferSize;
+      VkPipelineLayout layout;
     };
     PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
-
-    uint8_t* m_pushConstantBuffer;
-    int m_pushConstantBufferSize;
 
     char m_szKey[256];
 
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
-    VkPipelineLayout m_pushConstantsLayout;
-    
+
+    void initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection);
 };

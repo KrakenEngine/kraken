@@ -112,17 +112,17 @@ const char *KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
 
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
-  , m_pushConstantBuffer(nullptr)
-  , m_pushConstantBufferSize(0)
 {
-  for (int i = 0; i < static_cast<int>(ShaderStages::shaderStageCount); i++) {
-    memset(m_pushConstants[i].size, 0, kUniformCount);
-    memset(m_pushConstants[i].offset, 0, kUniformCount * sizeof(int));
+  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+    pushConstants.buffer = nullptr;
+    pushConstants.bufferSize = 0;
+    memset(pushConstants.size, 0, kUniformCount);
+    memset(pushConstants.offset, 0, kUniformCount * sizeof(int));
+    pushConstants.layout = nullptr;
   }
 
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
-  m_pushConstantsLayout = nullptr;
 
   std::unique_ptr<KRDevice>& device = surface.getDevice();
   // TODO - Handle device removal
@@ -189,32 +189,12 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
         }
       }
 
-      for(int i=0; i<reflection->push_constant_block_count; i++) {
-        const SpvReflectBlockVariable& block = reflection->push_constant_blocks[i];
-        if (stricmp(block.name, "constants") == 0) {
-          if (block.size > 0) {
-            m_pushConstantBuffer = (__uint8_t*)malloc(block.size);
-            memset(m_pushConstantBuffer, 0, block.size);
-            m_pushConstantBufferSize = block.size;
-
-            // Get push constant offsets
-            for (int iUniform = 0; iUniform < kUniformCount; iUniform++) {
-              for (int iMember = 0; iMember < block.member_count; iMember++) {
-                const SpvReflectBlockVariable& member = block.members[iMember];
-                if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0)
-                {
-                  m_pushConstants[0].offset[iUniform] = member.offset;
-                  m_pushConstants[0].size[iUniform] = member.size;
-                }
-              }
-            }
-          }
-        }
-      }
+      initPushConstantStage(ShaderStages::vertex, reflection);
 
     }
     else if (shader->getSubExtension().compare("frag") == 0) {
       stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+      initPushConstantStage(ShaderStages::fragment, reflection);
     }
     else {
       // failed! TODO - Error handling
@@ -371,25 +351,44 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
     // failed! TODO - Error handling
   }
 
-  if (m_pushConstantBuffer) {
-    VkPipelineLayoutCreateInfo pushConstantsLayoutInfo{};
-    pushConstantsLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pushConstantsLayoutInfo.setLayoutCount = 0;
-    pushConstantsLayoutInfo.pSetLayouts = nullptr;
-    pushConstantsLayoutInfo.pushConstantRangeCount = 0;
-    pushConstantsLayoutInfo.pPushConstantRanges = nullptr;
+  int iStage = 0;
+  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+    if (pushConstants.buffer) {
+      VkPipelineLayoutCreateInfo pushConstantsLayoutInfo{};
+      pushConstantsLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+      pushConstantsLayoutInfo.setLayoutCount = 0;
+      pushConstantsLayoutInfo.pSetLayouts = nullptr;
+      pushConstantsLayoutInfo.pushConstantRangeCount = 0;
+      pushConstantsLayoutInfo.pPushConstantRanges = nullptr;
 
-    // TODO - We need to support push constants for other shader stages
-    VkPushConstantRange push_constant{};
-    push_constant.offset = 0;
-    push_constant.size = m_pushConstantBufferSize;
-    push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    pushConstantsLayoutInfo.pPushConstantRanges = &push_constant;
-    pushConstantsLayoutInfo.pushConstantRangeCount = 1;
+      // TODO - We need to support push constants for other shader stages
+      VkPushConstantRange push_constant{};
+      push_constant.offset = 0;
+      push_constant.size = pushConstants.bufferSize;
 
-    if (vkCreatePipelineLayout(device->m_logicalDevice, &pushConstantsLayoutInfo, nullptr, &m_pushConstantsLayout) != VK_SUCCESS) {
-      // failed! TODO - Error handling
+      switch (static_cast<ShaderStages>(iStage)) {
+      case ShaderStages::vertex:
+          push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+          break;
+      case ShaderStages::fragment:
+          push_constant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+          break;
+      case ShaderStages::geometry:
+        push_constant.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
+        break;
+      case ShaderStages::compute:
+        push_constant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+        break;
+      }
+      
+      pushConstantsLayoutInfo.pPushConstantRanges = &push_constant;
+      pushConstantsLayoutInfo.pushConstantRangeCount = 1;
+
+      if (vkCreatePipelineLayout(device->m_logicalDevice, &pushConstantsLayoutInfo, nullptr, &pushConstants.layout) != VK_SUCCESS) {
+        // failed! TODO - Error handling
+      }
     }
+    iStage++;
   }
 
   VkPipelineDepthStencilStateCreateInfo depthStencil{};
@@ -462,16 +461,46 @@ KRPipeline::~KRPipeline() {
   if (m_pipelineLayout) {
     // TODO: vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
   }
-  if (m_pushConstantsLayout) {
-    // TODO: vkDestroyPipelineLayout(device, m_pushConstantsLayout, nullptr);
+  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+    if (pushConstants.layout) {
+      // TODO: vkDestroyPipelineLayout(device, pushConstants.layout, nullptr);
+    }
   }
+
 
   if(getContext().getPipelineManager()->m_active_pipeline == this) {
       getContext().getPipelineManager()->m_active_pipeline = NULL;
   }
-  if (m_pushConstantBuffer) {
-    delete m_pushConstantBuffer;
-    m_pushConstantBuffer = nullptr;
+  if (m_pushConstants[0].buffer) {
+    delete m_pushConstants[0].buffer;
+    m_pushConstants[0].buffer = nullptr;
+  }
+}
+
+void KRPipeline::initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection)
+{
+  PushConstantStageInfo& pushConstants = m_pushConstants[static_cast<int>(stage)];
+  for (int i = 0; i < reflection->push_constant_block_count; i++) {
+    const SpvReflectBlockVariable& block = reflection->push_constant_blocks[i];
+    if (stricmp(block.name, "constants") == 0) {
+      if (block.size > 0) {
+        pushConstants.buffer = (__uint8_t*)malloc(block.size);
+        memset(pushConstants.buffer, 0, block.size);
+        pushConstants.bufferSize = block.size;
+
+        // Get push constant offsets
+        for (int iUniform = 0; iUniform < kUniformCount; iUniform++) {
+          for (int iMember = 0; iMember < block.member_count; iMember++) {
+            const SpvReflectBlockVariable& member = block.members[iMember];
+            if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0)
+            {
+              pushConstants.offset[iUniform] = member.offset;
+              pushConstants.size[iUniform] = member.size;
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -489,7 +518,7 @@ void KRPipeline::setUniform(Uniform location, float value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      float* constant = (float*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      float* constant = (float*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -500,7 +529,7 @@ void KRPipeline::setUniform(Uniform location, int value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      int* constant = (int*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      int* constant = (int*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -510,7 +539,7 @@ void KRPipeline::setUniform(Uniform location, const Vector2 &value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector2* constant = (Vector2*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      Vector2* constant = (Vector2*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -519,7 +548,7 @@ void KRPipeline::setUniform(Uniform location, const Vector3 &value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector3* constant = (Vector3*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      Vector3* constant = (Vector3*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -529,7 +558,7 @@ void KRPipeline::setUniform(Uniform location, const Vector4 &value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector4* constant = (Vector4*)(m_pushConstantBuffer + stageConstants.offset[static_cast<size_t>(location)]);
+      Vector4* constant = (Vector4*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -539,7 +568,7 @@ void KRPipeline::setUniform(Uniform location, const Matrix4 &value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Matrix4* constant = (Matrix4*)(m_pushConstantBuffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
+      Matrix4* constant = (Matrix4*)(m_pushConstants[0].buffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -745,8 +774,10 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KR
     setUniform(Uniform::render_frame, 1);
     setUniform(Uniform::volumetric_environment_frame, 2);
 
-    if(m_pushConstantBuffer) {
-      vkCmdPushConstants(commandBuffer, m_pushConstantsLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, m_pushConstantBufferSize, m_pushConstantBuffer);
+    for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+      if (pushConstants.buffer) {
+        vkCmdPushConstants(commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
+      }
     }
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
