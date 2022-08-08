@@ -1581,6 +1581,9 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
 
 void KRMesh::optimizeIndexes()
 {
+    // TODO - Re-enable this once crash with KRMeshSphere vertices is corrected
+    return;
+
     m_pData->lock();
     // TODO - Implement optimization for indexed strips
     if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {

@@ -113,6 +113,12 @@ KRMeshSphere::KRMeshSphere(KRContext &context) : KRMesh(context, "__sphere")
     
 
     mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+    
+    // Generate normals pointing away from center of sphere.
+    for (int vertex_index = 0; vertex_index < mi.vertices.size(); vertex_index++) {
+      mi.normals.push_back(Vector3::Normalize(mi.vertices[vertex_index] - Vector3::Zero()));
+    }
+
     LoadData(mi, true, true);
 }
 
