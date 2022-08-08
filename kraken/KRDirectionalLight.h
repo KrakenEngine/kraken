@@ -33,24 +33,25 @@
 
 #include "KRLight.h"
 
-class KRDirectionalLight : public KRLight {
-    
-public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
-    
-    KRDirectionalLight(KRScene &scene, std::string name);
-    virtual ~KRDirectionalLight();
-    
-    virtual std::string getElementName();
-    Vector3 getLocalLightDirection();
-    Vector3 getWorldLightDirection();
+class KRDirectionalLight : public KRLight
+{
 
-    virtual void render(RenderInfo& ri);
-    virtual AABB getBounds();
-    
+public:
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
+  KRDirectionalLight(KRScene& scene, std::string name);
+  virtual ~KRDirectionalLight();
+
+  virtual std::string getElementName();
+  Vector3 getLocalLightDirection();
+  Vector3 getWorldLightDirection();
+
+  virtual void render(RenderInfo& ri);
+  virtual AABB getBounds();
+
 protected:
-    
-    virtual int configureShadowBufferViewports(const KRViewport &viewport);
-    
+
+  virtual int configureShadowBufferViewports(const KRViewport& viewport);
+
 };
 

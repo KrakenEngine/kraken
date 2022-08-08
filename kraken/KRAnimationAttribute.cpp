@@ -35,249 +35,249 @@
 #include "KRAnimationCurveManager.h"
 
 
-KRAnimationAttribute::KRAnimationAttribute(KRContext &context) : KRContextObject(context)
+KRAnimationAttribute::KRAnimationAttribute(KRContext& context) : KRContextObject(context)
 {
-    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
-    m_target = NULL;
-    m_curve = NULL;
+  m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+  m_target = NULL;
+  m_curve = NULL;
 }
 
 KRAnimationAttribute::~KRAnimationAttribute()
 {
-    
+
 }
 
-tinyxml2::XMLElement *KRAnimationAttribute::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement* KRAnimationAttribute::saveXML(tinyxml2::XMLNode* parent)
 {
-    tinyxml2::XMLDocument *doc = parent->GetDocument();
-    tinyxml2::XMLElement *e = doc->NewElement("attribute");
-    parent->InsertEndChild(e);
-    e->SetAttribute("curve", m_curve_name.c_str());
-    e->SetAttribute("target", m_target_name.c_str());
-    const char *szAttribute = "none";
-    switch(m_node_attribute) {
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_NONE:
-            szAttribute = "none";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
-            szAttribute = "translate_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
-            szAttribute = "translate_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
-            szAttribute = "translate_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X:
-            szAttribute = "scale_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
-            szAttribute = "scale_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
-            szAttribute = "scale_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
-            szAttribute = "rotate_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
-            szAttribute = "rotate_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
-            szAttribute = "rotate_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X:
-            szAttribute = "pre_rotate_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y:
-            szAttribute = "pre_rotate_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z:
-            szAttribute = "pre_rotate_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X:
-            szAttribute = "post_rotate_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y:
-            szAttribute = "post_rotate_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z:
-            szAttribute = "post_rotate_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X:
-            szAttribute = "rotate_pivot_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y:
-            szAttribute = "rotate_pivot_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z:
-            szAttribute = "rotate_pivot_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X:
-            szAttribute = "scale_pivot_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y:
-            szAttribute = "scale_pivot_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z:
-            szAttribute = "scale_pivot_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X:
-            szAttribute = "rotate_offset_x";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y:
-            szAttribute = "rotate_offset_y";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z:
-            szAttribute = "rotate_offset_z";
-            break;
-        case KRNode::KRENGINE_NODE_SCALE_OFFSET_X:
-            szAttribute = "scale_offset_x";
-            break;
-        case KRNode::KRENGINE_NODE_SCALE_OFFSET_Y:
-            szAttribute = "scale_offset_y";
-            break;
-        case KRNode::KRENGINE_NODE_SCALE_OFFSET_Z:
-            szAttribute = "scale_offset_z";
-            break;
-        case KRNode::KRENGINE_NODE_ATTRIBUTE_COUNT:
-            // Suppress warning
-            break;
-    }
-    
-    e->SetAttribute("attribute", szAttribute);
-    return e;
+  tinyxml2::XMLDocument* doc = parent->GetDocument();
+  tinyxml2::XMLElement* e = doc->NewElement("attribute");
+  parent->InsertEndChild(e);
+  e->SetAttribute("curve", m_curve_name.c_str());
+  e->SetAttribute("target", m_target_name.c_str());
+  const char* szAttribute = "none";
+  switch (m_node_attribute) {
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_NONE:
+    szAttribute = "none";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X:
+    szAttribute = "translate_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y:
+    szAttribute = "translate_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z:
+    szAttribute = "translate_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X:
+    szAttribute = "scale_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y:
+    szAttribute = "scale_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z:
+    szAttribute = "scale_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X:
+    szAttribute = "rotate_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y:
+    szAttribute = "rotate_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z:
+    szAttribute = "rotate_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X:
+    szAttribute = "pre_rotate_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y:
+    szAttribute = "pre_rotate_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z:
+    szAttribute = "pre_rotate_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X:
+    szAttribute = "post_rotate_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y:
+    szAttribute = "post_rotate_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z:
+    szAttribute = "post_rotate_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X:
+    szAttribute = "rotate_pivot_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y:
+    szAttribute = "rotate_pivot_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z:
+    szAttribute = "rotate_pivot_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X:
+    szAttribute = "scale_pivot_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y:
+    szAttribute = "scale_pivot_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z:
+    szAttribute = "scale_pivot_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X:
+    szAttribute = "rotate_offset_x";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y:
+    szAttribute = "rotate_offset_y";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z:
+    szAttribute = "rotate_offset_z";
+    break;
+  case KRNode::KRENGINE_NODE_SCALE_OFFSET_X:
+    szAttribute = "scale_offset_x";
+    break;
+  case KRNode::KRENGINE_NODE_SCALE_OFFSET_Y:
+    szAttribute = "scale_offset_y";
+    break;
+  case KRNode::KRENGINE_NODE_SCALE_OFFSET_Z:
+    szAttribute = "scale_offset_z";
+    break;
+  case KRNode::KRENGINE_NODE_ATTRIBUTE_COUNT:
+    // Suppress warning
+    break;
+  }
+
+  e->SetAttribute("attribute", szAttribute);
+  return e;
 }
 
-void KRAnimationAttribute::loadXML(tinyxml2::XMLElement *e)
+void KRAnimationAttribute::loadXML(tinyxml2::XMLElement* e)
 {
-    m_target = NULL;
-    m_curve = NULL;
-    m_curve_name = e->Attribute("curve");
-    m_target_name = e->Attribute("target");
-    
+  m_target = NULL;
+  m_curve = NULL;
+  m_curve_name = e->Attribute("curve");
+  m_target_name = e->Attribute("target");
 
+
+  m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+
+  const char* szAttribute = e->Attribute("attribute");
+  if (strcmp(szAttribute, "none") == 0) {
     m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
-    
-    const char *szAttribute = e->Attribute("attribute");
-    if(strcmp(szAttribute, "none") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
-    } else if(strcmp(szAttribute, "translate_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X;
-    } else if(strcmp(szAttribute, "translate_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y;
-    } else if(strcmp(szAttribute, "translate_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z;
-    } else if(strcmp(szAttribute, "rotate_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X;
-    } else if(strcmp(szAttribute, "rotate_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y;
-    } else if(strcmp(szAttribute, "rotate_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z;
-    } else if(strcmp(szAttribute, "scale_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X;
-    } else if(strcmp(szAttribute, "scale_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
-    } else if(strcmp(szAttribute, "scale_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
-    } else if(strcmp(szAttribute, "pre_rotate_x") == 0) {   
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X;
-    } else if(strcmp(szAttribute, "pre_rotate_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y;
-    } else if(strcmp(szAttribute, "pre_rotate_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z;
-    } else if(strcmp(szAttribute, "post_rotate_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X;
-    } else if(strcmp(szAttribute, "post_rotate_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y;
-    } else if(strcmp(szAttribute, "post_rotate_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z;
-    } else if(strcmp(szAttribute, "rotate_pivot_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X;
-    } else if(strcmp(szAttribute, "rotate_pivot_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y;
-    } else if(strcmp(szAttribute, "rotate_pivot_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z;
-    } else if(strcmp(szAttribute, "scale_pivot_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X;
-    } else if(strcmp(szAttribute, "scale_pivot_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y;
-    } else if(strcmp(szAttribute, "scale_pivot_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z;
-    } else if(strcmp(szAttribute, "rotate_offset_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X;
-    } else if(strcmp(szAttribute, "rotate_offset_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y;
-    } else if(strcmp(szAttribute, "rotate_offset_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z;
-    } else if(strcmp(szAttribute, "scale_offset_x") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_X;
-    } else if(strcmp(szAttribute, "scale_offset_y") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Y;
-    } else if(strcmp(szAttribute, "scale_offset_z") == 0) {
-        m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Z;
-    } else {
-        m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
-    }
+  } else if (strcmp(szAttribute, "translate_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_X;
+  } else if (strcmp(szAttribute, "translate_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Y;
+  } else if (strcmp(szAttribute, "translate_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_TRANSLATE_Z;
+  } else if (strcmp(szAttribute, "rotate_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_X;
+  } else if (strcmp(szAttribute, "rotate_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Y;
+  } else if (strcmp(szAttribute, "rotate_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_Z;
+  } else if (strcmp(szAttribute, "scale_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_X;
+  } else if (strcmp(szAttribute, "scale_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Y;
+  } else if (strcmp(szAttribute, "scale_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_Z;
+  } else if (strcmp(szAttribute, "pre_rotate_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_X;
+  } else if (strcmp(szAttribute, "pre_rotate_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Y;
+  } else if (strcmp(szAttribute, "pre_rotate_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_PRE_ROTATION_Z;
+  } else if (strcmp(szAttribute, "post_rotate_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_X;
+  } else if (strcmp(szAttribute, "post_rotate_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Y;
+  } else if (strcmp(szAttribute, "post_rotate_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_POST_ROTATION_Z;
+  } else if (strcmp(szAttribute, "rotate_pivot_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_X;
+  } else if (strcmp(szAttribute, "rotate_pivot_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Y;
+  } else if (strcmp(szAttribute, "rotate_pivot_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATION_PIVOT_Z;
+  } else if (strcmp(szAttribute, "scale_pivot_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_X;
+  } else if (strcmp(szAttribute, "scale_pivot_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Y;
+  } else if (strcmp(szAttribute, "scale_pivot_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_SCALE_PIVOT_Z;
+  } else if (strcmp(szAttribute, "rotate_offset_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_X;
+  } else if (strcmp(szAttribute, "rotate_offset_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Y;
+  } else if (strcmp(szAttribute, "rotate_offset_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_ROTATE_OFFSET_Z;
+  } else if (strcmp(szAttribute, "scale_offset_x") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_X;
+  } else if (strcmp(szAttribute, "scale_offset_y") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Y;
+  } else if (strcmp(szAttribute, "scale_offset_z") == 0) {
+    m_node_attribute = KRNode::KRENGINE_NODE_SCALE_OFFSET_Z;
+  } else {
+    m_node_attribute = KRNode::KRENGINE_NODE_ATTRIBUTE_NONE;
+  }
 }
 
 KRNode::node_attribute_type KRAnimationAttribute::getTargetAttribute() const
 {
-    return m_node_attribute;
+  return m_node_attribute;
 }
 
 void KRAnimationAttribute::setTargetAttribute(KRNode::node_attribute_type target_attribute)
 {
-    m_node_attribute = target_attribute;
+  m_node_attribute = target_attribute;
 }
 
 std::string KRAnimationAttribute::getTargetName() const
 {
-    return m_target_name;
+  return m_target_name;
 }
 
-void KRAnimationAttribute::setTargetName(const std::string &target_name)
+void KRAnimationAttribute::setTargetName(const std::string& target_name)
 {
-    m_target_name = target_name;
-    m_target = NULL;
+  m_target_name = target_name;
+  m_target = NULL;
 }
 
 std::string KRAnimationAttribute::getCurveName() const
 {
-    return m_curve_name;
+  return m_curve_name;
 }
 
-void KRAnimationAttribute::setCurveName(const std::string &curve_name)
+void KRAnimationAttribute::setCurveName(const std::string& curve_name)
 {
-    m_curve_name = curve_name;
-    m_curve = NULL;
+  m_curve_name = curve_name;
+  m_curve = NULL;
 }
 
-KRNode *KRAnimationAttribute::getTarget()
+KRNode* KRAnimationAttribute::getTarget()
 {
-    if(m_target == NULL) {
-        m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->find<KRNode>(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
-    }
-    if(m_target == NULL) {
-        KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Animation attribute could not find object: %s", m_target_name.c_str());
-    }
-    return m_target;
+  if (m_target == NULL) {
+    m_target = getContext().getSceneManager()->getFirstScene()->getRootNode()->find<KRNode>(m_target_name); // FINDME, HACK! - This won't work with multiple scenes in a context; we should move the animations out of KRAnimationManager and attach them to the parent nodes of the animated KRNode's
+  }
+  if (m_target == NULL) {
+    KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Animation attribute could not find object: %s", m_target_name.c_str());
+  }
+  return m_target;
 }
 
-KRAnimationCurve *KRAnimationAttribute::getCurve()
+KRAnimationCurve* KRAnimationAttribute::getCurve()
 {
-    if(m_curve == NULL) {
-        m_curve = getContext().getAnimationCurveManager()->getAnimationCurve(m_curve_name.c_str());
-    }
-    return m_curve;
+  if (m_curve == NULL) {
+    m_curve = getContext().getAnimationCurveManager()->getAnimationCurve(m_curve_name.c_str());
+  }
+  return m_curve;
 }
 
 void KRAnimationAttribute::deleteCurve()
 {
-    KRAnimationCurve *curve = getCurve();
-    if(curve) {
-        getContext().getAnimationCurveManager()->deleteAnimationCurve(curve);
-        m_curve = NULL;
-    }
+  KRAnimationCurve* curve = getCurve();
+  if (curve) {
+    getContext().getAnimationCurveManager()->deleteAnimationCurve(curve);
+    m_curve = NULL;
+  }
 }
 

@@ -72,7 +72,7 @@ void FFTWorkspace::destroy()
   }
 }
 
-void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
+void FFTForward(const FFTWorkspace& workspace, SplitComplex* src, size_t count)
 {
   // Radix-2 Decimation in Time FFT Algorithm
   // http://en.dsplib.org/content/fft_dec_in_time.html
@@ -119,7 +119,7 @@ void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
   }
 }
 
-void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
+void FFTInverse(const FFTWorkspace& workspace, SplitComplex* src, size_t count)
 {
   SplitComplex swapped;
   swapped.imagp = src->realp;
@@ -127,10 +127,10 @@ void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count)
   FFTForward(workspace, &swapped, count);
 }
 
-void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count)
+void Int16ToFloat(const short* src, size_t srcStride, float* dest, size_t destStride, size_t count)
 {
-  const short *r = src;
-  float *w = dest;
+  const short* r = src;
+  float* w = dest;
   while (w < dest + destStride * count) {
     *w = (float)*r;
     r += srcStride;
@@ -138,19 +138,19 @@ void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destSt
   }
 }
 
-void Scale(float *buffer, float scale, size_t count)
+void Scale(float* buffer, float scale, size_t count)
 {
-  float *w = buffer;
+  float* w = buffer;
   while (w < buffer + count) {
     *w *= scale;
     w++;
   }
 }
 
-void ScaleCopy(const float *src, float scale, float *dest, size_t count)
+void ScaleCopy(const float* src, float scale, float* dest, size_t count)
 {
-  const float *r = src;
-  float *w = dest;
+  const float* r = src;
+  float* w = dest;
   while (w < dest + count) {
     *w = *r * scale;
     w++;
@@ -158,15 +158,15 @@ void ScaleCopy(const float *src, float scale, float *dest, size_t count)
   }
 }
 
-void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count)
+void ScaleCopy(const SplitComplex* src, float scale, SplitComplex* dest, size_t count)
 {
   ScaleCopy(src->realp, scale, dest->realp, count);
   ScaleCopy(src->imagp, scale, dest->imagp, count);
 }
 
-void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count)
+void ScaleRamp(float* buffer, float scaleStart, float scaleStep, size_t count)
 {
-  float *w = buffer;
+  float* w = buffer;
   float s = scaleStart;
   while (w < buffer + count) {
     *w *= s;
@@ -175,10 +175,10 @@ void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count)
   }
 }
 
-void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t buffer2Stride, size_t count)
+void Accumulate(float* buffer, size_t bufferStride, const float* buffer2, size_t buffer2Stride, size_t count)
 {
-  float *w = buffer;
-  const float *r = buffer2;
+  float* w = buffer;
+  const float* r = buffer2;
   while (w < buffer + bufferStride * count) {
     *w *= *r;
     w += bufferStride;
@@ -186,7 +186,7 @@ void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t
   }
 }
 
-void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
+void Accumulate(SplitComplex* buffer, const SplitComplex* buffer2, size_t count)
 {
   for (size_t i = 0; i < count; i++) {
     buffer->imagp[i] += buffer2->imagp[i];
@@ -194,7 +194,7 @@ void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count)
   }
 }
 
-void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count)
+void Multiply(const SplitComplex* a, const SplitComplex* b, SplitComplex* c, size_t count)
 {
   for (size_t i = 0; i < count; i++) {
     c->realp[i] = a->realp[i] * b->realp[i] - a->imagp[i] * b->imagp[i];

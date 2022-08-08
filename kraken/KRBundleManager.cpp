@@ -33,21 +33,23 @@
 
 #include "KRBundle.h"
 
-KRBundleManager::KRBundleManager(KRContext &context) : KRResourceManager(context) {
-    
+KRBundleManager::KRBundleManager(KRContext& context) : KRResourceManager(context)
+{
+
 }
 
-KRBundleManager::~KRBundleManager() {
-    for(unordered_map<std::string, KRBundle *>::iterator itr = m_bundles.begin(); itr != m_bundles.end(); ++itr){
-        delete (*itr).second;
-    }
-    m_bundles.clear();
+KRBundleManager::~KRBundleManager()
+{
+  for (unordered_map<std::string, KRBundle*>::iterator itr = m_bundles.begin(); itr != m_bundles.end(); ++itr) {
+    delete (*itr).second;
+  }
+  m_bundles.clear();
 }
 
 KRResource* KRBundleManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
   if (extension.compare("krbundle") == 0) {
-    return loadBundle(name.c_str() , data);
+    return loadBundle(name.c_str(), data);
   }
   return nullptr;
 }
@@ -59,25 +61,27 @@ KRResource* KRBundleManager::getResource(const std::string& name, const std::str
   return nullptr;
 }
 
-KRBundle *KRBundleManager::loadBundle(const char *szName, KRDataBlock *pData)
+KRBundle* KRBundleManager::loadBundle(const char* szName, KRDataBlock* pData)
 {
-    KRBundle *pBundle = new KRBundle(*m_pContext, szName, pData);
-    m_bundles[szName] = pBundle;
-    return pBundle;
-}
-
-KRBundle *KRBundleManager::createBundle(const char *szName)
-{
-  // TODO: Check for name conflicts
-  KRBundle *pBundle = new KRBundle(*m_pContext, szName);
+  KRBundle* pBundle = new KRBundle(*m_pContext, szName, pData);
   m_bundles[szName] = pBundle;
   return pBundle;
 }
 
-KRBundle *KRBundleManager::getBundle(const char *szName) {
-    return m_bundles[szName];
+KRBundle* KRBundleManager::createBundle(const char* szName)
+{
+  // TODO: Check for name conflicts
+  KRBundle* pBundle = new KRBundle(*m_pContext, szName);
+  m_bundles[szName] = pBundle;
+  return pBundle;
 }
 
-unordered_map<std::string, KRBundle *> KRBundleManager::getBundles() {
-    return m_bundles;
+KRBundle* KRBundleManager::getBundle(const char* szName)
+{
+  return m_bundles[szName];
+}
+
+unordered_map<std::string, KRBundle*> KRBundleManager::getBundles()
+{
+  return m_bundles;
 }

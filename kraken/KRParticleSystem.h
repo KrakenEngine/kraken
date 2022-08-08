@@ -33,20 +33,21 @@
 
 #include "KRNode.h"
 
-class KRParticleSystem : public KRNode {
+class KRParticleSystem : public KRNode
+{
 public:
-    virtual ~KRParticleSystem();
-    
-    virtual std::string getElementName() = 0;
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    
-    virtual AABB getBounds() = 0;
-    
-    virtual void render(RenderInfo& ri) = 0;
-    
+  virtual ~KRParticleSystem();
+
+  virtual std::string getElementName() = 0;
+  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+
+  virtual AABB getBounds() = 0;
+
+  virtual void render(RenderInfo& ri) = 0;
+
 protected:
-    KRParticleSystem(KRScene &scene, std::string name);
+  KRParticleSystem(KRScene& scene, std::string name);
 private:
-    
+
 };

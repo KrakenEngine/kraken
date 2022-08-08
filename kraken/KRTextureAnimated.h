@@ -34,30 +34,31 @@
 #include "KRTexture.h"
 #include "KRTexture2D.h"
 
-class KRTextureAnimated : public KRTexture {
+class KRTextureAnimated : public KRTexture
+{
 public:
-    KRTextureAnimated(KRContext &context, std::string name);
-    virtual ~KRTextureAnimated();
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    virtual bool save(KRDataBlock &data);
-    
-    virtual void bind(GLuint texture_unit);
-    virtual long getMemRequiredForSize(int max_dim);
-    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
-    
-    virtual long getReferencedMemSize();
-    
-    virtual bool isAnimated();
-    virtual void resize(int max_dim);
-    
+  KRTextureAnimated(KRContext& context, std::string name);
+  virtual ~KRTextureAnimated();
+  virtual std::string getExtension();
+  virtual bool save(const std::string& path);
+  virtual bool save(KRDataBlock& data);
+
+  virtual void bind(GLuint texture_unit);
+  virtual long getMemRequiredForSize(int max_dim);
+  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+
+  virtual long getReferencedMemSize();
+
+  virtual bool isAnimated();
+  virtual void resize(int max_dim);
+
 private:
-    bool createGPUTexture(int lod_max_dim) override;
-    
-    float m_frame_rate;
-    int m_frame_count;
-    
-    std::string m_texture_base_name;
-    std::string textureNameForFrame(int frame);
-    KRTexture2D *textureForFrame(int frame);
+  bool createGPUTexture(int lod_max_dim) override;
+
+  float m_frame_rate;
+  int m_frame_count;
+
+  std::string m_texture_base_name;
+  std::string textureNameForFrame(int frame);
+  KRTexture2D* textureForFrame(int frame);
 };

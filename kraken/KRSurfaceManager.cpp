@@ -35,8 +35,7 @@
 KRSurfaceManager::KRSurfaceManager(KRContext& context)
   : KRContextObject(context)
   , m_topSurfaceHandle(0)
-{
-}
+{}
 
 KRSurfaceManager::~KRSurfaceManager()
 {

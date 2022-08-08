@@ -36,18 +36,19 @@
 
 class KRLODGroup;
 
-class KRLODSet : public KRNode {
+class KRLODSet : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
-    KRLODSet(KRScene &scene, std::string name);
-    virtual ~KRLODSet();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    virtual void updateLODVisibility(const KRViewport &viewport);
-    
-    virtual void setLODVisibility(LodVisibility lod_visibility);
-    
-    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  KRLODSet(KRScene& scene, std::string name);
+  virtual ~KRLODSet();
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  virtual void updateLODVisibility(const KRViewport& viewport);
+
+  virtual void setLODVisibility(LodVisibility lod_visibility);
+
+  virtual kraken_stream_level getStreamLevel(const KRViewport& viewport);
 };

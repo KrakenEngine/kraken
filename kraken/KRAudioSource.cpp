@@ -51,409 +51,410 @@ void KRAudioSource::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->audio_source.sample = -1;
 }
 
-KRAudioSource::KRAudioSource(KRScene &scene, std::string name) : KRNode(scene, name)
+KRAudioSource::KRAudioSource(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-    m_currentBufferFrame = 0;
-    m_playing = false;
-    m_is3d = true;
-    m_isPrimed = false;
-    m_audioFile = NULL;
-    m_gain = 1.0f;
-    m_pitch = 1.0f;
-    m_looping = false;
-    
-    m_referenceDistance = 1.0f;
-    m_reverb = 0.0f;
-    m_rolloffFactor = 2.0f;
-    m_enable_occlusion = true;
-    m_enable_obstruction = true;
-    
-    m_start_audio_frame = -1;
-    m_paused_audio_frame = 0;
+  m_currentBufferFrame = 0;
+  m_playing = false;
+  m_is3d = true;
+  m_isPrimed = false;
+  m_audioFile = NULL;
+  m_gain = 1.0f;
+  m_pitch = 1.0f;
+  m_looping = false;
+
+  m_referenceDistance = 1.0f;
+  m_reverb = 0.0f;
+  m_rolloffFactor = 2.0f;
+  m_enable_occlusion = true;
+  m_enable_obstruction = true;
+
+  m_start_audio_frame = -1;
+  m_paused_audio_frame = 0;
 }
 
 KRAudioSource::~KRAudioSource()
 {
-    while(m_audioBuffers.size()) {
-        delete m_audioBuffers.front();
-        m_audioBuffers.pop();
-    }
+  while (m_audioBuffers.size()) {
+    delete m_audioBuffers.front();
+    m_audioBuffers.pop();
+  }
 }
 
-std::string KRAudioSource::getElementName() {
-    return "audio_source";
-}
-
-tinyxml2::XMLElement *KRAudioSource::saveXML( tinyxml2::XMLNode *parent)
+std::string KRAudioSource::getElementName()
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("sample", m_audio_sample_name.c_str());
-    e->SetAttribute("gain", m_gain);
-    e->SetAttribute("pitch", m_pitch);
-    e->SetAttribute("looping", m_looping ? "true" : "false");
-    e->SetAttribute("is3d", m_is3d ? "true" : "false");
-    e->SetAttribute("reference_distance", m_referenceDistance);
-    e->SetAttribute("reverb", m_reverb);
-    e->SetAttribute("rolloff_factor", m_rolloffFactor);
-    e->SetAttribute("enable_occlusion", m_enable_occlusion ? "true" : "false");
-    e->SetAttribute("enable_obstruction", m_enable_obstruction ? "true" : "false");
-    return e;
+  return "audio_source";
 }
 
-void KRAudioSource::loadXML(tinyxml2::XMLElement *e)
+tinyxml2::XMLElement* KRAudioSource::saveXML(tinyxml2::XMLNode* parent)
 {
-    m_audio_sample_name = e->Attribute("sample");
-    
-    float gain = 1.0f;
-    if(e->QueryFloatAttribute("gain", &gain)  != tinyxml2::XML_SUCCESS) {
-        gain = 1.0f;
-    }
-    setGain(gain);
-    
-    float pitch = 1.0f;
-    if(e->QueryFloatAttribute("pitch", &pitch) != tinyxml2::XML_SUCCESS) {
-        pitch = 1.0f;
-    }
-    setPitch(m_pitch);
-    
-    bool looping = false;
-    if(e->QueryBoolAttribute("looping", &looping) != tinyxml2::XML_SUCCESS) {
-        looping = false;
-    }
-    setLooping(looping);
-    
-    bool is3d = true;
-    if(e->QueryBoolAttribute("is3d", &is3d) != tinyxml2::XML_SUCCESS) {
-        is3d = true;
-    }
-    setIs3D(is3d);
-    
-    float reference_distance = 1.0f;
-    if(e->QueryFloatAttribute("reference_distance", &reference_distance) != tinyxml2::XML_SUCCESS) {
-        reference_distance = 1.0f;
-    }
-    setReferenceDistance(reference_distance);
-    
-    float reverb = 0.0f;
-    if(e->QueryFloatAttribute("reverb", &reverb) != tinyxml2::XML_SUCCESS) {
-        reverb = 0.0f;
-    }
-    setReverb(reverb);
-    
-    float rolloff_factor = 2.0f;
-    if(e->QueryFloatAttribute("rolloff_factor", &rolloff_factor) != tinyxml2::XML_SUCCESS) {
-        rolloff_factor = 2.0f;
-    }
-    setRolloffFactor(rolloff_factor);
-    
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
+  e->SetAttribute("sample", m_audio_sample_name.c_str());
+  e->SetAttribute("gain", m_gain);
+  e->SetAttribute("pitch", m_pitch);
+  e->SetAttribute("looping", m_looping ? "true" : "false");
+  e->SetAttribute("is3d", m_is3d ? "true" : "false");
+  e->SetAttribute("reference_distance", m_referenceDistance);
+  e->SetAttribute("reverb", m_reverb);
+  e->SetAttribute("rolloff_factor", m_rolloffFactor);
+  e->SetAttribute("enable_occlusion", m_enable_occlusion ? "true" : "false");
+  e->SetAttribute("enable_obstruction", m_enable_obstruction ? "true" : "false");
+  return e;
+}
+
+void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
+{
+  m_audio_sample_name = e->Attribute("sample");
+
+  float gain = 1.0f;
+  if (e->QueryFloatAttribute("gain", &gain) != tinyxml2::XML_SUCCESS) {
+    gain = 1.0f;
+  }
+  setGain(gain);
+
+  float pitch = 1.0f;
+  if (e->QueryFloatAttribute("pitch", &pitch) != tinyxml2::XML_SUCCESS) {
+    pitch = 1.0f;
+  }
+  setPitch(m_pitch);
+
+  bool looping = false;
+  if (e->QueryBoolAttribute("looping", &looping) != tinyxml2::XML_SUCCESS) {
+    looping = false;
+  }
+  setLooping(looping);
+
+  bool is3d = true;
+  if (e->QueryBoolAttribute("is3d", &is3d) != tinyxml2::XML_SUCCESS) {
+    is3d = true;
+  }
+  setIs3D(is3d);
+
+  float reference_distance = 1.0f;
+  if (e->QueryFloatAttribute("reference_distance", &reference_distance) != tinyxml2::XML_SUCCESS) {
+    reference_distance = 1.0f;
+  }
+  setReferenceDistance(reference_distance);
+
+  float reverb = 0.0f;
+  if (e->QueryFloatAttribute("reverb", &reverb) != tinyxml2::XML_SUCCESS) {
+    reverb = 0.0f;
+  }
+  setReverb(reverb);
+
+  float rolloff_factor = 2.0f;
+  if (e->QueryFloatAttribute("rolloff_factor", &rolloff_factor) != tinyxml2::XML_SUCCESS) {
+    rolloff_factor = 2.0f;
+  }
+  setRolloffFactor(rolloff_factor);
+
+  m_enable_obstruction = true;
+  if (e->QueryBoolAttribute("enable_obstruction", &m_enable_obstruction) != tinyxml2::XML_SUCCESS) {
     m_enable_obstruction = true;
-    if(e->QueryBoolAttribute("enable_obstruction", &m_enable_obstruction) != tinyxml2::XML_SUCCESS) {
-        m_enable_obstruction = true;
-    }
+  }
 
+  m_enable_occlusion = true;
+  if (e->QueryBoolAttribute("enable_occlusion", &m_enable_occlusion) != tinyxml2::XML_SUCCESS) {
     m_enable_occlusion = true;
-    if(e->QueryBoolAttribute("enable_occlusion", &m_enable_occlusion) != tinyxml2::XML_SUCCESS) {
-        m_enable_occlusion = true;
-    }
-    
-    KRNode::loadXML(e);
+  }
+
+  KRNode::loadXML(e);
 }
 
 void KRAudioSource::prime()
 {
-    if(!m_isPrimed) {
-        if(m_audioFile == NULL && m_audio_sample_name.size() != 0) {
-            m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
-        }
-        if(m_audioFile) {
-            // Prime the buffer queue
-            m_nextBufferIndex = 0;
-            for(int i=0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
-                queueBuffer();
-            }
-            
-            m_isPrimed = true;
-        }
+  if (!m_isPrimed) {
+    if (m_audioFile == NULL && m_audio_sample_name.size() != 0) {
+      m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
     }
+    if (m_audioFile) {
+      // Prime the buffer queue
+      m_nextBufferIndex = 0;
+      for (int i = 0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
+        queueBuffer();
+      }
+
+      m_isPrimed = true;
+    }
+  }
 }
 
 void KRAudioSource::queueBuffer()
 {
-    KRAudioBuffer *buffer = m_audioFile->getBuffer(m_nextBufferIndex);
-    m_audioBuffers.push(buffer);
-    m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
+  KRAudioBuffer* buffer = m_audioFile->getBuffer(m_nextBufferIndex);
+  m_audioBuffers.push(buffer);
+  m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
 }
 
 void KRAudioSource::render(RenderInfo& ri)
 {
-    
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    bool bVisualize = false;
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-      KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
-      if (sphereModel) {
-        Matrix4 sphereModelMatrix = getModelMatrix();
 
-        PipelineInfo info{};
-        std::string shader_name("visualize_overlay");
-        info.shader_name = &shader_name;
-        info.pCamera = ri.camera;
-        info.point_lights = &ri.point_lights;
-        info.directional_lights = &ri.directional_lights;
-        info.spot_lights = &ri.spot_lights;
-        info.renderPass = ri.renderPass;
-        info.rasterMode = RasterMode::kAdditive;
-        info.modelFormat = sphereModel->getModelFormat();
-        info.vertexAttributes = sphereModel->getVertexAttributes();
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
-        KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  KRNode::render(ri);
 
-        sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-      } // sphereModels.size()
-    }
+  bool bVisualize = false;
+
+  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    if (sphereModel) {
+      Matrix4 sphereModelMatrix = getModelMatrix();
+
+      PipelineInfo info{};
+      std::string shader_name("visualize_overlay");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAdditive;
+      info.modelFormat = sphereModel->getModelFormat();
+      info.vertexAttributes = sphereModel->getVertexAttributes();
+
+      KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+      pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+      sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+    } // sphereModels.size()
+  }
 }
 
 void KRAudioSource::setGain(float gain)
 {
-    m_gain = gain;
+  m_gain = gain;
 }
 
 float KRAudioSource::getGain()
 {
-    return m_gain;
+  return m_gain;
 }
 
 void KRAudioSource::setPitch(float pitch)
 {
-    m_pitch = pitch;
+  m_pitch = pitch;
 }
 
 
 float KRAudioSource::getReferenceDistance()
 {
-    return m_referenceDistance;
+  return m_referenceDistance;
 }
 void KRAudioSource::setReferenceDistance(float reference_distance)
 {
-    m_referenceDistance = reference_distance;
+  m_referenceDistance = reference_distance;
 }
 
 float KRAudioSource::getReverb()
 {
-    return m_reverb;
+  return m_reverb;
 }
 
 void KRAudioSource::setReverb(float reverb)
 {
-    m_reverb = reverb;
+  m_reverb = reverb;
 }
 
 float KRAudioSource::getRolloffFactor()
 {
-    return m_rolloffFactor;
+  return m_rolloffFactor;
 }
 
 void KRAudioSource::setRolloffFactor(float rolloff_factor)
 {
-    m_rolloffFactor = rolloff_factor;
+  m_rolloffFactor = rolloff_factor;
 }
 
 void KRAudioSource::setLooping(bool looping)
 {
-    // Enable or disable looping playback; Audio source must be stopped and re-started for loop mode changes to take effect
-    m_looping = looping;
+  // Enable or disable looping playback; Audio source must be stopped and re-started for loop mode changes to take effect
+  m_looping = looping;
 }
 
 bool KRAudioSource::getLooping()
 {
-    // Returns true if the playback will automatically loop
-    return m_looping;
+  // Returns true if the playback will automatically loop
+  return m_looping;
 }
 
 bool KRAudioSource::getEnableOcclusion()
 {
-    return m_enable_occlusion;
+  return m_enable_occlusion;
 }
 
 void KRAudioSource::setEnableOcclusion(bool enable_occlusion)
 {
-    m_enable_occlusion = enable_occlusion;
+  m_enable_occlusion = enable_occlusion;
 }
 
 bool KRAudioSource::getEnableObstruction()
 {
-    return m_enable_obstruction;
+  return m_enable_obstruction;
 }
 
 void KRAudioSource::setEnableObstruction(bool enable_obstruction)
 {
-    m_enable_obstruction = enable_obstruction;
+  m_enable_obstruction = enable_obstruction;
 }
 
 bool KRAudioSource::getIs3D()
 {
-    return m_is3d;
+  return m_is3d;
 }
 void KRAudioSource::setIs3D(bool is3D)
 {
-    // Audio source must be stopped and re-started for mode change to take effect
-    m_is3d = is3D;
+  // Audio source must be stopped and re-started for mode change to take effect
+  m_is3d = is3D;
 }
 
 void KRAudioSource::advanceBuffer()
 {
-    if(m_audioBuffers.size()) {
-        delete m_audioBuffers.front();
-        m_audioBuffers.pop();
-    }
-    queueBuffer();
+  if (m_audioBuffers.size()) {
+    delete m_audioBuffers.front();
+    m_audioBuffers.pop();
+  }
+  queueBuffer();
 }
 
 void KRAudioSource::physicsUpdate(float deltaTime)
 {
-    KRNode::physicsUpdate(deltaTime);
-    
-    KRAudioManager *audioManager = getContext().getAudioManager();
-    audioManager->activateAudioSource(this);
+  KRNode::physicsUpdate(deltaTime);
+
+  KRAudioManager* audioManager = getContext().getAudioManager();
+  audioManager->activateAudioSource(this);
 }
 
 void KRAudioSource::play()
 {
-    // Start playback of audio at the current audio sample position.  If audio is already playing, this has no effect.
-    // play() does not automatically seek to the beginning of the sample.  Call setAudioFrame( 0 ) first if you wish the playback to begin at the start of the audio sample.
-    // If not set to looping, audio playback ends automatically at the end of the sample
-    
-    if(!m_playing) {
-        KRAudioManager *audioManager = getContext().getAudioManager();
-        assert(m_start_audio_frame == -1);
-        m_start_audio_frame = audioManager->getAudioFrame() - m_paused_audio_frame;
-        m_paused_audio_frame = -1;
-        audioManager->activateAudioSource(this);
-    }
-    m_playing = true;
+  // Start playback of audio at the current audio sample position.  If audio is already playing, this has no effect.
+  // play() does not automatically seek to the beginning of the sample.  Call setAudioFrame( 0 ) first if you wish the playback to begin at the start of the audio sample.
+  // If not set to looping, audio playback ends automatically at the end of the sample
+
+  if (!m_playing) {
+    KRAudioManager* audioManager = getContext().getAudioManager();
+    assert(m_start_audio_frame == -1);
+    m_start_audio_frame = audioManager->getAudioFrame() - m_paused_audio_frame;
+    m_paused_audio_frame = -1;
+    audioManager->activateAudioSource(this);
+  }
+  m_playing = true;
 }
 
 void KRAudioSource::stop()
 {
-    // Stop playback of audio.  If audio is already stopped, this has no effect.
-    // If play() is called afterwards, playback will continue at the current audio sample position.
-    
-    if(m_playing) {
-        m_paused_audio_frame = getAudioFrame();
-        m_start_audio_frame = -1;
-        m_playing = false;
-        getContext().getAudioManager()->deactivateAudioSource(this);
-    }
+  // Stop playback of audio.  If audio is already stopped, this has no effect.
+  // If play() is called afterwards, playback will continue at the current audio sample position.
+
+  if (m_playing) {
+    m_paused_audio_frame = getAudioFrame();
+    m_start_audio_frame = -1;
+    m_playing = false;
+    getContext().getAudioManager()->deactivateAudioSource(this);
+  }
 }
 
 bool KRAudioSource::isPlaying()
 {
-    // Returns true if audio is playing.  Will return false if a non-looped playback has reached the end of the audio sample.
-    
-    return m_playing;
+  // Returns true if audio is playing.  Will return false if a non-looped playback has reached the end of the audio sample.
+
+  return m_playing;
 }
 
 
-void KRAudioSource::setSample(const std::string &sound_name)
+void KRAudioSource::setSample(const std::string& sound_name)
 {
-    m_audio_sample_name = sound_name;
+  m_audio_sample_name = sound_name;
 }
 
 std::string KRAudioSource::getSample()
 {
-    return m_audio_sample_name;
+  return m_audio_sample_name;
 }
 
-KRAudioSample *KRAudioSource::getAudioSample()
+KRAudioSample* KRAudioSource::getAudioSample()
 {
-    if(m_audioFile == NULL && m_audio_sample_name.size() != 0) {
-        m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
-    }
-    return m_audioFile;
+  if (m_audioFile == NULL && m_audio_sample_name.size() != 0) {
+    m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
+  }
+  return m_audioFile;
 }
 
 void KRAudioSource::advanceFrames(int frame_count)
 {
-    m_currentBufferFrame += frame_count;
-    
-    KRAudioBuffer *buffer = getBuffer();
-    while(buffer != NULL && m_currentBufferFrame >= buffer->getFrameCount()) {
-        m_currentBufferFrame -= buffer->getFrameCount();
-        advanceBuffer();
-        buffer = getBuffer();
-    }
-    
-    if(buffer == NULL) {
-        m_currentBufferFrame = 0;
-        stop();
-    }
+  m_currentBufferFrame += frame_count;
+
+  KRAudioBuffer* buffer = getBuffer();
+  while (buffer != NULL && m_currentBufferFrame >= buffer->getFrameCount()) {
+    m_currentBufferFrame -= buffer->getFrameCount();
+    advanceBuffer();
+    buffer = getBuffer();
+  }
+
+  if (buffer == NULL) {
+    m_currentBufferFrame = 0;
+    stop();
+  }
 }
 
-KRAudioBuffer *KRAudioSource::getBuffer()
+KRAudioBuffer* KRAudioSource::getBuffer()
 {
-    if(m_playing) {
-        prime();
-        return m_audioBuffers.front();
-    } else {
-        return NULL;
-    }
+  if (m_playing) {
+    prime();
+    return m_audioBuffers.front();
+  } else {
+    return NULL;
+  }
 }
 
 int KRAudioSource::getBufferFrame()
 {
-    return m_currentBufferFrame;
+  return m_currentBufferFrame;
 }
 
 __int64_t KRAudioSource::getAudioFrame()
 {
-    // Returns the audio playback position in units of integer audio frames.
-    
-    if(m_playing) {
-        return getContext().getAudioManager()->getAudioFrame() - m_start_audio_frame;
-    } else {
-        return m_paused_audio_frame;
-    }
+  // Returns the audio playback position in units of integer audio frames.
+
+  if (m_playing) {
+    return getContext().getAudioManager()->getAudioFrame() - m_start_audio_frame;
+  } else {
+    return m_paused_audio_frame;
+  }
 }
 
 void KRAudioSource::setAudioFrame(__int64_t next_frame)
 {
-    // Sets the audio playback position with units of integer audio frames.
-    if(m_playing) {
-        m_start_audio_frame = getContext().getAudioManager()->getAudioFrame() - next_frame;
-    } else {
-        m_paused_audio_frame = next_frame;
-    }
+  // Sets the audio playback position with units of integer audio frames.
+  if (m_playing) {
+    m_start_audio_frame = getContext().getAudioManager()->getAudioFrame() - next_frame;
+  } else {
+    m_paused_audio_frame = next_frame;
+  }
 }
 
 
 float KRAudioSource::getAudioTime()
 {
-    // Gets the audio playback position with units of floating point seconds.
-    
-    return getAudioFrame() / 44100.0f;
+  // Gets the audio playback position with units of floating point seconds.
+
+  return getAudioFrame() / 44100.0f;
 }
 
 void KRAudioSource::setAudioTime(float new_position)
 {
-    // Sets the audio playback position with units of floating point seconds.
-    setAudioFrame((__int64_t)(new_position * 44100.0f));
+  // Sets the audio playback position with units of floating point seconds.
+  setAudioFrame((__int64_t)(new_position * 44100.0f));
 }
 
-void KRAudioSource::sample(int frame_count, int channel, float *buffer, float gain)
+void KRAudioSource::sample(int frame_count, int channel, float* buffer, float gain)
 {
-    KRAudioSample *source_sample = getAudioSample();
-    if(source_sample && m_playing) {
-        __int64_t next_frame = getAudioFrame();
-        source_sample->sample(next_frame, frame_count, channel, buffer, gain, m_looping);
-        if(!m_looping && next_frame > source_sample->getFrameCount()) {
-            stop();
-        }
-    } else {
-        memset(buffer, 0, sizeof(float) * frame_count);
+  KRAudioSample* source_sample = getAudioSample();
+  if (source_sample && m_playing) {
+    __int64_t next_frame = getAudioFrame();
+    source_sample->sample(next_frame, frame_count, channel, buffer, gain, m_looping);
+    if (!m_looping && next_frame > source_sample->getFrameCount()) {
+      stop();
     }
+  } else {
+    memset(buffer, 0, sizeof(float) * frame_count);
+  }
 }

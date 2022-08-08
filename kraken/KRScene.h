@@ -48,77 +48,78 @@ class KRSurface;
 
 using std::vector;
 
-class KRScene : public KRResource {
+class KRScene : public KRResource
+{
 public:
-    KRScene(KRContext &context, std::string name);
-    virtual ~KRScene();
+  KRScene(KRContext& context, std::string name);
+  virtual ~KRScene();
 
 
 
-    virtual std::string getExtension();
-    virtual bool save(KRDataBlock &data);
+  virtual std::string getExtension();
+  virtual bool save(KRDataBlock& data);
 
-    static KRScene *Load(KRContext &context, const std::string &name, KRDataBlock *data);
+  static KRScene* Load(KRContext& context, const std::string& name, KRDataBlock* data);
 
-    KRNode *getRootNode();
-    KRLight *getFirstLight();
+  KRNode* getRootNode();
+  KRLight* getFirstLight();
 
-    kraken_stream_level getStreamLevel();
+  kraken_stream_level getStreamLevel();
 
-    bool lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask);
-    bool rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask);
-    bool sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask);
+  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
+  bool rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo, unsigned int layer_mask);
+  bool sphereCast(const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo, unsigned int layer_mask);
 
-    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, float deltaTime);
-    void render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera *pCamera, unordered_map<AABB, int> &visibleBounds, const KRViewport &viewport, KRNode::RenderPass renderPass, bool new_frame);
-    void render(KRNode::RenderInfo& ri, KROctreeNode *pOctreeNode, unordered_map<AABB, int> &visibleBounds, std::vector<KROctreeNode *> &remainingOctrees, std::vector<KROctreeNode *> &remainingOctreesTestResults, std::vector<KROctreeNode *> &remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, float deltaTime);
+  void render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<AABB, int>& visibleBounds, const KRViewport& viewport, KRNode::RenderPass renderPass, bool new_frame);
+  void render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordered_map<AABB, int>& visibleBounds, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
 
-    void updateOctree(const KRViewport &viewport);
-    void buildOctreeForTheFirstTime();
+  void updateOctree(const KRViewport& viewport);
+  void buildOctreeForTheFirstTime();
 
-    void notify_sceneGraphCreate(KRNode *pNode);
-    void notify_sceneGraphDelete(KRNode *pNode);
-    void notify_sceneGraphModify(KRNode *pNode);
+  void notify_sceneGraphCreate(KRNode* pNode);
+  void notify_sceneGraphDelete(KRNode* pNode);
+  void notify_sceneGraphModify(KRNode* pNode);
 
-    void physicsUpdate(float deltaTime);
-    void addDefaultLights();
+  void physicsUpdate(float deltaTime);
+  void addDefaultLights();
 
-    AABB getRootOctreeBounds();
+  AABB getRootOctreeBounds();
 
-    std::set<KRAmbientZone *> &getAmbientZones();
-    std::set<KRReverbZone *> &getReverbZones();
-    std::set<KRLocator *> &getLocators();
-    std::set<KRLight *> &getLights();
+  std::set<KRAmbientZone*>& getAmbientZones();
+  std::set<KRReverbZone*>& getReverbZones();
+  std::set<KRLocator*>& getLocators();
+  std::set<KRLight*>& getLights();
 
 private:
 
-    KRNode *m_pRootNode;
-    KRLight *m_pFirstLight;
+  KRNode* m_pRootNode;
+  KRLight* m_pFirstLight;
 
-    std::set<KRNode *> m_newNodes;
-    std::set<KRNode *> m_modifiedNodes;
+  std::set<KRNode*> m_newNodes;
+  std::set<KRNode*> m_modifiedNodes;
 
 
 
-    std::set<KRNode *> m_physicsNodes;
-    std::set<KRAmbientZone *> m_ambientZoneNodes;
-    std::set<KRReverbZone *> m_reverbZoneNodes;
-    std::set<KRLocator *> m_locatorNodes;
-    std::set<KRLight *> m_lights;
+  std::set<KRNode*> m_physicsNodes;
+  std::set<KRAmbientZone*> m_ambientZoneNodes;
+  std::set<KRReverbZone*> m_reverbZoneNodes;
+  std::set<KRLocator*> m_locatorNodes;
+  std::set<KRLight*> m_lights;
 
-    KROctree m_nodeTree;
+  KROctree m_nodeTree;
 
 public:
 
-    template <class T> T *find()
-    {
-        if(m_pRootNode) return m_pRootNode->find<T>();
-        return NULL;
-    }
+  template <class T> T* find()
+  {
+    if (m_pRootNode) return m_pRootNode->find<T>();
+    return NULL;
+  }
 
-    template <class T> T *find(const std::string &name)
-    {
-        if(m_pRootNode) return m_pRootNode->find<T>(name);
-        return NULL;
-    }
+  template <class T> T* find(const std::string& name)
+  {
+    if (m_pRootNode) return m_pRootNode->find<T>(name);
+    return NULL;
+  }
 };

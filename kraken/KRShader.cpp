@@ -32,33 +32,33 @@
 #include "KRShader.h"
 #include "spirv_reflect.h"
 
-KRShader::KRShader(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
+KRShader::KRShader(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-    m_pData = new KRDataBlock();
-    m_extension = extension;
-    m_subExtension = KRResource::GetFileExtension(name);
-    m_reflectionValid = false;
+  m_pData = new KRDataBlock();
+  m_extension = extension;
+  m_subExtension = KRResource::GetFileExtension(name);
+  m_reflectionValid = false;
 
-    getReflection();
+  getReflection();
 }
 
-KRShader::KRShader(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
+KRShader::KRShader(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
 {
-    m_pData = data;
-    m_extension = extension;
-    m_subExtension = KRResource::GetFileExtension(name);
-    m_reflectionValid = false;
+  m_pData = data;
+  m_extension = extension;
+  m_subExtension = KRResource::GetFileExtension(name);
+  m_reflectionValid = false;
 }
 
 KRShader::~KRShader()
 {
-    freeReflection();
-    delete m_pData;
+  freeReflection();
+  delete m_pData;
 }
 
 std::string KRShader::getExtension()
 {
-    return m_extension;
+  return m_extension;
 }
 
 std::string& KRShader::getSubExtension()
@@ -66,15 +66,15 @@ std::string& KRShader::getSubExtension()
   return m_subExtension;
 }
 
-bool KRShader::save(KRDataBlock &data)
+bool KRShader::save(KRDataBlock& data)
 {
-    data.append(*m_pData);
-    return true;
+  data.append(*m_pData);
+  return true;
 }
 
-KRDataBlock *KRShader::getData()
+KRDataBlock* KRShader::getData()
 {
-    return m_pData;
+  return m_pData;
 }
 
 bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
@@ -85,10 +85,10 @@ bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = m_pData->getSize();
   createInfo.pCode = reinterpret_cast<const uint32_t*>(m_pData->getStart());
-  
+
   VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &module);
-      
-  if(result != VK_SUCCESS) {
+
+  if (result != VK_SUCCESS) {
     success = false;
   }
   m_pData->unlock();

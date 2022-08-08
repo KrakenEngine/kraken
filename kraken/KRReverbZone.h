@@ -35,39 +35,40 @@
 #include "KRNode.h"
 #include "KRTexture.h"
 
-class KRReverbZone : public KRNode {
+class KRReverbZone : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
-    KRReverbZone(KRScene &scene, std::string name);
-    virtual ~KRReverbZone();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    void render(RenderInfo& ri);
-    
-    std::string getZone();
-    void setZone(const std::string &zone);
-    
-    float getGradientDistance();
-    void setGradientDistance(float gradient_distance);
-    
-    std::string getReverb();
-    void setReverb(const std::string &reverb);
-    
-    float getReverbGain();
-    void setReverbGain(float reverb_gain);
-    
-    virtual AABB getBounds();
-    
-    float getContainment(const Vector3 &pos);
-    
+  KRReverbZone(KRScene& scene, std::string name);
+  virtual ~KRReverbZone();
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  void render(RenderInfo& ri);
+
+  std::string getZone();
+  void setZone(const std::string& zone);
+
+  float getGradientDistance();
+  void setGradientDistance(float gradient_distance);
+
+  std::string getReverb();
+  void setReverb(const std::string& reverb);
+
+  float getReverbGain();
+  void setReverbGain(float reverb_gain);
+
+  virtual AABB getBounds();
+
+  float getContainment(const Vector3& pos);
+
 private:
-    std::string m_zone;
-    
-    float m_gradient_distance;
-    
-    std::string m_reverb;
-    float m_reverb_gain;
+  std::string m_zone;
+
+  float m_gradient_distance;
+
+  std::string m_reverb;
+  float m_reverb_gain;
 };

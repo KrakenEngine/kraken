@@ -42,72 +42,73 @@
 #include "KRContext.h"
 #include "KRStreamerThread.h"
 
-class KRTextureManager : public KRResourceManager {
+class KRTextureManager : public KRResourceManager
+{
 public:
-    KRTextureManager(KRContext &context);
-    virtual ~KRTextureManager();
-    void destroy();
+  KRTextureManager(KRContext& context);
+  virtual ~KRTextureManager();
+  void destroy();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    void selectTexture(int iTextureUnit, KRTexture *pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage);
-    bool selectTexture(GLenum target, int iTextureUnit, int iTextureHandle);
-    
-    KRTexture *loadTexture(const char *szName, const char *szExtension, KRDataBlock *data);
-    KRTexture *getTextureCube(const char *szName);
-    KRTexture *getTexture(const std::string &name);
-    
-    long getMemUsed();
-    long getMemActive();
-    
-    long getMemoryTransferedThisFrame();
-    void addMemoryTransferredThisFrame(long memoryTransferred);
-    
-    void memoryChanged(long memoryDelta);
-    
-    void startFrame(float deltaTime);
-    void endFrame(float deltaTime);
-    
-    unordered_map<std::string, KRTexture *> &getTextures();
-    
-    void compress(bool premultiply_alpha = false);
-    
-    std::set<KRTexture *> &getActiveTextures();
-    
-    void _setActiveTexture(int i);
-    void _setWrapModeS(GLuint i, GLuint wrap_mode);
-    void _setWrapModeT(GLuint i, GLuint wrap_mode);
-    
-    void _clearGLState();
-    void setMaxAnisotropy(float max_anisotropy);
-    
-    void doStreaming(long &memoryRemaining, long &memoryRemainingThisFrame);
-    void primeTexture(KRTexture *texture);
-    
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
+  void selectTexture(int iTextureUnit, KRTexture* pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage);
+  bool selectTexture(GLenum target, int iTextureUnit, int iTextureHandle);
+
+  KRTexture* loadTexture(const char* szName, const char* szExtension, KRDataBlock* data);
+  KRTexture* getTextureCube(const char* szName);
+  KRTexture* getTexture(const std::string& name);
+
+  long getMemUsed();
+  long getMemActive();
+
+  long getMemoryTransferedThisFrame();
+  void addMemoryTransferredThisFrame(long memoryTransferred);
+
+  void memoryChanged(long memoryDelta);
+
+  void startFrame(float deltaTime);
+  void endFrame(float deltaTime);
+
+  unordered_map<std::string, KRTexture*>& getTextures();
+
+  void compress(bool premultiply_alpha = false);
+
+  std::set<KRTexture*>& getActiveTextures();
+
+  void _setActiveTexture(int i);
+  void _setWrapModeS(GLuint i, GLuint wrap_mode);
+  void _setWrapModeT(GLuint i, GLuint wrap_mode);
+
+  void _clearGLState();
+  void setMaxAnisotropy(float max_anisotropy);
+
+  void doStreaming(long& memoryRemaining, long& memoryRemainingThisFrame);
+  void primeTexture(KRTexture* texture);
+
 private:
-    int m_iActiveTexture;
-    
-    long m_memoryTransferredThisFrame;
-    
-    unordered_map<std::string, KRTexture *> m_textures;
-    
-    KRTexture *m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
-    int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
-    GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
-    GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
-    float m_maxAnisotropy;
-    
-    
-    std::set<KRTexture *> m_activeTextures;
-    
-    std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer;
-    std::vector<std::pair<float, KRTexture *> > m_activeTextures_streamer_copy;
-    bool m_streamerComplete;
-    
-    std::atomic<long> m_textureMemUsed;
-    
-    void balanceTextureMemory(long &memoryRemaining, long &memoryRemainingThisFrame);
-    
-    std::mutex m_streamerFenceMutex;
+  int m_iActiveTexture;
+
+  long m_memoryTransferredThisFrame;
+
+  unordered_map<std::string, KRTexture*> m_textures;
+
+  KRTexture* m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
+  int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
+  GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
+  GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
+  float m_maxAnisotropy;
+
+
+  std::set<KRTexture*> m_activeTextures;
+
+  std::vector<std::pair<float, KRTexture*> > m_activeTextures_streamer;
+  std::vector<std::pair<float, KRTexture*> > m_activeTextures_streamer_copy;
+  bool m_streamerComplete;
+
+  std::atomic<long> m_textureMemUsed;
+
+  void balanceTextureMemory(long& memoryRemaining, long& memoryRemainingThisFrame);
+
+  std::mutex m_streamerFenceMutex;
 };

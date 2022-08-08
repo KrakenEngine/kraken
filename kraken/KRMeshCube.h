@@ -33,10 +33,11 @@
 
 #include "KRMesh.h"
 
-class KRMeshCube : public KRMesh {
+class KRMeshCube : public KRMesh
+{
 public:
-    KRMeshCube(KRContext &context);
-    virtual ~KRMeshCube();
+  KRMeshCube(KRContext& context);
+  virtual ~KRMeshCube();
 private:
 };
 

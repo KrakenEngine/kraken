@@ -35,39 +35,40 @@
 #include "KRNode.h"
 #include "KRTexture.h"
 
-class KRAmbientZone : public KRNode {
+class KRAmbientZone : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
-    KRAmbientZone(KRScene &scene, std::string name);
-    virtual ~KRAmbientZone();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    void render(RenderInfo& ri);
-    
-    std::string getZone();
-    void setZone(const std::string &zone);
-    
-    float getGradientDistance();
-    void setGradientDistance(float gradient_distance);
-    
-    std::string getAmbient();
-    void setAmbient(const std::string &ambient);
-    
-    float getAmbientGain();
-    void setAmbientGain(float ambient_gain);
-    
-    virtual AABB getBounds();
-    
-    float getContainment(const Vector3 &pos);
-    
+  KRAmbientZone(KRScene& scene, std::string name);
+  virtual ~KRAmbientZone();
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  void render(RenderInfo& ri);
+
+  std::string getZone();
+  void setZone(const std::string& zone);
+
+  float getGradientDistance();
+  void setGradientDistance(float gradient_distance);
+
+  std::string getAmbient();
+  void setAmbient(const std::string& ambient);
+
+  float getAmbientGain();
+  void setAmbientGain(float ambient_gain);
+
+  virtual AABB getBounds();
+
+  float getContainment(const Vector3& pos);
+
 private:
-    std::string m_zone;
-    
-    float m_gradient_distance;
-    
-    std::string m_ambient;
-    float m_ambient_gain;
+  std::string m_zone;
+
+  float m_gradient_distance;
+
+  std::string m_ambient;
+  float m_ambient_gain;
 };

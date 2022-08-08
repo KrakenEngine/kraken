@@ -41,28 +41,29 @@
 
 
 
-class KRAnimationManager : public KRResourceManager {
+class KRAnimationManager : public KRResourceManager
+{
 public:
-    KRAnimationManager(KRContext &context);
-    virtual ~KRAnimationManager();
+  KRAnimationManager(KRContext& context);
+  virtual ~KRAnimationManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    KRAnimation *loadAnimation(const char *szName, KRDataBlock *data);
-    KRAnimation *getAnimation(const char *szName);
-    void addAnimation(KRAnimation *new_animation);
-    unordered_map<std::string, KRAnimation *> &getAnimations();
-    void deleteAnimation(KRAnimation *animation, bool delete_curves);
-    
-    void startFrame(float deltaTime);
-    void endFrame(float deltaTime);
-    
-    void updateActiveAnimations(KRAnimation *animation);
-    
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
+  KRAnimation* loadAnimation(const char* szName, KRDataBlock* data);
+  KRAnimation* getAnimation(const char* szName);
+  void addAnimation(KRAnimation* new_animation);
+  unordered_map<std::string, KRAnimation*>& getAnimations();
+  void deleteAnimation(KRAnimation* animation, bool delete_curves);
+
+  void startFrame(float deltaTime);
+  void endFrame(float deltaTime);
+
+  void updateActiveAnimations(KRAnimation* animation);
+
 private:
-    unordered_map<std::string, KRAnimation *> m_animations;
-    set<KRAnimation *> m_activeAnimations;
-    set<KRAnimation *> m_animationsToUpdate;
+  unordered_map<std::string, KRAnimation*> m_animations;
+  set<KRAnimation*> m_activeAnimations;
+  set<KRAnimation*> m_animationsToUpdate;
 };
 

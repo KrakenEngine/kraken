@@ -39,29 +39,29 @@
 
 class KRScene;
 
-
-class KRSceneManager : public KRResourceManager {
+class KRSceneManager : public KRResourceManager
+{
 public:
-    KRSceneManager(KRContext &context);
-    virtual ~KRSceneManager();
-    
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+  KRSceneManager(KRContext& context);
+  virtual ~KRSceneManager();
 
-    KRScene* createScene(const std::string& name);
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-    void add(KRScene *scene);
-    KRScene *loadScene(const std::string &name, KRDataBlock *data);
+  KRScene* createScene(const std::string& name);
 
-    KRScene *getScene(const std::string &name);
-    KRScene *getFirstScene();
-    
-    std::vector<std::string> getSceneNames();
-    unordered_map<std::string, KRScene *> &getScenes();
+  void add(KRScene* scene);
+  KRScene* loadScene(const std::string& name, KRDataBlock* data);
 
-    
+  KRScene* getScene(const std::string& name);
+  KRScene* getFirstScene();
+
+  std::vector<std::string> getSceneNames();
+  unordered_map<std::string, KRScene*>& getScenes();
+
+
 private:
-    unordered_map<std::string, KRScene *> m_scenes;
-    std::mutex m_mutex;
-    
+  unordered_map<std::string, KRScene*> m_scenes;
+  std::mutex m_mutex;
+
 };

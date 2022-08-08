@@ -39,87 +39,90 @@ class KRDataBlock;
 class KRCamera;
 class KRDeviceManager;
 
-class KRTexture : public KRResource {
+class KRTexture : public KRResource
+{
 public:
-    KRTexture(KRContext &context, std::string name);
-    virtual ~KRTexture();
+  KRTexture(KRContext& context, std::string name);
+  virtual ~KRTexture();
 
-    virtual void bind(GLuint texture_unit);
-    void releaseHandles();
-    long getMemSize();
-    virtual long getReferencedMemSize();
-    
-    virtual long getMemRequiredForSize(int max_dim) = 0;
-    virtual void resize(int max_dim);
-    
-    long getLastFrameUsed();
-    
-    typedef enum {
-        TEXTURE_USAGE_NONE = 0x00,
-        TEXTURE_USAGE_UI = 0x01,
-        TEXTURE_USAGE_SKY_CUBE = 0x02,
-        TEXTURE_USAGE_LIGHT_MAP = 0x04,
-        TEXTURE_USAGE_DIFFUSE_MAP = 0x08,
-        TEXTURE_USAGE_AMBIENT_MAP = 0x10,
-        TEXTURE_USAGE_SPECULAR_MAP = 0x20,
-        TEXTURE_USAGE_NORMAL_MAP = 0x40,
-        TEXTURE_USAGE_REFLECTION_MAP = 0x80,
-        TEXTURE_USAGE_REFECTION_CUBE = 0x100,
-        TEXTURE_USAGE_LIGHT_FLARE = 0x200,
-        TEXTURE_USAGE_SHADOW_DEPTH = 0x400,
-        TEXTURE_USAGE_PARTICLE = 0x800,
-        TEXTURE_USAGE_SPRITE = 0x1000
-    } texture_usage_t;
-    
-    float getStreamPriority();
-    
-    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
-    virtual bool isAnimated();
-    
-    virtual KRTexture *compress(bool premultiply_alpha = false);
-    int getCurrentLodMaxDim();
-    int getNewLodMaxDim(); // For use by streamer only
-    int getMaxMipMap();
-    int getMinMipMap();
-    bool hasMipmaps();
+  virtual void bind(GLuint texture_unit);
+  void releaseHandles();
+  long getMemSize();
+  virtual long getReferencedMemSize();
 
-    kraken_stream_level getStreamLevel(KRTexture::texture_usage_t textureUsage);
-    float getLastFrameLodCoverage() const;
-    
-    void _swapHandles();
-    
+  virtual long getMemRequiredForSize(int max_dim) = 0;
+  virtual void resize(int max_dim);
+
+  long getLastFrameUsed();
+
+  typedef enum
+  {
+    TEXTURE_USAGE_NONE = 0x00,
+    TEXTURE_USAGE_UI = 0x01,
+    TEXTURE_USAGE_SKY_CUBE = 0x02,
+    TEXTURE_USAGE_LIGHT_MAP = 0x04,
+    TEXTURE_USAGE_DIFFUSE_MAP = 0x08,
+    TEXTURE_USAGE_AMBIENT_MAP = 0x10,
+    TEXTURE_USAGE_SPECULAR_MAP = 0x20,
+    TEXTURE_USAGE_NORMAL_MAP = 0x40,
+    TEXTURE_USAGE_REFLECTION_MAP = 0x80,
+    TEXTURE_USAGE_REFECTION_CUBE = 0x100,
+    TEXTURE_USAGE_LIGHT_FLARE = 0x200,
+    TEXTURE_USAGE_SHADOW_DEPTH = 0x400,
+    TEXTURE_USAGE_PARTICLE = 0x800,
+    TEXTURE_USAGE_SPRITE = 0x1000
+  } texture_usage_t;
+
+  float getStreamPriority();
+
+  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+  virtual bool isAnimated();
+
+  virtual KRTexture* compress(bool premultiply_alpha = false);
+  int getCurrentLodMaxDim();
+  int getNewLodMaxDim(); // For use by streamer only
+  int getMaxMipMap();
+  int getMinMipMap();
+  bool hasMipmaps();
+
+  kraken_stream_level getStreamLevel(KRTexture::texture_usage_t textureUsage);
+  float getLastFrameLodCoverage() const;
+
+  void _swapHandles();
+
 protected:
-    virtual bool createGPUTexture(int lod_max_dim) = 0;
-    GLuint getHandle();
-    void destroyHandles();
-    void destroyNewHandles();
-    
-    struct TextureHandle {
-      VkImage image;
-      VkImageView fullImageView;
-      KrDeviceHandle device;
-      VmaAllocation allocation;
+  virtual bool createGPUTexture(int lod_max_dim) = 0;
+  GLuint getHandle();
+  void destroyHandles();
+  void destroyNewHandles();
 
-      void destroy(KRDeviceManager* deviceManager);
-    };
+  struct TextureHandle
+  {
+    VkImage image;
+    VkImageView fullImageView;
+    KrDeviceHandle device;
+    VmaAllocation allocation;
 
-    std::vector<TextureHandle> m_handles;
-    std::vector<TextureHandle> m_newHandles;
-    std::atomic_bool m_haveNewHandles;
+    void destroy(KRDeviceManager* deviceManager);
+  };
 
-    std::atomic_flag m_handle_lock;
-    
-    int m_current_lod_max_dim;
-    int m_new_lod_max_dim;
-    
-    uint32_t m_max_lod_max_dim;
-    uint32_t m_min_lod_max_dim;
-    
-    long m_last_frame_used;
-    float m_last_frame_max_lod_coverage;
-    texture_usage_t m_last_frame_usage;
-    
+  std::vector<TextureHandle> m_handles;
+  std::vector<TextureHandle> m_newHandles;
+  std::atomic_bool m_haveNewHandles;
+
+  std::atomic_flag m_handle_lock;
+
+  int m_current_lod_max_dim;
+  int m_new_lod_max_dim;
+
+  uint32_t m_max_lod_max_dim;
+  uint32_t m_min_lod_max_dim;
+
+  long m_last_frame_used;
+  float m_last_frame_max_lod_coverage;
+  texture_usage_t m_last_frame_usage;
+
 private:
-    std::atomic<long> m_textureMemUsed;
-    std::atomic<long> m_newTextureMemUsed;
+  std::atomic<long> m_textureMemUsed;
+  std::atomic<long> m_newTextureMemUsed;
 };

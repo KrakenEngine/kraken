@@ -40,23 +40,23 @@ class KRAudioSample;
 class KRAudioBuffer
 {
 public:
-    KRAudioBuffer(KRAudioManager *manager, KRAudioSample *sound, int index, int frameCount, int frameRate, int bytesPerFrame, void (*fn_populate)(KRAudioSample *, int, void *));
-    ~KRAudioBuffer();
+  KRAudioBuffer(KRAudioManager* manager, KRAudioSample* sound, int index, int frameCount, int frameRate, int bytesPerFrame, void (*fn_populate)(KRAudioSample*, int, void*));
+  ~KRAudioBuffer();
 
-    int getFrameCount();
-    int getFrameRate();
-    signed short *getFrameData();
+  int getFrameCount();
+  int getFrameRate();
+  signed short* getFrameData();
 
-    KRAudioSample *getAudioSample();
-    int getIndex();
+  KRAudioSample* getAudioSample();
+  int getIndex();
 private:
-    KRAudioManager *m_pSoundManager;
+  KRAudioManager* m_pSoundManager;
 
-    int m_index;
-	int m_frameCount;
-    int m_frameRate;
-    int m_bytesPerFrame;
-    KRDataBlock *m_pData;
+  int m_index;
+  int m_frameCount;
+  int m_frameRate;
+  int m_bytesPerFrame;
+  KRDataBlock* m_pData;
 
-    KRAudioSample *m_audioSample;
+  KRAudioSample* m_audioSample;
 };

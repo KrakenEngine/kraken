@@ -37,19 +37,19 @@
 #include <chrono>
 
 
-KRStreamerThread::KRStreamerThread(KRContext &context) : m_context(context)
+KRStreamerThread::KRStreamerThread(KRContext& context) : m_context(context)
 {
-    m_running = false;
-    m_stop = false;
+  m_running = false;
+  m_stop = false;
 }
 
 void KRStreamerThread::start()
 {
-    if(!m_running) {
-        m_running = true;
-        
-        m_thread = std::thread(&KRStreamerThread::run, this);
-    }
+  if (!m_running) {
+    m_running = true;
+
+    m_thread = std::thread(&KRStreamerThread::run, this);
+  }
 }
 
 void KRStreamerThread::stop()
@@ -70,18 +70,17 @@ void KRStreamerThread::run()
 {
 
 #if defined(ANDROID)
-    // TODO - Set thread names on Android
+  // TODO - Set thread names on Android
 #elif defined(_WIN32) || defined(_WIN64)
-    // TODO - Set thread names on windows
+  // TODO - Set thread names on windows
 #else
-   pthread_setname_np("Kraken - Streamer");
+  pthread_setname_np("Kraken - Streamer");
 #endif
 
-    std::chrono::microseconds sleep_duration( 15000 );
+  std::chrono::microseconds sleep_duration(15000);
 
-    while(!m_stop)
-    {
-        m_context.doStreaming();
-        std::this_thread::sleep_for( sleep_duration );
-    }
+  while (!m_stop) {
+    m_context.doStreaming();
+    std::this_thread::sleep_for(sleep_duration);
+  }
 }

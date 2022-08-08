@@ -39,47 +39,47 @@ void KRLocator::InitNodeInfo(KrNodeInfo* nodeInfo)
   // No additional members
 }
 
-KRLocator::KRLocator(KRScene &scene, std::string name) : KRNode(scene, name)
+KRLocator::KRLocator(KRScene& scene, std::string name) : KRNode(scene, name)
 {
- 
+
 }
 
 KRLocator::~KRLocator()
+{}
+
+std::string KRLocator::getElementName()
 {
+  return "locator";
 }
 
-std::string KRLocator::getElementName() {
-    return "locator";
+tinyxml2::XMLElement* KRLocator::saveXML(tinyxml2::XMLNode* parent)
+{
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
+
+  return e;
 }
 
-tinyxml2::XMLElement *KRLocator::saveXML( tinyxml2::XMLNode *parent)
+void KRLocator::loadXML(tinyxml2::XMLElement* e)
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    
-    return e;
+  KRNode::loadXML(e);
 }
 
-void KRLocator::loadXML(tinyxml2::XMLElement *e)
+unordered_map<std::string, int>& KRLocator::getUserIntAttributes()
 {
-    KRNode::loadXML(e);
+  return m_userIntAttributes;
 }
 
-unordered_map<std::string, int> &KRLocator::getUserIntAttributes()
+unordered_map<std::string, double>& KRLocator::getUserDoubleAttributes()
 {
-    return m_userIntAttributes;
+  return m_userDoubleAttributes;
 }
 
-unordered_map<std::string, double> &KRLocator::getUserDoubleAttributes()
+unordered_map<std::string, bool>& KRLocator::getUserBoolAttributes()
 {
-    return m_userDoubleAttributes;
+  return m_userBoolAttributes;
 }
 
-unordered_map<std::string, bool> &KRLocator::getUserBoolAttributes()
+unordered_map<std::string, std::string>& KRLocator::getUserStringAttributes()
 {
-    return m_userBoolAttributes;
-}
-
-unordered_map<std::string, std::string> &KRLocator::getUserStringAttributes()
-{
-    return m_userStringAttributes;
+  return m_userStringAttributes;
 }

@@ -35,7 +35,8 @@
 
 #define KR_NULL_HANDLE 0
 
-typedef enum {
+typedef enum
+{
   KR_SUCCESS = 0,
   KR_ERROR_NOT_INITIALIZED,
   KR_ERROR_NOT_IMPLEMENTED,
@@ -56,14 +57,15 @@ typedef enum {
   KR_RESULT_MAX_ENUM = 0x7FFFFFFF
 } KrResult;
 
-typedef enum {
-  KR_STRUCTURE_TYPE_INITIALIZE       = 0,
+typedef enum
+{
+  KR_STRUCTURE_TYPE_INITIALIZE = 0,
   KR_STRUCTURE_TYPE_SHUTDOWN,
 
   KR_STRUCTURE_TYPE_CREATE_WINDOW_SURFACE,
   KR_STRUCTURE_TYPE_DELETE_WINDOW_SURFACE,
 
-  KR_STRUCTURE_TYPE_LOAD_RESOURCE    = 0x00010000,
+  KR_STRUCTURE_TYPE_LOAD_RESOURCE = 0x00010000,
   KR_STRUCTURE_TYPE_UNLOAD_RESOURCE,
   KR_STRUCTURE_TYPE_GET_RESOURCE_DATA,
   KR_STRUCTURE_TYPE_SAVE_RESOURCE,
@@ -74,9 +76,9 @@ typedef enum {
 
   KR_STRUCTURE_TYPE_COMPILE_ALL_SHADERS,
 
-  KR_STRUCTURE_TYPE_CREATE_SCENE     = 0x00020000,
+  KR_STRUCTURE_TYPE_CREATE_SCENE = 0x00020000,
 
-  KR_STRUCTURE_TYPE_FIND_NODE_BY_NAME   = 0x00030000,
+  KR_STRUCTURE_TYPE_FIND_NODE_BY_NAME = 0x00030000,
   KR_STRUCTURE_TYPE_FIND_ADJACENT_NODES,
   KR_STRUCTURE_TYPE_DELETE_NODE,
   KR_STRUCTURE_TYPE_DELETE_NODE_CHILDREN,
@@ -88,7 +90,7 @@ typedef enum {
   KR_STRUCTURE_TYPE_SET_NODE_LOCAL_TRANSFORM,
   KR_STRUCTURE_TYPE_SET_NODE_WORLD_TRANSFORM,
 
-  KR_STRUCTURE_TYPE_NODE             = 0x10000000,
+  KR_STRUCTURE_TYPE_NODE = 0x10000000,
   KR_STRUCTURE_TYPE_NODE_CAMERA,
   KR_STRUCTURE_TYPE_NODE_LOD_SET,
   KR_STRUCTURE_TYPE_NODE_LOD_GROUP,
@@ -104,20 +106,22 @@ typedef enum {
   KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE,
   KR_STRUCTURE_TYPE_NODE_REVERB_ZONE,
   KR_STRUCTURE_TYPE_NODE_MAX_ENUM,
-  
-  KR_STRUCTURE_TYPE_MAX_ENUM         = 0x7FFFFFFF
+
+  KR_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
 } KrStructureType;
 
 typedef int KrResourceMapIndex;
 typedef int KrSceneNodeMapIndex;
 typedef int KrSurfaceMapIndex;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   size_t resourceMapSize;
 } KrInitializeInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrSurfaceMapIndex surfaceHandle;
 #if defined(_WIN32) || defined(_WIN64)
@@ -125,28 +129,33 @@ typedef struct {
 #endif
 } KrCreateWindowSurfaceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrSurfaceMapIndex surfaceHandle;
 } KrDeleteWindowSurfaceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pResourcePath;
   KrResourceMapIndex resourceHandle;
 } KrLoadResourceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex resourceHandle;
 } KrUnloadResourceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex resourceHandle;
 } KrGetResourceDataInfo;
 
-typedef struct {
+typedef struct
+{
   KrResult result;
   void* data;
   size_t length;
@@ -154,48 +163,56 @@ typedef struct {
 
 typedef void (*KrGetResourceDataCallback)(const KrGetResourceDataResult&);
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pResourceName;
   KrResourceMapIndex resourceHandle;
 } KrMapResourceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex resourceHandle;
 } KrUnmapResourceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pResourcePath;
   KrResourceMapIndex resourceHandle;
 } KrSaveResourceInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pBundleName;
   KrResourceMapIndex resourceHandle;
 } KrCreateBundleInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex resourceHandle;
   KrResourceMapIndex bundleHandle;
 } KrMoveToBundleInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex bundleHandle;
   KrResourceMapIndex logHandle;
 } KrCompileAllShadersInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pSceneName;
   KrResourceMapIndex resourceHandle;
 } KrCreateSceneInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   const char* pName;
   kraken::Vector3 translate;
@@ -207,20 +224,25 @@ typedef struct {
   kraken::Vector3 scale_offset;
   kraken::Vector3 rotate_pivot;
   kraken::Vector3 scale_pivot;
-  union {
-    struct {
+  union
+  {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE
       // No additional members
     } node;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_CAMERA
       KrResourceMapIndex skybox_texture;
     } camera;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_LOD_SET
       // No additional members
     } lod_set;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_LOD_GROUP
       float min_distance;
       float max_distance;
@@ -228,7 +250,8 @@ typedef struct {
       kraken::Vector3 reference_max;
       bool use_world_units;
     } lod_group;
-    struct {
+    struct
+    {
       kraken::Vector3 color;
       float intensity;
       float decay_start;
@@ -240,26 +263,31 @@ typedef struct {
       float dust_particle_density;
       float dust_particle_size;
       float dust_particle_intensity;
-      struct {
+      struct
+      {
         // KR_STRUCTURE_TYPE_NODE_POINT_LIGHT
         // No additional members
       } point;
-      struct {
+      struct
+      {
         // KR_STRUCTURE_TYPE_NODE_DIRECTIONAL_LIGHT
         // No additional members
       } directional;
-      struct {
+      struct
+      {
         // KR_STRUCTURE_TYPE_NODE_SPOT_LIGHT
         float inner_angle;
         float outer_angle;
       } spot;
     } light;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_SPRITE
       KrResourceMapIndex texture;
       float alpha;
     } sprite;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_MODEL
       float lod_min_coverage;
       bool receives_shadow;
@@ -269,21 +297,25 @@ typedef struct {
       KrResourceMapIndex mesh;
       KrResourceMapIndex light_map_texture;
     } model;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_COLLIDER
       KrResourceMapIndex mesh;
       uint64_t layer_mask;
       float audio_occlusion;
     } collider;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_BONE
       // No additional members
     } bone;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_LOCATOR
       // No additional members
     } locator;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_AUDIO_SOURCE
       KrResourceMapIndex sample;
       float gain;
@@ -296,14 +328,16 @@ typedef struct {
       bool enable_obstruction;
       bool enable_occlusion;
     } audio_source;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE
       char* pZoneName;
       float gradient;
       float gain;
       KrResourceMapIndex sample;
     } ambient_zone;
-    struct {
+    struct
+    {
       // KR_STRUCTURE_TYPE_NODE_REVERB_ZONE
       char* pZoneName;
       float gradient;
@@ -387,7 +421,8 @@ typedef struct
   KrNodeInfo node;
 } KrUpdateNodeInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex sceneHandle;
   KrSceneNodeMapIndex nodeHandle;
@@ -396,7 +431,8 @@ typedef struct {
   kraken::Vector3 rotate;
 } KrSetNodeLocalTransformInfo;
 
-typedef struct {
+typedef struct
+{
   KrStructureType sType;
   KrResourceMapIndex sceneHandle;
   KrSceneNodeMapIndex nodeHandle;

@@ -31,38 +31,41 @@
 
 #pragma once
 
-class KRBlendFile {
+class KRBlendFile
+{
 public:
-    KRBlendFile(const void *pFile);
-    ~KRBlendFile();
-    
-    class Block {
-    public:
-        Block(KRBlendFile *blendFile, unsigned char *&scan);
-        ~Block();
-        
-        std::string getCode();
-        int getDataSize();
-    private:
-        std::string m_code;
-        __int32_t m_dataSize;
-        __int32_t m_sdna_index;
-        __int32_t m_structure_count;
-        __int64_t m_prev_pointer;
-        unsigned char *m_data;
-    };
-    
+  KRBlendFile(const void* pFile);
+  ~KRBlendFile();
+
+  class Block
+  {
+  public:
+    Block(KRBlendFile* blendFile, unsigned char*& scan);
+    ~Block();
+
+    std::string getCode();
+    int getDataSize();
+  private:
+    std::string m_code;
+    __int32_t m_dataSize;
+    __int32_t m_sdna_index;
+    __int32_t m_structure_count;
+    __int64_t m_prev_pointer;
+    unsigned char* m_data;
+  };
+
 private:
-    enum file_type {
-        KRBLEND_LITTLEENDIAN_32BIT,
-        KRBLEND_LITTLEENDIAN_64BIT,
-        KRBLEND_BIGENDIAN_32BIT,
-        KRBLEND_BIGENDIAN_64BIT
-    } m_file_type;
-    void readHeader(unsigned char *&scan);
-    
-    __int32_t readInt(unsigned char *&scan);
-    __int64_t readPointer(unsigned char *&scan);
-    
-    std::vector<Block> m_blocks;
+  enum file_type
+  {
+    KRBLEND_LITTLEENDIAN_32BIT,
+    KRBLEND_LITTLEENDIAN_64BIT,
+    KRBLEND_BIGENDIAN_32BIT,
+    KRBLEND_BIGENDIAN_64BIT
+  } m_file_type;
+  void readHeader(unsigned char*& scan);
+
+  __int32_t readInt(unsigned char*& scan);
+  __int64_t readPointer(unsigned char*& scan);
+
+  std::vector<Block> m_blocks;
 };

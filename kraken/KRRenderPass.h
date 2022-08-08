@@ -51,9 +51,9 @@ public:
   void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info);
   void destroy(KRDevice& device);
 
-  void begin(VkCommandBuffer &commandBuffer, KRSurface& surface, const Vector4& clearColor);
+  void begin(VkCommandBuffer& commandBuffer, KRSurface& surface, const Vector4& clearColor);
   void end(VkCommandBuffer& commandBuffer);
 
-// private:
+  // private:
   VkRenderPass m_renderPass;
 };

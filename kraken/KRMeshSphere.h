@@ -33,9 +33,10 @@
 
 #include "KRMesh.h"
 
-class KRMeshSphere : public KRMesh {
+class KRMeshSphere : public KRMesh
+{
 public:
-    KRMeshSphere(KRContext &context);
-    virtual ~KRMeshSphere();
+  KRMeshSphere(KRContext& context);
+  virtual ~KRMeshSphere();
 private:
 };

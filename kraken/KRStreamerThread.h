@@ -41,18 +41,18 @@ class KRContext;
 class KRStreamerThread
 {
 public:
-    KRStreamerThread(KRContext &context);
-    ~KRStreamerThread();
-    
-    void start();
-    void stop();
-    
+  KRStreamerThread(KRContext& context);
+  ~KRStreamerThread();
+
+  void start();
+  void stop();
+
 private:
-    KRContext &m_context;
-    
-    std::thread m_thread;
-    std::atomic<bool> m_stop;
-    std::atomic<bool> m_running;
-    
-    void run();
+  KRContext& m_context;
+
+  std::thread m_thread;
+  std::atomic<bool> m_stop;
+  std::atomic<bool> m_running;
+
+  void run();
 };

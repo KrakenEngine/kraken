@@ -35,28 +35,29 @@
 #include "KRNode.h"
 #include "KRTexture.h"
 
-class KRSprite : public KRNode {
+class KRSprite : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
-    KRSprite(KRScene &scene, std::string name);
-    
-    virtual ~KRSprite();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    void setSpriteTexture(std::string sprite_texture);
-    void setSpriteAlpha(float alpha);
-    float getSpriteAlpha() const;
-    
-    virtual void render(RenderInfo& ri);
-    
-    virtual AABB getBounds();
-    
+  KRSprite(KRScene& scene, std::string name);
+
+  virtual ~KRSprite();
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  void setSpriteTexture(std::string sprite_texture);
+  void setSpriteAlpha(float alpha);
+  float getSpriteAlpha() const;
+
+  virtual void render(RenderInfo& ri);
+
+  virtual AABB getBounds();
+
 protected:
-    
-    std::string m_spriteTexture;
-    KRTexture *m_pSpriteTexture;
-    float m_spriteAlpha;
+
+  std::string m_spriteTexture;
+  KRTexture* m_pSpriteTexture;
+  float m_spriteAlpha;
 };

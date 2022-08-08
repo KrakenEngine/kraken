@@ -36,19 +36,19 @@
 class KRTextureTGA : public KRTexture2D
 {
 public:
-    KRTextureTGA(KRContext &context, KRDataBlock *data, std::string name);
-    virtual ~KRTextureTGA();
-    virtual std::string getExtension();
-    
-    bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
-    
+  KRTextureTGA(KRContext& context, KRDataBlock* data, std::string name);
+  virtual ~KRTextureTGA();
+  virtual std::string getExtension();
+
+  bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
+
 #if !TARGET_OS_IPHONE && !defined(ANDROID)
-    virtual KRTexture *compress(bool premultiply_alpha = false);
+  virtual KRTexture* compress(bool premultiply_alpha = false);
 #endif
-    
-    virtual long getMemRequiredForSize(int max_dim);
-    virtual Vector2i getDimensions() const override;
+
+  virtual long getMemRequiredForSize(int max_dim);
+  virtual Vector2i getDimensions() const override;
 private:
-    long m_imageSize;
-    Vector2i m_dimensions;
+  long m_imageSize;
+  Vector2i m_dimensions;
 };

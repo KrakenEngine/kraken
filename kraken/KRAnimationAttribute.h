@@ -36,33 +36,34 @@
 #include "KRNode.h"
 #include "KRAnimationCurve.h"
 
-class KRAnimationAttribute : public KRContextObject {
+class KRAnimationAttribute : public KRContextObject
+{
 public:
-    KRAnimationAttribute(KRContext &context);
-    ~KRAnimationAttribute();
-    
-    tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    void loadXML(tinyxml2::XMLElement *e);
-    
-    std::string getCurveName() const;
-    void setCurveName(const std::string &curve_name);
-    
-    std::string getTargetName() const;
-    void setTargetName(const std::string &target_name);
-    
-    KRNode::node_attribute_type getTargetAttribute() const;
-    void setTargetAttribute(KRNode::node_attribute_type target_attribute);
-    
-    KRNode *getTarget();
-    KRAnimationCurve *getCurve();
-    
-    void deleteCurve();
-    
+  KRAnimationAttribute(KRContext& context);
+  ~KRAnimationAttribute();
+
+  tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  void loadXML(tinyxml2::XMLElement* e);
+
+  std::string getCurveName() const;
+  void setCurveName(const std::string& curve_name);
+
+  std::string getTargetName() const;
+  void setTargetName(const std::string& target_name);
+
+  KRNode::node_attribute_type getTargetAttribute() const;
+  void setTargetAttribute(KRNode::node_attribute_type target_attribute);
+
+  KRNode* getTarget();
+  KRAnimationCurve* getCurve();
+
+  void deleteCurve();
+
 private:
-    std::string m_target_name;
-    std::string m_curve_name;
-    KRNode::node_attribute_type m_node_attribute;
-    
-    KRNode *m_target;
-    KRAnimationCurve *m_curve;
+  std::string m_target_name;
+  std::string m_curve_name;
+  KRNode::node_attribute_type m_node_attribute;
+
+  KRNode* m_target;
+  KRAnimationCurve* m_curve;
 };

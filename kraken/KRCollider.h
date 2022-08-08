@@ -46,37 +46,38 @@
 #include "KRMesh.h"
 #include "KRTexture.h"
 
-class KRCollider : public KRNode {
-    
-public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+class KRCollider : public KRNode
+{
 
-    KRCollider(KRScene &scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion);
-    virtual ~KRCollider();
-    
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    virtual AABB getBounds();
-    
-    bool lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask);
-    bool rayCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask);
-    bool sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask);
-    
-    unsigned int getLayerMask();
-    void setLayerMask(unsigned int layer_mask);
-    
-    float getAudioOcclusion();
-    void setAudioOcclusion(float audio_occlusion);
-    
-    void render(RenderInfo& ri);
-    
+public:
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+
+  KRCollider(KRScene& scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion);
+  virtual ~KRCollider();
+
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual AABB getBounds();
+
+  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
+  bool rayCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
+  bool sphereCast(const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo, unsigned int layer_mask);
+
+  unsigned int getLayerMask();
+  void setLayerMask(unsigned int layer_mask);
+
+  float getAudioOcclusion();
+  void setAudioOcclusion(float audio_occlusion);
+
+  void render(RenderInfo& ri);
+
 private:
-    KRMesh* m_model;
-    std::string m_model_name;
-    
-    unsigned int m_layer_mask;
-    float m_audio_occlusion;
-    
-    void loadModel();
+  KRMesh* m_model;
+  std::string m_model_name;
+
+  unsigned int m_layer_mask;
+  float m_audio_occlusion;
+
+  void loadModel();
 };

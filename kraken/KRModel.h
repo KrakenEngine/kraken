@@ -43,52 +43,53 @@
 #include "KRTexture.h"
 #include "KRBone.h"
 
-class KRModel : public KRNode {
-    
+class KRModel : public KRNode
+{
+
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
-    KRModel(KRScene &scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color = Vector3::Zero(), float rim_power = 0.0f);
-    virtual ~KRModel();
-    
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
+  KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color = Vector3::Zero(), float rim_power = 0.0f);
+  virtual ~KRModel();
 
-    virtual void render(KRNode::RenderInfo& ri);
-    
-    virtual AABB getBounds();
-    
-    void setRimColor(const Vector3 &rim_color);
-    void setRimPower(float rim_power);
-    Vector3 getRimColor();
-    float getRimPower();
-    
-    void setLightMap(const std::string &name);
-    std::string getLightMap();
-    
-    virtual kraken_stream_level getStreamLevel(const KRViewport &viewport);
-    
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+
+  virtual void render(KRNode::RenderInfo& ri);
+
+  virtual AABB getBounds();
+
+  void setRimColor(const Vector3& rim_color);
+  void setRimPower(float rim_power);
+  Vector3 getRimColor();
+  float getRimPower();
+
+  void setLightMap(const std::string& name);
+  std::string getLightMap();
+
+  virtual kraken_stream_level getStreamLevel(const KRViewport& viewport);
+
 private:
-    void preStream(const KRViewport &viewport);
-    
-    std::vector<KRMesh *> m_models;
-    unordered_map<KRMesh *, std::vector<KRBone *> > m_bones; // Outer std::map connects model to set of bones
-    KRTexture *m_pLightMap;
-    std::string m_lightMap;
-    std::string m_model_name;
-    
-    
-    float m_min_lod_coverage;
-    void loadModel();
-    
-    bool m_receivesShadow;
-    bool m_faces_camera;
-    
-    
-    Matrix4 m_boundsCachedMat;
-    AABB m_boundsCached;
-    
-    
-    Vector3 m_rim_color;
-    float m_rim_power;
+  void preStream(const KRViewport& viewport);
+
+  std::vector<KRMesh*> m_models;
+  unordered_map<KRMesh*, std::vector<KRBone*> > m_bones; // Outer std::map connects model to set of bones
+  KRTexture* m_pLightMap;
+  std::string m_lightMap;
+  std::string m_model_name;
+
+
+  float m_min_lod_coverage;
+  void loadModel();
+
+  bool m_receivesShadow;
+  bool m_faces_camera;
+
+
+  Matrix4 m_boundsCachedMat;
+  AABB m_boundsCached;
+
+
+  Vector3 m_rim_color;
+  float m_rim_power;
 };

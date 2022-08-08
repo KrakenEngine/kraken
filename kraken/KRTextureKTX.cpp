@@ -38,89 +38,91 @@ __uint8_t _KTXFileIdentifier[12] = {
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
 
-KRTextureKTX::KRTextureKTX(KRContext &context, KRDataBlock *data, std::string name) : KRTexture2D(context, data, name) {
-    m_pData->copy(&m_header, 0, sizeof(KTXHeader));
-    if(memcmp(_KTXFileIdentifier, m_header.identifier, 12) != 0) {
-        assert(false); // Header not recognized
-    }
-    if(m_header.endianness != 0x04030201) {
-        assert(false); // Endianness not (yet) supported
-    }
-    if(m_header.pixelDepth != 0) {
-        assert(false); // 3d textures not (yet) supported
-    }
-    if(m_header.numberOfArrayElements != 0) {
-        assert(false); // Array textures not (yet) supported
-    }
-    if(m_header.numberOfFaces != 1) {
-        assert(false); // Cube-map textures are only supported as a file for each separate face (for now)
-    }
-    
-    uint32_t blockStart = sizeof(KTXHeader) + m_header.bytesOfKeyValueData;
-    uint32_t width = m_header.pixelWidth, height = m_header.pixelHeight;
-    
-    for(int mipmap_level=0; mipmap_level < (int)KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
-        uint32_t blockLength;
-        data->copy(&blockLength, blockStart, 4);
-        blockStart += 4;
-        
-        m_blocks.push_back(m_pData->getSubBlock(blockStart, blockLength));
-        
-        blockStart += blockLength;
-        blockStart = KRALIGN(blockStart);
-        
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
-        }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-    }
-    
-    m_max_lod_max_dim = KRMAX(m_header.pixelWidth, m_header.pixelHeight);
-    m_min_lod_max_dim = KRMAX(width, height);
-}
-
-KRTextureKTX::KRTextureKTX(KRContext &context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock *> &blocks) : KRTexture2D(context, new KRDataBlock(), name)
+KRTextureKTX::KRTextureKTX(KRContext& context, KRDataBlock* data, std::string name) : KRTexture2D(context, data, name)
 {
-    memcpy(m_header.identifier, _KTXFileIdentifier, 12);
-    m_header.endianness = 0x04030201;
-    m_header.glType = 0;
-    m_header.glTypeSize = 1;
-    m_header.glFormat = 0;
-    m_header.glInternalFormat = internal_format;
-    m_header.glBaseInternalFormat = base_internal_format;
-    m_header.pixelWidth = width;
-    m_header.pixelHeight = height;
-    m_header.pixelDepth = 0;
-    m_header.numberOfArrayElements = 0;
-    m_header.numberOfFaces = 1;
-    m_header.numberOfMipmapLevels = (__uint32_t)blocks.size();
-    m_header.bytesOfKeyValueData = 0;
-    
-    m_pData->append(&m_header, sizeof(m_header));
-    for(auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
-        KRDataBlock *source_block = *block_itr;
-        __uint32_t block_size = (__uint32_t)source_block->getSize();
-        m_pData->append(&block_size, 4);
-        m_pData->append(*source_block);
-        m_blocks.push_back(m_pData->getSubBlock((int)m_pData->getSize() - (int)block_size, (int)block_size));
-        size_t alignment_padding_size = KRALIGN(m_pData->getSize()) - m_pData->getSize();
-        __uint8_t alignment_padding[4] = {0, 0, 0, 0};
-        if(alignment_padding_size > 0) {
-            m_pData->append(&alignment_padding, alignment_padding_size);
-        }
+  m_pData->copy(&m_header, 0, sizeof(KTXHeader));
+  if (memcmp(_KTXFileIdentifier, m_header.identifier, 12) != 0) {
+    assert(false); // Header not recognized
+  }
+  if (m_header.endianness != 0x04030201) {
+    assert(false); // Endianness not (yet) supported
+  }
+  if (m_header.pixelDepth != 0) {
+    assert(false); // 3d textures not (yet) supported
+  }
+  if (m_header.numberOfArrayElements != 0) {
+    assert(false); // Array textures not (yet) supported
+  }
+  if (m_header.numberOfFaces != 1) {
+    assert(false); // Cube-map textures are only supported as a file for each separate face (for now)
+  }
+
+  uint32_t blockStart = sizeof(KTXHeader) + m_header.bytesOfKeyValueData;
+  uint32_t width = m_header.pixelWidth, height = m_header.pixelHeight;
+
+  for (int mipmap_level = 0; mipmap_level < (int)KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
+    uint32_t blockLength;
+    data->copy(&blockLength, blockStart, 4);
+    blockStart += 4;
+
+    m_blocks.push_back(m_pData->getSubBlock(blockStart, blockLength));
+
+    blockStart += blockLength;
+    blockStart = KRALIGN(blockStart);
+
+    width = width >> 1;
+    if (width < 1) {
+      width = 1;
     }
+    height = height >> 1;
+    if (height < 1) {
+      height = 1;
+    }
+  }
+
+  m_max_lod_max_dim = KRMAX(m_header.pixelWidth, m_header.pixelHeight);
+  m_min_lod_max_dim = KRMAX(width, height);
 }
 
-KRTextureKTX::~KRTextureKTX() {
-    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        KRDataBlock *block = *itr;
-        delete block;
+KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks) : KRTexture2D(context, new KRDataBlock(), name)
+{
+  memcpy(m_header.identifier, _KTXFileIdentifier, 12);
+  m_header.endianness = 0x04030201;
+  m_header.glType = 0;
+  m_header.glTypeSize = 1;
+  m_header.glFormat = 0;
+  m_header.glInternalFormat = internal_format;
+  m_header.glBaseInternalFormat = base_internal_format;
+  m_header.pixelWidth = width;
+  m_header.pixelHeight = height;
+  m_header.pixelDepth = 0;
+  m_header.numberOfArrayElements = 0;
+  m_header.numberOfFaces = 1;
+  m_header.numberOfMipmapLevels = (__uint32_t)blocks.size();
+  m_header.bytesOfKeyValueData = 0;
+
+  m_pData->append(&m_header, sizeof(m_header));
+  for (auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
+    KRDataBlock* source_block = *block_itr;
+    __uint32_t block_size = (__uint32_t)source_block->getSize();
+    m_pData->append(&block_size, 4);
+    m_pData->append(*source_block);
+    m_blocks.push_back(m_pData->getSubBlock((int)m_pData->getSize() - (int)block_size, (int)block_size));
+    size_t alignment_padding_size = KRALIGN(m_pData->getSize()) - m_pData->getSize();
+    __uint8_t alignment_padding[4] = { 0, 0, 0, 0 };
+    if (alignment_padding_size > 0) {
+      m_pData->append(&alignment_padding, alignment_padding_size);
     }
-    m_blocks.clear();
+  }
+}
+
+KRTextureKTX::~KRTextureKTX()
+{
+  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    KRDataBlock* block = *itr;
+    delete block;
+  }
+  m_blocks.clear();
 }
 
 Vector2i KRTextureKTX::getDimensions() const
@@ -130,104 +132,104 @@ Vector2i KRTextureKTX::getDimensions() const
 
 long KRTextureKTX::getMemRequiredForSize(int max_dim)
 {
-    int target_dim = max_dim;
-    if(target_dim < (int)m_min_lod_max_dim) target_dim = target_dim;
-    
-    // Determine how much memory will be consumed
-    
-	int width = m_header.pixelWidth;
-	int height = m_header.pixelHeight;
-    long memoryRequired = 0;
-    
-    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        KRDataBlock *block = *itr;
-        if(width <= target_dim && height <= target_dim) {
-            memoryRequired += (long)block->getSize();
-        }
-		
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
-        }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-	}
-    
-    return memoryRequired;
+  int target_dim = max_dim;
+  if (target_dim < (int)m_min_lod_max_dim) target_dim = target_dim;
+
+  // Determine how much memory will be consumed
+
+  int width = m_header.pixelWidth;
+  int height = m_header.pixelHeight;
+  long memoryRequired = 0;
+
+  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    KRDataBlock* block = *itr;
+    if (width <= target_dim && height <= target_dim) {
+      memoryRequired += (long)block->getSize();
+    }
+
+    width = width >> 1;
+    if (width < 1) {
+      width = 1;
+    }
+    height = height >> 1;
+    if (height < 1) {
+      height = 1;
+    }
+  }
+
+  return memoryRequired;
 }
 
-bool KRTextureKTX::uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int &current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureKTX::uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress, bool premultiply_alpha)
 {
-    int target_dim = lod_max_dim;
-    if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-    
-    if(m_blocks.size() == 0) {
-        return false;
+  int target_dim = lod_max_dim;
+  if (target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+
+  if (m_blocks.size() == 0) {
+    return false;
+  }
+
+  // Determine how much memory will be consumed
+  int width = m_header.pixelWidth;
+  int height = m_header.pixelHeight;
+  long memoryRequired = 0;
+  long memoryTransferred = 0;
+
+
+  // Upload texture data
+  int destination_level = 0;
+  int source_level = 0;
+  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    KRDataBlock* block = *itr;
+    if (width <= target_dim && height <= target_dim) {
+
+      if (width > current_lod_max_dim) {
+        current_lod_max_dim = width;
+      }
+      if (height > current_lod_max_dim) {
+        current_lod_max_dim = height;
+      }
+
+      block->lock();
+      /*
+      * TODO - Vulkan Refactoring
+      GLDEBUG(glCompressedTexImage2D(target, destination_level, (GLenum)m_header.glInternalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
+      */
+
+      block->unlock();
+      memoryTransferred += (long)block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
+      memoryRequired += (long)block->getSize();
+      //
+      //            err = glGetError();
+      //            if (err != GL_NO_ERROR) {
+      //                assert(false);
+      //                return false;
+      //            }
+      //
+
+      destination_level++;
     }
-    
-    // Determine how much memory will be consumed
-	  int width = m_header.pixelWidth;
-	  int height = m_header.pixelHeight;
-    long memoryRequired = 0;
-    long memoryTransferred = 0;
 
-    
-    // Upload texture data
-    int destination_level=0;
-    int source_level = 0;
-    for(std::list<KRDataBlock *>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-        KRDataBlock *block = *itr;
-        if(width <= target_dim && height <= target_dim) {
-            
-            if(width > current_lod_max_dim) {
-                current_lod_max_dim = width;
-            }
-            if(height > current_lod_max_dim) {
-                current_lod_max_dim = height;
-            }
+    if (width <= m_current_lod_max_dim && height <= m_current_lod_max_dim) {
+      source_level++;
+    }
 
-            block->lock();
-            /*
-            * TODO - Vulkan Refactoring
-            GLDEBUG(glCompressedTexImage2D(target, destination_level, (GLenum)m_header.glInternalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
-            */
+    width = width >> 1;
+    if (width < 1) {
+      width = 1;
+    }
+    height = height >> 1;
+    if (height < 1) {
+      height = 1;
+    }
+  }
 
-            block->unlock();
-            memoryTransferred += (long)block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE
-            memoryRequired += (long)block->getSize();
-            //
-            //            err = glGetError();
-            //            if (err != GL_NO_ERROR) {
-            //                assert(false);
-            //                return false;
-            //            }
-            //
-            
-            destination_level++;
-        }
-        
-        if(width <= m_current_lod_max_dim && height <= m_current_lod_max_dim) {
-            source_level++;
-        }
-		
-        width = width >> 1;
-        if(width < 1) {
-            width = 1;
-        }
-        height = height >> 1;
-        if(height < 1) {
-            height = 1;
-        }
-	}
-    
-    return true;
-    
+  return true;
+
 }
 
 std::string KRTextureKTX::getExtension()
 {
-    return "ktx";
+  return "ktx";
 }
 

@@ -43,23 +43,24 @@ class KRMaterial;
 
 using std::map;
 
-class KRMaterialManager : public KRResourceManager {
+class KRMaterialManager : public KRResourceManager
+{
 public:
-    KRMaterialManager(KRContext &context, KRTextureManager *pTextureManager, KRPipelineManager *pPipelineManager);
-    virtual ~KRMaterialManager();
+  KRMaterialManager(KRContext& context, KRTextureManager* pTextureManager, KRPipelineManager* pPipelineManager);
+  virtual ~KRMaterialManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    KRMaterial* load(const char *szName, KRDataBlock *data);
-    void add(KRMaterial *new_material);
-    KRMaterial *getMaterial(const std::string &name);
-    
-    unordered_map<std::string, KRMaterial *> &getMaterials();
-    
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
+  KRMaterial* load(const char* szName, KRDataBlock* data);
+  void add(KRMaterial* new_material);
+  KRMaterial* getMaterial(const std::string& name);
+
+  unordered_map<std::string, KRMaterial*>& getMaterials();
+
 private:
-    unordered_map<std::string, KRMaterial *> m_materials;
-    KRTextureManager *m_pTextureManager;
-    KRPipelineManager *m_pPipelineManager;
+  unordered_map<std::string, KRMaterial*> m_materials;
+  KRTextureManager* m_pTextureManager;
+  KRPipelineManager* m_pPipelineManager;
 
 };

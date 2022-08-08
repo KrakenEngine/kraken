@@ -76,7 +76,7 @@ public:
 
   void streamStart();
   void streamUpload(KRDataBlock& data, VkBuffer destination);
-  void streamUpload(void *data, size_t size, VkBuffer destination);
+  void streamUpload(void* data, size_t size, VkBuffer destination);
   void streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination);
   void streamEnd();
 
@@ -101,7 +101,8 @@ public:
   std::vector<VkCommandBuffer> m_transferCommandBuffers;
   VmaAllocator m_allocator;
 
-  struct StagingBufferInfo {
+  struct StagingBufferInfo
+  {
     VkBuffer buffer;
     VmaAllocation allocation;
     size_t size;

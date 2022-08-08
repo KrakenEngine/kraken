@@ -37,43 +37,46 @@
 
 #include "KREngine-common.h"
 
-typedef enum KREngineParameterType {KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL} KREngineParameterType;
+typedef enum KREngineParameterType
+{
+  KRENGINE_PARAMETER_INT, KRENGINE_PARAMETER_FLOAT, KRENGINE_PARAMETER_BOOL
+} KREngineParameterType;
 
 namespace kraken {
-    void set_parameter(const std::string &parameter_name, float parameter_value);
-    void set_debug_text(const std::string &print_text);
+void set_parameter(const std::string& parameter_name, float parameter_value);
+void set_debug_text(const std::string& print_text);
 };
 
 #ifdef __OBJC__
 
 @interface KREngine : NSObject
 
-+ (KREngine *)sharedInstance;
++ (KREngine*)sharedInstance;
 
-@property(nonatomic, readonly) NSDictionary *parameter_names;
-@property(nonatomic, assign) KRContext *context;
-@property(nonatomic, retain) NSString *debug_text;
-@property(nonatomic, assign, readonly) KRRenderSettings *settings;
+@property(nonatomic, readonly) NSDictionary* parameter_names;
+@property(nonatomic, assign) KRContext* context;
+@property(nonatomic, retain) NSString* debug_text;
+@property(nonatomic, assign, readonly) KRRenderSettings* settings;
 
-- (id)init;
-- (BOOL)loadResource:(NSString *)path;
+-(id)init;
+-(BOOL)loadResource:(NSString*)path;
 
 // Parameter enumeration interface
 -(int)getParameterCount;
--(NSString *)getParameterNameWithIndex: (int)i;
--(NSString *)getParameterLabelWithIndex: (int)i;
+-(NSString*)getParameterNameWithIndex: (int)i;
+-(NSString*)getParameterLabelWithIndex: (int)i;
 -(KREngineParameterType)getParameterTypeWithIndex: (int)i;
 -(float)getParameterMinWithIndex: (int)i;
 -(float)getParameterMaxWithIndex: (int)i;
 -(float)getParameterValueWithIndex: (int)i;
--(void)setParameterValueWithIndex: (int)i Value: (float)v;
--(void)setParameterValueWithName: (NSString *)name Value: (float)v;
--(int)getParameterIndexWithName: (NSString *)name;
+-(void)setParameterValueWithIndex: (int)i Value : (float)v;
+-(void)setParameterValueWithName: (NSString*)name Value : (float)v;
+-(int)getParameterIndexWithName: (NSString*)name;
 
-- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime AndWidth: (int)width AndHeight: (int)height AndDefaultFBO: (GLint)defaultFBO;
+-(void)renderScene: (KRScene*)pScene WithDeltaTime : (float)deltaTime AndWidth : (int)width AndHeight : (int)height AndDefaultFBO : (GLint)defaultFBO;
 //- (void)renderScene: (KRScene *)pScene WithDeltaTime: (float)deltaTime;
-- (void)setNearZ: (float)dNearZ;
-- (void)setFarZ: (float)dFarZ;
+-(void)setNearZ: (float)dNearZ;
+-(void)setFarZ: (float)dFarZ;
 
 @end
 

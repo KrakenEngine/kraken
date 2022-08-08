@@ -39,53 +39,56 @@ namespace KRDSP {
 #define KRDSP_APPLE_VDSP
 #include <Accelerate/Accelerate.h>
 #else
-  // Slow, but portable fallback implementation
+// Slow, but portable fallback implementation
 #define KRDSP_SLOW
 #endif
 
 #if defined(KRDSP_APPLE_VDSP)
 
   // Apple vDSP
-  typedef DSPSplitComplex SplitComplex;
-  struct FFTWorkspace {
-    FFTSetup setup;
+typedef DSPSplitComplex SplitComplex;
+struct FFTWorkspace
+{
+  FFTSetup setup;
 
-    void create(size_t length);
-    void destroy();
-    FFTWorkspace();
-    ~FFTWorkspace();
-  };
+  void create(size_t length);
+  void destroy();
+  FFTWorkspace();
+  ~FFTWorkspace();
+};
 
 #elif defined(KRDSP_SLOW)
 
-  typedef struct {
-    float *realp;
-    float *imagp;
-  } SplitComplex;
+typedef struct
+{
+  float* realp;
+  float* imagp;
+} SplitComplex;
 
-  struct FFTWorkspace {
-    float *sin_table;
-    float *cos_table;
+struct FFTWorkspace
+{
+  float* sin_table;
+  float* cos_table;
 
-    void create(size_t length);
-    void destroy();
-    FFTWorkspace();
-    ~FFTWorkspace();
-  };
+  void create(size_t length);
+  void destroy();
+  FFTWorkspace();
+  ~FFTWorkspace();
+};
 
 #else
 #error Not Implemented
 #endif
 
-void FFTForward(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
-void FFTInverse(const FFTWorkspace &workspace, SplitComplex *src, size_t count);
-void Int16ToFloat(const short *src, size_t srcStride, float *dest, size_t destStride, size_t count);
-void Scale(float *buffer, float scale, size_t count);
-void ScaleCopy(const float *src, float scale, float *dest, size_t count);
-void ScaleCopy(const SplitComplex *src, float scale, SplitComplex *dest, size_t count);
-void ScaleRamp(float *buffer, float scaleStart, float scaleStep, size_t count);
-void Accumulate(float *buffer, size_t bufferStride, const float *buffer2, size_t buffer2Stride, size_t count);
-void Accumulate(SplitComplex *buffer, const SplitComplex *buffer2, size_t count);
-void Multiply(const SplitComplex *a, const SplitComplex *b, SplitComplex *c, size_t count);
+void FFTForward(const FFTWorkspace& workspace, SplitComplex* src, size_t count);
+void FFTInverse(const FFTWorkspace& workspace, SplitComplex* src, size_t count);
+void Int16ToFloat(const short* src, size_t srcStride, float* dest, size_t destStride, size_t count);
+void Scale(float* buffer, float scale, size_t count);
+void ScaleCopy(const float* src, float scale, float* dest, size_t count);
+void ScaleCopy(const SplitComplex* src, float scale, SplitComplex* dest, size_t count);
+void ScaleRamp(float* buffer, float scaleStart, float scaleStep, size_t count);
+void Accumulate(float* buffer, size_t bufferStride, const float* buffer2, size_t buffer2Stride, size_t count);
+void Accumulate(SplitComplex* buffer, const SplitComplex* buffer2, size_t count);
+void Multiply(const SplitComplex* a, const SplitComplex* b, SplitComplex* c, size_t count);
 
 } // namespace KRDSP

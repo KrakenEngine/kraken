@@ -33,23 +33,24 @@
 
 #include "KRParticleSystem.h"
 
-class KRParticleSystemNewtonian : public KRParticleSystem {
+class KRParticleSystemNewtonian : public KRParticleSystem
+{
 public:
-    KRParticleSystemNewtonian(KRScene &scene, std::string name);
-    virtual ~KRParticleSystemNewtonian();
-    
-    virtual std::string getElementName();
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    
-    
-    virtual AABB getBounds();
-    
-    virtual void render(RenderInfo& ri);
-    
-    
-    virtual void physicsUpdate(float deltaTime);
-    virtual bool hasPhysics();
+  KRParticleSystemNewtonian(KRScene& scene, std::string name);
+  virtual ~KRParticleSystemNewtonian();
+
+  virtual std::string getElementName();
+  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+
+
+  virtual AABB getBounds();
+
+  virtual void render(RenderInfo& ri);
+
+
+  virtual void physicsUpdate(float deltaTime);
+  virtual bool hasPhysics();
 private:
-    float m_particlesAbsoluteTime;
+  float m_particlesAbsoluteTime;
 };

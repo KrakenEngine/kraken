@@ -48,18 +48,19 @@ class KRPipeline;
 class PipelineInfo;
 class KRCamera;
 
-class KRPipelineManager : public KRContextObject {
+class KRPipelineManager : public KRContextObject
+{
 public:
 
-    KRPipelineManager(KRContext &context);
-    virtual ~KRPipelineManager();
-    KRPipeline* get(const char* szKey);
-    
-    KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info);
+  KRPipelineManager(KRContext& context);
+  virtual ~KRPipelineManager();
+  KRPipeline* get(const char* szKey);
 
-    size_t getPipelineHandlesUsed();
-    
-    KRPipeline *m_active_pipeline;
+  KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info);
+
+  size_t getPipelineHandlesUsed();
+
+  KRPipeline* m_active_pipeline;
 
 private:
   typedef std::map<std::pair<std::string, std::vector<int> >, KRPipeline*> PipelineMap;

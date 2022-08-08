@@ -48,74 +48,76 @@ class KRScene;
 class KRViewport;
 class KRSurface;
 
-class KRCamera : public KRNode {
+class KRCamera : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
-    KRCamera(KRScene &scene, std::string name);
-    virtual ~KRCamera();
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  KRCamera(KRScene& scene, std::string name);
+  virtual ~KRCamera();
 
-    void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
-    
-    KRRenderSettings settings;
-    
-    const KRViewport &getViewport() const;
-    
-    
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    std::string getDebugText();
-    
-    void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
-    Vector2 getDownsample();
-    void setDownsample(float v);
-    
-    void setFadeColor(const Vector4 &fade_color);
-    Vector4 getFadeColor();
-    
-    void setSkyBox(const std::string &skyBox);
-    const std::string getSkyBox() const;
+  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
+
+  KRRenderSettings settings;
+
+  const KRViewport& getViewport() const;
+
+
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  std::string getDebugText();
+
+  void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
+  Vector2 getDownsample();
+  void setDownsample(float v);
+
+  void setFadeColor(const Vector4& fade_color);
+  Vector4 getFadeColor();
+
+  void setSkyBox(const std::string& skyBox);
+  const std::string getSkyBox() const;
 
 private:
-    void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
-    
-    GLint volumetricBufferWidth, volumetricBufferHeight;
-    
-    GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
-    GLuint lightAccumulationBuffer, lightAccumulationTexture;
-    
-    
-    GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
-    
-    void renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface);
-        
-    void destroyBuffers();
-    
-    KRTexture *m_pSkyBoxTexture;
-    std::string m_skyBox;
-    KRViewport m_viewport;
-    
-    float m_particlesAbsoluteTime;
-    
-    Vector2 m_downsample;
-    
-    Vector4 m_fade_color;
-    
-    typedef struct {
-        float x;
-        float y;
-        float z;
-        float u;
-        float v;
-    } DebugTextVertexData;
-    
-    KRDataBlock m_debug_text_vertices;
-    KRMeshManager::KRVBOData m_debug_text_vbo_data;
-    
-//    std::string getDebugText();
-    
-    uint64_t m_last_frame_start;
-    int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
-    int m_frame_times_filled;
+  void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
+
+  GLint volumetricBufferWidth, volumetricBufferHeight;
+
+  GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
+  GLuint lightAccumulationBuffer, lightAccumulationTexture;
+
+
+  GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
+
+  void renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface);
+
+  void destroyBuffers();
+
+  KRTexture* m_pSkyBoxTexture;
+  std::string m_skyBox;
+  KRViewport m_viewport;
+
+  float m_particlesAbsoluteTime;
+
+  Vector2 m_downsample;
+
+  Vector4 m_fade_color;
+
+  typedef struct
+  {
+    float x;
+    float y;
+    float z;
+    float u;
+    float v;
+  } DebugTextVertexData;
+
+  KRDataBlock m_debug_text_vertices;
+  KRMeshManager::KRVBOData m_debug_text_vbo_data;
+
+  //    std::string getDebugText();
+
+  uint64_t m_last_frame_start;
+  int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
+  int m_frame_times_filled;
 };

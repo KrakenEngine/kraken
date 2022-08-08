@@ -32,32 +32,32 @@
 #include "KRMeshQuad.h"
 
 
-KRMeshQuad::KRMeshQuad(KRContext &context) : KRMesh(context, "__quad")
+KRMeshQuad::KRMeshQuad(KRContext& context) : KRMesh(context, "__quad")
 {
-    m_constant = true;
-    
-    KRMesh::mesh_info mi;
-    
-    mi.vertices.push_back(Vector3::Create(-1.0f, -1.0f, 0.0f));
-    mi.vertices.push_back(Vector3::Create(1.0f, -1.0f, 0.0f));
-    mi.vertices.push_back(Vector3::Create(-1.0f,  1.0f, 0.0f));
-    mi.vertices.push_back(Vector3::Create(1.0f,  1.0f, 0.0f));
-    
-    mi.uva.push_back(Vector2::Create(0.0f, 0.0f));
-    mi.uva.push_back(Vector2::Create(1.0f, 0.0f));
-    mi.uva.push_back(Vector2::Create(0.0f, 1.0f));
-    mi.uva.push_back(Vector2::Create(1.0f, 1.0f));
-    
-    
-    mi.submesh_starts.push_back(0);
-    mi.submesh_lengths.push_back((int)mi.vertices.size());
-    mi.material_names.push_back("");
-    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
-    
-    LoadData(mi, true, true);
+  m_constant = true;
+
+  KRMesh::mesh_info mi;
+
+  mi.vertices.push_back(Vector3::Create(-1.0f, -1.0f, 0.0f));
+  mi.vertices.push_back(Vector3::Create(1.0f, -1.0f, 0.0f));
+  mi.vertices.push_back(Vector3::Create(-1.0f, 1.0f, 0.0f));
+  mi.vertices.push_back(Vector3::Create(1.0f, 1.0f, 0.0f));
+
+  mi.uva.push_back(Vector2::Create(0.0f, 0.0f));
+  mi.uva.push_back(Vector2::Create(1.0f, 0.0f));
+  mi.uva.push_back(Vector2::Create(0.0f, 1.0f));
+  mi.uva.push_back(Vector2::Create(1.0f, 1.0f));
+
+
+  mi.submesh_starts.push_back(0);
+  mi.submesh_lengths.push_back((int)mi.vertices.size());
+  mi.material_names.push_back("");
+  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+
+  LoadData(mi, true, true);
 }
 
 KRMeshQuad::~KRMeshQuad()
 {
-    
+
 }

@@ -36,48 +36,50 @@
 #include "KRDataBlock.h"
 #include "KRResource.h"
 
-class KRAnimationCurve : public KRResource {
-    
+class KRAnimationCurve : public KRResource
+{
+
 public:
-    KRAnimationCurve(KRContext &context, const std::string &name);
-    virtual ~KRAnimationCurve();
-    
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    virtual bool save(KRDataBlock &data);
-    virtual bool load(KRDataBlock *data);
-    
-    float getFrameRate();
-    void setFrameRate(float frame_rate);
-    int getFrameStart();
-    void setFrameStart(int frame_number);
-    int getFrameCount();
-    void setFrameCount(int frame_count);
-    float getValue(float local_time);
-    float getValue(int frame_number);
-    void setValue(int frame_number, float value);
-    
-    
-    static KRAnimationCurve *Load(KRContext &context, const std::string &name, KRDataBlock *data);
-    
-    bool valueChanges(float start_time, float duration);
-    bool valueChanges(int start_frame, int frame_count);
-    
-    KRAnimationCurve *split(const std::string &name, float start_time, float duration);
-    KRAnimationCurve *split(const std::string &name, int start_frame, int frame_count);
-    
-    void _lockData();
-    void _unlockData();
-    
+  KRAnimationCurve(KRContext& context, const std::string& name);
+  virtual ~KRAnimationCurve();
+
+  virtual std::string getExtension();
+  virtual bool save(const std::string& path);
+  virtual bool save(KRDataBlock& data);
+  virtual bool load(KRDataBlock* data);
+
+  float getFrameRate();
+  void setFrameRate(float frame_rate);
+  int getFrameStart();
+  void setFrameStart(int frame_number);
+  int getFrameCount();
+  void setFrameCount(int frame_count);
+  float getValue(float local_time);
+  float getValue(int frame_number);
+  void setValue(int frame_number, float value);
+
+
+  static KRAnimationCurve* Load(KRContext& context, const std::string& name, KRDataBlock* data);
+
+  bool valueChanges(float start_time, float duration);
+  bool valueChanges(int start_frame, int frame_count);
+
+  KRAnimationCurve* split(const std::string& name, float start_time, float duration);
+  KRAnimationCurve* split(const std::string& name, int start_frame, int frame_count);
+
+  void _lockData();
+  void _unlockData();
+
 private:
-    KRDataBlock *m_pData;
-    
-    typedef struct {
-        char szTag[16];
-        float frame_rate;
-        int32_t frame_start;
-        int32_t frame_count;
-    } animation_curve_header;
+  KRDataBlock* m_pData;
+
+  typedef struct
+  {
+    char szTag[16];
+    float frame_rate;
+    int32_t frame_start;
+    int32_t frame_count;
+  } animation_curve_header;
 
 };
 

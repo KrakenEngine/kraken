@@ -35,38 +35,39 @@
 
 class KRTexture2D;
 
-class KRTextureCube : public KRTexture {
+class KRTextureCube : public KRTexture
+{
 public:
-    KRTextureCube(KRContext &context, std::string name);
-    virtual ~KRTextureCube();
-    virtual std::string getExtension();
-    virtual bool save(const std::string& path);
-    virtual bool save(KRDataBlock &data);
-    
-    virtual void bind(GLuint texture_unit);
-    virtual long getMemRequiredForSize(int max_dim);
-//    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
-    
+  KRTextureCube(KRContext& context, std::string name);
+  virtual ~KRTextureCube();
+  virtual std::string getExtension();
+  virtual bool save(const std::string& path);
+  virtual bool save(KRDataBlock& data);
+
+  virtual void bind(GLuint texture_unit);
+  virtual long getMemRequiredForSize(int max_dim);
+  //    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+
 private:
-    bool createGPUTexture(int lod_max_dim) override;
-        
-    const GLenum TARGETS[6] = {
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-    };
-    
-    const char *SUFFIXES[6] = {
-        "_positive_x",
-        "_negative_x",
-        "_positive_y",
-        "_negative_y",
-        "_positive_z",
-        "_negative_z"
-    };
-    
-    KRTexture2D *m_textures[6];
+  bool createGPUTexture(int lod_max_dim) override;
+
+  const GLenum TARGETS[6] = {
+      GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+  };
+
+  const char* SUFFIXES[6] = {
+      "_positive_x",
+      "_negative_x",
+      "_positive_y",
+      "_negative_y",
+      "_positive_z",
+      "_negative_z"
+  };
+
+  KRTexture2D* m_textures[6];
 };

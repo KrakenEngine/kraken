@@ -32,53 +32,54 @@
 #include "KRAnimationManager.h"
 #include "KRAnimation.h"
 
-KRAnimationManager::KRAnimationManager(KRContext &context) : KRResourceManager(context)
+KRAnimationManager::KRAnimationManager(KRContext& context) : KRResourceManager(context)
 {
 
 }
 
-KRAnimationManager::~KRAnimationManager() {
-    for(std::set<KRAnimation *>::iterator itr = m_activeAnimations.begin(); itr != m_activeAnimations.end(); itr++) {
-        KRAnimation *animation = *itr;
-        animation->_unlockData();
-    }
-    
-    for(unordered_map<std::string, KRAnimation *>::iterator itr = m_animations.begin(); itr != m_animations.end(); ++itr){
-        delete (*itr).second;
-    }
+KRAnimationManager::~KRAnimationManager()
+{
+  for (std::set<KRAnimation*>::iterator itr = m_activeAnimations.begin(); itr != m_activeAnimations.end(); itr++) {
+    KRAnimation* animation = *itr;
+    animation->_unlockData();
+  }
+
+  for (unordered_map<std::string, KRAnimation*>::iterator itr = m_animations.begin(); itr != m_animations.end(); ++itr) {
+    delete (*itr).second;
+  }
 }
 
 void KRAnimationManager::startFrame(float deltaTime)
 {
-    for(std::set<KRAnimation *>::iterator itr = m_animationsToUpdate.begin(); itr != m_animationsToUpdate.end(); itr++) {
-        KRAnimation *animation = *itr;
-        std::set<KRAnimation *>::iterator active_animations_itr = m_activeAnimations.find(animation);
-        if(animation->isPlaying()) {
-            // Add playing animations to the active animations list
-            if(active_animations_itr == m_activeAnimations.end()) {
-                m_activeAnimations.insert(animation);
-                animation->_lockData();
-            }
-        } else {
-            // Remove stopped animations from the active animations list
-            if(active_animations_itr != m_activeAnimations.end()) {
-                m_activeAnimations.erase(active_animations_itr);
-                animation->_unlockData();
-            }
-        }
+  for (std::set<KRAnimation*>::iterator itr = m_animationsToUpdate.begin(); itr != m_animationsToUpdate.end(); itr++) {
+    KRAnimation* animation = *itr;
+    std::set<KRAnimation*>::iterator active_animations_itr = m_activeAnimations.find(animation);
+    if (animation->isPlaying()) {
+      // Add playing animations to the active animations list
+      if (active_animations_itr == m_activeAnimations.end()) {
+        m_activeAnimations.insert(animation);
+        animation->_lockData();
+      }
+    } else {
+      // Remove stopped animations from the active animations list
+      if (active_animations_itr != m_activeAnimations.end()) {
+        m_activeAnimations.erase(active_animations_itr);
+        animation->_unlockData();
+      }
     }
-    
-    m_animationsToUpdate.clear();
-    
-    for(std::set<KRAnimation *>::iterator active_animations_itr = m_activeAnimations.begin(); active_animations_itr != m_activeAnimations.end(); active_animations_itr++) {
-        KRAnimation *animation = *active_animations_itr;
-        animation->update(deltaTime);
-    }
+  }
+
+  m_animationsToUpdate.clear();
+
+  for (std::set<KRAnimation*>::iterator active_animations_itr = m_activeAnimations.begin(); active_animations_itr != m_activeAnimations.end(); active_animations_itr++) {
+    KRAnimation* animation = *active_animations_itr;
+    animation->update(deltaTime);
+  }
 }
 
 void KRAnimationManager::endFrame(float deltaTime)
 {
-    
+
 }
 
 KRResource* KRAnimationManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
@@ -96,37 +97,39 @@ KRResource* KRAnimationManager::getResource(const std::string& name, const std::
   return nullptr;
 }
 
-KRAnimation *KRAnimationManager::loadAnimation(const char *szName, KRDataBlock *data) {
-    KRAnimation *pAnimation = KRAnimation::Load(*m_pContext, szName, data);
-    addAnimation(pAnimation);
-    return pAnimation;
-}
-
-KRAnimation *KRAnimationManager::getAnimation(const char *szName) {
-    return m_animations[szName];
-}
-
-unordered_map<std::string, KRAnimation *> &KRAnimationManager::getAnimations() {
-    return m_animations;
-}
-
-void KRAnimationManager::addAnimation(KRAnimation *new_animation)
+KRAnimation* KRAnimationManager::loadAnimation(const char* szName, KRDataBlock* data)
 {
-    m_animations[new_animation->getName()] = new_animation;
-    updateActiveAnimations(new_animation);
+  KRAnimation* pAnimation = KRAnimation::Load(*m_pContext, szName, data);
+  addAnimation(pAnimation);
+  return pAnimation;
 }
 
-void KRAnimationManager::updateActiveAnimations(KRAnimation *animation)
+KRAnimation* KRAnimationManager::getAnimation(const char* szName)
 {
-    m_animationsToUpdate.insert(animation);
+  return m_animations[szName];
 }
 
-void KRAnimationManager::deleteAnimation(KRAnimation *animation, bool delete_curves)
+unordered_map<std::string, KRAnimation*>& KRAnimationManager::getAnimations()
 {
-    if(delete_curves)
-    {
-        animation->deleteCurves();
-    }
-    m_animations.erase(animation->getName());
-    delete animation;
+  return m_animations;
+}
+
+void KRAnimationManager::addAnimation(KRAnimation* new_animation)
+{
+  m_animations[new_animation->getName()] = new_animation;
+  updateActiveAnimations(new_animation);
+}
+
+void KRAnimationManager::updateActiveAnimations(KRAnimation* animation)
+{
+  m_animationsToUpdate.insert(animation);
+}
+
+void KRAnimationManager::deleteAnimation(KRAnimation* animation, bool delete_curves)
+{
+  if (delete_curves) {
+    animation->deleteCurves();
+  }
+  m_animations.erase(animation->getName());
+  delete animation;
 }

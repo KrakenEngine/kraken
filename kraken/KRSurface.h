@@ -70,7 +70,7 @@ public:
 #endif
   KrDeviceHandle m_deviceHandle;
   VkSurfaceKHR m_surface;
-  
+
   VkSemaphore m_imageAvailableSemaphore;
   VkSemaphore m_renderFinishedSemaphore;
 

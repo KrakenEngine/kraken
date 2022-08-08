@@ -81,7 +81,7 @@ void KRDevice::destroy()
     vkDestroyCommandPool(m_logicalDevice, m_graphicsCommandPool, nullptr);
     m_graphicsCommandPool = VK_NULL_HANDLE;
   }
-  
+
   if (m_computeCommandPool != VK_NULL_HANDLE) {
     vkDestroyCommandPool(m_logicalDevice, m_computeCommandPool, nullptr);
     m_computeCommandPool = VK_NULL_HANDLE;
@@ -91,7 +91,7 @@ void KRDevice::destroy()
     vkDestroyCommandPool(m_logicalDevice, m_transferCommandPool, nullptr);
     m_transferCommandPool = VK_NULL_HANDLE;
   }
- 
+
   if (m_logicalDevice != VK_NULL_HANDLE) {
     vkDestroyDevice(m_logicalDevice, nullptr);
     m_logicalDevice = VK_NULL_HANDLE;
@@ -398,7 +398,7 @@ bool KRDevice::initStagingBuffers()
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Streaming Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  )) {
+    )) {
     return false;
   }
 
@@ -412,7 +412,7 @@ bool KRDevice::initStagingBuffers()
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Graphics Staging Buffer"
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  )) {
+    )) {
     return false;
   }
   return true;
@@ -422,7 +422,7 @@ bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  )
+)
 {
   if (!createBuffer(
     size,
@@ -433,7 +433,7 @@ bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
 #if KRENGINE_DEBUG_GPU_LABELS
     , debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
-  )) {
+    )) {
     return false;
   }
   if (vmaMapMemory(m_allocator, info->allocation, &info->data) != VK_SUCCESS) {
@@ -561,7 +561,7 @@ bool KRDevice::createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFl
   imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageInfo.flags = imageCreateFlags;
-  
+
 
   uint32_t queueFamilyIndices[2] = {};
   imageInfo.pQueueFamilyIndices = queueFamilyIndices;

@@ -44,20 +44,21 @@
 
 using namespace std;
 
-KRPipelineManager::KRPipelineManager(KRContext &context) : KRContextObject(context) {
-    m_active_pipeline = NULL;
+KRPipelineManager::KRPipelineManager(KRContext& context) : KRContextObject(context)
+{
+  m_active_pipeline = NULL;
 #ifndef ANDROID
-    bool success = glslang::InitializeProcess();
-    if (success) {
-      printf("GLSLang Initialized.\n");
-    }
-    else {
-      printf("Failed to initialize GLSLang.\n");
-    }
+  bool success = glslang::InitializeProcess();
+  if (success) {
+    printf("GLSLang Initialized.\n");
+  } else {
+    printf("Failed to initialize GLSLang.\n");
+  }
 #endif // ANDROID
 }
 
-KRPipelineManager::~KRPipelineManager() {
+KRPipelineManager::~KRPipelineManager()
+{
 #ifndef ANDROID
   glslang::FinalizeProcess();
 #endif // ANDROID
@@ -92,7 +93,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
 /*
 // TODO - Vulkan Refactoring, merge with Vulkan version
 KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInfo &info) {
-    
+
     int iShadowQuality = 0; // FINDME - HACK - Placeholder code, need to iterate through lights and dynamically build shader
 
 
@@ -103,7 +104,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         if (info.directional_lights) {
           light_directional_count = (int)info.directional_lights->size();
         }
-        
+
         if (info.point_lights) {
           light_point_count = (int)info.point_lights->size();
         }
@@ -115,13 +116,13 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
             iShadowQuality = directional_light->getShadowBufferCount();
         }
     }
-    
+
     if(iShadowQuality > info.pCamera->settings.m_cShadowBuffers) {
         iShadowQuality = info.pCamera->settings.m_cShadowBuffers;
     }
-    
+
     bool bFadeColorEnabled = info.pCamera->getFadeColor().w >= 0.0f;
-    
+
     std::pair<std::string, std::vector<int> > key;
     key.first = *info.shader_name;
     key.second.push_back(light_directional_count);
@@ -171,10 +172,10 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     key.second.push_back((int)(info.pCamera->settings.vignette_falloff * 1000.0f));
     key.second.push_back(info.bRimColor);
     key.second.push_back(bFadeColorEnabled);
-                         
+
     KRPipeline *pPipeline = m_pipelines[key];
-    
-    
+
+
     if(pPipeline == NULL) {
         if(m_pipelines.size() > KRContext::KRENGINE_MAX_PIPELINE_HANDLES) {
             // Keep the size of the pipeline cache reasonable
@@ -183,7 +184,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
             m_pipelines.erase(itr);
             KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Swapping pipelines...\n");
         }
-        
+
         stringstream stream;
         stream.precision(std::numeric_limits<long double>::digits10);
 
@@ -194,37 +195,37 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define mediump";
         stream << "\n#define highp";
 #endif
-        
+
         stream << "\n#define LIGHT_DIRECTIONAL_COUNT " << light_directional_count;
         stream << "\n#define LIGHT_POINT_COUNT " << light_point_count;
         stream << "\n#define LIGHT_SPOT_COUNT " << light_spot_count;
         stream << "\n#define BONE_COUNT " << info.bone_count;
-        
+
         stream << "\n#define HAS_DIFFUSE_MAP " << (info.bDiffuseMap ? "1" : "0");
         stream << "\n#define HAS_DIFFUSE_MAP_SCALE " << (info.bDiffuseMapScale ? "1" : "0");
         stream << "\n#define HAS_DIFFUSE_MAP_OFFSET " << (info.bDiffuseMapOffset ? "1" : "0");
-        
+
         stream << "\n#define HAS_SPEC_MAP " << (info.bSpecMap ? "1" : "0");
         stream << "\n#define HAS_SPEC_MAP_SCALE " << (info.bSpecMapScale ? "1" : "0");
         stream << "\n#define HAS_SPEC_MAP_OFFSET " << (info.bSpecMapOffset ? "1" : "0");
-        
+
         stream << "\n#define HAS_NORMAL_MAP " << (info.bNormalMap ? "1" : "0");
         stream << "\n#define HAS_NORMAL_MAP_SCALE " << (info.bNormalMapScale ? "1" : "0");
         stream << "\n#define HAS_NORMAL_MAP_OFFSET " << (info.bNormalMapOffset ? "1" : "0");
-        
+
         stream << "\n#define HAS_REFLECTION_MAP " << (info.bReflectionMap ? "1" : "0");
         stream << "\n#define HAS_REFLECTION_MAP_SCALE " << (info.bReflectionMapScale ? "1" : "0");
         stream << "\n#define HAS_REFLECTION_MAP_OFFSET " << (info.bReflectionMapOffset ? "1" : "0");
-        
+
         stream << "\n#define HAS_LIGHT_MAP " << (info.bLightMap ? "1" : "0");
         stream << "\n#define HAS_REFLECTION_CUBE_MAP " << (info.bReflectionCubeMap ? "1" : "0");
-        
+
         stream << "\n#define ALPHA_TEST " << (info.bAlphaTest ? "1" : "0");
         stream << "\n#define ALPHA_BLEND " << ((info.rasterMode == RasterMode::kAlphaBlend
           || info.rasterMode == RasterMode::kAlphaBlendNoTest
           || info.rasterMode == RasterMode::kAdditive
           || info.rasterMode == RasterMode::kAdditiveNoTest) ? "1" : "0");
-        
+
         stream << "\n#define ENABLE_PER_PIXEL " << (info.pCamera->settings.bEnablePerPixel ? "1" : "0");
         stream << "\n#define DEBUG_PSSM " << (info.pCamera->settings.bDebugPSSM ? "1" : "0");
         stream << "\n#define SHADOW_QUALITY " << iShadowQuality;
@@ -253,12 +254,12 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define ENABLE_FLASH " << (info.pCamera->settings.bEnableFlash ? "1" : "0");
         stream << "\n#define ENABLE_VIGNETTE " << (info.pCamera->settings.bEnableVignette ? "1" : "0");
         stream << "\n#define VOLUMETRIC_ENVIRONMENT_DOWNSAMPLED " << (info.pCamera->settings.volumetric_environment_enable && info.pCamera->settings.volumetric_environment_downsample != 0 ? "1" : "0");
-        
-        
+
+
         stream.setf(ios::fixed,ios::floatfield);
-        
+
         stream.precision(std::numeric_limits<long double>::digits10);
-        
+
         stream << "\n#define DOF_DEPTH " << info.pCamera->settings.dof_depth;
         stream << "\n#define DOF_FALLOFF " << info.pCamera->settings.dof_falloff;
         stream << "\n#define FLASH_DEPTH " << info.pCamera->settings.flash_depth;
@@ -266,26 +267,26 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define FLASH_INTENSITY " << info.pCamera->settings.flash_intensity;
         stream << "\n#define VIGNETTE_RADIUS " << info.pCamera->settings.vignette_radius;
         stream << "\n#define VIGNETTE_FALLOFF " << info.pCamera->settings.vignette_falloff;
-        
+
         stream << "\n";
         std::string options = stream.str();
 
         KRSourceManager *sourceManager = m_pContext->getSourceManager();
         KRSource *vertSource = sourceManager->get(info.shader_name->c_str(), "vert");
         KRSource *fragSource = sourceManager->get(info.shader_name->c_str(), "frag");
-        
+
         if(vertSource == nullptr) {
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Vertex Shader Missing: %s", info.shader_name->c_str());
         }
         if(fragSource == nullptr) {
             KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Fragment Shader Missing: %s", info.shader_name->c_str());
         }
-        
+
         Vector4 fade_color = info.pCamera->getFadeColor();
-        
+
         char szKey[256];
         sprintf(szKey, "%i_%i_%i_%i_%i_%i_%i_%i_%i_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%i_%s_%i_%d_%d_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f", (int)info.rasterMode, (int)info.cullMode, (int)info.modelFormat, (int)info.vertexAttributes, light_directional_count, light_point_count, light_spot_count, info.bone_count, info.pCamera->settings.fog_type, info.pCamera->settings.bEnablePerPixel, info.bAlphaTest, info.bDiffuseMap, info.bNormalMap, info.bSpecMap, info.bReflectionMap, info.bReflectionCubeMap, info.pCamera->settings.bDebugPSSM, iShadowQuality, info.pCamera->settings.bEnableAmbient, info.pCamera->settings.bEnableDiffuse, info.pCamera->settings.bEnableSpecular, info.bLightMap, info.bDiffuseMapScale, info.bSpecMapScale, info.bReflectionMapScale, info.bNormalMapScale, info.bDiffuseMapOffset, info.bSpecMapOffset, info.bReflectionMapOffset, info.bNormalMapOffset, info.pCamera->settings.volumetric_environment_enable && info.pCamera->settings.volumetric_environment_downsample != 0, info.renderPass, info.shader_name->c_str(), info.pCamera->settings.dof_quality, info.pCamera->settings.bEnableFlash, info.pCamera->settings.bEnableVignette, info.pCamera->settings.dof_depth, info.pCamera->settings.dof_falloff, info.pCamera->settings.flash_depth, info.pCamera->settings.flash_falloff, info.pCamera->settings.flash_intensity, info.pCamera->settings.vignette_radius, info.pCamera->settings.vignette_falloff, fade_color.x, fade_color.y, fade_color.z, fade_color.w);
-        
+
         pPipeline = new KRPipeline(getContext(), szKey, options, vertSource->getData()->getString(), fragSource->getData()->getString());
 
         m_pipelines[key] = pPipeline;
@@ -294,8 +295,9 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
 }
 */
 
-size_t KRPipelineManager::getPipelineHandlesUsed() {
-    return m_pipelines.size();
+size_t KRPipelineManager::getPipelineHandlesUsed()
+{
+  return m_pipelines.size();
 }
 
 

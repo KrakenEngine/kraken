@@ -36,49 +36,50 @@
 
 class KRNode;
 
-class KROctreeNode {
+class KROctreeNode
+{
 public:
-    KROctreeNode(KROctreeNode *parent, const AABB &bounds);
-    KROctreeNode(KROctreeNode *parent, const AABB &bounds, int iChild, KROctreeNode *pChild);
-    ~KROctreeNode();
+  KROctreeNode(KROctreeNode* parent, const AABB& bounds);
+  KROctreeNode(KROctreeNode* parent, const AABB& bounds, int iChild, KROctreeNode* pChild);
+  ~KROctreeNode();
 
-    KROctreeNode **getChildren();
-    std::set<KRNode *> &getSceneNodes();
+  KROctreeNode** getChildren();
+  std::set<KRNode*>& getSceneNodes();
 
-    void add(KRNode *pNode);
-    void remove(KRNode *pNode);
-    void update(KRNode *pNode);
+  void add(KRNode* pNode);
+  void remove(KRNode* pNode);
+  void update(KRNode* pNode);
 
-    AABB getBounds();
+  AABB getBounds();
 
-    KROctreeNode *getParent();
-    void setChildNode(int iChild, KROctreeNode *pChild);
-    int getChildIndex(KRNode *pNode);
-    AABB getChildBounds(int iChild);
-    void trim();
-    bool isEmpty() const;
+  KROctreeNode* getParent();
+  void setChildNode(int iChild, KROctreeNode* pChild);
+  int getChildIndex(KRNode* pNode);
+  AABB getChildBounds(int iChild);
+  void trim();
+  bool isEmpty() const;
 
-    bool canShrinkRoot() const;
-    KROctreeNode *stripChild();
+  bool canShrinkRoot() const;
+  KROctreeNode* stripChild();
 
-    void beginOcclusionQuery();
-    void endOcclusionQuery();
+  void beginOcclusionQuery();
+  void endOcclusionQuery();
 
 
-    GLuint m_occlusionQuery;
-    bool m_occlusionTested;
-    bool m_activeQuery;
+  GLuint m_occlusionQuery;
+  bool m_occlusionTested;
+  bool m_activeQuery;
 
-    bool lineCast(const Vector3 &v0, const Vector3 &v1, HitInfo &hitinfo, unsigned int layer_mask);
-    bool rayCast(const Vector3 &v0, const Vector3 &dir, HitInfo &hitinfo, unsigned int layer_mask);
-    bool sphereCast(const Vector3 &v0, const Vector3 &v1, float radius, HitInfo &hitinfo, unsigned int layer_mask);
+  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
+  bool rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo, unsigned int layer_mask);
+  bool sphereCast(const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo, unsigned int layer_mask);
 
 private:
 
-    AABB m_bounds;
+  AABB m_bounds;
 
-    KROctreeNode *m_parent;
-    KROctreeNode *m_children[8];
+  KROctreeNode* m_parent;
+  KROctreeNode* m_children[8];
 
-    std::set<KRNode *>m_sceneNodes;
+  std::set<KRNode*>m_sceneNodes;
 };

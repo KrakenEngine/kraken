@@ -32,9 +32,9 @@
 #include "KRResourceManager.h"
 #include "KREngine-common.h"
 
-KRResourceManager::KRResourceManager(KRContext &context) : KRContextObject(context)
+KRResourceManager::KRResourceManager(KRContext& context) : KRContextObject(context)
 {
-    
+
 }
 
 KRResourceManager::~KRResourceManager()

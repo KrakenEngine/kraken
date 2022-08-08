@@ -36,22 +36,22 @@
 #include "KRUnknownManager.h"
 #include "KRUnknown.h"
 
-KRShaderManager::KRShaderManager(KRContext &context) : KRResourceManager(context)
+KRShaderManager::KRShaderManager(KRContext& context) : KRResourceManager(context)
 , m_initializedGlslang(false)
 {
-    
+
 }
 
 KRShaderManager::~KRShaderManager()
 {
-    for(unordered_map<std::string, unordered_map<std::string, KRShader *> >::iterator extension_itr = m_shaders.begin(); extension_itr != m_shaders.end(); extension_itr++) {
-        for(unordered_map<std::string, KRShader *>::iterator name_itr=(*extension_itr).second.begin(); name_itr != (*extension_itr).second.end(); name_itr++) {
-            delete (*name_itr).second;
-        }
+  for (unordered_map<std::string, unordered_map<std::string, KRShader*> >::iterator extension_itr = m_shaders.begin(); extension_itr != m_shaders.end(); extension_itr++) {
+    for (unordered_map<std::string, KRShader*>::iterator name_itr = (*extension_itr).second.begin(); name_itr != (*extension_itr).second.end(); name_itr++) {
+      delete (*name_itr).second;
     }
-    if (m_initializedGlslang) {
-        glslang::FinalizeProcess();
-    }
+  }
+  if (m_initializedGlslang) {
+    glslang::FinalizeProcess();
+  }
 }
 
 KRResource* KRShaderManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
@@ -69,58 +69,58 @@ KRResource* KRShaderManager::getResource(const std::string& name, const std::str
   return nullptr;
 }
 
-unordered_map<std::string, unordered_map<std::string, KRShader *> > &KRShaderManager::getShaders()
+unordered_map<std::string, unordered_map<std::string, KRShader*> >& KRShaderManager::getShaders()
 {
-    return m_shaders;
+  return m_shaders;
 }
 
-void KRShaderManager::add(KRShader *shader)
+void KRShaderManager::add(KRShader* shader)
 {
-    std::string lower_name = shader->getName();
-    std::string lower_extension = shader->getExtension();
-    
-    std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    
-    unordered_map<std::string, unordered_map<std::string, KRShader *> >::iterator extension_itr = m_shaders.find(lower_extension);
-    if(extension_itr == m_shaders.end()) {
-        m_shaders[lower_extension] = unordered_map<std::string, KRShader *>();
-        extension_itr = m_shaders.find(lower_extension);
-    }
-    
-    unordered_map<std::string, KRShader *>::iterator name_itr = (*extension_itr).second.find(lower_name);
-    if(name_itr != (*extension_itr).second.end()) {
-        delete (*name_itr).second;
-        (*name_itr).second = shader;
-    } else {
-        (*extension_itr).second[lower_name] = shader;
-    }
+  std::string lower_name = shader->getName();
+  std::string lower_extension = shader->getExtension();
+
+  std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+
+  unordered_map<std::string, unordered_map<std::string, KRShader*> >::iterator extension_itr = m_shaders.find(lower_extension);
+  if (extension_itr == m_shaders.end()) {
+    m_shaders[lower_extension] = unordered_map<std::string, KRShader*>();
+    extension_itr = m_shaders.find(lower_extension);
+  }
+
+  unordered_map<std::string, KRShader*>::iterator name_itr = (*extension_itr).second.find(lower_name);
+  if (name_itr != (*extension_itr).second.end()) {
+    delete (*name_itr).second;
+    (*name_itr).second = shader;
+  } else {
+    (*extension_itr).second[lower_name] = shader;
+  }
 }
 
-KRShader *KRShaderManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)
+KRShader* KRShaderManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
-    KRShader *shader = new KRShader(getContext(), name, extension, data);
-    if(shader) add(shader);
-    return shader;
+  KRShader* shader = new KRShader(getContext(), name, extension, data);
+  if (shader) add(shader);
+  return shader;
 }
 
-KRShader *KRShaderManager::get(const std::string &name, const std::string &extension)
+KRShader* KRShaderManager::get(const std::string& name, const std::string& extension)
 {
-    std::string lower_name = name;
-    std::string lower_extension = extension;
-    
-    std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    
-    return m_shaders[lower_extension][lower_name];
+  std::string lower_name = name;
+  std::string lower_extension = extension;
+
+  std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+
+  return m_shaders[lower_extension][lower_name];
 }
 
 
-const unordered_map<std::string, KRShader *> &KRShaderManager::get(const std::string &extension)
+const unordered_map<std::string, KRShader*>& KRShaderManager::get(const std::string& extension)
 {
-    std::string lower_extension = extension;
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    return m_shaders[lower_extension];
+  std::string lower_extension = extension;
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+  return m_shaders[lower_extension];
 }
 
 // From glslang/StandAlone/ResourceLimits.cpp
@@ -278,16 +278,16 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
     std::string fragSourceName;
 
     auto parse_shader = [&](KRSource* source, glslang::TShader& shader, const char** sourceText, int* sourceLen, const char** sourceNameStr, std::string& sourceName) {
-      if(source == nullptr) {
+      if (source == nullptr) {
         return;
       }
       sourceName = source->getName() + "." + source->getExtension();
-      sourceText[0] = (char *)source->getData()->getStart();
+      sourceText[0] = (char*)source->getData()->getStart();
       sourceLen[0] = source->getData()->getSize();
       sourceNameStr[0] = sourceName.c_str();
       shader.setStringsWithLengthsAndNames(sourceText, sourceLen, sourceNameStr, 1);
       //shader.setStrings(&sourceStr, 1);
-      
+
       if (shader.parse(&resources, defaultVersion, false, messages)) {
         program.addShader(&shader);
       } else {
@@ -302,7 +302,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
 
     parse_shader(vertSource, vertShader, vertSourceText, vertSourceLen, vertSourceNameStr, vertSourceName);
     parse_shader(fragSource, fragShader, fragSourceText, fragSourceLen, fragSourceNameStr, fragSourceName);
-    
+
     if (!program.link(messages)) {
       const char* log = program.getInfoLog();
       if (log[0] != '\0') {
@@ -327,8 +327,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
           }
 
           std::string shader_name;
-          switch (stage)
-          {
+          switch (stage) {
           case EShLangVertex:
             shader_name = vertSourceName;
             break;
@@ -348,7 +347,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
         }
       }
     }
-    
+
     if (vertSource) {
       vertSource->getData()->unlock();
     }

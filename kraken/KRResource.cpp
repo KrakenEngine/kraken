@@ -34,65 +34,67 @@
 #include "KRBundle.h"
 #include "KRContext.h"
 
-KRResource::KRResource(KRContext &context, std::string name) : KRContextObject(context) {
-    m_name = name;
-    context.addResource(this, name);
+KRResource::KRResource(KRContext& context, std::string name) : KRContextObject(context)
+{
+  m_name = name;
+  context.addResource(this, name);
 }
-KRResource::~KRResource() {
+KRResource::~KRResource()
+{
   m_pContext->removeResource(this);
 }
 
 std::string KRResource::getName()
 {
-    return m_name;
+  return m_name;
 }
 
 std::string KRResource::GetFileExtension(const std::string& name)
 {
-    if(name.find_last_of(".") != std::string::npos) {
-        return name.substr(name.find_last_of(".")+1);
-    } else {
-        return "";
-    }
+  if (name.find_last_of(".") != std::string::npos) {
+    return name.substr(name.find_last_of(".") + 1);
+  } else {
+    return "";
+  }
 }
 
 std::string KRResource::GetFileBase(const std::string& name)
 {
-    std::string f = name;
+  std::string f = name;
 
-    // Normalize Windows Paths
-    std::replace(f.begin(), f.end(), '\\', '/');
+  // Normalize Windows Paths
+  std::replace(f.begin(), f.end(), '\\', '/');
 
-    // Strip off directory
-    if(f.find_last_of("/") != std::string::npos) {
-        f = f.substr(f.find_last_of("/") + 1);
-    }
-    
-    // Strip off extension
-    if(f.find_last_of(".") != std::string::npos) {
-        f = f.substr(0, f.find_last_of("."));
-    }
-       
-    return f;
+  // Strip off directory
+  if (f.find_last_of("/") != std::string::npos) {
+    f = f.substr(f.find_last_of("/") + 1);
+  }
+
+  // Strip off extension
+  if (f.find_last_of(".") != std::string::npos) {
+    f = f.substr(0, f.find_last_of("."));
+  }
+
+  return f;
 }
 
 std::string KRResource::GetFilePath(const std::string& name)
 {
-    if(name.find_last_of("/") != std::string::npos) {
-        return name.substr(0, name.find_last_of("/"));
-    } else {
-        return "";
-    }
+  if (name.find_last_of("/") != std::string::npos) {
+    return name.substr(0, name.find_last_of("/"));
+  } else {
+    return "";
+  }
 }
 
 bool KRResource::save(const std::string& path)
 {
-    KRDataBlock data;
-    if(save(data)) {
-        return data.save(path);
-    } else {
-        return false;
-    }
+  KRDataBlock data;
+  if (save(data)) {
+    return data.save(path);
+  } else {
+    return false;
+  }
 }
 
 KrResult KRResource::moveToBundle(KRBundle* bundle)

@@ -51,120 +51,124 @@ void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->sprite.texture = -1;
 }
 
-KRSprite::KRSprite(KRScene &scene, std::string name) : KRNode(scene, name)
+KRSprite::KRSprite(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-    m_spriteTexture = "";
-    m_pSpriteTexture = NULL;
-    m_spriteAlpha = 1.0f;
+  m_spriteTexture = "";
+  m_pSpriteTexture = NULL;
+  m_spriteAlpha = 1.0f;
 }
 
 KRSprite::~KRSprite()
+{}
+
+std::string KRSprite::getElementName()
 {
+  return "sprite";
 }
 
-std::string KRSprite::getElementName() {
-    return "sprite";
-}
-
-tinyxml2::XMLElement *KRSprite::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement* KRSprite::saveXML(tinyxml2::XMLNode* parent)
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("sprite_texture", m_spriteTexture.c_str());
-    e->SetAttribute("sprite_alpha", m_spriteAlpha);
-    return e;
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
+  e->SetAttribute("sprite_texture", m_spriteTexture.c_str());
+  e->SetAttribute("sprite_alpha", m_spriteAlpha);
+  return e;
 }
 
-void KRSprite::loadXML(tinyxml2::XMLElement *e) {
-    KRNode::loadXML(e);
+void KRSprite::loadXML(tinyxml2::XMLElement* e)
+{
+  KRNode::loadXML(e);
 
-    if(e->QueryFloatAttribute("sprite_alpha", &m_spriteAlpha) != tinyxml2::XML_SUCCESS) {
-        m_spriteAlpha = 1.0f;
-    }
-    
-    const char *szSpriteTexture = e->Attribute("sprite_texture");
-    if(szSpriteTexture) {
-        m_spriteTexture = szSpriteTexture;
-    } else {
-        m_spriteTexture = "";
-    }
-    m_pSpriteTexture = NULL;
+  if (e->QueryFloatAttribute("sprite_alpha", &m_spriteAlpha) != tinyxml2::XML_SUCCESS) {
+    m_spriteAlpha = 1.0f;
+  }
+
+  const char* szSpriteTexture = e->Attribute("sprite_texture");
+  if (szSpriteTexture) {
+    m_spriteTexture = szSpriteTexture;
+  } else {
+    m_spriteTexture = "";
+  }
+  m_pSpriteTexture = NULL;
 }
 
-void KRSprite::setSpriteTexture(std::string sprite_texture) {
-    m_spriteTexture = sprite_texture;
-    m_pSpriteTexture = NULL;
+void KRSprite::setSpriteTexture(std::string sprite_texture)
+{
+  m_spriteTexture = sprite_texture;
+  m_pSpriteTexture = NULL;
 }
 
 void KRSprite::setSpriteAlpha(float alpha)
 {
-    m_spriteAlpha = alpha;
+  m_spriteAlpha = alpha;
 }
 
 float KRSprite::getSpriteAlpha() const
 {
-    return m_spriteAlpha;
+  return m_spriteAlpha;
 }
 
-AABB KRSprite::getBounds() {
-    return AABB::Create(-Vector3::One() * 0.5f, Vector3::One() * 0.5f, getModelMatrix());
+AABB KRSprite::getBounds()
+{
+  return AABB::Create(-Vector3::One() * 0.5f, Vector3::One() * 0.5f, getModelMatrix());
 }
 
 
-void KRSprite::render(RenderInfo& ri) {
-    
-    if(m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
-        // Pre-stream sprites, even if the alpha is zero
-        if(m_spriteTexture.size() && m_pSpriteTexture == NULL) {
-            if(!m_pSpriteTexture && m_spriteTexture.size()) {
-                m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
-            }
-        }
-        
-        if(m_pSpriteTexture) {
-            m_pSpriteTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
-        }
+void KRSprite::render(RenderInfo& ri)
+{
+
+  if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+    // Pre-stream sprites, even if the alpha is zero
+    if (m_spriteTexture.size() && m_pSpriteTexture == NULL) {
+      if (!m_pSpriteTexture && m_spriteTexture.size()) {
+        m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
+      }
     }
-    
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
-        if(m_spriteTexture.size() && m_spriteAlpha > 0.0f) {
-            
 
-            if(!m_pSpriteTexture && m_spriteTexture.size()) {
-                m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
-            }
-            
-            if(m_pSpriteTexture) {               
-                // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
-
-                KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
-
-                // Render light sprite on transparency pass
-                PipelineInfo info{};
-                std::string shader_name("sprite");
-                info.shader_name = &shader_name;
-                info.pCamera = ri.camera;
-                info.point_lights = &ri.point_lights;
-                info.directional_lights = &ri.directional_lights;
-                info.spot_lights = &ri.spot_lights;
-                info.renderPass = ri.renderPass;
-                info.rasterMode = RasterMode::kAdditive;
-                info.cullMode = CullMode::kCullNone;
-                info.vertexAttributes = vertices.getVertexAttributes();
-                info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
-
-                KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-                pShader->setUniform(KRPipeline::Uniform::material_alpha, m_spriteAlpha);
-                pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
-
-                m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
-                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-                vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-            }
-        }
+    if (m_pSpriteTexture) {
+      m_pSpriteTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
     }
+  }
+
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+
+  KRNode::render(ri);
+
+
+  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+    if (m_spriteTexture.size() && m_spriteAlpha > 0.0f) {
+
+
+      if (!m_pSpriteTexture && m_spriteTexture.size()) {
+        m_pSpriteTexture = getContext().getTextureManager()->getTexture(m_spriteTexture);
+      }
+
+      if (m_pSpriteTexture) {
+        // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
+
+        KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+
+        // Render light sprite on transparency pass
+        PipelineInfo info{};
+        std::string shader_name("sprite");
+        info.shader_name = &shader_name;
+        info.pCamera = ri.camera;
+        info.point_lights = &ri.point_lights;
+        info.directional_lights = &ri.directional_lights;
+        info.spot_lights = &ri.spot_lights;
+        info.renderPass = ri.renderPass;
+        info.rasterMode = RasterMode::kAdditive;
+        info.cullMode = CullMode::kCullNone;
+        info.vertexAttributes = vertices.getVertexAttributes();
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+
+        KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+        pShader->setUniform(KRPipeline::Uniform::material_alpha, m_spriteAlpha);
+        pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+        m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+      }
+    }
+  }
 }

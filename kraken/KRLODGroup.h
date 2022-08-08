@@ -34,30 +34,31 @@
 #include "KRResource.h"
 #include "KRNode.h"
 
-class KRLODGroup : public KRNode {
+class KRLODGroup : public KRNode
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
-    KRLODGroup(KRScene &scene, std::string name);
-    virtual ~KRLODGroup();
-    virtual std::string getElementName();
-    virtual tinyxml2::XMLElement *saveXML( tinyxml2::XMLNode *parent);
-    virtual void loadXML(tinyxml2::XMLElement *e);
-    
-    float getMinDistance();
-    float getMaxDistance();
-    void setMinDistance(float min_distance);
-    void setMaxDistance(float max_distance);
-    
-    const AABB &getReference() const;
-    void setReference(const AABB &reference);
-    void setUseWorldUnits(bool use_world_units);
-    bool getUseWorldUnits() const;
-    
-    LodVisibility calcLODVisibility(const KRViewport &viewport);
-    
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  KRLODGroup(KRScene& scene, std::string name);
+  virtual ~KRLODGroup();
+  virtual std::string getElementName();
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual void loadXML(tinyxml2::XMLElement* e);
+
+  float getMinDistance();
+  float getMaxDistance();
+  void setMinDistance(float min_distance);
+  void setMaxDistance(float max_distance);
+
+  const AABB& getReference() const;
+  void setReference(const AABB& reference);
+  void setUseWorldUnits(bool use_world_units);
+  bool getUseWorldUnits() const;
+
+  LodVisibility calcLODVisibility(const KRViewport& viewport);
+
 private:
-    float m_min_distance;
-    float m_max_distance;
-    AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
-    bool m_use_world_units;
+  float m_min_distance;
+  float m_max_distance;
+  AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
+  bool m_use_world_units;
 };

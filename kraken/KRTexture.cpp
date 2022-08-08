@@ -35,22 +35,22 @@
 #include "KRContext.h"
 #include "KRTextureManager.h"
 
-KRTexture::KRTexture(KRContext &context, std::string name) : KRResource(context, name)
+KRTexture::KRTexture(KRContext& context, std::string name) : KRResource(context, name)
 {
-    m_current_lod_max_dim = 0;
-    m_new_lod_max_dim = 0;
-    m_textureMemUsed = 0;
-    m_newTextureMemUsed = 0;
-    m_last_frame_used = 0;
-    m_last_frame_max_lod_coverage = 0.0f;
-    m_last_frame_usage = TEXTURE_USAGE_NONE;
-    m_handle_lock.clear();
-    m_haveNewHandles = false;
+  m_current_lod_max_dim = 0;
+  m_new_lod_max_dim = 0;
+  m_textureMemUsed = 0;
+  m_newTextureMemUsed = 0;
+  m_last_frame_used = 0;
+  m_last_frame_max_lod_coverage = 0.0f;
+  m_last_frame_usage = TEXTURE_USAGE_NONE;
+  m_handle_lock.clear();
+  m_haveNewHandles = false;
 }
 
 KRTexture::~KRTexture()
 {
-    releaseHandles();
+  releaseHandles();
 }
 
 void KRTexture::TextureHandle::destroy(KRDeviceManager* deviceManager)
@@ -87,177 +87,188 @@ void KRTexture::destroyNewHandles()
   m_newTextureMemUsed = 0;
 }
 
-void KRTexture::releaseHandles() {
-    long mem_size = getMemSize();
-    
-    while(m_handle_lock.test_and_set()); // Spin lock
-    
-    destroyNewHandles();
-    destroyHandles();
+void KRTexture::releaseHandles()
+{
+  long mem_size = getMemSize();
 
-    m_current_lod_max_dim = 0;
-    m_new_lod_max_dim = 0;
-    
-    m_handle_lock.clear();
-    
-    getContext().getTextureManager()->memoryChanged(-mem_size);
+  while (m_handle_lock.test_and_set()); // Spin lock
+
+  destroyNewHandles();
+  destroyHandles();
+
+  m_current_lod_max_dim = 0;
+  m_new_lod_max_dim = 0;
+
+  m_handle_lock.clear();
+
+  getContext().getTextureManager()->memoryChanged(-mem_size);
 }
 
-long KRTexture::getMemSize() {
-    return m_textureMemUsed + m_newTextureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
+long KRTexture::getMemSize()
+{
+  return m_textureMemUsed + m_newTextureMemUsed; // TODO - This is not 100% accurate, as loaded format may differ in size while in GPU memory
 }
 
-long KRTexture::getReferencedMemSize() {
-    // Return the amount of memory used by other textures referenced by this texture (for cube maps and animated textures)
-    return 0;
+long KRTexture::getReferencedMemSize()
+{
+  // Return the amount of memory used by other textures referenced by this texture (for cube maps and animated textures)
+  return 0;
 }
 
 void KRTexture::resize(int max_dim)
 {
-    while(m_handle_lock.test_and_set()) {}; // Spin lock
+  while (m_handle_lock.test_and_set()) {
+  }; // Spin lock
 
-    if(!m_haveNewHandles) {
-        if(max_dim > 0) {
-            int target_dim = max_dim;
-            if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+  if (!m_haveNewHandles) {
+    if (max_dim > 0) {
+      int target_dim = max_dim;
+      if (target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
 
-            if(m_new_lod_max_dim != target_dim || m_handles.empty()) {
-                assert(m_newTextureMemUsed == 0);
-                m_newTextureMemUsed = getMemRequiredForSize(target_dim);
-                
-                getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
-                getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
-                
-                if (createGPUTexture(target_dim)) {
-                  m_new_lod_max_dim = target_dim;
-                } else {
-                    getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
-                    m_newTextureMemUsed = 0;
-                    assert(false);  // Failed to create the texture
-                }
-            }
+      if (m_new_lod_max_dim != target_dim || m_handles.empty()) {
+        assert(m_newTextureMemUsed == 0);
+        m_newTextureMemUsed = getMemRequiredForSize(target_dim);
+
+        getContext().getTextureManager()->memoryChanged(m_newTextureMemUsed);
+        getContext().getTextureManager()->addMemoryTransferredThisFrame(m_newTextureMemUsed);
+
+        if (createGPUTexture(target_dim)) {
+          m_new_lod_max_dim = target_dim;
+        } else {
+          getContext().getTextureManager()->memoryChanged(-m_newTextureMemUsed);
+          m_newTextureMemUsed = 0;
+          assert(false);  // Failed to create the texture
         }
+      }
     }
-    
-    m_handle_lock.clear();
+  }
+
+  m_handle_lock.clear();
 }
 
-GLuint KRTexture::getHandle() {
-    // assert(false); // TODO - Vulkan refactoring required
-    resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // TODO - Pass through getHandle() arguements to replace extraneous resetPoolExpiry calls?
-    return 0;
+GLuint KRTexture::getHandle()
+{
+  // assert(false); // TODO - Vulkan refactoring required
+  resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // TODO - Pass through getHandle() arguements to replace extraneous resetPoolExpiry calls?
+  return 0;
 }
 
 void KRTexture::resetPoolExpiry(float lodCoverage, KRTexture::texture_usage_t textureUsage)
 {
-    long current_frame = getContext().getCurrentFrame();
-    if(current_frame != m_last_frame_used) {
-        m_last_frame_used = current_frame;
-        m_last_frame_max_lod_coverage = 0.0f;
-        m_last_frame_usage = TEXTURE_USAGE_NONE;
-        
-        getContext().getTextureManager()->primeTexture(this);
-    }
-    m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
-    m_last_frame_usage = static_cast<texture_usage_t>(static_cast<int>(m_last_frame_usage) | static_cast<int>(textureUsage));
+  long current_frame = getContext().getCurrentFrame();
+  if (current_frame != m_last_frame_used) {
+    m_last_frame_used = current_frame;
+    m_last_frame_max_lod_coverage = 0.0f;
+    m_last_frame_usage = TEXTURE_USAGE_NONE;
+
+    getContext().getTextureManager()->primeTexture(this);
+  }
+  m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
+  m_last_frame_usage = static_cast<texture_usage_t>(static_cast<int>(m_last_frame_usage) | static_cast<int>(textureUsage));
 }
 
 kraken_stream_level KRTexture::getStreamLevel(KRTexture::texture_usage_t textureUsage)
 {
-    if(m_current_lod_max_dim == 0) {
-        return kraken_stream_level::STREAM_LEVEL_OUT;
-    } else if(m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, (int)m_max_lod_max_dim)) {
-        return kraken_stream_level::STREAM_LEVEL_IN_HQ;
-    } else if(m_current_lod_max_dim >= KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, (int)m_min_lod_max_dim)) {
-        return kraken_stream_level::STREAM_LEVEL_IN_LQ;
-    } else {
-        return kraken_stream_level::STREAM_LEVEL_OUT;
-    }
+  if (m_current_lod_max_dim == 0) {
+    return kraken_stream_level::STREAM_LEVEL_OUT;
+  } else if (m_current_lod_max_dim == KRMIN(getContext().KRENGINE_MAX_TEXTURE_DIM, (int)m_max_lod_max_dim)) {
+    return kraken_stream_level::STREAM_LEVEL_IN_HQ;
+  } else if (m_current_lod_max_dim >= KRMAX(getContext().KRENGINE_MIN_TEXTURE_DIM, (int)m_min_lod_max_dim)) {
+    return kraken_stream_level::STREAM_LEVEL_IN_LQ;
+  } else {
+    return kraken_stream_level::STREAM_LEVEL_OUT;
+  }
 }
 
 float KRTexture::getStreamPriority()
 {
-    long current_frame = getContext().getCurrentFrame();
-    if(current_frame > m_last_frame_used + 5) {
-        return 1.0f - KRCLAMP((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
-    } else {
-        float priority = 100.0f;
-        if(m_last_frame_usage & (TEXTURE_USAGE_UI | TEXTURE_USAGE_SHADOW_DEPTH)) {
-            priority += 10000000.0f;
-        }
-        if(m_last_frame_usage & (TEXTURE_USAGE_SKY_CUBE | TEXTURE_USAGE_PARTICLE | TEXTURE_USAGE_SPRITE | TEXTURE_USAGE_LIGHT_FLARE)) {
-            priority += 1000000.0f;
-        }
-        if(m_last_frame_usage & (TEXTURE_USAGE_DIFFUSE_MAP | TEXTURE_USAGE_AMBIENT_MAP | TEXTURE_USAGE_SPECULAR_MAP | TEXTURE_USAGE_NORMAL_MAP | TEXTURE_USAGE_REFLECTION_MAP)) {
-            priority += 100000.0f;
-        }
-        if(m_last_frame_usage & (TEXTURE_USAGE_LIGHT_MAP)) {
-            priority += 100000.0f;
-        }
-        if(m_last_frame_usage & (TEXTURE_USAGE_REFECTION_CUBE)) {
-            priority += 100000.0f;
-        }
-        priority += m_last_frame_max_lod_coverage * 10.0f;
-        return priority;
+  long current_frame = getContext().getCurrentFrame();
+  if (current_frame > m_last_frame_used + 5) {
+    return 1.0f - KRCLAMP((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
+  } else {
+    float priority = 100.0f;
+    if (m_last_frame_usage & (TEXTURE_USAGE_UI | TEXTURE_USAGE_SHADOW_DEPTH)) {
+      priority += 10000000.0f;
     }
+    if (m_last_frame_usage & (TEXTURE_USAGE_SKY_CUBE | TEXTURE_USAGE_PARTICLE | TEXTURE_USAGE_SPRITE | TEXTURE_USAGE_LIGHT_FLARE)) {
+      priority += 1000000.0f;
+    }
+    if (m_last_frame_usage & (TEXTURE_USAGE_DIFFUSE_MAP | TEXTURE_USAGE_AMBIENT_MAP | TEXTURE_USAGE_SPECULAR_MAP | TEXTURE_USAGE_NORMAL_MAP | TEXTURE_USAGE_REFLECTION_MAP)) {
+      priority += 100000.0f;
+    }
+    if (m_last_frame_usage & (TEXTURE_USAGE_LIGHT_MAP)) {
+      priority += 100000.0f;
+    }
+    if (m_last_frame_usage & (TEXTURE_USAGE_REFECTION_CUBE)) {
+      priority += 100000.0f;
+    }
+    priority += m_last_frame_max_lod_coverage * 10.0f;
+    return priority;
+  }
 }
 
 float KRTexture::getLastFrameLodCoverage() const
 {
-    return m_last_frame_max_lod_coverage;
+  return m_last_frame_max_lod_coverage;
 }
 
 long KRTexture::getLastFrameUsed()
 {
-    return m_last_frame_used;
+  return m_last_frame_used;
 }
 bool KRTexture::isAnimated()
 {
-    return false;
+  return false;
 }
 
-KRTexture *KRTexture::compress(bool premultiply_alpha)
+KRTexture* KRTexture::compress(bool premultiply_alpha)
 {
-    return NULL;
+  return NULL;
 }
 
-int KRTexture::getCurrentLodMaxDim() {
-    return m_current_lod_max_dim;
+int KRTexture::getCurrentLodMaxDim()
+{
+  return m_current_lod_max_dim;
 }
 
-int KRTexture::getNewLodMaxDim() {
-    return m_new_lod_max_dim;
+int KRTexture::getNewLodMaxDim()
+{
+  return m_new_lod_max_dim;
 }
 
-int KRTexture::getMaxMipMap() {
-    return m_max_lod_max_dim;
+int KRTexture::getMaxMipMap()
+{
+  return m_max_lod_max_dim;
 }
 
-int KRTexture::getMinMipMap() {
-    return m_min_lod_max_dim;
+int KRTexture::getMinMipMap()
+{
+  return m_min_lod_max_dim;
 }
 
-bool KRTexture::hasMipmaps() {
-    return m_max_lod_max_dim != m_min_lod_max_dim;
+bool KRTexture::hasMipmaps()
+{
+  return m_max_lod_max_dim != m_min_lod_max_dim;
 }
 
-void KRTexture::bind(GLuint texture_unit) {
-    
+void KRTexture::bind(GLuint texture_unit)
+{
+
 }
 
 void KRTexture::_swapHandles()
 {
-    //while(m_handle_lock.test_and_set()); // Spin lock
-    if(!m_handle_lock.test_and_set()) {
-        if(m_haveNewHandles) {
-            destroyHandles();
-            m_handles.swap(m_newHandles);
-            m_textureMemUsed = (long)m_newTextureMemUsed;
-            m_newTextureMemUsed = 0;
-            m_current_lod_max_dim = m_new_lod_max_dim;
-            m_haveNewHandles = false;
-        }
-        m_handle_lock.clear();
+  //while(m_handle_lock.test_and_set()); // Spin lock
+  if (!m_handle_lock.test_and_set()) {
+    if (m_haveNewHandles) {
+      destroyHandles();
+      m_handles.swap(m_newHandles);
+      m_textureMemUsed = (long)m_newTextureMemUsed;
+      m_newTextureMemUsed = 0;
+      m_current_lod_max_dim = m_new_lod_max_dim;
+      m_haveNewHandles = false;
     }
+    m_handle_lock.clear();
+  }
 }
 

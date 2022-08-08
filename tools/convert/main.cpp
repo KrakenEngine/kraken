@@ -39,13 +39,14 @@
 
 using namespace kraken;
 
-enum ResourceMapping {
+enum ResourceMapping
+{
   output_bundle = 0,
   loaded_resource = 1,
   shader_compile_log = 2,
 };
 
-int main( int argc, char *argv[] )
+int main(int argc, char* argv[])
 {
   bool failed = false;
   printf("Kraken Convert\n");
@@ -86,7 +87,7 @@ int main( int argc, char *argv[] )
 
   char command = '\0';
   for (int i = 1; i < argc && !failed; i++) {
-    char *arg = argv[i];
+    char* arg = argv[i];
     if (arg[0] == '-') {
       if (command != '\0') {
         // The last command is expecting a parameter, not another command.
@@ -126,14 +127,14 @@ int main( int argc, char *argv[] )
 
     // Process commands that receive arguments
     switch (command) {
-      case 'i':
-        input_list_file = arg;
-        command = '\0';
-        continue;
-      case 'o':
-        output_bundle = arg;
-        command = '\0';
-        continue;
+    case 'i':
+      input_list_file = arg;
+      command = '\0';
+      continue;
+    case 'o':
+      output_bundle = arg;
+      command = '\0';
+      continue;
     }
 
     input_files.push_back(arg);
@@ -200,7 +201,7 @@ int main( int argc, char *argv[] )
       } else {
         // result.data will be a null terminated string
         if (result.data != nullptr && result.length > 0) {
-          printf("Shader compile log:\n%s\n", static_cast<char *>(result.data));
+          printf("Shader compile log:\n%s\n", static_cast<char*>(result.data));
         }
       }
     });

@@ -36,21 +36,22 @@
 #include "KRDataBlock.h"
 #include "KRResource.h"
 
-class KRSource : public KRResource {
-    
+class KRSource : public KRResource
+{
+
 public:
-    KRSource(KRContext &context, std::string name, std::string extension);
-    KRSource(KRContext &context, std::string name, std::string extension, KRDataBlock *data);
-    virtual ~KRSource();
-    
-    virtual std::string getExtension();
-    
-    virtual bool save(KRDataBlock &data);
-    
-    KRDataBlock *getData();
+  KRSource(KRContext& context, std::string name, std::string extension);
+  KRSource(KRContext& context, std::string name, std::string extension, KRDataBlock* data);
+  virtual ~KRSource();
+
+  virtual std::string getExtension();
+
+  virtual bool save(KRDataBlock& data);
+
+  KRDataBlock* getData();
 
 private:
-    
-    std::string m_extension;
-    KRDataBlock *m_pData;
+
+  std::string m_extension;
+  KRDataBlock* m_pData;
 };

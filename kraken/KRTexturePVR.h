@@ -36,21 +36,21 @@
 class KRTexturePVR : public KRTexture2D
 {
 public:
-    KRTexturePVR(KRContext &context, KRDataBlock *data, std::string name);
-    virtual ~KRTexturePVR();
-    virtual std::string getExtension();
-    
-    bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
-    
-    virtual long getMemRequiredForSize(int max_dim);
-    virtual Vector2i getDimensions() const override;
-    
+  KRTexturePVR(KRContext& context, KRDataBlock* data, std::string name);
+  virtual ~KRTexturePVR();
+  virtual std::string getExtension();
+
+  bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
+
+  virtual long getMemRequiredForSize(int max_dim);
+  virtual Vector2i getDimensions() const override;
+
 protected:
-    
-    uint32_t  m_iWidth;
-    uint32_t  m_iHeight;
-    GLenum    m_internalFormat;
-    bool      m_bHasAlpha;
-    
-    std::list<KRDataBlock *> m_blocks;
+
+  uint32_t  m_iWidth;
+  uint32_t  m_iHeight;
+  GLenum    m_internalFormat;
+  bool      m_bHasAlpha;
+
+  std::list<KRDataBlock*> m_blocks;
 };

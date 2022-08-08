@@ -33,21 +33,21 @@
 
 #include "KRLight.h"
 
-class KRPointLight : public KRLight {
-    
+class KRPointLight : public KRLight
+{
 public:
-    static void InitNodeInfo(KrNodeInfo* nodeInfo);
-    KRPointLight(KRScene &scene, std::string name);
-    virtual ~KRPointLight();
-    
-    virtual std::string getElementName();
-    virtual AABB getBounds();
+  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  KRPointLight(KRScene& scene, std::string name);
+  virtual ~KRPointLight();
 
-    virtual void render(RenderInfo& ri);
-    
+  virtual std::string getElementName();
+  virtual AABB getBounds();
+
+  virtual void render(RenderInfo& ri);
+
 private:
-    void generateMesh();
-    
-    float *m_sphereVertices;
-    int m_cVertices;
+  void generateMesh();
+
+  float* m_sphereVertices;
+  int m_cVertices;
 };

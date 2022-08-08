@@ -41,26 +41,27 @@
 
 class KRUnknown;
 
-class KRShaderManager : public KRResourceManager {
+class KRShaderManager : public KRResourceManager
+{
 public:
-    KRShaderManager(KRContext &context);
-    virtual ~KRShaderManager();
+  KRShaderManager(KRContext& context);
+  virtual ~KRShaderManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    void add(KRShader *shader);
-    
-    KRShader *load(const std::string &name, const std::string &extension, KRDataBlock *data);
-    KRShader *get(const std::string &name, const std::string &extension);
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-    bool compileAll(KRBundle* outputBundle, KRUnknown* logResource);
+  void add(KRShader* shader);
 
-    const unordered_map<std::string, KRShader *> &get(const std::string &extension);
-    
-    unordered_map<std::string, unordered_map<std::string, KRShader *> > &getShaders();
-    
+  KRShader* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRShader* get(const std::string& name, const std::string& extension);
+
+  bool compileAll(KRBundle* outputBundle, KRUnknown* logResource);
+
+  const unordered_map<std::string, KRShader*>& get(const std::string& extension);
+
+  unordered_map<std::string, unordered_map<std::string, KRShader*> >& getShaders();
+
 private:
-    unordered_map<std::string, unordered_map<std::string, KRShader *> > m_shaders;
-    bool m_initializedGlslang;
+  unordered_map<std::string, unordered_map<std::string, KRShader*> > m_shaders;
+  bool m_initializedGlslang;
 };

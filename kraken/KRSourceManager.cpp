@@ -32,46 +32,46 @@
 #include "KRSourceManager.h"
 #include "KREngine-common.h"
 
-KRSourceManager::KRSourceManager(KRContext &context) : KRResourceManager(context)
+KRSourceManager::KRSourceManager(KRContext& context) : KRResourceManager(context)
 {
-    
+
 }
 
 KRSourceManager::~KRSourceManager()
 {
-    for(unordered_map<std::string, unordered_map<std::string, KRSource *> >::iterator extension_itr = m_sources.begin(); extension_itr != m_sources.end(); extension_itr++) {
-        for(unordered_map<std::string, KRSource *>::iterator name_itr=(*extension_itr).second.begin(); name_itr != (*extension_itr).second.end(); name_itr++) {
-            delete (*name_itr).second;
-        }
+  for (unordered_map<std::string, unordered_map<std::string, KRSource*> >::iterator extension_itr = m_sources.begin(); extension_itr != m_sources.end(); extension_itr++) {
+    for (unordered_map<std::string, KRSource*>::iterator name_itr = (*extension_itr).second.begin(); name_itr != (*extension_itr).second.end(); name_itr++) {
+      delete (*name_itr).second;
     }
+  }
 }
 
-unordered_map<std::string, unordered_map<std::string, KRSource *> > &KRSourceManager::getSources()
+unordered_map<std::string, unordered_map<std::string, KRSource*> >& KRSourceManager::getSources()
 {
-    return m_sources;
+  return m_sources;
 }
 
-void KRSourceManager::add(KRSource *source)
+void KRSourceManager::add(KRSource* source)
 {
-    std::string lower_name = source->getName();
-    std::string lower_extension = source->getExtension();
-    
-    std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    
-    unordered_map<std::string, unordered_map<std::string, KRSource *> >::iterator extension_itr = m_sources.find(lower_extension);
-    if(extension_itr == m_sources.end()) {
-        m_sources[lower_extension] = unordered_map<std::string, KRSource *>();
-        extension_itr = m_sources.find(lower_extension);
-    }
-    
-    unordered_map<std::string, KRSource *>::iterator name_itr = (*extension_itr).second.find(lower_name);
-    if(name_itr != (*extension_itr).second.end()) {
-        delete (*name_itr).second;
-        (*name_itr).second = source;
-    } else {
-        (*extension_itr).second[lower_name] = source;
-    }
+  std::string lower_name = source->getName();
+  std::string lower_extension = source->getExtension();
+
+  std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+
+  unordered_map<std::string, unordered_map<std::string, KRSource*> >::iterator extension_itr = m_sources.find(lower_extension);
+  if (extension_itr == m_sources.end()) {
+    m_sources[lower_extension] = unordered_map<std::string, KRSource*>();
+    extension_itr = m_sources.find(lower_extension);
+  }
+
+  unordered_map<std::string, KRSource*>::iterator name_itr = (*extension_itr).second.find(lower_name);
+  if (name_itr != (*extension_itr).second.end()) {
+    delete (*name_itr).second;
+    (*name_itr).second = source;
+  } else {
+    (*extension_itr).second[lower_name] = source;
+  }
 }
 
 KRResource* KRSourceManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
@@ -120,29 +120,29 @@ KRResource* KRSourceManager::getResource(const std::string& name, const std::str
   return nullptr;
 }
 
-KRSource *KRSourceManager::load(const std::string &name, const std::string &extension, KRDataBlock *data)
+KRSource* KRSourceManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
-    KRSource *source = new KRSource(getContext(), name, extension, data);
-    if(source) add(source);
-    return source;
+  KRSource* source = new KRSource(getContext(), name, extension, data);
+  if (source) add(source);
+  return source;
 }
 
-KRSource *KRSourceManager::get(const std::string &name, const std::string &extension)
+KRSource* KRSourceManager::get(const std::string& name, const std::string& extension)
 {
-    std::string lower_name = name;
-    std::string lower_extension = extension;
-    
-    std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    
-    return m_sources[lower_extension][lower_name];
+  std::string lower_name = name;
+  std::string lower_extension = extension;
+
+  std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+
+  return m_sources[lower_extension][lower_name];
 }
 
 
-const unordered_map<std::string, KRSource *> &KRSourceManager::get(const std::string &extension)
+const unordered_map<std::string, KRSource*>& KRSourceManager::get(const std::string& extension)
 {
-    std::string lower_extension = extension;
-    std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
-    return m_sources[lower_extension];
+  std::string lower_extension = extension;
+  std::transform(lower_extension.begin(), lower_extension.end(), lower_extension.begin(), ::tolower);
+  return m_sources[lower_extension];
 }
 

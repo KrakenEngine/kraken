@@ -46,25 +46,25 @@ namespace tinyxml2 {
 class XMLElement;
 } // namespace tinyxml2
 
-typedef KRBehavior *(*KRBehaviorFactoryFunction)(std::map<std::string, std::string> attributes);
+typedef KRBehavior* (*KRBehaviorFactoryFunction)(std::map<std::string, std::string> attributes);
 typedef std::map<std::string, KRBehaviorFactoryFunction> KRBehaviorFactoryFunctionMap;
 
 class KRBehavior
 {
 public:
-    static void RegisterFactoryCTOR(std::string behaviorName, KRBehaviorFactoryFunction fnFactory);
-    static void UnregisterFactoryCTOR(std::string behaviorName);
+  static void RegisterFactoryCTOR(std::string behaviorName, KRBehaviorFactoryFunction fnFactory);
+  static void UnregisterFactoryCTOR(std::string behaviorName);
 
-    KRBehavior();
-    virtual ~KRBehavior();
-    KRNode *getNode() const;
+  KRBehavior();
+  virtual ~KRBehavior();
+  KRNode* getNode() const;
 
-    virtual void init();
-    virtual void update(float deltaTime) = 0;
-    virtual void visibleUpdate(float deltatime) = 0;
-    void __setNode(KRNode *node);
+  virtual void init();
+  virtual void update(float deltaTime) = 0;
+  virtual void visibleUpdate(float deltatime) = 0;
+  void __setNode(KRNode* node);
 
-    static KRBehavior *LoadXML(KRNode *node, tinyxml2::XMLElement *e);
+  static KRBehavior* LoadXML(KRNode* node, tinyxml2::XMLElement* e);
 private:
-    KRNode *__node;
+  KRNode* __node;
 };

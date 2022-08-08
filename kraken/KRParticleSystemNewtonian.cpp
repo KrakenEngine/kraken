@@ -35,81 +35,82 @@
 #include "KRTexture.h"
 #include "KRContext.h"
 
-KRParticleSystemNewtonian::KRParticleSystemNewtonian(KRScene &scene, std::string name) : KRParticleSystem(scene, name)
+KRParticleSystemNewtonian::KRParticleSystemNewtonian(KRScene& scene, std::string name) : KRParticleSystem(scene, name)
 {
-    m_particlesAbsoluteTime = 0.0f;
+  m_particlesAbsoluteTime = 0.0f;
 }
 
 KRParticleSystemNewtonian::~KRParticleSystemNewtonian()
 {
-    
+
 }
 
 std::string KRParticleSystemNewtonian::getElementName()
 {
-    return "newtonian_particles";
+  return "newtonian_particles";
 }
 
-void KRParticleSystemNewtonian::loadXML(tinyxml2::XMLElement *e)
+void KRParticleSystemNewtonian::loadXML(tinyxml2::XMLElement* e)
 {
-    KRParticleSystem::loadXML(e);
+  KRParticleSystem::loadXML(e);
 }
 
-tinyxml2::XMLElement *KRParticleSystemNewtonian::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement* KRParticleSystemNewtonian::saveXML(tinyxml2::XMLNode* parent)
 {
-    tinyxml2::XMLElement *e = KRParticleSystem::saveXML(parent);
-    return e;
+  tinyxml2::XMLElement* e = KRParticleSystem::saveXML(parent);
+  return e;
 }
 
 
 AABB KRParticleSystemNewtonian::getBounds()
 {
-    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
+  return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
 }
 
 void KRParticleSystemNewtonian::physicsUpdate(float deltaTime)
 {
-    KRParticleSystem::physicsUpdate(deltaTime);
-    m_particlesAbsoluteTime += deltaTime;
+  KRParticleSystem::physicsUpdate(deltaTime);
+  m_particlesAbsoluteTime += deltaTime;
 }
 
 bool KRParticleSystemNewtonian::hasPhysics()
 {
-    return true;
+  return true;
 }
 
-void KRParticleSystemNewtonian::render(RenderInfo& ri) {
-    
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
-        if(ri.viewport.visible(getBounds())) {
-            KRTexture *pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
-            m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 0.0f, KRTexture::TEXTURE_USAGE_PARTICLE);
-            
-            int particle_count = 10000;
-            PipelineInfo info{};
-            std::string shader_name("dust_particle");
-            info.shader_name = &shader_name;
-            info.pCamera = ri.camera;
-            info.point_lights = &ri.point_lights;
-            info.directional_lights = &ri.directional_lights;
-            info.spot_lights = &ri.spot_lights;
-            info.renderPass = ri.renderPass;
-            info.rasterMode = RasterMode::kAdditive;
-            info.cullMode = CullMode::kCullNone;
-            info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-            info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+void KRParticleSystemNewtonian::render(RenderInfo& ri)
+{
 
-            KRPipeline *pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-            pParticleShader->setUniform(KRPipeline::Uniform::flare_size, 1.0f);
-            pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+  KRNode::render(ri);
 
-            vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
-        }
+  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+    if (ri.viewport.visible(getBounds())) {
+      KRTexture* pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
+      m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 0.0f, KRTexture::TEXTURE_USAGE_PARTICLE);
+
+      int particle_count = 10000;
+      PipelineInfo info{};
+      std::string shader_name("dust_particle");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAdditive;
+      info.cullMode = CullMode::kCullNone;
+      info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+      info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+
+      KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
+      pParticleShader->setUniform(KRPipeline::Uniform::flare_size, 1.0f);
+      pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+      m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+
+      vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
     }
+  }
 }

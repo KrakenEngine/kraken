@@ -38,23 +38,24 @@
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-class KRSourceManager : public KRResourceManager {
+class KRSourceManager : public KRResourceManager
+{
 public:
-    KRSourceManager(KRContext &context);
-    virtual ~KRSourceManager();
+  KRSourceManager(KRContext& context);
+  virtual ~KRSourceManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    void add(KRSource *source);
-    
-    KRSource *load(const std::string &name, const std::string &extension, KRDataBlock *data);
-    KRSource *get(const std::string &name, const std::string &extension);
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-    const unordered_map<std::string, KRSource *> &get(const std::string &extension);
-    
-    unordered_map<std::string, unordered_map<std::string, KRSource *> > &getSources();
-    
+  void add(KRSource* source);
+
+  KRSource* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRSource* get(const std::string& name, const std::string& extension);
+
+  const unordered_map<std::string, KRSource*>& get(const std::string& extension);
+
+  unordered_map<std::string, unordered_map<std::string, KRSource*> >& getSources();
+
 private:
-    unordered_map<std::string, unordered_map<std::string, KRSource *> > m_sources;
+  unordered_map<std::string, unordered_map<std::string, KRSource*> > m_sources;
 };

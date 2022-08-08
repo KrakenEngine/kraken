@@ -35,7 +35,7 @@
 
 KRRenderPass::KRRenderPass(KRContext& context)
   : KRContextObject(context)
-  ,  m_renderPass(VK_NULL_HANDLE)
+  , m_renderPass(VK_NULL_HANDLE)
 {
 
 }
@@ -45,7 +45,7 @@ KRRenderPass::~KRRenderPass()
   assert(m_renderPass == VK_NULL_HANDLE);
 }
 
-void KRRenderPass::create(KRDevice &device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info)
+void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info)
 {
   if (m_renderPass) {
     return;
@@ -110,7 +110,7 @@ void KRRenderPass::create(KRDevice &device, VkFormat swapChainImageFormat, VkFor
   }
 }
 
-void KRRenderPass::destroy(KRDevice &device)
+void KRRenderPass::destroy(KRDevice& device)
 {
   if (m_renderPass) {
     vkDestroyRenderPass(device.m_logicalDevice, m_renderPass, nullptr);

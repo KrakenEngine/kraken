@@ -33,116 +33,115 @@
 #include "KRTexture2D.h"
 #include "KRContext.h"
 
-KRTextureCube::KRTextureCube(KRContext &context, std::string name) : KRTexture(context, name)
+KRTextureCube::KRTextureCube(KRContext& context, std::string name) : KRTexture(context, name)
 {
-    
-    m_max_lod_max_dim = 2048;
-    m_min_lod_max_dim = 64;
-    
-    for(int i=0; i<6; i++) {
-        m_textures[i] = NULL;
-        std::string faceName = getName() + SUFFIXES[i];
-        m_textures[i] = (KRTexture2D *)getContext().getTextureManager()->getTexture(faceName);
-        if(m_textures[i]) {
-            if(m_textures[i]->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
-            if(m_textures[i]->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
-        } else {
-            assert(false);
-        }
+
+  m_max_lod_max_dim = 2048;
+  m_min_lod_max_dim = 64;
+
+  for (int i = 0; i < 6; i++) {
+    m_textures[i] = NULL;
+    std::string faceName = getName() + SUFFIXES[i];
+    m_textures[i] = (KRTexture2D*)getContext().getTextureManager()->getTexture(faceName);
+    if (m_textures[i]) {
+      if (m_textures[i]->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = m_textures[i]->getMaxMipMap();
+      if (m_textures[i]->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = m_textures[i]->getMinMipMap();
+    } else {
+      assert(false);
     }
+  }
 }
 
 KRTextureCube::~KRTextureCube()
-{
-}
+{}
 
 bool KRTextureCube::createGPUTexture(int lod_max_dim)
 {
-    assert(!m_haveNewHandles); // Only allow one resize per frame
-    
-    bool success = true;
+  assert(!m_haveNewHandles); // Only allow one resize per frame
 
-    int prev_lod_max_dim = m_new_lod_max_dim;
-    m_new_lod_max_dim = 0;
-    bool bMipMaps = false;
+  bool success = true;
 
-    Vector2i dimensions = Vector2i::Zero();
+  int prev_lod_max_dim = m_new_lod_max_dim;
+  m_new_lod_max_dim = 0;
+  bool bMipMaps = false;
 
-    for (int i = 0; i < 6; i++) {
-      if (!m_textures[i]) {
+  Vector2i dimensions = Vector2i::Zero();
+
+  for (int i = 0; i < 6; i++) {
+    if (!m_textures[i]) {
+      success = false;
+    } else {
+      KRTexture2D& tex = *m_textures[i];
+      Vector2i texDimensions = tex.getDimensions();
+      if (dimensions.x == 0) {
+        dimensions = texDimensions;
+      } else if (dimensions != texDimensions) {
         success = false;
-      } else {
-        KRTexture2D& tex = *m_textures[i];
-        Vector2i texDimensions = tex.getDimensions();
-        if (dimensions.x == 0) {
-          dimensions = texDimensions;
-        } else if (dimensions != texDimensions) {
-          success = false;
-        }
-        if (tex.hasMipmaps()) {
-          bMipMaps = true;
-        }
+      }
+      if (tex.hasMipmaps()) {
+        bMipMaps = true;
       }
     }
-    if (!success) {
-      // Not all face images were loaded, or they have
-      // mismatched dimensions
-      // TODO - Perhaps we should have multiple error result codes.
-      return false;
-    }
-    
-    KRDeviceManager* deviceManager = getContext().getDeviceManager();
+  }
+  if (!success) {
+    // Not all face images were loaded, or they have
+    // mismatched dimensions
+    // TODO - Perhaps we should have multiple error result codes.
+    return false;
+  }
 
-    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
-      KRDevice& device = *(*deviceItr).second;
-      KrDeviceHandle deviceHandle = (*deviceItr).first;
-      VmaAllocator allocator = device.getAllocator();
-      KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
-      texture.device = deviceHandle;
-      texture.allocation = VK_NULL_HANDLE;
-      texture.image = VK_NULL_HANDLE;
+  KRDeviceManager* deviceManager = getContext().getDeviceManager();
 
-      if (!device.createImage(dimensions, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
+  for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
+    KRDevice& device = *(*deviceItr).second;
+    KrDeviceHandle deviceHandle = (*deviceItr).first;
+    VmaAllocator allocator = device.getAllocator();
+    KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
+    texture.device = deviceHandle;
+    texture.allocation = VK_NULL_HANDLE;
+    texture.image = VK_NULL_HANDLE;
+
+    if (!device.createImage(dimensions, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
 #if KRENGINE_DEBUG_GPU_LABELS
-        , getName().c_str()
+      , getName().c_str()
 #endif
       )) {
-        success = false;
-        break;
-      }
-
-      for (int i = 0; i < 6; i++) {
-        std::string faceName = getName() + SUFFIXES[i];
-        if (m_textures[i]) {
-          /* TODO - Vulkan refactoring...
-          incorporate TARGETS[i],
-          */
-          m_textures[i]->uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim);
-        }
-      }
-    }
-    if (success) {
-      m_haveNewHandles = true;
-    } else {
-      destroyHandles();
-      m_new_lod_max_dim = prev_lod_max_dim;
+      success = false;
+      break;
     }
 
-    return success;
+    for (int i = 0; i < 6; i++) {
+      std::string faceName = getName() + SUFFIXES[i];
+      if (m_textures[i]) {
+        /* TODO - Vulkan refactoring...
+        incorporate TARGETS[i],
+        */
+        m_textures[i]->uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim);
+      }
+    }
+  }
+  if (success) {
+    m_haveNewHandles = true;
+  } else {
+    destroyHandles();
+    m_new_lod_max_dim = prev_lod_max_dim;
+  }
+
+  return success;
 }
 
 long KRTextureCube::getMemRequiredForSize(int max_dim)
 {
-    int target_dim = max_dim;
-    if(target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
-    
-    long memoryRequired = 0;
-    for(int i=0; i<6; i++) {
-        if(m_textures[i]) {
-            memoryRequired += m_textures[i]->getMemRequiredForSize(target_dim);
-        }
+  int target_dim = max_dim;
+  if (target_dim < (int)m_min_lod_max_dim) target_dim = m_min_lod_max_dim;
+
+  long memoryRequired = 0;
+  for (int i = 0; i < 6; i++) {
+    if (m_textures[i]) {
+      memoryRequired += m_textures[i]->getMemRequiredForSize(target_dim);
     }
-    return memoryRequired;
+  }
+  return memoryRequired;
 }
 
 /*
@@ -159,27 +158,27 @@ void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUs
 
 void KRTextureCube::bind(GLuint texture_unit)
 {
-    KRTexture::bind(texture_unit);
-    GLuint handle = getHandle();
-    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_CUBE_MAP, texture_unit, handle)) {
-        if(handle) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-        }
+  KRTexture::bind(texture_unit);
+  GLuint handle = getHandle();
+  if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_CUBE_MAP, texture_unit, handle)) {
+    if (handle) {
+      GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+      GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     }
+  }
 }
 
 std::string KRTextureCube::getExtension()
 {
-    return ""; // Cube maps are just references; there are no files to output
+  return ""; // Cube maps are just references; there are no files to output
 }
 
-bool KRTextureCube::save(const std::string &path)
+bool KRTextureCube::save(const std::string& path)
 {
-    return true; // Cube maps are just references; there are no files to output
+  return true; // Cube maps are just references; there are no files to output
 }
 
-bool KRTextureCube::save(KRDataBlock &data)
+bool KRTextureCube::save(KRDataBlock& data)
 {
-    return true; // Cube maps are just references; there are no files to output
+  return true; // Cube maps are just references; there are no files to output
 }

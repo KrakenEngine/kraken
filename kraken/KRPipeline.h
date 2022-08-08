@@ -45,14 +45,16 @@ class KRRenderPass;
 enum class ModelFormat : __uint8_t;
 struct SpvReflectShaderModule;
 
-enum class CullMode : uint32_t {
+enum class CullMode : uint32_t
+{
   kCullBack = 0,
   kCullFront,
   kCullNone
 };
 
 // Note: RasterMode is likely to be refactored later to a bitfield
-enum class RasterMode : uint32_t {
+enum class RasterMode : uint32_t
+{
   kOpaque = 0,
   /*
       kOpaque is equivalent to:
@@ -173,7 +175,8 @@ enum class RasterMode : uint32_t {
   */
 };
 
-class PipelineInfo {
+class PipelineInfo
+{
 public:
   const std::string* shader_name;
   KRCamera* pCamera;
@@ -204,128 +207,130 @@ public:
   KRNode::RenderPass renderPass;
 };
 
-class KRPipeline : public KRContextObject {
+class KRPipeline : public KRContextObject
+{
 public:
 
-    KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
-    virtual ~KRPipeline();
-    const char *getKey() const;
-    
-    bool bind(VkCommandBuffer& commandBuffer, KRCamera &camera, const KRViewport &viewport, const Matrix4 &matModel, const std::vector<KRPointLight *> *point_lights, const std::vector<KRDirectionalLight *> *directional_lights, const std::vector<KRSpotLight *>*spot_lights, const KRNode::RenderPass &renderPass);
+  KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
+  virtual ~KRPipeline();
+  const char* getKey() const;
 
-    enum class Uniform : uint8_t {
-        material_ambient = 0,
-        material_diffuse,
-        material_specular,
-        material_reflection,
-        material_alpha,
-        material_shininess,
-        light_position,
-        light_direction_model_space,
-        light_direction_view_space,
-        light_color,
-        light_decay_start,
-        light_cutoff,
-        light_intensity,
-        flare_size,
-        view_space_model_origin,
-        mvp,
-        invp,
-        invmvp,
-        invmvp_no_translate,
-        model_view_inverse_transpose,
-        model_inverse_transpose,
-        model_view,
-        model_matrix,
-        projection_matrix,
-        camerapos_model_space,
-        viewport,
-        viewport_downsample,
-        diffusetexture,
-        speculartexture,
-        reflectioncubetexture,
-        reflectiontexture,
-        normaltexture,
-        diffusetexture_scale,
-        speculartexture_scale,
-        reflectiontexture_scale,
-        normaltexture_scale,
-        ambienttexture_scale,
-        diffusetexture_offset,
-        speculartexture_offset,
-        reflectiontexture_offset,
-        normaltexture_offset,
-        ambienttexture_offset,
-        shadow_mvp1,
-        shadow_mvp2,
-        shadow_mvp3,
-        shadowtexture1,
-        shadowtexture2,
-        shadowtexture3,
-        lightmaptexture,
-        gbuffer_frame,
-        gbuffer_depth,
-        depth_frame,
-        volumetric_environment_frame,
-        render_frame,
-        absolute_time,
-        fog_near,
-        fog_far,
-        fog_density,
-        fog_color,
-        fog_scale,
-        density_premultiplied_exponential,
-        density_premultiplied_squared,
-        slice_depth_scale,
-        particle_origin,
-        bone_transforms,
-        rim_color,
-        rim_power,
-        fade_color,
-        NUM_UNIFORMS
-    };
+  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass);
 
-    static const size_t kUniformCount = static_cast<size_t>(Uniform::NUM_UNIFORMS);
+  enum class Uniform : uint8_t
+  {
+    material_ambient = 0,
+    material_diffuse,
+    material_specular,
+    material_reflection,
+    material_alpha,
+    material_shininess,
+    light_position,
+    light_direction_model_space,
+    light_direction_view_space,
+    light_color,
+    light_decay_start,
+    light_cutoff,
+    light_intensity,
+    flare_size,
+    view_space_model_origin,
+    mvp,
+    invp,
+    invmvp,
+    invmvp_no_translate,
+    model_view_inverse_transpose,
+    model_inverse_transpose,
+    model_view,
+    model_matrix,
+    projection_matrix,
+    camerapos_model_space,
+    viewport,
+    viewport_downsample,
+    diffusetexture,
+    speculartexture,
+    reflectioncubetexture,
+    reflectiontexture,
+    normaltexture,
+    diffusetexture_scale,
+    speculartexture_scale,
+    reflectiontexture_scale,
+    normaltexture_scale,
+    ambienttexture_scale,
+    diffusetexture_offset,
+    speculartexture_offset,
+    reflectiontexture_offset,
+    normaltexture_offset,
+    ambienttexture_offset,
+    shadow_mvp1,
+    shadow_mvp2,
+    shadow_mvp3,
+    shadowtexture1,
+    shadowtexture2,
+    shadowtexture3,
+    lightmaptexture,
+    gbuffer_frame,
+    gbuffer_depth,
+    depth_frame,
+    volumetric_environment_frame,
+    render_frame,
+    absolute_time,
+    fog_near,
+    fog_far,
+    fog_density,
+    fog_color,
+    fog_scale,
+    density_premultiplied_exponential,
+    density_premultiplied_squared,
+    slice_depth_scale,
+    particle_origin,
+    bone_transforms,
+    rim_color,
+    rim_power,
+    fade_color,
+    NUM_UNIFORMS
+  };
 
-    enum class ShaderStages : uint8_t
-    {
-      vertex = 0,
-      fragment,
-      geometry,
-      compute,
-      shaderStageCount
-    };
+  static const size_t kUniformCount = static_cast<size_t>(Uniform::NUM_UNIFORMS);
 
-    static const size_t kShaderStageCount = static_cast<size_t>(ShaderStages::shaderStageCount);
-    
-    bool hasUniform(Uniform location) const;
-    void setUniform(Uniform location, float value);
-    void setUniform(Uniform location, int value);
-    void setUniform(Uniform location, const Vector2 &value);
-    void setUniform(Uniform location, const Vector3 &value);
-    void setUniform(Uniform location, const Vector4 &value);
-    void setUniform(Uniform location, const Matrix4 &value);
-    void setUniform(Uniform location, const Matrix4* value, const size_t count);
+  enum class ShaderStages : uint8_t
+  {
+    vertex = 0,
+    fragment,
+    geometry,
+    compute,
+    shaderStageCount
+  };
 
-    VkPipeline& getPipeline();
-    
+  static const size_t kShaderStageCount = static_cast<size_t>(ShaderStages::shaderStageCount);
+
+  bool hasUniform(Uniform location) const;
+  void setUniform(Uniform location, float value);
+  void setUniform(Uniform location, int value);
+  void setUniform(Uniform location, const Vector2& value);
+  void setUniform(Uniform location, const Vector3& value);
+  void setUniform(Uniform location, const Vector4& value);
+  void setUniform(Uniform location, const Matrix4& value);
+  void setUniform(Uniform location, const Matrix4* value, const size_t count);
+
+  VkPipeline& getPipeline();
+
 private:
-    static const char* KRENGINE_UNIFORM_NAMES[];
+  static const char* KRENGINE_UNIFORM_NAMES[];
 
-    struct PushConstantStageInfo
-    {
-      int offset[kUniformCount];
-      __uint8_t size[kUniformCount];
-      uint8_t* buffer;
-      int bufferSize;
-      VkPipelineLayout layout;
-    };
-    PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
+  struct PushConstantStageInfo
+  {
+    int offset[kUniformCount];
+    __uint8_t size[kUniformCount];
+    uint8_t* buffer;
+    int bufferSize;
+    VkPipelineLayout layout;
+  };
+  PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
 
-    char m_szKey[256];
+  char m_szKey[256];
 
-    VkPipelineLayout m_pipelineLayout;
-    VkPipeline m_graphicsPipeline;
+  VkPipelineLayout m_pipelineLayout;
+  VkPipeline m_graphicsPipeline;
 
-    void initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection);
+  void initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection);
 };

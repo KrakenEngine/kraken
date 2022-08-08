@@ -33,13 +33,14 @@
 
 class KRContext;
 
-class KRContextObject {
+class KRContextObject
+{
 
 public:
-    KRContextObject(KRContext &context);
-    ~KRContextObject();
-    
-    KRContext &getContext() const;
+  KRContextObject(KRContext& context);
+  ~KRContextObject();
+
+  KRContext& getContext() const;
 protected:
-    KRContext *m_pContext;
+  KRContext* m_pContext;
 };

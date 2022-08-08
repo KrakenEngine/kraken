@@ -35,7 +35,7 @@ namespace kraken {
 
 class Context
 {
-class impl;
+  class impl;
 public:
   static Context* Get();
   bool loadResource(const char* szPath);

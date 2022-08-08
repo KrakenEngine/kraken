@@ -39,90 +39,91 @@
 
 #define KRENGINE_MIN_MMAP 32768
 
-class KRDataBlock {
+class KRDataBlock
+{
 public:
-    KRDataBlock();
-    KRDataBlock(void *data, size_t size);
-    ~KRDataBlock();
-    
-    // Encapsulate a pointer.  Note - The pointer will not be free'ed
-    bool load(void *data, size_t size);
-    
-    // Load a file into memory using mmap.  The data pointer will be protected as read-only until append() or expand() is called
-    bool load(const std::string &path);
-    
-    // Save the data to a file.
-    bool save(const std::string& path);
-    
-    // Create a KRDataBlock encapsulating a sub-region of this block.  The caller is responsible to free the object.
-    KRDataBlock *getSubBlock(int start, int length);
-    
-    // Append data to the end of the block, increasing the size of the block and making it read-write.
-    void append(void *data, size_t size);
-    
-    // Append data to the end of the block, increasing the size of the block and making it read-write.
-    void append(KRDataBlock &data);
-    
-    // Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
-    void append(const std::string &s);
-    
-    // Expand or shrink the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
-    void expand(size_t size);
-    
-    // Unload a file, releasing any mmap'ed file handles or malloc'ed ram that was in use
-    void unload();
-    
-    // Return a pointer to the start of the data block
-    void *getStart();
-    
-    // Return a pointer to the one byte after the end of the data block
-    void *getEnd();
-    
-    // Return the size of the data block.  Use append() or expand() to make the data block larger
-    size_t getSize() const;
-    
-    // Get the contents as a string
-    std::string getString();
-    
-    // Copy the entire data block to the destination pointer
-    void copy(void *dest);
-    
-    // Copy a range of data to the destination pointer
-    void copy(void *dest, int start, int count);
-    
-    // Lock the memory, forcing it to be loaded into a contiguous block of address space
-    void lock();
-    
-    // Unlock the memory, releasing the address space for use by other allocations
-    void unlock();
-    
+  KRDataBlock();
+  KRDataBlock(void* data, size_t size);
+  ~KRDataBlock();
+
+  // Encapsulate a pointer.  Note - The pointer will not be free'ed
+  bool load(void* data, size_t size);
+
+  // Load a file into memory using mmap.  The data pointer will be protected as read-only until append() or expand() is called
+  bool load(const std::string& path);
+
+  // Save the data to a file.
+  bool save(const std::string& path);
+
+  // Create a KRDataBlock encapsulating a sub-region of this block.  The caller is responsible to free the object.
+  KRDataBlock* getSubBlock(int start, int length);
+
+  // Append data to the end of the block, increasing the size of the block and making it read-write.
+  void append(void* data, size_t size);
+
+  // Append data to the end of the block, increasing the size of the block and making it read-write.
+  void append(KRDataBlock& data);
+
+  // Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
+  void append(const std::string& s);
+
+  // Expand or shrink the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
+  void expand(size_t size);
+
+  // Unload a file, releasing any mmap'ed file handles or malloc'ed ram that was in use
+  void unload();
+
+  // Return a pointer to the start of the data block
+  void* getStart();
+
+  // Return a pointer to the one byte after the end of the data block
+  void* getEnd();
+
+  // Return the size of the data block.  Use append() or expand() to make the data block larger
+  size_t getSize() const;
+
+  // Get the contents as a string
+  std::string getString();
+
+  // Copy the entire data block to the destination pointer
+  void copy(void* dest);
+
+  // Copy a range of data to the destination pointer
+  void copy(void* dest, int start, int count);
+
+  // Lock the memory, forcing it to be loaded into a contiguous block of address space
+  void lock();
+
+  // Unlock the memory, releasing the address space for use by other allocations
+  void unlock();
+
 private:
-    void *m_data;
-    size_t m_data_size;
-    size_t m_data_offset;
-    
-    // For memory mapped objects:
+  void* m_data;
+  size_t m_data_size;
+  size_t m_data_offset;
+
+  // For memory mapped objects:
 #if defined(_WIN32) || defined(_WIN64)
-    HANDLE m_hPackFile;
-    HANDLE m_hFileMapping;
+  HANDLE m_hPackFile;
+  HANDLE m_hFileMapping;
 #elif defined(__APPLE__) || defined(ANDROID)
-    int m_fdPackFile;
+  int m_fdPackFile;
 #endif
-    
-    std::string m_fileName;
-    KRDataBlock *m_fileOwnerDataBlock;
-    void *m_mmapData;
-    
-    // For malloc'ed objects:
-    bool m_bMalloced;
-    
-    // Lock refcount
-    int m_lockCount;
-    
-    // Read-only allocation
-    bool m_bReadOnly;
-    
-    // Assert if not locked
-    void assertLocked();
+
+  std::string m_fileName;
+  KRDataBlock* m_fileOwnerDataBlock;
+  void* m_mmapData;
+
+  // For malloc'ed objects:
+  bool m_bMalloced;
+
+  // Lock refcount
+  int m_lockCount;
+
+  // Read-only allocation
+  bool m_bReadOnly;
+
+  // Assert if not locked
+  void assertLocked();
 
 };

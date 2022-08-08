@@ -37,31 +37,31 @@
 #include "KRResource.h"
 #include "spirv_reflect.h"
 
-class KRShader : public KRResource {
-    
+class KRShader : public KRResource
+{
 public:
-    KRShader(KRContext &context, std::string name, std::string extension);
-    KRShader(KRContext &context, std::string name, std::string extension, KRDataBlock *data);
-    virtual ~KRShader();
-    
-    virtual std::string getExtension();
-    std::string& getSubExtension();
+  KRShader(KRContext& context, std::string name, std::string extension);
+  KRShader(KRContext& context, std::string name, std::string extension, KRDataBlock* data);
+  virtual ~KRShader();
 
-    bool createShaderModule(VkDevice& device, VkShaderModule& module);
-    
-    virtual bool save(KRDataBlock &data);
-    
-    KRDataBlock *getData();
-    const SpvReflectShaderModule* getReflection();
-    
+  virtual std::string getExtension();
+  std::string& getSubExtension();
+
+  bool createShaderModule(VkDevice& device, VkShaderModule& module);
+
+  virtual bool save(KRDataBlock& data);
+
+  KRDataBlock* getData();
+  const SpvReflectShaderModule* getReflection();
+
 private:
-    
-    std::string m_extension;
-    std::string m_subExtension;
-    KRDataBlock *m_pData;
-    SpvReflectShaderModule m_reflection;
-    bool m_reflectionValid;
 
-    void parseReflection();
-    void freeReflection();
+  std::string m_extension;
+  std::string m_subExtension;
+  KRDataBlock* m_pData;
+  SpvReflectShaderModule m_reflection;
+  bool m_reflectionValid;
+
+  void parseReflection();
+  void freeReflection();
 };

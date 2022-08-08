@@ -34,45 +34,45 @@
 #include "KRTexture2D.h"
 #include "KRContext.h"
 
-KRTextureAnimated::KRTextureAnimated(KRContext &context, std::string name) : KRTexture(context, name)
+KRTextureAnimated::KRTextureAnimated(KRContext& context, std::string name) : KRTexture(context, name)
 {
-    // Format of name:
-    //   animate:texturebasename,xx,yy
-    // Where - texturebasename is a prefix for the other textures
-    //       - xx is the number of frames
-    //       - yy is the framerate
-    
-    // TODO - Add error handling for mal-formatted animated texture formats
-    size_t first_comma_pos = name.find(",");
-    size_t second_comma_pos = name.find(",", first_comma_pos + 1);
-    
-    
-    m_texture_base_name = name.substr(8, first_comma_pos - 8);
-    m_frame_count = atoi(name.substr(first_comma_pos+1, second_comma_pos - first_comma_pos -1).c_str());
-    m_frame_rate = (float)atof(name.substr(second_comma_pos+1).c_str());
-    
-    m_max_lod_max_dim = 2048;
-    m_min_lod_max_dim = 64;
-    
-    for(int i=0; i<m_frame_count; i++) {
-        KRTexture2D *frame_texture = textureForFrame(i);
-        if(frame_texture) {
-            if(frame_texture->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = frame_texture->getMaxMipMap();
-            if(frame_texture->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = frame_texture->getMinMipMap();
-        }
+  // Format of name:
+  //   animate:texturebasename,xx,yy
+  // Where - texturebasename is a prefix for the other textures
+  //       - xx is the number of frames
+  //       - yy is the framerate
+
+  // TODO - Add error handling for mal-formatted animated texture formats
+  size_t first_comma_pos = name.find(",");
+  size_t second_comma_pos = name.find(",", first_comma_pos + 1);
+
+
+  m_texture_base_name = name.substr(8, first_comma_pos - 8);
+  m_frame_count = atoi(name.substr(first_comma_pos + 1, second_comma_pos - first_comma_pos - 1).c_str());
+  m_frame_rate = (float)atof(name.substr(second_comma_pos + 1).c_str());
+
+  m_max_lod_max_dim = 2048;
+  m_min_lod_max_dim = 64;
+
+  for (int i = 0; i < m_frame_count; i++) {
+    KRTexture2D* frame_texture = textureForFrame(i);
+    if (frame_texture) {
+      if (frame_texture->getMaxMipMap() < (int)m_max_lod_max_dim) m_max_lod_max_dim = frame_texture->getMaxMipMap();
+      if (frame_texture->getMinMipMap() > (int)m_min_lod_max_dim) m_min_lod_max_dim = frame_texture->getMinMipMap();
     }
+  }
 }
 
 std::string KRTextureAnimated::textureNameForFrame(int frame)
 {
-    char szFrameNumber[10];
-    sprintf(szFrameNumber, "%i", frame);
-    return m_texture_base_name + szFrameNumber;
+  char szFrameNumber[10];
+  sprintf(szFrameNumber, "%i", frame);
+  return m_texture_base_name + szFrameNumber;
 }
 
-KRTexture2D *KRTextureAnimated::textureForFrame(int frame)
+KRTexture2D* KRTextureAnimated::textureForFrame(int frame)
 {
-    return (KRTexture2D *)getContext().getTextureManager()->getTexture(textureNameForFrame(frame));
+  return (KRTexture2D*)getContext().getTextureManager()->getTexture(textureNameForFrame(frame));
 }
 
 KRTextureAnimated::~KRTextureAnimated()
@@ -82,70 +82,70 @@ KRTextureAnimated::~KRTextureAnimated()
 
 bool KRTextureAnimated::createGPUTexture(int lod_max_dim)
 {
-    return true;
+  return true;
 }
 
 long KRTextureAnimated::getMemRequiredForSize(int max_dim)
 {
-    return 0; // Memory is allocated by individual frame textures
+  return 0; // Memory is allocated by individual frame textures
 }
 
 
 void KRTextureAnimated::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
 {
-    KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
-    for(int i=0; i<m_frame_count; i++) {
-        KRTexture2D *frame_texture = textureForFrame(i);
-        if(frame_texture) {
-            frame_texture->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that frames of animated textures do not expire from the texture pool prematurely, as they are referenced indirectly
-        }
+  KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
+  for (int i = 0; i < m_frame_count; i++) {
+    KRTexture2D* frame_texture = textureForFrame(i);
+    if (frame_texture) {
+      frame_texture->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that frames of animated textures do not expire from the texture pool prematurely, as they are referenced indirectly
     }
+  }
 }
 
 void KRTextureAnimated::bind(GLuint texture_unit)
 {
-    resetPoolExpiry(0.0f, TEXTURE_USAGE_NONE); // TODO - Need to set parameters here for streaming priority?
-    KRTexture::bind(texture_unit);
-    int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate, (float)m_frame_count));
-    KRTexture2D *frame_texture = textureForFrame(frame_number);
-    if(frame_texture) {
-        frame_texture->bind(texture_unit);
-    }
+  resetPoolExpiry(0.0f, TEXTURE_USAGE_NONE); // TODO - Need to set parameters here for streaming priority?
+  KRTexture::bind(texture_unit);
+  int frame_number = (int)floor(fmodf(getContext().getAbsoluteTime() * m_frame_rate, (float)m_frame_count));
+  KRTexture2D* frame_texture = textureForFrame(frame_number);
+  if (frame_texture) {
+    frame_texture->bind(texture_unit);
+  }
 }
 
 long KRTextureAnimated::getReferencedMemSize()
 {
-    long referenced_mem = 0;
-    for(int i=0; i<m_frame_count; i++) {
-        KRTexture2D *frame_texture = textureForFrame(i);
-        if(frame_texture) {
-            referenced_mem += frame_texture->getMemSize();
-        }
+  long referenced_mem = 0;
+  for (int i = 0; i < m_frame_count; i++) {
+    KRTexture2D* frame_texture = textureForFrame(i);
+    if (frame_texture) {
+      referenced_mem += frame_texture->getMemSize();
     }
-    return referenced_mem;
+  }
+  return referenced_mem;
 }
 
 bool KRTextureAnimated::isAnimated()
 {
-    return true;
+  return true;
 }
 
 std::string KRTextureAnimated::getExtension()
 {
-    return ""; // Animated textures are just references; there are no files to output
+  return ""; // Animated textures are just references; there are no files to output
 }
 
-bool KRTextureAnimated::save(const std::string &path)
+bool KRTextureAnimated::save(const std::string& path)
 {
-    return true; // Animated textures are just references; there are no files to output
+  return true; // Animated textures are just references; there are no files to output
 }
 
-bool KRTextureAnimated::save(KRDataBlock &data)
+bool KRTextureAnimated::save(KRDataBlock& data)
 {
-    return true; // Animated textures are just references; there are no files to output
+  return true; // Animated textures are just references; there are no files to output
 }
 
 void KRTextureAnimated::resize(int max_dim)
 {
-    // Purposely not calling the superclass method
+  // Purposely not calling the superclass method
 }

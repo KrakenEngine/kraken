@@ -110,12 +110,12 @@ void KRSurface::destroy()
     vkDestroySemaphore(device->m_logicalDevice, m_renderFinishedSemaphore, nullptr);
     m_renderFinishedSemaphore = VK_NULL_HANDLE;
   }
-  
+
   if (device && m_imageAvailableSemaphore != VK_NULL_HANDLE) {
     vkDestroySemaphore(device->m_logicalDevice, m_imageAvailableSemaphore, nullptr);
     m_imageAvailableSemaphore = VK_NULL_HANDLE;
   }
-  
+
   if (m_surface != VK_NULL_HANDLE) {
     vkDestroySurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), m_surface, nullptr);
     m_surface = VK_NULL_HANDLE;
@@ -124,12 +124,12 @@ void KRSurface::destroy()
 
 KrResult KRSurface::createSwapChain()
 {
-  
+
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
 
   KrResult res = KR_SUCCESS;
   VkSurfaceFormatKHR selectedSurfaceFormat{};
-  res =device->selectSurfaceFormat(m_surface, selectedSurfaceFormat);
+  res = device->selectSurfaceFormat(m_surface, selectedSurfaceFormat);
   if (res != KR_SUCCESS) return res;
 
   VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
@@ -161,7 +161,7 @@ KrResult KRSurface::createSwapChain()
   info.clearDepth = true;
   info.keepDepth = false;
   m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  
+
   info.clearDepth = true;
   info.keepDepth = true;
   m_deferredGBufferPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);

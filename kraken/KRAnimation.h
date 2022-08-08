@@ -38,47 +38,48 @@
 #include "KRAnimationLayer.h"
 
 
-class KRAnimation : public KRResource {
-    
+class KRAnimation : public KRResource
+{
+
 public:
-    KRAnimation(KRContext &context, std::string name);
-    virtual ~KRAnimation();
-    
-    virtual std::string getExtension();
-    virtual bool save(KRDataBlock &data);
-    
-    static KRAnimation *Load(KRContext &context, const std::string &name, KRDataBlock *data);
-    
-    void addLayer(KRAnimationLayer *layer);
-    unordered_map<std::string, KRAnimationLayer *> &getLayers();
-    KRAnimationLayer *getLayer(const char *szName);
-    bool getAutoPlay() const;
-    void setAutoPlay(bool auto_play);
-    bool getLooping() const;
-    void setLooping(bool looping);
-    void Play();
-    void Stop();
-    void update(float deltaTime);
-    float getTime();
-    void setTime(float time);
-    float getDuration();
-    void setDuration(float duration);
-    float getStartTime();
-    void setStartTime(float start_time);
-    bool isPlaying();
-    
-    KRAnimation *split(const std::string &name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
-    void deleteCurves();
-    
-    void _lockData();
-    void _unlockData();
-    
+  KRAnimation(KRContext& context, std::string name);
+  virtual ~KRAnimation();
+
+  virtual std::string getExtension();
+  virtual bool save(KRDataBlock& data);
+
+  static KRAnimation* Load(KRContext& context, const std::string& name, KRDataBlock* data);
+
+  void addLayer(KRAnimationLayer* layer);
+  unordered_map<std::string, KRAnimationLayer*>& getLayers();
+  KRAnimationLayer* getLayer(const char* szName);
+  bool getAutoPlay() const;
+  void setAutoPlay(bool auto_play);
+  bool getLooping() const;
+  void setLooping(bool looping);
+  void Play();
+  void Stop();
+  void update(float deltaTime);
+  float getTime();
+  void setTime(float time);
+  float getDuration();
+  void setDuration(float duration);
+  float getStartTime();
+  void setStartTime(float start_time);
+  bool isPlaying();
+
+  KRAnimation* split(const std::string& name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
+  void deleteCurves();
+
+  void _lockData();
+  void _unlockData();
+
 private:
-    unordered_map<std::string, KRAnimationLayer *> m_layers;
-    bool m_auto_play;
-    bool m_loop;
-    bool m_playing;
-    float m_local_time;
-    float m_duration;
-    float m_start_time;
+  unordered_map<std::string, KRAnimationLayer*> m_layers;
+  bool m_auto_play;
+  bool m_loop;
+  bool m_playing;
+  float m_local_time;
+  float m_duration;
+  float m_start_time;
 };

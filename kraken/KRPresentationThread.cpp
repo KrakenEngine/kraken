@@ -71,8 +71,7 @@ void KRPresentationThread::run()
   std::chrono::microseconds sleep_duration(15000);
 
   m_activeState = PresentThreadState::run;
-  while (m_requestedState != PresentThreadRequest::stop)
-  {
+  while (m_requestedState != PresentThreadRequest::stop) {
     switch (m_activeState) {
     case PresentThreadState::pause:
     case PresentThreadState::stop:
@@ -103,7 +102,7 @@ void KRPresentationThread::renderFrame()
   unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& surfaces = m_pContext->getSurfaceManager()->getSurfaces();
 
   KRSceneManager* sceneManager = m_pContext->getSceneManager();
-  KRScene *scene = sceneManager->getFirstScene();
+  KRScene* scene = sceneManager->getFirstScene();
 
   for (auto surfaceItr = surfaces.begin(); surfaceItr != surfaces.end(); surfaceItr++) {
     KRSurface& surface = *(*surfaceItr).second;

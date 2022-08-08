@@ -65,8 +65,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   init_info.resourceMapSize = 1024;
   KrResult res = KrInitialize(&init_info);
   if (res != KR_SUCCESS) {
-	  // printf("Failed to initialize Kraken!\n");
-	  return 1;
+    // printf("Failed to initialize Kraken!\n");
+    return 1;
   }
 
   KrLoadResourceInfo load_resource_info = {};
@@ -75,9 +75,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   load_resource_info.pResourcePath = "kraken_cube.krbundle";
   res = KrLoadResource(&load_resource_info);
   if (res != KR_SUCCESS) {
-	  //printf("Failed to load resource: %s\n", arg);
-	  KrShutdown();
-	  return 1;
+    //printf("Failed to load resource: %s\n", arg);
+    KrShutdown();
+    return 1;
   }
 
   KrCreateWindowSurfaceInfo create_surface_info = {};
@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   while (GetMessage(&msg, NULL, 0, 0) > 0) {
     DispatchMessage(&msg);
   }
-    
+
 
   // KrShutdown will delete the window surfaces for us; however, we
   // include this here for code coverage in tests.
@@ -118,8 +118,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
-  switch (message)
-  {
+  switch (message) {
   case WM_CLOSE:
     PostQuitMessage(0);
     break;

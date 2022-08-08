@@ -33,9 +33,10 @@
 
 #include "KRMesh.h"
 
-class KRMeshQuad : public KRMesh {
+class KRMeshQuad : public KRMesh
+{
 public:
-    KRMeshQuad(KRContext &context);
-    virtual ~KRMeshQuad();
+  KRMeshQuad(KRContext& context);
+  virtual ~KRMeshQuad();
 private:
 };

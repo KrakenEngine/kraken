@@ -48,7 +48,7 @@ KRDeviceManager::KRDeviceManager(KRContext& context)
 KRDeviceManager::~KRDeviceManager()
 {
   destroyDevices();
-  
+
   if (m_vulkanInstance != VK_NULL_HANDLE) {
     vkDestroyInstance(m_vulkanInstance, NULL);
     m_vulkanInstance = VK_NULL_HANDLE;
@@ -65,7 +65,7 @@ bool KRDeviceManager::haveDevice() const
   return !m_devices.empty();
 }
 
-void 
+void
 KRDeviceManager::destroyDevices()
 {
   const std::lock_guard<std::mutex> lock(KRContext::g_DeviceInfoMutex);
@@ -162,23 +162,19 @@ void KRDeviceManager::createDevices()
     bool addDevice = false;
     if (candidateDevices.empty()) {
       addDevice = true;
-    }
-    else {
+    } else {
       VkPhysicalDeviceType collectedType = candidateDevices[0]->m_deviceProperties.deviceType;
       if (collectedType == device->m_deviceProperties.deviceType) {
         addDevice = true;
-      }
-      else if (device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+      } else if (device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
         // Discrete GPU's are always the best choice
         candidateDevices.clear();
         addDevice = true;
-      }
-      else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
         // Integrated GPU's are the second best choice
         candidateDevices.clear();
         addDevice = true;
-      }
-      else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
+      } else if (collectedType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && collectedType != VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU && device->m_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
         // Virtual GPU's are the 3rd best choice
         candidateDevices.clear();
         addDevice = true;
@@ -204,7 +200,7 @@ void KRDeviceManager::createDevices()
       snprintf(label, kMaxLabel, "GPU %i", iDevice + 1);
     }
     device->setDebugLabel(device->m_logicalDevice, label);
-   
+
 #endif
 
     m_devices[++m_topDeviceHandle] = std::move(device);

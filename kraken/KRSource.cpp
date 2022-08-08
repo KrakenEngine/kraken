@@ -31,35 +31,35 @@
 
 #include "KRSource.h"
 
-KRSource::KRSource(KRContext &context, std::string name, std::string extension) : KRResource(context, name)
+KRSource::KRSource(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-    m_pData = new KRDataBlock();
-    m_extension = extension;
+  m_pData = new KRDataBlock();
+  m_extension = extension;
 }
 
-KRSource::KRSource(KRContext &context, std::string name, std::string extension, KRDataBlock *data) : KRResource(context, name)
+KRSource::KRSource(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
 {
-    m_pData = data;
-    m_extension = extension;
+  m_pData = data;
+  m_extension = extension;
 }
 
 KRSource::~KRSource()
 {
-    delete m_pData;
+  delete m_pData;
 }
 
 std::string KRSource::getExtension()
 {
-    return m_extension;
+  return m_extension;
 }
 
-bool KRSource::save(KRDataBlock &data)
+bool KRSource::save(KRDataBlock& data)
 {
-    data.append(*m_pData);
-    return true;
+  data.append(*m_pData);
+  return true;
 }
 
-KRDataBlock *KRSource::getData()
+KRDataBlock* KRSource::getData()
 {
-    return m_pData;
+  return m_pData;
 }

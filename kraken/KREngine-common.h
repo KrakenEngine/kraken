@@ -253,10 +253,11 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 
 #endif
 
-typedef enum {
-    STREAM_LEVEL_OUT,
-    STREAM_LEVEL_IN_LQ,
-    STREAM_LEVEL_IN_HQ
+typedef enum
+{
+  STREAM_LEVEL_OUT,
+  STREAM_LEVEL_IN_LQ,
+  STREAM_LEVEL_IN_HQ
 } kraken_stream_level;
 
 typedef int KrDeviceHandle;

@@ -35,7 +35,7 @@
 
 namespace kraken {
 
-void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const Vector3 &value, const Vector3 &default_value)
+void setXMLAttribute(const std::string& base_name, tinyxml2::XMLElement* e, const Vector3& value, const Vector3& default_value)
 {
   // TODO - Increase number of digits after the decimal in floating point format (6 -> 12?)
   // FINDME, TODO - This needs optimization...
@@ -46,7 +46,7 @@ void setXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, cons
   }
 }
 
-const Vector3 getXMLAttribute(const std::string &base_name, tinyxml2::XMLElement *e, const Vector3 &default_value)
+const Vector3 getXMLAttribute(const std::string& base_name, tinyxml2::XMLElement* e, const Vector3& default_value)
 {
   Vector3 value;
   if (e->QueryFloatAttribute((base_name + "_x").c_str(), &value.x) == tinyxml2::XML_SUCCESS

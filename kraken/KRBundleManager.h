@@ -40,21 +40,22 @@
 class KRContext;
 class KRBundle;
 
-class KRBundleManager : public KRResourceManager {
+class KRBundleManager : public KRResourceManager
+{
 public:
-    KRBundleManager(KRContext &context);
-    ~KRBundleManager();
+  KRBundleManager(KRContext& context);
+  ~KRBundleManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    KRBundle *loadBundle(const char *szName, KRDataBlock *pData);
-    KRBundle *getBundle(const char *szName);
-    KRBundle* createBundle(const char* szName);
-    
-    std::vector<std::string> getBundleNames();
-    unordered_map<std::string, KRBundle *> getBundles();
-    
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
+  KRBundle* loadBundle(const char* szName, KRDataBlock* pData);
+  KRBundle* getBundle(const char* szName);
+  KRBundle* createBundle(const char* szName);
+
+  std::vector<std::string> getBundleNames();
+  unordered_map<std::string, KRBundle*> getBundles();
+
 private:
-    unordered_map<std::string, KRBundle *> m_bundles;
+  unordered_map<std::string, KRBundle*> m_bundles;
 };

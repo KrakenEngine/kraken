@@ -33,102 +33,107 @@
 #include "KRTexture2D.h"
 #include "KRTextureManager.h"
 
-KRTexture2D::KRTexture2D(KRContext &context, KRDataBlock *data, std::string name) : KRTexture(context, name) {
-    m_pData = data;
-}                
-
-KRTexture2D::~KRTexture2D() {
-    delete m_pData;
+KRTexture2D::KRTexture2D(KRContext& context, KRDataBlock* data, std::string name) : KRTexture(context, name)
+{
+  m_pData = data;
 }
 
-bool KRTexture2D::createGPUTexture(int lod_max_dim) {
-    if (m_haveNewHandles) {
-      return true;
-    }
-    
-    bool success = true;
-    int prev_lod_max_dim = m_new_lod_max_dim;
-    m_new_lod_max_dim = 0;
+KRTexture2D::~KRTexture2D()
+{
+  delete m_pData;
+}
 
-    KRDeviceManager* deviceManager = getContext().getDeviceManager();
+bool KRTexture2D::createGPUTexture(int lod_max_dim)
+{
+  if (m_haveNewHandles) {
+    return true;
+  }
 
-    for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
-      KRDevice& device = *(*deviceItr).second;
-      KrDeviceHandle deviceHandle = (*deviceItr).first;
-      VmaAllocator allocator = device.getAllocator();
-      KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
-      texture.device = deviceHandle;
-      texture.allocation = VK_NULL_HANDLE;
-      texture.image = VK_NULL_HANDLE;
+  bool success = true;
+  int prev_lod_max_dim = m_new_lod_max_dim;
+  m_new_lod_max_dim = 0;
 
-      if (!device.createImage(getDimensions(), 0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
+  KRDeviceManager* deviceManager = getContext().getDeviceManager();
+
+  for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end(); deviceItr++) {
+    KRDevice& device = *(*deviceItr).second;
+    KrDeviceHandle deviceHandle = (*deviceItr).first;
+    VmaAllocator allocator = device.getAllocator();
+    KRTexture::TextureHandle& texture = m_newHandles.emplace_back();
+    texture.device = deviceHandle;
+    texture.allocation = VK_NULL_HANDLE;
+    texture.image = VK_NULL_HANDLE;
+
+    if (!device.createImage(getDimensions(), 0, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
 #if KRENGINE_DEBUG_GPU_LABELS
       , getName().c_str()
 #endif
       )) {
-        success = false;
-        break;
-      }
-
-      VkImageViewCreateInfo viewInfo{};
-      viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      viewInfo.image = texture.image;
-      viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-      viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      viewInfo.subresourceRange.baseMipLevel = 0;
-      viewInfo.subresourceRange.levelCount = 1;
-      viewInfo.subresourceRange.baseArrayLayer = 0;
-      viewInfo.subresourceRange.layerCount = 1;
-      VkResult res = vkCreateImageView(device.m_logicalDevice, &viewInfo, nullptr, &texture.fullImageView);
-      if(res != VK_SUCCESS) {
-        success = false;
-        break;
-      }
-
-      if (!uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim)) {
-        success = false;
-        break;
-      }
+      success = false;
+      break;
     }
 
-    if (success) {
-        m_new_lod_max_dim = prev_lod_max_dim;
-        m_haveNewHandles = true;
-    } else {
-      destroyNewHandles();
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = texture.image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+    VkResult res = vkCreateImageView(device.m_logicalDevice, &viewInfo, nullptr, &texture.fullImageView);
+    if (res != VK_SUCCESS) {
+      success = false;
+      break;
     }
-    
-    return success;
+
+    if (!uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim)) {
+      success = false;
+      break;
+    }
+  }
+
+  if (success) {
+    m_new_lod_max_dim = prev_lod_max_dim;
+    m_haveNewHandles = true;
+  } else {
+    destroyNewHandles();
+  }
+
+  return success;
 }
 
-void KRTexture2D::bind(GLuint texture_unit) {
-    KRTexture::bind(texture_unit);
-    GLuint handle = getHandle();
-    
-    if(m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, texture_unit, handle)) {
-        if(handle) {
-            // TODO - These texture parameters should be assigned by the material or texture parameters
-            m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
-            m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
-        }
+void KRTexture2D::bind(GLuint texture_unit)
+{
+  KRTexture::bind(texture_unit);
+  GLuint handle = getHandle();
+
+  if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, texture_unit, handle)) {
+    if (handle) {
+      // TODO - These texture parameters should be assigned by the material or texture parameters
+      m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
+      m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
     }
+  }
 }
 
 bool KRTexture2D::save(const std::string& path)
 {
-    if(m_pData) {
-        return m_pData->save(path);
-    } else {
-        return false;
-    }
+  if (m_pData) {
+    return m_pData->save(path);
+  } else {
+    return false;
+  }
 }
 
-bool KRTexture2D::save(KRDataBlock &data) {
-    if(m_pData) {
-        data.append(*m_pData);
-        return true;
-    } else {
-        return false;
-    }
+bool KRTexture2D::save(KRDataBlock& data)
+{
+  if (m_pData) {
+    data.append(*m_pData);
+    return true;
+  } else {
+    return false;
+  }
 }

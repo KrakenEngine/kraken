@@ -31,17 +31,17 @@
 
 #include "KRContextObject.h"
 
-KRContextObject::KRContextObject(KRContext &context)
+KRContextObject::KRContextObject(KRContext& context)
 {
-    m_pContext = &context;
+  m_pContext = &context;
 }
 
 KRContextObject::~KRContextObject()
 {
-    
+
 }
 
-KRContext &KRContextObject::getContext() const
+KRContext& KRContextObject::getContext() const
 {
-    return *m_pContext;
+  return *m_pContext;
 }

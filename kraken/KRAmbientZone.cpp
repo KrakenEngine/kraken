@@ -42,152 +42,153 @@ void KRAmbientZone::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->ambient_zone.sample = -1;
 }
 
-KRAmbientZone::KRAmbientZone(KRScene &scene, std::string name) : KRNode(scene, name)
+KRAmbientZone::KRAmbientZone(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-    m_ambient = "";
-    m_ambient_gain = 1.0f;
+  m_ambient = "";
+  m_ambient_gain = 1.0f;
 
-    m_gradient_distance = 0.25f;
-    
+  m_gradient_distance = 0.25f;
+
 }
 
 KRAmbientZone::~KRAmbientZone()
+{}
+
+std::string KRAmbientZone::getElementName()
 {
+  return "ambient_zone";
 }
 
-std::string KRAmbientZone::getElementName() {
-    return "ambient_zone";
+tinyxml2::XMLElement* KRAmbientZone::saveXML(tinyxml2::XMLNode* parent)
+{
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
+  e->SetAttribute("zone", m_zone.c_str());
+  e->SetAttribute("sample", m_ambient.c_str());
+  e->SetAttribute("gain", m_ambient_gain);
+  e->SetAttribute("gradient", m_gradient_distance);
+  return e;
 }
 
-tinyxml2::XMLElement *KRAmbientZone::saveXML( tinyxml2::XMLNode *parent)
+void KRAmbientZone::loadXML(tinyxml2::XMLElement* e)
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("zone", m_zone.c_str());
-    e->SetAttribute("sample", m_ambient.c_str());
-    e->SetAttribute("gain", m_ambient_gain);
-    e->SetAttribute("gradient", m_gradient_distance);
-    return e;
-}
+  KRNode::loadXML(e);
 
-void KRAmbientZone::loadXML(tinyxml2::XMLElement *e)
-{
-    KRNode::loadXML(e);
-    
-    m_zone = e->Attribute("zone");
-    
+  m_zone = e->Attribute("zone");
+
+  m_gradient_distance = 0.25f;
+  if (e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
     m_gradient_distance = 0.25f;
-    if(e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
-        m_gradient_distance = 0.25f;
-    }
-    
-    m_ambient = e->Attribute("sample");
-    
+  }
+
+  m_ambient = e->Attribute("sample");
+
+  m_ambient_gain = 1.0f;
+  if (e->QueryFloatAttribute("gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
     m_ambient_gain = 1.0f;
-    if(e->QueryFloatAttribute("gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
-        m_ambient_gain = 1.0f;
-    }
+  }
 }
 
 std::string KRAmbientZone::getAmbient()
 {
-    return m_ambient;
+  return m_ambient;
 }
 
-void KRAmbientZone::setAmbient(const std::string &ambient)
+void KRAmbientZone::setAmbient(const std::string& ambient)
 {
-    m_ambient = ambient;
+  m_ambient = ambient;
 }
 
 float KRAmbientZone::getAmbientGain()
 {
-    return m_ambient_gain;
+  return m_ambient_gain;
 }
 
 void KRAmbientZone::setAmbientGain(float ambient_gain)
 {
-    m_ambient_gain = ambient_gain;
+  m_ambient_gain = ambient_gain;
 }
 
 std::string KRAmbientZone::getZone()
 {
-    return m_zone;
+  return m_zone;
 }
 
-void KRAmbientZone::setZone(const std::string &zone)
+void KRAmbientZone::setZone(const std::string& zone)
 {
-    m_zone = zone;
+  m_zone = zone;
 }
 
 void KRAmbientZone::render(RenderInfo& ri)
 {
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES;
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
-        if (sphereModel) {
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
-          Matrix4 sphereModelMatrix = getModelMatrix();
+  KRNode::render(ri);
 
-          PipelineInfo info{};
-          std::string shader_name("visualize_overlay");
-          info.shader_name = &shader_name;
-          info.pCamera = ri.camera;
-          info.point_lights = &ri.point_lights;
-          info.directional_lights = &ri.directional_lights;
-          info.spot_lights = &ri.spot_lights;
-          info.renderPass = ri.renderPass;
-          info.rasterMode = RasterMode::kAdditive;
-          info.modelFormat = sphereModel->getModelFormat();
-          info.vertexAttributes = sphereModel->getVertexAttributes();
-        
-          KRPipeline *pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-          pPipeline->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES;
 
-          sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-        } // sphereModel
-    }
+  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    if (sphereModel) {
+
+      Matrix4 sphereModelMatrix = getModelMatrix();
+
+      PipelineInfo info{};
+      std::string shader_name("visualize_overlay");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAdditive;
+      info.modelFormat = sphereModel->getModelFormat();
+      info.vertexAttributes = sphereModel->getVertexAttributes();
+
+      KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+      pPipeline->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+      sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+    } // sphereModel
+  }
 }
 
 
 float KRAmbientZone::getGradientDistance()
 {
-    return m_gradient_distance;
+  return m_gradient_distance;
 }
 
 void KRAmbientZone::setGradientDistance(float gradient_distance)
 {
-    m_gradient_distance = gradient_distance;
+  m_gradient_distance = gradient_distance;
 }
 
-AABB KRAmbientZone::getBounds() {
-    // Ambient zones always have a -1, -1, -1 to 1, 1, 1 bounding box
-    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
-}
-
-float KRAmbientZone::getContainment(const Vector3 &pos)
+AABB KRAmbientZone::getBounds()
 {
-    AABB bounds = getBounds();
-    if(bounds.contains(pos)) {
-        Vector3 size = bounds.size();
-        Vector3 diff = pos - bounds.center();
-        diff = diff * 2.0f;
-        diff = Vector3::Create(diff.x / size.x, diff.y / size.y, diff.z / size.z);
-        float d = diff.magnitude();
-    
-        if(m_gradient_distance <= 0.0f) {
-            // Avoid division by zero
-            d = d > 1.0f ? 0.0f : 1.0f;
-        } else {
-            d = (1.0f - d) / m_gradient_distance;
-            d = KRCLAMP(d, 0.0f, 1.0f);
-        }
-        return d;
-        
+  // Ambient zones always have a -1, -1, -1 to 1, 1, 1 bounding box
+  return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
+}
+
+float KRAmbientZone::getContainment(const Vector3& pos)
+{
+  AABB bounds = getBounds();
+  if (bounds.contains(pos)) {
+    Vector3 size = bounds.size();
+    Vector3 diff = pos - bounds.center();
+    diff = diff * 2.0f;
+    diff = Vector3::Create(diff.x / size.x, diff.y / size.y, diff.z / size.z);
+    float d = diff.magnitude();
+
+    if (m_gradient_distance <= 0.0f) {
+      // Avoid division by zero
+      d = d > 1.0f ? 0.0f : 1.0f;
     } else {
-        return 0.0f;
+      d = (1.0f - d) / m_gradient_distance;
+      d = KRCLAMP(d, 0.0f, 1.0f);
     }
+    return d;
+
+  } else {
+    return 0.0f;
+  }
 }

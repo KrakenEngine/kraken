@@ -85,8 +85,7 @@ KrResult KRSwapchain::create(KRDevice& device, VkSurfaceKHR& surface, VkSurfaceF
     swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     swapChainCreateInfo.queueFamilyIndexCount = 0;
     swapChainCreateInfo.pQueueFamilyIndices = nullptr;
-  }
-  else {
+  } else {
     swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     swapChainCreateInfo.queueFamilyIndexCount = 2;
     swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;

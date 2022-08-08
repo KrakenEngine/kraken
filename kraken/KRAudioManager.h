@@ -59,9 +59,9 @@ const int KRENGINE_AUDIO_BLOCK_LOG2N = 7;   // 2 ^ KRENGINE_AUDIO_BLOCK_LOG2N = 
     // 7 is 128 .. NOTE: the hrtf code uses magic numbers everywhere and is hardcoded to 128 samples per frame
 
 const int KRENGINE_AUDIO_BLOCK_LENGTH = 1 << KRENGINE_AUDIO_BLOCK_LOG2N;
-    // Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
-    // the AUGraph works in 1024 sample chunks. At 128 we are making 8 consecutive calls to the renderBlock method for each
-    // render initiated by the AUGraph.
+// Length of one block to process.  Determines the latency of the audio system and sets size for FFT's used in HRTF convolution
+// the AUGraph works in 1024 sample chunks. At 128 we are making 8 consecutive calls to the renderBlock method for each
+// render initiated by the AUGraph.
 
 const int KRENGINE_REVERB_MAX_FFT_LOG2 = 15;
 const int KRENGINE_REVERB_WORKSPACE_SIZE = 1 << KRENGINE_REVERB_MAX_FFT_LOG2;
@@ -79,177 +79,180 @@ const int KRENGINE_AUDIO_ANTICLICK_SAMPLES = 64;
 class KRAmbientZone;
 class KRReverbZone;
 
-typedef struct {
-    float weight;
-    KRAmbientZone *ambient_zone;
-    KRAudioSample *ambient_sample;
+typedef struct
+{
+  float weight;
+  KRAmbientZone* ambient_zone;
+  KRAudioSample* ambient_sample;
 } siren_ambient_zone_weight_info;
 
-typedef struct {
-    float weight;
-    KRReverbZone *reverb_zone;
-    KRAudioSample *reverb_sample;
+typedef struct
+{
+  float weight;
+  KRReverbZone* reverb_zone;
+  KRAudioSample* reverb_sample;
 } siren_reverb_zone_weight_info;
 
-class KRAudioManager : public KRResourceManager {
+class KRAudioManager : public KRResourceManager
+{
 public:
-    KRAudioManager(KRContext &context);
-    virtual ~KRAudioManager();
-    void destroy();
+  KRAudioManager(KRContext& context);
+  virtual ~KRAudioManager();
+  void destroy();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    unordered_map<std::string, KRAudioSample *> &getSounds();
-    
-    void add(KRAudioSample *Sound);
-    
-    KRAudioSample *load(const std::string &name, const std::string &extension, KRDataBlock *data);
-    KRAudioSample *get(const std::string &name);
-    
-    // Listener position and orientation
-    KRScene *getListenerScene();
-    void setListenerScene(KRScene *scene);
-    void setListenerOrientation(const Vector3 &position, const Vector3 &forward, const Vector3 &up);
-    void setListenerOrientationFromModelMatrix(const Matrix4 &modelMatrix);
-    Vector3 &getListenerForward();
-    Vector3 &getListenerPosition();
-    Vector3 &getListenerUp();
-    
-    
-    // Global audio gain / attenuation
-    float getGlobalGain();
-    void setGlobalGain(float gain);
-    float getGlobalReverbSendLevel();
-    void setGlobalReverbSendLevel(float send_level);
-    float getGlobalAmbientGain();
-    void setGlobalAmbientGain(float gain);
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-    
-    
-    void makeCurrentContext();
-    
-    KRDataBlock *getBufferData(int size);
-    void recycleBufferData(KRDataBlock *data);
-    
-    void activateAudioSource(KRAudioSource *audioSource);
-    void deactivateAudioSource(KRAudioSource *audioSource);
-    
-    __int64_t getAudioFrame();
-    
-    KRAudioBuffer *getBuffer(KRAudioSample &audio_sample, int buffer_index);
-    
-    static void mute(bool onNotOff);
-    void goToSleep();
+  unordered_map<std::string, KRAudioSample*>& getSounds();
 
-    void startFrame(float deltaTime);
-    
-    bool getEnableAudio();
-    void setEnableAudio(bool enable);
-    
-    bool getEnableHRTF();
-    void setEnableHRTF(bool enable);
-    
-    bool getEnableReverb();
-    void setEnableReverb(bool enable);
-    
-    float getReverbMaxLength();
-    void setReverbMaxLength(float max_length);
-    
-    void _registerOpenAudioSample(KRAudioSample *audioSample);
-    void _registerCloseAudioSample(KRAudioSample *audioSample);
-    
+  void add(KRAudioSample* Sound);
+
+  KRAudioSample* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRAudioSample* get(const std::string& name);
+
+  // Listener position and orientation
+  KRScene* getListenerScene();
+  void setListenerScene(KRScene* scene);
+  void setListenerOrientation(const Vector3& position, const Vector3& forward, const Vector3& up);
+  void setListenerOrientationFromModelMatrix(const Matrix4& modelMatrix);
+  Vector3& getListenerForward();
+  Vector3& getListenerPosition();
+  Vector3& getListenerUp();
+
+
+  // Global audio gain / attenuation
+  float getGlobalGain();
+  void setGlobalGain(float gain);
+  float getGlobalReverbSendLevel();
+  void setGlobalReverbSendLevel(float send_level);
+  float getGlobalAmbientGain();
+  void setGlobalAmbientGain(float gain);
+
+
+
+  void makeCurrentContext();
+
+  KRDataBlock* getBufferData(int size);
+  void recycleBufferData(KRDataBlock* data);
+
+  void activateAudioSource(KRAudioSource* audioSource);
+  void deactivateAudioSource(KRAudioSource* audioSource);
+
+  __int64_t getAudioFrame();
+
+  KRAudioBuffer* getBuffer(KRAudioSample& audio_sample, int buffer_index);
+
+  static void mute(bool onNotOff);
+  void goToSleep();
+
+  void startFrame(float deltaTime);
+
+  bool getEnableAudio();
+  void setEnableAudio(bool enable);
+
+  bool getEnableHRTF();
+  void setEnableHRTF(bool enable);
+
+  bool getEnableReverb();
+  void setEnableReverb(bool enable);
+
+  float getReverbMaxLength();
+  void setReverbMaxLength(float max_length);
+
+  void _registerOpenAudioSample(KRAudioSample* audioSample);
+  void _registerCloseAudioSample(KRAudioSample* audioSample);
+
 private:
-    bool m_enable_audio;
-    bool m_enable_hrtf;
-    bool m_enable_reverb;
-    float m_reverb_max_length;
-    
-    KRScene *m_listener_scene; // For now, only one scene is allowed to have active audio at once
-    
-    float m_global_reverb_send_level;
-    float m_global_ambient_gain;
-    float m_global_gain;
-    
-    Vector3 m_listener_position;
-    Vector3 m_listener_forward;
-    Vector3 m_listener_up;
-    
-    unordered_map<std::string, KRAudioSample *> m_sounds;
-    
-    std::vector<KRDataBlock *> m_bufferPoolIdle;
-    
-    std::vector<KRAudioBuffer *> m_bufferCache;
-    
-    std::set<KRAudioSource *> m_activeAudioSources;
-    
-    std::set<KRAudioSample *> m_openAudioSamples;
-    
-    void initAudio();
-    void initHRTF();
-   
-    void cleanupAudio();
-    
-    bool m_initialized;
+  bool m_enable_audio;
+  bool m_enable_hrtf;
+  bool m_enable_reverb;
+  float m_reverb_max_length;
+
+  KRScene* m_listener_scene; // For now, only one scene is allowed to have active audio at once
+
+  float m_global_reverb_send_level;
+  float m_global_ambient_gain;
+  float m_global_gain;
+
+  Vector3 m_listener_position;
+  Vector3 m_listener_forward;
+  Vector3 m_listener_up;
+
+  unordered_map<std::string, KRAudioSample*> m_sounds;
+
+  std::vector<KRDataBlock*> m_bufferPoolIdle;
+
+  std::vector<KRAudioBuffer*> m_bufferCache;
+
+  std::set<KRAudioSource*> m_activeAudioSources;
+
+  std::set<KRAudioSample*> m_openAudioSamples;
+
+  void initAudio();
+  void initHRTF();
+
+  void cleanupAudio();
+
+  bool m_initialized;
 
 #ifdef __APPLE__
-    // Apple Core Audio
-    AUGraph m_auGraph;
-    AudioUnit m_auMixer;
+  // Apple Core Audio
+  AUGraph m_auGraph;
+  AudioUnit m_auMixer;
 
-    static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
-    void renderAudio(UInt32 inNumberFrames, AudioBufferList *ioData);
+  static OSStatus renderInput(void* inRefCon, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inBusNumber, UInt32 inNumberFrames, AudioBufferList* ioData);
+  void renderAudio(UInt32 inNumberFrames, AudioBufferList* ioData);
 #endif
 
-    KRDSP::FFTWorkspace m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
+  KRDSP::FFTWorkspace m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
 
-    __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
-    
-    float *m_reverb_input_samples; // Circular-buffered reverb input, single channel
-    int m_reverb_input_next_sample; // Pointer to next sample in reverb buffer
-    int m_reverb_sequence;
-    
-    KRAudioSample *m_reverb_impulse_responses[KRENGINE_MAX_REVERB_IMPULSE_MIX];
-    float m_reverb_impulse_responses_weight[KRENGINE_MAX_REVERB_IMPULSE_MIX];
-    
-    float *m_output_accumulation; // Interleaved output accumulation buffer
-    int m_output_accumulation_block_start;
-    int m_output_sample;
-    
-    float *m_workspace_data;
-    KRDSP::SplitComplex m_workspace[3];
-    
-    float *getBlockAddress(int block_offset);
-    void renderBlock();
-    void renderReverb();
-    void renderAmbient();
-    void renderHRTF();
-    void renderITD();
-    void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
-    void renderLimiter();
-    
-    std::vector<Vector2> m_hrtf_sample_locations;
-    float *m_hrtf_data;
-    unordered_map<Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
-    
-    Vector2 getNearestHRTFSample(const Vector2 &dir);
-    void getHRTFMix(const Vector2 &dir, Vector2 &hrtf1, Vector2 &hrtf2, Vector2 &hrtf3, Vector2 &hrtf4, float &mix1, float &mix2, float &mix3, float &mix4);
-    KRAudioSample *getHRTFSample(const Vector2 &hrtf_dir);
-    KRDSP::SplitComplex getHRTFSpectral(const Vector2 &hrtf_dir, const int channel);
-    
-    unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
-    float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
-    
-    unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
-    float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
-    
-    std::mutex m_mutex;
+  __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
+
+  float* m_reverb_input_samples; // Circular-buffered reverb input, single channel
+  int m_reverb_input_next_sample; // Pointer to next sample in reverb buffer
+  int m_reverb_sequence;
+
+  KRAudioSample* m_reverb_impulse_responses[KRENGINE_MAX_REVERB_IMPULSE_MIX];
+  float m_reverb_impulse_responses_weight[KRENGINE_MAX_REVERB_IMPULSE_MIX];
+
+  float* m_output_accumulation; // Interleaved output accumulation buffer
+  int m_output_accumulation_block_start;
+  int m_output_sample;
+
+  float* m_workspace_data;
+  KRDSP::SplitComplex m_workspace[3];
+
+  float* getBlockAddress(int block_offset);
+  void renderBlock();
+  void renderReverb();
+  void renderAmbient();
+  void renderHRTF();
+  void renderITD();
+  void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
+  void renderLimiter();
+
+  std::vector<Vector2> m_hrtf_sample_locations;
+  float* m_hrtf_data;
+  unordered_map<Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
+
+  Vector2 getNearestHRTFSample(const Vector2& dir);
+  void getHRTFMix(const Vector2& dir, Vector2& hrtf1, Vector2& hrtf2, Vector2& hrtf3, Vector2& hrtf4, float& mix1, float& mix2, float& mix3, float& mix4);
+  KRAudioSample* getHRTFSample(const Vector2& hrtf_dir);
+  KRDSP::SplitComplex getHRTFSpectral(const Vector2& hrtf_dir, const int channel);
+
+  unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
+  float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
+
+  unordered_map<std::string, siren_reverb_zone_weight_info> m_reverb_zone_weights;
+  float m_reverb_zone_total_weight = 0.0f; // For normalizing zone weights
+
+  std::mutex m_mutex;
 #ifdef __APPLE__
-    mach_timebase_info_data_t m_timebase_info;
+  mach_timebase_info_data_t m_timebase_info;
 #endif
-    
-    
-    unordered_multimap<Vector2, std::pair<KRAudioSource *, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
-    bool m_anticlick_block;
-    bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
+
+
+  unordered_multimap<Vector2, std::pair<KRAudioSource*, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+  bool m_anticlick_block;
+  bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };

@@ -39,24 +39,25 @@
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-class KRUnknownManager : public KRResourceManager {
+class KRUnknownManager : public KRResourceManager
+{
 public:
-    KRUnknownManager(KRContext &context);
-    virtual ~KRUnknownManager();
+  KRUnknownManager(KRContext& context);
+  virtual ~KRUnknownManager();
 
-    virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
-    virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-    
-    void add(KRUnknown *unknown);
-    
-    KRUnknown *load(const std::string &name, const std::string &extension, KRDataBlock *data);
-    KRUnknown *get(const std::string &name, const std::string &extension);
-    
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-    const unordered_map<std::string, KRUnknown *> &get(const std::string &extension);
-    
-    unordered_map<std::string, unordered_map<std::string, KRUnknown *> > &getUnknowns();
-    
+  void add(KRUnknown* unknown);
+
+  KRUnknown* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRUnknown* get(const std::string& name, const std::string& extension);
+
+
+  const unordered_map<std::string, KRUnknown*>& get(const std::string& extension);
+
+  unordered_map<std::string, unordered_map<std::string, KRUnknown*> >& getUnknowns();
+
 private:
-    unordered_map<std::string, unordered_map<std::string, KRUnknown *> > m_unknowns;
+  unordered_map<std::string, unordered_map<std::string, KRUnknown*> > m_unknowns;
 };

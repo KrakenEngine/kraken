@@ -42,150 +42,150 @@ void KRReverbZone::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->reverb_zone.pZoneName = nullptr;
 }
 
-KRReverbZone::KRReverbZone(KRScene &scene, std::string name) : KRNode(scene, name)
+KRReverbZone::KRReverbZone(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-    m_reverb = "";
-    m_reverb_gain = 1.0f;
-    m_gradient_distance = 0.25f;
-    
+  m_reverb = "";
+  m_reverb_gain = 1.0f;
+  m_gradient_distance = 0.25f;
 }
 
 KRReverbZone::~KRReverbZone()
+{}
+
+std::string KRReverbZone::getElementName()
 {
+  return "reverb_zone";
 }
 
-std::string KRReverbZone::getElementName() {
-    return "reverb_zone";
+tinyxml2::XMLElement* KRReverbZone::saveXML(tinyxml2::XMLNode* parent)
+{
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
+  e->SetAttribute("zone", m_zone.c_str());
+  e->SetAttribute("sample", m_reverb.c_str());
+  e->SetAttribute("gain", m_reverb_gain);
+  e->SetAttribute("gradient", m_gradient_distance);
+  return e;
 }
 
-tinyxml2::XMLElement *KRReverbZone::saveXML( tinyxml2::XMLNode *parent)
+void KRReverbZone::loadXML(tinyxml2::XMLElement* e)
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
-    e->SetAttribute("zone", m_zone.c_str());
-    e->SetAttribute("sample", m_reverb.c_str());
-    e->SetAttribute("gain", m_reverb_gain);
-    e->SetAttribute("gradient", m_gradient_distance);
-    return e;
-}
+  KRNode::loadXML(e);
 
-void KRReverbZone::loadXML(tinyxml2::XMLElement *e)
-{
-    KRNode::loadXML(e);
-    
-    m_zone = e->Attribute("zone");
-    
+  m_zone = e->Attribute("zone");
+
+  m_gradient_distance = 0.25f;
+  if (e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
     m_gradient_distance = 0.25f;
-    if(e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
-        m_gradient_distance = 0.25f;
-    }
-    
-    m_reverb = e->Attribute("sample");
-    
+  }
+
+  m_reverb = e->Attribute("sample");
+
+  m_reverb_gain = 1.0f;
+  if (e->QueryFloatAttribute("gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
     m_reverb_gain = 1.0f;
-    if(e->QueryFloatAttribute("gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
-        m_reverb_gain = 1.0f;
-    }
+  }
 }
 
 std::string KRReverbZone::getReverb()
 {
-    return m_reverb;
+  return m_reverb;
 }
 
-void KRReverbZone::setReverb(const std::string &reverb)
+void KRReverbZone::setReverb(const std::string& reverb)
 {
-    m_reverb = reverb;
+  m_reverb = reverb;
 }
 
 float KRReverbZone::getReverbGain()
 {
-    return m_reverb_gain;
+  return m_reverb_gain;
 }
 
 void KRReverbZone::setReverbGain(float reverb_gain)
 {
-    m_reverb_gain = reverb_gain;
+  m_reverb_gain = reverb_gain;
 }
 
 std::string KRReverbZone::getZone()
 {
-    return m_zone;
+  return m_zone;
 }
 
-void KRReverbZone::setZone(const std::string &zone)
+void KRReverbZone::setZone(const std::string& zone)
 {
-    m_zone = zone;
+  m_zone = zone;
 }
 
 void KRReverbZone::render(RenderInfo& ri)
 {
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_REVERB_ZONES;
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
-        if (sphereModel) {
-          Matrix4 sphereModelMatrix = getModelMatrix();
-          PipelineInfo info{};
-          std::string shader_name("visualize_overlay");
-          info.shader_name = &shader_name;
-          info.pCamera = ri.camera;
-          info.point_lights = &ri.point_lights;
-          info.directional_lights = &ri.directional_lights;
-          info.spot_lights = &ri.spot_lights;
-          info.renderPass = ri.renderPass;
-          info.rasterMode = RasterMode::kAlphaBlend;
-          info.modelFormat = sphereModel->getModelFormat();
-          info.vertexAttributes = sphereModel->getVertexAttributes();
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
-          KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+  KRNode::render(ri);
 
-          pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_REVERB_ZONES;
 
-          sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-        } // sphereModel
-    }
+  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    if (sphereModel) {
+      Matrix4 sphereModelMatrix = getModelMatrix();
+      PipelineInfo info{};
+      std::string shader_name("visualize_overlay");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAlphaBlend;
+      info.modelFormat = sphereModel->getModelFormat();
+      info.vertexAttributes = sphereModel->getVertexAttributes();
+
+      KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+
+      pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+      sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+    } // sphereModel
+  }
 }
 
 
 float KRReverbZone::getGradientDistance()
 {
-    return m_gradient_distance;
+  return m_gradient_distance;
 }
 
 void KRReverbZone::setGradientDistance(float gradient_distance)
 {
-    m_gradient_distance = gradient_distance;
+  m_gradient_distance = gradient_distance;
 }
 
-AABB KRReverbZone::getBounds() {
-    // Reverb zones always have a -1, -1, -1 to 1, 1, 1 bounding box
-    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
-}
-
-float KRReverbZone::getContainment(const Vector3 &pos)
+AABB KRReverbZone::getBounds()
 {
-    AABB bounds = getBounds();
-    if(bounds.contains(pos)) {
-        Vector3 size = bounds.size();
-        Vector3 diff = pos - bounds.center();
-        diff = diff * 2.0f;
-        diff = Vector3::Create(diff.x / size.x, diff.y / size.y, diff.z / size.z);
-        float d = diff.magnitude();
-        
-        if(m_gradient_distance <= 0.0f) {
-            // Avoid division by zero
-            d = d > 1.0f ? 0.0f : 1.0f;
-        } else {
-            d = (1.0f - d) / m_gradient_distance;
-            d = KRCLAMP(d, 0.0f, 1.0f);
-        }
-        return d;
-        
+  // Reverb zones always have a -1, -1, -1 to 1, 1, 1 bounding box
+  return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix());
+}
+
+float KRReverbZone::getContainment(const Vector3& pos)
+{
+  AABB bounds = getBounds();
+  if (bounds.contains(pos)) {
+    Vector3 size = bounds.size();
+    Vector3 diff = pos - bounds.center();
+    diff = diff * 2.0f;
+    diff = Vector3::Create(diff.x / size.x, diff.y / size.y, diff.z / size.z);
+    float d = diff.magnitude();
+
+    if (m_gradient_distance <= 0.0f) {
+      // Avoid division by zero
+      d = d > 1.0f ? 0.0f : 1.0f;
     } else {
-        return 0.0f;
+      d = (1.0f - d) / m_gradient_distance;
+      d = KRCLAMP(d, 0.0f, 1.0f);
     }
+    return d;
+
+  } else {
+    return 0.0f;
+  }
 }

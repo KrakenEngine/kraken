@@ -37,11 +37,12 @@
 #include "KRContextObject.h"
 #include "KRDataBlock.h"
 
-class KRResourceManager : public KRContextObject {
+class KRResourceManager : public KRContextObject
+{
 public:
-    KRResourceManager(KRContext &context);
-    virtual ~KRResourceManager();
-    
-    virtual KRResource* loadResource(const std::string &name, const std::string &extension, KRDataBlock *data) = 0;
-    virtual KRResource* getResource(const std::string &name, const std::string &extension) = 0;
+  KRResourceManager(KRContext& context);
+  virtual ~KRResourceManager();
+
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) = 0;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) = 0;
 };

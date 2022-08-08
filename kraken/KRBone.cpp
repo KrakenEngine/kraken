@@ -39,75 +39,76 @@ void KRBone::InitNodeInfo(KrNodeInfo* nodeInfo)
   // No additional members
 }
 
-KRBone::KRBone(KRScene &scene, std::string name) : KRNode(scene, name)
+KRBone::KRBone(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-    setScaleCompensation(true);
+  setScaleCompensation(true);
 }
 
 KRBone::~KRBone()
+{}
+
+std::string KRBone::getElementName()
 {
+  return "bone";
 }
 
-std::string KRBone::getElementName() {
-    return "bone";
-}
-
-tinyxml2::XMLElement *KRBone::saveXML( tinyxml2::XMLNode *parent)
+tinyxml2::XMLElement* KRBone::saveXML(tinyxml2::XMLNode* parent)
 {
-    tinyxml2::XMLElement *e = KRNode::saveXML(parent);
+  tinyxml2::XMLElement* e = KRNode::saveXML(parent);
 
-    return e;
+  return e;
 }
 
-void KRBone::loadXML(tinyxml2::XMLElement *e)
+void KRBone::loadXML(tinyxml2::XMLElement* e)
 {
-    KRNode::loadXML(e);
-    setScaleCompensation(true);
+  KRNode::loadXML(e);
+  setScaleCompensation(true);
 }
 
-AABB KRBone::getBounds() {
-    return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix()); // Only required for bone debug visualization
+AABB KRBone::getBounds()
+{
+  return AABB::Create(-Vector3::One(), Vector3::One(), getModelMatrix()); // Only required for bone debug visualization
 }
 
 void KRBone::render(RenderInfo& ri)
 {
-    if(m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-    
-    KRNode::render(ri);
-    
-    bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES;
-    
-    if(ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-        KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
-        if (sphereModel) {
-          Matrix4 sphereModelMatrix = getModelMatrix();
-        
-          PipelineInfo info{};
-          std::string shader_name("visualize_overlay");
-          info.shader_name = &shader_name;
-          info.pCamera = ri.camera;
-          info.point_lights = &ri.point_lights;
-          info.directional_lights = &ri.directional_lights;
-          info.spot_lights = &ri.spot_lights;
-          info.renderPass = ri.renderPass;
-          info.rasterMode = RasterMode::kAdditiveNoTest;
-          info.modelFormat = sphereModel->getModelFormat();
-          info.vertexAttributes = sphereModel->getVertexAttributes();
+  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
-          KRPipeline *pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-          pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  KRNode::render(ri);
 
-          sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
-        } // sphereModel
-    }
+  bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES;
+
+  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    if (sphereModel) {
+      Matrix4 sphereModelMatrix = getModelMatrix();
+
+      PipelineInfo info{};
+      std::string shader_name("visualize_overlay");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAdditiveNoTest;
+      info.modelFormat = sphereModel->getModelFormat();
+      info.vertexAttributes = sphereModel->getVertexAttributes();
+
+      KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+      pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+
+      sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+    } // sphereModel
+  }
 }
 
 
-void KRBone::setBindPose(const Matrix4 &pose)
+void KRBone::setBindPose(const Matrix4& pose)
 {
-    m_bind_pose = pose;
+  m_bind_pose = pose;
 }
-const Matrix4 &KRBone::getBindPose()
+const Matrix4& KRBone::getBindPose()
 {
-    return m_bind_pose;
+  return m_bind_pose;
 }

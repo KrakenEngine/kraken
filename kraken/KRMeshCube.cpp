@@ -32,38 +32,38 @@
 #include "KRMeshCube.h"
 
 
-KRMeshCube::KRMeshCube(KRContext &context) : KRMesh(context, "__cube")
+KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
 {
-    m_constant = true;
-    
-    KRMesh::mesh_info mi;
-    
-    mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(1.0,-1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0,-1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0,-1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0, 1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(1.0, 1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(1.0,-1.0, 1.0));
-    mi.vertices.push_back(Vector3::Create(1.0,-1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0,-1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(1.0, 1.0,-1.0));
-    mi.vertices.push_back(Vector3::Create(-1.0, 1.0,-1.0));
-    
-    
-    mi.submesh_starts.push_back(0);
-    mi.submesh_lengths.push_back((int)mi.vertices.size());
-    mi.material_names.push_back("");
-    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+  m_constant = true;
 
-    
-    LoadData(mi, true, true);
+  KRMesh::mesh_info mi;
+
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, -1.0));
+
+
+  mi.submesh_starts.push_back(0);
+  mi.submesh_lengths.push_back((int)mi.vertices.size());
+  mi.material_names.push_back("");
+  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+
+
+  LoadData(mi, true, true);
 }
 
 KRMeshCube::~KRMeshCube()
 {
-    
+
 }

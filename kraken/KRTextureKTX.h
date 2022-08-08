@@ -36,37 +36,37 @@
 class KRTextureKTX : public KRTexture2D
 {
 public:
-    KRTextureKTX(KRContext &context, KRDataBlock *data, std::string name);
-    KRTextureKTX(KRContext &context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock *> &blocks);
-    virtual ~KRTextureKTX();
-    virtual std::string getExtension();
-    
-    bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
-    
-    virtual long getMemRequiredForSize(int max_dim);
-    virtual Vector2i getDimensions() const override;
-    
+  KRTextureKTX(KRContext& context, KRDataBlock* data, std::string name);
+  KRTextureKTX(KRContext& context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks);
+  virtual ~KRTextureKTX();
+  virtual std::string getExtension();
+
+  bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) override;
+
+  virtual long getMemRequiredForSize(int max_dim);
+  virtual Vector2i getDimensions() const override;
+
 protected:
-    
-    std::list<KRDataBlock *> m_blocks;
-    
-    typedef struct _KTXHeader
-    {
-        __uint8_t identifier[12];
-        __uint32_t endianness;
-        __uint32_t glType;
-        __uint32_t glTypeSize;
-        __uint32_t glFormat;
-        __uint32_t glInternalFormat;
-        __uint32_t glBaseInternalFormat;
-        __uint32_t pixelWidth;
-        __uint32_t pixelHeight;
-        __uint32_t pixelDepth;
-        __uint32_t numberOfArrayElements;
-        __uint32_t numberOfFaces;
-        __uint32_t numberOfMipmapLevels;
-        __uint32_t bytesOfKeyValueData;
-    } KTXHeader;
-    
-    KTXHeader m_header;
+
+  std::list<KRDataBlock*> m_blocks;
+
+  typedef struct _KTXHeader
+  {
+    __uint8_t identifier[12];
+    __uint32_t endianness;
+    __uint32_t glType;
+    __uint32_t glTypeSize;
+    __uint32_t glFormat;
+    __uint32_t glInternalFormat;
+    __uint32_t glBaseInternalFormat;
+    __uint32_t pixelWidth;
+    __uint32_t pixelHeight;
+    __uint32_t pixelDepth;
+    __uint32_t numberOfArrayElements;
+    __uint32_t numberOfFaces;
+    __uint32_t numberOfMipmapLevels;
+    __uint32_t bytesOfKeyValueData;
+  } KTXHeader;
+
+  KTXHeader m_header;
 };
