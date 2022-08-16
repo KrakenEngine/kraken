@@ -38,6 +38,7 @@
 
 KRShaderManager::KRShaderManager(KRContext& context) : KRResourceManager(context)
 , m_initializedGlslang(false)
+, m_includer(&context)
 {
 
 }
@@ -288,7 +289,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
       shader.setStringsWithLengthsAndNames(sourceText, sourceLen, sourceNameStr, 1);
       //shader.setStrings(&sourceStr, 1);
 
-      if (shader.parse(&resources, defaultVersion, false, messages)) {
+      if (shader.parse(&resources, defaultVersion, false, messages, m_includer)) {
         program.addShader(&shader);
       } else {
         const char* log = shader.getInfoLog();
@@ -357,4 +358,39 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
   }
 
   return success;
+}
+
+KRShaderManager::Includer::Includer(KRContext* context)
+  : m_context(context)
+{}
+
+glslang::TShader::Includer::IncludeResult* KRShaderManager::Includer::includeSystem(
+  const char* headerName,
+  const char* includerName,
+  size_t inclusionDepth)
+{
+  fprintf(stderr, "includeSystem(%s, %s, %llu)\n", headerName, includerName, inclusionDepth);
+  return nullptr;
+}
+glslang::TShader::Includer::IncludeResult* KRShaderManager::Includer::includeLocal(
+  const char* headerName,
+  const char* includerName,
+  size_t inclusionDepth)
+{
+  std::string name = KRResource::GetFileBase(headerName);
+  std::string extension = KRResource::GetFileExtension(headerName);
+  KRSource* source = m_context->getSourceManager()->get(name, extension);
+  if (!source) {
+    return nullptr;
+  }
+  KRDataBlock* data = source->getData();
+  data->lock();
+  const char* sourceString = static_cast<const char*>(data->getStart());
+  return new IncludeResult(std::string(headerName), sourceString, data->getSize(), static_cast<void*>(data));
+}
+
+void KRShaderManager::Includer::releaseInclude(IncludeResult* includeResult)
+{
+  KRDataBlock* data = static_cast<KRDataBlock*>(includeResult->userData);
+  data->unlock();
 }

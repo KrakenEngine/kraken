@@ -1,0 +1,2 @@
+
+#define VULKAN_TEST_BRIGHTNESS 0.25

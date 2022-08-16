@@ -1,4 +1,7 @@
 #version 450
+#extension GL_GOOGLE_include_directive : enable
+
+#include "vulkan_test_include.glsl"
 
 // Temporary test shader for vulkan bringup...
 // See https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules
@@ -17,5 +20,5 @@ layout( push_constant ) uniform constants
 
 void main() {
     gl_Position = vec4(vertex_position * 0.5, 1.0);
-    fragColor = vertex_normal * 0.25 + vec3(0.5, 0.5, 0.5);
+    fragColor = vertex_normal * 0.25 + vec3(0.5, 0.5, 0.5) * VULKAN_TEST_BRIGHTNESS;
 }

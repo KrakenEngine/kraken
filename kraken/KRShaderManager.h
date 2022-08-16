@@ -61,7 +61,24 @@ public:
 
   unordered_map<std::string, unordered_map<std::string, KRShader*> >& getShaders();
 
+  class Includer : public glslang::TShader::Includer
+  {
+  public:
+    Includer() = delete;
+    Includer(KRContext* context);
+    IncludeResult* includeSystem(const char* headerName,
+                                 const char* includerName,
+                                 size_t inclusionDepth) override;
+    IncludeResult* includeLocal(const char* headerName,
+                                const char* includerName,
+                                size_t inclusionDepth) override;
+    void releaseInclude(IncludeResult* includeResult) override;
+  private:
+    KRContext* m_context;
+  };
+
 private:
   unordered_map<std::string, unordered_map<std::string, KRShader*> > m_shaders;
   bool m_initializedGlslang;
+  Includer m_includer;
 };
