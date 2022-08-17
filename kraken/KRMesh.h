@@ -148,9 +148,7 @@ public:
     {};
     ~Submesh()
     {
-      for (auto itr = vbo_data_blocks.begin(); itr != vbo_data_blocks.end(); itr++) {
-        delete (*itr);
-      }
+      vbo_data_blocks.clear();
       for (auto itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
         delete (*itr);
       }
@@ -159,12 +157,15 @@ public:
       }
     };
 
-    GLint start_vertex;
-    GLsizei vertex_count;
+    int start_vertex;
+    int vertex_count;
     char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
     vector<KRDataBlock*> vertex_data_blocks;
     vector<KRDataBlock*> index_data_blocks;
-    vector<KRMeshManager::KRVBOData*> vbo_data_blocks;
+    // KRMeshManager depends on the address of KRVBOData's being constant
+    // after allocation, enforced by deleted copy constructors.
+    // As std::vector requires copy constuctors, we wrap these in shared_ptr.
+    vector<shared_ptr<KRMeshManager::KRVBOData>> vbo_data_blocks;
   };
 
   typedef struct

@@ -98,6 +98,8 @@ using std::string;
 using std::set;
 using std::list;
 using std::map;
+using std::unique_ptr;
+using std::shared_ptr;
 
 using std::multimap;
 

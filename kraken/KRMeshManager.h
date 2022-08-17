@@ -113,7 +113,8 @@ public:
     void unload();
     void bind(VkCommandBuffer& commandBuffer);
 
-    // Disable copy constructors
+    // KRMeshManager depends on the address of KRVBOData's being constant
+    // after allocation.  This is enforced by deleted copy constructors.
     KRVBOData(const KRVBOData& o) = delete;
     KRVBOData& operator=(const KRVBOData& o) = delete;
 

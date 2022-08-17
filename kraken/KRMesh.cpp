@@ -212,10 +212,9 @@ void KRMesh::preStream(float lodCoverage)
     (*mat_itr)->preStream(lodCoverage);
   }
 
-  int cSubmeshes = (int)m_submeshes.size();
-  for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
-    for (auto vbo_data_itr = m_submeshes[iSubmesh].vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh].vbo_data_blocks.end(); vbo_data_itr++) {
-      (*vbo_data_itr)->resetPoolExpiry(lodCoverage);
+  for (Submesh& mesh : m_submeshes) {
+    for (shared_ptr<KRMeshManager::KRVBOData>& vbo : mesh.vbo_data_blocks) {
+      vbo->resetPoolExpiry(lodCoverage);
     }
   }
 }
@@ -231,10 +230,9 @@ kraken_stream_level KRMesh::getStreamLevel()
   }
   bool all_vbo_data_loaded = true;
   bool vbo_data_loaded = false;
-  int cSubmeshes = (int)m_submeshes.size();
-  for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
-    for (auto vbo_data_itr = m_submeshes[iSubmesh].vbo_data_blocks.begin(); vbo_data_itr != m_submeshes[iSubmesh].vbo_data_blocks.end(); vbo_data_itr++) {
-      if ((*vbo_data_itr)->isVBOReady()) {
+  for (const Submesh& mesh : m_submeshes) {
+    for (const shared_ptr<KRMeshManager::KRVBOData>& vbo_data : mesh.vbo_data_blocks) {
+      if (vbo_data->isVBOReady()) {
         vbo_data_loaded = true;
       } else {
         all_vbo_data_loaded = false;
@@ -381,15 +379,13 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
           KRDataBlock* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
           KRDataBlock* index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
-          KRMeshManager::KRVBOData* vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
+          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
 #endif
-
-          );
+          ));
           mesh.vertex_data_blocks.push_back(vertex_data_block);
           mesh.index_data_blocks.push_back(index_data_block);
-          mesh.vbo_data_blocks.push_back(vbo_data_block);
         }
         vbo_index++;
 
@@ -412,13 +408,12 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
           KRDataBlock* index_data_block = NULL;
           KRDataBlock* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-          KRMeshManager::KRVBOData* vbo_data_block = new KRMeshManager::KRVBOData(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
+          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
 #endif
-          );
-          mesh.vertex_data_blocks.push_back(vertex_data_block);
-          mesh.vbo_data_blocks.push_back(vbo_data_block);
+          ));
+          mesh.vertex_data_blocks.emplace_back(vertex_data_block);
         }
         vbo_index++;
 
@@ -451,7 +446,7 @@ bool KRMesh::isReady() const
 {
   // TODO - This should be cached...
   for (const Submesh& mesh : m_submeshes) {
-    for (const KRMeshManager::KRVBOData* vbo_data_block : mesh.vbo_data_blocks) {
+    for (const shared_ptr<KRMeshManager::KRVBOData>& vbo_data_block : mesh.vbo_data_blocks) {
       if (!vbo_data_block->isVBOReady()) {
         return false;
       }
@@ -467,6 +462,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
   Submesh& mesh = m_submeshes[iSubmesh];
   int cVertexes = mesh.vertex_count;
 
+  vector<shared_ptr<KRMeshManager::KRVBOData>>::iterator vbo_itr = mesh.vbo_data_blocks.begin();
   int vbo_index = 0;
   if (getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
 
@@ -477,11 +473,10 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
       int start_index_offset, start_vertex_offset, index_count, vertex_count;
       getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
 
-      KRMeshManager::KRVBOData* vbo_data_block = mesh.vbo_data_blocks[vbo_index++];
-      assert(vbo_data_block->isVBOReady());
+      KRMeshManager::KRVBOData& vbo_data_block = **(vbo_itr++);
+      assert(vbo_data_block.isVBOReady());
 
-      m_pContext->getMeshManager()->bindVBO(commandBuffer, vbo_data_block, lodCoverage);
-
+      m_pContext->getMeshManager()->bindVBO(commandBuffer, &vbo_data_block, lodCoverage);
 
       int vertex_draw_count = cVertexes;
       if (vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
@@ -500,9 +495,9 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
     while (cVertexes > 0) {
       GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : cVertexes % MAX_VBO_SIZE;
 
-      KRMeshManager::KRVBOData* vbo_data_block = mesh.vbo_data_blocks[vbo_index++];
-      assert(vbo_data_block->isVBOReady());
-      m_pContext->getMeshManager()->bindVBO(commandBuffer, vbo_data_block, lodCoverage);
+      KRMeshManager::KRVBOData& vbo_data_block = **vbo_itr++;
+      assert(vbo_data_block.isVBOReady());
+      m_pContext->getMeshManager()->bindVBO(commandBuffer, &vbo_data_block, lodCoverage);
 
 
       if (iVertex + cVertexes >= MAX_VBO_SIZE) {
