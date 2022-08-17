@@ -104,7 +104,7 @@ public:
     {
       return m_is_vbo_loaded;
     }
-    bool isVBOReady()
+    bool isVBOReady() const
     {
       return m_is_vbo_ready;
     }

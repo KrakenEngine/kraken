@@ -275,7 +275,7 @@ private:
     unsigned char reserved[444]; // Pad out to 512 bytes
   } pack_header;
 
-  vector<Submesh*> m_submeshes;
+  vector<Submesh> m_submeshes;
   int m_vertex_attribute_offset[KRENGINE_NUM_ATTRIBUTES];
   int m_vertex_size;
   void updateAttributeOffsets();
