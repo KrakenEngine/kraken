@@ -37,6 +37,7 @@
 #include "KRTextureManager.h"
 #include "KRMaterialManager.h"
 #include "KRPipelineManager.h"
+#include "KRSamplerManager.h"
 #include "KRMeshManager.h"
 #include "KRAnimationManager.h"
 #include "KRAnimationCurveManager.h"
@@ -53,6 +54,7 @@ class KRPresentationThread;
 class KRStreamerThread;
 class KRDeviceManager;
 class KRSurfaceManager;
+class KRSamplerManager;
 
 class KRContext
 {
@@ -106,6 +108,7 @@ public:
   KRTextureManager* getTextureManager();
   KRMaterialManager* getMaterialManager();
   KRPipelineManager* getPipelineManager();
+  KRSamplerManager* getSamplerManager();
   KRMeshManager* getMeshManager();
   KRAnimationManager* getAnimationManager();
   KRAnimationCurveManager* getAnimationCurveManager();
@@ -158,6 +161,7 @@ private:
   std::unique_ptr<KRTextureManager> m_pTextureManager;
   std::unique_ptr<KRMaterialManager> m_pMaterialManager;
   std::unique_ptr<KRPipelineManager> m_pPipelineManager;
+  std::unique_ptr<KRSamplerManager> m_pSamplerManager;
   std::unique_ptr<KRMeshManager> m_pMeshManager;
   std::unique_ptr<KRAnimationManager> m_pAnimationManager;
   std::unique_ptr<KRAnimationCurveManager> m_pAnimationCurveManager;

@@ -101,6 +101,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 
   m_pBundleManager = std::make_unique<KRBundleManager>(*this);
   m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
+  m_pSamplerManager = std::make_unique<KRSamplerManager>(*this);
   m_pTextureManager = std::make_unique<KRTextureManager>(*this);
   m_pMaterialManager = std::make_unique<KRMaterialManager>(*this, m_pTextureManager.get(), m_pPipelineManager.get());
   m_pMeshManager = std::make_unique<KRMeshManager>(*this);
@@ -148,6 +149,7 @@ KRContext::~KRContext()
   m_pTextureManager->destroy();
   m_pTextureManager.reset();
   m_pPipelineManager.reset();
+  m_pSamplerManager.reset();
   m_pAnimationManager.reset();
   m_pAnimationCurveManager.reset();
   m_pSoundManager->destroy();
@@ -213,6 +215,10 @@ KRMaterialManager* KRContext::getMaterialManager()
 KRPipelineManager* KRContext::getPipelineManager()
 {
   return m_pPipelineManager.get();
+}
+KRSamplerManager* KRContext::getSamplerManager()
+{
+  return m_pSamplerManager.get();
 }
 KRMeshManager* KRContext::getMeshManager()
 {
