@@ -52,8 +52,6 @@ public:
 
   KRSampler* getSampler(KRSurface& surface, const SamplerInfo& info);
 
-  size_t getSamplerHandlesUsed();
-
 private:
   typedef std::map<std::pair<std::string, std::vector<int> >, KRSampler*> SamplerMap;
   SamplerMap m_samplers;

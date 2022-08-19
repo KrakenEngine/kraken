@@ -49,8 +49,3 @@ KRSampler* KRSamplerManager::getSampler(KRSurface& surface, const SamplerInfo& i
   // TODO - Implement stub function
   return nullptr;
 }
-
-size_t KRSamplerManager::getSamplerHandlesUsed()
-{
-  // TODO - Implement stub function
-}
