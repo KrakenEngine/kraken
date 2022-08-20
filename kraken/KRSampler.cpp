@@ -30,8 +30,9 @@
 //
 
 #include "KRSampler.h"
+#include "KRSamplerManager.h"
 
-KRSampler::KRSampler(KRContext& context, KRSurface& surface, const SamplerInfo& info)
+KRSampler::KRSampler(KRContext& context, const SamplerInfo& info)
   : KRContextObject(context)
 {
   // TODO - Implement stub function

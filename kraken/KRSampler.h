@@ -34,19 +34,14 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRSurface.h"
 
-class SamplerInfo
-{
-public:
-  VkSamplerCreateInfo createInfo;
-};
+class SamplerInfo;
 
 class KRSampler : public KRContextObject
 {
 public:
 
-  KRSampler(KRContext& context, KRSurface& surface, const SamplerInfo& info);
+  KRSampler(KRContext& context, const SamplerInfo& info);
   virtual ~KRSampler();
 
   VkSampler& getSampler();

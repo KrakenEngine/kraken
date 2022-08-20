@@ -33,19 +33,32 @@
 
 #include "KRSamplerManager.h"
 
+// TODO - Purge samplers that are not used for several frames
+
+bool SamplerInfo::operator==(const SamplerInfo& rhs) const
+{
+  assert(rhs.createInfo.pNext == nullptr);
+  assert(createInfo.pNext == nullptr);
+  // Compare the contents of the SamplerInfo struct, ignoring the first two members (sType, pNext)
+  return memcmp(&rhs.createInfo.flags, &createInfo.flags, sizeof(createInfo) - size_t(&createInfo.flags) - size_t(&createInfo));
+}
+
 KRSamplerManager::KRSamplerManager(KRContext& context)
   : KRContextObject(context)
 {
-  // TODO - Implement stub function
 }
 
 KRSamplerManager::~KRSamplerManager()
 {
-  // TODO - Implement stub function
 }
 
-KRSampler* KRSamplerManager::getSampler(KRSurface& surface, const SamplerInfo& info)
+KRSampler* KRSamplerManager::getSampler(const SamplerInfo& info)
 {
-  // TODO - Implement stub function
-  return nullptr;
+  SamplerMap::iterator itr = m_samplers.find(info);
+  if (itr != m_samplers.end()) {
+    return itr->second;
+  }
+  KRSampler* sampler = new KRSampler(getContext(), info);
+  m_samplers.emplace(info, sampler);
+  return sampler;
 }

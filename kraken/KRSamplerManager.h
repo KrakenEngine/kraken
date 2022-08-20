@@ -40,19 +40,32 @@ using std::vector;
 
 #include "KRSampler.h"
 
-class KRSampler;
-class SamplerInfo;
+class SamplerInfo
+{
+public:
+  VkSamplerCreateInfo createInfo;
+  bool operator==(const SamplerInfo& rhs) const;
+};
+
+struct SamplerInfoHasher
+{
+  std::size_t operator()(const SamplerInfo& s) const
+  {
+    // Compute a hash using the most commonly used sampler fields
+    // Collisions are okay, but we need to balance cost of creating
+    // hashes with cost of resolving collisions.
+    return std::hash<uint32_t>{}(static_cast<uint32_t>((s.createInfo.flags)));
+  }
+};
 
 class KRSamplerManager : public KRContextObject
 {
 public:
-
   KRSamplerManager(KRContext& context);
   virtual ~KRSamplerManager();
 
-  KRSampler* getSampler(KRSurface& surface, const SamplerInfo& info);
-
+  KRSampler* getSampler(const SamplerInfo& info);
 private:
-  typedef std::map<std::pair<std::string, std::vector<int> >, KRSampler*> SamplerMap;
+  typedef std::unordered_map<SamplerInfo, KRSampler*, SamplerInfoHasher> SamplerMap;
   SamplerMap m_samplers;
 };
