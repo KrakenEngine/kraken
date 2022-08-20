@@ -50,6 +50,15 @@ KRSamplerManager::KRSamplerManager(KRContext& context)
 
 KRSamplerManager::~KRSamplerManager()
 {
+  
+}
+
+void KRSamplerManager::destroy()
+{
+  for (SamplerMap::iterator itr = m_samplers.begin(); itr != m_samplers.end(); ++itr) {
+    delete (*itr).second;
+  }
+  m_samplers.clear();
 }
 
 KRSampler* KRSamplerManager::getSampler(const SamplerInfo& info)

@@ -65,6 +65,7 @@ public:
   virtual ~KRSamplerManager();
 
   KRSampler* getSampler(const SamplerInfo& info);
+  void destroy();
 private:
   typedef std::unordered_map<SamplerInfo, KRSampler*, SamplerInfoHasher> SamplerMap;
   SamplerMap m_samplers;

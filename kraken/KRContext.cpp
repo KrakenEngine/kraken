@@ -149,6 +149,9 @@ KRContext::~KRContext()
   m_pTextureManager->destroy();
   m_pTextureManager.reset();
   m_pPipelineManager.reset();
+  if (m_pSamplerManager) {
+    m_pSamplerManager->destroy();
+  }
   m_pSamplerManager.reset();
   m_pAnimationManager.reset();
   m_pAnimationCurveManager.reset();
