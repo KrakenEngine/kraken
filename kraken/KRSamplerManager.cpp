@@ -45,6 +45,8 @@ bool SamplerInfo::operator==(const SamplerInfo& rhs) const
 
 KRSamplerManager::KRSamplerManager(KRContext& context)
   : KRContextObject(context)
+  , DEFAULT_CLAMPED_SAMPLER(nullptr)
+  , DEFAULT_WRAPPING_SAMPLER(nullptr)
 {
 }
 
@@ -61,6 +63,35 @@ void KRSamplerManager::destroy()
   m_samplers.clear();
 }
 
+void KRSamplerManager::init()
+{
+  SamplerInfo info{};
+  info.createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  info.createInfo.magFilter = VK_FILTER_LINEAR;
+  info.createInfo.minFilter = VK_FILTER_LINEAR;
+  info.createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.createInfo.anisotropyEnable = VK_TRUE;
+  info.createInfo.maxAnisotropy = 16; // TODO - This should be dynamic
+  info.createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+  info.createInfo.unnormalizedCoordinates = VK_FALSE;
+  info.createInfo.compareEnable = VK_FALSE;
+  info.createInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+  info.createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+  info.createInfo.mipLodBias = 0.0f;
+  info.createInfo.minLod = 0.0f;
+  info.createInfo.maxLod = 0.0f;
+
+  DEFAULT_CLAMPED_SAMPLER = getSampler(info);
+
+  info.createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  info.createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  info.createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+  DEFAULT_WRAPPING_SAMPLER = getSampler(info);
+}
+
 KRSampler* KRSamplerManager::getSampler(const SamplerInfo& info)
 {
   SamplerMap::iterator itr = m_samplers.find(info);
@@ -68,6 +99,6 @@ KRSampler* KRSamplerManager::getSampler(const SamplerInfo& info)
     return itr->second;
   }
   KRSampler* sampler = new KRSampler(getContext(), info);
-  m_samplers.emplace(info, sampler);
+  m_samplers[info] = sampler;
   return sampler;
 }

@@ -34,6 +34,7 @@
 
 KRSampler::KRSampler(KRContext& context, const SamplerInfo& info)
   : KRContextObject(context)
+  , m_sampler(VK_NULL_HANDLE)
 {
   // TODO - Implement stub function
 }

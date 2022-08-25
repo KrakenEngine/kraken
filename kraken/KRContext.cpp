@@ -102,6 +102,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   m_pBundleManager = std::make_unique<KRBundleManager>(*this);
   m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
   m_pSamplerManager = std::make_unique<KRSamplerManager>(*this);
+  m_pSamplerManager->init();
   m_pTextureManager = std::make_unique<KRTextureManager>(*this);
   m_pMaterialManager = std::make_unique<KRMaterialManager>(*this, m_pTextureManager.get(), m_pPipelineManager.get());
   m_pMeshManager = std::make_unique<KRMeshManager>(*this);

@@ -63,9 +63,13 @@ class KRSamplerManager : public KRContextObject
 public:
   KRSamplerManager(KRContext& context);
   virtual ~KRSamplerManager();
+  void init();
 
   KRSampler* getSampler(const SamplerInfo& info);
   void destroy();
+
+  KRSampler* DEFAULT_CLAMPED_SAMPLER;
+  KRSampler* DEFAULT_WRAPPING_SAMPLER;
 private:
   typedef std::unordered_map<SamplerInfo, KRSampler*, SamplerInfoHasher> SamplerMap;
   SamplerMap m_samplers;
