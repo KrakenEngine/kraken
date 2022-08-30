@@ -101,6 +101,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 
   m_pBundleManager = std::make_unique<KRBundleManager>(*this);
   m_deviceManager = std::make_unique<KRDeviceManager>(*this);
+  m_deviceManager->initialize();
   m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
   m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
   m_pSamplerManager = std::make_unique<KRSamplerManager>(*this);
@@ -133,8 +134,6 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
 #else
 #error Unsupported
 #endif
-
-  m_deviceManager->initialize();
 
   m_presentationThread->start();
   m_streamerThread->start();

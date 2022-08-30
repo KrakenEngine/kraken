@@ -47,7 +47,7 @@ KRSampler::~KRSampler()
 bool KRSampler::createSamplers(const SamplerInfo& info)
 {
   bool success = true;
-  m_samplers.clear();
+  destroy();
   KRDeviceManager* deviceManager = getContext().getDeviceManager();
   int iAllocation = 0;
 
@@ -82,5 +82,11 @@ VkSampler KRSampler::getSampler(KrDeviceHandle& handle)
 
 void KRSampler::destroy()
 {
-
+  for (std::pair<KrDeviceHandle, VkSampler> sampler : m_samplers) {
+    std::unique_ptr<KRDevice> &device = getContext().getDeviceManager()->getDevice(sampler.first);
+    if (device) {
+      vkDestroySampler(device->m_logicalDevice, sampler.second, nullptr);
+    }
+  }
+  m_samplers.clear();
 }
