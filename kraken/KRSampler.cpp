@@ -34,7 +34,6 @@
 
 KRSampler::KRSampler(KRContext& context, const SamplerInfo& info)
   : KRContextObject(context)
-  , m_sampler(VK_NULL_HANDLE)
 {
   // TODO - Implement stub function
 }
@@ -44,7 +43,14 @@ KRSampler::~KRSampler()
   // TODO - Implement stub function
 }
 
-VkSampler& KRSampler::getSampler()
+VkSampler KRSampler::getSampler(KrDeviceHandle& handle)
 {
-  return m_sampler;
+  for (std::pair<KrDeviceHandle, VkSampler> sampler : m_samplers) {
+    if (sampler.first == handle) {
+      return sampler.second;
+    }
+  }
+  // TODO - Handle device context loss
+  assert(false);
+  return VK_NULL_HANDLE;
 }

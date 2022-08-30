@@ -44,9 +44,9 @@ public:
   KRSampler(KRContext& context, const SamplerInfo& info);
   virtual ~KRSampler();
 
-  VkSampler& getSampler();
+  VkSampler getSampler(KrDeviceHandle &handle);
 
 private:
-
-  VkSampler m_sampler;
+  typedef std::vector<std::pair<KrDeviceHandle, VkSampler>> SamplerSet;
+  SamplerSet m_samplers;
 };
