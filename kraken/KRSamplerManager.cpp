@@ -98,7 +98,8 @@ KRSampler* KRSamplerManager::getSampler(const SamplerInfo& info)
   if (itr != m_samplers.end()) {
     return itr->second;
   }
-  KRSampler* sampler = new KRSampler(getContext(), info);
+  KRSampler* sampler = new KRSampler(getContext());
+  sampler->createSamplers(info);
   m_samplers[info] = sampler;
   return sampler;
 }

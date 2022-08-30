@@ -100,6 +100,8 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   m_absolute_time = 0.0f;
 
   m_pBundleManager = std::make_unique<KRBundleManager>(*this);
+  m_deviceManager = std::make_unique<KRDeviceManager>(*this);
+  m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
   m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
   m_pSamplerManager = std::make_unique<KRSamplerManager>(*this);
   m_pSamplerManager->init();
@@ -114,8 +116,6 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   m_pUnknownManager = std::make_unique<KRUnknownManager>(*this);
   m_pShaderManager = std::make_unique<KRShaderManager>(*this);
   m_pSourceManager = std::make_unique<KRSourceManager>(*this);
-  m_deviceManager = std::make_unique<KRDeviceManager>(*this);
-  m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
   m_streamingEnabled = true;
 
 #if defined(_WIN32) || defined(_WIN64)

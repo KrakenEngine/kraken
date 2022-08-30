@@ -41,11 +41,12 @@ class KRSampler : public KRContextObject
 {
 public:
 
-  KRSampler(KRContext& context, const SamplerInfo& info);
+  KRSampler(KRContext& context);
   virtual ~KRSampler();
 
   VkSampler getSampler(KrDeviceHandle &handle);
-
+  bool createSamplers(const SamplerInfo& info);
+  void destroy();
 private:
   typedef std::vector<std::pair<KrDeviceHandle, VkSampler>> SamplerSet;
   SamplerSet m_samplers;

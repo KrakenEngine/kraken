@@ -31,8 +31,9 @@
 
 #include "KRSampler.h"
 #include "KRSamplerManager.h"
+#include "KRDeviceManager.h"
 
-KRSampler::KRSampler(KRContext& context, const SamplerInfo& info)
+KRSampler::KRSampler(KRContext& context)
   : KRContextObject(context)
 {
   // TODO - Implement stub function
@@ -40,7 +41,31 @@ KRSampler::KRSampler(KRContext& context, const SamplerInfo& info)
 
 KRSampler::~KRSampler()
 {
-  // TODO - Implement stub function
+  destroy();
+}
+
+bool KRSampler::createSamplers(const SamplerInfo& info)
+{
+  bool success = true;
+  m_samplers.clear();
+  KRDeviceManager* deviceManager = getContext().getDeviceManager();
+  int iAllocation = 0;
+
+  for (auto deviceItr = deviceManager->getDevices().begin(); deviceItr != deviceManager->getDevices().end() && iAllocation < KRENGINE_MAX_GPU_COUNT; deviceItr++, iAllocation++) {
+    KRDevice& device = *(*deviceItr).second;
+    VkSampler sampler = VK_NULL_HANDLE;
+    if (vkCreateSampler(device.m_logicalDevice, &info.createInfo, nullptr, &sampler) != VK_SUCCESS) {
+      success = false;
+      break;
+    }
+    m_samplers.push_back(std::make_pair(deviceItr->first, sampler));
+  }
+
+  if (!success) {
+    destroy();
+  }
+
+  return success;
 }
 
 VkSampler KRSampler::getSampler(KrDeviceHandle& handle)
@@ -53,4 +78,9 @@ VkSampler KRSampler::getSampler(KrDeviceHandle& handle)
   // TODO - Handle device context loss
   assert(false);
   return VK_NULL_HANDLE;
+}
+
+void KRSampler::destroy()
+{
+
 }
