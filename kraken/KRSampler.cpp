@@ -36,7 +36,6 @@
 KRSampler::KRSampler(KRContext& context)
   : KRContextObject(context)
 {
-  // TODO - Implement stub function
 }
 
 KRSampler::~KRSampler()
