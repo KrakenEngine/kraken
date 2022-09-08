@@ -329,6 +329,7 @@ private:
 
   char m_szKey[256];
 
+  VkDescriptorSetLayout m_descriptorSetLayout;
   VkPipelineLayout m_pipelineLayout;
   VkPipeline m_graphicsPipeline;
 

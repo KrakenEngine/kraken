@@ -121,6 +121,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
     pushConstants.layout = nullptr;
   }
 
+  m_descriptorSetLayout = nullptr;
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
 
@@ -133,6 +134,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   VkPipelineShaderStageCreateInfo stages[kMaxStages];
   memset(static_cast<void*>(stages), 0, sizeof(VkPipelineShaderStageCreateInfo) * kMaxStages);
   size_t stage_count = 0;
+
+  std::vector<VkDescriptorSetLayoutBinding> uboLayoutBindings;
 
   // TODO - Refactor this...  These lookup tables should be in KRMesh...
   static const KRMesh::vertex_attrib_t attribute_mapping[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {
@@ -152,12 +155,39 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
 
   uint32_t attribute_locations[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {};
 
+  uint32_t layout_binding_count = 0;
+  for (KRShader* shader : shaders) {
+    const SpvReflectShaderModule* reflection = shader->getReflection();
+    layout_binding_count += reflection->descriptor_binding_count;
+  }
+  uboLayoutBindings.reserve(layout_binding_count);
+
   for (KRShader* shader : shaders) {
     VkShaderModule shaderModule;
     if (!shader->createShaderModule(device->m_logicalDevice, shaderModule)) {
       // failed! TODO - Error handling
     }
     const SpvReflectShaderModule* reflection = shader->getReflection();
+    
+    for (uint32_t b = 0; b < reflection->descriptor_binding_count; b++) {
+      SpvReflectDescriptorBinding& binding_reflect = reflection->descriptor_bindings[b];
+      VkDescriptorSetLayoutBinding& binding = uboLayoutBindings.emplace_back();
+      memset(&binding, 0, sizeof(VkDescriptorSetLayoutBinding));
+      binding.binding = binding_reflect.binding;
+      // Note: VkDescriptorType and SpvReflectDescriptorType values match
+      binding.descriptorType = static_cast<VkDescriptorType>(binding_reflect.descriptor_type);
+      binding.descriptorCount = binding_reflect.count;
+      binding.pImmutableSamplers = nullptr;
+      if (shader->getSubExtension().compare("vert") == 0) {
+        binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+      } else if (shader->getSubExtension().compare("frag") == 0) {
+        binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+      } else {
+        // TODO - Error handling, support more stages
+        // Should probably make a lookup table for mapping extensions to stages
+      }
+    }
+
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     if (shader->getSubExtension().compare("vert") == 0) {
@@ -332,10 +362,26 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   colorBlending.blendConstants[2] = 0.0f;
   colorBlending.blendConstants[3] = 0.0f;
 
+  if (uboLayoutBindings.size()) {
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = uboLayoutBindings.size();
+    layoutInfo.pBindings = uboLayoutBindings.data();
+
+    if (vkCreateDescriptorSetLayout(device->m_logicalDevice, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) {
+      // failed! TODO - Error handling
+    }
+  }
+
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;
-  pipelineLayoutInfo.pSetLayouts = nullptr;
+  if (uboLayoutBindings.size()) {
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
+  } else {
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+  }
   pipelineLayoutInfo.pushConstantRangeCount = 0;
   pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -453,6 +499,9 @@ KRPipeline::~KRPipeline()
   }
   if (m_pipelineLayout) {
     // TODO: vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
+  }
+  if (m_descriptorSetLayout) {
+    // TODO: vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
   }
   for (PushConstantStageInfo& pushConstants : m_pushConstants) {
     if (pushConstants.layout) {

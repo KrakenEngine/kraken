@@ -100,6 +100,7 @@ public:
   std::vector<VkCommandBuffer> m_computeCommandBuffers;
   std::vector<VkCommandBuffer> m_transferCommandBuffers;
   VmaAllocator m_allocator;
+  VkDescriptorPool m_descriptorPool;
 
   struct StagingBufferInfo
   {
