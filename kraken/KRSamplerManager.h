@@ -54,7 +54,14 @@ struct SamplerInfoHasher
     // Compute a hash using the most commonly used sampler fields
     // Collisions are okay, but we need to balance cost of creating
     // hashes with cost of resolving collisions.
-    return std::hash<uint32_t>{}(static_cast<uint32_t>((s.createInfo.flags)));
+    std::size_t h = std::hash<uint32_t>{}(static_cast<uint32_t>((s.createInfo.flags)));
+    h ^= std::hash<float>{}(s.createInfo.maxAnisotropy) << 1;
+    h ^= std::hash<float>{}(s.createInfo.minLod) << 1;
+    h ^= std::hash<float>{}(s.createInfo.maxLod) << 1;
+    h ^= std::hash<float>{}(s.createInfo.maxLod) << 1;
+    h ^= std::hash<uint32_t>{}(static_cast<uint32_t>((s.createInfo.minFilter))) << 1;
+    h ^= std::hash<uint32_t>{}(static_cast<uint32_t>((s.createInfo.magFilter))) << 1;
+    return h;
   }
 };
 
