@@ -217,7 +217,7 @@ public:
 
   bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass);
 
-  enum class Uniform : uint8_t
+  enum class PushConstant : uint8_t
   {
     material_ambient = 0,
     material_diffuse,
@@ -287,10 +287,10 @@ public:
     rim_color,
     rim_power,
     fade_color,
-    NUM_UNIFORMS
+    NUM_PUSH_CONSTANTS
   };
 
-  static const size_t kUniformCount = static_cast<size_t>(Uniform::NUM_UNIFORMS);
+  static const size_t kPushConstantCount = static_cast<size_t>(PushConstant::NUM_PUSH_CONSTANTS);
 
   enum class ShaderStages : uint8_t
   {
@@ -303,24 +303,24 @@ public:
 
   static const size_t kShaderStageCount = static_cast<size_t>(ShaderStages::shaderStageCount);
 
-  bool hasUniform(Uniform location) const;
-  void setUniform(Uniform location, float value);
-  void setUniform(Uniform location, int value);
-  void setUniform(Uniform location, const Vector2& value);
-  void setUniform(Uniform location, const Vector3& value);
-  void setUniform(Uniform location, const Vector4& value);
-  void setUniform(Uniform location, const Matrix4& value);
-  void setUniform(Uniform location, const Matrix4* value, const size_t count);
+  bool hasPushConstant(PushConstant location) const;
+  void setPushConstant(PushConstant location, float value);
+  void setPushConstant(PushConstant location, int value);
+  void setPushConstant(PushConstant location, const Vector2& value);
+  void setPushConstant(PushConstant location, const Vector3& value);
+  void setPushConstant(PushConstant location, const Vector4& value);
+  void setPushConstant(PushConstant location, const Matrix4& value);
+  void setPushConstant(PushConstant location, const Matrix4* value, const size_t count);
 
   VkPipeline& getPipeline();
 
 private:
-  static const char* KRENGINE_UNIFORM_NAMES[];
+  static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
 
   struct PushConstantStageInfo
   {
-    int offset[kUniformCount];
-    __uint8_t size[kUniformCount];
+    int offset[kPushConstantCount];
+    __uint8_t size[kPushConstantCount];
     uint8_t* buffer;
     int bufferSize;
     VkPipelineLayout layout;

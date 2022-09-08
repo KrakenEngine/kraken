@@ -39,75 +39,75 @@
 #include "KRRenderPass.h"
 
 
-const char* KRPipeline::KRENGINE_UNIFORM_NAMES[] = {
-    "material_ambient", // Uniform::material_ambient
-    "material_diffuse", // Uniform::material_diffuse
-    "material_specular", // Uniform::material_specular
-    "material_reflection", // Uniform::material_reflection
-    "material_alpha", // Uniform::material_alpha
-    "material_shininess", // Uniform::material_shininess
-    "light_position", // Uniform::light_position
-    "light_direction_model_space", // Uniform::light_direction_model_space
-    "light_direction_view_space", // Uniform::light_direction_view_space
-    "light_color", //    Uniform::light_color
-    "light_decay_start", //    Uniform::light_decay_start
-    "light_cutoff", //    Uniform::light_cutoff
-    "light_intensity", //    Uniform::light_intensity
-    "flare_size", //    Uniform::flare_size
-    "view_space_model_origin", //    Uniform::view_space_model_origin
-    "mvp_matrix", //    Uniform::mvp
-    "inv_projection_matrix", //    Uniform::invp
-    "inv_mvp_matrix", //    Uniform::invmvp
-    "inv_mvp_matrix_no_translate", //    Uniform::invmvp_no_translate
-    "model_view_inverse_transpose_matrix", //    Uniform::model_view_inverse_transpose
-    "model_inverse_transpose_matrix", //    Uniform::model_inverse_transpose
-    "model_view_matrix", //    Uniform::model_view
-    "model_matrix", //    Uniform::model_matrix
-    "projection_matrix", //    Uniform::projection_matrix
-    "camera_position_model_space", //    Uniform::camerapos_model_space
-    "viewport", //    Uniform::viewport
-    "viewport_downsample", //     Uniform::viewport_downsample
-    "diffuseTexture", //    Uniform::diffusetexture
-    "specularTexture", //    Uniform::speculartexture
-    "reflectionCubeTexture", //    Uniform::reflectioncubetexture
-    "reflectionTexture", //    Uniform::reflectiontexture
-    "normalTexture", //    Uniform::normaltexture
-    "diffuseTexture_Scale", //    Uniform::diffusetexture_scale
-    "specularTexture_Scale", //    Uniform::speculartexture_scale
-    "reflectionTexture_Scale", //    Uniform::reflectiontexture_scale
-    "normalTexture_Scale", //    Uniform::normaltexture_scale
-    "normalTexture_Scale", //    Uniform::ambienttexture_scale
-    "diffuseTexture_Offset", //    Uniform::diffusetexture_offset
-    "specularTexture_Offset", //    Uniform::speculartexture_offset
-    "reflectionTexture_Offset", //    Uniform::reflectiontexture_offset
-    "normalTexture_Offset", //    Uniform::normaltexture_offset
-    "ambientTexture_Offset", //    Uniform::ambienttexture_offset
-    "shadow_mvp1", //    Uniform::shadow_mvp1
-    "shadow_mvp2", //    Uniform::shadow_mvp2
-    "shadow_mvp3", //    Uniform::shadow_mvp3
-    "shadowTexture1", //    Uniform::shadowtexture1
-    "shadowTexture2", //    Uniform::shadowtexture2
-    "shadowTexture3", //    Uniform::shadowtexture3
-    "lightmapTexture", //    Uniform::lightmaptexture
-    "gbuffer_frame", //    Uniform::gbuffer_frame
-    "gbuffer_depth", //    Uniform::gbuffer_depth
-    "depthFrame", //    Uniform::depth_frame
-    "volumetricEnvironmentFrame", //    Uniform::volumetric_environment_frame
-    "renderFrame", //    Uniform::render_frame
-    "time_absolute", //    Uniform::absolute_time
-    "fog_near", //    Uniform::fog_near
-    "fog_far", //    Uniform::fog_far
-    "fog_density", //    Uniform::fog_density
-    "fog_color", //    Uniform::fog_color
-    "fog_scale", //    Uniform::fog_scale
-    "fog_density_premultiplied_exponential", //    Uniform::density_premultiplied_exponential
-    "fog_density_premultiplied_squared", //    Uniform::density_premultiplied_squared
-    "slice_depth_scale", //    Uniform::slice_depth_scale
-    "particle_origin", //    Uniform::particle_origin
-    "bone_transforms", //    Uniform::bone_transforms
-    "rim_color", // Uniform::rim_color
-    "rim_power", // Uniform::rim_power
-    "fade_color", // Uniform::fade_color
+const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
+    "material_ambient", // PushConstant::material_ambient
+    "material_diffuse", // PushConstant::material_diffuse
+    "material_specular", // PushConstant::material_specular
+    "material_reflection", // PushConstant::material_reflection
+    "material_alpha", // PushConstant::material_alpha
+    "material_shininess", // PushConstant::material_shininess
+    "light_position", // PushConstant::light_position
+    "light_direction_model_space", // PushConstant::light_direction_model_space
+    "light_direction_view_space", // PushConstant::light_direction_view_space
+    "light_color", //    PushConstant::light_color
+    "light_decay_start", //    PushConstant::light_decay_start
+    "light_cutoff", //    PushConstant::light_cutoff
+    "light_intensity", //    PushConstant::light_intensity
+    "flare_size", //    PushConstant::flare_size
+    "view_space_model_origin", //    PushConstant::view_space_model_origin
+    "mvp_matrix", //    PushConstant::mvp
+    "inv_projection_matrix", //    PushConstant::invp
+    "inv_mvp_matrix", //    PushConstant::invmvp
+    "inv_mvp_matrix_no_translate", //    PushConstant::invmvp_no_translate
+    "model_view_inverse_transpose_matrix", //    PushConstant::model_view_inverse_transpose
+    "model_inverse_transpose_matrix", //    PushConstant::model_inverse_transpose
+    "model_view_matrix", //    PushConstant::model_view
+    "model_matrix", //    PushConstant::model_matrix
+    "projection_matrix", //    PushConstant::projection_matrix
+    "camera_position_model_space", //    PushConstant::camerapos_model_space
+    "viewport", //    PushConstant::viewport
+    "viewport_downsample", //     PushConstant::viewport_downsample
+    "diffuseTexture", //    PushConstant::diffusetexture
+    "specularTexture", //    PushConstant::speculartexture
+    "reflectionCubeTexture", //    PushConstant::reflectioncubetexture
+    "reflectionTexture", //    PushConstant::reflectiontexture
+    "normalTexture", //    PushConstant::normaltexture
+    "diffuseTexture_Scale", //    PushConstant::diffusetexture_scale
+    "specularTexture_Scale", //    PushConstant::speculartexture_scale
+    "reflectionTexture_Scale", //    PushConstant::reflectiontexture_scale
+    "normalTexture_Scale", //    PushConstant::normaltexture_scale
+    "normalTexture_Scale", //    PushConstant::ambienttexture_scale
+    "diffuseTexture_Offset", //    PushConstant::diffusetexture_offset
+    "specularTexture_Offset", //    PushConstant::speculartexture_offset
+    "reflectionTexture_Offset", //    PushConstant::reflectiontexture_offset
+    "normalTexture_Offset", //    PushConstant::normaltexture_offset
+    "ambientTexture_Offset", //    PushConstant::ambienttexture_offset
+    "shadow_mvp1", //    PushConstant::shadow_mvp1
+    "shadow_mvp2", //    PushConstant::shadow_mvp2
+    "shadow_mvp3", //    PushConstant::shadow_mvp3
+    "shadowTexture1", //    PushConstant::shadowtexture1
+    "shadowTexture2", //    PushConstant::shadowtexture2
+    "shadowTexture3", //    PushConstant::shadowtexture3
+    "lightmapTexture", //    PushConstant::lightmaptexture
+    "gbuffer_frame", //    PushConstant::gbuffer_frame
+    "gbuffer_depth", //    PushConstant::gbuffer_depth
+    "depthFrame", //    PushConstant::depth_frame
+    "volumetricEnvironmentFrame", //    PushConstant::volumetric_environment_frame
+    "renderFrame", //    PushConstant::render_frame
+    "time_absolute", //    PushConstant::absolute_time
+    "fog_near", //    PushConstant::fog_near
+    "fog_far", //    PushConstant::fog_far
+    "fog_density", //    PushConstant::fog_density
+    "fog_color", //    PushConstant::fog_color
+    "fog_scale", //    PushConstant::fog_scale
+    "fog_density_premultiplied_exponential", //    PushConstant::density_premultiplied_exponential
+    "fog_density_premultiplied_squared", //    PushConstant::density_premultiplied_squared
+    "slice_depth_scale", //    PushConstant::slice_depth_scale
+    "particle_origin", //    PushConstant::particle_origin
+    "bone_transforms", //    PushConstant::bone_transforms
+    "rim_color", // PushConstant::rim_color
+    "rim_power", // PushConstant::rim_power
+    "fade_color", // PushConstant::fade_color
 };
 
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
@@ -116,8 +116,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   for (PushConstantStageInfo& pushConstants : m_pushConstants) {
     pushConstants.buffer = nullptr;
     pushConstants.bufferSize = 0;
-    memset(pushConstants.size, 0, kUniformCount);
-    memset(pushConstants.offset, 0, kUniformCount * sizeof(int));
+    memset(pushConstants.size, 0, kPushConstantCount);
+    memset(pushConstants.offset, 0, kPushConstantCount * sizeof(int));
     pushConstants.layout = nullptr;
   }
 
@@ -531,10 +531,10 @@ void KRPipeline::initPushConstantStage(ShaderStages stage, const SpvReflectShade
         pushConstants.bufferSize = block.size;
 
         // Get push constant offsets
-        for (int iUniform = 0; iUniform < kUniformCount; iUniform++) {
+        for (int iUniform = 0; iUniform < kPushConstantCount; iUniform++) {
           for (int iMember = 0; iMember < block.member_count; iMember++) {
             const SpvReflectBlockVariable& member = block.members[iMember];
-            if (stricmp(KRENGINE_UNIFORM_NAMES[iUniform], member.name) == 0) {
+            if (stricmp(KRENGINE_PUSH_CONSTANT_NAMES[iUniform], member.name) == 0) {
               pushConstants.offset[iUniform] = member.offset;
               pushConstants.size[iUniform] = member.size;
             }
@@ -545,7 +545,7 @@ void KRPipeline::initPushConstantStage(ShaderStages stage, const SpvReflectShade
   }
 }
 
-bool KRPipeline::hasUniform(Uniform location) const
+bool KRPipeline::hasPushConstant(PushConstant location) const
 {
   for (const PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)]) {
@@ -555,7 +555,7 @@ bool KRPipeline::hasUniform(Uniform location) const
   return false;
 }
 
-void KRPipeline::setUniform(Uniform location, float value)
+void KRPipeline::setPushConstant(PushConstant location, float value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -566,7 +566,7 @@ void KRPipeline::setUniform(Uniform location, float value)
 }
 
 
-void KRPipeline::setUniform(Uniform location, int value)
+void KRPipeline::setPushConstant(PushConstant location, int value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -576,7 +576,7 @@ void KRPipeline::setUniform(Uniform location, int value)
   }
 }
 
-void KRPipeline::setUniform(Uniform location, const Vector2& value)
+void KRPipeline::setPushConstant(PushConstant location, const Vector2& value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -585,7 +585,7 @@ void KRPipeline::setUniform(Uniform location, const Vector2& value)
     }
   }
 }
-void KRPipeline::setUniform(Uniform location, const Vector3& value)
+void KRPipeline::setPushConstant(PushConstant location, const Vector3& value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -595,7 +595,7 @@ void KRPipeline::setUniform(Uniform location, const Vector3& value)
   }
 }
 
-void KRPipeline::setUniform(Uniform location, const Vector4& value)
+void KRPipeline::setPushConstant(PushConstant location, const Vector4& value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -605,7 +605,7 @@ void KRPipeline::setUniform(Uniform location, const Vector4& value)
   }
 }
 
-void KRPipeline::setUniform(Uniform location, const Matrix4& value)
+void KRPipeline::setPushConstant(PushConstant location, const Matrix4& value)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
@@ -615,17 +615,17 @@ void KRPipeline::setUniform(Uniform location, const Matrix4& value)
   }
 }
 
-void KRPipeline::setUniform(Uniform location, const Matrix4* value, const size_t count)
+void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, const size_t count)
 {
   for (PushConstantStageInfo& stageConstants : m_pushConstants) {
     // TODO - Vulkan refactoring
-    // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::Uniform::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+    // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::PushConstant::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
   }
 }
 
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass)
 {
-  setUniform(Uniform::absolute_time, getContext().getAbsoluteTime());
+  setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
   //int light_point_count = 0;
@@ -639,7 +639,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
         KRDirectionalLight* directional_light = (*light_itr);
         if (light_directional_count == 0) {
           int cShadowBuffers = directional_light->getShadowBufferCount();
-          if (hasUniform(Uniform::shadowtexture1) && cShadowBuffers > 0) {
+          if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -649,7 +649,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
             m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
           }
 
-          if (hasUniform(Uniform::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+          if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -658,7 +658,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
             m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
           }
 
-          if (hasUniform(Uniform::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+          if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -671,17 +671,17 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
           matBias.translate(1.0, 1.0, 1.0);
           matBias.scale(0.5);
           for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
-            setUniform(static_cast<Uniform>(static_cast<int>(Uniform::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
+            setPushConstant(static_cast<PushConstant>(static_cast<int>(PushConstant::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
           }
 
-          if (hasUniform(Uniform::light_direction_model_space)) {
+          if (hasPushConstant(PushConstant::light_direction_model_space)) {
             Matrix4 inverseModelMatrix = matModel;
             inverseModelMatrix.invert();
 
             // Bind the light direction vector
             Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
             lightDirObject.normalize();
-            setUniform(Uniform::light_direction_model_space, lightDirObject);
+            setPushConstant(PushConstant::light_direction_model_space, lightDirObject);
           }
         }
 
@@ -693,57 +693,57 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
     //light_spot_count = spot_lights.size();
   }
 
-  if (hasUniform(Uniform::camerapos_model_space)) {
+  if (hasPushConstant(PushConstant::camerapos_model_space)) {
     Matrix4 inverseModelMatrix = matModel;
     inverseModelMatrix.invert();
 
-    if (hasUniform(Uniform::camerapos_model_space)) {
+    if (hasPushConstant(PushConstant::camerapos_model_space)) {
       // Transform location of camera to object space for calculation of specular halfVec
       Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
-      setUniform(Uniform::camerapos_model_space, cameraPosObject);
+      setPushConstant(PushConstant::camerapos_model_space, cameraPosObject);
     }
   }
 
-  if (hasUniform(Uniform::mvp) || hasUniform(KRPipeline::Uniform::invmvp)) {
+  if (hasPushConstant(PushConstant::mvp) || hasPushConstant(KRPipeline::PushConstant::invmvp)) {
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
-    setUniform(Uniform::mvp, mvpMatrix);
+    setPushConstant(PushConstant::mvp, mvpMatrix);
 
-    if (hasUniform(KRPipeline::Uniform::invmvp)) {
-      setUniform(KRPipeline::Uniform::invmvp, Matrix4::Invert(mvpMatrix));
+    if (hasPushConstant(KRPipeline::PushConstant::invmvp)) {
+      setPushConstant(KRPipeline::PushConstant::invmvp, Matrix4::Invert(mvpMatrix));
     }
   }
 
-  if (hasUniform(KRPipeline::Uniform::view_space_model_origin) || hasUniform(Uniform::model_view_inverse_transpose) || hasUniform(KRPipeline::Uniform::model_view)) {
+  if (hasPushConstant(KRPipeline::PushConstant::view_space_model_origin) || hasPushConstant(PushConstant::model_view_inverse_transpose) || hasPushConstant(KRPipeline::PushConstant::model_view)) {
     Matrix4 matModelView = matModel * viewport.getViewMatrix();
-    setUniform(Uniform::model_view, matModelView);
+    setPushConstant(PushConstant::model_view, matModelView);
 
 
-    if (hasUniform(KRPipeline::Uniform::view_space_model_origin)) {
+    if (hasPushConstant(KRPipeline::PushConstant::view_space_model_origin)) {
       Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
-      setUniform(Uniform::view_space_model_origin, view_space_model_origin);
+      setPushConstant(PushConstant::view_space_model_origin, view_space_model_origin);
     }
 
-    if (hasUniform(Uniform::model_view_inverse_transpose)) {
+    if (hasPushConstant(PushConstant::model_view_inverse_transpose)) {
       Matrix4 matModelViewInverseTranspose = matModelView;
       matModelViewInverseTranspose.transpose();
       matModelViewInverseTranspose.invert();
-      setUniform(Uniform::model_view_inverse_transpose, matModelViewInverseTranspose);
+      setPushConstant(PushConstant::model_view_inverse_transpose, matModelViewInverseTranspose);
     }
   }
 
-  if (hasUniform(Uniform::model_inverse_transpose)) {
+  if (hasPushConstant(PushConstant::model_inverse_transpose)) {
     Matrix4 matModelInverseTranspose = matModel;
     matModelInverseTranspose.transpose();
     matModelInverseTranspose.invert();
-    setUniform(Uniform::model_inverse_transpose, matModelInverseTranspose);
+    setPushConstant(PushConstant::model_inverse_transpose, matModelInverseTranspose);
   }
 
-  if (hasUniform(KRPipeline::Uniform::invp)) {
-    setUniform(Uniform::invp, viewport.getInverseProjectionMatrix());
+  if (hasPushConstant(KRPipeline::PushConstant::invp)) {
+    setPushConstant(PushConstant::invp, viewport.getInverseProjectionMatrix());
   }
 
-  if (hasUniform(KRPipeline::Uniform::invmvp_no_translate)) {
+  if (hasPushConstant(KRPipeline::PushConstant::invmvp_no_translate)) {
     Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
     // Remove the translation
     matInvMVPNoTranslate.getPointer()[3] = 0;
@@ -755,16 +755,16 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
     matInvMVPNoTranslate.getPointer()[15] = 1.0;
     matInvMVPNoTranslate = matInvMVPNoTranslate * viewport.getProjectionMatrix();
     matInvMVPNoTranslate.invert();
-    setUniform(Uniform::invmvp_no_translate, matInvMVPNoTranslate);
+    setPushConstant(PushConstant::invmvp_no_translate, matInvMVPNoTranslate);
   }
 
-  setUniform(Uniform::model_matrix, matModel);
-  if (hasUniform(Uniform::projection_matrix)) {
-    setUniform(Uniform::projection_matrix, viewport.getProjectionMatrix());
+  setPushConstant(PushConstant::model_matrix, matModel);
+  if (hasPushConstant(PushConstant::projection_matrix)) {
+    setPushConstant(PushConstant::projection_matrix, viewport.getProjectionMatrix());
   }
 
-  if (hasUniform(Uniform::viewport)) {
-    setUniform(Uniform::viewport, Vector4::Create(
+  if (hasPushConstant(PushConstant::viewport)) {
+    setPushConstant(PushConstant::viewport, Vector4::Create(
       (float)0.0,
       (float)0.0,
       (float)viewport.getSize().x,
@@ -773,47 +773,47 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
     );
   }
 
-  if (hasUniform(Uniform::viewport_downsample)) {
-    setUniform(Uniform::viewport_downsample, camera.getDownsample());
+  if (hasPushConstant(PushConstant::viewport_downsample)) {
+    setPushConstant(PushConstant::viewport_downsample, camera.getDownsample());
   }
 
   // Fog parameters
-  setUniform(Uniform::fog_near, camera.settings.fog_near);
-  setUniform(Uniform::fog_far, camera.settings.fog_far);
-  setUniform(Uniform::fog_density, camera.settings.fog_density);
-  setUniform(Uniform::fog_color, camera.settings.fog_color);
+  setPushConstant(PushConstant::fog_near, camera.settings.fog_near);
+  setPushConstant(PushConstant::fog_far, camera.settings.fog_far);
+  setPushConstant(PushConstant::fog_density, camera.settings.fog_density);
+  setPushConstant(PushConstant::fog_color, camera.settings.fog_color);
 
-  if (hasUniform(Uniform::fog_scale)) {
-    setUniform(Uniform::fog_scale, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
+  if (hasPushConstant(PushConstant::fog_scale)) {
+    setPushConstant(PushConstant::fog_scale, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
   }
-  if (hasUniform(Uniform::density_premultiplied_exponential)) {
-    setUniform(Uniform::density_premultiplied_exponential, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
+  if (hasPushConstant(PushConstant::density_premultiplied_exponential)) {
+    setPushConstant(PushConstant::density_premultiplied_exponential, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
   }
-  if (hasUniform(Uniform::density_premultiplied_squared)) {
-    setUniform(Uniform::density_premultiplied_squared, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+  if (hasPushConstant(PushConstant::density_premultiplied_squared)) {
+    setPushConstant(PushConstant::density_premultiplied_squared, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
   }
 
   // Sets the diffuseTexture variable to the first texture unit
-  setUniform(Uniform::diffusetexture, 0);
+  setPushConstant(PushConstant::diffusetexture, 0);
 
   // Sets the specularTexture variable to the second texture unit
-  setUniform(Uniform::speculartexture, 1);
+  setPushConstant(PushConstant::speculartexture, 1);
 
   // Sets the normalTexture variable to the third texture unit
-  setUniform(Uniform::normaltexture, 2);
+  setPushConstant(PushConstant::normaltexture, 2);
 
   // Sets the shadowTexture variable to the fourth texture unit
-  setUniform(Uniform::shadowtexture1, 3);
-  setUniform(Uniform::shadowtexture2, 4);
-  setUniform(Uniform::shadowtexture3, 5);
-  setUniform(Uniform::reflectioncubetexture, 4);
-  setUniform(Uniform::lightmaptexture, 5);
-  setUniform(Uniform::gbuffer_frame, 6);
-  setUniform(Uniform::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-  setUniform(Uniform::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
-  setUniform(Uniform::depth_frame, 0);
-  setUniform(Uniform::render_frame, 1);
-  setUniform(Uniform::volumetric_environment_frame, 2);
+  setPushConstant(PushConstant::shadowtexture1, 3);
+  setPushConstant(PushConstant::shadowtexture2, 4);
+  setPushConstant(PushConstant::shadowtexture3, 5);
+  setPushConstant(PushConstant::reflectioncubetexture, 4);
+  setPushConstant(PushConstant::lightmaptexture, 5);
+  setPushConstant(PushConstant::gbuffer_frame, 6);
+  setPushConstant(PushConstant::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+  setPushConstant(PushConstant::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+  setPushConstant(PushConstant::depth_frame, 0);
+  setPushConstant(PushConstant::render_frame, 1);
+  setPushConstant(PushConstant::volumetric_environment_frame, 2);
 
   for (PushConstantStageInfo& pushConstants : m_pushConstants) {
     if (pushConstants.buffer) {

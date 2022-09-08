@@ -162,7 +162,7 @@ void KRSprite::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->setUniform(KRPipeline::Uniform::material_alpha, m_spriteAlpha);
+        pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, m_spriteAlpha);
         pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 
         m_pContext->getTextureManager()->selectTexture(0, m_pSpriteTexture, 0.0f, KRTexture::TEXTURE_USAGE_SPRITE);

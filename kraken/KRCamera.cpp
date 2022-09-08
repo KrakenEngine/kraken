@@ -554,7 +554,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 
     KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
 
-    postShader->setUniform(KRPipeline::Uniform::fade_color, m_fade_color);
+    postShader->setPushConstant(KRPipeline::PushConstant::fade_color, m_fade_color);
     postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 
     m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);

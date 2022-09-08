@@ -105,7 +105,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-      pParticleShader->setUniform(KRPipeline::Uniform::flare_size, 1.0f);
+      pParticleShader->setPushConstant(KRPipeline::PushConstant::flare_size, 1.0f);
       pParticleShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 
       m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
