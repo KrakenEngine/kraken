@@ -178,12 +178,12 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
       binding.descriptorType = static_cast<VkDescriptorType>(binding_reflect.descriptor_type);
       binding.descriptorCount = binding_reflect.count;
       binding.pImmutableSamplers = nullptr;
-      binding.stageFlags = shader->getShaderStage();
+      binding.stageFlags = shader->getShaderStageFlagBits();
     }
 
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stageInfo.stage = shader->getShaderStage();
+    stageInfo.stage = shader->getShaderStageFlagBits();
     if (stageInfo.stage == VK_SHADER_STAGE_VERTEX_BIT) {
 
       for (uint32_t i = 0; i < reflection->input_variable_count; i++) {
@@ -206,10 +206,10 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
         }
       }
 
-      initPushConstantStage(ShaderStages::vertex, reflection);
+      initPushConstantStage(ShaderStage::vert, reflection);
 
     } else if (stageInfo.stage == VK_SHADER_STAGE_FRAGMENT_BIT) {
-      initPushConstantStage(ShaderStages::fragment, reflection);
+      initPushConstantStage(ShaderStage::frag, reflection);
     } else {
       // failed! TODO - Error handling
     }
@@ -395,22 +395,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
       VkPushConstantRange push_constant{};
       push_constant.offset = 0;
       push_constant.size = pushConstants.bufferSize;
-
-      switch (static_cast<ShaderStages>(iStage)) {
-      case ShaderStages::vertex:
-        push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        break;
-      case ShaderStages::fragment:
-        push_constant.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        break;
-      case ShaderStages::geometry:
-        push_constant.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
-        break;
-      case ShaderStages::compute:
-        push_constant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-        break;
-      }
-
+      push_constant.stageFlags = getShaderStageFlagBitsFromShaderStage(static_cast<ShaderStage>(iStage));
       pushConstantsLayoutInfo.pPushConstantRanges = &push_constant;
       pushConstantsLayoutInfo.pushConstantRangeCount = 1;
 
@@ -511,7 +496,7 @@ KRPipeline::~KRPipeline()
   }
 }
 
-void KRPipeline::initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection)
+void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShaderModule* reflection)
 {
   PushConstantStageInfo& pushConstants = m_pushConstants[static_cast<int>(stage)];
   for (int i = 0; i < reflection->push_constant_block_count; i++) {

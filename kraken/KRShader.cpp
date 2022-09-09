@@ -32,39 +32,74 @@
 #include "KRShader.h"
 #include "spirv_reflect.h"
 
-VkShaderStageFlagBits getShaderStageFromExtension(const char* extension)
+ShaderStage getShaderStageFromExtension(const char* extension)
 {
   if (strcmp(extension, "vert") == 0) {
-    return VK_SHADER_STAGE_VERTEX_BIT;
+    return ShaderStage::vert;
   } else if (strcmp(extension, "frag") == 0) {
-    return VK_SHADER_STAGE_FRAGMENT_BIT;
+    return ShaderStage::frag;
   } else if (strcmp(extension, "tesc") == 0) {
-    return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    return ShaderStage::tesc;
   } else if (strcmp(extension, "tese") == 0) {
-    return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    return ShaderStage::tese;
   } else if (strcmp(extension, "geom") == 0) {
-    return VK_SHADER_STAGE_GEOMETRY_BIT;
+    return ShaderStage::geom;
   } else if (strcmp(extension, "comp") == 0) {
-    return VK_SHADER_STAGE_COMPUTE_BIT;
+    return ShaderStage::comp;
   } else if (strcmp(extension, "mesh") == 0) {
-    return VK_SHADER_STAGE_MESH_BIT_NV;
+    return ShaderStage::mesh;
   } else if (strcmp(extension, "task") == 0) {
-    return VK_SHADER_STAGE_TASK_BIT_NV;
+    return ShaderStage::task;
   } else if (strcmp(extension, "rgen") == 0) {
-    return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    return ShaderStage::rgen;
   } else if (strcmp(extension, "rint") == 0) {
-    return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+    return ShaderStage::rint;
   } else if (strcmp(extension, "rahit") == 0) {
-    return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+    return ShaderStage::rahit;
   } else if (strcmp(extension, "rchit") == 0) {
-    return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    return ShaderStage::rchit;
   } else if (strcmp(extension, "rmiss") == 0) {
-    return VK_SHADER_STAGE_MISS_BIT_KHR;
-  } else if (strcmp(extension, "rmiss") == 0) {
-    return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+    return ShaderStage::rmiss;
+  } else if (strcmp(extension, "rcall") == 0) {
+    return ShaderStage::rcall;
   } else {
-    return (VkShaderStageFlagBits)0;
+    return ShaderStage::Invalid;
   }
+}
+
+VkShaderStageFlagBits getShaderStageFlagBitsFromShaderStage(ShaderStage stage)
+{
+  switch (stage) {
+  case ShaderStage::vert:
+    return VK_SHADER_STAGE_VERTEX_BIT;
+  case ShaderStage::frag:
+    return VK_SHADER_STAGE_FRAGMENT_BIT;
+  case ShaderStage::tesc:
+    return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+  case ShaderStage::tese:
+    return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  case ShaderStage::geom:
+    return VK_SHADER_STAGE_GEOMETRY_BIT;
+  case ShaderStage::comp:
+    return VK_SHADER_STAGE_COMPUTE_BIT;
+  case ShaderStage::mesh:
+    return VK_SHADER_STAGE_MESH_BIT_NV;
+  case ShaderStage::task:
+    return VK_SHADER_STAGE_TASK_BIT_NV;
+  case ShaderStage::rgen:
+    return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+  case ShaderStage::rint:
+    return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+  case ShaderStage::rahit:
+    return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+  case ShaderStage::rchit:
+    return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+  case ShaderStage::rmiss:
+    return VK_SHADER_STAGE_MISS_BIT_KHR;
+  case ShaderStage::rcall:
+    return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+  }
+  return (VkShaderStageFlagBits)0;
 }
 
 KRShader::KRShader(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
@@ -181,7 +216,12 @@ const SpvReflectShaderModule* KRShader::getReflection()
   return nullptr;
 }
 
-VkShaderStageFlagBits KRShader::getShaderStage() const
+ShaderStage KRShader::getShaderStage() const
 {
   return m_stage;
+}
+
+VkShaderStageFlagBits KRShader::getShaderStageFlagBits() const
+{
+  return getShaderStageFlagBitsFromShaderStage(m_stage);
 }

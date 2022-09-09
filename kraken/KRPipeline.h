@@ -37,6 +37,7 @@
 #include "KRNode.h"
 #include "KRViewport.h"
 #include "KRMesh.h"
+#include "KRShader.h"
 
 class KRShader;
 class KRSurface;
@@ -292,17 +293,6 @@ public:
 
   static const size_t kPushConstantCount = static_cast<size_t>(PushConstant::NUM_PUSH_CONSTANTS);
 
-  enum class ShaderStages : uint8_t
-  {
-    vertex = 0,
-    fragment,
-    geometry,
-    compute,
-    shaderStageCount
-  };
-
-  static const size_t kShaderStageCount = static_cast<size_t>(ShaderStages::shaderStageCount);
-
   bool hasPushConstant(PushConstant location) const;
   void setPushConstant(PushConstant location, float value);
   void setPushConstant(PushConstant location, int value);
@@ -325,7 +315,7 @@ private:
     int bufferSize;
     VkPipelineLayout layout;
   };
-  PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStages::shaderStageCount)];
+  PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStage::ShaderStageCount)];
 
   char m_szKey[256];
 
@@ -333,5 +323,5 @@ private:
   VkPipelineLayout m_pipelineLayout;
   VkPipeline m_graphicsPipeline;
 
-  void initPushConstantStage(ShaderStages stage, const SpvReflectShaderModule* reflection);
+  void initPushConstantStage(ShaderStage stage, const SpvReflectShaderModule* reflection);
 };

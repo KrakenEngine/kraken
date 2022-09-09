@@ -337,7 +337,7 @@ KRResource* KRContext::loadResource(const std::string& file_name, KRDataBlock* d
   } else if (extension.compare("spv") == 0) {
     // SPIR-V shader binary
     resource = m_pShaderManager->load(name, extension, data);
-  } else if (getShaderStageFromExtension(extension.c_str()) != 0) {
+  } else if (getShaderStageFromExtension(extension.c_str()) != ShaderStage::Invalid) {
     // Shader source
     resource = m_pSourceManager->load(name, extension, data);
   } else if (extension.compare("glsl") == 0) {

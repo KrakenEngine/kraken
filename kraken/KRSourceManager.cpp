@@ -77,7 +77,7 @@ void KRSourceManager::add(KRSource* source)
 
 KRResource* KRSourceManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
-  if (getShaderStageFromExtension(extension.c_str()) != 0 ||
+  if (getShaderStageFromExtension(extension.c_str()) != ShaderStage::Invalid ||
       extension.compare("glsl") == 0 ||
       extension.compare("options") == 0) {
     return load(name, extension, data);
@@ -87,7 +87,7 @@ KRResource* KRSourceManager::loadResource(const std::string& name, const std::st
 
 KRResource* KRSourceManager::getResource(const std::string& name, const std::string& extension)
 {
-  if (getShaderStageFromExtension(extension.c_str()) != 0 ||
+  if (getShaderStageFromExtension(extension.c_str()) != ShaderStage::Invalid ||
       extension.compare("glsl") == 0 ||
       extension.compare("options") == 0) {
     return get(name, extension);
