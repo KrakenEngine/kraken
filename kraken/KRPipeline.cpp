@@ -205,14 +205,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS] = input_var.location + 1;
         }
       }
-
-      initPushConstantStage(ShaderStage::vert, reflection);
-
-    } else if (stageInfo.stage == VK_SHADER_STAGE_FRAGMENT_BIT) {
-      initPushConstantStage(ShaderStage::frag, reflection);
-    } else {
-      // failed! TODO - Error handling
     }
+    initPushConstantStage(shader->getShaderStage(), reflection);
     stageInfo.module = shaderModule;
     stageInfo.pName = "main";
   }
