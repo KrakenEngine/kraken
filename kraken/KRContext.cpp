@@ -337,47 +337,8 @@ KRResource* KRContext::loadResource(const std::string& file_name, KRDataBlock* d
   } else if (extension.compare("spv") == 0) {
     // SPIR-V shader binary
     resource = m_pShaderManager->load(name, extension, data);
-  } else if (extension.compare("vert") == 0) {
-    // vertex shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("frag") == 0) {
-    // fragment shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("tesc") == 0) {
-    // tessellation control shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("tese") == 0) {
-    // tessellation evaluation shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("geom") == 0) {
-    // geometry shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("comp") == 0) {
-    // compute shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("mesh") == 0) {
-    // mesh shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("task") == 0) {
-    // task shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rgen") == 0) {
-    // ray generation shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rint") == 0) {
-    // ray intersection shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rahit") == 0) {
-    // ray any hit shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rchit") == 0) {
-    // ray closest hit shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rmiss") == 0) {
-    // ray miss shader
-    resource = m_pSourceManager->load(name, extension, data);
-  } else if (extension.compare("rcall") == 0) {
-    // ray callable shader
+  } else if (getShaderStageFromExtension(extension.c_str()) != 0) {
+    // Shader source
     resource = m_pSourceManager->load(name, extension, data);
   } else if (extension.compare("glsl") == 0) {
     // glsl included by other shaders

@@ -32,11 +32,47 @@
 #include "KRShader.h"
 #include "spirv_reflect.h"
 
+VkShaderStageFlagBits getShaderStageFromExtension(const char* extension)
+{
+  if (strcmp(extension, "vert") == 0) {
+    return VK_SHADER_STAGE_VERTEX_BIT;
+  } else if (strcmp(extension, "frag") == 0) {
+    return VK_SHADER_STAGE_FRAGMENT_BIT;
+  } else if (strcmp(extension, "tesc") == 0) {
+    return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+  } else if (strcmp(extension, "tese") == 0) {
+    return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  } else if (strcmp(extension, "geom") == 0) {
+    return VK_SHADER_STAGE_GEOMETRY_BIT;
+  } else if (strcmp(extension, "comp") == 0) {
+    return VK_SHADER_STAGE_COMPUTE_BIT;
+  } else if (strcmp(extension, "mesh") == 0) {
+    return VK_SHADER_STAGE_MESH_BIT_NV;
+  } else if (strcmp(extension, "task") == 0) {
+    return VK_SHADER_STAGE_TASK_BIT_NV;
+  } else if (strcmp(extension, "rgen") == 0) {
+    return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+  } else if (strcmp(extension, "rint") == 0) {
+    return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+  } else if (strcmp(extension, "rahit") == 0) {
+    return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+  } else if (strcmp(extension, "rchit") == 0) {
+    return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+  } else if (strcmp(extension, "rmiss") == 0) {
+    return VK_SHADER_STAGE_MISS_BIT_KHR;
+  } else if (strcmp(extension, "rmiss") == 0) {
+    return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+  } else {
+    return (VkShaderStageFlagBits)0;
+  }
+}
+
 KRShader::KRShader(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
   m_pData = new KRDataBlock();
   m_extension = extension;
   m_subExtension = KRResource::GetFileExtension(name);
+  m_stage = getShaderStageFromExtension(m_subExtension.c_str());
   m_reflectionValid = false;
 
   getReflection();
@@ -47,6 +83,7 @@ KRShader::KRShader(KRContext& context, std::string name, std::string extension, 
   m_pData = data;
   m_extension = extension;
   m_subExtension = KRResource::GetFileExtension(name);
+  m_stage = getShaderStageFromExtension(m_subExtension.c_str());
   m_reflectionValid = false;
 }
 
@@ -142,4 +179,9 @@ const SpvReflectShaderModule* KRShader::getReflection()
     return &m_reflection;
   }
   return nullptr;
+}
+
+VkShaderStageFlagBits KRShader::getShaderStage() const
+{
+  return m_stage;
 }

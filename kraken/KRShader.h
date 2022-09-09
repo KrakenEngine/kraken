@@ -37,6 +37,8 @@
 #include "KRResource.h"
 #include "spirv_reflect.h"
 
+VkShaderStageFlagBits getShaderStageFromExtension(const char* extension);
+
 class KRShader : public KRResource
 {
 public:
@@ -53,6 +55,7 @@ public:
 
   KRDataBlock* getData();
   const SpvReflectShaderModule* getReflection();
+  VkShaderStageFlagBits getShaderStage() const;
 
 private:
 
@@ -64,4 +67,6 @@ private:
 
   void parseReflection();
   void freeReflection();
+
+  VkShaderStageFlagBits m_stage;
 };

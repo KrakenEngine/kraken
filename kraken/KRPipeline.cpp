@@ -178,20 +178,13 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
       binding.descriptorType = static_cast<VkDescriptorType>(binding_reflect.descriptor_type);
       binding.descriptorCount = binding_reflect.count;
       binding.pImmutableSamplers = nullptr;
-      if (shader->getSubExtension().compare("vert") == 0) {
-        binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-      } else if (shader->getSubExtension().compare("frag") == 0) {
-        binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-      } else {
-        // TODO - Error handling, support more stages
-        // Should probably make a lookup table for mapping extensions to stages
-      }
+      binding.stageFlags = shader->getShaderStage();
     }
 
     VkPipelineShaderStageCreateInfo& stageInfo = stages[stage_count++];
     stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    if (shader->getSubExtension().compare("vert") == 0) {
-      stageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    stageInfo.stage = shader->getShaderStage();
+    if (stageInfo.stage == VK_SHADER_STAGE_VERTEX_BIT) {
 
       for (uint32_t i = 0; i < reflection->input_variable_count; i++) {
         // TODO - We should have an interface to allow classes such as KRMesh to expose bindings
@@ -215,8 +208,7 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
 
       initPushConstantStage(ShaderStages::vertex, reflection);
 
-    } else if (shader->getSubExtension().compare("frag") == 0) {
-      stageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    } else if (stageInfo.stage == VK_SHADER_STAGE_FRAGMENT_BIT) {
       initPushConstantStage(ShaderStages::fragment, reflection);
     } else {
       // failed! TODO - Error handling
