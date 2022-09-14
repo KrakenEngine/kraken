@@ -45,7 +45,7 @@
 #include "KRShaderManager.h"
 #include "KRSourceManager.h"
 #include "KRSurfaceManager.h"
-#include "KRDescriptorManager.h"
+#include "KRUniformBufferManager.h"
 #include "KRDeviceManager.h"
 #include "KRDevice.h"
 #include "KRSurface.h"
@@ -54,7 +54,7 @@ class KRAudioManager;
 class KRPresentationThread;
 class KRStreamerThread;
 class KRDeviceManager;
-class KRDescriptorManager;
+class KRUniformBufferManager;
 class KRSurfaceManager;
 class KRSamplerManager;
 
@@ -120,7 +120,7 @@ public:
   KRSourceManager* getSourceManager();
   KRSurfaceManager* getSurfaceManager();
   KRDeviceManager* getDeviceManager();
-  KRDescriptorManager* getDescriptorManager();
+  KRUniformBufferManager* getUniformBufferManager();
 
   void startFrame(float deltaTime);
   void endFrame(float deltaTime);
@@ -173,7 +173,7 @@ private:
   std::unique_ptr<KRShaderManager> m_pShaderManager;
   std::unique_ptr<KRSourceManager> m_pSourceManager;
   std::unique_ptr<KRDeviceManager> m_deviceManager;
-  std::unique_ptr<KRDescriptorManager> m_descriptorManager;
+  std::unique_ptr<KRUniformBufferManager> m_uniformBufferManager;
   std::unique_ptr<KRSurfaceManager> m_surfaceManager;
 
   KRResource** m_resourceMap;
