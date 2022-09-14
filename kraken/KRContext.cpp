@@ -102,6 +102,8 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   m_pBundleManager = std::make_unique<KRBundleManager>(*this);
   m_deviceManager = std::make_unique<KRDeviceManager>(*this);
   m_deviceManager->initialize();
+  m_descriptorManager = std::make_unique<KRDescriptorManager>(*this);
+  m_descriptorManager->init();
   m_surfaceManager = std::make_unique<KRSurfaceManager>(*this);
   m_pPipelineManager = std::make_unique<KRPipelineManager>(*this);
   m_pSamplerManager = std::make_unique<KRSamplerManager>(*this);
@@ -162,6 +164,7 @@ KRContext::~KRContext()
   m_pShaderManager.reset();
   m_surfaceManager.reset();
   m_deviceManager.reset();
+  m_descriptorManager.reset();
 
   // The bundles must be destroyed last, as the other objects may be using mmap'ed data from bundles
   m_pBundleManager.reset();
@@ -254,6 +257,10 @@ KRSurfaceManager* KRContext::getSurfaceManager()
 KRDeviceManager* KRContext::getDeviceManager()
 {
   return m_deviceManager.get();
+}
+KRDescriptorManager* KRContext::getDescriptorManager()
+{
+  return m_descriptorManager.get();
 }
 KRUnknownManager* KRContext::getUnknownManager()
 {
