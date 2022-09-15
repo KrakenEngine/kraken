@@ -46,6 +46,7 @@ KRSurface::KRSurface(KRContext& context)
   , m_surface(VK_NULL_HANDLE)
   , m_imageAvailableSemaphores{VK_NULL_HANDLE}
   , m_renderFinishedSemaphores{VK_NULL_HANDLE}
+  , m_inFlightFences{VK_NULL_HANDLE}
   , m_frameIndex(0)
 {
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
@@ -78,11 +79,19 @@ KrResult KRSurface::initialize()
 
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  VkFenceCreateInfo fenceInfo{};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
   for(int i = 0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
     if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS) {
       return KR_ERROR_VULKAN;
     }
     if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN;
+    }
+    if (vkCreateFence(device->m_logicalDevice, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS) {
       return KR_ERROR_VULKAN;
     }
   }
@@ -117,6 +126,11 @@ void KRSurface::destroy()
     if (device && m_imageAvailableSemaphores != VK_NULL_HANDLE) {
       vkDestroySemaphore(device->m_logicalDevice, m_imageAvailableSemaphores[i], nullptr);
       m_imageAvailableSemaphores[i] = VK_NULL_HANDLE;
+    }
+
+    if (device && m_inFlightFences[i] != VK_NULL_HANDLE) {
+      vkDestroyFence(device->m_logicalDevice, m_inFlightFences[i], nullptr);
+      m_inFlightFences[i] = VK_NULL_HANDLE;
     }
   }
 
