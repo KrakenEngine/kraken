@@ -44,8 +44,8 @@ KRSurface::KRSurface(KRContext& context)
 #endif
   , m_deviceHandle(VK_NULL_HANDLE)
   , m_surface(VK_NULL_HANDLE)
-  , m_imageAvailableSemaphore(VK_NULL_HANDLE)
-  , m_renderFinishedSemaphore(VK_NULL_HANDLE)
+  , m_imageAvailableSemaphores{VK_NULL_HANDLE}
+  , m_renderFinishedSemaphores{VK_NULL_HANDLE}
   , m_frameIndex(0)
 {
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
@@ -78,11 +78,13 @@ KrResult KRSurface::initialize()
 
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_imageAvailableSemaphore) != VK_SUCCESS) {
-    return KR_ERROR_VULKAN;
-  }
-  if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_renderFinishedSemaphore) != VK_SUCCESS) {
-    return KR_ERROR_VULKAN;
+  for(int i = 0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
+    if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN;
+    }
+    if (vkCreateSemaphore(device->m_logicalDevice, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS) {
+      return KR_ERROR_VULKAN;
+    }
   }
 
   return createSwapChain();
@@ -106,14 +108,16 @@ void KRSurface::destroy()
     m_deferredOpaquePass->destroy(*device);
   }
 
-  if (device && m_renderFinishedSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(device->m_logicalDevice, m_renderFinishedSemaphore, nullptr);
-    m_renderFinishedSemaphore = VK_NULL_HANDLE;
-  }
+  for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
+    if (device && m_renderFinishedSemaphores != VK_NULL_HANDLE) {
+      vkDestroySemaphore(device->m_logicalDevice, m_renderFinishedSemaphores[i], nullptr);
+      m_renderFinishedSemaphores[i] = VK_NULL_HANDLE;
+    }
 
-  if (device && m_imageAvailableSemaphore != VK_NULL_HANDLE) {
-    vkDestroySemaphore(device->m_logicalDevice, m_imageAvailableSemaphore, nullptr);
-    m_imageAvailableSemaphore = VK_NULL_HANDLE;
+    if (device && m_imageAvailableSemaphores != VK_NULL_HANDLE) {
+      vkDestroySemaphore(device->m_logicalDevice, m_imageAvailableSemaphores[i], nullptr);
+      m_imageAvailableSemaphores[i] = VK_NULL_HANDLE;
+    }
   }
 
   if (m_surface != VK_NULL_HANDLE) {
