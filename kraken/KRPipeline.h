@@ -39,6 +39,7 @@
 #include "KRMesh.h"
 #include "KRShader.h"
 
+class KRSampler;
 class KRShader;
 class KRSurface;
 class KRRenderPass;
@@ -304,6 +305,8 @@ public:
   void setPushConstant(PushConstant location, const Matrix4& value);
   void setPushConstant(PushConstant location, const Matrix4* value, const size_t count);
 
+  void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
+
   VkPipeline& getPipeline();
 
 private:
@@ -318,8 +321,19 @@ private:
     VkPipelineLayout layout;
   };
 
+  struct ImageDescriptorInfo
+  {
+    KRTexture* texture;
+    KRSampler* sampler;
+  };
+
+  struct UniformBufferDescriptorInfo
+  {
+    KRUniformBuffer* buffer;
+  };
+
   typedef std::vector<std::pair<VkDescriptorType, std::string>> DescriptorSetQuery;
-  typedef std::vector<std::variant<KRTexture*, KRUniformBuffer*>> DescriptorSetBinding;
+  typedef std::vector<std::variant<ImageDescriptorInfo, UniformBufferDescriptorInfo>> DescriptorSetBinding;
 
   struct DescriptorSetInfo
   {

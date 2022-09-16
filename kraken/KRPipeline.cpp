@@ -113,7 +113,8 @@ const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
 {
-  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
     pushConstants.buffer = nullptr;
     pushConstants.bufferSize = 0;
     memset(pushConstants.size, 0, kPushConstantCount);
@@ -206,7 +207,9 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
         }
       }
     }
+
     initPushConstantStage(shader->getShaderStage(), reflection);
+    initDescriptorSetStage(shader->getShaderStage(), reflection);
     stageInfo.module = shaderModule;
     stageInfo.pName = "main";
   }
@@ -376,7 +379,8 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   }
 
   int iStage = 0;
-  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
     if (pushConstants.buffer) {
       VkPipelineLayoutCreateInfo pushConstantsLayoutInfo{};
       pushConstantsLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -474,25 +478,25 @@ KRPipeline::~KRPipeline()
   if (m_descriptorSetLayout) {
     // TODO: vkDestroyDescriptorSetLayout(device, m_descriptorSetLayout, nullptr);
   }
-  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
-    if (pushConstants.layout) {
-      // TODO: vkDestroyPipelineLayout(device, pushConstants.layout, nullptr);
-    }
-  }
-
 
   if (getContext().getPipelineManager()->m_active_pipeline == this) {
     getContext().getPipelineManager()->m_active_pipeline = NULL;
   }
-  if (m_pushConstants[0].buffer) {
-    delete m_pushConstants[0].buffer;
-    m_pushConstants[0].buffer = nullptr;
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.layout) {
+      // TODO: vkDestroyPipelineLayout(device, pushConstants.layout, nullptr);
+    }
+    if (pushConstants.buffer) {
+      delete pushConstants.buffer;
+      pushConstants.buffer = nullptr;
+    }
   }
 }
 
 void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShaderModule* reflection)
 {
-  PushConstantStageInfo& pushConstants = m_pushConstants[static_cast<int>(stage)];
+  PushConstantInfo& pushConstants = m_stages[static_cast<int>(stage)].pushConstants;
   for (int i = 0; i < reflection->push_constant_block_count; i++) {
     const SpvReflectBlockVariable& block = reflection->push_constant_blocks[i];
     if (stricmp(block.name, "constants") == 0) {
@@ -516,10 +520,39 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
   }
 }
 
+void KRPipeline::initDescriptorSetStage(ShaderStage stage, const SpvReflectShaderModule* reflection)
+{
+  std::vector<DescriptorSetInfo>& descriptorSets = m_stages[static_cast<int>(stage)].descriptorSets;
+  descriptorSets.reserve(reflection->descriptor_set_count);
+  for (int i = 0; i < reflection->descriptor_set_count; i++) {
+    SpvReflectDescriptorSet descriptorSet = reflection->descriptor_sets[i];
+    DescriptorSetInfo& descriptorSetInfo = descriptorSets.emplace_back();
+    descriptorSetInfo.query.reserve(descriptorSet.binding_count);
+    for (int j = 0; j < descriptorSet.binding_count; j++) {
+      SpvReflectDescriptorBinding& binding = *descriptorSet.bindings[j];
+      std::pair<VkDescriptorType, std::string>& descriptorQuery = descriptorSetInfo.query.emplace_back();
+      descriptorQuery.second = binding.name;
+      switch (binding.descriptor_type) {
+        case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+          descriptorQuery.first = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+          break;
+        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+          descriptorQuery.first = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+          break;
+        default:
+          // Not supported
+          // TODO - Error handling
+          break;
+      }
+    }
+  }
+}
+
 bool KRPipeline::hasPushConstant(PushConstant location) const
 {
-  for (const PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)]) {
+  for (const StageInfo& stageInfo : m_stages) {
+    const PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)]) {
       return true;
     }
   }
@@ -528,9 +561,10 @@ bool KRPipeline::hasPushConstant(PushConstant location) const
 
 void KRPipeline::setPushConstant(PushConstant location, float value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      float* constant = (float*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      float* constant = (float*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -539,9 +573,10 @@ void KRPipeline::setPushConstant(PushConstant location, float value)
 
 void KRPipeline::setPushConstant(PushConstant location, int value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      int* constant = (int*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      int* constant = (int*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -549,18 +584,20 @@ void KRPipeline::setPushConstant(PushConstant location, int value)
 
 void KRPipeline::setPushConstant(PushConstant location, const Vector2& value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector2* constant = (Vector2*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector2* constant = (Vector2*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
 }
 void KRPipeline::setPushConstant(PushConstant location, const Vector3& value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector3* constant = (Vector3*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector3* constant = (Vector3*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -568,9 +605,10 @@ void KRPipeline::setPushConstant(PushConstant location, const Vector3& value)
 
 void KRPipeline::setPushConstant(PushConstant location, const Vector4& value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector4* constant = (Vector4*)(m_pushConstants[0].buffer + stageConstants.offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Vector4* constant = (Vector4*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -578,9 +616,10 @@ void KRPipeline::setPushConstant(PushConstant location, const Vector4& value)
 
 void KRPipeline::setPushConstant(PushConstant location, const Matrix4& value)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
-    if (stageConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Matrix4* constant = (Matrix4*)(m_pushConstants[0].buffer + m_pushConstants[0].offset[static_cast<size_t>(location)]);
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
+      Matrix4* constant = (Matrix4*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
       *constant = value;
     }
   }
@@ -588,9 +627,10 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4& value)
 
 void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, const size_t count)
 {
-  for (PushConstantStageInfo& stageConstants : m_pushConstants) {
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
     // TODO - Vulkan refactoring
-    // GLDEBUG(glUniformMatrix4fv(pShader->m_pushConstants[0].offset[KRPipeline::PushConstant::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+    // GLDEBUG(glUniformMatrix4fv(pushConstants.offset[KRPipeline::PushConstant::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
   }
 }
 
@@ -786,7 +826,8 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   setPushConstant(PushConstant::render_frame, 1);
   setPushConstant(PushConstant::volumetric_environment_frame, 2);
 
-  for (PushConstantStageInfo& pushConstants : m_pushConstants) {
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
     if (pushConstants.buffer) {
       vkCmdPushConstants(commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
     }
@@ -805,4 +846,9 @@ const char* KRPipeline::getKey() const
 VkPipeline& KRPipeline::getPipeline()
 {
   return m_graphicsPipeline;
+}
+
+void KRPipeline::setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler)
+{
+  // TODO - Implement
 }

@@ -32,11 +32,11 @@
 #version 450
 
 layout(location = 0) in mediump vec2 textureCoordinate;
-layout(binding = 1) uniform sampler2D diffuseTexture;
+layout(binding = 0) uniform sampler2D fontTexture;
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    vec4 font_color = texture(diffuseTexture, textureCoordinate);
+    vec4 font_color = texture(fontTexture, textureCoordinate);
     outColor = vec4(font_color.r, font_color.g, font_color.b, font_color.r + 0.50);
 }

@@ -723,6 +723,9 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
       }
     }
 
+    KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
+    fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
+
     PipelineInfo info{};
     std::string shader_name("debug_font");
     info.shader_name = &shader_name;
@@ -733,9 +736,8 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
     KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
+    fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
     fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-
-    m_pContext->getTextureManager()->selectTexture(0, m_pContext->getTextureManager()->getTexture("font"), 0.0f, KRTexture::TEXTURE_USAGE_UI);
 
     m_debug_text_vbo_data.load(commandBuffer);
     m_debug_text_vbo_data.bind(commandBuffer);
