@@ -71,8 +71,9 @@ public:
   KrDeviceHandle m_deviceHandle;
   VkSurfaceKHR m_surface;
 
-  VkSemaphore m_imageAvailableSemaphore;
-  VkSemaphore m_renderFinishedSemaphore;
+  VkSemaphore m_imageAvailableSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
+  VkSemaphore m_renderFinishedSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
+  VkFence m_inFlightFences[KRENGINE_MAX_FRAMES_IN_FLIGHT];
 
   std::unique_ptr<KRSwapchain> m_swapChain;
   std::unique_ptr<KRRenderPass> m_forwardOpaquePass;

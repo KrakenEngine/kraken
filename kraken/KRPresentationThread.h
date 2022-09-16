@@ -71,4 +71,5 @@ private:
   std::thread m_thread;
   void run();
   void renderFrame();
+  uint32_t m_currentFrame;
 };

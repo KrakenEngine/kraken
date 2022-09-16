@@ -37,6 +37,7 @@ KRPresentationThread::KRPresentationThread(KRContext& context)
   : KRContextObject(context)
   , m_requestedState(PresentThreadRequest::stop)
   , m_activeState(PresentThreadState::stop)
+  , m_currentFrame(0)
 {
 
 }
@@ -123,8 +124,10 @@ void KRPresentationThread::renderFrame()
       resized = true;
     }
 
+    vkWaitForFences(device.m_logicalDevice, 1, &surface.m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+
     uint32_t imageIndex = 0;
-    VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain->m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device.m_logicalDevice, surface.m_swapChain->m_swapChain, UINT64_MAX, surface.m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || resized) {
       // TODO - Must explicitly detect resize and trigger swapchain re-creation as well
@@ -138,8 +141,12 @@ void KRPresentationThread::renderFrame()
       break;
     }
 
+    // Only reset the fence once we know we'll submit work,
+    // avoiding a deadlock on swapchain recreation.
+    vkResetFences(device.m_logicalDevice, 1, &surface.m_inFlightFences[m_currentFrame]);
+
     // TODO - this will break with more than one surface...  Expect to refactor this out
-    VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[imageIndex];
+    VkCommandBuffer commandBuffer = device.m_graphicsCommandBuffers[m_currentFrame];
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -165,7 +172,7 @@ void KRPresentationThread::renderFrame()
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = { surface.m_imageAvailableSemaphore };
+    VkSemaphore waitSemaphores[] = { surface.m_imageAvailableSemaphores[m_currentFrame]};
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -173,11 +180,11 @@ void KRPresentationThread::renderFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    VkSemaphore signalSemaphores[] = { surface.m_renderFinishedSemaphore };
+    VkSemaphore signalSemaphores[] = { surface.m_renderFinishedSemaphores[m_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, surface.m_inFlightFences[m_currentFrame]) != VK_SUCCESS) {
       m_activeState = PresentThreadState::error;
       // TODO - Add error handling...
     }
@@ -193,5 +200,7 @@ void KRPresentationThread::renderFrame()
     vkQueuePresentKHR(device.m_graphicsQueue, &presentInfo);
 
     surface.endFrame();
+
+    m_currentFrame = (m_currentFrame + 1) % KRENGINE_MAX_FRAMES_IN_FLIGHT;
   }
 }
