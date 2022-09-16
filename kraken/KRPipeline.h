@@ -42,6 +42,8 @@
 class KRShader;
 class KRSurface;
 class KRRenderPass;
+class KRUniformBuffer;
+class KRTexture;
 
 enum class ModelFormat : __uint8_t;
 struct SpvReflectShaderModule;
@@ -307,7 +309,7 @@ public:
 private:
   static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
 
-  struct PushConstantStageInfo
+  struct PushConstantInfo
   {
     int offset[kPushConstantCount];
     __uint8_t size[kPushConstantCount];
@@ -315,7 +317,26 @@ private:
     int bufferSize;
     VkPipelineLayout layout;
   };
-  PushConstantStageInfo m_pushConstants[static_cast<size_t>(ShaderStage::ShaderStageCount)];
+
+  typedef std::vector<std::pair<VkDescriptorType, std::string>> DescriptorSetQuery;
+  typedef std::vector<std::variant<KRTexture*, KRUniformBuffer*>> DescriptorSetBinding;
+
+  struct DescriptorSetInfo
+  {
+    DescriptorSetQuery query;
+    DescriptorSetBinding bindings;
+  };
+
+  struct StageInfo
+  {
+    StageInfo()
+      : pushConstants{}
+    {}
+    PushConstantInfo pushConstants;
+    std::vector<DescriptorSetInfo> descriptorSets;
+  };
+
+  StageInfo m_stages[static_cast<size_t>(ShaderStage::ShaderStageCount)];
 
   char m_szKey[256];
 
@@ -324,4 +345,5 @@ private:
   VkPipeline m_graphicsPipeline;
 
   void initPushConstantStage(ShaderStage stage, const SpvReflectShaderModule* reflection);
+  void initDescriptorSetStage(ShaderStage stage, const SpvReflectShaderModule* reflection);
 };
