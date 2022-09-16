@@ -311,7 +311,7 @@ bool KRDevice::initCommandPools()
 
 bool KRDevice::initCommandBuffers()
 {
-  const int kMaxGraphicsCommandBuffers = 10; // TODO - This needs to be dynamic?
+  const int kMaxGraphicsCommandBuffers = KRENGINE_MAX_FRAMES_IN_FLIGHT;
   m_graphicsCommandBuffers.resize(kMaxGraphicsCommandBuffers);
 
   const int kMaxComputeCommandBuffers = 4; // TODO - This needs to be dynamic?
