@@ -116,8 +116,6 @@ using std::queue;
 #define KRAKEN_HAVE_BLAS 1
 #endif
 
-#define KRENGINE_MAX_TEXTURE_UNITS 8
-
 
 #if !defined(__i386__) && defined(__arm__)
 #define KRAKEN_USE_ARM_NEON

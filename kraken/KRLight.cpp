@@ -467,11 +467,12 @@ void KRLight::allocateShadowBuffers(int cBuffers)
       GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
 
       // ----- Create Depth Texture for shadowFramebuffer -----
+      // TODO - Vulkan Refactoring.  Note: shadowDepthTexture Sampler needs clamp-to-edge and linear filtering
       GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-      m_pContext->getTextureManager()->_setWrapModeS(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
-      m_pContext->getTextureManager()->_setWrapModeT(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
+      // m_pContext->getTextureManager()->_setWrapModeS(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
+      // m_pContext->getTextureManager()->_setWrapModeT(shadowDepthTexture[iShadow], GL_CLAMP_TO_EDGE);
 #if GL_EXT_shadow_samplers
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_EXT, GL_LEQUAL)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available

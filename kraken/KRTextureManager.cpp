@@ -46,8 +46,6 @@ KRTextureManager::KRTextureManager(KRContext& context) : KRResourceManager(conte
 
   m_memoryTransferredThisFrame = 0;
   m_streamerComplete = true;
-
-  _clearGLState();
 }
 
 void KRTextureManager::destroy()
@@ -64,26 +62,10 @@ KRTextureManager::~KRTextureManager()
   assert(m_textures.empty());
 }
 
-void KRTextureManager::_clearGLState()
-{
-  for (int i = 0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
-    m_maxAnisotropy = -1.0f;
-  }
-}
-
-void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)
-{
-}
-
 void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
 {
   m_maxAnisotropy = max_anisotropy;
 }
-
-void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)
-{
-}
-
 
 KRResource* KRTextureManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
@@ -236,8 +218,6 @@ long KRTextureManager::getMemActive()
 
 void KRTextureManager::startFrame(float deltaTime)
 {
-  _clearGLState();
-
   // TODO - Implement proper double-buffering to reduce copy operations
   m_streamerFenceMutex.lock();
 

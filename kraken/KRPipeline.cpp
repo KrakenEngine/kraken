@@ -651,31 +651,27 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
         if (light_directional_count == 0) {
           int cShadowBuffers = directional_light->getShadowBufferCount();
           if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
+            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }
-
-            m_pContext->getTextureManager()->_setWrapModeS(3, GL_CLAMP_TO_EDGE);
-            m_pContext->getTextureManager()->_setWrapModeT(3, GL_CLAMP_TO_EDGE);
           }
 
           if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
+            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }
-            m_pContext->getTextureManager()->_setWrapModeS(4, GL_CLAMP_TO_EDGE);
-            m_pContext->getTextureManager()->_setWrapModeT(4, GL_CLAMP_TO_EDGE);
           }
 
           if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
+            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
             if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }
-            m_pContext->getTextureManager()->_setWrapModeS(5, GL_CLAMP_TO_EDGE);
-            m_pContext->getTextureManager()->_setWrapModeT(5, GL_CLAMP_TO_EDGE);
           }
 
           Matrix4 matBias;

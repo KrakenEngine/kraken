@@ -75,10 +75,6 @@ public:
 
   std::set<KRTexture*>& getActiveTextures();
 
-  void _setWrapModeS(GLuint i, GLuint wrap_mode);
-  void _setWrapModeT(GLuint i, GLuint wrap_mode);
-
-  void _clearGLState();
   void setMaxAnisotropy(float max_anisotropy);
 
   void doStreaming(long& memoryRemaining, long& memoryRemainingThisFrame);
