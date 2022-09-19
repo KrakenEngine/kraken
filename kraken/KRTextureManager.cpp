@@ -44,10 +44,6 @@ KRTextureManager::KRTextureManager(KRContext& context) : KRResourceManager(conte
 {
   m_textureMemUsed = 0;
 
-  for (int iTexture = 0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
-    m_boundTextures[iTexture] = NULL;
-    m_boundTextureHandles[iTexture] = 0;
-  }
   m_memoryTransferredThisFrame = 0;
   m_streamerComplete = true;
 
@@ -231,14 +227,8 @@ KRTexture* KRTextureManager::getTexture(const std::string& name)
 
 bool KRTextureManager::selectTexture(GLenum target, int iTextureUnit, int iTextureHandle)
 {
-  if (m_boundTextureHandles[iTextureUnit] != iTextureHandle) {
-    m_boundTextureHandles[iTextureUnit] = iTextureHandle;
-    _setActiveTexture(iTextureUnit);
-    glBindTexture(target, iTextureHandle);
-    return true;
-  } else {
-    return false;
-  }
+  // TODO - Vulkan Refactoring
+  return true;
 }
 
 long KRTextureManager::getMemUsed()
@@ -298,11 +288,7 @@ void KRTextureManager::startFrame(float deltaTime)
 
 void KRTextureManager::endFrame(float deltaTime)
 {
-  for (int iTexture = 0; iTexture < KRENGINE_MAX_TEXTURE_UNITS; iTexture++) {
-    if (m_boundTextures[iTexture]) {
-      m_boundTextures[iTexture]->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // Even if the same texture is bound, ensure that they don't expire from the texture pool while in use
-    }
-  }
+
 }
 
 void KRTextureManager::doStreaming(long& memoryRemaining, long& memoryRemainingThisFrame)

@@ -92,10 +92,7 @@ private:
 
   unordered_map<std::string, KRTexture*> m_textures;
 
-  KRTexture* m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
-  int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
   float m_maxAnisotropy;
-
 
   std::set<KRTexture*> m_activeTextures;
 
