@@ -259,6 +259,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   }
 
   if (m_pSkyBoxTexture) {
+    m_pSkyBoxTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
 
     std::string shader_name("sky_box");
     PipelineInfo info{};
@@ -269,9 +270,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     info.cullMode = CullMode::kCullNone;
 
     KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
+    pPipeline->setImageBinding("diffuseTexture", m_pSkyBoxTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
     pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE);
-
-    getContext().getTextureManager()->selectTexture(0, m_pSkyBoxTexture, 0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);

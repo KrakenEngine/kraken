@@ -229,27 +229,6 @@ KRTexture* KRTextureManager::getTexture(const std::string& name)
   }
 }
 
-void KRTextureManager::selectTexture(int iTextureUnit, KRTexture* pTexture, float lod_coverage, KRTexture::texture_usage_t textureUsage)
-{
-  bool is_animated = false;
-  if (pTexture) {
-    pTexture->resetPoolExpiry(lod_coverage, textureUsage);
-    if (pTexture->isAnimated()) is_animated = true;
-  }
-
-  if (m_boundTextures[iTextureUnit] != pTexture || is_animated) {
-
-    if (pTexture != NULL) {
-      _setActiveTexture(iTextureUnit);
-      //pTexture->bind(iTextureUnit);
-    } else {
-      selectTexture(GL_TEXTURE_2D, iTextureUnit, 0);
-    }
-    m_boundTextures[iTextureUnit] = pTexture;
-  }
-
-}
-
 bool KRTextureManager::selectTexture(GLenum target, int iTextureUnit, int iTextureHandle)
 {
   if (m_boundTextureHandles[iTextureUnit] != iTextureHandle) {

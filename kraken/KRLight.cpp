@@ -404,6 +404,7 @@ void KRLight::render(RenderInfo& ri)
           }
 
           if (m_pFlareTexture) {
+            m_pFlareTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
             // Render light flare on transparency pass
@@ -424,9 +425,9 @@ void KRLight::render(RenderInfo& ri)
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, 1.0f);
             pShader->setPushConstant(KRPipeline::PushConstant::flare_size, m_flareSize);
+            pShader->setImageBinding("diffuseTexture", m_pFlareTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
             pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 
-            m_pContext->getTextureManager()->selectTexture(0, m_pFlareTexture, 0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
             vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
           }

@@ -439,24 +439,28 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
   pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, m_tr);
 
   if (bDiffuseMap) {
-    m_pContext->getTextureManager()->selectTexture(0, m_pDiffuseMap, lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
+    m_pDiffuseMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
+    pShader->setImageBinding("diffuseTexture", m_pDiffuseMap, getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
   if (bSpecMap) {
-    m_pContext->getTextureManager()->selectTexture(1, m_pSpecularMap, lod_coverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
+    m_pSpecularMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
+    pShader->setImageBinding("specularTexture", m_pDiffuseMap, getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
   if (bNormalMap) {
-    m_pContext->getTextureManager()->selectTexture(2, m_pNormalMap, lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
+    m_pNormalMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
+    pShader->setImageBinding("normalTexture", m_pNormalMap, getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
-  if (bReflectionCubeMap && (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-    m_pContext->getTextureManager()->selectTexture(4, m_pReflectionCube, lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
+  if (bReflectionCubeMap) {
+    m_pReflectionCube->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
+    pShader->setImageBinding("reflectionCubeTexture", m_pReflectionCube, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
-  if (bReflectionMap && (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE || ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_DEFERRED_OPAQUE)) {
-    // GL_TEXTURE7 is used for reading the depth buffer in gBuffer pass 2 and re-used for the reflection map in gBuffer Pass 3 and in forward rendering
-    m_pContext->getTextureManager()->selectTexture(7, m_pReflectionMap, lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
+  if (bReflectionMap) {
+    m_pReflectionMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
+    pShader->setImageBinding("reflectionTexture", m_pReflectionMap, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
   pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
