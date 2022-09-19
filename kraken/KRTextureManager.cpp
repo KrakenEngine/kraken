@@ -69,19 +69,6 @@ void KRTextureManager::_clearGLState()
   for (int i = 0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
     m_maxAnisotropy = -1.0f;
   }
-
-  m_iActiveTexture = -1;
-}
-
-void KRTextureManager::_setActiveTexture(int i)
-{
-  if (m_iActiveTexture != i) {
-    m_iActiveTexture = i;
-    /*
-    // TODO - Vulkan refactoring
-    GLDEBUG(glActiveTexture(GL_TEXTURE0 + i));
-    */
-  }
 }
 
 void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)

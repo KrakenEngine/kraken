@@ -75,7 +75,6 @@ public:
 
   std::set<KRTexture*>& getActiveTextures();
 
-  void _setActiveTexture(int i);
   void _setWrapModeS(GLuint i, GLuint wrap_mode);
   void _setWrapModeT(GLuint i, GLuint wrap_mode);
 
@@ -86,7 +85,6 @@ public:
   void primeTexture(KRTexture* texture);
 
 private:
-  int m_iActiveTexture;
 
   long m_memoryTransferredThisFrame;
 
