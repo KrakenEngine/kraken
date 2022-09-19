@@ -71,10 +71,7 @@ KRTextureManager::~KRTextureManager()
 void KRTextureManager::_clearGLState()
 {
   for (int i = 0; i < KRENGINE_MAX_TEXTURE_UNITS; i++) {
-    m_wrapModeS[i] = 0;
-    m_wrapModeT[i] = 0;
     m_maxAnisotropy = -1.0f;
-    selectTexture(i, NULL, 0.0f, KRTexture::TEXTURE_USAGE_NONE);
   }
 
   m_iActiveTexture = -1;
@@ -93,11 +90,6 @@ void KRTextureManager::_setActiveTexture(int i)
 
 void KRTextureManager::_setWrapModeS(GLuint i, GLuint wrap_mode)
 {
-  if (m_wrapModeS[i] != wrap_mode) {
-    _setActiveTexture(i);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode);
-    m_wrapModeS[i] = wrap_mode;
-  }
 }
 
 void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
@@ -107,11 +99,6 @@ void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
 
 void KRTextureManager::_setWrapModeT(GLuint i, GLuint wrap_mode)
 {
-  if (m_wrapModeT[i] != wrap_mode) {
-    _setActiveTexture(i);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode);
-    m_wrapModeT[i] = wrap_mode;
-  }
 }
 
 
@@ -254,7 +241,7 @@ void KRTextureManager::selectTexture(int iTextureUnit, KRTexture* pTexture, floa
 
     if (pTexture != NULL) {
       _setActiveTexture(iTextureUnit);
-      pTexture->bind(iTextureUnit);
+      //pTexture->bind(iTextureUnit);
     } else {
       selectTexture(GL_TEXTURE_2D, iTextureUnit, 0);
     }

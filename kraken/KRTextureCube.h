@@ -44,21 +44,11 @@ public:
   virtual bool save(const std::string& path);
   virtual bool save(KRDataBlock& data);
 
-  virtual void bind(GLuint texture_unit);
   virtual long getMemRequiredForSize(int max_dim);
-  //    virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
 
 private:
   bool createGPUTexture(int lod_max_dim) override;
-
-  const GLenum TARGETS[6] = {
-      GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-      GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-      GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-      GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-      GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-  };
 
   const char* SUFFIXES[6] = {
       "_positive_x",

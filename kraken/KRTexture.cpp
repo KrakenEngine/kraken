@@ -251,11 +251,6 @@ bool KRTexture::hasMipmaps()
   return m_max_lod_max_dim != m_min_lod_max_dim;
 }
 
-void KRTexture::bind(GLuint texture_unit)
-{
-
-}
-
 void KRTexture::_swapHandles()
 {
   //while(m_handle_lock.test_and_set()); // Spin lock

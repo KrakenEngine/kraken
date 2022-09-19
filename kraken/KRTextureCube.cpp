@@ -113,9 +113,7 @@ bool KRTextureCube::createGPUTexture(int lod_max_dim)
     for (int i = 0; i < 6; i++) {
       std::string faceName = getName() + SUFFIXES[i];
       if (m_textures[i]) {
-        /* TODO - Vulkan refactoring...
-        incorporate TARGETS[i],
-        */
+        // TODO - Vulkan refactoring.  We need to create a cube map texture rather than individual 2d textures.
         m_textures[i]->uploadTexture(device, texture.image, lod_max_dim, m_new_lod_max_dim);
       }
     }
@@ -144,7 +142,7 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
   return memoryRequired;
 }
 
-/*
+
 void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
 {
     KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
@@ -153,19 +151,6 @@ void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUs
             m_textures[i]->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
         }
     }
-}
-*/
-
-void KRTextureCube::bind(GLuint texture_unit)
-{
-  KRTexture::bind(texture_unit);
-  GLuint handle = getHandle();
-  if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_CUBE_MAP, texture_unit, handle)) {
-    if (handle) {
-      GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-      GLDEBUG(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    }
-  }
 }
 
 std::string KRTextureCube::getExtension()

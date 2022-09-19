@@ -105,20 +105,6 @@ bool KRTexture2D::createGPUTexture(int lod_max_dim)
   return success;
 }
 
-void KRTexture2D::bind(GLuint texture_unit)
-{
-  KRTexture::bind(texture_unit);
-  GLuint handle = getHandle();
-
-  if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, texture_unit, handle)) {
-    if (handle) {
-      // TODO - These texture parameters should be assigned by the material or texture parameters
-      m_pContext->getTextureManager()->_setWrapModeS(texture_unit, GL_REPEAT);
-      m_pContext->getTextureManager()->_setWrapModeT(texture_unit, GL_REPEAT);
-    }
-  }
-}
-
 bool KRTexture2D::save(const std::string& path)
 {
   if (m_pData) {

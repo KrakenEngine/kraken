@@ -95,8 +95,6 @@ private:
 
   KRTexture* m_boundTextures[KRENGINE_MAX_TEXTURE_UNITS];
   int m_boundTextureHandles[KRENGINE_MAX_TEXTURE_UNITS];
-  GLuint m_wrapModeS[KRENGINE_MAX_TEXTURE_UNITS];
-  GLuint m_wrapModeT[KRENGINE_MAX_TEXTURE_UNITS];
   float m_maxAnisotropy;
 
 
