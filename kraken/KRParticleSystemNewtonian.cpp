@@ -87,7 +87,6 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
 
   if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (ri.viewport.visible(getBounds())) {
-      KRTexture* pParticleTexture = m_pContext->getTextureManager()->getTexture("flare");
       m_pContext->getTextureManager()->selectTexture(0, pParticleTexture, 0.0f, KRTexture::TEXTURE_USAGE_PARTICLE);
 
       int particle_count = 10000;
