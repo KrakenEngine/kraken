@@ -639,6 +639,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, co
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass)
 {
   updateDescriptorSets();
+  bindDescriptorSets(commandBuffer);
   setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
@@ -854,6 +855,19 @@ void KRPipeline::updateDescriptorSets()
   m_descriptorSets.resize(KRENGINE_MAX_FRAMES_IN_FLIGHT, VK_NULL_HANDLE);
   std::vector<VkDescriptorSetLayout> layouts(KRENGINE_MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
   device->createDescriptorSets(layouts, m_descriptorSets);
+}
+
+void KRPipeline::bindDescriptorSets(VkCommandBuffer& commandBuffer)
+{
+  if (m_descriptorSets.empty()) {
+    return;
+  }
+  VkDescriptorSet descriptorSet = m_descriptorSets[getContext().getCurrentFrame() % m_descriptorSets.size()];
+  if (descriptorSet == VK_NULL_HANDLE) {
+    return;
+  }
+  // TODO - Vulkan Refactoring - Support multiple descriptor set binding
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 }
 
 const char* KRPipeline::getKey() const

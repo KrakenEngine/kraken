@@ -309,6 +309,7 @@ public:
 
   VkPipeline& getPipeline();
   void updateDescriptorSets();
+  void bindDescriptorSets(VkCommandBuffer& commandBuffer);
 
 private:
   static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
