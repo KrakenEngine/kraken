@@ -335,7 +335,8 @@ private:
   };
 
   typedef std::vector<std::pair<VkDescriptorType, std::string>> DescriptorSetQuery;
-  typedef std::vector<std::variant<ImageDescriptorInfo, UniformBufferDescriptorInfo>> DescriptorSetBinding;
+  typedef std::variant<ImageDescriptorInfo, UniformBufferDescriptorInfo> DescriptorBinding;
+  typedef std::vector<DescriptorBinding> DescriptorSetBinding;
 
   struct DescriptorSetInfo
   {

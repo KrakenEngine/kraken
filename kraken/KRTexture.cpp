@@ -267,3 +267,23 @@ void KRTexture::_swapHandles()
   }
 }
 
+VkImageView KRTexture::getFullImageView(KrDeviceHandle device)
+{
+  for (TextureHandle& handle : m_handles) {
+    if (handle.device == device) {
+      return handle.fullImageView;
+    }
+  }
+  return VK_NULL_HANDLE;
+}
+
+VkImage KRTexture::getImage(KrDeviceHandle device)
+{
+  for (TextureHandle& handle : m_handles) {
+    if (handle.device == device) {
+      return handle.image;
+    }
+  }
+  return VK_NULL_HANDLE;
+}
+

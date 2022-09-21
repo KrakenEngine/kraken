@@ -41,3 +41,9 @@ KRUniformBuffer::~KRUniformBuffer()
 {
 
 }
+
+VkBuffer KRUniformBuffer::getBuffer()
+{
+  // TODO - Vulkan Refactoring, Implement
+  return VK_NULL_HANDLE;
+}

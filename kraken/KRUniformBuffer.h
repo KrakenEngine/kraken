@@ -41,6 +41,7 @@ public:
 
   KRUniformBuffer(KRContext& context);
   virtual ~KRUniformBuffer();
+  VkBuffer getBuffer();
 
 private:
 };

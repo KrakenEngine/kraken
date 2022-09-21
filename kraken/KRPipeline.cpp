@@ -844,17 +844,81 @@ void KRPipeline::updateDescriptorSets()
     // There are no descriptors
     return;
   }
-  if (m_descriptorSets.size()) {
-    // TODO - We should detect changes to descriptor sets and update them
-    return;
-  }
 
   std::unique_ptr<KRDevice>& device = getContext().getDeviceManager()->getDevice(m_deviceHandle);
-  // TODO - Handle device context loss
 
-  m_descriptorSets.resize(KRENGINE_MAX_FRAMES_IN_FLIGHT, VK_NULL_HANDLE);
-  std::vector<VkDescriptorSetLayout> layouts(KRENGINE_MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
-  device->createDescriptorSets(layouts, m_descriptorSets);
+  // If the descriptor sets are not yet allocted, create them
+  if (m_descriptorSets.size() == 0) {
+    int descriptorSetCount = 0;
+    for (int stage = 0; stage < static_cast<size_t>(ShaderStage::ShaderStageCount); stage++) {
+      const StageInfo& stageInfo = m_stages[stage];
+      descriptorSetCount += stageInfo.descriptorSets.size();
+    }
+    m_descriptorSets.resize(KRENGINE_MAX_FRAMES_IN_FLIGHT * descriptorSetCount, VK_NULL_HANDLE);
+    std::vector<VkDescriptorSetLayout> layouts(KRENGINE_MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
+    device->createDescriptorSets(layouts, m_descriptorSets);
+  }
+
+  // Update the descriptor sets
+  // TODO - We should only do this when the descriptors have changed
+
+  int descriptorSetCount = m_descriptorSets.size() / KRENGINE_MAX_FRAMES_IN_FLIGHT;
+  int descriptorSetStart = (getContext().getCurrentFrame() % KRENGINE_MAX_FRAMES_IN_FLIGHT) * descriptorSetCount;
+  int descriptorSetIndex = descriptorSetStart;
+
+  std::vector<VkWriteDescriptorSet> descriptorWrites;
+  std::vector<VkDescriptorBufferInfo> buffers;
+  std::vector<VkDescriptorImageInfo> images;
+
+  for (int stage = 0; stage < static_cast<size_t>(ShaderStage::ShaderStageCount); stage++) {
+    StageInfo& stageInfo = m_stages[stage];
+    for (DescriptorSetInfo& descriptorSetInfo : stageInfo.descriptorSets) {
+      VkDescriptorSet descriptorSet = m_descriptorSets[descriptorSetIndex++];
+
+      int bindingIndex = 0;
+      for (DescriptorBinding& binding : descriptorSetInfo.bindings) {
+        UniformBufferDescriptorInfo* buffer = std::get_if<UniformBufferDescriptorInfo>(&binding);
+        ImageDescriptorInfo* image = std::get_if<ImageDescriptorInfo>(&binding);
+        if (buffer) {
+          VkDescriptorBufferInfo& bufferInfo = buffers.emplace_back(VkDescriptorBufferInfo{});
+          bufferInfo.buffer = buffer->buffer->getBuffer();
+          bufferInfo.offset = 0;
+          bufferInfo.range = VK_WHOLE_SIZE;
+
+          VkWriteDescriptorSet& descriptorWrite = descriptorWrites.emplace_back(VkWriteDescriptorSet{});
+          descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+          descriptorWrite.dstSet = descriptorSet;
+          descriptorWrite.dstBinding = bindingIndex;
+          descriptorWrite.dstArrayElement = 0;
+          descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+          descriptorWrite.descriptorCount = 1;
+          descriptorWrite.pBufferInfo = &bufferInfo;
+        } else if (image) {
+          VkDescriptorImageInfo& imageInfo = images.emplace_back(VkDescriptorImageInfo{});
+          imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+          imageInfo.imageView = image->texture->getFullImageView(m_deviceHandle);
+          imageInfo.sampler = image->sampler->getSampler(m_deviceHandle);
+
+          VkWriteDescriptorSet& descriptorWrite = descriptorWrites.emplace_back(VkWriteDescriptorSet{});
+          descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+          descriptorWrite.dstSet = descriptorSet;
+          descriptorWrite.dstBinding = bindingIndex++;
+          descriptorWrite.dstArrayElement = 0;
+          descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+          descriptorWrite.descriptorCount = 1;
+          descriptorWrite.pImageInfo = &imageInfo;
+        } else {
+          // TODO - Error Handling
+          assert(false);
+        }
+        bindingIndex++;
+      }
+    }
+  }
+
+  if (!descriptorWrites.empty()) {
+    vkUpdateDescriptorSets(device->m_logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+  }
 }
 
 void KRPipeline::bindDescriptorSets(VkCommandBuffer& commandBuffer)
@@ -862,12 +926,14 @@ void KRPipeline::bindDescriptorSets(VkCommandBuffer& commandBuffer)
   if (m_descriptorSets.empty()) {
     return;
   }
-  VkDescriptorSet descriptorSet = m_descriptorSets[getContext().getCurrentFrame() % m_descriptorSets.size()];
+  int descriptorSetCount = m_descriptorSets.size() / KRENGINE_MAX_FRAMES_IN_FLIGHT;
+  int startDescriptorSet = (getContext().getCurrentFrame() % KRENGINE_MAX_FRAMES_IN_FLIGHT) * descriptorSetCount;
+  VkDescriptorSet descriptorSet = m_descriptorSets[startDescriptorSet];
   if (descriptorSet == VK_NULL_HANDLE) {
     return;
   }
   // TODO - Vulkan Refactoring - Support multiple descriptor set binding
-  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, descriptorSetCount, &descriptorSet, 0, nullptr);
 }
 
 const char* KRPipeline::getKey() const
