@@ -83,6 +83,8 @@ public:
   void graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination);
   void graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t size, VkBuffer destination);
 
+  VkDescriptorPool getDescriptorPool();
+
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;
   VkPhysicalDeviceProperties m_deviceProperties;
@@ -141,4 +143,5 @@ private:
     , const char* debug_label
 #endif // KRENGINE_DEBUG_GPU_LABELS
   );
+  bool initDescriptorPool();
 };

@@ -49,6 +49,7 @@ KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   , m_allocator(VK_NULL_HANDLE)
   , m_streamingStagingBuffer{}
   , m_graphicsStagingBuffer{}
+  , m_descriptorPool(VK_NULL_HANDLE)
 {
 
 }
@@ -74,6 +75,10 @@ void KRDevice::StagingBufferInfo::destroy(VmaAllocator& allocator)
 
 void KRDevice::destroy()
 {
+  if (m_descriptorPool != VK_NULL_HANDLE) {
+    vkDestroyDescriptorPool(m_logicalDevice, m_descriptorPool, nullptr);
+    m_descriptorPool = VK_NULL_HANDLE;
+  }
   m_streamingStagingBuffer.destroy(m_allocator);
   m_graphicsStagingBuffer.destroy(m_allocator);
 
@@ -443,6 +448,38 @@ bool KRDevice::initStagingBuffer(VkDeviceSize size, StagingBufferInfo* info
   return true;
 }
 
+bool KRDevice::initDescriptorPool()
+{
+  // TODO - Vulkan Refactoring - These values need to be dynamic
+  // TODO - Perhaps we should dynamically creaate new pools as needed
+  const size_t kMaxDescriptorSets = 64;
+  const size_t kMaxUniformBufferDescriptors = 1024;
+  const size_t kMaxImageSamplerDescriptors = 1024;
+
+  VkDescriptorPoolSize poolSizes[2] = {};
+  poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  poolSizes[0].descriptorCount = static_cast<uint32_t>(kMaxUniformBufferDescriptors);
+
+  poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  poolSizes[1].descriptorCount = static_cast<uint32_t>(kMaxImageSamplerDescriptors);
+
+  VkDescriptorPoolCreateInfo poolInfo{};
+  poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  poolInfo.poolSizeCount = 2;
+  poolInfo.pPoolSizes = poolSizes;
+  poolInfo.maxSets = static_cast<uint32_t>(kMaxDescriptorSets);
+
+  if (vkCreateDescriptorPool(m_logicalDevice, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS) {
+    return false;
+  }
+  return true;
+}
+
+VkDescriptorPool KRDevice::getDescriptorPool()
+{
+  return m_descriptorPool;
+}
+
 bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
 {
   // TODO - Return discrete failure codes
@@ -474,6 +511,11 @@ bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)
   }
 
   if (!initStagingBuffers()) {
+    destroy();
+    return false;
+  }
+
+  if (!initDescriptorPool()) {
     destroy();
     return false;
   }
