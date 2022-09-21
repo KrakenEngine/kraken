@@ -308,6 +308,7 @@ public:
   void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
 
   VkPipeline& getPipeline();
+  void updateDescriptorBinding();
   void updateDescriptorSets();
   void bindDescriptorSets(VkCommandBuffer& commandBuffer);
 
@@ -327,20 +328,20 @@ private:
   {
     KRTexture* texture;
     KRSampler* sampler;
+    std::string name;
   };
 
   struct UniformBufferDescriptorInfo
   {
     KRUniformBuffer* buffer;
+    std::string name;
   };
 
-  typedef std::vector<std::pair<VkDescriptorType, std::string>> DescriptorSetQuery;
   typedef std::variant<ImageDescriptorInfo, UniformBufferDescriptorInfo> DescriptorBinding;
   typedef std::vector<DescriptorBinding> DescriptorSetBinding;
 
   struct DescriptorSetInfo
   {
-    DescriptorSetQuery query;
     DescriptorSetBinding bindings;
   };
 

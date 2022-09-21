@@ -529,22 +529,31 @@ void KRPipeline::initDescriptorSetStage(ShaderStage stage, const SpvReflectShade
   for (int i = 0; i < reflection->descriptor_set_count; i++) {
     SpvReflectDescriptorSet descriptorSet = reflection->descriptor_sets[i];
     DescriptorSetInfo& descriptorSetInfo = descriptorSets.emplace_back();
-    descriptorSetInfo.query.reserve(descriptorSet.binding_count);
+    descriptorSetInfo.bindings.reserve(descriptorSet.binding_count);
     for (int j = 0; j < descriptorSet.binding_count; j++) {
       SpvReflectDescriptorBinding& binding = *descriptorSet.bindings[j];
-      std::pair<VkDescriptorType, std::string>& descriptorQuery = descriptorSetInfo.query.emplace_back();
-      descriptorQuery.second = binding.name;
+      DescriptorBinding& descriptorQuery = descriptorSetInfo.bindings.emplace_back();
+      
       switch (binding.descriptor_type) {
-        case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-          descriptorQuery.first = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-          break;
-        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-          descriptorQuery.first = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-          break;
-        default:
-          // Not supported
-          // TODO - Error handling
-          break;
+      case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        {
+          ImageDescriptorInfo& imageInfo = descriptorQuery.emplace<ImageDescriptorInfo>();
+          imageInfo.name = binding.name;
+          imageInfo.texture = nullptr;
+          imageInfo.sampler = nullptr;
+        }
+        break;
+      case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        {
+          UniformBufferDescriptorInfo& bufferInfo = descriptorQuery.emplace<UniformBufferDescriptorInfo>();
+          bufferInfo.name = binding.name;
+          bufferInfo.buffer = nullptr;
+        }
+        break;
+      default:
+        // Not supported
+        // TODO - Error handling
+        break;
       }
     }
   }
@@ -636,8 +645,15 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, co
   }
 }
 
+void KRPipeline::updateDescriptorBinding()
+{
+  // TODO - Implement
+  // Vulkan Refactoring
+}
+
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass)
 {
+  updateDescriptorBinding();
   updateDescriptorSets();
   bindDescriptorSets(commandBuffer);
   setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
@@ -948,5 +964,19 @@ VkPipeline& KRPipeline::getPipeline()
 
 void KRPipeline::setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler)
 {
-  // TODO - Implement
+  for (int stage = 0; stage < static_cast<size_t>(ShaderStage::ShaderStageCount); stage++) {
+    StageInfo& stageInfo = m_stages[stage];
+    for (DescriptorSetInfo& descriptorSetInfo : stageInfo.descriptorSets) {
+      int bindingIndex = 0;
+      for (DescriptorBinding& binding : descriptorSetInfo.bindings) {
+        ImageDescriptorInfo* image = std::get_if<ImageDescriptorInfo>(&binding);
+        if (image) {
+          if (image->name == name) {
+            image->texture = texture;
+            image->sampler = sampler;
+          }
+        }
+      }
+    }
+  }
 }
