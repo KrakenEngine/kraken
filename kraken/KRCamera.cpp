@@ -672,8 +672,8 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
           Vector2 bottom_right_pos = Vector2::Create(-1.0f + dScaleX * (iCol + 1), dScaleY * iRow + dScaleY - 1.0f);
           top_left_pos += Vector2::Create(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
           bottom_right_pos += Vector2::Create(1.0f / 2048.0f * 0.5f, 1.0f / 1536.0f * 0.5f);
-          Vector2 top_left_uv = Vector2::Create(dTexScale * iTexCol, dTexScale * iTexRow);
-          Vector2 bottom_right_uv = Vector2::Create(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow + dTexScale);
+          Vector2 top_left_uv = Vector2::Create(dTexScale * iTexCol, dTexScale * iTexRow + dTexScale);
+          Vector2 bottom_right_uv = Vector2::Create(dTexScale * iTexCol + dTexScale, dTexScale * iTexRow);
 
           vertex_data[vertex_count].x = top_left_pos.x;
           vertex_data[vertex_count].y = top_left_pos.y;
@@ -742,7 +742,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     m_debug_text_vbo_data.load(commandBuffer);
     m_debug_text_vbo_data.bind(commandBuffer);
 
-    // vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+    vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
 
     m_debug_text_vertices.unlock();
 
