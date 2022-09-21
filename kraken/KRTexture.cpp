@@ -146,13 +146,6 @@ void KRTexture::resize(int max_dim)
   m_handle_lock.clear();
 }
 
-GLuint KRTexture::getHandle()
-{
-  // assert(false); // TODO - Vulkan refactoring required
-  resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_NONE); // TODO - Pass through getHandle() arguements to replace extraneous resetPoolExpiry calls?
-  return 0;
-}
-
 void KRTexture::resetPoolExpiry(float lodCoverage, KRTexture::texture_usage_t textureUsage)
 {
   long current_frame = getContext().getCurrentFrame();
