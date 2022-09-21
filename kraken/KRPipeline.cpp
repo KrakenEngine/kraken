@@ -125,9 +125,11 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   m_descriptorSetLayout = nullptr;
   m_pipelineLayout = nullptr;
   m_graphicsPipeline = nullptr;
+  m_descriptorSets.reserve(KRENGINE_MAX_FRAMES_IN_FLIGHT);
 
-  std::unique_ptr<KRDevice>& device = surface.getDevice();
   // TODO - Handle device removal
+  m_deviceHandle = surface.m_deviceHandle;
+  std::unique_ptr<KRDevice>& device = surface.getDevice();
 
   strcpy(m_szKey, szKey);
 
@@ -636,6 +638,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, co
 
 bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass)
 {
+  updateDescriptorSets();
   setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
@@ -832,6 +835,25 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
   return true;
+}
+
+void KRPipeline::updateDescriptorSets()
+{
+  if (m_descriptorSetLayout == VK_NULL_HANDLE) {
+    // There are no descriptors
+    return;
+  }
+  if (m_descriptorSets.size()) {
+    // TODO - We should detect changes to descriptor sets and update them
+    return;
+  }
+
+  std::unique_ptr<KRDevice>& device = getContext().getDeviceManager()->getDevice(m_deviceHandle);
+  // TODO - Handle device context loss
+
+  m_descriptorSets.resize(KRENGINE_MAX_FRAMES_IN_FLIGHT, VK_NULL_HANDLE);
+  std::vector<VkDescriptorSetLayout> layouts(KRENGINE_MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
+  device->createDescriptorSets(layouts, m_descriptorSets);
 }
 
 const char* KRPipeline::getKey() const

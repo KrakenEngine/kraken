@@ -308,6 +308,7 @@ public:
   void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
 
   VkPipeline& getPipeline();
+  void updateDescriptorSets();
 
 private:
   static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
@@ -357,6 +358,8 @@ private:
   VkDescriptorSetLayout m_descriptorSetLayout;
   VkPipelineLayout m_pipelineLayout;
   VkPipeline m_graphicsPipeline;
+  std::vector<VkDescriptorSet> m_descriptorSets;
+  KrDeviceHandle m_deviceHandle;
 
   void initPushConstantStage(ShaderStage stage, const SpvReflectShaderModule* reflection);
   void initDescriptorSetStage(ShaderStage stage, const SpvReflectShaderModule* reflection);
