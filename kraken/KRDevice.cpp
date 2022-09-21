@@ -475,9 +475,18 @@ bool KRDevice::initDescriptorPool()
   return true;
 }
 
-VkDescriptorPool KRDevice::getDescriptorPool()
+void KRDevice::createDescriptorSets(const std::vector<VkDescriptorSetLayout>& layouts, std::vector<VkDescriptorSet>& descriptorSets)
 {
-  return m_descriptorPool;
+  VkDescriptorSetAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  allocInfo.descriptorPool = m_descriptorPool;
+  allocInfo.descriptorSetCount = descriptorSets.size();
+  allocInfo.pSetLayouts = layouts.data();
+  if (vkAllocateDescriptorSets(m_logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+    // TODO - Vulkan Refactoring - Error Handling
+    // In event of failure, should allocate an additional descriptor pool and try again
+    assert(false);
+  }
 }
 
 bool KRDevice::initialize(const std::vector<const char*>& deviceExtensions)

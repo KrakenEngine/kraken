@@ -83,7 +83,7 @@ public:
   void graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination);
   void graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t size, VkBuffer destination);
 
-  VkDescriptorPool getDescriptorPool();
+  void createDescriptorSets(const std::vector<VkDescriptorSetLayout>& layouts, std::vector<VkDescriptorSet>& descriptorSets);
 
   VkPhysicalDevice m_device;
   VkDevice m_logicalDevice;
