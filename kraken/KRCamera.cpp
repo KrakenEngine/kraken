@@ -275,7 +275,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-    GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    vkCmdDraw(commandBuffer, 4, 1, 0, 0);
   }
 
   GL_POP_GROUP_MARKER;
