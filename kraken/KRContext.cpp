@@ -742,22 +742,7 @@ KrResult KRContext::deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNo
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
-KrResult KRContext::appendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo)
-{
-  return KR_ERROR_NOT_IMPLEMENTED;
-}
-
-KrResult KRContext::appendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo)
-{
-  return KR_ERROR_NOT_IMPLEMENTED;
-}
-
-KrResult KRContext::appendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo)
-{
-  return KR_ERROR_NOT_IMPLEMENTED;
-}
-
-KrResult KRContext::appendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo)
+KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
 {
   return KR_ERROR_NOT_IMPLEMENTED;
 }

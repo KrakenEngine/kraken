@@ -39,6 +39,7 @@
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
+  nodeInfo->camera.surface = -1;
   nodeInfo->camera.skybox_texture = -1;
 }
 

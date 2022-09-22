@@ -95,10 +95,7 @@ public:
   KrResult setNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform);
   KrResult deleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo);
   KrResult deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
-  KrResult appendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo);
-  KrResult appendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
-  KrResult appendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
-  KrResult appendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
+  KrResult createNode(const KrCreateNodeInfo* pCreateNodeInfo);
   KrResult updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
 
 

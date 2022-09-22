@@ -80,12 +80,9 @@ typedef enum
 
   KR_STRUCTURE_TYPE_FIND_NODE_BY_NAME = 0x00030000,
   KR_STRUCTURE_TYPE_FIND_ADJACENT_NODES,
+  KR_STRUCTURE_TYPE_CREATE_NODE,
   KR_STRUCTURE_TYPE_DELETE_NODE,
   KR_STRUCTURE_TYPE_DELETE_NODE_CHILDREN,
-  KR_STRUCTURE_TYPE_APPEND_BEFORE_NODE,
-  KR_STRUCTURE_TYPE_APPEND_AFTER_NODE,
-  KR_STRUCTURE_TYPE_APPEND_FIRST_CHILD_NODE,
-  KR_STRUCTURE_TYPE_APPEND_LAST_CHILD_NODE,
   KR_STRUCTURE_TYPE_UPDATE_NODE,
   KR_STRUCTURE_TYPE_SET_NODE_LOCAL_TRANSFORM,
   KR_STRUCTURE_TYPE_SET_NODE_WORLD_TRANSFORM,
@@ -109,6 +106,14 @@ typedef enum
 
   KR_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
 } KrStructureType;
+
+typedef enum
+{
+  KR_SCENE_NODE_INSERT_BEFORE,
+  KR_SCENE_NODE_INSERT_AFTER,
+  KR_SCENE_NODE_INSERT_FIRST_CHILD,
+  KR_SCENE_NODE_INSERT_LAST_CHILD,
+} KrSceneNodeInsertLocation;
 
 typedef int KrResourceMapIndex;
 typedef int KrSceneNodeMapIndex;
@@ -234,6 +239,7 @@ typedef struct
     struct
     {
       // KR_STRUCTURE_TYPE_NODE_CAMERA
+      KrSurfaceMapIndex surface;
       KrResourceMapIndex skybox_texture;
     } camera;
     struct
@@ -385,33 +391,11 @@ typedef struct
 {
   KrStructureType sType;
   KrResourceMapIndex sceneHandle;
-  KrSceneNodeMapIndex siblingNodeHandle;
+  KrSceneNodeMapIndex newNodeHandle;
+  KrSceneNodeMapIndex relativeNodeHandle;
+  KrSceneNodeInsertLocation location;
   KrNodeInfo node;
-} KrAppendBeforeNodeInfo;
-
-typedef struct
-{
-  KrStructureType sType;
-  KrResourceMapIndex sceneHandle;
-  KrSceneNodeMapIndex siblingNodeHandle;
-  KrNodeInfo node;
-} KrAppendAfterNodeInfo;
-
-typedef struct
-{
-  KrStructureType sType;
-  KrResourceMapIndex sceneHandle;
-  KrSceneNodeMapIndex parentNodeHandle;
-  KrNodeInfo node;
-} KrAppendFirstChildNodeInfo;
-
-typedef struct
-{
-  KrStructureType sType;
-  KrResourceMapIndex sceneHandle;
-  KrSceneNodeMapIndex parentNodeHandle;
-  KrNodeInfo node;
-} KrAppendLastChildNodeInfo;
+} KrCreateNodeInfo;
 
 typedef struct
 {
@@ -463,10 +447,7 @@ KrResult KrFindNodeByName(const KrFindNodeByNameInfo* pFindNodeByNameInfo);
 KrResult KrFindAdjacentNodes(const KrFindAdjacentNodesInfo* pFindAdjacentNodesInfo);
 KrResult KrSetNodeLocalTransform(const KrSetNodeLocalTransformInfo* pSetNodeLocalTransform);
 KrResult KrSetNodeWorldTransform(const KrSetNodeWorldTransformInfo* pSetNodeWorldTransform);
+KrResult KrCreateNode(const KrCreateNodeInfo* pCreateNodeInfo);
+KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
 KrResult KrDeleteNode(const KrDeleteNodeInfo* pDeleteNodeInfo);
 KrResult KrDeleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
-KrResult KrAppendBeforeNode(const KrAppendBeforeNodeInfo* pAppendBeforeNodeInfo);
-KrResult KrAppendAfterNode(const KrAppendAfterNodeInfo* pAppendAfterNodeInfo);
-KrResult KrAppendFirstChildNode(const KrAppendFirstChildNodeInfo* pAppendFirstChildNodeInfo);
-KrResult KrAppendLastChildNode(const KrAppendLastChildNodeInfo* pAppendLastChildNodeInfo);
-KrResult KrUpdateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
