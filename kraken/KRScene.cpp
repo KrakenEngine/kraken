@@ -192,7 +192,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
     if (bOcclusionResultsPass) {
       // ----====---- Occlusion results pass ----====----
       if (pOctreeNode->m_occlusionTested) {
-        GLuint params = 0;
+        int params = 0;
         GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
 
         if (params) {

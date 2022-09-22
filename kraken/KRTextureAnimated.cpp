@@ -104,7 +104,7 @@ void KRTextureAnimated::resetPoolExpiry(float lodCoverage, texture_usage_t textu
 
 // TODO - Vulkan refactoring.  Perhaps The texture selection for animation should be done in the shader.
 /*
-void KRTextureAnimated::bind(GLuint texture_unit)
+void KRTextureAnimated::bind(int texture_unit)
 {
   resetPoolExpiry(0.0f, TEXTURE_USAGE_NONE); // TODO - Need to set parameters here for streaming priority?
   KRTexture::bind(texture_unit);

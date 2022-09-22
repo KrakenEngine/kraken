@@ -379,7 +379,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 }
 
 
-void KRCamera::createBuffers(GLint renderBufferWidth, GLint renderBufferHeight)
+void KRCamera::createBuffers(int renderBufferWidth, int renderBufferHeight)
 {
   // TODO - Vulkan Refactoring..
 /*

@@ -393,7 +393,7 @@ void KRLight::render(RenderInfo& ri)
     if (m_flareTexture.size() && m_flareSize > 0.0f) {
 
       if (m_occlusionQuery) {
-        GLuint params = 0;
+        int params = 0;
         GLDEBUG(glGetQueryObjectuivEXT(m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
 
@@ -559,7 +559,7 @@ int KRLight::getShadowBufferCount()
   return cBuffers;
 }
 
-GLuint* KRLight::getShadowTextures()
+int* KRLight::getShadowTextures()
 {
   return shadowDepthTexture;
 }

@@ -79,15 +79,15 @@ public:
   const std::string getSkyBox() const;
 
 private:
-  void createBuffers(GLint renderBufferWidth, GLint renderBufferHeight);
+  void createBuffers(int renderBufferWidth, int renderBufferHeight);
 
-  GLint volumetricBufferWidth, volumetricBufferHeight;
+  int volumetricBufferWidth, volumetricBufferHeight;
 
-  GLuint compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
-  GLuint lightAccumulationBuffer, lightAccumulationTexture;
+  int compositeFramebuffer, compositeDepthTexture, compositeColorTexture;
+  int lightAccumulationBuffer, lightAccumulationTexture;
 
 
-  GLuint volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
+  int volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
 
   void renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface);
 

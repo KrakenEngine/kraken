@@ -67,7 +67,7 @@ public:
   virtual void render(RenderInfo& ri);
 
   int getShadowBufferCount();
-  GLuint* getShadowTextures();
+  int* getShadowTextures();
   KRViewport* getShadowViewports();
 
 
@@ -89,12 +89,12 @@ protected:
   float m_dust_particle_size;
   float m_dust_particle_intensity;
 
-  GLuint m_occlusionQuery; // Occlusion query for attenuating occluded flares
+  int m_occlusionQuery; // Occlusion query for attenuating occluded flares
 
 
   // Shadow Maps
   int m_cShadowBuffers;
-  GLuint shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
+  int shadowFramebuffer[KRENGINE_MAX_SHADOW_BUFFERS], shadowDepthTexture[KRENGINE_MAX_SHADOW_BUFFERS];
   bool shadowValid[KRENGINE_MAX_SHADOW_BUFFERS];
   KRViewport m_shadowViewports[KRENGINE_MAX_SHADOW_BUFFERS];
 

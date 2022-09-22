@@ -66,7 +66,7 @@ public:
   void endOcclusionQuery();
 
 
-  GLuint m_occlusionQuery;
+  int m_occlusionQuery;
   bool m_occlusionTested;
   bool m_activeQuery;
 

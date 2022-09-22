@@ -341,7 +341,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
 
   getContext().getTextureManager()->_setActiveTexture(0);
 
-  GLuint compressed_handle = 0;
+  int compressed_handle = 0;
   GLDEBUG(glGenTextures(1, &compressed_handle));
 
   GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
@@ -372,7 +372,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
           break;
   }
 
-  GLuint lod_level = 0;
+  int lod_level = 0;
   GLint compressed_size = 0;
   int lod_width = width;
   while(lod_width > 1) {
