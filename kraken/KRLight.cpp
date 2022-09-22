@@ -477,7 +477,7 @@ void KRLight::allocateShadowBuffers(int cBuffers)
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
       GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_EXT, GL_LEQUAL)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
 #endif
-      GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, (GLsizei)viewportSize.x, (GLsizei)viewportSize.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
+      GLDEBUG(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, (int)viewportSize.x, (int)viewportSize.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL));
 
       GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
     }
@@ -514,12 +514,12 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, shadowFramebuffer[iShadow]));
       GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowDepthTexture[iShadow], 0));
 
-      GLDEBUG(glViewport(0, 0, (GLsizei)m_shadowViewports[iShadow].getSize().x, (GLsizei)m_shadowViewports[iShadow].getSize().y));
+      GLDEBUG(glViewport(0, 0, (int)m_shadowViewports[iShadow].getSize().x, (int)m_shadowViewports[iShadow].getSize().y));
 
       GLDEBUG(glClearDepthf(0.0f));
       GLDEBUG(glClear(GL_DEPTH_BUFFER_BIT));
 
-      GLDEBUG(glViewport(1, 1, (GLsizei)m_shadowViewports[iShadow].getSize().x - 2, (GLsizei)m_shadowViewports[iShadow].getSize().y - 2));
+      GLDEBUG(glViewport(1, 1, (int)m_shadowViewports[iShadow].getSize().x - 2, (int)m_shadowViewports[iShadow].getSize().y - 2));
 
       GLDEBUG(glClearDepthf(1.0f));
 

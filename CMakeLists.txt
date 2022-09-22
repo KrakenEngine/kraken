@@ -176,12 +176,12 @@ list (APPEND EXTRA_LIBS "${OPENGL_LIBRARIES}")
 endif()
 
 # ---- GLAD ----
-if(NOT ANDROID)
-set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
-add_subdirectory(3rdparty/glad)
-include_directories(${GLAD_INCLUDE_DIRS})
-list (APPEND EXTRA_LIBS "glad")
-endif()
+# if(NOT ANDROID)
+# set(GLAD_EXTENSIONS "GL_EXT_texture_filter_anisotropic,GL_EXT_texture_compression_s3tc, GL_S3_s3tc" CACHE STRING "Gl exts" FORCE)
+# add_subdirectory(3rdparty/glad)
+# include_directories(${GLAD_INCLUDE_DIRS})
+# list (APPEND EXTRA_LIBS "glad")
+# endif()
 
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )

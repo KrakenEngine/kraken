@@ -36,19 +36,6 @@
 #include "matrix4.h"
 #include <string>
 
-#if defined(ANDROID)
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
-#elif defined(_WIN32) || defined(_WIN64)
-#include <glad/glad.h>
-#elif (defined(__linux__) || defined(__unix__) || defined(__posix__))
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
-#elif defined(__APPLE__)
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#endif
 #include "../3rdparty/tinyxml2/tinyxml2.h"
 
 #define KRMIN(x,y) ((x) < (y) ? (x) : (y))

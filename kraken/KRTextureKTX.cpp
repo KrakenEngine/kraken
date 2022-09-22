@@ -84,7 +84,7 @@ KRTextureKTX::KRTextureKTX(KRContext& context, KRDataBlock* data, std::string na
   m_min_lod_max_dim = KRMAX(width, height);
 }
 
-KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks) : KRTexture2D(context, new KRDataBlock(), name)
+KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks) : KRTexture2D(context, new KRDataBlock(), name)
 {
   memcpy(m_header.identifier, _KTXFileIdentifier, 12);
   m_header.endianness = 0x04030201;
@@ -193,7 +193,7 @@ bool KRTextureKTX::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
       block->lock();
       /*
       * TODO - Vulkan Refactoring
-      GLDEBUG(glCompressedTexImage2D(target, destination_level, (GLenum)m_header.glInternalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
+      GLDEBUG(glCompressedTexImage2D(target, destination_level, (unsigned int)m_header.glInternalFormat, width, height, 0, (int)block->getSize(), block->getStart()));
       */
 
       block->unlock();

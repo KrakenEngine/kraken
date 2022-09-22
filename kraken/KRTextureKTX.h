@@ -37,7 +37,7 @@ class KRTextureKTX : public KRTexture2D
 {
 public:
   KRTextureKTX(KRContext& context, KRDataBlock* data, std::string name);
-  KRTextureKTX(KRContext& context, std::string name, GLenum internal_format, GLenum base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks);
+  KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks);
   virtual ~KRTextureKTX();
   virtual std::string getExtension();
 

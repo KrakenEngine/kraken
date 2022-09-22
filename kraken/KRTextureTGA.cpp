@@ -126,7 +126,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
 
   /*
   * TODO - Vulkan refactoring to support compressing textures on load
-  GLenum internal_format = GL_RGBA;
+  unsigned int internal_format = GL_RGBA;
   if(compress) {
       internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
   }

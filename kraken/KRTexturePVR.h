@@ -49,7 +49,7 @@ protected:
 
   uint32_t  m_iWidth;
   uint32_t  m_iHeight;
-  GLenum    m_internalFormat;
+  unsigned int    m_internalFormat;
   bool      m_bHasAlpha;
 
   std::list<KRDataBlock*> m_blocks;

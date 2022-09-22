@@ -194,7 +194,7 @@ KRTexture* KRTextureManager::getTexture(const std::string& name)
   }
 }
 
-bool KRTextureManager::selectTexture(GLenum target, int iTextureUnit, int iTextureHandle)
+bool KRTextureManager::selectTexture(unsigned int target, int iTextureUnit, int iTextureHandle)
 {
   // TODO - Vulkan Refactoring
   return true;

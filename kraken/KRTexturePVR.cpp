@@ -212,7 +212,7 @@ bool KRTexturePVR::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
       block->lock();
       /*
        * TODO - Vulkan Refactoring
-      GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, (GLsizei)block->getSize(), block->getStart()));
+      GLDEBUG(glCompressedTexImage2D(target, destination_level, m_internalFormat, width, height, 0, (int)block->getSize(), block->getStart()));
       */
       block->unlock();
       memoryTransferred += (long)block->getSize(); // memoryTransferred does not include throughput of mipmap levels copied through glCopyTextureLevelsAPPLE

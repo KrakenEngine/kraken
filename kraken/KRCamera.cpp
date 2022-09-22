@@ -147,7 +147,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
 
     scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
-    GLDEBUG(glViewport(0, 0, (GLsizei)m_viewport.getSize().x, (GLsizei)m_viewport.getSize().y));
+    GLDEBUG(glViewport(0, 0, (int)m_viewport.getSize().x, (int)m_viewport.getSize().y));
     GL_POP_GROUP_MARKER;
   }
 
@@ -178,13 +178,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    GLDEBUG(glViewport(0, 0, (GLsizei)(m_viewport.getSize().x * m_downsample.x), (GLsizei)(m_viewport.getSize().y * m_downsample.y)));
+    GLDEBUG(glViewport(0, 0, (int)(m_viewport.getSize().x * m_downsample.x), (int)(m_viewport.getSize().y * m_downsample.y)));
     GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
     GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
 
     // Set source to buffers from pass 1
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, compositeColorTexture);
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 7, compositeDepthTexture);
+    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, compositeColorTexture);
+    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 7, compositeDepthTexture);
 
     // Render the geometry
     scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
@@ -200,7 +200,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     deferredOpaquePass.begin(commandBuffer, compositeSurface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
 
     // Set source to buffers from pass 2
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 6, lightAccumulationTexture);
+    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, lightAccumulationTexture);
 
     // Render the geometry
     // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
@@ -215,7 +215,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
     /*
 
-    GLDEBUG(glViewport(0, 0, (GLsizei)(m_viewport.getSize().x * m_downsample.x), (GLsizei)(m_viewport.getSize().y * m_downsample.y)));
+    GLDEBUG(glViewport(0, 0, (int)(m_viewport.getSize().x * m_downsample.x), (int)(m_viewport.getSize().y * m_downsample.y)));
     */
 
     // Start render pass
@@ -324,9 +324,9 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
       // Disable z-buffer test
       GLDEBUG(glDisable(GL_DEPTH_TEST));
-      m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
+      m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 0, compositeDepthTexture);
 
-      GLDEBUG(glViewport(0, 0, (GLsizei)volumetricLightingViewport.getSize().x, (GLsizei)volumetricLightingViewport.getSize().y));
+      GLDEBUG(glViewport(0, 0, (int)volumetricLightingViewport.getSize().x, (int)volumetricLightingViewport.getSize().y));
     } else {
       // Enable z-buffer test
       GLDEBUG(glEnable(GL_DEPTH_TEST));

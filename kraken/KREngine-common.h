@@ -49,8 +49,7 @@ using namespace kraken;
 #include <list>
 #include <map>
 #include <variant>
-
-
+#include <algorithm>
 #include <stack>
 #include <queue>
 #include <iostream>
@@ -73,6 +72,12 @@ using namespace kraken;
 #include <AudioToolbox/ExtendedAudioFile.h>
 #include <AudioToolbox/AUGraph.h>
 
+#include "TargetConditionals.h"
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#include <Accelerate/Accelerate.h>
+#define KRAKEN_HAVE_BLAS 1
+
 #endif
 
 #include <sys/types.h>
@@ -81,8 +86,10 @@ using namespace kraken;
 #include <assert.h>
 #include <time.h>
 #include <limits>
-
 #include <iostream>
+
+// NOMINMAX required to prevent windows headers from defining max() and min() macros
+#define NOMINMAX
 
 // _USE_MATH_DEFINES must be defined to get M_PI in Windows
 #define _USE_MATH_DEFINES
@@ -107,14 +114,6 @@ using std::multimap;
 
 using std::stack;
 using std::queue;
-
-#ifdef __APPLE__
-#include "TargetConditionals.h"
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-#include <Accelerate/Accelerate.h>
-#define KRAKEN_HAVE_BLAS 1
-#endif
 
 
 #if !defined(__i386__) && defined(__arm__)
@@ -165,17 +164,9 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #define OSDEBUG(x) x;
 #endif
 
-#if defined(GL_EXT_debug_marker) && (defined(DEBUG) || defined(_DEBUG))
-
-#define GL_PUSH_GROUP_MARKER(x) glPushGroupMarkerEXT(0, x)
-#define GL_POP_GROUP_MARKER glPopGroupMarkerEXT()
-
-#else
-
 #define GL_PUSH_GROUP_MARKER(x)
 #define GL_POP_GROUP_MARKER
 
-#endif
 
 typedef enum
 {

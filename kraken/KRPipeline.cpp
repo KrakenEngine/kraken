@@ -641,7 +641,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, co
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     // TODO - Vulkan refactoring
-    // GLDEBUG(glUniformMatrix4fv(pushConstants.offset[KRPipeline::PushConstant::bone_transforms], (GLsizei)bones.size(), GL_FALSE, bone_mats));
+    // GLDEBUG(glUniformMatrix4fv(pushConstants.offset[KRPipeline::PushConstant::bone_transforms], (int)bones.size(), GL_FALSE, bone_mats));
   }
 }
 
@@ -672,7 +672,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
           int cShadowBuffers = directional_light->getShadowBufferCount();
           if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
             // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 3, directional_light->getShadowTextures()[0])) {
+            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 3, directional_light->getShadowTextures()[0])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }
@@ -680,7 +680,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
 
           if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
             // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 4, directional_light->getShadowTextures()[1])) {
+            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 4, directional_light->getShadowTextures()[1])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }
@@ -688,7 +688,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
 
           if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
             // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 5, directional_light->getShadowTextures()[2])) {
+            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 5, directional_light->getShadowTextures()[2])) {
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
               GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
             }

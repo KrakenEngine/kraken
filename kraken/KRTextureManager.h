@@ -52,7 +52,7 @@ public:
   virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  bool selectTexture(GLenum target, int iTextureUnit, int iTextureHandle);
+  bool selectTexture(unsigned int target, int iTextureUnit, int iTextureHandle);
 
   KRTexture* loadTexture(const char* szName, const char* szExtension, KRDataBlock* data);
   KRTexture* getTextureCube(const char* szName);

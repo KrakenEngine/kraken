@@ -402,7 +402,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
       int iBuffer = iVertex / MAX_VBO_SIZE;
       iVertex = iVertex % MAX_VBO_SIZE;
       while (cVertexes > 0) {
-        GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
+        int cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
         int vertex_size = m_vertex_size;
 
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
@@ -493,7 +493,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
     int iBuffer = iVertex / MAX_VBO_SIZE;
     iVertex = iVertex % MAX_VBO_SIZE;
     while (cVertexes > 0) {
-      GLsizei cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : cVertexes % MAX_VBO_SIZE;
+      int cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : cVertexes % MAX_VBO_SIZE;
 
       KRMeshManager::KRVBOData& vbo_data_block = **vbo_itr++;
       assert(vbo_data_block.isVBOReady());
