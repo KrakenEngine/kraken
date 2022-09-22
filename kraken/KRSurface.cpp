@@ -42,7 +42,7 @@ KRSurface::KRSurface(KRContext& context)
 #ifdef WIN32
   , m_hWnd(hWnd)
 #endif
-  , m_deviceHandle(VK_NULL_HANDLE)
+  , m_deviceHandle(0)
   , m_surface(VK_NULL_HANDLE)
   , m_imageAvailableSemaphores{VK_NULL_HANDLE}
   , m_renderFinishedSemaphores{VK_NULL_HANDLE}
