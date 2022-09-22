@@ -165,16 +165,6 @@ endif()
 include_directories(3rdparty/spirv-reflect)
 add_sources(3rdparty/spirv-reflect/spirv_reflect.c)
 
-# ---- OpenGL ----
-if(ANDROID)
-list (APPEND EXTRA_LIBS "EGL")
-list (APPEND EXTRA_LIBS "GLESv3")
-else()
-find_package(OpenGL REQUIRED)
-include_directories( ${OPENGL_INCLUDE_DIRS} )
-list (APPEND EXTRA_LIBS "${OPENGL_LIBRARIES}")
-endif()
-
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
