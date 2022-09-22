@@ -130,19 +130,8 @@ using std::hash;
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <volk.h>
-#if defined(ANDROID)
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
-// OpenGL ES 2.0 mapping to OpenGL ES 3.2
-#define glDeleteQueriesEXT glDeleteQueries
-#define glGenQueriesEXT glGenQueries
-#define glBeginQueryEXT glBeginQuery
-#define glEndQueryEXT glEndQuery
-#define glGetQueryObjectuivEXT glGetQueryObjectuiv
-#define glTexStorage2DEXT glTexStorage2D
-#define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
-#define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
-#elif defined(_WIN32) || defined(_WIN64)
+
+#if defined(_WIN32) || defined(_WIN64)
 
 #include <mutex>
 #include <cstdint>
@@ -155,79 +144,13 @@ typedef uint16_t __uint16_t;
 typedef int8_t __int8_t;
 typedef uint8_t __uint8_t;
 
-#include <glad/glad.h>
-// OpenGL ES 2.0 mapping to OpenGL 3.2
-#define glDeleteQueriesEXT glDeleteQueries
-#define glGenQueriesEXT glGenQueries
-#define glBeginQueryEXT glBeginQuery
-#define glEndQueryEXT glEndQuery
-#define glGetQueryObjectuivEXT glGetQueryObjectuiv
-#define glTexStorage2DEXT glTexStorage2D
-#define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
-#define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
-
-#elif TARGET_OS_IPHONE
-
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-
-#else
-
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-
-// OpenGL ES 2.0 mapping to OpenGL 3.2
-#define glDepthRangef glDepthRange
-#define glClearDepthf glClearDepth
-#define glDeleteQueriesEXT glDeleteQueries
-#define glGenQueriesEXT glGenQueries
-#define glBeginQueryEXT glBeginQuery
-#define glEndQueryEXT glEndQuery
-#define glGetQueryObjectuivEXT glGetQueryObjectuiv
-#define glTexStorage2DEXT glTexStorage2D
-#define GL_ANY_SAMPLES_PASSED_EXT GL_ANY_SAMPLES_PASSED
-#define GL_QUERY_RESULT_EXT GL_QUERY_RESULT
-
-#define GL_OES_mapbuffer 1
-#define glMapBufferOES glMapBuffer
-#define glUnmapBufferOES glUnmapBuffer
-#define GL_WRITE_ONLY_OES GL_WRITE_ONLY
-
-#define GL_OES_vertex_array_object 1
-#define glGenVertexArraysOES glGenVertexArrays
-#define glBindVertexArrayOES glBindVertexArray
-#define glDeleteVertexArraysOES glDeleteVertexArrays
-
 #endif
 
-#if defined(DEBUG) || defined(_DEBUG)
+
+// TODO - Vulkan Refactoring
+// If we hit any old GL calls, assert
 #define GLDEBUG(x) \
-x; \
-{ \
-GLenum e; \
-while( (e=glGetError()) != GL_NO_ERROR) \
-{ \
-fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
-} \
-}
-#else
-#define GLDEBUG(x) x;
-#endif
-
-
-#if defined(DEBUG) || defined(_DEBUG)
-#define ALDEBUG(x) \
-x; \
-{ \
-GLenum e; \
-while( (e=alGetError()) != AL_NO_ERROR) \
-{ \
-fprintf(stderr, "Error at line number %d, in file %s. alGetError() returned %i for call %s\n",__LINE__, __FILE__, e, #x ); \
-} \
-}
-#else
-#define ALDEBUG(x) x;
-#endif
+assert(false);
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define OSDEBUG(x) \
@@ -241,7 +164,6 @@ fprintf(stderr, "Error at line number %d, in file %s. Returned %d for call %s\n"
 #else
 #define OSDEBUG(x) x;
 #endif
-
 
 #if defined(GL_EXT_debug_marker) && (defined(DEBUG) || defined(_DEBUG))
 
