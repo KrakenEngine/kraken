@@ -176,6 +176,9 @@ private:
   KRResource** m_resourceMap;
   size_t m_resourceMapSize;
 
+  KRNode** m_nodeMap;
+  size_t m_nodeMapSize;
+
   long m_current_frame; // TODO - Does this need to be atomic?
   long m_last_memory_warning_frame; // TODO - Does this need to be atomic?
   long m_last_fully_streamed_frame; // TODO - Does this need to be atomic?

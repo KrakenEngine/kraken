@@ -34,10 +34,44 @@
 
 void smoke_load()
 {
-  KrCreateSceneInfo create_scene_info = {};
-  create_scene_info.sType = KR_STRUCTURE_TYPE_CREATE_SCENE;
-  create_scene_info.resourceHandle = 10;
-  create_scene_info.pSceneName = "cube";
+  enum
+  {
+    kSceneResourceHandle = 10,
+    kSkyboxTextureResourceHandle
+  };
+
+  enum
+  {
+    kCameraNodeHandle = 10
+  };
+
+  /*
+  KrMapResourceInfo map_skybox_resource = { KR_STRUCTURE_TYPE_MAP_RESOURCE };
+  map_skybox_resource.pResourceName = "skybox";
+  map_skybox_resource.resourceHandle = kSkyboxTextureResourceHandle;
+  KrResult res = KrMapResource(&map_skybox_resource);
+  assert(res == KR_SUCCESS);
+  */
+
+  // Create a scene
+  KrCreateSceneInfo create_scene_info = { KR_STRUCTURE_TYPE_CREATE_SCENE };
+  create_scene_info.resourceHandle = kSceneResourceHandle;
+  create_scene_info.pSceneName = "my_scene";
   KrResult res = KrCreateScene(&create_scene_info);
   assert(res == KR_SUCCESS);
+
+  /*
+  // Add a camera to the scene
+  KrCreateNodeInfo create_camera_info = { KR_STRUCTURE_TYPE_CREATE_NODE };
+  res = KrInitNodeInfo(&create_camera_info.node, KR_STRUCTURE_TYPE_NODE_CAMERA);
+  assert(res == KR_SUCCESS);
+  create_camera_info.relativeNodeHandle = -1;
+  create_camera_info.newNodeHandle = kCameraNodeHandle;
+  create_camera_info.sceneHandle = kSceneResourceHandle;
+  create_camera_info.node.pName = "my_camera";
+  create_camera_info.node.camera.surface = 1;
+  // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
+  res = KrCreateNode(&create_camera_info);
+  assert(res == KR_SUCCESS);
+  */
 }

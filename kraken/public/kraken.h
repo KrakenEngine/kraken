@@ -123,6 +123,7 @@ typedef struct
 {
   KrStructureType sType;
   size_t resourceMapSize;
+  size_t nodeMapSize;
 } KrInitializeInfo;
 
 typedef struct

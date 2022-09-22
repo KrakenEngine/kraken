@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
   KrInitializeInfo init_info = {};
   init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
   init_info.resourceMapSize = 1024;
+  init_info.nodeMapSize = 1024;
   KrResult res = KrInitialize(&init_info);
   if (res != KR_SUCCESS) {
     printf("Failed to initialize Kraken!\n");

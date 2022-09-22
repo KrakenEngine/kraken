@@ -84,11 +84,16 @@ void* KRContext::s_log_callback_user_data = NULL;
 
 KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   : m_resourceMapSize(initializeInfo->resourceMapSize)
+  , m_resourceMap(nullptr)
+  , m_nodeMapSize(initializeInfo->nodeMapSize)
+  , m_nodeMap(nullptr)
 {
   m_presentationThread = std::make_unique<KRPresentationThread>(*this);
   m_streamerThread = std::make_unique<KRStreamerThread>(*this);
   m_resourceMap = (KRResource**)malloc(sizeof(KRResource*) * m_resourceMapSize);
   memset(m_resourceMap, 0, m_resourceMapSize * sizeof(KRResource*));
+  m_nodeMap = (KRNode**)malloc(sizeof(KRNode*) * m_nodeMapSize);
+  memset(m_nodeMap, 0, m_nodeMapSize * sizeof(KRNode*));
   m_streamingEnabled = false;
 #ifdef __APPLE__
   mach_timebase_info(&m_timebase_info);
@@ -172,7 +177,11 @@ KRContext::~KRContext()
 
   if (m_resourceMap) {
     delete m_resourceMap;
-    m_resourceMap = NULL;
+    m_resourceMap = nullptr;
+  }
+  if (m_nodeMap) {
+    delete m_nodeMap;
+    m_nodeMap = nullptr;
   }
 }
 
@@ -744,6 +753,18 @@ KrResult KRContext::deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNo
 
 KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
 {
+  if (pCreateNodeInfo->newNodeHandle < 0 || pCreateNodeInfo->newNodeHandle >= m_nodeMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  if (pCreateNodeInfo->relativeNodeHandle < 0 || pCreateNodeInfo->relativeNodeHandle >= m_nodeMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRNode* relativeNode = nullptr;
+  if (pCreateNodeInfo->relativeNodeHandle != KR_NULL_HANDLE) {
+    // TODO - Handle node deletions by deleting nodes from m_nodeMap
+    relativeNode = m_nodeMap[pCreateNodeInfo->relativeNodeHandle];
+  }
+
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
