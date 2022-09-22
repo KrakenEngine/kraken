@@ -1,6 +1,3 @@
-[submodule "3rdparty/glad"]
-	path = 3rdparty/glad
-	url = https://github.com/Dav1dde/glad
 [submodule "hydra"]
 	path = hydra
 	url = https://github.com/KrakenEngine/hydra
