@@ -966,7 +966,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode* parent_node, FbxGeometryConverter* pG
     }
 
     KRLODSet* lod_set = new KRLODSet(parent_node->getScene(), name);
-    parent_node->addChild(lod_set);
+    parent_node->appendChild(lod_set);
 
     AABB reference_bounds;
     // Create a lod_group node for each fbx child node
@@ -1026,7 +1026,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode* parent_node, FbxGeometryConverter* pG
       new_node->setPostRotation(node_post_rotation);
 
       new_node->setUseWorldUnits(use_world_space_units);
-      lod_set->addChild(new_node);
+      lod_set->appendChild(new_node);
 
       LoadNode(pFbxScene, new_node, pGeometryConverter, pNode->GetChild(i));
 
@@ -1087,7 +1087,7 @@ void LoadNode(FbxScene* pFbxScene, KRNode* parent_node, FbxGeometryConverter* pG
       new_node->setScalingPivot(node_scaling_pivot);
       new_node->setPreRotation(node_pre_rotation);
       new_node->setPostRotation(node_post_rotation);
-      parent_node->addChild(new_node);
+      parent_node->appendChild(new_node);
 
       // Load child nodes
       for (int i = 0; i < pNode->GetChildCount(); i++) {

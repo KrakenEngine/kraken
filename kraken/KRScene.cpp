@@ -62,7 +62,7 @@ void KRScene::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, fl
   if (camera == NULL) {
     // Add a default camera if none are present
     camera = new KRCamera(*this, "default_camera");
-    m_pRootNode->addChild(camera);
+    m_pRootNode->appendChild(camera);
   }
 
   // FINDME - This should be moved to de-couple Siren from the Rendering pipeline
@@ -409,7 +409,7 @@ KRScene* KRScene::Load(KRContext& context, const std::string& name, KRDataBlock*
 
   KRNode* n = KRNode::LoadXML(*new_scene, scene_element->FirstChildElement());
   if (n) {
-    new_scene->getRootNode()->addChild(n);
+    new_scene->getRootNode()->appendChild(n);
   }
 
 
@@ -554,7 +554,7 @@ void KRScene::addDefaultLights()
   KRDirectionalLight* light1 = new KRDirectionalLight(*this, "default_light1");
 
   light1->setLocalRotation((Quaternion::Create(Vector3::Create(0.0f, (float)M_PI * 0.10f, 0.0f)) * Quaternion::Create(Vector3::Create(0.0f, 0.0f, (float)-M_PI * 0.15f))).eulerXYZ());
-  m_pRootNode->addChild(light1);
+  m_pRootNode->appendChild(light1);
 }
 
 AABB KRScene::getRootOctreeBounds()

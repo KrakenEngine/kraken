@@ -145,16 +145,52 @@ bool KRNode::getScaleCompensation()
 
 void KRNode::childDeleted(KRNode* child_node)
 {
-  m_childNodes.erase(child_node);
+  // TODO - We should give KRNode's linked list pointers directly and eliminate m_childNodes so that we don't need
+  // to perform slow std::find operations like this one.
+  // TODO - FIXME - This is a slow operation...
+  std::list<KRNode*>::iterator itr = std::find(m_childNodes.begin(), m_childNodes.end(), child_node);
+  if (itr != m_childNodes.end()) {
+    m_childNodes.erase(itr);
+  }
   invalidateBounds();
   getScene().notify_sceneGraphModify(this);
 }
 
-void KRNode::addChild(KRNode* child)
+void KRNode::appendChild(KRNode* child)
 {
   assert(child->m_parentNode == NULL);
   child->m_parentNode = this;
-  m_childNodes.insert(child);
+  m_childNodes.push_back(child);
+  child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
+}
+
+void KRNode::prependChild(KRNode* child)
+{
+  assert(child->m_parentNode == NULL);
+  child->m_parentNode = this;
+  m_childNodes.push_front(child);
+  child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
+}
+void KRNode::insertBefore(KRNode* child)
+{
+  assert(m_parentNode != NULL); // There can only be one root node
+  assert(child->m_parentNode == NULL);
+  child->m_parentNode = m_parentNode;
+  std::list<KRNode*>::iterator itr = std::find(m_parentNode->m_childNodes.begin(), m_parentNode->m_childNodes.end(), this);
+  assert(itr != m_parentNode->m_childNodes.end());
+
+  m_parentNode->m_childNodes.insert(itr, child);
+  child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
+}
+void KRNode::insertAfter(KRNode* child)
+{
+  assert(m_parentNode != NULL); // There can only be one root node
+  assert(child->m_parentNode == NULL);
+  child->m_parentNode = m_parentNode;
+  std::list<KRNode*>::iterator itr = std::find(m_parentNode->m_childNodes.begin(), m_parentNode->m_childNodes.end(), this);
+  assert(itr != m_parentNode->m_childNodes.end());
+  itr++;
+  m_parentNode->m_childNodes.insert(itr, child);
   child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 
@@ -174,11 +210,16 @@ tinyxml2::XMLElement* KRNode::saveXML(tinyxml2::XMLNode* parent)
   kraken::setXMLAttribute("pre_rotate", e, (m_preRotation * (180.0f / (float)M_PI)), Vector3::Zero());
   kraken::setXMLAttribute("post_rotate", e, (m_postRotation * (180.0f / (float)M_PI)), Vector3::Zero());
 
-  for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
     KRNode* child = (*itr);
     child->saveXML(n);
   }
   return e;
+}
+
+KrResult KRNode::createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRNode** node)
+{
+  return KR_ERROR_NOT_IMPLEMENTED;
 }
 
 void KRNode::loadXML(tinyxml2::XMLElement* e)
@@ -227,7 +268,7 @@ void KRNode::loadXML(tinyxml2::XMLElement* e)
       KRNode* child_node = KRNode::LoadXML(getScene(), child_element);
 
       if (child_node) {
-        addChild(child_node);
+        appendChild(child_node);
       }
     }
   }
@@ -515,7 +556,7 @@ void KRNode::render(const RenderInfo& ri)
   m_lastRenderFrame = getContext().getCurrentFrame();
 }
 
-const std::set<KRNode*>& KRNode::getChildren()
+const std::list<KRNode*>& KRNode::getChildren()
 {
   return m_childNodes;
 }
@@ -541,7 +582,7 @@ AABB KRNode::getBounds()
     AABB bounds = AABB::Zero();
 
     bool first_child = true;
-    for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
       KRNode* child = (*itr);
       if (child->getBounds() != AABB::Zero()) {
         if (first_child) {
@@ -564,7 +605,7 @@ void KRNode::invalidateModelMatrix()
   m_modelMatrixValid = false;
   m_activePoseMatrixValid = false;
   m_inverseModelMatrixValid = false;
-  for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
     KRNode* child = (*itr);
     child->invalidateModelMatrix();
   }
@@ -577,7 +618,7 @@ void KRNode::invalidateBindPoseMatrix()
 {
   m_bindPoseMatrixValid = false;
   m_inverseBindPoseMatrixValid = false;
-  for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
     KRNode* child = (*itr);
     child->invalidateBindPoseMatrix();
   }
@@ -956,7 +997,7 @@ void KRNode::addToOctreeNode(KROctreeNode* octree_node)
 void KRNode::updateLODVisibility(const KRViewport& viewport)
 {
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
-    for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
       (*itr)->updateLODVisibility(viewport);
     }
   }
@@ -973,7 +1014,7 @@ void KRNode::setLODVisibility(KRNode::LodVisibility lod_visibility)
 
     m_lod_visible = lod_visibility;
 
-    for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
       (*itr)->setLODVisibility(lod_visibility);
     }
   }
@@ -1010,7 +1051,7 @@ kraken_stream_level KRNode::getStreamLevel(const KRViewport& viewport)
 {
   kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
 
-  for (std::set<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
     stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(viewport));
   }
 

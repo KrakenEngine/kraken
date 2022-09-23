@@ -115,13 +115,17 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
   static KRNode* LoadXML(KRScene& scene, tinyxml2::XMLElement* e);
+  static KrResult createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRNode** node);
   virtual void loadXML(tinyxml2::XMLElement* e);
 
   virtual std::string getElementName();
   const std::string& getName() const;
 
-  void addChild(KRNode* child);
-  const std::set<KRNode*>& getChildren();
+  void appendChild(KRNode* child);
+  void prependChild(KRNode* child);
+  void insertBefore(KRNode* child);
+  void insertAfter(KRNode* child);
+  const std::list<KRNode*>& getChildren();
   KRNode* getParent();
 
   void setLocalTranslation(const Vector3& v, bool set_original = false);
@@ -262,7 +266,7 @@ protected:
   LodVisibility m_lod_visible;
 
   KRNode* m_parentNode;
-  std::set<KRNode*> m_childNodes;
+  std::list<KRNode*> m_childNodes;
 
   bool m_animation_mask[KRENGINE_NODE_ATTRIBUTE_COUNT];
 
@@ -319,7 +323,7 @@ public:
       return match;
     }
 
-    for (std::set<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+    for (std::list<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
       match = (*itr)->find<T>();
       if (match) {
         return match;
@@ -338,7 +342,7 @@ public:
       }
     }
 
-    for (std::set<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
+    for (std::list<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
       match = (*itr)->find<T>(name);
       if (match) {
         return match;

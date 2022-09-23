@@ -753,19 +753,71 @@ KrResult KRContext::deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNo
 
 KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
 {
+  if (pCreateNodeInfo->sceneHandle < 0 || pCreateNodeInfo->sceneHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  KRResource* sceneResource = m_resourceMap[pCreateNodeInfo->sceneHandle];
+  if (sceneResource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  KRScene* scene = dynamic_cast<KRScene*>(sceneResource);
+  if (scene == nullptr) {
+    return KR_ERROR_INCORRECT_TYPE;
+  }
   if (pCreateNodeInfo->newNodeHandle < 0 || pCreateNodeInfo->newNodeHandle >= m_nodeMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
   if (pCreateNodeInfo->relativeNodeHandle < 0 || pCreateNodeInfo->relativeNodeHandle >= m_nodeMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
+  if (pCreateNodeInfo->location < 0 || pCreateNodeInfo->location >= KR_SCENE_NODE_INSERT_MAX_ENUM) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
   KRNode* relativeNode = nullptr;
-  if (pCreateNodeInfo->relativeNodeHandle != KR_NULL_HANDLE) {
+  if (pCreateNodeInfo->relativeNodeHandle == KR_NULL_HANDLE) {
+    relativeNode = scene->getRootNode();
+  } else {
     // TODO - Handle node deletions by deleting nodes from m_nodeMap
     relativeNode = m_nodeMap[pCreateNodeInfo->relativeNodeHandle];
+    if (relativeNode == nullptr) {
+      return KR_ERROR_NOT_FOUND;
+    }
   }
 
-  return KR_ERROR_NOT_IMPLEMENTED;
+  if (pCreateNodeInfo->location == KR_SCENE_NODE_INSERT_BEFORE ||
+    pCreateNodeInfo->location == KR_SCENE_NODE_INSERT_AFTER) {
+    // There can only be one root node
+    if (relativeNode->getParent() == nullptr) {
+      return KR_ERROR_UNEXPECTED;
+    }
+  }
+
+  KRNode* newNode = nullptr;
+  KrResult res = KRNode::createNode(pCreateNodeInfo, &newNode);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+
+  if (relativeNode) {
+    switch (pCreateNodeInfo->location) {
+    case KR_SCENE_NODE_INSERT_BEFORE:
+      relativeNode->insertBefore(newNode);
+      break;
+    case KR_SCENE_NODE_INSERT_AFTER:
+      relativeNode->insertAfter(newNode);
+      break;
+    case KR_SCENE_NODE_PREPEND_CHILD:
+      relativeNode->prependChild(newNode);
+      break;
+    case KR_SCENE_NODE_APPEND_CHILD:
+      relativeNode->appendChild(newNode);
+      break;
+    default:
+      assert(false);
+      return KR_ERROR_NOT_IMPLEMENTED;
+    }
+  }
+  return KR_SUCCESS;
 }
 
 KrResult KRContext::updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)

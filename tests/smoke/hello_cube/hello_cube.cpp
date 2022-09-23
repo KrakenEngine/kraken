@@ -65,7 +65,8 @@ void smoke_load()
   KrCreateNodeInfo create_camera_info = { KR_STRUCTURE_TYPE_CREATE_NODE };
   res = KrInitNodeInfo(&create_camera_info.node, KR_STRUCTURE_TYPE_NODE_CAMERA);
   assert(res == KR_SUCCESS);
-  create_camera_info.relativeNodeHandle = -1;
+  create_camera_info.relativeNodeHandle = KR_NULL_HANDLE;
+  create_camera_info.location = KR_SCENE_NODE_APPEND_CHILD;
   create_camera_info.newNodeHandle = kCameraNodeHandle;
   create_camera_info.sceneHandle = kSceneResourceHandle;
   create_camera_info.node.pName = "my_camera";
