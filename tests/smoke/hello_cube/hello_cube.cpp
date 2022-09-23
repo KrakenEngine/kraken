@@ -60,7 +60,6 @@ void smoke_load()
   KrResult res = KrCreateScene(&create_scene_info);
   assert(res == KR_SUCCESS);
 
-  /*
   // Add a camera to the scene
   KrCreateNodeInfo create_camera_info = { KR_STRUCTURE_TYPE_CREATE_NODE };
   res = KrInitNodeInfo(&create_camera_info.node, KR_STRUCTURE_TYPE_NODE_CAMERA);
@@ -74,5 +73,4 @@ void smoke_load()
   // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
   res = KrCreateNode(&create_camera_info);
   assert(res == KR_SUCCESS);
-  */
 }
