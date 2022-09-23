@@ -108,6 +108,7 @@ public:
   };
 
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  virtual void update(const KrNodeInfo* nodeInfo);
 
   KRNode(KRScene& scene, std::string name);
   virtual ~KRNode();
@@ -115,7 +116,7 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
   static KRNode* LoadXML(KRScene& scene, tinyxml2::XMLElement* e);
-  static KrResult createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRNode** node);
+  static KrResult createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRScene* scene, KRNode** node);
   virtual void loadXML(tinyxml2::XMLElement* e);
 
   virtual std::string getElementName();

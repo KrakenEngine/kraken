@@ -43,7 +43,17 @@ void KRCollider::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->collider.mesh = -1;
 }
 
-KRCollider::KRCollider(KRScene& scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion) : KRNode(scene, collider_name)
+KRCollider::KRCollider(KRScene& scene, std::string name)
+  : KRNode(scene, name)
+  , m_model(nullptr)
+  , m_layer_mask(0xffff)
+  , m_audio_occlusion(1.0f)
+{
+  
+}
+
+KRCollider::KRCollider(KRScene& scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion)
+  : KRNode(scene, collider_name)
 {
   m_model_name = model_name;
   m_layer_mask = layer_mask;

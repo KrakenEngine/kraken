@@ -52,6 +52,7 @@ class KRCollider : public KRNode
 public:
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
+  KRCollider(KRScene& scene, std::string name);
   KRCollider(KRScene& scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion);
   virtual ~KRCollider();
 

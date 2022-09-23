@@ -793,7 +793,7 @@ KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
   }
 
   KRNode* newNode = nullptr;
-  KrResult res = KRNode::createNode(pCreateNodeInfo, &newNode);
+  KrResult res = KRNode::createNode(pCreateNodeInfo, scene, &newNode);
   if (res != KR_SUCCESS) {
     return res;
   }

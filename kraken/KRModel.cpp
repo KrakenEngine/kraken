@@ -49,7 +49,35 @@ void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->model.rim_power = 0.0f;
 }
 
-KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power) : KRNode(scene, instance_name)
+KRModel::KRModel(KRScene& scene, std::string name)
+  : KRNode(scene, name)
+  , m_pLightMap(nullptr)
+  , m_min_lod_coverage(0.0f)
+  , m_receivesShadow(true)
+  , m_faces_camera(false)
+  , m_rim_color(Vector3::Zero())
+  , m_rim_power(0.0f)
+{
+  m_boundsCachedMat.c[0] = -1.0f;
+  m_boundsCachedMat.c[1] = -1.0f;
+  m_boundsCachedMat.c[2] = -1.0f;
+  m_boundsCachedMat.c[3] = -1.0f;
+  m_boundsCachedMat.c[4] = -1.0f;
+  m_boundsCachedMat.c[5] = -1.0f;
+  m_boundsCachedMat.c[6] = -1.0f;
+  m_boundsCachedMat.c[7] = -1.0f;
+  m_boundsCachedMat.c[8] = -1.0f;
+  m_boundsCachedMat.c[9] = -1.0f;
+  m_boundsCachedMat.c[10] = -1.0f;
+  m_boundsCachedMat.c[11] = -1.0f;
+  m_boundsCachedMat.c[12] = -1.0f;
+  m_boundsCachedMat.c[13] = -1.0f;
+  m_boundsCachedMat.c[14] = -1.0f;
+  m_boundsCachedMat.c[15] = -1.0f;
+}
+
+KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
+  : KRNode(scene, instance_name)
 {
   m_lightMap = light_map;
   m_pLightMap = NULL;

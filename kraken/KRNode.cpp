@@ -63,6 +63,11 @@ void KRNode::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->scale_pivot = Vector3::Zero();
 }
 
+void KRNode::update(const KrNodeInfo* nodeInfo)
+{
+  // TODO - Implement
+}
+
 KRNode::KRNode(KRScene& scene, std::string name) : KRContextObject(scene.getContext())
 {
   m_name = name;
@@ -217,9 +222,56 @@ tinyxml2::XMLElement* KRNode::saveXML(tinyxml2::XMLNode* parent)
   return e;
 }
 
-KrResult KRNode::createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRNode** node)
+KrResult KRNode::createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRScene* scene, KRNode** node)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  switch (pCreateNodeInfo->node.sType) {
+  case KR_STRUCTURE_TYPE_NODE_CAMERA:
+    *node = new KRCamera(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOD_SET:
+    *node = new KRLODSet(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOD_GROUP:
+    *node = new KRLODGroup(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_POINT_LIGHT:
+    *node = new KRPointLight(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_DIRECTIONAL_LIGHT:
+    *node = new KRDirectionalLight(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_SPOT_LIGHT:
+    *node = new KRSpotLight(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_SPRITE:
+    *node = new KRSprite(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_MODEL:
+    *node = new KRModel(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_COLLIDER:
+    *node = new KRCollider(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_BONE:
+    *node = new KRBone(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_LOCATOR:
+    *node = new KRLocator(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_AUDIO_SOURCE:
+    *node = new KRAudioSource(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE:
+    *node = new KRAmbientZone(*scene, pCreateNodeInfo->node.pName);
+    break;
+  case KR_STRUCTURE_TYPE_NODE_REVERB_ZONE:
+    *node = new KRReverbZone(*scene, pCreateNodeInfo->node.pName);
+    break;
+  default:
+    return KR_ERROR_NOT_IMPLEMENTED;
+  }
+  (*node)->update(&pCreateNodeInfo->node);
+  return KR_SUCCESS;
 }
 
 void KRNode::loadXML(tinyxml2::XMLElement* e)
