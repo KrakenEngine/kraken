@@ -406,13 +406,12 @@ KrResult KRContext::loadResource(const KrLoadResourceInfo* loadResourceInfo)
 
 KrResult KRContext::unloadResource(const KrUnloadResourceInfo* unloadResourceInfo)
 {
-  if (unloadResourceInfo->resourceHandle < 0 || unloadResourceInfo->resourceHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
+  KRResource* resource = nullptr;
+  KrResult res = getMappedResource(unloadResourceInfo->resourceHandle, &resource);
+  if (res != KR_SUCCESS) {
+    return res;
   }
-  KRResource* resource = m_resourceMap[unloadResourceInfo->resourceHandle];
-  if (resource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
-  }
+
   // TODO - Need to implement unloading logic
   return KR_ERROR_NOT_IMPLEMENTED;
 }
@@ -455,26 +454,30 @@ KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
 
 KrResult KRContext::getResourceData(const KrGetResourceDataInfo* getResourceDataInfo, KrGetResourceDataCallback callback)
 {
-  if (getResourceDataInfo->resourceHandle < 0 || getResourceDataInfo->resourceHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
-  }
-  // TODO - This will be asynchronous...
+  // TODO - This will be asynchronous...  The function will always succeed, but the asynchronous result could report a failure
   KRDataBlock data;
   KrGetResourceDataResult result = {};
-  if (m_resourceMap[getResourceDataInfo->resourceHandle] == nullptr) {
-    result.result = KR_ERROR_NOT_MAPPED;
+
+  KRResource* resource = nullptr;
+  KrResult res = getMappedResource(getResourceDataInfo->resourceHandle, &resource);
+  if (res != KR_SUCCESS) {
+    result.result = res;
     callback(result);
-  } else if (m_resourceMap[getResourceDataInfo->resourceHandle]->save(data)) {
+    return KR_SUCCESS;
+  }
+  
+  if (resource->save(data)) {
     data.lock();
     result.data = data.getStart();
     result.length = static_cast<size_t>(data.getSize());
     result.result = KR_SUCCESS;
     callback(result);
     data.unlock();
-  } else {
-    result.result = KR_ERROR_UNEXPECTED;
-    callback(result);
+    return KR_SUCCESS;
   }
+  
+  result.result = KR_ERROR_UNEXPECTED;
+  callback(result);
 
   return KR_SUCCESS;
 }
@@ -502,40 +505,28 @@ KrResult KRContext::createBundle(const KrCreateBundleInfo* createBundleInfo)
 
 KrResult KRContext::moveToBundle(const KrMoveToBundleInfo* moveToBundleInfo)
 {
-  if (moveToBundleInfo->bundleHandle < 0 || moveToBundleInfo->bundleHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
+  KRResource* resource = nullptr;
+  KrResult res = getMappedResource(moveToBundleInfo->resourceHandle, &resource);
+  if (res != KR_SUCCESS) {
+    return res;
   }
-  if (moveToBundleInfo->resourceHandle < 0 || moveToBundleInfo->resourceHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
+  KRBundle* bundle = nullptr;
+  res = getMappedResource<KRBundle>(moveToBundleInfo->bundleHandle, &bundle);
+  if (res != KR_SUCCESS) {
+    return res;
   }
-  KRResource* resource = m_resourceMap[moveToBundleInfo->resourceHandle];
-  if (resource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
-  }
-  KRResource* bundleResource = m_resourceMap[moveToBundleInfo->bundleHandle];
-  if (bundleResource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
-  }
-  KRBundle* bundle = dynamic_cast<KRBundle*>(bundleResource);
-  if (bundle == nullptr) {
-    return KR_ERROR_INCORRECT_TYPE;
-  }
+
   return resource->moveToBundle(bundle);
 }
 
 KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAllShadersInfo)
 {
-  if (pCompileAllShadersInfo->bundleHandle < 0 || pCompileAllShadersInfo->bundleHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
+  KRBundle* bundle = nullptr;
+  KrResult res = getMappedResource<KRBundle>(pCompileAllShadersInfo->bundleHandle, &bundle);
+  if (res != KR_SUCCESS) {
+    return res;
   }
-  KRResource* bundleResource = m_resourceMap[pCompileAllShadersInfo->bundleHandle];
-  if (bundleResource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
-  }
-  KRBundle* bundle = dynamic_cast<KRBundle*>(bundleResource);
-  if (bundle == nullptr) {
-    return KR_ERROR_INCORRECT_TYPE;
-  }
+
   if (pCompileAllShadersInfo->logHandle < -1 || pCompileAllShadersInfo->logHandle >= m_resourceMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
@@ -562,12 +553,10 @@ KrResult KRContext::compileAllShaders(const KrCompileAllShadersInfo* pCompileAll
 
 KrResult KRContext::saveResource(const KrSaveResourceInfo* saveResourceInfo)
 {
-  if (saveResourceInfo->resourceHandle < 0 || saveResourceInfo->resourceHandle >= m_resourceMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
-  }
-  KRResource* resource = m_resourceMap[saveResourceInfo->resourceHandle];
-  if (resource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
+  KRResource* resource = nullptr;
+  KrResult res = getMappedResource(saveResourceInfo->resourceHandle, &resource);
+  if (res != KR_SUCCESS) {
+    return res;
   }
   if (resource->save(saveResourceInfo->pResourcePath)) {
     return KR_SUCCESS;
@@ -751,37 +740,38 @@ KrResult KRContext::deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNo
   return KR_ERROR_NOT_IMPLEMENTED;
 }
 
-KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
+KrResult KRContext::getMappedNode(KrSceneNodeMapIndex sceneNodeHandle, KRScene* scene, KRNode** node)
 {
-  if (pCreateNodeInfo->sceneHandle < 0 || pCreateNodeInfo->sceneHandle >= m_resourceMapSize) {
+  *node = nullptr;
+  if (sceneNodeHandle < 0 || sceneNodeHandle >= m_nodeMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  KRResource* sceneResource = m_resourceMap[pCreateNodeInfo->sceneHandle];
-  if (sceneResource == nullptr) {
-    return KR_ERROR_NOT_MAPPED;
+  if (sceneNodeHandle == KR_NULL_HANDLE) {
+    *node = scene->getRootNode();
+  } else {
+    // TODO - Handle node deletions by deleting nodes from m_nodeMap
+    *node = m_nodeMap[sceneNodeHandle];
+    if (*node == nullptr) {
+      return KR_ERROR_NOT_FOUND;
+    }
   }
-  KRScene* scene = dynamic_cast<KRScene*>(sceneResource);
-  if (scene == nullptr) {
-    return KR_ERROR_INCORRECT_TYPE;
+  return KR_SUCCESS;
+}
+
+KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
+{
+  KRScene* scene = nullptr;
+  KrResult res = getMappedResource<KRScene>(pCreateNodeInfo->sceneHandle, &scene);
+  if (res != KR_SUCCESS) {
+    return res;
   }
   if (pCreateNodeInfo->newNodeHandle < 0 || pCreateNodeInfo->newNodeHandle >= m_nodeMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  if (pCreateNodeInfo->relativeNodeHandle < 0 || pCreateNodeInfo->relativeNodeHandle >= m_nodeMapSize) {
-    return KR_ERROR_OUT_OF_BOUNDS;
-  }
-  if (pCreateNodeInfo->location < 0 || pCreateNodeInfo->location >= KR_SCENE_NODE_INSERT_MAX_ENUM) {
-    return KR_ERROR_OUT_OF_BOUNDS;
-  }
   KRNode* relativeNode = nullptr;
-  if (pCreateNodeInfo->relativeNodeHandle == KR_NULL_HANDLE) {
-    relativeNode = scene->getRootNode();
-  } else {
-    // TODO - Handle node deletions by deleting nodes from m_nodeMap
-    relativeNode = m_nodeMap[pCreateNodeInfo->relativeNodeHandle];
-    if (relativeNode == nullptr) {
-      return KR_ERROR_NOT_FOUND;
-    }
+  res = getMappedNode(pCreateNodeInfo->relativeNodeHandle, scene, &relativeNode);
+  if (res != KR_SUCCESS) {
+    return res;
   }
 
   if (pCreateNodeInfo->location == KR_SCENE_NODE_INSERT_BEFORE ||
@@ -793,7 +783,7 @@ KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
   }
 
   KRNode* newNode = nullptr;
-  KrResult res = KRNode::createNode(pCreateNodeInfo, scene, &newNode);
+  res = KRNode::createNode(pCreateNodeInfo, scene, &newNode);
   if (res != KR_SUCCESS) {
     return res;
   }
@@ -902,4 +892,18 @@ KrResult KRContext::deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteW
   m_surfaceHandleMap.erase(handleItr);
 
   return m_surfaceManager->destroy(surfaceHandle);
+}
+
+
+KrResult KRContext::getMappedResource(KrResourceMapIndex resourceHandle, KRResource** resource)
+{
+  *resource = nullptr;
+  if (resourceHandle < 0 || resourceHandle >= m_resourceMapSize) {
+    return KR_ERROR_OUT_OF_BOUNDS;
+  }
+  *resource = m_resourceMap[resourceHandle];
+  if (*resource == nullptr) {
+    return KR_ERROR_NOT_MAPPED;
+  }
+  return KR_SUCCESS;
 }

@@ -74,6 +74,7 @@ public:
   KRContext(const KrInitializeInfo* initializeInfo);
   ~KRContext();
 
+  // -=-=-=- Begin: Public API Entry Points -=-=-=-
   KrResult createWindowSurface(const KrCreateWindowSurfaceInfo* createWindowSurfaceInfo);
   KrResult deleteWindowSurface(const KrDeleteWindowSurfaceInfo* deleteWindowSurfaceInfo);
 
@@ -97,7 +98,29 @@ public:
   KrResult deleteNodeChildren(const KrDeleteNodeChildrenInfo* pDeleteNodeChildrenInfo);
   KrResult createNode(const KrCreateNodeInfo* pCreateNodeInfo);
   KrResult updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo);
+  // -=-=-=- End: Public API Entry Points -=-=-=-
 
+  // -=-=-=- Start: Helper functions for Public API Entry Points
+  KrResult getMappedNode(KrSceneNodeMapIndex sceneNodeHandle, KRScene* scene, KRNode** node);
+  KrResult getMappedResource(KrResourceMapIndex resourceHandle, KRResource** resource);
+
+  template<class T> KrResult getMappedResource(KrResourceMapIndex resourceHandle, T** resource)
+  {
+    static_assert(std::is_base_of<KRResource, T>::value, "KRContext::getMappedResource called for class that is not a KRResource subclass");
+    *resource = nullptr;
+
+    KRResource* uncastResource = nullptr;
+    KrResult res = getMappedResource(resourceHandle, &uncastResource);
+    if (res != KR_SUCCESS) {
+      return res;
+    }
+    *resource = dynamic_cast<T*>(uncastResource);
+    if (*resource == nullptr) {
+      return KR_ERROR_INCORRECT_TYPE;
+    }
+    return KR_SUCCESS;
+  }
+  // -=-=-=- End: Helper functions for Public API Entry Points
 
   KRResource* loadResource(const std::string& file_name, KRDataBlock* data);
 
