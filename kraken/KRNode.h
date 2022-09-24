@@ -108,7 +108,7 @@ public:
   };
 
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
-  virtual void update(const KrNodeInfo* nodeInfo);
+  virtual KrResult update(const KrNodeInfo* nodeInfo);
 
   KRNode(KRScene& scene, std::string name);
   virtual ~KRNode();

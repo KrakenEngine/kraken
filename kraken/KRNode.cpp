@@ -63,7 +63,7 @@ void KRNode::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->scale_pivot = Vector3::Zero();
 }
 
-void KRNode::update(const KrNodeInfo* nodeInfo)
+KrResult KRNode::update(const KrNodeInfo* nodeInfo)
 {
   // TODO - Implement name changes
 
@@ -93,6 +93,8 @@ void KRNode::update(const KrNodeInfo* nodeInfo)
     invalidateBindPoseMatrix();
     invalidateModelMatrix();
   }
+
+  return KR_SUCCESS;
 }
 
 KRNode::KRNode(KRScene& scene, std::string name) : KRContextObject(scene.getContext())
@@ -297,7 +299,12 @@ KrResult KRNode::createNode(const KrCreateNodeInfo* pCreateNodeInfo, KRScene* sc
   default:
     return KR_ERROR_NOT_IMPLEMENTED;
   }
-  (*node)->update(&pCreateNodeInfo->node);
+  KrResult res = (*node)->update(&pCreateNodeInfo->node);
+  if (res != KR_SUCCESS) {
+    delete *node;
+    *node = nullptr;
+    return res;
+  }
   return KR_SUCCESS;
 }
 

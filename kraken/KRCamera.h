@@ -55,6 +55,8 @@ public:
   KRCamera(KRScene& scene, std::string name);
   virtual ~KRCamera();
 
+  KrResult update(const KrNodeInfo* nodeInfo) override;
+
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
 
   KRRenderSettings settings;

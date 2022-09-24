@@ -43,6 +43,17 @@ void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->camera.skybox_texture = -1;
 }
 
+KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
+{
+  KrResult res = KRNode::update(nodeInfo);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+
+  // TODO - Implement surface changes
+  // TODO - Implement skybox changes
+}
+
 KRCamera::KRCamera(KRScene& scene, std::string name) : KRNode(scene, name)
 {
   m_last_frame_start = 0;
@@ -102,7 +113,6 @@ void KRCamera::setSkyBox(const std::string& skyBox)
 {
   m_pSkyBoxTexture = NULL;
   m_skyBox = skyBox;
-
 }
 
 const std::string KRCamera::getSkyBox() const
