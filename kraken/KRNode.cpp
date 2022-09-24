@@ -65,7 +65,34 @@ void KRNode::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 void KRNode::update(const KrNodeInfo* nodeInfo)
 {
-  // TODO - Implement
+  // TODO - Implement name changes
+
+  if (nodeInfo->translate != m_localTranslation ||
+      nodeInfo->scale != m_localScale ||
+      nodeInfo->rotate != m_localRotation ||
+      nodeInfo->pre_rotate != m_initialPreRotation ||
+      nodeInfo->post_rotate != m_initialPostRotation ||
+      nodeInfo->rotate_offset != m_initialRotationOffset ||
+      nodeInfo->scale_offset != m_initialScalingOffset ||
+      nodeInfo->rotate_pivot != m_initialRotationPivot ||
+      nodeInfo->scale_pivot != m_initialScalingPivot) {
+
+    m_localTranslation = nodeInfo->translate;
+    m_initialLocalTranslation = nodeInfo->translate;
+    m_localScale = nodeInfo->scale;
+    m_initialLocalScale = nodeInfo->scale;
+    m_localRotation = nodeInfo->rotate;
+    m_initialLocalRotation = nodeInfo->rotate;
+    m_initialPreRotation = nodeInfo->pre_rotate;
+    m_initialPostRotation = nodeInfo->post_rotate;
+    m_initialRotationOffset = nodeInfo->rotate_offset;
+    m_initialScalingOffset = nodeInfo->scale_offset;
+    m_initialRotationPivot = nodeInfo->rotate_pivot;
+    m_initialScalingPivot = nodeInfo->scale_pivot;
+
+    invalidateBindPoseMatrix();
+    invalidateModelMatrix();
+  }
 }
 
 KRNode::KRNode(KRScene& scene, std::string name) : KRContextObject(scene.getContext())
