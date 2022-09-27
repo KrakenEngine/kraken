@@ -69,7 +69,7 @@ void smoke_load()
   create_camera_info.newNodeHandle = kCameraNodeHandle;
   create_camera_info.sceneHandle = kSceneResourceHandle;
   create_camera_info.node.pName = "my_camera";
-  create_camera_info.node.camera.surface = 1;
+  create_camera_info.node.camera.surfaceHandle = 1;
   // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
   res = KrCreateNode(&create_camera_info);
   assert(res == KR_SUCCESS);

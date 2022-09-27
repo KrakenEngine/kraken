@@ -42,9 +42,9 @@ class KRSurface : public KRContextObject
 {
 public:
 #ifdef WIN32
-  KRSurface(KRContext& context, HWND hWnd);
+  KRSurface(KRContext& context, KrSurfaceHandle handle, HWND hWnd);
 #else
-  KRSurface(KRContext& context);
+  KRSurface(KRContext& context, KrSurfaceHandle handle);
 #endif
   ~KRSurface();
   void destroy();
@@ -64,6 +64,7 @@ public:
   KRRenderPass& getDeferredOpaquePass();
 
   void endFrame();
+  KrSurfaceHandle m_handle;
 
 #ifdef WIN32
   HWND m_hWnd;

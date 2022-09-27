@@ -39,7 +39,7 @@
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->camera.surface = KR_NULL_HANDLE;
+  nodeInfo->camera.surfaceHandle = 1;
   nodeInfo->camera.skybox_texture = KR_NULL_HANDLE;
 }
 
@@ -49,6 +49,7 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
   if (res != KR_SUCCESS) {
     return res;
   }
+  m_surfaceHandle = nodeInfo->camera.surfaceHandle;
 
   KRTexture* skybox_texture = nullptr;
   if (nodeInfo->camera.skybox_texture != KR_NULL_HANDLE) {
@@ -64,12 +65,12 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
     m_skyBox = "";
   }
 
-  // TODO - Implement surface changes
   return KR_SUCCESS;
 }
 
 KRCamera::KRCamera(KRScene& scene, std::string name) : KRNode(scene, name)
 {
+  m_surfaceHandle = KR_NULL_HANDLE;
   m_last_frame_start = 0;
 
   m_particlesAbsoluteTime = 0.0f;
@@ -121,6 +122,12 @@ void KRCamera::loadXML(tinyxml2::XMLElement* e)
   KRNode::loadXML(e);
   const char* szSkyBoxName = e->Attribute("skybox");
   m_skyBox = szSkyBoxName ? szSkyBoxName : "";
+
+  unsigned int surfaceHandle = 1;
+  if (e->QueryUnsignedAttribute("surface", &surfaceHandle) != tinyxml2::XML_SUCCESS) {
+    surfaceHandle = 1;
+  }
+  m_surfaceHandle = surfaceHandle;
 }
 
 void KRCamera::setSkyBox(const std::string& skyBox)
@@ -136,6 +143,11 @@ const std::string KRCamera::getSkyBox() const
 
 void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface)
 {
+  if (compositeSurface.m_handle != m_surfaceHandle) {
+    // Only render to the assigned surface
+    return;
+  }
+
   // ----====---- Record timing information for measuring FPS ----====----
   uint64_t current_time = m_pContext->getAbsoluteTimeMilliseconds();
   if (m_last_frame_start != 0) {

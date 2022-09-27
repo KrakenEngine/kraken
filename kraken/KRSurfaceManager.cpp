@@ -53,7 +53,7 @@ KrResult KRSurfaceManager::create(HWND hWnd, KrSurfaceHandle& surfaceHandle)
 {
   surfaceHandle = 0;
 
-  std::unique_ptr<KRSurface> surface = std::make_unique<KRSurface>(*m_pContext, hWnd);
+  std::unique_ptr<KRSurface> surface = std::make_unique<KRSurface>(*m_pContext, m_topSurfaceHandle, hWnd);
 
   KrResult initialize_result = surface->initialize();
   if (initialize_result != KR_SUCCESS) {

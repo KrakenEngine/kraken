@@ -241,7 +241,7 @@ typedef struct
     struct
     {
       // KR_STRUCTURE_TYPE_NODE_CAMERA
-      KrSurfaceMapIndex surface;
+      KrSurfaceMapIndex surfaceHandle;
       KrResourceMapIndex skybox_texture;
     } camera;
     struct

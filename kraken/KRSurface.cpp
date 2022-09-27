@@ -34,11 +34,12 @@
 #include "KRRenderPass.h"
 
 #ifdef WIN32
-KRSurface::KRSurface(KRContext& context, HWND hWnd)
+KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, HWND hWnd)
 #else
-KRSurface::KRSurface(KRContext& context)
+KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle)
 #endif
   : KRContextObject(context)
+  , m_handle(handle)
 #ifdef WIN32
   , m_hWnd(hWnd)
 #endif

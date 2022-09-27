@@ -95,6 +95,7 @@ private:
 
   void destroyBuffers();
 
+  KrSurfaceHandle m_surfaceHandle;
   KRTexture* m_pSkyBoxTexture;
   std::string m_skyBox;
   KRViewport m_viewport;
