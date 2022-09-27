@@ -812,7 +812,18 @@ KrResult KRContext::createNode(const KrCreateNodeInfo* pCreateNodeInfo)
 
 KrResult KRContext::updateNode(const KrUpdateNodeInfo* pUpdateNodeInfo)
 {
-  return KR_ERROR_NOT_IMPLEMENTED;
+  KRScene* scene = nullptr;
+  KrResult res = getMappedResource<KRScene>(pUpdateNodeInfo->sceneHandle, &scene);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+  KRNode* node = nullptr;
+  res = getMappedNode(pUpdateNodeInfo->nodeHandle, scene, &node);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+
+  return node->update(&pUpdateNodeInfo->node);
 }
 
 void KRContext::addResource(KRResource* resource, const std::string& name)
