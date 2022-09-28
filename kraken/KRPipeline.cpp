@@ -66,7 +66,6 @@ const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
     "projection_matrix", //    PushConstant::projection_matrix
     "camera_position_model_space", //    PushConstant::camerapos_model_space
     "viewport", //    PushConstant::viewport
-    "viewport_downsample", //     PushConstant::viewport_downsample
     "diffuseTexture", //    PushConstant::diffusetexture
     "specularTexture", //    PushConstant::speculartexture
     "reflectionCubeTexture", //    PushConstant::reflectioncubetexture
@@ -798,10 +797,6 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
       (float)viewport.getSize().y
     )
     );
-  }
-
-  if (hasPushConstant(PushConstant::viewport_downsample)) {
-    setPushConstant(PushConstant::viewport_downsample, camera.getDownsample());
   }
 
   // Fog parameters
