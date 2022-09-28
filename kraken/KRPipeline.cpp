@@ -110,8 +110,17 @@ const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
 };
 
 KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
-  : KRContextObject(context)
+  : KRPipeline(context, surface.m_deviceHandle, surface.getForwardOpaquePass(), surface.getDimensions(), surface.getDimensions(), info, szKey, shaders, vertexAttributes, modelFormat)
 {
+// TODO - renderPass needs to be selected dynamically from info.render_pass
+}
+
+KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
+  : KRContextObject(context)
+  , m_deviceHandle(deviceHandle)
+{
+  std::unique_ptr<KRDevice>& device = getContext().getDeviceManager()->getDevice(m_deviceHandle);
+
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     pushConstants.buffer = nullptr;
@@ -127,8 +136,6 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   m_descriptorSets.reserve(KRENGINE_MAX_FRAMES_IN_FLIGHT);
 
   // TODO - Handle device removal
-  m_deviceHandle = surface.m_deviceHandle;
-  std::unique_ptr<KRDevice>& device = surface.getDevice();
 
   strcpy(m_szKey, szKey);
 
@@ -260,15 +267,15 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = static_cast<float>(surface.getWidth());
-  viewport.height = static_cast<float>(surface.getHeight());
+  viewport.width = static_cast<float>(viewport_size.x);
+  viewport.height = static_cast<float>(viewport_size.y);
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor{};
   scissor.offset = { 0, 0 };
-  scissor.extent.width = surface.getWidth();
-  scissor.extent.height = surface.getHeight();
+  scissor.extent.width = scissor_size.x;
+  scissor.extent.height = scissor_size.y;
 
   VkPipelineViewportStateCreateInfo viewportState{};
   viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -442,8 +449,6 @@ KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInf
   depthStencil.stencilTestEnable = VK_FALSE;
   depthStencil.front = {};
   depthStencil.back = {};
-
-  KRRenderPass& renderPass = surface.getForwardOpaquePass(); // TODO - This needs to be selected dynamically from info.render_pass
 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

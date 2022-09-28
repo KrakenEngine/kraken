@@ -232,6 +232,11 @@ uint32_t KRSurface::getHeight() const
   return m_swapChain->m_extent.height;
 }
 
+Vector2i KRSurface::getDimensions() const
+{
+  return Vector2i::Create(static_cast<int>(m_swapChain->m_extent.width), static_cast<int>(m_swapChain->m_extent.height));
+}
+
 VkFormat KRSurface::getDepthFormat() const
 {
   return m_swapChain->m_depthFormat;
