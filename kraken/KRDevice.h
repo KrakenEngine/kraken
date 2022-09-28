@@ -70,9 +70,9 @@ public:
 #endif
   );
 
-  KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat);
-  KrResult selectDepthFormat(VkFormat& selectedDepthFormat);
-  KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode);
+  KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat) const;
+  KrResult selectDepthFormat(VkFormat& selectedDepthFormat) const;
+  KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode) const;
 
   void streamStart();
   void streamUpload(KRDataBlock& data, VkBuffer destination);

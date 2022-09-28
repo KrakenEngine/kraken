@@ -664,7 +664,7 @@ bool KRDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
   return true;
 }
 
-KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat)
+KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& selectedFormat) const
 {
 
   std::vector<VkSurfaceFormatKHR> surfaceFormats;
@@ -690,7 +690,7 @@ KrResult KRDevice::selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR
   return KR_SUCCESS;
 }
 
-KrResult KRDevice::selectDepthFormat(VkFormat& selectedDepthFormat)
+KrResult KRDevice::selectDepthFormat(VkFormat& selectedDepthFormat) const
 {
   selectedDepthFormat = VK_FORMAT_UNDEFINED;
   VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
@@ -714,7 +714,7 @@ KrResult KRDevice::selectDepthFormat(VkFormat& selectedDepthFormat)
   return KR_SUCCESS;
 }
 
-KrResult KRDevice::selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode)
+KrResult KRDevice::selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode) const
 {
   // VK_PRESENT_MODE_FIFO_KHR is always available
   selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
