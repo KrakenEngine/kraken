@@ -87,7 +87,6 @@ KRCamera::KRCamera(KRScene& scene, std::string name) : KRNode(scene, name)
   volumetricLightAccumulationBuffer = 0;
   volumetricLightAccumulationTexture = 0;
   m_frame_times_filled = 0;
-  m_downsample = Vector2::One();
 
   m_fade_color = Vector4::Zero();
 
@@ -184,7 +183,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
 
     scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
-    GLDEBUG(glViewport(0, 0, (int)m_viewport.getSize().x, (int)m_viewport.getSize().y));
     GL_POP_GROUP_MARKER;
   }
 
@@ -215,7 +213,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     // Set render target
     GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
     GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    GLDEBUG(glViewport(0, 0, (int)(m_viewport.getSize().x * m_downsample.x), (int)(m_viewport.getSize().y * m_downsample.y)));
     GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
     GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
 
@@ -250,10 +247,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   } else {
     // ----====---- Opaque Geometry, Forward Rendering ----====----
     GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
-    /*
-
-    GLDEBUG(glViewport(0, 0, (int)(m_viewport.getSize().x * m_downsample.x), (int)(m_viewport.getSize().y * m_downsample.y)));
-    */
 
     // Start render pass
     KRRenderPass& forwardOpaquePass = compositeSurface.getForwardOpaquePass();
@@ -989,17 +982,6 @@ std::string KRCamera::getDebugText()
 const KRViewport& KRCamera::getViewport() const
 {
   return m_viewport;
-}
-
-
-Vector2 KRCamera::getDownsample()
-{
-  return m_downsample;
-}
-
-void KRCamera::setDownsample(float v)
-{
-  m_downsample = Vector2::Create(v);
 }
 
 void KRCamera::setFadeColor(const Vector4& fade_color)

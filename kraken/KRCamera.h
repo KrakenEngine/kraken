@@ -71,8 +71,6 @@ public:
   std::string getDebugText();
 
   void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
-  Vector2 getDownsample();
-  void setDownsample(float v);
 
   void setFadeColor(const Vector4& fade_color);
   Vector4 getFadeColor();
@@ -101,8 +99,6 @@ private:
   KRViewport m_viewport;
 
   float m_particlesAbsoluteTime;
-
-  Vector2 m_downsample;
 
   Vector4 m_fade_color;
 
