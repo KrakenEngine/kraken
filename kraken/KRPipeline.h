@@ -41,7 +41,6 @@
 
 class KRSampler;
 class KRShader;
-class KRSurface;
 class KRRenderPass;
 class KRUniformBuffer;
 class KRTexture;
@@ -216,7 +215,6 @@ class KRPipeline : public KRContextObject
 public:
 
   KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
-  KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
   virtual ~KRPipeline();
   const char* getKey() const;
 

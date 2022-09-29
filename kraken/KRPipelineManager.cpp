@@ -83,7 +83,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
   std::vector<KRShader*> shaders;
   shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".vert", "spv"));
   shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".frag", "spv"));
-  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface, info, info.shader_name->c_str(), shaders, info.vertexAttributes, info.modelFormat);
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, surface.getForwardOpaquePass(), surface.getDimensions(), surface.getDimensions(), info, info.shader_name->c_str(), shaders, info.vertexAttributes, info.modelFormat);
 
   m_pipelines[key] = pipeline;
 

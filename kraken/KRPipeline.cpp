@@ -109,12 +109,6 @@ const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
     "fade_color", // PushConstant::fade_color
 };
 
-KRPipeline::KRPipeline(KRContext& context, KRSurface& surface, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
-  : KRPipeline(context, surface.m_deviceHandle, surface.getForwardOpaquePass(), surface.getDimensions(), surface.getDimensions(), info, szKey, shaders, vertexAttributes, modelFormat)
-{
-// TODO - renderPass needs to be selected dynamically from info.render_pass
-}
-
 KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
   , m_deviceHandle(deviceHandle)
