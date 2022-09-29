@@ -98,7 +98,7 @@ using namespace kraken;
 
 #include <atomic>
 #include <thread>
-
+#include <mutex>
 
 
 
@@ -132,7 +132,6 @@ using std::hash;
 
 #if defined(_WIN32) || defined(_WIN64)
 
-#include <mutex>
 #include <cstdint>
 typedef int64_t __int64_t;
 typedef uint64_t __uint64_t;
