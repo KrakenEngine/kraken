@@ -1121,7 +1121,7 @@ size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_
   return VertexSizeForAttributes(mask);
 }
 
-VkFormat KRMesh::AttributeVulkanFormat(__int32 vertex_attrib)
+VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
 {
   switch (vertex_attrib) {
   case KRENGINE_ATTRIB_VERTEX:
