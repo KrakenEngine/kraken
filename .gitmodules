@@ -16,3 +16,6 @@
 [submodule "spirvreflect"]
 	path = 3rdparty/spirv-reflect
 	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
+[submodule "3rdparty/compressonator"]
+	path = 3rdparty/compressonator
+	url = https://github.com/GPUOpen-Tools/compressonator.git
