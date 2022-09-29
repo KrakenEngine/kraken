@@ -102,6 +102,11 @@ add_subdirectory(hydra)
 include_directories(hydra/include)
 list (APPEND EXTRA_LIBS hydra)
 
+# ---- Compressonator CMP_Core ----
+add_subdirectory(3rdparty/compressonator/cmp_core)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/compressonator/cmp_core/source")
+list (APPEND EXTRA_LIBS CMP_Core)
+
 # ---- Vulkan ----
 add_library(vulkan INTERFACE)
 set(VULKAN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/vulkan/include)
