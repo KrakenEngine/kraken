@@ -48,7 +48,7 @@ public:
   virtual bool save(const std::string& path);
   virtual bool save(KRDataBlock& data);
 
-  virtual bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress = false, bool premultiply_alpha = false) = 0;
+  virtual bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool premultiply_alpha = false) = 0;
   virtual Vector2i getDimensions() const = 0;
 
 protected:

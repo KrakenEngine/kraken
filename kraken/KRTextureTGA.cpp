@@ -116,21 +116,13 @@ KRTextureTGA::~KRTextureTGA()
 
 }
 
-bool KRTextureTGA::uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool compress, bool premultiply_alpha)
+bool KRTextureTGA::uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool premultiply_alpha)
 {
   // TODO - Vulkan Refactoring - Perhaps it would be more efficient to reformat the color channels during the copy to the staging buffer.
 
   m_pData->lock();
   TGA_HEADER* pHeader = (TGA_HEADER*)m_pData->getStart();
   unsigned char* pData = (unsigned char*)pHeader + (long)pHeader->idlength + (long)pHeader->colourmaplength * (long)pHeader->colourmaptype + sizeof(TGA_HEADER);
-
-  /*
-  * TODO - Vulkan refactoring to support compressing textures on load
-  unsigned int internal_format = GL_RGBA;
-  if(compress) {
-      internal_format = pHeader->bitsperpixel == 24 ? GL_COMPRESSED_RGB_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-  }
-  */
 
   if (pHeader->colourmaptype != 0) {
     m_pData->unlock();
@@ -347,7 +339,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
   GLDEBUG(glBindTexture(GL_TEXTURE_2D, compressed_handle));
 
   int current_max_dim = 0;
-  if(!uploadTexture(m_max_lod_max_dim, current_max_dim, true, premultiply_alpha)) {
+  if(!uploadTexture(m_max_lod_max_dim, current_max_dim, premultiply_alpha)) {
       assert(false); // Failed to upload the texture
   }
   GLDEBUG(glGenerateMipmap(GL_TEXTURE_2D));
