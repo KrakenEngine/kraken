@@ -31,7 +31,7 @@
 #include "KRTextureTGA.h"
 #include "KREngine-common.h"
 #include "KRContext.h"
-#include "KRTextureKTX.h"
+#include "KRTextureKTX2.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #pragma pack(1)

@@ -36,6 +36,7 @@
 #include "KRTexturePVR.h"
 #include "KRTextureTGA.h"
 #include "KRTextureKTX.h"
+#include "KRTextureKTX2.h"
 #include "KRTextureCube.h"
 #include "KRTextureAnimated.h"
 #include "KRContext.h"
@@ -69,17 +70,9 @@ void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
 
 KRResource* KRTextureManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
 {
-  /*
-
-      } else if(extension.compare("pvr") == 0) {
-        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
-    } else if(extension.compare("ktx") == 0) {
-        resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
-    } else if(extension.compare("tga") == 0) {
-
-  */
   if (extension.compare("pvr") == 0 ||
     extension.compare("ktx") == 0 ||
+    extension.compare("ktx2") == 0 ||
     extension.compare("tga") == 0) {
     return loadTexture(name.c_str(), extension.c_str(), data);
   }
@@ -90,6 +83,7 @@ KRResource* KRTextureManager::getResource(const std::string& name, const std::st
 {
   if (extension.compare("pvr") == 0 ||
       extension.compare("ktx") == 0 ||
+      extension.compare("ktx2") == 0 ||
       extension.compare("tga") == 0) {
     // TODO - Currently textures must have a unique name, without consideration
     //        of extensions.  When textures are compressed, the uncompressed versions
@@ -120,6 +114,8 @@ KRTexture* KRTextureManager::loadTexture(const char* szName, const char* szExten
     pTexture = new KRTextureTGA(getContext(), data, szName);
   } else if (strcmp(szExtension, "ktx") == 0) {
     pTexture = new KRTextureKTX(getContext(), data, szName);
+  } else if (strcmp(szExtension, "ktx2") == 0) {
+    pTexture = new KRTextureKTX2(getContext(), data, szName);
   }
 
   if (pTexture) {

@@ -348,6 +348,8 @@ KRResource* KRContext::loadResource(const std::string& file_name, KRDataBlock* d
     resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
   } else if (extension.compare("ktx") == 0) {
     resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
+  } else if (extension.compare("ktx2") == 0) {
+    resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
   } else if (extension.compare("tga") == 0) {
     resource = m_pTextureManager->loadTexture(name.c_str(), extension.c_str(), data);
   } else if (extension.compare("spv") == 0) {
