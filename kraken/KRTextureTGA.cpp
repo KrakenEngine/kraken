@@ -129,7 +129,7 @@ bool KRTextureTGA::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
     return false; // Mapped colors not supported
   }
 
-  Vector2i dimensions = { pHeader->width, pHeader->height };
+  Vector3i dimensions = { pHeader->width, pHeader->height, 1 };
 
   switch (pHeader->imagetype) {
   case 2: // rgb

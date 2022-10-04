@@ -812,13 +812,26 @@ void KRDevice::graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t
   m_graphicsStagingBuffer.usage += size;
 }
 
-void KRDevice::streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination)
+void KRDevice::streamUpload(void* data, size_t size, Vector3i dimensions, VkImage destination)
 {
   checkFlushStreamBuffer(size);
 
   memcpy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, data, size);
+  
+  streamUploadImpl(size, dimensions, destination, 0, 1);
+}
 
+void KRDevice::streamUpload(KRDataBlock& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount)
+{
+  checkFlushStreamBuffer(size);
 
+  data.copy((uint8_t*)m_streamingStagingBuffer.data + m_streamingStagingBuffer.usage, offset, size);
+
+  streamUploadImpl(size, dimensions, destination, 0, 1);
+}
+
+void KRDevice::streamUploadImpl(size_t size, Vector3i dimensions, VkImage destination, uint32_t baseMipLevel, uint32_t levelCount)
+{
   // TODO - Refactor memory barriers into helper functions
   VkPipelineStageFlags sourceStage;
   VkPipelineStageFlags destinationStage;

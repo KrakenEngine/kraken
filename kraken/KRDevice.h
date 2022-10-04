@@ -76,8 +76,9 @@ public:
 
   void streamStart();
   void streamUpload(KRDataBlock& data, VkBuffer destination);
+  void streamUpload(KRDataBlock& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount);
   void streamUpload(void* data, size_t size, VkBuffer destination);
-  void streamUpload(void* data, size_t size, Vector2i dimensions, VkImage destination);
+  void streamUpload(void* data, size_t size, Vector3i dimensions, VkImage destination);
   void streamEnd();
 
   void graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination);
@@ -144,4 +145,5 @@ private:
 #endif // KRENGINE_DEBUG_GPU_LABELS
   );
   bool initDescriptorPool();
+  void streamUploadImpl(size_t size, Vector3i dimensions, VkImage destination, uint32_t baseMipLevel, uint32_t levelCount);
 };
