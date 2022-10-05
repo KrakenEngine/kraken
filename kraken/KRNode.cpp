@@ -123,7 +123,12 @@ KRNode::KRNode(KRScene& scene, std::string name) : KRContextObject(scene.getCont
   m_initialPreRotation = Vector3::Zero();
   m_initialPostRotation = Vector3::Zero();
 
-  m_parentNode = NULL;
+  m_parentNode = nullptr;
+  m_previousNode = nullptr;
+  m_nextNode = nullptr;
+  m_firstChildNode = nullptr;
+  m_lastChildNode = nullptr;
+
   m_pScene = &scene;
   m_modelMatrixValid = false;
   m_inverseModelMatrixValid = false;
@@ -143,25 +148,44 @@ KRNode::KRNode(KRScene& scene, std::string name) : KRContextObject(scene.getCont
   }
 }
 
+void KRNode::makeOrphan()
+{
+  if (m_parentNode == nullptr) {
+    // Already an orphan
+    return;
+  }
+  if (m_nextNode != nullptr) {
+    m_nextNode->m_previousNode = m_previousNode;
+  }
+  if (m_previousNode != nullptr) {
+    m_previousNode->m_nextNode = m_nextNode;
+  }
+  if (m_previousNode == nullptr) {
+    m_parentNode->m_firstChildNode = m_nextNode;
+  }
+  if (m_nextNode == nullptr) {
+    m_parentNode->m_lastChildNode = m_previousNode;
+  }
+  m_parentNode->childRemoved(this);
+  m_parentNode = nullptr;
+  m_nextNode = nullptr;
+  m_previousNode = nullptr;
+}
+
 KRNode::~KRNode()
 {
-
-
-  while (m_childNodes.size() > 0) {
-    delete* m_childNodes.begin();
+  while (m_firstChildNode != nullptr) {
+    delete m_firstChildNode;
   }
+
+  makeOrphan();
 
   for (std::set<KRBehavior*>::iterator itr = m_behaviors.begin(); itr != m_behaviors.end(); itr++) {
     delete* itr;
   }
   m_behaviors.clear();
 
-  if (m_parentNode) {
-    m_parentNode->childDeleted(this);
-  }
-
   getScene().notify_sceneGraphDelete(this);
-
 }
 
 void KRNode::setScaleCompensation(bool scale_compensation)
@@ -177,54 +201,71 @@ bool KRNode::getScaleCompensation()
   return m_scale_compensation;
 }
 
-void KRNode::childDeleted(KRNode* child_node)
+void KRNode::childRemoved(KRNode* child_node)
 {
-  // TODO - We should give KRNode's linked list pointers directly and eliminate m_childNodes so that we don't need
-  // to perform slow std::find operations like this one.
-  // TODO - FIXME - This is a slow operation...
-  std::list<KRNode*>::iterator itr = std::find(m_childNodes.begin(), m_childNodes.end(), child_node);
-  if (itr != m_childNodes.end()) {
-    m_childNodes.erase(itr);
-  }
   invalidateBounds();
   getScene().notify_sceneGraphModify(this);
 }
 
+bool KRNode::isFirstSibling() const
+{
+  return m_previousNode == nullptr;
+}
+bool KRNode::isLastSibling() const
+{
+  return m_nextNode == nullptr;
+}
+
 void KRNode::appendChild(KRNode* child)
 {
-  assert(child->m_parentNode == NULL);
+  child->makeOrphan();
   child->m_parentNode = this;
-  m_childNodes.push_back(child);
+  if (m_firstChildNode == nullptr) {
+    m_firstChildNode = child;
+    m_lastChildNode = child;
+  } else {
+    m_lastChildNode->m_nextNode = child;
+    child->m_previousNode = m_lastChildNode;
+    m_lastChildNode = child;
+  }
   child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 
 void KRNode::prependChild(KRNode* child)
 {
-  assert(child->m_parentNode == NULL);
+  child->makeOrphan();
   child->m_parentNode = this;
-  m_childNodes.push_front(child);
+  if (m_firstChildNode == nullptr) {
+    m_firstChildNode = child;
+    m_lastChildNode = child;
+  } else {
+    m_firstChildNode->m_previousNode = child;
+    child->m_nextNode = m_firstChildNode;
+    m_firstChildNode = child;
+  }
   child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 void KRNode::insertBefore(KRNode* child)
 {
   assert(m_parentNode != NULL); // There can only be one root node
-  assert(child->m_parentNode == NULL);
+  child->makeOrphan();
   child->m_parentNode = m_parentNode;
-  std::list<KRNode*>::iterator itr = std::find(m_parentNode->m_childNodes.begin(), m_parentNode->m_childNodes.end(), this);
-  assert(itr != m_parentNode->m_childNodes.end());
+  child->m_nextNode = this;
+  child->m_previousNode = m_previousNode;
+  m_previousNode = child;
 
-  m_parentNode->m_childNodes.insert(itr, child);
   child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 void KRNode::insertAfter(KRNode* child)
 {
   assert(m_parentNode != NULL); // There can only be one root node
-  assert(child->m_parentNode == NULL);
+  child->makeOrphan();
+
   child->m_parentNode = m_parentNode;
-  std::list<KRNode*>::iterator itr = std::find(m_parentNode->m_childNodes.begin(), m_parentNode->m_childNodes.end(), this);
-  assert(itr != m_parentNode->m_childNodes.end());
-  itr++;
-  m_parentNode->m_childNodes.insert(itr, child);
+  child->m_previousNode = this;
+  child->m_nextNode = m_nextNode;
+  m_nextNode = child;
+
   child->setLODVisibility(m_lod_visible); // Child node inherits LOD visibility status from parent
 }
 
@@ -244,8 +285,7 @@ tinyxml2::XMLElement* KRNode::saveXML(tinyxml2::XMLNode* parent)
   kraken::setXMLAttribute("pre_rotate", e, (m_preRotation * (180.0f / (float)M_PI)), Vector3::Zero());
   kraken::setXMLAttribute("post_rotate", e, (m_postRotation * (180.0f / (float)M_PI)), Vector3::Zero());
 
-  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-    KRNode* child = (*itr);
+  for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
     child->saveXML(n);
   }
   return e;
@@ -642,11 +682,6 @@ void KRNode::render(const RenderInfo& ri)
   m_lastRenderFrame = getContext().getCurrentFrame();
 }
 
-const std::list<KRNode*>& KRNode::getChildren()
-{
-  return m_childNodes;
-}
-
 KRNode* KRNode::getParent()
 {
   return m_parentNode;
@@ -667,12 +702,9 @@ AABB KRNode::getBounds()
   if (!m_boundsValid) {
     AABB bounds = AABB::Zero();
 
-    bool first_child = true;
-    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      KRNode* child = (*itr);
+    for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
       if (child->getBounds() != AABB::Zero()) {
-        if (first_child) {
-          first_child = false;
+        if (child->isFirstSibling()) {
           bounds = child->getBounds();
         } else {
           bounds.encapsulate(child->getBounds());
@@ -691,8 +723,7 @@ void KRNode::invalidateModelMatrix()
   m_modelMatrixValid = false;
   m_activePoseMatrixValid = false;
   m_inverseModelMatrixValid = false;
-  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-    KRNode* child = (*itr);
+  for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
     child->invalidateModelMatrix();
   }
 
@@ -704,8 +735,7 @@ void KRNode::invalidateBindPoseMatrix()
 {
   m_bindPoseMatrixValid = false;
   m_inverseBindPoseMatrixValid = false;
-  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-    KRNode* child = (*itr);
+  for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
     child->invalidateBindPoseMatrix();
   }
 }
@@ -1083,8 +1113,8 @@ void KRNode::addToOctreeNode(KROctreeNode* octree_node)
 void KRNode::updateLODVisibility(const KRViewport& viewport)
 {
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
-    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      (*itr)->updateLODVisibility(viewport);
+    for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
+      child->updateLODVisibility(viewport);
     }
   }
 }
@@ -1100,8 +1130,8 @@ void KRNode::setLODVisibility(KRNode::LodVisibility lod_visibility)
 
     m_lod_visible = lod_visibility;
 
-    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      (*itr)->setLODVisibility(lod_visibility);
+    for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
+      child->setLODVisibility(lod_visibility);
     }
   }
 }
@@ -1137,8 +1167,8 @@ kraken_stream_level KRNode::getStreamLevel(const KRViewport& viewport)
 {
   kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
 
-  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-    stream_level = KRMIN(stream_level, (*itr)->getStreamLevel(viewport));
+  for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
+    stream_level = KRMIN(stream_level, child->getStreamLevel(viewport));
   }
 
   return stream_level;

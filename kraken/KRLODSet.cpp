@@ -75,16 +75,17 @@ void KRLODSet::updateLODVisibility(const KRViewport& viewport)
     */
 
     // Upgrade and downgrade LOD groups as needed
-    for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(*itr);
+    
+    for (KRNode* childNode = m_firstChildNode; childNode != nullptr; childNode = childNode->m_nextNode) {
+      KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(childNode);
       assert(lod_group != NULL);
       LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
       /*
       // FINDME, TODO, HACK - Disabled streamer delayed LOD load due to performance issues:
-       if(group_lod_visibility == LOD_VISIBILITY_VISIBLE) {
-           new_active_lod_group = lod_group;
-       }
-       */
+        if(group_lod_visibility == LOD_VISIBILITY_VISIBLE) {
+            new_active_lod_group = lod_group;
+        }
+        */
       lod_group->setLODVisibility(group_lod_visibility);
     }
 
@@ -101,8 +102,8 @@ void KRLODSet::updateLODVisibility(const KRViewport& viewport)
 
     if (streamer_ready) {
       // Upgrade and downgrade LOD groups as needed
-      for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-        KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(*itr);
+      for (KRNode* childNode = m_firstChildNode; childNode != nullptr; childNode = childNode->m_nextNode) {
+        KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(childNode);
         assert(lod_group != NULL);
         LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
         lod_group->setLODVisibility(group_lod_visibility);
@@ -131,8 +132,8 @@ kraken_stream_level KRLODSet::getStreamLevel(const KRViewport& viewport)
   KRLODGroup* new_active_lod_group = NULL;
 
   // Upgrade and downgrade LOD groups as needed
-  for (std::list<KRNode*>::iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-    KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(*itr);
+  for (KRNode* childNode = m_firstChildNode; childNode != nullptr; childNode = childNode->m_nextNode) {
+    KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(childNode);
     assert(lod_group != NULL);
     if (lod_group->calcLODVisibility(viewport) == LOD_VISIBILITY_VISIBLE) {
       new_active_lod_group = lod_group;

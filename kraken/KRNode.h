@@ -126,7 +126,6 @@ public:
   void prependChild(KRNode* child);
   void insertBefore(KRNode* child);
   void insertAfter(KRNode* child);
-  const std::list<KRNode*>& getChildren();
   KRNode* getParent();
 
   void setLocalTranslation(const Vector3& v, bool set_original = false);
@@ -241,6 +240,15 @@ public:
 
   virtual void setLODVisibility(LodVisibility lod_visibility);
 
+public:
+  bool isFirstSibling() const;
+  bool isLastSibling() const;
+  KRNode* m_parentNode;
+  KRNode* m_previousNode;
+  KRNode* m_nextNode;
+  KRNode* m_firstChildNode;
+  KRNode* m_lastChildNode;
+
 protected:
   Vector3 m_localTranslation;
   Vector3 m_localScale;
@@ -266,12 +274,10 @@ protected:
 
   LodVisibility m_lod_visible;
 
-  KRNode* m_parentNode;
-  std::list<KRNode*> m_childNodes;
-
   bool m_animation_mask[KRENGINE_NODE_ATTRIBUTE_COUNT];
 
 private:
+  void makeOrphan();
   long m_lastRenderFrame;
   void invalidateModelMatrix();
   void invalidateBindPoseMatrix();
@@ -315,7 +321,7 @@ public:
   }
   void removeFromOctreeNodes();
   void addToOctreeNode(KROctreeNode* octree_node);
-  void childDeleted(KRNode* child_node);
+  void childRemoved(KRNode* child_node);
 
   template <class T> T* find()
   {
@@ -324,8 +330,8 @@ public:
       return match;
     }
 
-    for (std::list<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      match = (*itr)->find<T>();
+    for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
+      match = child->find<T>();
       if (match) {
         return match;
       }
@@ -336,6 +342,7 @@ public:
 
   template <class T> T* find(const std::string& name)
   {
+    // TODO - KRScene should maintain a global node-name map for rapid searching
     T* match = dynamic_cast<T*>(this);
     if (match) {
       if (name.compare(match->getName()) == 0) {
@@ -343,8 +350,8 @@ public:
       }
     }
 
-    for (std::list<KRNode*>::const_iterator itr = m_childNodes.begin(); itr != m_childNodes.end(); ++itr) {
-      match = (*itr)->find<T>(name);
+    for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
+      match = child->find<T>(name);
       if (match) {
         return match;
       }
