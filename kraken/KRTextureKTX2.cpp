@@ -178,3 +178,9 @@ std::string KRTextureKTX2::getExtension()
 {
   return "ktx2";
 }
+
+
+int KRTextureKTX2::getFaceCount()
+{
+  return m_header.faceCount;
+}
