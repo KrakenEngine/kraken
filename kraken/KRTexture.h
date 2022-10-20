@@ -83,6 +83,7 @@ public:
   int getMaxMipMap();
   int getMinMipMap();
   bool hasMipmaps();
+  virtual int getFaceCount() const;
 
   kraken_stream_level getStreamLevel(KRTexture::texture_usage_t textureUsage);
   float getLastFrameLodCoverage() const;

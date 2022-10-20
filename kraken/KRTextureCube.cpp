@@ -167,3 +167,8 @@ bool KRTextureCube::save(KRDataBlock& data)
 {
   return true; // Cube maps are just references; there are no files to output
 }
+
+int KRTextureCube::getFaceCount() const
+{
+  return 6;
+}

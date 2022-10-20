@@ -180,7 +180,7 @@ std::string KRTextureKTX2::getExtension()
 }
 
 
-int KRTextureKTX2::getFaceCount()
+int KRTextureKTX2::getFaceCount() const
 {
   return m_header.faceCount;
 }

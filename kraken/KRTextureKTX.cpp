@@ -130,6 +130,10 @@ Vector2i KRTextureKTX::getDimensions() const
   return Vector2i::Create(Vector2i::Create(m_header.pixelWidth, m_header.pixelHeight));
 }
 
+int KRTextureKTX::getFaceCount() const
+{
+  return m_header.numberOfFaces;
+}
 long KRTextureKTX::getMemRequiredForSize(int max_dim)
 {
   int target_dim = max_dim;

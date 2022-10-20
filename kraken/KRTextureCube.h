@@ -46,7 +46,7 @@ public:
 
   virtual long getMemRequiredForSize(int max_dim);
   virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
-  virtual int getFaceCount() override;
+  virtual int getFaceCount() const override;
 
 private:
   bool createGPUTexture(int lod_max_dim) override;
