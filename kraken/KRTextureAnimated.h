@@ -50,6 +50,7 @@ public:
 
   virtual bool isAnimated();
   virtual void resize(int max_dim);
+  virtual int getFaceCount() const override;
 
 private:
   bool createGPUTexture(int lod_max_dim) override;

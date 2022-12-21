@@ -152,3 +152,8 @@ void KRTextureAnimated::resize(int max_dim)
 {
   // Purposely not calling the superclass method
 }
+
+int KRTextureAnimated::getFaceCount() const
+{
+  return 1;
+}

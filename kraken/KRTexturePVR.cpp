@@ -251,3 +251,7 @@ std::string KRTexturePVR::getExtension()
   return "pvr";
 }
 
+int KRTexturePVR::getFaceCount() const
+{
+  return 1;
+}

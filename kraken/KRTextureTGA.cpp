@@ -413,3 +413,8 @@ std::string KRTextureTGA::getExtension()
 {
   return "tga";
 }
+
+int KRTextureTGA::getFaceCount() const
+{
+  return 1;
+}
