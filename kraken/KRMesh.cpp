@@ -1142,6 +1142,7 @@ VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
   case KRENGINE_ATTRIB_TEXUVB_SHORT:
     return VK_FORMAT_R16G16_SNORM;
   }
+  return VK_FORMAT_UNDEFINED;
 }
 
 int KRMesh::getBoneCount()
