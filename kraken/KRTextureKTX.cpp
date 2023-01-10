@@ -137,34 +137,140 @@ int KRTextureKTX::getFaceCount() const
 
 VkFormat KRTextureKTX::getFormat() const
 {
-  /*
   if (m_header.glFormat != 0) {
     // Non-Compressed formats, from table 8.3 of OpenGL 4.4 spec:
     switch (m_header.glFormat) {
     case 0x1901: // GL_STENCIL_INDEX
     case 0x1902: // GL_DEPTH_COMPONENT
     case 0x84F9: // GL_DEPTH_STENCIL
+      return VK_FORMAT_UNDEFINED;
     case 0x1903: // GL_RED
     case 0x1904: // GL_GREEN
     case 0x1905: // GL_BLUE
-    case 0x8227: // GL_RG
-    case 0x1907: // GL_RGB
-    case 0x1908: // GL_RGBA
-    case 0x80E0: // GL_BGR
-    case 0x80E1: // GL_BGRA
     case 0x8D94: // GL_RED_INTEGER
     case 0x8D95: // GL_GREEN_INTEGER
     case 0x8D96: // GL_BLUE_INTEGER
+      // Types applicable to a single component from table 8.2 of OpenGL 4.4 spec
+      switch (m_header.glType) {
+      case 0x1401: // UNSIGNED_BYTE
+        return VK_FORMAT_R8_UNORM;
+      case 0x1400: // BYTE
+        return VK_FORMAT_R8_SNORM;
+      case 0x1403: // UNSIGNED_SHORT
+        return VK_FORMAT_R16_UNORM;
+      case 0x1402: // SHORT
+        return VK_FORMAT_R16_SNORM;
+      case 0x1405: // UNSIGNED_INT
+        return VK_FORMAT_R32_UINT;
+      case 0x1404: // INT
+        return VK_FORMAT_R32_SINT;
+      case 0x140B: // HALF_FLOAT
+        return VK_FORMAT_R16_SFLOAT;
+      case 0x1406: // FLOAT
+        return VK_FORMAT_R32_SFLOAT;
+      default:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case 0x8227: // GL_RG
     case 0x8228: // GL_RG_INTEGER
+      // Types applicable to two components from table 8.2 of OpenGL 4.4 spec
+      switch (m_header.glType) {
+      case 0x1401: // UNSIGNED_BYTE
+        return VK_FORMAT_R8G8_UNORM;
+      case 0x1400: // BYTE
+        return VK_FORMAT_R8G8_SNORM;
+      case 0x1403: // UNSIGNED_SHORT
+        return VK_FORMAT_R16G16_UNORM;
+      case 0x1402: // SHORT
+        return VK_FORMAT_R16G16_SNORM;
+      case 0x1405: // UNSIGNED_INT
+        return VK_FORMAT_R32G32_UINT;
+      case 0x1404: // INT
+        return VK_FORMAT_R32G32_SINT;
+      case 0x140B: // HALF_FLOAT
+        return VK_FORMAT_R16G16_SFLOAT;
+      case 0x1406: // FLOAT
+        return VK_FORMAT_R32G32_SFLOAT;
+      default:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case 0x1907: // GL_RGB
+    case 0x80E0: // GL_BGR
     case 0x8D98: // GL_RGB_INTEGER
-    case 0x8D99: // GL_RGBA_INTEGER
     case 0x8D9A: // GL_BGR_INTEGER
-    case 0x8D99: // GL_BGRA_INTEGER
+      // Types applicable to three components from table 8.2 of OpenGL 4.4 spec
+      switch (m_header.glType) {
+      case 0x1401: // UNSIGNED_BYTE
+        return VK_FORMAT_R8G8B8_UNORM;
+      case 0x1400: // BYTE
+        return VK_FORMAT_R8G8B8_SNORM;
+      case 0x1403: // UNSIGNED_SHORT
+        return VK_FORMAT_R16G16B16_UNORM;
+      case 0x1402: // SHORT
+        return VK_FORMAT_R16G16B16_SNORM;
+      case 0x1405: // UNSIGNED_INT
+        return VK_FORMAT_R32G32B32_UINT;
+      case 0x1404: // INT
+        return VK_FORMAT_R32G32B32_SINT;
+      case 0x140B: // HALF_FLOAT
+        return VK_FORMAT_R16G16B16_SFLOAT;
+      case 0x1406: // FLOAT
+        return VK_FORMAT_R32G32B32_SFLOAT;
+      // UNSIGNED_BYTE_3_3_2 not supported
+      // UNSIGNED_BYTE_2_3_3_REV not supported
+      case 0x8363: // UNSIGNED_SHORT_5_6_5 ushort
+        return VK_FORMAT_R5G6B5_UNORM_PACK16;
+      case 0x8364: // UNSIGNED_SHORT_5_6_5_REV
+        return VK_FORMAT_B5G6R5_UNORM_PACK16;
+      case 0x8C3B: // UNSIGNED_INT_10F_11F_11F_REV
+        return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+      default:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case 0x1908: // GL_RGBA
+    case 0x80E1: // GL_BGRA
+    case 0x8D99: // GL_RGBA_INTEGER
+    case 0x8D9B: // GL_BGRA_INTEGER
+      // Types applicable to three components from table 8.2 of OpenGL 4.4 spec
+      switch (m_header.glType) {
+      case 0x1401: // UNSIGNED_BYTE
+        return VK_FORMAT_R8G8B8A8_UNORM;
+      case 0x1400: // BYTE
+        return VK_FORMAT_R8G8B8A8_SNORM;
+      case 0x1403: // UNSIGNED_SHORT
+        return VK_FORMAT_R16G16B16A16_UNORM;
+      case 0x1402: // SHORT
+        return VK_FORMAT_R16G16B16A16_SNORM;
+      case 0x1405: // UNSIGNED_INT
+        return VK_FORMAT_R32G32B32A32_UINT;
+      case 0x1404: // INT
+        return VK_FORMAT_R32G32B32A32_SINT;
+      case 0x140B: // HALF_FLOAT
+        return VK_FORMAT_R16G16B16A16_SFLOAT;
+      case 0x1406: // FLOAT
+        return VK_FORMAT_R32G32B32A32_SFLOAT;
+      case 0x8033: // UNSIGNED_SHORT_4_4_4_4
+      case 0x8365: // UNSIGNED_SHORT_4_4_4_4_REV
+        return VK_FORMAT_R4G4B4A4_UNORM_PACK16;
+      case 0x8034: // UNSIGNED_SHORT_5_5_5_1
+        return VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+      case 0x8366: // UNSIGNED_SHORT_1_5_5_5_REV
+        return VK_FORMAT_A1R5G5B5_UNORM_PACK16;
+      case 0x8035: // UNSIGNED_INT_8_8_8_8 uint
+        return VK_FORMAT_R8G8B8A8_UINT;
+      case 0x8367: // UNSIGNED_INT_8_8_8_8_REV
+        return VK_FORMAT_A8B8G8R8_UINT_PACK32;
+      // UNSIGNED_INT_10_10_10_2 not supported
+      case 0x8368: // UNSIGNED_INT_2_10_10_10_REV
+        return VK_FORMAT_A2R10G10B10_UINT_PACK32;
+      // UNSIGNED_INT_5_9_9_9_REV not supported
+      default:
+        return VK_FORMAT_UNDEFINED;
+      }
     default:
       return VK_FORMAT_UNDEFINED;
     }
   }
-  */
 
   // Uncompressed formats
   switch (m_header.glInternalFormat) {
