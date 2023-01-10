@@ -46,6 +46,7 @@ public:
   virtual long getMemRequiredForSize(int max_dim);
   virtual Vector2i getDimensions() const override;
   virtual int getFaceCount() const override;
+  virtual VkFormat getFormat() const override;
 
 protected:
 

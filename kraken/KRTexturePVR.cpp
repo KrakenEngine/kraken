@@ -151,6 +151,24 @@ Vector2i KRTexturePVR::getDimensions() const
   return Vector2i::Create(m_iWidth, m_iHeight);
 }
 
+VkFormat KRTexturePVR::getFormat() const
+{
+  PVRTexHeader header;
+  m_pData->copy(&header, 0, sizeof(PVRTexHeader));
+
+  uint32_t formatFlags = header.flags & PVR_TEXTURE_FLAG_TYPE_MASK;
+  switch (formatFlags) {
+  case kPVRTextureFlagTypePVRTC_2:
+    return VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG;
+  case kPVRTextureFlagTypePVRTC_4:
+    return VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG;
+    break;
+  default:
+    return VK_FORMAT_UNDEFINED;
+    break;
+  }
+}
+
 long KRTexturePVR::getMemRequiredForSize(int max_dim)
 {
   int target_dim = max_dim;

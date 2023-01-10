@@ -184,3 +184,10 @@ int KRTextureKTX2::getFaceCount() const
 {
   return m_header.faceCount;
 }
+
+
+VkFormat KRTextureKTX2::getFormat() const
+{
+  // TODO - Implement
+  return VK_FORMAT_UNDEFINED;
+}

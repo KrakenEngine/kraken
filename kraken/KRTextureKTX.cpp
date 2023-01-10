@@ -134,6 +134,100 @@ int KRTextureKTX::getFaceCount() const
 {
   return m_header.numberOfFaces;
 }
+
+VkFormat KRTextureKTX::getFormat() const
+{
+  /*
+  if (m_header.glFormat != 0) {
+    // Non-Compressed formats, from table 8.3 of OpenGL 4.4 spec:
+    switch (m_header.glFormat) {
+    case 0x1901: // GL_STENCIL_INDEX
+    case 0x1902: // GL_DEPTH_COMPONENT
+    case 0x84F9: // GL_DEPTH_STENCIL
+    case 0x1903: // GL_RED
+    case 0x1904: // GL_GREEN
+    case 0x1905: // GL_BLUE
+    case 0x8227: // GL_RG
+    case 0x1907: // GL_RGB
+    case 0x1908: // GL_RGBA
+    case 0x80E0: // GL_BGR
+    case 0x80E1: // GL_BGRA
+    case 0x8D94: // GL_RED_INTEGER
+    case 0x8D95: // GL_GREEN_INTEGER
+    case 0x8D96: // GL_BLUE_INTEGER
+    case 0x8228: // GL_RG_INTEGER
+    case 0x8D98: // GL_RGB_INTEGER
+    case 0x8D99: // GL_RGBA_INTEGER
+    case 0x8D9A: // GL_BGR_INTEGER
+    case 0x8D99: // GL_BGRA_INTEGER
+    default:
+      return VK_FORMAT_UNDEFINED;
+    }
+  }
+  */
+
+  // Uncompressed formats
+  switch (m_header.glInternalFormat) {
+  // Sized internal color formats,  from table 8.12 of OpenGL 4.4 spec
+  case 0x823A: // RG16UI RG ui16 ui16
+  case 0x823B: // RG32I RG i32 i32
+  case 0x823C: // RG32UI RG ui32 ui32
+  case 0x8D8F: // RGB8I RGB i8 i8 i8
+  case 0x8D7D: // RGB8UI RGB ui8 ui8 ui8
+  case 0x8D89: // RGB16I RGB i16 i16 i16
+  case 0x8D77: // RGB16UI RGB ui16 ui16 ui16
+  case 0x8D83: // RGB32I RGB i32 i32 i32
+  case 0x8D71: // RGB32UI RGB ui32 ui32 ui32
+  case 0x8D8E: // RGBA8I RGBA i8 i8 i8 i8
+  case 0x8D7C: // RGBA8UI RGBA ui8 ui8 ui8 ui8
+  case 0x8D88: // RGBA16I RGBA i16 i16 i16 i16
+  case 0x8D76: // RGBA16UI RGBA ui16 ui16 ui16 ui16
+  case 0x8D82: // RGBA32I RGBA i32 i32 i32 i32
+  case 0x8D70: // RGBA32UI RGBA ui32 ui32 ui32 ui32
+
+  // Sized internal depth and stencil formats, from table 8.13 of OpenGL 4.4 spec
+  case 0x81A5: // DEPTH_COMPONENT16 DEPTH_COMPONENT 16
+  case 0x81A6: // DEPTH_COMPONENT24 DEPTH_COMPONENT 24
+  case 0x81A7: // DEPTH_COMPONENT32 DEPTH_COMPONENT 32
+  case 0x8CAC: // DEPTH_COMPONENT32F DEPTH_COMPONENT f32
+  case 0x88F0: // DEPTH24_STENCIL8 DEPTH_STENCIL 24 ui8
+  case 0x8CAD: // DEPTH32F_STENCIL8 DEPTH_STENCIL f32 ui8
+  case 0x8D46: // STENCIL_INDEX1 STENCIL_INDEX ui1
+  case 0x8D47: // STENCIL_INDEX4 STENCIL_INDEX ui4
+  case 0x8D48: // STENCIL_INDEX8 STENCIL_INDEX ui8
+  case 0x8D49: // STENCIL_INDEX16 STENCIL_INDEX ui16
+
+  // Compressed formats, from table 8.14 of OpenGL 4.4 spec:
+  case 0x8225: // COMPRESSED_RED RED Generic unorm
+  case 0x8226: // COMPRESSED_RG RG Generic unorm
+  case 0x84ED: // COMPRESSED_RGB RGB Generic unorm
+  case 0x84EE: // COMPRESSED_RGBA RGBA Generic unorm
+  case 0x8C48: // COMPRESSED_SRGB RGB Generic unorm
+  case 0x8C49: // COMPRESSED_SRGB_ALPHA RGBA Generic unorm
+  case 0x8DBB: // COMPRESSED_RED_RGTC1 RED Specific unorm
+  case 0x8DBC: // COMPRESSED_SIGNED_RED_RGTC1 RED Specific snorm
+  case 0x8DBD: // COMPRESSED_RG_RGTC2 RG Specific unorm
+  case 0x8DBE: // COMPRESSED_SIGNED_RG_RGTC2 RG Specific snorm
+  case 0x8E8C: // COMPRESSED_RGBA_BPTC_UNORM RGBA Specific unorm
+  case 0x8E8D: // COMPRESSED_SRGB_ALPHA_BPTC_UNORM RGBA Specific unorm
+  case 0x8E8E: // COMPRESSED_RGB_BPTC_SIGNED_FLOAT RGB Specific float
+  case 0x8E8F: // COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT RGB Specific float
+  case 0x9274: // COMPRESSED_RGB8_ETC2 RGB Specific unorm
+  case 0x9275: // COMPRESSED_SRGB8_ETC2 RGB Specific unorm
+  case 0x9276: // COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 RGB Specific unorm
+  case 0x9277: // COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 RGB Specific unorm
+  case 0x9278: // COMPRESSED_RGBA8_ETC2_EAC RGBA Specific unorm
+  case 0x9279: // COMPRESSED_SRGB8_ALPHA8_ETC2_EAC RGBA Specific unorm
+  case 0x9270: // COMPRESSED_R11_EAC RED Specific unorm
+  case 0x9271: // COMPRESSED_SIGNED_R11_EAC RED Specific snorm
+  case 0x9272: // COMPRESSED_RG11_EAC RG Specific unorm
+  case 0x9273: // COMPRESSED_SIGNED_RG11_EAC RG Specific snorm
+
+    default:
+    return VK_FORMAT_UNDEFINED;
+  }
+}
+
 long KRTextureKTX::getMemRequiredForSize(int max_dim)
 {
   int target_dim = max_dim;

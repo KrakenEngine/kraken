@@ -409,6 +409,12 @@ Vector2i KRTextureTGA::getDimensions() const
   return m_dimensions;
 }
 
+VkFormat KRTextureTGA::getFormat() const
+{
+  // TODO - We should not automatically add the alpha channel on import
+  return VK_FORMAT_R8G8B8A8_SRGB;
+}
+
 std::string KRTextureTGA::getExtension()
 {
   return "tga";

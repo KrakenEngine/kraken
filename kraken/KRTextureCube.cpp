@@ -172,3 +172,9 @@ int KRTextureCube::getFaceCount() const
 {
   return 6;
 }
+
+VkFormat KRTextureCube::getFormat() const
+{
+  // TODO - Implement
+  return VK_FORMAT_UNDEFINED;
+}

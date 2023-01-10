@@ -48,6 +48,7 @@ public:
 
   virtual long getMemRequiredForSize(int max_dim);
   virtual Vector2i getDimensions() const override;
+  virtual VkFormat getFormat() const override;
   virtual int getFaceCount() const override;
 private:
   long m_imageSize;

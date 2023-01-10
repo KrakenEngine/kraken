@@ -157,3 +157,8 @@ int KRTextureAnimated::getFaceCount() const
 {
   return 1;
 }
+
+VkFormat KRTextureAnimated::getFormat() const
+{
+  return VK_FORMAT_UNDEFINED;
+}
