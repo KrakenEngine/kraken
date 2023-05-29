@@ -272,9 +272,10 @@ VkFormat KRTextureKTX::getFormat() const
     }
   }
 
-  // Uncompressed formats
+  /*
+  // Internal format for uncompressed textures
   switch (m_header.glInternalFormat) {
-  // Sized internal color formats,  from table 8.12 of OpenGL 4.4 spec
+    // Sized internal color formats,  from table 8.12 of OpenGL 4.4 spec
   case 0x823A: // RG16UI RG ui16 ui16
   case 0x823B: // RG32I RG i32 i32
   case 0x823C: // RG32UI RG ui32 ui32
@@ -291,7 +292,7 @@ VkFormat KRTextureKTX::getFormat() const
   case 0x8D82: // RGBA32I RGBA i32 i32 i32 i32
   case 0x8D70: // RGBA32UI RGBA ui32 ui32 ui32 ui32
 
-  // Sized internal depth and stencil formats, from table 8.13 of OpenGL 4.4 spec
+    // Sized internal depth and stencil formats, from table 8.13 of OpenGL 4.4 spec
   case 0x81A5: // DEPTH_COMPONENT16 DEPTH_COMPONENT 16
   case 0x81A6: // DEPTH_COMPONENT24 DEPTH_COMPONENT 24
   case 0x81A7: // DEPTH_COMPONENT32 DEPTH_COMPONENT 32
@@ -302,7 +303,11 @@ VkFormat KRTextureKTX::getFormat() const
   case 0x8D47: // STENCIL_INDEX4 STENCIL_INDEX ui4
   case 0x8D48: // STENCIL_INDEX8 STENCIL_INDEX ui8
   case 0x8D49: // STENCIL_INDEX16 STENCIL_INDEX ui16
+  }
+  */
 
+  // Internal format for compressed textures
+  switch (m_header.glInternalFormat) {
   // Compressed formats, from table 8.14 of OpenGL 4.4 spec:
   case 0x8225: // COMPRESSED_RED RED Generic unorm
   case 0x8226: // COMPRESSED_RG RG Generic unorm
@@ -311,23 +316,43 @@ VkFormat KRTextureKTX::getFormat() const
   case 0x8C48: // COMPRESSED_SRGB RGB Generic unorm
   case 0x8C49: // COMPRESSED_SRGB_ALPHA RGBA Generic unorm
   case 0x8DBB: // COMPRESSED_RED_RGTC1 RED Specific unorm
+    // Generic compressed formats not supported
+    return VK_FORMAT_UNDEFINED;
+    break;
   case 0x8DBC: // COMPRESSED_SIGNED_RED_RGTC1 RED Specific snorm
+    return VK_FORMAT_BC4_SNORM_BLOCK;
   case 0x8DBD: // COMPRESSED_RG_RGTC2 RG Specific unorm
+    return VK_FORMAT_BC5_UNORM_BLOCK;
   case 0x8DBE: // COMPRESSED_SIGNED_RG_RGTC2 RG Specific snorm
+    return VK_FORMAT_BC5_SNORM_BLOCK;
   case 0x8E8C: // COMPRESSED_RGBA_BPTC_UNORM RGBA Specific unorm
+    return VK_FORMAT_BC7_UNORM_BLOCK;
   case 0x8E8D: // COMPRESSED_SRGB_ALPHA_BPTC_UNORM RGBA Specific unorm
+    return VK_FORMAT_BC7_SRGB_BLOCK;
   case 0x8E8E: // COMPRESSED_RGB_BPTC_SIGNED_FLOAT RGB Specific float
+    return VK_FORMAT_BC6H_SFLOAT_BLOCK;
   case 0x8E8F: // COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT RGB Specific float
+    return VK_FORMAT_BC6H_UFLOAT_BLOCK;
   case 0x9274: // COMPRESSED_RGB8_ETC2 RGB Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
   case 0x9275: // COMPRESSED_SRGB8_ETC2 RGB Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK;
   case 0x9276: // COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 RGB Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK;
   case 0x9277: // COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 RGB Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK;
   case 0x9278: // COMPRESSED_RGBA8_ETC2_EAC RGBA Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
   case 0x9279: // COMPRESSED_SRGB8_ALPHA8_ETC2_EAC RGBA Specific unorm
+    return VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK;
   case 0x9270: // COMPRESSED_R11_EAC RED Specific unorm
+    return VK_FORMAT_EAC_R11_UNORM_BLOCK;
   case 0x9271: // COMPRESSED_SIGNED_R11_EAC RED Specific snorm
+    return VK_FORMAT_EAC_R11_SNORM_BLOCK;
   case 0x9272: // COMPRESSED_RG11_EAC RG Specific unorm
+    return VK_FORMAT_EAC_R11G11_UNORM_BLOCK;
   case 0x9273: // COMPRESSED_SIGNED_RG11_EAC RG Specific snorm
+    return VK_FORMAT_EAC_R11G11_SNORM_BLOCK;
 
     default:
     return VK_FORMAT_UNDEFINED;
