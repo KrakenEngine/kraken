@@ -101,7 +101,7 @@ bool KRTextureCube::createGPUTexture(int lod_max_dim)
     texture.allocation = VK_NULL_HANDLE;
     texture.image = VK_NULL_HANDLE;
 
-    if (!device.createImage(dimensions, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
+    if (!allocate(device, dimensions, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture.image, &texture.allocation
 #if KRENGINE_DEBUG_GPU_LABELS
       , getName().c_str()
 #endif

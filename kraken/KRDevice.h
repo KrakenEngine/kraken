@@ -64,12 +64,6 @@ public:
 #endif
   );
 
-  bool createImage(Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
-#if KRENGINE_DEBUG_GPU_LABELS  
-    , const char* debug_label
-#endif
-  );
-
   KrResult selectSurfaceFormat(VkSurfaceKHR& surface, VkSurfaceFormatKHR& surfaceFormat) const;
   KrResult selectDepthFormat(VkFormat& selectedDepthFormat) const;
   KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode) const;
@@ -126,10 +120,10 @@ public:
   // This will be used for uploading assets procedurally generated while recording the graphics command buffer.
   // TODO - We should allocate at least two of these and double-buffer for increased CPU-GPU concurrency
   StagingBufferInfo m_graphicsStagingBuffer;
-private:
-  void checkFlushStreamBuffer(size_t size);
 
   void getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t* familyCount, VkSharingMode* sharingMode);
+private:
+  void checkFlushStreamBuffer(size_t size);
 
   // Initialization helper functions
   bool getAndCheckDeviceCapabilities(const std::vector<const char*>& deviceExtensions);

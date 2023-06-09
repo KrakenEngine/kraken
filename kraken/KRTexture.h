@@ -38,6 +38,7 @@
 class KRDataBlock;
 class KRCamera;
 class KRDeviceManager;
+class KRDevice;
 
 class KRTexture : public KRResource
 {
@@ -124,6 +125,12 @@ protected:
   long m_last_frame_used;
   float m_last_frame_max_lod_coverage;
   texture_usage_t m_last_frame_usage;
+
+  bool allocate(KRDevice& device, Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
+#if KRENGINE_DEBUG_GPU_LABELS  
+  , const char* debug_label
+#endif
+  );
 
 private:
   std::atomic<long> m_textureMemUsed;
