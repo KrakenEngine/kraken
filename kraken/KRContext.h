@@ -122,7 +122,7 @@ public:
   }
   // -=-=-=- End: Helper functions for Public API Entry Points
 
-  KRResource* loadResource(const std::string& file_name, KRDataBlock* data);
+  KRResource* loadResource(const std::string& file_name, mimir::Block* data);
 
 
   KRBundleManager* getBundleManager();

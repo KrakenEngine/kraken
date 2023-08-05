@@ -39,6 +39,8 @@
 #include "KRContext.h"
 #include "../3rdparty/forsyth/forsyth.h"
 
+using namespace mimir;
+
 KRMesh::KRMesh(KRContext& context, std::string name) : KRResource(context, name)
 {
   setName(name);
@@ -50,7 +52,7 @@ KRMesh::KRMesh(KRContext& context, std::string name) : KRResource(context, name)
   m_constant = false;
 }
 
-KRMesh::KRMesh(KRContext& context, std::string name, KRDataBlock* data) : KRResource(context, name)
+KRMesh::KRMesh(KRContext& context, std::string name, Block* data) : KRResource(context, name)
 {
   setName(name);
 
@@ -149,13 +151,13 @@ bool KRMesh::save(const std::string& path)
   return m_pData->save(path);
 }
 
-bool KRMesh::save(KRDataBlock& data)
+bool KRMesh::save(Block& data)
 {
   data.append(*m_pData);
   return true;
 }
 
-void KRMesh::loadPack(KRDataBlock* data)
+void KRMesh::loadPack(Block* data)
 {
   releaseData();
 
@@ -377,8 +379,8 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
 
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
-          KRDataBlock* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
-          KRDataBlock* index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
+          Block* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
+          Block* index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
           mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
@@ -406,8 +408,8 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         int vertex_size = m_vertex_size;
 
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
-          KRDataBlock* index_data_block = NULL;
-          KRDataBlock* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
+          Block* index_data_block = NULL;
+          Block* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
           mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
@@ -619,7 +621,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   size_t vertex_count = mi.vertices.size();
   size_t bone_count = mi.bone_names.size();
   size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_pMetaData = m_pData;
   m_pData->expand(new_file_size);
   m_pData->lock();

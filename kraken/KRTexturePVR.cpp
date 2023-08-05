@@ -34,6 +34,8 @@
 
 #include "KREngine-common.h"
 
+using namespace mimir;
+
 
 #define PVR_TEXTURE_FLAG_TYPE_MASK	0xff
 
@@ -62,7 +64,7 @@ typedef struct _PVRTexHeader
   uint32_t numSurfs;
 } PVRTexHeader;
 
-KRTexturePVR::KRTexturePVR(KRContext& context, KRDataBlock* data, std::string name) : KRTexture2D(context, data, name)
+KRTexturePVR::KRTexturePVR(KRContext& context, Block* data, std::string name) : KRTexture2D(context, data, name)
 {
 #if TARGET_OS_IPHONE
 
@@ -139,8 +141,8 @@ KRTexturePVR::KRTexturePVR(KRContext& context, KRDataBlock* data, std::string na
 
 KRTexturePVR::~KRTexturePVR()
 {
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     delete block;
   }
   m_blocks.clear();
@@ -179,8 +181,8 @@ long KRTexturePVR::getMemRequiredForSize(int max_dim)
   int height = m_iHeight;
   long memoryRequired = 0;
 
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     if (width <= target_dim && height <= target_dim) {
       memoryRequired += (long)block->getSize();
     }
@@ -216,8 +218,8 @@ bool KRTexturePVR::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
   // Upload texture data
   int destination_level = 0;
   int source_level = 0;
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     if (width <= target_dim && height <= target_dim) {
 
       if (width > current_lod_max_dim) {

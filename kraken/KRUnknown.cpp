@@ -31,13 +31,15 @@
 
 #include "KRUnknown.h"
 
+using namespace mimir;
+
 KRUnknown::KRUnknown(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_extension = extension;
 }
 
-KRUnknown::KRUnknown(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
+KRUnknown::KRUnknown(KRContext& context, std::string name, std::string extension, Block* data) : KRResource(context, name)
 {
   m_pData = data;
   m_extension = extension;
@@ -53,13 +55,13 @@ std::string KRUnknown::getExtension()
   return m_extension;
 }
 
-bool KRUnknown::save(KRDataBlock& data)
+bool KRUnknown::save(Block& data)
 {
   data.append(*m_pData);
   return true;
 }
 
-KRDataBlock* KRUnknown::getData()
+Block* KRUnknown::getData()
 {
   return m_pData;
 }

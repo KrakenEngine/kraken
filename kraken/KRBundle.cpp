@@ -33,6 +33,8 @@
 #include "KRContext.h"
 #include "KREngine-common.h"
 
+using namespace mimir;
+
 const int KRENGINE_KRBUNDLE_HEADER_SIZE = 512;
 
 typedef struct _tar_header
@@ -49,7 +51,7 @@ typedef struct _tar_header
 
 } tar_header_type;
 
-KRBundle::KRBundle(KRContext& context, std::string name, KRDataBlock* pData) : KRResource(context, name)
+KRBundle::KRBundle(KRContext& context, std::string name, Block* pData) : KRResource(context, name)
 {
   m_pData = pData;
 
@@ -61,7 +63,7 @@ KRBundle::KRBundle(KRContext& context, std::string name, KRDataBlock* pData) : K
     file_pos += 512; // Skip past the header to the file contents
     if (file_header.file_name[0] != '\0' && file_header.file_name[0] != '.') {
       // We ignore the last two records in the tar file, which are zero'ed out tar_header structures
-      KRDataBlock* pFileData = pData->getSubBlock((int)file_pos, (int)file_size);
+      Block* pFileData = pData->getSubBlock((int)file_pos, (int)file_size);
       context.loadResource(file_header.file_name, pFileData);
     }
     file_pos += RoundUpSize(file_size);
@@ -71,7 +73,7 @@ KRBundle::KRBundle(KRContext& context, std::string name, KRDataBlock* pData) : K
 KRBundle::KRBundle(KRContext& context, std::string name) : KRResource(context, name)
 {
   // Create an empty krbundle (tar) file, initialized with two zero-ed out file headers, which terminate it.
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_pData->expand(KRENGINE_KRBUNDLE_HEADER_SIZE * 2);
   m_pData->lock();
   memset(m_pData->getStart(), 0, m_pData->getSize());
@@ -106,7 +108,7 @@ bool KRBundle::save(const std::string& path)
   return m_pData->save(path);
 }
 
-bool KRBundle::save(KRDataBlock& data)
+bool KRBundle::save(Block& data)
 {
   if (m_pData->getSize() > KRENGINE_KRBUNDLE_HEADER_SIZE * 2) {
     // Only output krbundles that contain files
@@ -115,10 +117,10 @@ bool KRBundle::save(KRDataBlock& data)
   return true;
 }
 
-KRDataBlock* KRBundle::append(KRResource& resource)
+Block* KRBundle::append(KRResource& resource)
 {
   // Serialize resource to binary representation
-  KRDataBlock resource_data;
+  Block resource_data;
   resource.save(resource_data);
 
   std::string file_name = resource.getName() + "." + resource.getExtension();
@@ -165,6 +167,6 @@ KRDataBlock* KRBundle::append(KRResource& resource)
 
   m_pData->unlock();
 
-  KRDataBlock* pFileData = m_pData->getSubBlock((int)resource_data_start, (int)resource_data.getSize());
+  Block* pFileData = m_pData->getSubBlock((int)resource_data_start, (int)resource_data.getSize());
   return pFileData;
 }

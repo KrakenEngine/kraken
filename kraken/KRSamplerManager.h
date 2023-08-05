@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 
-#include "KRDataBlock.h"
+#include "block.h"
 
 using std::map;
 using std::vector;

@@ -57,9 +57,9 @@ public:
 
 
   virtual std::string getExtension();
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
-  static KRScene* Load(KRContext& context, const std::string& name, KRDataBlock* data);
+  static KRScene* Load(KRContext& context, const std::string& name, mimir::Block* data);
 
   KRNode* getRootNode();
   KRLight* getFirstLight();

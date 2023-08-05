@@ -38,7 +38,7 @@
 #include "KRTexture.h"
 #include "KRContextObject.h"
 #include "KREngine-common.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRContext.h"
 #include "KRStreamerThread.h"
 
@@ -49,12 +49,12 @@ public:
   virtual ~KRTextureManager();
   void destroy();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   bool selectTexture(unsigned int target, int iTextureUnit, int iTextureHandle);
 
-  KRTexture* loadTexture(const char* szName, const char* szExtension, KRDataBlock* data);
+  KRTexture* loadTexture(const char* szName, const char* szExtension, mimir::Block* data);
   KRTexture* getTextureCube(const char* szName);
   KRTexture* getTexture(const std::string& name);
 

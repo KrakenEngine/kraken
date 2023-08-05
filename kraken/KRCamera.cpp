@@ -35,6 +35,8 @@
 #include "KRRenderPass.h"
 #include "KRPipeline.h"
 
+using namespace mimir;
+
 /* static */
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
@@ -778,7 +780,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 
   } else {
     if (m_debug_text_vertices.getSize() > 0) {
-      m_debug_text_vertices = KRDataBlock();
+      m_debug_text_vertices = Block();
     }
   }
 }

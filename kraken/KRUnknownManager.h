@@ -37,7 +37,7 @@
 
 #include "KRUnknown.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRUnknownManager : public KRResourceManager
 {
@@ -45,12 +45,12 @@ public:
   KRUnknownManager(KRContext& context);
   virtual ~KRUnknownManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   void add(KRUnknown* unknown);
 
-  KRUnknown* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRUnknown* load(const std::string& name, const std::string& extension, mimir::Block* data);
   KRUnknown* get(const std::string& name, const std::string& extension);
 
 

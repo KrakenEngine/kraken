@@ -36,7 +36,7 @@
 #include "KRResourceManager.h"
 #include "KRSource.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRSourceManager : public KRResourceManager
 {
@@ -44,12 +44,12 @@ public:
   KRSourceManager(KRContext& context);
   virtual ~KRSourceManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   void add(KRSource* source);
 
-  KRSource* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRSource* load(const std::string& name, const std::string& extension, mimir::Block* data);
   KRSource* get(const std::string& name, const std::string& extension);
 
   const unordered_map<std::string, KRSource*>& get(const std::string& extension);

@@ -32,6 +32,8 @@
 #include "KRShader.h"
 #include "spirv_reflect.h"
 
+using namespace mimir;
+
 ShaderStage getShaderStageFromExtension(const char* extension)
 {
   if (strcmp(extension, "vert") == 0) {
@@ -104,7 +106,7 @@ VkShaderStageFlagBits getShaderStageFlagBitsFromShaderStage(ShaderStage stage)
 
 KRShader::KRShader(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_extension = extension;
   m_subExtension = KRResource::GetFileExtension(name);
   m_stage = getShaderStageFromExtension(m_subExtension.c_str());
@@ -113,7 +115,7 @@ KRShader::KRShader(KRContext& context, std::string name, std::string extension) 
   getReflection();
 }
 
-KRShader::KRShader(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
+KRShader::KRShader(KRContext& context, std::string name, std::string extension, Block* data) : KRResource(context, name)
 {
   m_pData = data;
   m_extension = extension;
@@ -138,13 +140,13 @@ std::string& KRShader::getSubExtension()
   return m_subExtension;
 }
 
-bool KRShader::save(KRDataBlock& data)
+bool KRShader::save(Block& data)
 {
   data.append(*m_pData);
   return true;
 }
 
-KRDataBlock* KRShader::getData()
+Block* KRShader::getData()
 {
   return m_pData;
 }

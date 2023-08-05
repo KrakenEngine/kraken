@@ -33,10 +33,12 @@
 
 #include "KRTexture2D.h"
 
+using namespace mimir;
+
 class KRTextureTGA : public KRTexture2D
 {
 public:
-  KRTextureTGA(KRContext& context, KRDataBlock* data, std::string name);
+  KRTextureTGA(KRContext& context, Block* data, std::string name);
   virtual ~KRTextureTGA();
   virtual std::string getExtension();
 

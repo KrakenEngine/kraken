@@ -35,12 +35,14 @@
 #include "KRScene.h"
 #include "KRResource+blend.h"
 
+using namespace mimir;
+
 
 KRScene* KRResource::LoadBlenderScene(KRContext& context, const std::string& path)
 {
   KRScene* pScene = new KRScene(context, KRResource::GetFileBase(path));
 
-  KRDataBlock data;
+  Block data;
 
   if (data.load(path)) {
     //KRBlendFile blend_file = KRBlendFile(pFile);

@@ -34,6 +34,8 @@
 #include "KRBundle.h"
 #include "KRContext.h"
 
+using namespace mimir;
+
 KRResource::KRResource(KRContext& context, std::string name) : KRContextObject(context)
 {
   m_name = name;
@@ -89,7 +91,7 @@ std::string KRResource::GetFilePath(const std::string& name)
 
 bool KRResource::save(const std::string& path)
 {
-  KRDataBlock data;
+  Block data;
   if (save(data)) {
     return data.save(path);
   } else {
@@ -99,11 +101,11 @@ bool KRResource::save(const std::string& path)
 
 KrResult KRResource::moveToBundle(KRBundle* bundle)
 {
-  KRDataBlock* data = bundle->append(*this);
+  Block* data = bundle->append(*this);
   if (data == nullptr) {
     return KR_ERROR_UNEXPECTED;
   }
-  // TODO(kearwood) - We must re-attach the KRResource to the returned KRDataBlock
+  // TODO(kearwood) - We must re-attach the KRResource to the returned Block
   delete data;
   return KR_SUCCESS;
 }

@@ -36,7 +36,7 @@
 class KRTexturePVR : public KRTexture2D
 {
 public:
-  KRTexturePVR(KRContext& context, KRDataBlock* data, std::string name);
+  KRTexturePVR(KRContext& context, mimir::Block* data, std::string name);
   virtual ~KRTexturePVR();
   virtual std::string getExtension();
 
@@ -54,5 +54,5 @@ protected:
   unsigned int    m_internalFormat;
   bool      m_bHasAlpha;
 
-  std::list<KRDataBlock*> m_blocks;
+  std::list<mimir::Block*> m_blocks;
 };

@@ -1,5 +1,5 @@
 //
-//  KRDataBlock.h
+//  block.h
 //  Kraken Engine
 //
 //  Copyright 2023 Kearwood Gilbert. All rights reserved.
@@ -31,20 +31,20 @@
 
 #pragma once
 
+#include <string>
 #include "KREngine-common.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
 #endif
 
-#define KRENGINE_MIN_MMAP 32768
-
-class KRDataBlock
+namespace mimir {
+class Block
 {
 public:
-  KRDataBlock();
-  KRDataBlock(void* data, size_t size);
-  ~KRDataBlock();
+  Block();
+  Block(void* data, size_t size);
+  ~Block();
 
   // Encapsulate a pointer.  Note - The pointer will not be free'ed
   bool load(void* data, size_t size);
@@ -55,14 +55,14 @@ public:
   // Save the data to a file.
   bool save(const std::string& path);
 
-  // Create a KRDataBlock encapsulating a sub-region of this block.  The caller is responsible to free the object.
-  KRDataBlock* getSubBlock(int start, int length);
+  // Create a Block encapsulating a sub-region of this block.  The caller is responsible to free the object.
+  Block* getSubBlock(int start, int length);
 
   // Append data to the end of the block, increasing the size of the block and making it read-write.
   void append(void* data, size_t size);
 
   // Append data to the end of the block, increasing the size of the block and making it read-write.
-  void append(KRDataBlock& data);
+  void append(Block& data);
 
   // Append string to the end of the block, increasing the size of the block and making it read-write.  The null terminating character is included
   void append(const std::string& s);
@@ -111,7 +111,7 @@ private:
 #endif
 
   std::string m_fileName;
-  KRDataBlock* m_fileOwnerDataBlock;
+  Block* m_fileOwnerDataBlock;
   void* m_mmapData;
 
   // For malloc'ed objects:
@@ -127,3 +127,5 @@ private:
   void assertLocked();
 
 };
+} // namespace mimir
+

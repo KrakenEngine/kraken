@@ -35,7 +35,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRContext;
 class KRBundle;
@@ -46,10 +46,10 @@ public:
   KRBundleManager(KRContext& context);
   ~KRBundleManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  KRBundle* loadBundle(const char* szName, KRDataBlock* pData);
+  KRBundle* loadBundle(const char* szName, mimir::Block* pData);
   KRBundle* getBundle(const char* szName);
   KRBundle* createBundle(const char* szName);
 

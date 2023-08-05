@@ -33,7 +33,9 @@
 #include "KRTexture2D.h"
 #include "KRTextureManager.h"
 
-KRTexture2D::KRTexture2D(KRContext& context, KRDataBlock* data, std::string name) : KRTexture(context, name)
+using namespace mimir;
+
+KRTexture2D::KRTexture2D(KRContext& context, Block* data, std::string name) : KRTexture(context, name)
 {
   m_pData = data;
 }
@@ -114,7 +116,7 @@ bool KRTexture2D::save(const std::string& path)
   }
 }
 
-bool KRTexture2D::save(KRDataBlock& data)
+bool KRTexture2D::save(Block& data)
 {
   if (m_pData) {
     data.append(*m_pData);

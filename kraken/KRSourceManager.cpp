@@ -33,6 +33,8 @@
 #include "KREngine-common.h"
 #include "KRShader.h"
 
+using namespace mimir;
+
 KRSourceManager::KRSourceManager(KRContext& context) : KRResourceManager(context)
 {
 
@@ -75,7 +77,7 @@ void KRSourceManager::add(KRSource* source)
   }
 }
 
-KRResource* KRSourceManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRSourceManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (getShaderStageFromExtension(extension.c_str()) != ShaderStage::Invalid ||
       extension.compare("glsl") == 0 ||
@@ -95,7 +97,7 @@ KRResource* KRSourceManager::getResource(const std::string& name, const std::str
   return nullptr;
 }
 
-KRSource* KRSourceManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRSource* KRSourceManager::load(const std::string& name, const std::string& extension, Block* data)
 {
   KRSource* source = new KRSource(getContext(), name, extension, data);
   if (source) add(source);

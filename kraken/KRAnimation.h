@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRResource.h"
 #include "KRAnimationLayer.h"
 
@@ -46,9 +46,9 @@ public:
   virtual ~KRAnimation();
 
   virtual std::string getExtension();
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
-  static KRAnimation* Load(KRContext& context, const std::string& name, KRDataBlock* data);
+  static KRAnimation* Load(KRContext& context, const std::string& name, mimir::Block* data);
 
   void addLayer(KRAnimationLayer* layer);
   unordered_map<std::string, KRAnimationLayer*>& getLayers();

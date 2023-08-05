@@ -38,6 +38,8 @@
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
 
+using namespace mimir;
+
 KRMeshManager::KRMeshManager(KRContext& context)
   : KRResourceManager(context)
   , m_currentVBO(NULL)
@@ -117,7 +119,7 @@ KRMeshManager::~KRMeshManager()
   m_models.clear();
 }
 
-KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("krmesh") == 0) {
     return loadModel(name.c_str(), data);
@@ -140,7 +142,7 @@ KRResource* KRMeshManager::getResource(const std::string& name, const std::strin
   return nullptr;
 }
 
-KRMesh* KRMeshManager::loadModel(const char* szName, KRDataBlock* pData)
+KRMesh* KRMeshManager::loadModel(const char* szName, Block* pData)
 {
   KRMesh* pModel = new KRMesh(*m_pContext, szName, pData);
   addModel(pModel);
@@ -326,7 +328,7 @@ long KRMeshManager::getMemUsed()
 long KRMeshManager::getMemActive()
 {
   long mem_active = 0;
-  for (unordered_map<KRDataBlock*, KRVBOData*>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
+  for (unordered_map<Block*, KRVBOData*>::iterator itr = m_vbosActive.begin(); itr != m_vbosActive.end(); itr++) {
     mem_active += (*itr).second->getSize();
   }
   return mem_active;
@@ -475,7 +477,7 @@ KRMeshManager::KRVBOData::KRVBOData()
   memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, KRDataBlock* data, KRDataBlock* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, Block* data, Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -492,7 +494,7 @@ KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, KRDataBlock* data, K
   );
 }
 
-void KRMeshManager::KRVBOData::init(KRMeshManager* manager, KRDataBlock* data, KRDataBlock* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+void KRMeshManager::KRVBOData::init(KRMeshManager* manager, Block* data, Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif

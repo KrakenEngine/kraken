@@ -34,7 +34,9 @@
 
 #pragma once
 
-class KRDataBlock;
+namespace mimir {
+class Block;
+}
 
 class KRDevice : public KRContextObject
 {
@@ -69,13 +71,13 @@ public:
   KrResult selectPresentMode(VkSurfaceKHR& surface, VkPresentModeKHR& selectedPresentMode) const;
 
   void streamStart();
-  void streamUpload(KRDataBlock& data, VkBuffer destination);
-  void streamUpload(KRDataBlock& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount);
+  void streamUpload(mimir::Block& data, VkBuffer destination);
+  void streamUpload(mimir::Block& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount);
   void streamUpload(void* data, size_t size, VkBuffer destination);
   void streamUpload(void* data, size_t size, Vector3i dimensions, VkImage destination);
   void streamEnd();
 
-  void graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination);
+  void graphicsUpload(VkCommandBuffer& commandBuffer, mimir::Block& data, VkBuffer destination);
   void graphicsUpload(VkCommandBuffer& commandBuffer, void* data, size_t size, VkBuffer destination);
 
   void createDescriptorSets(const std::vector<VkDescriptorSetLayout>& layouts, std::vector<VkDescriptorSet>& descriptorSets);

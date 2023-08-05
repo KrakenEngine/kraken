@@ -36,6 +36,8 @@
 #include "KRUnknownManager.h"
 #include "KRUnknown.h"
 
+using namespace mimir;
+
 KRShaderManager::KRShaderManager(KRContext& context) : KRResourceManager(context)
 , m_initializedGlslang(false)
 , m_includer(&context)
@@ -55,7 +57,7 @@ KRShaderManager::~KRShaderManager()
   }
 }
 
-KRResource* KRShaderManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRShaderManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("spv") == 0) {
     return load(name, extension, data);
@@ -98,7 +100,7 @@ void KRShaderManager::add(KRShader* shader)
   }
 }
 
-KRShader* KRShaderManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRShader* KRShaderManager::load(const std::string& name, const std::string& extension, Block* data)
 {
   KRShader* shader = new KRShader(getContext(), name, extension, data);
   if (shader) add(shader);
@@ -347,7 +349,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
             break;
           }
           if (!shader_name.empty()) {
-            KRDataBlock* data = new KRDataBlock();
+            Block* data = new Block();
             data->append(static_cast<void*>(spirv.data()), spirv.size() * sizeof(unsigned int));
             KRShader* shader = new KRShader(getContext(), shader_name, "spv", data);
             add(shader);
@@ -393,7 +395,7 @@ glslang::TShader::Includer::IncludeResult* KRShaderManager::Includer::includeLoc
   if (!source) {
     return nullptr;
   }
-  KRDataBlock* data = source->getData();
+  Block* data = source->getData();
   data->lock();
   const char* sourceString = static_cast<const char*>(data->getStart());
   return new IncludeResult(std::string(headerName), sourceString, data->getSize(), static_cast<void*>(data));
@@ -401,6 +403,6 @@ glslang::TShader::Includer::IncludeResult* KRShaderManager::Includer::includeLoc
 
 void KRShaderManager::Includer::releaseInclude(IncludeResult* includeResult)
 {
-  KRDataBlock* data = static_cast<KRDataBlock*>(includeResult->userData);
+  Block* data = static_cast<Block*>(includeResult->userData);
   data->unlock();
 }

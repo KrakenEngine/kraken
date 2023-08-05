@@ -35,6 +35,8 @@
 #include "KRAnimationCurve.h"
 #include "KREngine-common.h"
 
+using namespace mimir;
+
 KRAnimation::KRAnimation(KRContext& context, std::string name) : KRResource(context, name)
 {
   m_auto_play = false;
@@ -61,7 +63,7 @@ void KRAnimation::addLayer(KRAnimationLayer* layer)
   m_layers[layer->getName()] = layer;
 }
 
-bool KRAnimation::save(KRDataBlock& data)
+bool KRAnimation::save(Block& data)
 {
   tinyxml2::XMLDocument doc;
   tinyxml2::XMLElement* animation_node = doc.NewElement("animation");
@@ -82,7 +84,7 @@ bool KRAnimation::save(KRDataBlock& data)
   return true;
 }
 
-KRAnimation* KRAnimation::Load(KRContext& context, const std::string& name, KRDataBlock* data)
+KRAnimation* KRAnimation::Load(KRContext& context, const std::string& name, Block* data)
 {
   std::string xml_string = data->getString();
 

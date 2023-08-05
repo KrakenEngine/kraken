@@ -68,7 +68,7 @@ void KRTextureManager::setMaxAnisotropy(float max_anisotropy)
   m_maxAnisotropy = max_anisotropy;
 }
 
-KRResource* KRTextureManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRTextureManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("pvr") == 0 ||
     extension.compare("ktx") == 0 ||
@@ -95,7 +95,7 @@ KRResource* KRTextureManager::getResource(const std::string& name, const std::st
   return nullptr;
 }
 
-KRTexture* KRTextureManager::loadTexture(const char* szName, const char* szExtension, KRDataBlock* data)
+KRTexture* KRTextureManager::loadTexture(const char* szName, const char* szExtension, Block* data)
 {
   KRTexture* pTexture = NULL;
 

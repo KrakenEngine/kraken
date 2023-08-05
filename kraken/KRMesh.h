@@ -71,7 +71,7 @@ class KRMesh : public KRResource
 public:
   static void parseName(const std::string& name, std::string& lodBaseName, int& lodCoverage);
 
-  KRMesh(KRContext& context, std::string name, KRDataBlock* data);
+  KRMesh(KRContext& context, std::string name, mimir::Block* data);
   KRMesh(KRContext& context, std::string name);
   virtual ~KRMesh();
 
@@ -124,10 +124,10 @@ public:
 
   virtual std::string getExtension();
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
   void LoadData(const mesh_info& mi, bool calculate_normals, bool calculate_tangents);
-  void loadPack(KRDataBlock* data);
+  void loadPack(mimir::Block* data);
 
   void convertToIndexed();
   void optimize();
@@ -160,8 +160,8 @@ public:
     int start_vertex;
     int vertex_count;
     char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
-    vector<KRDataBlock*> vertex_data_blocks;
-    vector<KRDataBlock*> index_data_blocks;
+    vector<mimir::Block*> vertex_data_blocks;
+    vector<mimir::Block*> index_data_blocks;
     // KRMeshManager depends on the address of KRVBOData's being constant
     // after allocation, enforced by deleted copy constructors.
     // As std::vector requires copy constuctors, we wrap these in shared_ptr.
@@ -239,9 +239,9 @@ protected:
   bool m_constant; // TRUE if this should be always loaded and should not be passed through the streamer
 
 private:
-  KRDataBlock* m_pData;
-  KRDataBlock* m_pMetaData;
-  KRDataBlock* m_pIndexBaseData;
+  mimir::Block* m_pData;
+  mimir::Block* m_pMetaData;
+  mimir::Block* m_pIndexBaseData;
 
   void getSubmeshes();
   void getMaterials();

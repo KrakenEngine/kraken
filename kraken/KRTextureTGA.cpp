@@ -70,7 +70,7 @@ typedef struct
 #endif
 
 
-KRTextureTGA::KRTextureTGA(KRContext& context, KRDataBlock* data, std::string name) : KRTexture2D(context, data, name)
+KRTextureTGA::KRTextureTGA(KRContext& context, Block* data, std::string name) : KRTexture2D(context, data, name)
 {
   data->lock();
   TGA_HEADER* pHeader = (TGA_HEADER*)data->getStart();
@@ -329,7 +329,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
 
   m_pData->lock();
 
-  std::list<KRDataBlock *> blocks;
+  std::list<Block *> blocks;
 
   getContext().getTextureManager()->_setActiveTexture(0);
 
@@ -370,7 +370,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
   while(lod_width > 1) {
       GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_WIDTH, &lod_width));
       GLDEBUG(glGetTexLevelParameteriv(GL_TEXTURE_2D, lod_level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &compressed_size));
-      KRDataBlock *new_block = new KRDataBlock();
+      Block *new_block = new Block();
       new_block->expand(compressed_size);
       new_block->lock();
       GLDEBUG(glGetCompressedTexImage(GL_TEXTURE_2D, lod_level, new_block->getStart()));
@@ -390,7 +390,7 @@ KRTexture* KRTextureTGA::compress(bool premultiply_alpha)
   m_pData->unlock();
 
   for(auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
-      KRDataBlock *block = *block_itr;
+      Block *block = *block_itr;
       delete block;
   }
 

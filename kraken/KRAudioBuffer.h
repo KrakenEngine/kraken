@@ -32,7 +32,7 @@
 #pragma once
 
 #include "KREngine-common.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRAudioManager;
 class KRAudioSample;
@@ -56,7 +56,7 @@ private:
   int m_frameCount;
   int m_frameRate;
   int m_bytesPerFrame;
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
 
   KRAudioSample* m_audioSample;
 };

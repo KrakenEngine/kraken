@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRResource.h"
 
 class KRAnimationCurve : public KRResource
@@ -45,8 +45,8 @@ public:
 
   virtual std::string getExtension();
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data);
-  virtual bool load(KRDataBlock* data);
+  virtual bool save(mimir::Block& data);
+  virtual bool load(mimir::Block* data);
 
   float getFrameRate();
   void setFrameRate(float frame_rate);
@@ -59,7 +59,7 @@ public:
   void setValue(int frame_number, float value);
 
 
-  static KRAnimationCurve* Load(KRContext& context, const std::string& name, KRDataBlock* data);
+  static KRAnimationCurve* Load(KRContext& context, const std::string& name, mimir::Block* data);
 
   bool valueChanges(float start_time, float duration);
   bool valueChanges(int start_frame, int frame_count);
@@ -71,7 +71,7 @@ public:
   void _unlockData();
 
 private:
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
 
   typedef struct
   {

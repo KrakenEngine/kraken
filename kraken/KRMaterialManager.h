@@ -49,10 +49,10 @@ public:
   KRMaterialManager(KRContext& context, KRTextureManager* pTextureManager, KRPipelineManager* pPipelineManager);
   virtual ~KRMaterialManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  KRMaterial* load(const char* szName, KRDataBlock* data);
+  KRMaterial* load(const char* szName, mimir::Block* data);
   void add(KRMaterial* new_material);
   KRMaterial* getMaterial(const std::string& name);
 

@@ -82,7 +82,7 @@ void KRAnimationManager::endFrame(float deltaTime)
 
 }
 
-KRResource* KRAnimationManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRAnimationManager::loadResource(const std::string& name, const std::string& extension, mimir::Block* data)
 {
   if (extension.compare("kranimation") == 0) {
     return loadAnimation(name.c_str(), data);
@@ -97,7 +97,7 @@ KRResource* KRAnimationManager::getResource(const std::string& name, const std::
   return nullptr;
 }
 
-KRAnimation* KRAnimationManager::loadAnimation(const char* szName, KRDataBlock* data)
+KRAnimation* KRAnimationManager::loadAnimation(const char* szName, mimir::Block* data)
 {
   KRAnimation* pAnimation = KRAnimation::Load(*m_pContext, szName, data);
   addAnimation(pAnimation);

@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRResource.h"
 
 class KRAudioBuffer;
@@ -43,12 +43,12 @@ class KRAudioSample : public KRResource
 
 public:
   KRAudioSample(KRContext& context, std::string name, std::string extension);
-  KRAudioSample(KRContext& context, std::string name, std::string extension, KRDataBlock* data);
+  KRAudioSample(KRContext& context, std::string name, std::string extension, mimir::Block* data);
   virtual ~KRAudioSample();
 
   virtual std::string getExtension();
 
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
   float getDuration();
   KRAudioBuffer* getBuffer(int index);
@@ -66,7 +66,7 @@ private:
   __int64_t m_last_frame_used;
 
   std::string m_extension;
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
 
 #ifdef __APPLE__
   // Apple Audio Toolbox

@@ -33,6 +33,8 @@
 #include "KRTexture2D.h"
 #include "KRContext.h"
 
+using namespace mimir;
+
 KRTextureCube::KRTextureCube(KRContext& context, std::string name) : KRTexture(context, name)
 {
 
@@ -163,7 +165,7 @@ bool KRTextureCube::save(const std::string& path)
   return true; // Cube maps are just references; there are no files to output
 }
 
-bool KRTextureCube::save(KRDataBlock& data)
+bool KRTextureCube::save(Block& data)
 {
   return true; // Cube maps are just references; there are no files to output
 }

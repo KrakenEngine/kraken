@@ -31,14 +31,16 @@
 
 #include "KRAudioSample.h"
 #include "KRAudioManager.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
 #include "KRDSP.h"
 
+using namespace mimir;
+
 KRAudioSample::KRAudioSample(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_extension = extension;
 
 #ifdef __APPLE__
@@ -54,7 +56,7 @@ KRAudioSample::KRAudioSample(KRContext& context, std::string name, std::string e
   m_last_frame_used = 0;
 }
 
-KRAudioSample::KRAudioSample(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
+KRAudioSample::KRAudioSample(KRContext& context, std::string name, std::string extension, Block* data) : KRResource(context, name)
 {
   m_pData = data;
   m_extension = extension;
@@ -329,7 +331,7 @@ std::string KRAudioSample::getExtension()
   return m_extension;
 }
 
-bool KRAudioSample::save(KRDataBlock& data)
+bool KRAudioSample::save(Block& data)
 {
   data.append(*m_pData);
   return true;

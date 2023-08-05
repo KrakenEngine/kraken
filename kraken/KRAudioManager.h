@@ -36,7 +36,7 @@
 #include "KRResourceManager.h"
 
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRAudioSource.h"
 #include "KRDSP.h"
 
@@ -100,14 +100,14 @@ public:
   virtual ~KRAudioManager();
   void destroy();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   unordered_map<std::string, KRAudioSample*>& getSounds();
 
   void add(KRAudioSample* Sound);
 
-  KRAudioSample* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRAudioSample* load(const std::string& name, const std::string& extension, mimir::Block* data);
   KRAudioSample* get(const std::string& name);
 
   // Listener position and orientation
@@ -132,8 +132,8 @@ public:
 
   void makeCurrentContext();
 
-  KRDataBlock* getBufferData(int size);
-  void recycleBufferData(KRDataBlock* data);
+  mimir::Block* getBufferData(int size);
+  void recycleBufferData(mimir::Block* data);
 
   void activateAudioSource(KRAudioSource* audioSource);
   void deactivateAudioSource(KRAudioSource* audioSource);
@@ -180,7 +180,7 @@ private:
 
   unordered_map<std::string, KRAudioSample*> m_sounds;
 
-  std::vector<KRDataBlock*> m_bufferPoolIdle;
+  std::vector<mimir::Block*> m_bufferPoolIdle;
 
   std::vector<KRAudioBuffer*> m_bufferCache;
 

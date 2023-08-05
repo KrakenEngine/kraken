@@ -48,6 +48,8 @@
 #include <windows.h>
 #endif
 
+using namespace mimir;
+
  // TODO - Make values dynamic after Vulkan conversion:
 int KRContext::KRENGINE_MAX_PIPELINE_HANDLES = 4000;
 int KRContext::KRENGINE_GPU_MEM_MAX = 256000000;
@@ -325,7 +327,7 @@ std::vector<KRResource*> KRContext::getResources()
   return resources;
 }
 
-KRResource* KRContext::loadResource(const std::string& file_name, KRDataBlock* data)
+KRResource* KRContext::loadResource(const std::string& file_name, Block* data)
 {
   std::string name = KRResource::GetFileBase(file_name);
   std::string extension = KRResource::GetFileExtension(file_name);
@@ -394,7 +396,7 @@ KrResult KRContext::loadResource(const KrLoadResourceInfo* loadResourceInfo)
   if (loadResourceInfo->resourceHandle < 0 || loadResourceInfo->resourceHandle >= m_resourceMapSize) {
     return KR_ERROR_OUT_OF_BOUNDS;
   }
-  KRDataBlock* data = new KRDataBlock();
+  Block* data = new Block();
   if (!data->load(loadResourceInfo->pResourcePath)) {
     KRContext::Log(KRContext::LOG_LEVEL_ERROR, "KRContext::loadResource - Failed to open file: %s", loadResourceInfo->pResourcePath);
     delete data;
@@ -457,7 +459,7 @@ KrResult KRContext::unmapResource(const KrUnmapResourceInfo* unmapResourceInfo)
 KrResult KRContext::getResourceData(const KrGetResourceDataInfo* getResourceDataInfo, KrGetResourceDataCallback callback)
 {
   // TODO - This will be asynchronous...  The function will always succeed, but the asynchronous result could report a failure
-  KRDataBlock data;
+  Block data;
   KrGetResourceDataResult result = {};
 
   KRResource* resource = nullptr;

@@ -1,5 +1,5 @@
 //
-//  KRDataBlock.cpp
+//  block.cpp
 //  Kraken Engine
 //
 //  Copyright 2023 Kearwood Gilbert. All rights reserved.
@@ -29,7 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KREngine-common.h"
 #include "KRResource.h"
 #include "KRContext.h"
@@ -40,6 +40,7 @@
 #include <sys/mman.h>
 #endif
 
+#define KRENGINE_MIN_MMAP 32768
 #define KRAKEN_MEM_ROUND_DOWN_PAGE(x) ((x) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1))
 #define KRAKEN_MEM_ROUND_UP_PAGE(x) ((((x) - 1) & ~(KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY - 1)) + KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY)
 
@@ -47,7 +48,9 @@ int m_mapCount = 0;
 size_t m_mapSize = 0;
 size_t m_mapOverhead = 0;
 
-KRDataBlock::KRDataBlock()
+namespace mimir {
+
+Block::Block()
 {
   m_data = NULL;
   m_data_size = 0;
@@ -66,7 +69,7 @@ KRDataBlock::KRDataBlock()
   m_bReadOnly = false;
 }
 
-KRDataBlock::KRDataBlock(void* data, size_t size)
+Block::Block(void* data, size_t size)
 {
   m_data = NULL;
   m_data_size = 0;
@@ -86,13 +89,13 @@ KRDataBlock::KRDataBlock(void* data, size_t size)
   load(data, size);
 }
 
-KRDataBlock::~KRDataBlock()
+Block::~Block()
 {
   unload();
 }
 
 // Unload a file, releasing any mmap'ed file handles or malloc'ed ram that was in use
-void KRDataBlock::unload()
+void Block::unload()
 {
   assert(m_lockCount == 0);
 
@@ -130,7 +133,7 @@ void KRDataBlock::unload()
 }
 
 // Encapsulate a pointer.  Note - The pointer will not be free'ed
-bool KRDataBlock::load(void* data, size_t size)
+bool Block::load(void* data, size_t size)
 {
   unload();
   m_data = data;
@@ -141,7 +144,7 @@ bool KRDataBlock::load(void* data, size_t size)
 }
 
 // Load a file into memory using mmap.  The data pointer will be protected as read-only until append() or expand() is called
-bool KRDataBlock::load(const std::string& path)
+bool Block::load(const std::string& path)
 {
   bool success = false;
   unload();
@@ -180,10 +183,10 @@ bool KRDataBlock::load(const std::string& path)
   return success;
 }
 
-// Create a KRDataBlock encapsulating a sub-region of this block.  The caller is responsible to free the object.
-KRDataBlock* KRDataBlock::getSubBlock(int start, int length)
+// Create a Block encapsulating a sub-region of this block.  The caller is responsible to free the object.
+Block* Block::getSubBlock(int start, int length)
 {
-  KRDataBlock* new_block = new KRDataBlock();
+  Block* new_block = new Block();
 
   new_block->m_data_size = length;
 #if defined(_WIN32) || defined(_WIN64)
@@ -206,27 +209,27 @@ KRDataBlock* KRDataBlock::getSubBlock(int start, int length)
 }
 
 // Return a pointer to the start of the data block
-void* KRDataBlock::getStart()
+void* Block::getStart()
 {
   assertLocked();
   return m_data;
 }
 
 // Return a pointer to the byte after the end of the data block
-void* KRDataBlock::getEnd()
+void* Block::getEnd()
 {
   assertLocked();
   return (unsigned char*)m_data + m_data_size;
 }
 
 // Return the size of the data block.  Use append() or expand() to make the data block larger
-size_t KRDataBlock::getSize() const
+size_t Block::getSize() const
 {
   return m_data_size;
 }
 
 // Expand the data block, and switch it to read-write mode.  Note - this may result in a mmap'ed file being copied to malloc'ed ram and then closed
-void KRDataBlock::expand(size_t size)
+void Block::expand(size_t size)
 {
 #if defined(_WIN32) || defined(_WIN64)
   if (m_data == NULL && m_hPackFile == INVALID_HANDLE_VALUE) {
@@ -265,7 +268,7 @@ void KRDataBlock::expand(size_t size)
 }
 
 // Append data to the end of the block, increasing the size of the block and making it read-write.
-void KRDataBlock::append(void* data, size_t size)
+void Block::append(void* data, size_t size)
 {
   // Expand the data block
   expand(size);
@@ -278,13 +281,13 @@ void KRDataBlock::append(void* data, size_t size)
 
 
 // Copy the entire data block to the destination pointer
-void KRDataBlock::copy(void* dest)
+void Block::copy(void* dest)
 {
   copy(dest, 0, (int)m_data_size);
 }
 
 // Copy a range of data to the destination pointer
-void KRDataBlock::copy(void* dest, int start, int count)
+void Block::copy(void* dest, int start, int count)
 {
 #if defined(_WIN32) || defined(_WIN64)
   if (m_lockCount == 0 && m_hPackFile != INVALID_HANDLE_VALUE) {
@@ -321,7 +324,7 @@ void KRDataBlock::copy(void* dest, int start, int count)
 }
 
 // Append data to the end of the block, increasing the size of the block and making it read-write.
-void KRDataBlock::append(KRDataBlock & data)
+void Block::append(Block & data)
 {
   data.lock();
   append(data.getStart(), data.getSize());
@@ -329,7 +332,7 @@ void KRDataBlock::append(KRDataBlock & data)
 }
 
 // Append string to the end of the block, increasing the size of the block and making it read-write.  The resulting datablock includes a terminating character
-void KRDataBlock::append(const std::string & s)
+void Block::append(const std::string & s)
 {
   const char* szText = s.c_str();
   size_t text_length = strlen(szText);
@@ -349,7 +352,7 @@ void KRDataBlock::append(const std::string & s)
 }
 
 // Save the data to a file.
-bool KRDataBlock::save(const std::string & path)
+bool Block::save(const std::string & path)
 {
 #if defined(_WIN32) || defined(_WIN64)
   bool success = true;
@@ -429,9 +432,9 @@ bool KRDataBlock::save(const std::string & path)
 }
 
 // Get contents as a string
-std::string KRDataBlock::getString()
+std::string Block::getString()
 {
-  KRDataBlock b;
+  Block b;
   b.append(*this);
   b.append((void*)"\0", 1); // Ensure data is null terminated, to read as a string safely
   b.lock();
@@ -471,7 +474,7 @@ void ReportWindowsLastError(LPCTSTR lpszFunction)
 #endif
 
 // Lock the memory, forcing it to be loaded into a contiguous block of address space
-void KRDataBlock::lock()
+void Block::lock()
 {
   if (m_lockCount == 0) {
 
@@ -503,7 +506,7 @@ void KRDataBlock::lock()
       }
       assert(m_mmapData != NULL);
 #elif defined(__APPLE__) || defined(ANDROID)
-      //fprintf(stderr, "KRDataBlock::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+      //fprintf(stderr, "Block::lock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
       // Round m_data_offset down to the next memory page, as required by mmap
 
       if ((m_mmapData = mmap(0, m_data_size + alignment_offset, m_bReadOnly ? PROT_READ : PROT_WRITE, MAP_SHARED, m_fdPackFile, m_data_offset - alignment_offset)) == (caddr_t)-1) {
@@ -551,7 +554,7 @@ m_lockCount++;
 }
 
 // Unlock the memory, releasing the address space for use by other allocations
-void KRDataBlock::unlock()
+void Block::unlock()
 {
   // We expect that the data block was previously locked
   assertLocked();
@@ -571,7 +574,7 @@ void KRDataBlock::unlock()
       free(m_data);
       m_data = NULL;
     } else {
-      //fprintf(stderr, "KRDataBlock::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
+      //fprintf(stderr, "Block::unlock - \"%s\" (%i)\n", m_fileOwnerDataBlock->m_fileName.c_str(), m_lockCount);
 #if defined(_WIN32) || defined(_WIN64)
       if (m_mmapData != NULL) {
         UnmapViewOfFile(m_mmapData);
@@ -599,7 +602,9 @@ m_lockCount--;
 }
 
 // Assert if not locked
-void KRDataBlock::assertLocked()
+void Block::assertLocked()
 {
   assert(m_lockCount > 0);
 }
+
+} // namespace mimir

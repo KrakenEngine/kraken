@@ -33,11 +33,13 @@
 
 #include "KRTexture2D.h"
 
+using namespace mimir;
+
 class KRTextureKTX : public KRTexture2D
 {
 public:
-  KRTextureKTX(KRContext& context, KRDataBlock* data, std::string name);
-  KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks);
+  KRTextureKTX(KRContext& context, Block* data, std::string name);
+  KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<Block*>& blocks);
   virtual ~KRTextureKTX();
   virtual std::string getExtension();
 
@@ -50,7 +52,7 @@ public:
 
 protected:
 
-  std::list<KRDataBlock*> m_blocks;
+  std::list<Block*> m_blocks;
 
   typedef struct _KTXHeader
   {

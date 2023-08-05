@@ -46,7 +46,7 @@ KRBundleManager::~KRBundleManager()
   m_bundles.clear();
 }
 
-KRResource* KRBundleManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRBundleManager::loadResource(const std::string& name, const std::string& extension, mimir::Block* data)
 {
   if (extension.compare("krbundle") == 0) {
     return loadBundle(name.c_str(), data);
@@ -61,7 +61,7 @@ KRResource* KRBundleManager::getResource(const std::string& name, const std::str
   return nullptr;
 }
 
-KRBundle* KRBundleManager::loadBundle(const char* szName, KRDataBlock* pData)
+KRBundle* KRBundleManager::loadBundle(const char* szName, mimir::Block* pData)
 {
   KRBundle* pBundle = new KRBundle(*m_pContext, szName, pData);
   m_bundles[szName] = pBundle;

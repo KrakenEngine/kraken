@@ -31,7 +31,7 @@
 
 #include "KREngine-common.h"
 #include "KRTexture.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRContext.h"
 #include "KRTextureManager.h"
 

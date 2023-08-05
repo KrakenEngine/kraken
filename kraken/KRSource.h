@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRResource.h"
 
 class KRSource : public KRResource
@@ -41,17 +41,17 @@ class KRSource : public KRResource
 
 public:
   KRSource(KRContext& context, std::string name, std::string extension);
-  KRSource(KRContext& context, std::string name, std::string extension, KRDataBlock* data);
+  KRSource(KRContext& context, std::string name, std::string extension, mimir::Block* data);
   virtual ~KRSource();
 
   virtual std::string getExtension();
 
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
-  KRDataBlock* getData();
+  mimir::Block* getData();
 
 private:
 
   std::string m_extension;
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
 };

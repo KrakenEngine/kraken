@@ -32,11 +32,13 @@
 #include "KRAudioManager.h"
 #include "KRAudioSample.h"
 #include "KREngine-common.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
 #include "KRCollider.h"
 #include "KRDSP.h"
+
+using namespace mimir;
 
 KRAudioManager::KRAudioManager(KRContext& context)
   : KRResourceManager(context)
@@ -1199,7 +1201,7 @@ void KRAudioManager::destroy()
 
   cleanupAudio();
 
-  for (std::vector<KRDataBlock*>::iterator itr = m_bufferPoolIdle.begin(); itr != m_bufferPoolIdle.end(); itr++) {
+  for (std::vector<Block*>::iterator itr = m_bufferPoolIdle.begin(); itr != m_bufferPoolIdle.end(); itr++) {
     delete* itr;
   }
   m_bufferPoolIdle.clear();
@@ -1257,7 +1259,7 @@ void KRAudioManager::add(KRAudioSample* sound)
   }
 }
 
-KRResource* KRAudioManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRAudioManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("mtl") == 0 ||
       extension.compare("mp3") == 0 ||
@@ -1276,7 +1278,7 @@ KRResource* KRAudioManager::getResource(const std::string& name, const std::stri
   return nullptr;
 }
 
-KRAudioSample* KRAudioManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRAudioSample* KRAudioManager::load(const std::string& name, const std::string& extension, Block* data)
 {
   KRAudioSample* Sound = new KRAudioSample(getContext(), name, extension, data);
   if (Sound) add(Sound);
@@ -1290,23 +1292,23 @@ KRAudioSample* KRAudioManager::get(const std::string& name)
   return m_sounds[lower_name];
 }
 
-KRDataBlock* KRAudioManager::getBufferData(int size)
+Block* KRAudioManager::getBufferData(int size)
 {
-  KRDataBlock* data;
+  Block* data;
   // Note: We only store and recycle buffers with a size of CIRCA_AUDIO_MAX_BUFFER_SIZE
   if (size == KRENGINE_AUDIO_MAX_BUFFER_SIZE && m_bufferPoolIdle.size() > 0) {
     // Recycle a buffer from the pool
     data = m_bufferPoolIdle.back();
     m_bufferPoolIdle.pop_back();
   } else {
-    data = new KRDataBlock();
+    data = new Block();
     data->expand(size);
   }
   data->lock();
   return data;
 }
 
-void KRAudioManager::recycleBufferData(KRDataBlock* data)
+void KRAudioManager::recycleBufferData(Block* data)
 {
   if (data != NULL) {
     data->unlock();

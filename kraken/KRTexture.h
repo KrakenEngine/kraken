@@ -35,7 +35,9 @@
 #include "KRContextObject.h"
 #include "KRResource.h"
 
-class KRDataBlock;
+namespace mimir {
+  class Block;
+}
 class KRCamera;
 class KRDeviceManager;
 class KRDevice;

@@ -40,6 +40,8 @@
 #include "KRPointLight.h"
 #include "KRAudioManager.h"
 
+using namespace mimir;
+
 const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
 
 KRScene::KRScene(KRContext& context, std::string name) : KRResource(context, name)
@@ -383,7 +385,7 @@ KRNode* KRScene::getRootNode()
   return m_pRootNode;
 }
 
-bool KRScene::save(KRDataBlock& data)
+bool KRScene::save(Block& data)
 {
   tinyxml2::XMLDocument doc;
   tinyxml2::XMLElement* scene_node = doc.NewElement("scene");
@@ -397,7 +399,7 @@ bool KRScene::save(KRDataBlock& data)
   return true;
 }
 
-KRScene* KRScene::Load(KRContext& context, const std::string& name, KRDataBlock* data)
+KRScene* KRScene::Load(KRContext& context, const std::string& name, Block* data)
 {
   std::string xml_string = data->getString();
   delete data;

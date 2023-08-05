@@ -42,7 +42,7 @@ public:
   virtual ~KRTextureCube();
   virtual std::string getExtension();
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
   virtual long getMemRequiredForSize(int max_dim);
   virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);

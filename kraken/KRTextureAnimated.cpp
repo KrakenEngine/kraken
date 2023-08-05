@@ -143,7 +143,7 @@ bool KRTextureAnimated::save(const std::string& path)
   return true; // Animated textures are just references; there are no files to output
 }
 
-bool KRTextureAnimated::save(KRDataBlock& data)
+bool KRTextureAnimated::save(Block& data)
 {
   return true; // Animated textures are just references; there are no files to output
 }

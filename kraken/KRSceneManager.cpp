@@ -32,6 +32,8 @@
 #include "KRSceneManager.h"
 #include "KRScene.h"
 
+using namespace mimir;
+
 KRSceneManager::KRSceneManager(KRContext& context) : KRResourceManager(context)
 {}
 
@@ -43,7 +45,7 @@ KRSceneManager::~KRSceneManager()
   m_scenes.clear();
 }
 
-KRResource* KRSceneManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRSceneManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("krscene") == 0) {
     return loadScene(name, data);
@@ -59,7 +61,7 @@ KRResource* KRSceneManager::getResource(const std::string& name, const std::stri
   return nullptr;
 }
 
-KRScene* KRSceneManager::loadScene(const std::string& name, KRDataBlock* data)
+KRScene* KRSceneManager::loadScene(const std::string& name, Block* data)
 {
   std::lock_guard<std::mutex> lock(m_mutex);
   std::string lowerName = name;

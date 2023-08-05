@@ -32,21 +32,21 @@
 
 #include "KREngine-common.h"
 #include "KRResource.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRBundle : public KRResource
 {
 public:
-  KRBundle(KRContext& context, std::string name, KRDataBlock* pData);
+  KRBundle(KRContext& context, std::string name, mimir::Block* pData);
   KRBundle(KRContext& context, std::string name);
   virtual ~KRBundle();
   virtual std::string getExtension();
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
-  KRDataBlock* append(KRResource& resource);
+  mimir::Block* append(KRResource& resource);
 
 private:
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
   static size_t RoundUpSize(size_t s);
 };

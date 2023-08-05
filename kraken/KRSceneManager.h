@@ -35,7 +35,7 @@
 
 #include "KRResourceManager.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRScene;
 
@@ -45,13 +45,13 @@ public:
   KRSceneManager(KRContext& context);
   virtual ~KRSceneManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   KRScene* createScene(const std::string& name);
 
   void add(KRScene* scene);
-  KRScene* loadScene(const std::string& name, KRDataBlock* data);
+  KRScene* loadScene(const std::string& name, mimir::Block* data);
 
   KRScene* getScene(const std::string& name);
   KRScene* getFirstScene();

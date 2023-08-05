@@ -32,6 +32,8 @@
 #include "KRDevice.h"
 #include "KRDeviceManager.h"
 
+using namespace mimir;
+
 KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   : KRContextObject(context)
   , m_device(device)
@@ -713,14 +715,14 @@ void KRDevice::streamStart()
   }
 }
 
-void KRDevice::streamUpload(KRDataBlock& data, VkBuffer destination)
+void KRDevice::streamUpload(Block& data, VkBuffer destination)
 {
   data.lock();
   streamUpload(data.getStart(), data.getSize(), destination);
   data.unlock();
 }
 
-void KRDevice::graphicsUpload(VkCommandBuffer& commandBuffer, KRDataBlock& data, VkBuffer destination)
+void KRDevice::graphicsUpload(VkCommandBuffer& commandBuffer, Block& data, VkBuffer destination)
 {
   data.lock();
   graphicsUpload(commandBuffer, data.getStart(), data.getSize(), destination);
@@ -779,7 +781,7 @@ void KRDevice::streamUpload(void* data, size_t size, Vector3i dimensions, VkImag
   streamUploadImpl(size, dimensions, destination, 0, 1);
 }
 
-void KRDevice::streamUpload(KRDataBlock& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount)
+void KRDevice::streamUpload(Block& data, VkImage destination, size_t offset, size_t size, Vector3i dimensions, uint32_t baseMipLevel, uint32_t levelCount)
 {
   checkFlushStreamBuffer(size);
 

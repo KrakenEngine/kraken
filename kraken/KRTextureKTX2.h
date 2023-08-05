@@ -36,7 +36,7 @@
 class KRTextureKTX2 : public KRTexture2D
 {
 public:
-  KRTextureKTX2(KRContext& context, KRDataBlock* data, std::string name);
+  KRTextureKTX2(KRContext& context, mimir::Block* data, std::string name);
   virtual ~KRTextureKTX2();
   virtual std::string getExtension();
 

@@ -38,7 +38,7 @@ __uint8_t _KTXFileIdentifier[12] = {
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
 
-KRTextureKTX::KRTextureKTX(KRContext& context, KRDataBlock* data, std::string name) : KRTexture2D(context, data, name)
+KRTextureKTX::KRTextureKTX(KRContext& context, Block* data, std::string name) : KRTexture2D(context, data, name)
 {
   m_pData->copy(&m_header, 0, sizeof(KTXHeader));
   if (memcmp(_KTXFileIdentifier, m_header.identifier, 12) != 0) {
@@ -84,7 +84,7 @@ KRTextureKTX::KRTextureKTX(KRContext& context, KRDataBlock* data, std::string na
   m_min_lod_max_dim = KRMAX(width, height);
 }
 
-KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<KRDataBlock*>& blocks) : KRTexture2D(context, new KRDataBlock(), name)
+KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<Block*>& blocks) : KRTexture2D(context, new Block(), name)
 {
   memcpy(m_header.identifier, _KTXFileIdentifier, 12);
   m_header.endianness = 0x04030201;
@@ -103,7 +103,7 @@ KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int in
 
   m_pData->append(&m_header, sizeof(m_header));
   for (auto block_itr = blocks.begin(); block_itr != blocks.end(); block_itr++) {
-    KRDataBlock* source_block = *block_itr;
+    Block* source_block = *block_itr;
     __uint32_t block_size = (__uint32_t)source_block->getSize();
     m_pData->append(&block_size, 4);
     m_pData->append(*source_block);
@@ -118,8 +118,8 @@ KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int in
 
 KRTextureKTX::~KRTextureKTX()
 {
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     delete block;
   }
   m_blocks.clear();
@@ -370,8 +370,8 @@ long KRTextureKTX::getMemRequiredForSize(int max_dim)
   int height = m_header.pixelHeight;
   long memoryRequired = 0;
 
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     if (width <= target_dim && height <= target_dim) {
       memoryRequired += (long)block->getSize();
     }
@@ -408,8 +408,8 @@ bool KRTextureKTX::uploadTexture(KRDevice& device, VkImage& image, int lod_max_d
   // Upload texture data
   int destination_level = 0;
   int source_level = 0;
-  for (std::list<KRDataBlock*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
-    KRDataBlock* block = *itr;
+  for (std::list<Block*>::iterator itr = m_blocks.begin(); itr != m_blocks.end(); itr++) {
+    Block* block = *itr;
     if (width <= target_dim && height <= target_dim) {
 
       if (width > current_lod_max_dim) {

@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRBundle;
 class KRScene;
@@ -44,7 +44,7 @@ public:
   std::string getName();
   virtual std::string getExtension() = 0;
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data) = 0;
+  virtual bool save(mimir::Block& data) = 0;
 
   KrResult moveToBundle(KRBundle* bundle);
 

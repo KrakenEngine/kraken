@@ -34,6 +34,8 @@
 #include "KRTexture.h"
 #include "KRTexture2D.h"
 
+using namespace mimir;
+
 class KRTextureAnimated : public KRTexture
 {
 public:
@@ -41,7 +43,7 @@ public:
   virtual ~KRTextureAnimated();
   virtual std::string getExtension();
   virtual bool save(const std::string& path);
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(Block& data);
 
   virtual long getMemRequiredForSize(int max_dim);
   virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);

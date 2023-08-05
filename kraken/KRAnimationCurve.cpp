@@ -31,11 +31,13 @@
 
 #include "KRContext.h"
 #include "KRAnimationCurve.h"
-#include "KRDataBlock.h"
+#include "block.h"
+
+using namespace mimir;
 
 KRAnimationCurve::KRAnimationCurve(KRContext& context, const std::string& name) : KRResource(context, name)
 {
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_pData->expand(sizeof(animation_curve_header));
   m_pData->lock();
   animation_curve_header* header = (animation_curve_header*)m_pData->getStart();
@@ -51,7 +53,7 @@ KRAnimationCurve::~KRAnimationCurve()
   m_pData->unload();
   delete m_pData;
 }
-bool KRAnimationCurve::load(KRDataBlock* data)
+bool KRAnimationCurve::load(Block* data)
 {
   m_pData->unload();
   delete m_pData;
@@ -69,13 +71,13 @@ bool KRAnimationCurve::save(const std::string& path)
   return m_pData->save(path);
 }
 
-bool KRAnimationCurve::save(KRDataBlock& data)
+bool KRAnimationCurve::save(Block& data)
 {
   data.append(*m_pData);
   return true;
 }
 
-KRAnimationCurve* KRAnimationCurve::Load(KRContext& context, const std::string& name, KRDataBlock* data)
+KRAnimationCurve* KRAnimationCurve::Load(KRContext& context, const std::string& name, Block* data)
 {
   KRAnimationCurve* new_animation_curve = new KRAnimationCurve(context, name);
   if (new_animation_curve->load(data)) {

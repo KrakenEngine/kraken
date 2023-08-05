@@ -32,6 +32,8 @@
 #include "KREngine-common.h"
 #include "KRMaterialManager.h"
 
+using namespace mimir;
+
 
 KRMaterialManager::KRMaterialManager(KRContext& context, KRTextureManager* pTextureManager, KRPipelineManager* pPipelineManager) : KRResourceManager(context)
 {
@@ -44,7 +46,7 @@ KRMaterialManager::~KRMaterialManager()
 
 }
 
-KRResource* KRMaterialManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRMaterialManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("mtl") == 0) {
     return load(name.c_str(), data);
@@ -95,7 +97,7 @@ void KRMaterialManager::add(KRMaterial* new_material)
   m_materials[lowerName] = new_material;
 }
 
-KRMaterial* KRMaterialManager::load(const char* szName, KRDataBlock* data)
+KRMaterial* KRMaterialManager::load(const char* szName, Block* data)
 {
   KRMaterial* pMaterial = NULL;
   char szSymbol[16][256];

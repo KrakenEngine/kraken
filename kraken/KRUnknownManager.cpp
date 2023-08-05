@@ -32,6 +32,8 @@
 #include "KRUnknownManager.h"
 #include "KREngine-common.h"
 
+using namespace mimir;
+
 KRUnknownManager::KRUnknownManager(KRContext& context) : KRResourceManager(context)
 {
 
@@ -75,7 +77,7 @@ void KRUnknownManager::add(KRUnknown* unknown)
 }
 
 
-KRResource* KRUnknownManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRUnknownManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   // KRUnknown's can have any extension
   return load(name, extension, data);
@@ -87,7 +89,7 @@ KRResource* KRUnknownManager::getResource(const std::string& name, const std::st
   return get(name, extension);
 }
 
-KRUnknown* KRUnknownManager::load(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRUnknown* KRUnknownManager::load(const std::string& name, const std::string& extension, Block* data)
 {
   KRUnknown* unknown = new KRUnknown(getContext(), name, extension, data);
   if (unknown) add(unknown);

@@ -31,13 +31,15 @@
 
 #include "KRSource.h"
 
+using namespace mimir;
+
 KRSource::KRSource(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
-  m_pData = new KRDataBlock();
+  m_pData = new Block();
   m_extension = extension;
 }
 
-KRSource::KRSource(KRContext& context, std::string name, std::string extension, KRDataBlock* data) : KRResource(context, name)
+KRSource::KRSource(KRContext& context, std::string name, std::string extension, Block* data) : KRResource(context, name)
 {
   m_pData = data;
   m_extension = extension;
@@ -53,13 +55,13 @@ std::string KRSource::getExtension()
   return m_extension;
 }
 
-bool KRSource::save(KRDataBlock& data)
+bool KRSource::save(Block& data)
 {
   data.append(*m_pData);
   return true;
 }
 
-KRDataBlock* KRSource::getData()
+Block* KRSource::getData()
 {
   return m_pData;
 }

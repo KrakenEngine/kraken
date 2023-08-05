@@ -36,6 +36,8 @@
 
 #include "KRContext.h"
 
+using namespace mimir;
+
 KRMaterial::KRMaterial(KRContext& context, const char* szName) : KRResource(context, szName)
 {
   m_name = szName;
@@ -83,7 +85,7 @@ bool KRMaterial::needsVertexTangents()
   return m_normalMap.size() > 0;
 }
 
-bool KRMaterial::save(KRDataBlock& data)
+bool KRMaterial::save(Block& data)
 {
   std::stringstream stream;
   stream.precision(std::numeric_limits<long double>::digits10);

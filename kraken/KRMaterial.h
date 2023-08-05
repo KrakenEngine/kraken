@@ -65,7 +65,7 @@ public:
   virtual ~KRMaterial();
 
   virtual std::string getExtension();
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
 
   void setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);

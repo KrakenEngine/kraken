@@ -37,7 +37,7 @@
 
 #include "KRAnimation.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 
 
@@ -47,10 +47,10 @@ public:
   KRAnimationManager(KRContext& context);
   virtual ~KRAnimationManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  KRAnimation* loadAnimation(const char* szName, KRDataBlock* data);
+  KRAnimation* loadAnimation(const char* szName, mimir::Block* data);
   KRAnimation* getAnimation(const char* szName);
   void addAnimation(KRAnimation* new_animation);
   unordered_map<std::string, KRAnimation*>& getAnimations();

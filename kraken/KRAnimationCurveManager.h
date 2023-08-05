@@ -37,7 +37,7 @@
 
 #include "KRAnimationCurve.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 using std::map;
 
@@ -47,10 +47,10 @@ public:
   KRAnimationCurveManager(KRContext& context);
   virtual ~KRAnimationCurveManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  KRAnimationCurve* loadAnimationCurve(const std::string& name, KRDataBlock* data);
+  KRAnimationCurve* loadAnimationCurve(const std::string& name, mimir::Block* data);
   KRAnimationCurve* getAnimationCurve(const std::string& name);
   void addAnimationCurve(KRAnimationCurve* new_animation_curve);
   unordered_map<std::string, KRAnimationCurve*>& getAnimationCurves();

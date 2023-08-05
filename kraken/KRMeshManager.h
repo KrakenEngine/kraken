@@ -35,7 +35,7 @@
 
 #include "KRResourceManager.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRNode.h"
 
 class KRContext;
@@ -51,13 +51,13 @@ public:
   void init();
   virtual ~KRMeshManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   void startFrame(float deltaTime);
   void endFrame(float deltaTime);
 
-  KRMesh* loadModel(const char* szName, KRDataBlock* pData);
+  KRMesh* loadModel(const char* szName, mimir::Block* pData);
   std::vector<KRMesh*> getModel(const char* szName);
   KRMesh* getMaxLODModel(const char* szName);
   void addModel(KRMesh* model);
@@ -84,12 +84,12 @@ public:
     } vbo_type;
 
     KRVBOData();
-    KRVBOData(KRMeshManager* manager, KRDataBlock* data, KRDataBlock* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+    KRVBOData(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
         , const char* debug_label
 #endif
     );
-    void init(KRMeshManager* manager, KRDataBlock* data, KRDataBlock* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+    void init(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
       , const char* debug_label
 #endif
@@ -97,8 +97,8 @@ public:
     ~KRVBOData();
 
 
-    KRDataBlock* m_data;
-    KRDataBlock* m_index_data;
+    mimir::Block* m_data;
+    mimir::Block* m_index_data;
 
     bool isVBOLoaded()
     {
@@ -211,9 +211,9 @@ public:
   void doStreaming(long& memoryRemaining, long& memoryRemainingThisFrame);
 
 private:
-  KRDataBlock KRENGINE_VBO_3D_CUBE_VERTICES;
+  mimir::Block KRENGINE_VBO_3D_CUBE_VERTICES;
   __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
-  KRDataBlock KRENGINE_VBO_2D_SQUARE_VERTICES;
+  mimir::Block KRENGINE_VBO_2D_SQUARE_VERTICES;
   __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
 
   unordered_multimap<std::string, KRMesh*> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
@@ -221,12 +221,12 @@ private:
   long m_vboMemUsed;
   KRVBOData* m_currentVBO;
 
-  unordered_map<KRDataBlock*, KRVBOData*> m_vbosActive;
+  unordered_map<mimir::Block*, KRVBOData*> m_vbosActive;
   std::vector<std::pair<float, KRVBOData*> > m_activeVBOs_streamer;
   std::vector<std::pair<float, KRVBOData*> > m_activeVBOs_streamer_copy;
 
-  KRDataBlock m_randomParticleVertexData;
-  KRDataBlock m_volumetricLightingVertexData;
+  mimir::Block m_randomParticleVertexData;
+  mimir::Block m_volumetricLightingVertexData;
 
   long m_memoryTransferredThisFrame;
 

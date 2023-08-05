@@ -111,7 +111,7 @@ private:
     float v;
   } DebugTextVertexData;
 
-  KRDataBlock m_debug_text_vertices;
+  mimir::Block m_debug_text_vertices;
   KRMeshManager::KRVBOData m_debug_text_vbo_data;
 
   //    std::string getDebugText();

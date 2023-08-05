@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 #include "KRResource.h"
 #include "spirv_reflect.h"
 
@@ -66,7 +66,7 @@ class KRShader : public KRResource
 {
 public:
   KRShader(KRContext& context, std::string name, std::string extension);
-  KRShader(KRContext& context, std::string name, std::string extension, KRDataBlock* data);
+  KRShader(KRContext& context, std::string name, std::string extension, mimir::Block* data);
   virtual ~KRShader();
 
   virtual std::string getExtension();
@@ -74,9 +74,9 @@ public:
 
   bool createShaderModule(VkDevice& device, VkShaderModule& module);
 
-  virtual bool save(KRDataBlock& data);
+  virtual bool save(mimir::Block& data);
 
-  KRDataBlock* getData();
+  mimir::Block* getData();
   const SpvReflectShaderModule* getReflection();
   ShaderStage getShaderStage() const;
   VkShaderStageFlagBits getShaderStageFlagBits() const;
@@ -86,7 +86,7 @@ private:
 
   std::string m_extension;
   std::string m_subExtension;
-  KRDataBlock* m_pData;
+  mimir::Block* m_pData;
   SpvReflectShaderModule m_reflection;
   bool m_reflectionValid;
 

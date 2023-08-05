@@ -37,7 +37,7 @@
 
 #include "KRShader.h"
 #include "KRContextObject.h"
-#include "KRDataBlock.h"
+#include "block.h"
 
 class KRUnknown;
 
@@ -47,12 +47,12 @@ public:
   KRShaderManager(KRContext& context);
   virtual ~KRShaderManager();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, KRDataBlock* data) override;
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
   void add(KRShader* shader);
 
-  KRShader* load(const std::string& name, const std::string& extension, KRDataBlock* data);
+  KRShader* load(const std::string& name, const std::string& extension, mimir::Block* data);
   KRShader* get(const std::string& name, const std::string& extension);
 
   bool compileAll(KRBundle* outputBundle, KRUnknown* logResource);

@@ -34,11 +34,13 @@
 
 #include "KREngine-common.h"
 
+using namespace mimir;
+
 __uint8_t _KTX2FileIdentifier[12] = {
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x32, 0x30, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
 
-KRTextureKTX2::KRTextureKTX2(KRContext& context, KRDataBlock* data, std::string name) : KRTexture2D(context, data, name)
+KRTextureKTX2::KRTextureKTX2(KRContext& context, Block* data, std::string name) : KRTexture2D(context, data, name)
 {
   m_pData->copy(&m_header, 0, sizeof(KTX2Header));
   if (memcmp(_KTX2FileIdentifier, m_header.identifier, 12) != 0) {

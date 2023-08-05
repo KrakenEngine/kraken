@@ -50,7 +50,7 @@ void KRAnimationCurveManager::deleteAnimationCurve(KRAnimationCurve* curve)
   delete curve;
 }
 
-KRResource* KRAnimationCurveManager::loadResource(const std::string& name, const std::string& extension, KRDataBlock* data)
+KRResource* KRAnimationCurveManager::loadResource(const std::string& name, const std::string& extension, mimir::Block* data)
 {
   if (extension.compare("kranimationcurve") == 0) {
     return loadAnimationCurve(name, data);
@@ -65,7 +65,7 @@ KRResource* KRAnimationCurveManager::getResource(const std::string& name, const 
   return nullptr;
 }
 
-KRAnimationCurve* KRAnimationCurveManager::loadAnimationCurve(const std::string& name, KRDataBlock* data)
+KRAnimationCurve* KRAnimationCurveManager::loadAnimationCurve(const std::string& name, mimir::Block* data)
 {
   KRAnimationCurve* pAnimationCurve = KRAnimationCurve::Load(*m_pContext, name, data);
   if (pAnimationCurve) {

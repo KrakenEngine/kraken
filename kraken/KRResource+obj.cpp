@@ -34,6 +34,8 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 
+using namespace mimir;
+
 KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 {
   KRMesh* new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
@@ -42,7 +44,7 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 
   std::vector<std::string> material_names_t;
 
-  KRDataBlock data;
+  Block data;
 
   char szSymbol[500][256];
 
