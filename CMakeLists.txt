@@ -92,6 +92,9 @@ add_public_header(hydra/include/vector3.h)
 add_public_header(hydra/include/vector4.h)
 add_public_header(hydra/include/vector2i.h)
 
+add_public_header(mimir/include/mimir.h)
+add_public_header(mimir/include/block.h)
+
 # ---- Android ----
 if(ANDROID)
 add_subdirectory(kraken_android)
@@ -101,6 +104,11 @@ endif()
 add_subdirectory(hydra)
 include_directories(hydra/include)
 list (APPEND EXTRA_LIBS hydra)
+
+# ---- Mimir ----
+add_subdirectory(mimir)
+include_directories(mimir/include)
+list (APPEND EXTRA_LIBS mimir)
 
 # ---- Compressonator CMP_Core ----
 add_subdirectory(3rdparty/compressonator/cmp_core)

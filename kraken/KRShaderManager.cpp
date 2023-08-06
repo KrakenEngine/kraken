@@ -36,6 +36,8 @@
 #include "KRUnknownManager.h"
 #include "KRUnknown.h"
 
+#include "mimir.h"
+
 using namespace mimir;
 
 KRShaderManager::KRShaderManager(KRContext& context) : KRResourceManager(context)
@@ -389,8 +391,8 @@ glslang::TShader::Includer::IncludeResult* KRShaderManager::Includer::includeLoc
   const char* includerName,
   size_t inclusionDepth)
 {
-  std::string name = KRResource::GetFileBase(headerName);
-  std::string extension = KRResource::GetFileExtension(headerName);
+  std::string name = util::GetFileBase(headerName);
+  std::string extension = util::GetFileExtension(headerName);
   KRSource* source = m_context->getSourceManager()->get(name, extension);
   if (!source) {
     return nullptr;

@@ -34,11 +34,13 @@
 #include "KRResource.h"
 #include "KRMesh.h"
 
+#include "mimir.h"
+
 using namespace mimir;
 
 KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 {
-  KRMesh* new_mesh = new KRMesh(context, KRResource::GetFileBase(path));
+  KRMesh* new_mesh = new KRMesh(context, util::GetFileBase(path));
 
   KRMesh::mesh_info mi;
 

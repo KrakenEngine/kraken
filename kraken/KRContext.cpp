@@ -31,6 +31,8 @@
 
 #include "KREngine-common.h"
 
+#include "mimir.h"
+
 #include "KRContext.h"
 #include "KRCamera.h"
 #include "KRAudioManager.h"
@@ -59,9 +61,6 @@ int KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
 
 // TODO - This should be configured per-scene?  Or auto/dynamic?
 int KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
-
-int KRContext::KRENGINE_SYS_ALLOCATION_GRANULARITY;
-int KRContext::KRENGINE_SYS_PAGE_SIZE;
 
 #if TARGET_OS_IPHONE
 
@@ -128,21 +127,7 @@ KRContext::KRContext(const KrInitializeInfo* initializeInfo)
   m_pSourceManager = std::make_unique<KRSourceManager>(*this);
   m_streamingEnabled = true;
 
-#if defined(_WIN32) || defined(_WIN64)
-
-  SYSTEM_INFO winSysInfo;
-  GetSystemInfo(&winSysInfo);
-  KRENGINE_SYS_ALLOCATION_GRANULARITY = winSysInfo.dwAllocationGranularity;
-  KRENGINE_SYS_PAGE_SIZE = winSysInfo.dwPageSize;
-
-#elif defined(__APPLE__) || defined(ANDROID)
-
-  KRENGINE_SYS_PAGE_SIZE = getpagesize();
-  KRENGINE_SYS_ALLOCATION_GRANULARITY = KRENGINE_SYS_PAGE_SIZE;
-
-#else
-#error Unsupported
-#endif
+  mimir::init();
 
   m_presentationThread->start();
   m_streamerThread->start();
@@ -329,8 +314,8 @@ std::vector<KRResource*> KRContext::getResources()
 
 KRResource* KRContext::loadResource(const std::string& file_name, Block* data)
 {
-  std::string name = KRResource::GetFileBase(file_name);
-  std::string extension = KRResource::GetFileExtension(file_name);
+  std::string name = util::GetFileBase(file_name);
+  std::string extension = util::GetFileExtension(file_name);
 
   KRResource* resource = nullptr;
 

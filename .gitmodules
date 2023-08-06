@@ -19,3 +19,6 @@
 [submodule "3rdparty/compressonator"]
 	path = 3rdparty/compressonator
 	url = https://github.com/GPUOpen-Tools/compressonator.git
+[submodule "mimir"]
+	path = mimir
+	url = https://src.kearwood.com/kraken_engine/mimir

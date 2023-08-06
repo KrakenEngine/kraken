@@ -32,6 +32,8 @@
 #include "KRShader.h"
 #include "spirv_reflect.h"
 
+#include "mimir.h"
+
 using namespace mimir;
 
 ShaderStage getShaderStageFromExtension(const char* extension)
@@ -108,7 +110,7 @@ KRShader::KRShader(KRContext& context, std::string name, std::string extension) 
 {
   m_pData = new Block();
   m_extension = extension;
-  m_subExtension = KRResource::GetFileExtension(name);
+  m_subExtension = util::GetFileExtension(name);
   m_stage = getShaderStageFromExtension(m_subExtension.c_str());
   m_reflectionValid = false;
 
@@ -119,7 +121,7 @@ KRShader::KRShader(KRContext& context, std::string name, std::string extension, 
 {
   m_pData = data;
   m_extension = extension;
-  m_subExtension = KRResource::GetFileExtension(name);
+  m_subExtension = util::GetFileExtension(name);
   m_stage = getShaderStageFromExtension(m_subExtension.c_str());
   m_reflectionValid = false;
 }

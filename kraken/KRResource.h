@@ -48,10 +48,6 @@ public:
 
   KrResult moveToBundle(KRBundle* bundle);
 
-  static std::string GetFileExtension(const std::string& name);
-  static std::string GetFileBase(const std::string& name);
-  static std::string GetFilePath(const std::string& name);
-
   virtual ~KRResource();
 
   static KRMesh* LoadObj(KRContext& context, const std::string& path);

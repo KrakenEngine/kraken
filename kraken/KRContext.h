@@ -67,8 +67,6 @@ public:
   static int KRENGINE_MAX_TEXTURE_DIM;
   static int KRENGINE_MIN_TEXTURE_DIM;
   static int KRENGINE_PRESTREAM_DISTANCE;
-  static int KRENGINE_SYS_ALLOCATION_GRANULARITY;
-  static int KRENGINE_SYS_PAGE_SIZE;
 
 
   KRContext(const KrInitializeInfo* initializeInfo);
