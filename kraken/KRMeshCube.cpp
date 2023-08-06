@@ -31,6 +31,7 @@
 
 #include "KRMeshCube.h"
 
+using namespace hydra;
 
 KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
 {

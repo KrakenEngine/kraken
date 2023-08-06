@@ -34,6 +34,8 @@
 #include "KRNode.h"
 #include "KRCollider.h"
 
+using namespace hydra;
+
 KROctree::KROctree()
 {
   m_pRootNode = NULL;

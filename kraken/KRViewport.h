@@ -41,54 +41,54 @@ class KRViewport
 {
 public:
   KRViewport();
-  KRViewport(const Vector2& size, const Matrix4& matView, const Matrix4& matProjection);
+  KRViewport(const hydra::Vector2& size, const hydra::Matrix4& matView, const hydra::Matrix4& matProjection);
   ~KRViewport();
 
-  const Vector2& getSize() const;
-  const Matrix4& getViewMatrix() const;
-  const Matrix4& getProjectionMatrix() const;
-  const Matrix4& getViewProjectionMatrix() const;
-  const Matrix4& getInverseViewMatrix() const;
-  const Matrix4& getInverseProjectionMatrix() const;
-  const Vector3& getCameraDirection() const;
-  const Vector3& getCameraPosition() const;
+  const hydra::Vector2& getSize() const;
+  const hydra::Matrix4& getViewMatrix() const;
+  const hydra::Matrix4& getProjectionMatrix() const;
+  const hydra::Matrix4& getViewProjectionMatrix() const;
+  const hydra::Matrix4& getInverseViewMatrix() const;
+  const hydra::Matrix4& getInverseProjectionMatrix() const;
+  const hydra::Vector3& getCameraDirection() const;
+  const hydra::Vector3& getCameraPosition() const;
   const int* getFrontToBackOrder() const;
   const int* getBackToFrontOrder() const;
-  void setSize(const Vector2& size);
-  void setViewMatrix(const Matrix4& matView);
-  void setProjectionMatrix(const Matrix4& matProjection);
+  void setSize(const hydra::Vector2& size);
+  void setViewMatrix(const hydra::Matrix4& matView);
+  void setProjectionMatrix(const hydra::Matrix4& matProjection);
   float getLODBias() const;
   void setLODBias(float lod_bias);
 
   // Overload assignment operator
   KRViewport& operator=(const KRViewport& v);
 
-  unordered_map<AABB, int>& getVisibleBounds();
+  unordered_map<hydra::AABB, int>& getVisibleBounds();
 
   const std::set<KRLight*>& getVisibleLights();
   void setVisibleLights(const std::set<KRLight*> visibleLights);
 
-  bool visible(const AABB& b) const;
-  float coverage(const AABB& b) const;
+  bool visible(const hydra::AABB& b) const;
+  float coverage(const hydra::AABB& b) const;
 
 private:
-  Vector2 m_size;
-  Matrix4 m_matView;
-  Matrix4 m_matProjection;
+  hydra::Vector2 m_size;
+  hydra::Matrix4 m_matView;
+  hydra::Matrix4 m_matProjection;
 
   float m_lodBias;
 
   // Derived values
-  Matrix4 m_matViewProjection;
-  Matrix4 m_matInverseView;
-  Matrix4 m_matInverseProjection;
-  Vector3 m_cameraDirection;
-  Vector3 m_cameraPosition;
+  hydra::Matrix4 m_matViewProjection;
+  hydra::Matrix4 m_matInverseView;
+  hydra::Matrix4 m_matInverseProjection;
+  hydra::Vector3 m_cameraDirection;
+  hydra::Vector3 m_cameraPosition;
 
   int m_frontToBackOrder[8];
   int m_backToFrontOrder[8];
 
   void calculateDerivedValues();
 
-  unordered_map<AABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
+  unordered_map<hydra::AABB, int> m_visibleBounds; // AABB's that output fragments in the last frame
 };

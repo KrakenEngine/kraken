@@ -39,8 +39,8 @@ class KRNode;
 class KROctreeNode
 {
 public:
-  KROctreeNode(KROctreeNode* parent, const AABB& bounds);
-  KROctreeNode(KROctreeNode* parent, const AABB& bounds, int iChild, KROctreeNode* pChild);
+  KROctreeNode(KROctreeNode* parent, const hydra::AABB& bounds);
+  KROctreeNode(KROctreeNode* parent, const hydra::AABB& bounds, int iChild, KROctreeNode* pChild);
   ~KROctreeNode();
 
   KROctreeNode** getChildren();
@@ -50,12 +50,12 @@ public:
   void remove(KRNode* pNode);
   void update(KRNode* pNode);
 
-  AABB getBounds();
+  hydra::AABB getBounds();
 
   KROctreeNode* getParent();
   void setChildNode(int iChild, KROctreeNode* pChild);
   int getChildIndex(KRNode* pNode);
-  AABB getChildBounds(int iChild);
+  hydra::AABB getChildBounds(int iChild);
   void trim();
   bool isEmpty() const;
 
@@ -70,13 +70,13 @@ public:
   bool m_occlusionTested;
   bool m_activeQuery;
 
-  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
-  bool rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo, unsigned int layer_mask);
-  bool sphereCast(const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo, unsigned int layer_mask);
+  bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);
+  bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo, unsigned int layer_mask);
+  bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
 private:
 
-  AABB m_bounds;
+  hydra::AABB m_bounds;
 
   KROctreeNode* m_parent;
   KROctreeNode* m_children[8];

@@ -31,6 +31,7 @@
 
 #include "KRMeshQuad.h"
 
+using namespace hydra;
 
 KRMeshQuad::KRMeshQuad(KRContext& context) : KRMesh(context, "__quad")
 {

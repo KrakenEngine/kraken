@@ -214,11 +214,11 @@ class KRPipeline : public KRContextObject
 {
 public:
 
-  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
+  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
   virtual ~KRPipeline();
   const char* getKey() const;
 
-  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass);
+  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const hydra::Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass);
 
   enum class PushConstant : uint8_t
   {
@@ -297,11 +297,11 @@ public:
   bool hasPushConstant(PushConstant location) const;
   void setPushConstant(PushConstant location, float value);
   void setPushConstant(PushConstant location, int value);
-  void setPushConstant(PushConstant location, const Vector2& value);
-  void setPushConstant(PushConstant location, const Vector3& value);
-  void setPushConstant(PushConstant location, const Vector4& value);
-  void setPushConstant(PushConstant location, const Matrix4& value);
-  void setPushConstant(PushConstant location, const Matrix4* value, const size_t count);
+  void setPushConstant(PushConstant location, const hydra::Vector2& value);
+  void setPushConstant(PushConstant location, const hydra::Vector3& value);
+  void setPushConstant(PushConstant location, const hydra::Vector4& value);
+  void setPushConstant(PushConstant location, const hydra::Matrix4& value);
+  void setPushConstant(PushConstant location, const hydra::Matrix4* value, const size_t count);
 
   void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
 

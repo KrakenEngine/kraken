@@ -41,6 +41,7 @@
 #include "KRAudioManager.h"
 
 using namespace mimir;
+using namespace hydra;
 
 const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
 

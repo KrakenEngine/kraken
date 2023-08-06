@@ -35,6 +35,8 @@
 #include "KRAudioSample.h"
 #include "KRAudioBuffer.h"
 
+using namespace hydra;
+
 /* static */
 void KRAudioSource::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

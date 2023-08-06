@@ -38,7 +38,7 @@
 
 using namespace kraken;
 
-namespace kraken {
+namespace hydra {
 class Matrix4;
 class AABB;
 } // namespace kraken
@@ -128,62 +128,62 @@ public:
   void insertAfter(KRNode* child);
   KRNode* getParent();
 
-  void setLocalTranslation(const Vector3& v, bool set_original = false);
-  void setLocalScale(const Vector3& v, bool set_original = false);
-  void setLocalRotation(const Vector3& v, bool set_original = false);
+  void setLocalTranslation(const hydra::Vector3& v, bool set_original = false);
+  void setLocalScale(const hydra::Vector3& v, bool set_original = false);
+  void setLocalRotation(const hydra::Vector3& v, bool set_original = false);
 
 
-  void setRotationOffset(const Vector3& v, bool set_original = false);
-  void setScalingOffset(const Vector3& v, bool set_original = false);
-  void setRotationPivot(const Vector3& v, bool set_original = false);
-  void setScalingPivot(const Vector3& v, bool set_original = false);
-  void setPreRotation(const Vector3& v, bool set_original = false);
-  void setPostRotation(const Vector3& v, bool set_original = false);
+  void setRotationOffset(const hydra::Vector3& v, bool set_original = false);
+  void setScalingOffset(const hydra::Vector3& v, bool set_original = false);
+  void setRotationPivot(const hydra::Vector3& v, bool set_original = false);
+  void setScalingPivot(const hydra::Vector3& v, bool set_original = false);
+  void setPreRotation(const hydra::Vector3& v, bool set_original = false);
+  void setPostRotation(const hydra::Vector3& v, bool set_original = false);
 
-  const Vector3& getRotationOffset();
-  const Vector3& getScalingOffset();
-  const Vector3& getRotationPivot();
-  const Vector3& getScalingPivot();
-  const Vector3& getPreRotation();
-  const Vector3& getPostRotation();
+  const hydra::Vector3& getRotationOffset();
+  const hydra::Vector3& getScalingOffset();
+  const hydra::Vector3& getRotationPivot();
+  const hydra::Vector3& getScalingPivot();
+  const hydra::Vector3& getPreRotation();
+  const hydra::Vector3& getPostRotation();
 
-  const Vector3& getInitialRotationOffset();
-  const Vector3& getInitialScalingOffset();
-  const Vector3& getInitialRotationPivot();
-  const Vector3& getInitialScalingPivot();
-  const Vector3& getInitialPreRotation();
-  const Vector3& getInitialPostRotation();
+  const hydra::Vector3& getInitialRotationOffset();
+  const hydra::Vector3& getInitialScalingOffset();
+  const hydra::Vector3& getInitialRotationPivot();
+  const hydra::Vector3& getInitialScalingPivot();
+  const hydra::Vector3& getInitialPreRotation();
+  const hydra::Vector3& getInitialPostRotation();
 
 
-  const Vector3& getLocalTranslation();
-  const Vector3& getLocalScale();
-  const Vector3& getLocalRotation();
+  const hydra::Vector3& getLocalTranslation();
+  const hydra::Vector3& getLocalScale();
+  const hydra::Vector3& getLocalRotation();
 
-  const Vector3& getInitialLocalTranslation();
-  const Vector3& getInitialLocalScale();
-  const Vector3& getInitialLocalRotation();
+  const hydra::Vector3& getInitialLocalTranslation();
+  const hydra::Vector3& getInitialLocalScale();
+  const hydra::Vector3& getInitialLocalRotation();
 
-  const Vector3 getWorldTranslation();
-  const Vector3 getWorldScale();
-  const Quaternion getWorldRotation();
+  const hydra::Vector3 getWorldTranslation();
+  const hydra::Vector3 getWorldScale();
+  const hydra::Quaternion getWorldRotation();
 
-  const Quaternion getBindPoseWorldRotation();
-  const Quaternion getActivePoseWorldRotation();
+  const hydra::Quaternion getBindPoseWorldRotation();
+  const hydra::Quaternion getActivePoseWorldRotation();
 
-  const Vector3 localToWorld(const Vector3& local_point);
-  const Vector3 worldToLocal(const Vector3& world_point);
+  const hydra::Vector3 localToWorld(const hydra::Vector3& local_point);
+  const hydra::Vector3 worldToLocal(const hydra::Vector3& world_point);
 
-  void setWorldTranslation(const Vector3& v);
-  void setWorldScale(const Vector3& v);
-  void setWorldRotation(const Vector3& v);
+  void setWorldTranslation(const hydra::Vector3& v);
+  void setWorldScale(const hydra::Vector3& v);
+  void setWorldRotation(const hydra::Vector3& v);
 
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
   void invalidateBounds() const;
-  const Matrix4& getModelMatrix();
-  const Matrix4& getInverseModelMatrix();
-  const Matrix4& getBindPoseMatrix();
-  const Matrix4& getActivePoseMatrix();
-  const Matrix4& getInverseBindPoseMatrix();
+  const hydra::Matrix4& getModelMatrix();
+  const hydra::Matrix4& getInverseModelMatrix();
+  const hydra::Matrix4& getBindPoseMatrix();
+  const hydra::Matrix4& getActivePoseMatrix();
+  const hydra::Matrix4& getInverseBindPoseMatrix();
 
   enum node_attribute_type
   {
@@ -250,27 +250,27 @@ public:
   KRNode* m_lastChildNode;
 
 protected:
-  Vector3 m_localTranslation;
-  Vector3 m_localScale;
-  Vector3 m_localRotation;
+  hydra::Vector3 m_localTranslation;
+  hydra::Vector3 m_localScale;
+  hydra::Vector3 m_localRotation;
 
-  Vector3 m_rotationOffset;
-  Vector3 m_scalingOffset;
-  Vector3 m_rotationPivot;
-  Vector3 m_scalingPivot;
-  Vector3 m_preRotation;
-  Vector3 m_postRotation;
+  hydra::Vector3 m_rotationOffset;
+  hydra::Vector3 m_scalingOffset;
+  hydra::Vector3 m_rotationPivot;
+  hydra::Vector3 m_scalingPivot;
+  hydra::Vector3 m_preRotation;
+  hydra::Vector3 m_postRotation;
 
-  Vector3 m_initialLocalTranslation;
-  Vector3 m_initialLocalScale;
-  Vector3 m_initialLocalRotation;
+  hydra::Vector3 m_initialLocalTranslation;
+  hydra::Vector3 m_initialLocalScale;
+  hydra::Vector3 m_initialLocalRotation;
 
-  Vector3 m_initialRotationOffset;
-  Vector3 m_initialScalingOffset;
-  Vector3 m_initialRotationPivot;
-  Vector3 m_initialScalingPivot;
-  Vector3 m_initialPreRotation;
-  Vector3 m_initialPostRotation;
+  hydra::Vector3 m_initialRotationOffset;
+  hydra::Vector3 m_initialScalingOffset;
+  hydra::Vector3 m_initialRotationPivot;
+  hydra::Vector3 m_initialScalingPivot;
+  hydra::Vector3 m_initialPreRotation;
+  hydra::Vector3 m_initialPostRotation;
 
   LodVisibility m_lod_visible;
 
@@ -281,18 +281,18 @@ private:
   long m_lastRenderFrame;
   void invalidateModelMatrix();
   void invalidateBindPoseMatrix();
-  Matrix4 m_modelMatrix;
-  Matrix4 m_inverseModelMatrix;
-  Matrix4 m_bindPoseMatrix;
-  Matrix4 m_activePoseMatrix;
-  Matrix4 m_inverseBindPoseMatrix;
+  hydra::Matrix4 m_modelMatrix;
+  hydra::Matrix4 m_inverseModelMatrix;
+  hydra::Matrix4 m_bindPoseMatrix;
+  hydra::Matrix4 m_activePoseMatrix;
+  hydra::Matrix4 m_inverseBindPoseMatrix;
   bool m_modelMatrixValid;
   bool m_inverseModelMatrixValid;
   bool m_bindPoseMatrixValid;
   bool m_activePoseMatrixValid;
   bool m_inverseBindPoseMatrixValid;
 
-  mutable AABB m_bounds;
+  mutable hydra::AABB m_bounds;
   mutable bool m_boundsValid;
 
   std::string m_name;

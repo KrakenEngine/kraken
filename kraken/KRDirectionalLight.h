@@ -43,11 +43,11 @@ public:
   virtual ~KRDirectionalLight();
 
   virtual std::string getElementName();
-  Vector3 getLocalLightDirection();
-  Vector3 getWorldLightDirection();
+  hydra::Vector3 getLocalLightDirection();
+  hydra::Vector3 getWorldLightDirection();
 
   virtual void render(RenderInfo& ri);
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
 protected:
 

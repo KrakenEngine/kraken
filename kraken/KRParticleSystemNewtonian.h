@@ -44,7 +44,7 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
 
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
   virtual void render(RenderInfo& ri);
 

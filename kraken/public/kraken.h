@@ -222,15 +222,15 @@ typedef struct
 {
   KrStructureType sType;
   const char* pName;
-  kraken::Vector3 translate;
-  kraken::Vector3 scale;
-  kraken::Vector3 rotate;
-  kraken::Vector3 pre_rotate;
-  kraken::Vector3 post_rotate;
-  kraken::Vector3 rotate_offset;
-  kraken::Vector3 scale_offset;
-  kraken::Vector3 rotate_pivot;
-  kraken::Vector3 scale_pivot;
+  hydra::Vector3 translate;
+  hydra::Vector3 scale;
+  hydra::Vector3 rotate;
+  hydra::Vector3 pre_rotate;
+  hydra::Vector3 post_rotate;
+  hydra::Vector3 rotate_offset;
+  hydra::Vector3 scale_offset;
+  hydra::Vector3 rotate_pivot;
+  hydra::Vector3 scale_pivot;
   union
   {
     struct
@@ -254,13 +254,13 @@ typedef struct
       // KR_STRUCTURE_TYPE_NODE_LOD_GROUP
       float min_distance;
       float max_distance;
-      kraken::Vector3 reference_min;
-      kraken::Vector3 reference_max;
+      hydra::Vector3 reference_min;
+      hydra::Vector3 reference_max;
       bool use_world_units;
     } lod_group;
     struct
     {
-      kraken::Vector3 color;
+      hydra::Vector3 color;
       float intensity;
       float decay_start;
       float flare_size;
@@ -301,7 +301,7 @@ typedef struct
       bool receives_shadow;
       bool faces_camera;
       float rim_power;
-      kraken::Vector3 rim_color;
+      hydra::Vector3 rim_color;
       KrResourceMapIndex mesh;
       KrResourceMapIndex light_map_texture;
     } model;
@@ -412,9 +412,9 @@ typedef struct
   KrStructureType sType;
   KrResourceMapIndex sceneHandle;
   KrSceneNodeMapIndex nodeHandle;
-  kraken::Vector3 translate;
-  kraken::Vector3 scale;
-  kraken::Vector3 rotate;
+  hydra::Vector3 translate;
+  hydra::Vector3 scale;
+  hydra::Vector3 rotate;
 } KrSetNodeLocalTransformInfo;
 
 typedef struct
@@ -422,9 +422,9 @@ typedef struct
   KrStructureType sType;
   KrResourceMapIndex sceneHandle;
   KrSceneNodeMapIndex nodeHandle;
-  kraken::Vector3 translate;
-  kraken::Vector3 scale;
-  kraken::Vector3 rotate;
+  hydra::Vector3 translate;
+  hydra::Vector3 scale;
+  hydra::Vector3 rotate;
 } KrSetNodeWorldTransformInfo;
 
 KrResult KrInitialize(const KrInitializeInfo* pInitializeInfo);

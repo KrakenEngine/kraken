@@ -280,7 +280,7 @@ VkImage KRTexture::getImage(KrDeviceHandle device)
   return VK_NULL_HANDLE;
 }
 
-bool KRTexture::allocate(KRDevice& device, Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
+bool KRTexture::allocate(KRDevice& device, hydra::Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  
 , const char* debug_label
 #endif

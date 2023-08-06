@@ -35,6 +35,8 @@
 #include "KRCamera.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 /* static */
 void KRPointLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

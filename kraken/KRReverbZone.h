@@ -60,9 +60,9 @@ public:
   float getReverbGain();
   void setReverbGain(float reverb_gain);
 
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
-  float getContainment(const Vector3& pos);
+  float getContainment(const hydra::Vector3& pos);
 
 private:
   std::string m_zone;

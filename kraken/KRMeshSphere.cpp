@@ -31,6 +31,7 @@
 
 #include "KRMeshSphere.h"
 
+using namespace hydra;
 
 KRMeshSphere::KRMeshSphere(KRContext& context) : KRMesh(context, "__sphere")
 {

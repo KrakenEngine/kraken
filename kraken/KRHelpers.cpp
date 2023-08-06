@@ -33,6 +33,8 @@
 
 #include "KRHelpers.h"
 
+using namespace hydra;
+
 namespace kraken {
 
 void setXMLAttribute(const std::string& base_name, tinyxml2::XMLElement* e, const Vector3& value, const Vector3& default_value)

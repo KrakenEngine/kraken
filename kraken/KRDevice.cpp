@@ -33,6 +33,7 @@
 #include "KRDeviceManager.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRDevice::KRDevice(KRContext& context, const VkPhysicalDevice& device)
   : KRContextObject(context)

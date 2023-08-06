@@ -36,6 +36,8 @@
 #include "KRMesh.h"
 #include "KRNode.h"
 
+using namespace hydra;
+
 /* static */
 void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

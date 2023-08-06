@@ -34,6 +34,8 @@
 
 #include "KREngine-common.h"
 
+using namespace hydra;
+
 __uint8_t _KTXFileIdentifier[12] = {
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
@@ -127,7 +129,7 @@ KRTextureKTX::~KRTextureKTX()
 
 Vector2i KRTextureKTX::getDimensions() const
 {
-  return Vector2i::Create(Vector2i::Create(m_header.pixelWidth, m_header.pixelHeight));
+  return hydra::Vector2i::Create(Vector2i::Create(m_header.pixelWidth, m_header.pixelHeight));
 }
 
 int KRTextureKTX::getFaceCount() const

@@ -37,6 +37,7 @@
 #include "mimir.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 {

@@ -36,6 +36,7 @@
 #include "KRPipeline.h"
 
 using namespace mimir;
+using namespace hydra;
 
 /* static */
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)

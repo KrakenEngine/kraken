@@ -34,6 +34,8 @@
 
 #include "KRViewport.h"
 
+using namespace hydra;
+
 KRViewport::KRViewport()
 {
   m_size = Vector2::One();

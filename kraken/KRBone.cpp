@@ -32,6 +32,8 @@
 #include "KRBone.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 /* static */
 void KRBone::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

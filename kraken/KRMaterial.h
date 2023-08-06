@@ -68,16 +68,16 @@ public:
   virtual bool save(mimir::Block& data);
 
 
-  void setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
-  void setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
-  void setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
-  void setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
+  void setAmbientMap(std::string texture_name, hydra::Vector2 texture_scale, hydra::Vector2 texture_offset);
+  void setDiffuseMap(std::string texture_name, hydra::Vector2 texture_scale, hydra::Vector2 texture_offset);
+  void setSpecularMap(std::string texture_name, hydra::Vector2 texture_scale, hydra::Vector2 texture_offset);
+  void setReflectionMap(std::string texture_name, hydra::Vector2 texture_scale, hydra::Vector2 texture_offset);
   void setReflectionCube(std::string texture_name);
-  void setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset);
-  void setAmbient(const Vector3& c);
-  void setDiffuse(const Vector3& c);
-  void setSpecular(const Vector3& c);
-  void setReflection(const Vector3& c);
+  void setNormalMap(std::string texture_name, hydra::Vector2 texture_scale, hydra::Vector2 texture_offset);
+  void setAmbient(const hydra::Vector3& c);
+  void setDiffuse(const hydra::Vector3& c);
+  void setSpecular(const hydra::Vector3& c);
+  void setReflection(const hydra::Vector3& c);
   void setTransparency(float a);
   void setShininess(float s);
   void setAlphaMode(alpha_mode_type blend_mode);
@@ -87,7 +87,7 @@ public:
   bool isTransparent();
   const std::string& getName() const;
 
-  void bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, const Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
+  void bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<hydra::Matrix4>& bind_poses, const hydra::Matrix4& matModel, KRTexture* pLightMap, const hydra::Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
 
   bool needsVertexTangents();
 
@@ -110,21 +110,21 @@ private:
   std::string m_reflectionCube;
   std::string m_normalMap;
 
-  Vector2 m_ambientMapScale;
-  Vector2 m_ambientMapOffset;
-  Vector2 m_diffuseMapScale;
-  Vector2 m_diffuseMapOffset;
-  Vector2 m_specularMapScale;
-  Vector2 m_specularMapOffset;
-  Vector2 m_reflectionMapScale;
-  Vector2 m_reflectionMapOffset;
-  Vector2 m_normalMapScale;
-  Vector2 m_normalMapOffset;
+  hydra::Vector2 m_ambientMapScale;
+  hydra::Vector2 m_ambientMapOffset;
+  hydra::Vector2 m_diffuseMapScale;
+  hydra::Vector2 m_diffuseMapOffset;
+  hydra::Vector2 m_specularMapScale;
+  hydra::Vector2 m_specularMapOffset;
+  hydra::Vector2 m_reflectionMapScale;
+  hydra::Vector2 m_reflectionMapOffset;
+  hydra::Vector2 m_normalMapScale;
+  hydra::Vector2 m_normalMapOffset;
 
-  Vector3 m_ambientColor; // Ambient rgb
-  Vector3 m_diffuseColor; // Diffuse rgb
-  Vector3 m_specularColor; // Specular rgb
-  Vector3 m_reflectionColor; // Reflection rgb
+  hydra::Vector3 m_ambientColor; // Ambient rgb
+  hydra::Vector3 m_diffuseColor; // Diffuse rgb
+  hydra::Vector3 m_specularColor; // Specular rgb
+  hydra::Vector3 m_reflectionColor; // Reflection rgb
 
   //float m_ka_r, m_ka_g, m_ka_b; // Ambient rgb
   //float m_kd_r, m_kd_g, m_kd_b; // Diffuse rgb

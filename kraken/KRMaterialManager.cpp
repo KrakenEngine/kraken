@@ -33,7 +33,7 @@
 #include "KRMaterialManager.h"
 
 using namespace mimir;
-
+using namespace hydra;
 
 KRMaterialManager::KRMaterialManager(KRContext& context, KRTextureManager* pTextureManager, KRPipelineManager* pPipelineManager) : KRResourceManager(context)
 {

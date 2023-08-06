@@ -39,6 +39,7 @@
 #include "KRDSP.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRAudioManager::KRAudioManager(KRContext& context)
   : KRResourceManager(context)

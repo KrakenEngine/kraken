@@ -128,7 +128,7 @@ protected:
   float m_last_frame_max_lod_coverage;
   texture_usage_t m_last_frame_usage;
 
-  bool allocate(KRDevice& device, Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
+  bool allocate(KRDevice& device, hydra::Vector2i dimensions, VkImageCreateFlags imageCreateFlags, VkMemoryPropertyFlags properties, VkImage* image, VmaAllocation* allocation
 #if KRENGINE_DEBUG_GPU_LABELS  
   , const char* debug_label
 #endif

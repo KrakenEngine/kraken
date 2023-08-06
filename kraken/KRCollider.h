@@ -59,11 +59,11 @@ public:
   virtual std::string getElementName();
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
   virtual void loadXML(tinyxml2::XMLElement* e);
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
-  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
-  bool rayCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo, unsigned int layer_mask);
-  bool sphereCast(const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo, unsigned int layer_mask);
+  bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);
+  bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);
+  bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
   unsigned int getLayerMask();
   void setLayerMask(unsigned int layer_mask);

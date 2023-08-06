@@ -37,6 +37,7 @@
 #include "KRContext.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRMaterial::KRMaterial(KRContext& context, const char* szName) : KRResource(context, szName)
 {

@@ -176,13 +176,13 @@ public:
 
   typedef struct
   {
-    Vector3 vertex;
-    Vector2 uva;
+    hydra::Vector3 vertex;
+    hydra::Vector2 uva;
   } RandomParticleVertexData;
 
   typedef struct
   {
-    Vector3 vertex;
+    hydra::Vector3 vertex;
   } VolumetricLightingVertexData;
 
   long getMemoryTransferedThisFrame();

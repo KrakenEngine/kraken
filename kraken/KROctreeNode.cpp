@@ -33,6 +33,8 @@
 #include "KRNode.h"
 #include "KRCollider.h"
 
+using namespace hydra;
+
 KROctreeNode::KROctreeNode(KROctreeNode* parent, const AABB& bounds) : m_bounds(bounds)
 {
   m_parent = parent;

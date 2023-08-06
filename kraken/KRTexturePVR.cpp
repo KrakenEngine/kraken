@@ -35,6 +35,7 @@
 #include "KREngine-common.h"
 
 using namespace mimir;
+using namespace hydra;
 
 
 #define PVR_TEXTURE_FLAG_TYPE_MASK	0xff

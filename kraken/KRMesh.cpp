@@ -40,6 +40,7 @@
 #include "../3rdparty/forsyth/forsyth.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRMesh::KRMesh(KRContext& context, std::string name) : KRResource(context, name)
 {

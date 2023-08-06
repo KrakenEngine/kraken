@@ -34,6 +34,7 @@
 #include "KRContext.h"
 
 using namespace mimir;
+using namespace hydra;
 
 KRTextureCube::KRTextureCube(KRContext& context, std::string name) : KRTexture(context, name)
 {

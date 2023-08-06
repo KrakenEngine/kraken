@@ -43,6 +43,8 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 
+using namespace hydra;
+
 /* static */
 void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

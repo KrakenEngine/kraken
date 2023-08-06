@@ -50,7 +50,7 @@ public:
   void destroy();
   uint32_t getWidth() const;
   uint32_t getHeight() const;
-  Vector2i getDimensions() const;
+  hydra::Vector2i getDimensions() const;
   VkFormat getDepthFormat() const;
 
   KRSurface(const KRSurface&) = delete;

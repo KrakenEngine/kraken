@@ -38,6 +38,8 @@
 #include "KRContext.h"
 #include "KRRenderPass.h"
 
+using namespace hydra;
+
 
 const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
     "material_ambient", // PushConstant::material_ambient

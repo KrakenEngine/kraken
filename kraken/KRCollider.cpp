@@ -34,6 +34,8 @@
 #include "KRContext.h"
 #include "KRMesh.h"
 
+using namespace hydra;
+
 /* static */
 void KRCollider::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

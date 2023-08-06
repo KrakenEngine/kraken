@@ -50,7 +50,7 @@ public:
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
   KRModel(KRScene& scene, std::string name);
-  KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color = Vector3::Zero(), float rim_power = 0.0f);
+  KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, hydra::Vector3 rim_color = hydra::Vector3::Zero(), float rim_power = 0.0f);
   virtual ~KRModel();
 
   virtual std::string getElementName();
@@ -58,11 +58,11 @@ public:
 
   virtual void render(KRNode::RenderInfo& ri);
 
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
-  void setRimColor(const Vector3& rim_color);
+  void setRimColor(const hydra::Vector3& rim_color);
   void setRimPower(float rim_power);
-  Vector3 getRimColor();
+  hydra::Vector3 getRimColor();
   float getRimPower();
 
   void setLightMap(const std::string& name);
@@ -87,10 +87,10 @@ private:
   bool m_faces_camera;
 
 
-  Matrix4 m_boundsCachedMat;
-  AABB m_boundsCached;
+  hydra::Matrix4 m_boundsCachedMat;
+  hydra::AABB m_boundsCached;
 
 
-  Vector3 m_rim_color;
+  hydra::Vector3 m_rim_color;
   float m_rim_power;
 };

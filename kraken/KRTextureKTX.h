@@ -46,7 +46,7 @@ public:
   bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool premultiply_alpha = false) override;
 
   virtual long getMemRequiredForSize(int max_dim);
-  virtual Vector2i getDimensions() const override;
+  virtual hydra::Vector2i getDimensions() const override;
   virtual int getFaceCount() const override;
   virtual VkFormat getFormat() const override;
 

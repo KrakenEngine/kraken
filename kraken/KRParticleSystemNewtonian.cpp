@@ -35,6 +35,8 @@
 #include "KRTexture.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 KRParticleSystemNewtonian::KRParticleSystemNewtonian(KRScene& scene, std::string name) : KRParticleSystem(scene, name)
 {
   m_particlesAbsoluteTime = 0.0f;

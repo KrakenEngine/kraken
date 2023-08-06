@@ -72,8 +72,8 @@ public:
 
   void flushSkybox();     // this will delete the skybox and cause the camera to reload a new skybox based on the settings
 
-  void setFadeColor(const Vector4& fade_color);
-  Vector4 getFadeColor();
+  void setFadeColor(const hydra::Vector4& fade_color);
+  hydra::Vector4 getFadeColor();
 
   void setSkyBox(const std::string& skyBox);
   const std::string getSkyBox() const;
@@ -100,7 +100,7 @@ private:
 
   float m_particlesAbsoluteTime;
 
-  Vector4 m_fade_color;
+  hydra::Vector4 m_fade_color;
 
   typedef struct
   {

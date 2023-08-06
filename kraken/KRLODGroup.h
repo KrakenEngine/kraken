@@ -49,8 +49,8 @@ public:
   void setMinDistance(float min_distance);
   void setMaxDistance(float max_distance);
 
-  const AABB& getReference() const;
-  void setReference(const AABB& reference);
+  const hydra::AABB& getReference() const;
+  void setReference(const hydra::AABB& reference);
   void setUseWorldUnits(bool use_world_units);
   bool getUseWorldUnits() const;
 
@@ -59,6 +59,6 @@ public:
 private:
   float m_min_distance;
   float m_max_distance;
-  AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
+  hydra::AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
   bool m_use_world_units;
 };

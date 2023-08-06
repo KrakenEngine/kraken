@@ -31,6 +31,8 @@
 
 #include "KREngine-common.h"
 
+using namespace hydra;
+
 #include "KRNode.h"
 #include "KRLODGroup.h"
 #include "KRLODSet.h"

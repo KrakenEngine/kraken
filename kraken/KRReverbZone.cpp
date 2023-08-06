@@ -32,6 +32,8 @@
 #include "KRReverbZone.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 /* static */
 void KRReverbZone::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

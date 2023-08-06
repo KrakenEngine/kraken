@@ -33,6 +33,8 @@
 #include "KRLODSet.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 /* static */
 void KRLODGroup::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

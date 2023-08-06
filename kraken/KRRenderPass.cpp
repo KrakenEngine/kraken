@@ -33,6 +33,8 @@
 #include "KRSurface.h"
 #include "KRSwapchain.h"
 
+using namespace hydra;
+
 KRRenderPass::KRRenderPass(KRContext& context)
   : KRContextObject(context)
   , m_renderPass(VK_NULL_HANDLE)

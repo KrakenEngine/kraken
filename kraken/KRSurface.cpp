@@ -33,6 +33,8 @@
 #include "KRSwapchain.h"
 #include "KRRenderPass.h"
 
+using namespace hydra;
+
 #ifdef WIN32
 KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, HWND hWnd)
 #else

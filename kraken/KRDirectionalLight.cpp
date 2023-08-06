@@ -36,6 +36,8 @@
 #include "KRContext.h"
 #include "assert.h"
 
+using namespace hydra;
+
 /* static */
 void KRDirectionalLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

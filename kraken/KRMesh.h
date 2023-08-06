@@ -102,23 +102,23 @@ public:
   typedef struct
   {
     ModelFormat format;
-    std::vector<Vector3> vertices;
+    std::vector<hydra::Vector3> vertices;
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
-    std::vector<Vector2> uva;
-    std::vector<Vector2> uvb;
-    std::vector<Vector3> normals;
-    std::vector<Vector3> tangents;
+    std::vector<hydra::Vector2> uva;
+    std::vector<hydra::Vector2> uvb;
+    std::vector<hydra::Vector3> normals;
+    std::vector<hydra::Vector3> tangents;
     std::vector<int> submesh_starts;
     std::vector<int> submesh_lengths;
     std::vector<std::string> material_names;
     std::vector<std::string> bone_names;
     std::vector<std::vector<int> > bone_indexes;
-    std::vector<Matrix4> bone_bind_poses;
+    std::vector<hydra::Matrix4> bone_bind_poses;
     std::vector<std::vector<float> > bone_weights;
   } mesh_info;
 
-  void render(const KRNode::RenderInfo& ri, const std::string& object_name, const Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
+  void render(const KRNode::RenderInfo& ri, const std::string& object_name, const hydra::Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const hydra::Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
 
   std::string m_lodBaseName;
 
@@ -138,8 +138,8 @@ public:
 
   float getMaxDimension();
 
-  Vector3 getMinPoint() const;
-  Vector3 getMaxPoint() const;
+  hydra::Vector3 getMinPoint() const;
+  hydra::Vector3 getMaxPoint() const;
 
   class Submesh
   {
@@ -202,19 +202,19 @@ public:
   __uint32_t getVertexAttributes() const;
 
   int getTriangleVertexIndex(int submesh, int index) const;
-  Vector3 getVertexPosition(int index) const;
-  Vector3 getVertexNormal(int index) const;
-  Vector3 getVertexTangent(int index) const;
-  Vector2 getVertexUVA(int index) const;
-  Vector2 getVertexUVB(int index) const;
+  hydra::Vector3 getVertexPosition(int index) const;
+  hydra::Vector3 getVertexNormal(int index) const;
+  hydra::Vector3 getVertexTangent(int index) const;
+  hydra::Vector2 getVertexUVA(int index) const;
+  hydra::Vector2 getVertexUVB(int index) const;
   int getBoneIndex(int index, int weight_index) const;
   float getBoneWeight(int index, int weight_index) const;
 
-  void setVertexPosition(int index, const Vector3& v);
-  void setVertexNormal(int index, const Vector3& v);
-  void setVertexTangent(int index, const Vector3& v);
-  void setVertexUVA(int index, const Vector2& v);
-  void setVertexUVB(int index, const Vector2& v);
+  void setVertexPosition(int index, const hydra::Vector3& v);
+  void setVertexNormal(int index, const hydra::Vector3& v);
+  void setVertexTangent(int index, const hydra::Vector3& v);
+  void setVertexUVA(int index, const hydra::Vector2& v);
+  void setVertexUVB(int index, const hydra::Vector2& v);
   void setBoneIndex(int index, int weight_index, int bone_index);
   void setBoneWeight(int index, int weight_index, float bone_weight);
 
@@ -224,14 +224,14 @@ public:
 
   int getBoneCount();
   char* getBoneName(int bone_index);
-  Matrix4 getBoneBindPose(int bone_index);
+  hydra::Matrix4 getBoneBindPose(int bone_index);
 
 
   ModelFormat getModelFormat() const;
 
-  bool lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo) const;
-  bool rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo) const;
-  bool sphereCast(const Matrix4& model_to_world, const Vector3& v0, const Vector3& v1, float radius, HitInfo& hitinfo) const;
+  bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo) const;
+  bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo) const;
+  bool sphereCast(const hydra::Matrix4& model_to_world, const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo) const;
 
   static int GetLODCoverage(const std::string& name);
 
@@ -247,8 +247,8 @@ private:
   void getMaterials();
   void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
 
-  static bool rayCast(const Vector3& start, const Vector3& dir, const Triangle3& tri, const Vector3& tri_n0, const Vector3& tri_n1, const Vector3& tri_n2, HitInfo& hitinfo);
-  static bool sphereCast(const Matrix4& model_to_world, const Vector3& v0, const Vector3& v1, float radius, const Triangle3& tri, HitInfo& hitinfo);
+  static bool rayCast(const hydra::Vector3& start, const hydra::Vector3& dir, const hydra::Triangle3& tri, const hydra::Vector3& tri_n0, const hydra::Vector3& tri_n1, const hydra::Vector3& tri_n2, hydra::HitInfo& hitinfo);
+  static bool sphereCast(const hydra::Matrix4& model_to_world, const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, const hydra::Triangle3& tri, hydra::HitInfo& hitinfo);
 
   int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
   vector<KRMaterial*> m_materials;
@@ -257,7 +257,7 @@ private:
   bool m_hasTransparency;
 
 
-  Vector3 m_minPoint, m_maxPoint;
+  hydra::Vector3 m_minPoint, m_maxPoint;
 
 
 

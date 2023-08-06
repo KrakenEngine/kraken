@@ -33,6 +33,8 @@
 #include "KRContext.h"
 #include "KRTextureKTX2.h"
 
+using namespace hydra;
+
 #if defined(_WIN32) || defined(_WIN64)
 #pragma pack(1)
 typedef struct

@@ -53,7 +53,7 @@ public:
 
   virtual void render(RenderInfo& ri);
 
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
 protected:
 

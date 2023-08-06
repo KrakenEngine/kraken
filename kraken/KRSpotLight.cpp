@@ -32,6 +32,8 @@
 #include "KREngine-common.h"
 #include "KRSpotLight.h"
 
+using namespace hydra;
+
 /* static */
 void KRSpotLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

@@ -32,6 +32,8 @@
 #include "KRAmbientZone.h"
 #include "KRContext.h"
 
+using namespace hydra;
+
 /* static */
 void KRAmbientZone::InitNodeInfo(KrNodeInfo* nodeInfo)
 {

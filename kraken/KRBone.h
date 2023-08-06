@@ -47,12 +47,12 @@ public:
   virtual std::string getElementName();
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
   virtual void loadXML(tinyxml2::XMLElement* e);
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
   void render(RenderInfo& ri);
 
-  void setBindPose(const Matrix4& pose);
-  const Matrix4& getBindPose();
+  void setBindPose(const hydra::Matrix4& pose);
+  const hydra::Matrix4& getBindPose();
 private:
-  Matrix4 m_bind_pose;
+  hydra::Matrix4 m_bind_pose;
 };

@@ -47,7 +47,7 @@ float const PI = 3.141592653589793f;
 float const D2R = PI * 2 / 360;
 
 namespace kraken {
-void setXMLAttribute(const std::string& base_name, ::tinyxml2::XMLElement* e, const Vector3& value, const Vector3& default_value);
-const Vector3 getXMLAttribute(const std::string& base_name, ::tinyxml2::XMLElement* e, const Vector3& default_value);
+void setXMLAttribute(const std::string& base_name, ::tinyxml2::XMLElement* e, const hydra::Vector3& value, const hydra::Vector3& default_value);
+const hydra::Vector3 getXMLAttribute(const std::string& base_name, ::tinyxml2::XMLElement* e, const hydra::Vector3& default_value);
 } // namespace kraken
 

@@ -113,11 +113,11 @@ public:
   // Listener position and orientation
   KRScene* getListenerScene();
   void setListenerScene(KRScene* scene);
-  void setListenerOrientation(const Vector3& position, const Vector3& forward, const Vector3& up);
-  void setListenerOrientationFromModelMatrix(const Matrix4& modelMatrix);
-  Vector3& getListenerForward();
-  Vector3& getListenerPosition();
-  Vector3& getListenerUp();
+  void setListenerOrientation(const hydra::Vector3& position, const hydra::Vector3& forward, const hydra::Vector3& up);
+  void setListenerOrientationFromModelMatrix(const hydra::Matrix4& modelMatrix);
+  hydra::Vector3& getListenerForward();
+  hydra::Vector3& getListenerPosition();
+  hydra::Vector3& getListenerUp();
 
 
   // Global audio gain / attenuation
@@ -174,9 +174,9 @@ private:
   float m_global_ambient_gain;
   float m_global_gain;
 
-  Vector3 m_listener_position;
-  Vector3 m_listener_forward;
-  Vector3 m_listener_up;
+  hydra::Vector3 m_listener_position;
+  hydra::Vector3 m_listener_forward;
+  hydra::Vector3 m_listener_up;
 
   unordered_map<std::string, KRAudioSample*> m_sounds;
 
@@ -231,14 +231,14 @@ private:
   void renderReverbImpulseResponse(int impulse_response_offset, int frame_count_log2);
   void renderLimiter();
 
-  std::vector<Vector2> m_hrtf_sample_locations;
+  std::vector<hydra::Vector2> m_hrtf_sample_locations;
   float* m_hrtf_data;
-  unordered_map<Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
+  unordered_map<hydra::Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
 
-  Vector2 getNearestHRTFSample(const Vector2& dir);
-  void getHRTFMix(const Vector2& dir, Vector2& hrtf1, Vector2& hrtf2, Vector2& hrtf3, Vector2& hrtf4, float& mix1, float& mix2, float& mix3, float& mix4);
-  KRAudioSample* getHRTFSample(const Vector2& hrtf_dir);
-  KRDSP::SplitComplex getHRTFSpectral(const Vector2& hrtf_dir, const int channel);
+  hydra::Vector2 getNearestHRTFSample(const hydra::Vector2& dir);
+  void getHRTFMix(const hydra::Vector2& dir, hydra::Vector2& hrtf1, hydra::Vector2& hrtf2, hydra::Vector2& hrtf3, hydra::Vector2& hrtf4, float& mix1, float& mix2, float& mix3, float& mix4);
+  KRAudioSample* getHRTFSample(const hydra::Vector2& hrtf_dir);
+  KRDSP::SplitComplex getHRTFSpectral(const hydra::Vector2& hrtf_dir, const int channel);
 
   unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
   float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
@@ -252,7 +252,7 @@ private:
 #endif
 
 
-  unordered_multimap<Vector2, std::pair<KRAudioSource*, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
+  unordered_multimap<hydra::Vector2, std::pair<KRAudioSource*, std::pair<float, float> > > m_mapped_sources, m_prev_mapped_sources;
   bool m_anticlick_block;
   bool m_high_quality_hrtf; // If true, 4 HRTF samples will be interpolated; if false, the nearest HRTF sample will be used without interpolation
 };

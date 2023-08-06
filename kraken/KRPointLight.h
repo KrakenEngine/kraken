@@ -41,7 +41,7 @@ public:
   virtual ~KRPointLight();
 
   virtual std::string getElementName();
-  virtual AABB getBounds();
+  virtual hydra::AABB getBounds();
 
   virtual void render(RenderInfo& ri);
 

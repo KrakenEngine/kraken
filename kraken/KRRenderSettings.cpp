@@ -31,6 +31,8 @@
 
 #include "KRRenderSettings.h"
 
+using namespace hydra;
+
 KRRenderSettings::KRRenderSettings()
 {
   siren_enable = true;
