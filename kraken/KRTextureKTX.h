@@ -41,11 +41,11 @@ public:
   KRTextureKTX(KRContext& context, Block* data, std::string name);
   KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<Block*>& blocks);
   virtual ~KRTextureKTX();
-  virtual std::string getExtension();
+  virtual std::string getExtension() override;
 
   bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool premultiply_alpha = false) override;
 
-  virtual long getMemRequiredForSize(int max_dim);
+  virtual long getMemRequiredForSize(int max_dim) override;
   virtual hydra::Vector2i getDimensions() const override;
   virtual int getFaceCount() const override;
   virtual VkFormat getFormat() const override;

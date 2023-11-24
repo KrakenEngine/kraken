@@ -102,6 +102,10 @@ VkShaderStageFlagBits getShaderStageFlagBitsFromShaderStage(ShaderStage stage)
     return VK_SHADER_STAGE_MISS_BIT_KHR;
   case ShaderStage::rcall:
     return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+  case ShaderStage::ShaderStageCount:
+  case ShaderStage::Invalid:
+    // Suppress warning
+    break;
   }
   return (VkShaderStageFlagBits)0;
 }

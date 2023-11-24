@@ -45,8 +45,8 @@ class KRTexture2D : public KRTexture
 public:
   KRTexture2D(KRContext& context, mimir::Block* data, std::string name);
   virtual ~KRTexture2D();
-  virtual bool save(const std::string& path);
-  virtual bool save(mimir::Block& data);
+  virtual bool save(const std::string& path) override;
+  virtual bool save(mimir::Block& data) override;
 
   virtual bool uploadTexture(KRDevice& device, VkImage& image, int lod_max_dim, int& current_lod_max_dim, bool premultiply_alpha = false) = 0;
   virtual hydra::Vector2i getDimensions() const = 0;

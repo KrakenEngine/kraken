@@ -553,7 +553,7 @@ void KRMeshManager::KRVBOData::load(VkCommandBuffer& commandBuffer)
 #if KRENGINE_DEBUG_GPU_LABELS
     char debug_label[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
 
-    char* type_label = "";
+    const char* type_label = "";
 
     switch (m_type) {
     case vbo_type::STREAMING:

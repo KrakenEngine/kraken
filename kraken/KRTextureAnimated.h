@@ -41,17 +41,17 @@ class KRTextureAnimated : public KRTexture
 public:
   KRTextureAnimated(KRContext& context, std::string name);
   virtual ~KRTextureAnimated();
-  virtual std::string getExtension();
-  virtual bool save(const std::string& path);
-  virtual bool save(Block& data);
+  virtual std::string getExtension() override;
+  virtual bool save(const std::string& path) override;
+  virtual bool save(Block& data) override;
 
-  virtual long getMemRequiredForSize(int max_dim);
-  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+  virtual long getMemRequiredForSize(int max_dim) override;
+  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage) override;
 
-  virtual long getReferencedMemSize();
+  virtual long getReferencedMemSize() override;
 
-  virtual bool isAnimated();
-  virtual void resize(int max_dim);
+  virtual bool isAnimated() override;
+  virtual void resize(int max_dim) override;
   virtual int getFaceCount() const override;
   virtual VkFormat getFormat() const override;
 

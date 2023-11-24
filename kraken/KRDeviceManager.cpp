@@ -93,7 +93,7 @@ KRDeviceManager::initialize()
 
   // VK_KHR_surface and VK_KHR_win32_surface
 
-  char* extensions[] = {
+  const char* extensions[] = {
     "VK_KHR_surface",
 #if KRENGINE_DEBUG_GPU_LABELS
     "VK_EXT_debug_utils",

@@ -132,7 +132,7 @@ void KRPresentationThread::renderFrame()
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || resized) {
       // TODO - Must explicitly detect resize and trigger swapchain re-creation as well
       vkDeviceWaitIdle(device.m_logicalDevice);
-      if (surface.recreateSwapChain() != VK_SUCCESS) {
+      if (surface.recreateSwapChain() != KR_SUCCESS) {
         m_activeState = PresentThreadState::error;
       }
       break;
