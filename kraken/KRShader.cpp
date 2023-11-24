@@ -171,7 +171,7 @@ bool KRShader::createShaderModule(VkDevice& device, VkShaderModule& module)
 
 #if KRENGINE_DEBUG_GPU_LABELS
   if (success) {
-    std::string& name = getName();
+    const std::string& name = getName();
     VkDebugUtilsObjectNameInfoEXT debugInfo{};
     debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
     debugInfo.objectHandle = (uint64_t)module;
