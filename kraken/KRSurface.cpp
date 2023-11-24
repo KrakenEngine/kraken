@@ -133,12 +133,12 @@ void KRSurface::destroy()
   }
 
   for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
-    if (device && m_renderFinishedSemaphores != VK_NULL_HANDLE) {
+    if (device && m_renderFinishedSemaphores[i] != VK_NULL_HANDLE) {
       vkDestroySemaphore(device->m_logicalDevice, m_renderFinishedSemaphores[i], nullptr);
       m_renderFinishedSemaphores[i] = VK_NULL_HANDLE;
     }
 
-    if (device && m_imageAvailableSemaphores != VK_NULL_HANDLE) {
+    if (device && m_imageAvailableSemaphores[i] != VK_NULL_HANDLE) {
       vkDestroySemaphore(device->m_logicalDevice, m_imageAvailableSemaphores[i], nullptr);
       m_imageAvailableSemaphores[i] = VK_NULL_HANDLE;
     }
