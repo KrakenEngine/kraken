@@ -62,6 +62,8 @@ using namespace kraken;
 #include "../3rdparty/glslang/glslang/Public/ShaderLang.h"
 #include "../3rdparty/glslang/SPIRV/GlslangToSpv.h"
 #if defined(__APPLE__)
+#define VK_USE_PLATFORM_METAL_EXT
+#define stricmp strcasecmp
 
 #include <sys/mman.h>
 #include <unistd.h>

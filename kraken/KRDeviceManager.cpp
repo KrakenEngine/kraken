@@ -101,6 +101,9 @@ KRDeviceManager::initialize()
 #ifdef WIN32
     "VK_KHR_win32_surface",
 #endif
+#ifdef __APPLE__
+    "VK_EXT_metal_surface",
+#endif
   };
 
   // initialize the VkInstanceCreateInfo structure
