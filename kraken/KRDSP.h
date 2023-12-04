@@ -1,5 +1,5 @@
 //
-//  KRDSP.h
+//  dsp.h
 //  Kraken Engine
 //
 //  Copyright 2023 Kearwood Gilbert. All rights reserved.
@@ -32,8 +32,8 @@
 #pragma once
 
 #include "KREngine-common.h"
-
-namespace KRDSP {
+namespace siren {
+namespace dsp {
 
 #ifdef __APPLE__
 #define KRDSP_APPLE_VDSP
@@ -91,4 +91,5 @@ void Accumulate(float* buffer, size_t bufferStride, const float* buffer2, size_t
 void Accumulate(SplitComplex* buffer, const SplitComplex* buffer2, size_t count);
 void Multiply(const SplitComplex* a, const SplitComplex* b, SplitComplex* c, size_t count);
 
-} // namespace KRDSP
+} // namespace dsp
+} // namespace siren

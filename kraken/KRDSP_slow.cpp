@@ -35,7 +35,8 @@
 
 #include "KREngine-common.h"
 
-namespace KRDSP {
+namespace siren {
+namespace dsp {
 
 FFTWorkspace::FFTWorkspace()
 {
@@ -202,6 +203,7 @@ void Multiply(const SplitComplex* a, const SplitComplex* b, SplitComplex* c, siz
   }
 }
 
-} // namespace KRDSP
+} // namespace dsp
+} // namespace siren
 
 #endif // KRDSP_SLOW

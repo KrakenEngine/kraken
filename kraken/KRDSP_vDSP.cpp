@@ -35,7 +35,8 @@
 
 #include <Accelerate/Accelerate.h>
 
-namespace KRDSP {
+namespace siren {
+namespace dsp {
 
 
 
@@ -114,6 +115,7 @@ void Multiply(const SplitComplex* a, const SplitComplex* b, SplitComplex* c, siz
   vDSP_zvmul(a, 1, b, 1, c, 1, count, 1);
 }
 
-} // namespace KRDSP
+} // namespace dsp
+} // namespace siren
 
 #endif // KRDSP_APPLE_VDSP

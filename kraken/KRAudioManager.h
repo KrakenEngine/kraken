@@ -204,7 +204,7 @@ private:
   void renderAudio(UInt32 inNumberFrames, AudioBufferList* ioData);
 #endif
 
-  KRDSP::FFTWorkspace m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
+  siren::dsp::FFTWorkspace m_fft_setup[KRENGINE_REVERB_MAX_FFT_LOG2 - KRENGINE_AUDIO_BLOCK_LOG2N + 1];
 
   __int64_t m_audio_frame; // Number of audio frames processed since the start of the application
 
@@ -220,7 +220,7 @@ private:
   int m_output_sample;
 
   float* m_workspace_data;
-  KRDSP::SplitComplex m_workspace[3];
+  siren::dsp::SplitComplex m_workspace[3];
 
   float* getBlockAddress(int block_offset);
   void renderBlock();
@@ -233,12 +233,12 @@ private:
 
   std::vector<hydra::Vector2> m_hrtf_sample_locations;
   float* m_hrtf_data;
-  unordered_map<hydra::Vector2, KRDSP::SplitComplex> m_hrtf_spectral[2];
+  unordered_map<hydra::Vector2, siren::dsp::SplitComplex> m_hrtf_spectral[2];
 
   hydra::Vector2 getNearestHRTFSample(const hydra::Vector2& dir);
   void getHRTFMix(const hydra::Vector2& dir, hydra::Vector2& hrtf1, hydra::Vector2& hrtf2, hydra::Vector2& hrtf3, hydra::Vector2& hrtf4, float& mix1, float& mix2, float& mix3, float& mix4);
   KRAudioSample* getHRTFSample(const hydra::Vector2& hrtf_dir);
-  KRDSP::SplitComplex getHRTFSpectral(const hydra::Vector2& hrtf_dir, const int channel);
+  siren::dsp::SplitComplex getHRTFSpectral(const hydra::Vector2& hrtf_dir, const int channel);
 
   unordered_map<std::string, siren_ambient_zone_weight_info> m_ambient_zone_weights;
   float m_ambient_zone_total_weight = 0.0f; // For normalizing zone weights
