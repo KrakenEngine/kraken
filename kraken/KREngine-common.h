@@ -41,6 +41,7 @@
 using namespace kraken;
 
 #include "hydra.h"
+#include "siren.h"
 
 #include <stdint.h>
 #include <vector>

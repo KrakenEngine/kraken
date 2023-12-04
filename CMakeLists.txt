@@ -95,6 +95,9 @@ add_public_header(hydra/include/vector2i.h)
 add_public_header(mimir/include/mimir.h)
 add_public_header(mimir/include/block.h)
 
+add_public_header(siren/include/siren.h)
+add_public_header(siren/include/dsp.h)
+
 # ---- Android ----
 if(ANDROID)
 add_subdirectory(kraken_android)
@@ -104,6 +107,11 @@ endif()
 add_subdirectory(hydra)
 include_directories(hydra/include)
 list (APPEND EXTRA_LIBS hydra)
+
+# ---- Siren ----
+add_subdirectory(siren)
+include_directories(siren/include)
+list (APPEND EXTRA_LIBS siren)
 
 # ---- Mimir ----
 add_subdirectory(mimir)

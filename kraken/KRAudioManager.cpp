@@ -36,7 +36,7 @@
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
 #include "KRCollider.h"
-#include "KRDSP.h"
+#include "siren.h"
 
 using namespace mimir;
 using namespace hydra;

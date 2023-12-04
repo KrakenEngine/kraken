@@ -22,3 +22,6 @@
 [submodule "mimir"]
 	path = mimir
 	url = https://src.kearwood.com/kraken_engine/mimir
+[submodule "siren"]
+	path = siren
+	url = https://github.com/KrakenEngine/siren.git

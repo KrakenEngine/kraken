@@ -38,7 +38,7 @@
 #include "KRContextObject.h"
 #include "block.h"
 #include "KRAudioSource.h"
-#include "KRDSP.h"
+#include "siren.h"
 
 const int KRENGINE_AUDIO_MAX_POOL_SIZE = 60; //32;
     // for Circa we play a maximum of 11 mono audio streams at once + cross fading with ambient

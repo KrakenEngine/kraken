@@ -34,9 +34,10 @@
 #include "block.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-#include "KRDSP.h"
+#include "siren.h"
 
 using namespace mimir;
+using namespace siren;
 
 KRAudioSample::KRAudioSample(KRContext& context, std::string name, std::string extension) : KRResource(context, name)
 {
