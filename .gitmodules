@@ -8,6 +8,7 @@
 [submodule "3rdparty/vulkan"]
 	path = 3rdparty/vulkan
 	url = https://github.com/KhronosGroup/Vulkan-Headers
+	branch = v1.3.272
 [submodule "3rdparty/volk"]
 	path = 3rdparty/volk
 	url = https://github.com/zeux/volk
