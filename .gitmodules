@@ -1,6 +1,6 @@
 [submodule "hydra"]
 	path = hydra
-	url = https://github.com/KrakenEngine/hydra
+	url = ../hydra
 [submodule "3rdparty/glslang"]
 	path = 3rdparty/glslang
 	url = https://github.com/KhronosGroup/glslang
