@@ -1,6 +1,7 @@
 [submodule "hydra"]
 	path = hydra
 	url = ../hydra
+	branch = main
 [submodule "3rdparty/glslang"]
 	path = 3rdparty/glslang
 	url = https://github.com/KhronosGroup/glslang
@@ -22,6 +23,8 @@
 [submodule "mimir"]
 	path = mimir
 	url = ../mimir
+	branch = main
 [submodule "siren"]
 	path = siren
 	url = ../siren
+	branch = main
