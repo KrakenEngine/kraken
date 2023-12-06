@@ -21,7 +21,7 @@
 	url = https://github.com/GPUOpen-Tools/compressonator.git
 [submodule "mimir"]
 	path = mimir
-	url = https://src.kearwood.com/kraken_engine/mimir
+	url = ../mimir
 [submodule "siren"]
 	path = siren
-	url = https://github.com/KrakenEngine/siren.git
+	url = ../siren
