@@ -62,21 +62,6 @@ int KRContext::KRENGINE_MIN_TEXTURE_DIM = 64;
 // TODO - This should be configured per-scene?  Or auto/dynamic?
 int KRContext::KRENGINE_PRESTREAM_DISTANCE = 1000.0f;
 
-#if TARGET_OS_IPHONE
-
-
-#elif TARGET_OS_MAC
-
-#elif defined(_WIN32) || defined(_WIN64)
-
-#elif defined(ANDROID)
-
-#else
-
-#error Unsupported Platform
-
-#endif
-
 std::mutex KRContext::g_SurfaceInfoMutex;
 std::mutex KRContext::g_DeviceInfoMutex;
 
