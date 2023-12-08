@@ -49,6 +49,7 @@ using namespace kraken;
 #include <set>
 #include <list>
 #include <map>
+#include <memory>
 #include <variant>
 #include <algorithm>
 #include <stack>
