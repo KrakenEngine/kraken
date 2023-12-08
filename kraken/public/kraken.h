@@ -32,6 +32,7 @@
 
 #include "context.h"
 #include "hydra.h"
+#include <stdint.h>
 
 #define KR_NULL_HANDLE 0
 
