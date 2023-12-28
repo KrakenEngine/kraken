@@ -31,6 +31,7 @@
 
 #import "Cocoa/Cocoa.h"
 #include "kraken.h"
+#include "harness.h"
 
 using namespace kraken;
 
@@ -56,6 +57,16 @@ int main(int argc, const char * argv[])
     // Window controller:
     NSWindowController * windowController = [[NSWindowController alloc] initWithWindow:window];
     [windowController autorelease];
+      
+    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 640, 480)];
+    [view setWantsLayer:YES];
+    view.layer.backgroundColor = [[NSColor purpleColor] CGColor];
+
+    if (!test_init(static_cast<void*>(view))) {
+      return 1;
+    }
+
+    [window.contentView addSubview:view];
 
     [window orderFrontRegardless];
     [NSApp run];

@@ -31,4 +31,4 @@
 
 #pragma once
 
-void smoke_load();
+bool smoke_load();

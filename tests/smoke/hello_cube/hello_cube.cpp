@@ -32,7 +32,7 @@
 #include "kraken.h"
 #include <assert.h>
 
-void smoke_load()
+bool smoke_load()
 {
   enum
   {
@@ -44,6 +44,17 @@ void smoke_load()
   {
     kCameraNodeHandle = 10
   };
+
+  KrLoadResourceInfo load_resource_info = {};
+  load_resource_info.sType = KR_STRUCTURE_TYPE_LOAD_RESOURCE;
+  load_resource_info.resourceHandle = 1;
+  load_resource_info.pResourcePath = "kraken_cube.krbundle";
+  KrResult res = KrLoadResource(&load_resource_info);
+  if (res != KR_SUCCESS) {
+    //printf("Failed to load resource: %s\n", arg);
+    KrShutdown();
+    return 1;
+  }
 
   /*
   KrMapResourceInfo map_skybox_resource = { KR_STRUCTURE_TYPE_MAP_RESOURCE };
@@ -57,7 +68,7 @@ void smoke_load()
   KrCreateSceneInfo create_scene_info = { KR_STRUCTURE_TYPE_CREATE_SCENE };
   create_scene_info.resourceHandle = kSceneResourceHandle;
   create_scene_info.pSceneName = "my_scene";
-  KrResult res = KrCreateScene(&create_scene_info);
+  res = KrCreateScene(&create_scene_info);
   assert(res == KR_SUCCESS);
 
   // Add a camera to the scene

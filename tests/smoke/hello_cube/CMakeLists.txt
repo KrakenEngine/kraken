@@ -20,12 +20,12 @@ add_custom_target(kraken_cube_assets ALL
 )
 
 if (WIN32)
-  add_executable(kraken_cube WIN32 main_win.cpp hello_cube.cpp)
+  add_executable(kraken_cube WIN32 main_win.cpp harness.cpp hello_cube.cpp)
   add_compile_definitions(UNICODE)
   list (APPEND EXTRA_LIBS shcore)
 
 else(WIN32)
-  add_executable(kraken_cube main_macos.mm hello_cube.cpp)
+  add_executable(kraken_cube main_macos.mm harness.cpp hello_cube.cpp)
   set(CMAKE_CXX_COMPILER "clang++")
 endif(WIN32)
 

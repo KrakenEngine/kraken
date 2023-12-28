@@ -134,6 +134,8 @@ typedef struct
   KrSurfaceMapIndex surfaceHandle;
 #if defined(_WIN32) || defined(_WIN64)
   void* hWnd; // Can static cast to HWND
+#elif defined(__APPLE__)
+  void* view; // Can static cast to NSView
 #endif
 } KrCreateWindowSurfaceInfo;
 

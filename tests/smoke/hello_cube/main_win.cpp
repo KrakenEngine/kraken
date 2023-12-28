@@ -33,6 +33,7 @@
 #include <shellscalingapi.h>
 #include "kraken.h"
 #include "hello_cube.h"
+#include "harness.h"
 
 using namespace kraken;
 
@@ -60,58 +61,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 2;
   }
 
-  KrInitializeInfo init_info = {};
-  init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
-  init_info.resourceMapSize = 1024;
-  init_info.nodeMapSize = 1024;
-  KrResult res = KrInitialize(&init_info);
-  if (res != KR_SUCCESS) {
-    // printf("Failed to initialize Kraken!\n");
+  if (!test_init(static_cast<void*>(hWnd))) {
     return 1;
   }
-
-  KrLoadResourceInfo load_resource_info = {};
-  load_resource_info.sType = KR_STRUCTURE_TYPE_LOAD_RESOURCE;
-  load_resource_info.resourceHandle = 1;
-  load_resource_info.pResourcePath = "kraken_cube.krbundle";
-  res = KrLoadResource(&load_resource_info);
-  if (res != KR_SUCCESS) {
-    //printf("Failed to load resource: %s\n", arg);
-    KrShutdown();
-    return 1;
-  }
-
-  KrCreateWindowSurfaceInfo create_surface_info = {};
-  create_surface_info.sType = KR_STRUCTURE_TYPE_CREATE_WINDOW_SURFACE;
-  create_surface_info.surfaceHandle = 1;
-  create_surface_info.hWnd = static_cast<void*>(hWnd);
-  res = KrCreateWindowSurface(&create_surface_info);
-  if (res != KR_SUCCESS) {
-    //printf("Failed to create window surface.\n");
-    KrShutdown();
-    return 1;
-  }
-
-  smoke_load();
 
   while (GetMessage(&msg, NULL, 0, 0) > 0) {
     DispatchMessage(&msg);
   }
 
-
-  // KrShutdown will delete the window surfaces for us; however, we
-  // include this here for code coverage in tests.
-  KrDeleteWindowSurfaceInfo delete_surface_info = {};
-  delete_surface_info.sType = KR_STRUCTURE_TYPE_DELETE_WINDOW_SURFACE;
-  delete_surface_info.surfaceHandle = 1;
-  res = KrDeleteWindowSurface(&delete_surface_info);
-  if (res != KR_SUCCESS) {
-    //printf("Failed to delete window surface.\n");
-    KrShutdown();
+  if (!test_shutdown()) {
     return 1;
   }
-
-  KrShutdown();
 
   return 0;
 }
