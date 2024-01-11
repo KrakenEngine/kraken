@@ -89,40 +89,39 @@ KRDeviceManager::initialize()
   app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
   app_info.pEngineName = "Kraken Engine";
   app_info.engineVersion = VK_MAKE_VERSION(0, 1, 0);
-  app_info.apiVersion = VK_API_VERSION_1_0;
+  app_info.apiVersion = VK_API_VERSION_1_3;
 
   // VK_KHR_surface and VK_KHR_win32_surface
-
+  
   const char* extensions[] = {
-    "VK_KHR_surface",
+    VK_KHR_SURFACE_EXTENSION_NAME,
 #if KRENGINE_DEBUG_GPU_LABELS
-    "VK_EXT_debug_utils",
+    VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 #ifdef WIN32
-    "VK_KHR_win32_surface",
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 #ifdef __APPLE__
-    "VK_EXT_metal_surface",
+    VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME,
 #endif
   };
+    
+  VkInstanceCreateFlags createFlags = 0;
+#ifdef __APPLE__
+  createFlags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
   // initialize the VkInstanceCreateInfo structure
   VkInstanceCreateInfo inst_info = {};
   inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   inst_info.pNext = NULL;
-  inst_info.flags = 0;
+  inst_info.flags = createFlags;
   inst_info.pApplicationInfo = &app_info;
-  inst_info.enabledExtensionCount = 1;
+  inst_info.enabledExtensionCount = std::size(extensions);
   inst_info.ppEnabledExtensionNames = extensions;
   inst_info.enabledLayerCount = 0;
   inst_info.ppEnabledLayerNames = NULL;
-
-#if KRENGINE_DEBUG_GPU_LABELS
-  inst_info.enabledExtensionCount++;
-#endif
-#ifdef WIN32
-  inst_info.enabledExtensionCount++;
-#endif
 
   res = vkCreateInstance(&inst_info, NULL, &m_vulkanInstance);
   if (res != VK_SUCCESS) {
