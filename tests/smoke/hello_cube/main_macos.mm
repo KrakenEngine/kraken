@@ -30,6 +30,7 @@
 //
 
 #import "Cocoa/Cocoa.h"
+#import "QuartzCore/CAMetalLayer.h"
 #include "kraken.h"
 #include "harness.h"
 
@@ -59,10 +60,11 @@ int main(int argc, const char * argv[])
     [windowController autorelease];
       
     NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 640, 480)];
-    [view setWantsLayer:YES];
+    view.wantsLayer = YES;
+    view.layer = [CAMetalLayer layer];
     view.layer.backgroundColor = [[NSColor purpleColor] CGColor];
 
-    if (!test_init(static_cast<void*>(view))) {
+    if (!test_init(static_cast<void*>(view.layer))) {
       return 1;
     }
 

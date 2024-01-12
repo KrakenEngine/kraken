@@ -53,7 +53,7 @@ bool smoke_load()
   if (res != KR_SUCCESS) {
     //printf("Failed to load resource: %s\n", arg);
     KrShutdown();
-    return 1;
+    return false;
   }
 
   /*
@@ -84,4 +84,6 @@ bool smoke_load()
   // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
   res = KrCreateNode(&create_camera_info);
   assert(res == KR_SUCCESS);
+  
+  return true;
 }

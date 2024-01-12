@@ -839,14 +839,13 @@ KrResult KRContext::createWindowSurface(const KrCreateWindowSurfaceInfo* createW
   if (!m_deviceManager->haveDevice()) {
     return KR_ERROR_NO_DEVICE;
   }
+#if defined(WIN32) || defined(__APPLE__)
 
   const std::lock_guard<std::mutex> surfaceLock(KRContext::g_SurfaceInfoMutex);
   const std::lock_guard<std::mutex> deviceLock(KRContext::g_DeviceInfoMutex);
 
-#ifdef WIN32
-  HWND hWnd = static_cast<HWND>(createWindowSurfaceInfo->hWnd);
   KrSurfaceHandle surfaceHandle = 0;
-  KrResult result = m_surfaceManager->create(hWnd, surfaceHandle);
+  KrResult result = m_surfaceManager->create(createWindowSurfaceInfo->platformHandle, surfaceHandle);
   if (result != KR_SUCCESS) {
     return result;
   }

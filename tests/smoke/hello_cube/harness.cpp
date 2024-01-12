@@ -34,7 +34,7 @@
 #include "kraken.h"
 #include "hello_cube.h"
 
-bool test_init(void* windowHandle)
+bool test_init(void* platformHandle)
 {
   KrInitializeInfo init_info = {};
   init_info.sType = KR_STRUCTURE_TYPE_INITIALIZE;
@@ -50,11 +50,7 @@ bool test_init(void* windowHandle)
   KrCreateWindowSurfaceInfo create_surface_info = {};
   create_surface_info.sType = KR_STRUCTURE_TYPE_CREATE_WINDOW_SURFACE;
   create_surface_info.surfaceHandle = 1;
-#if defined(WIN32) || defined(WIN64)
-  create_surface_info.hWnd = windowHandle;
-#elif defined(__APPLE__)
-  create_surface_info.view = windowHandle;
-#endif
+  create_surface_info.platformHandle = platformHandle;
   res = KrCreateWindowSurface(&create_surface_info);
   if (res != KR_SUCCESS) {
     //printf("Failed to create window surface.\n");

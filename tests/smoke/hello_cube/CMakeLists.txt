@@ -27,6 +27,8 @@ if (WIN32)
 else(WIN32)
   add_executable(kraken_cube main_macos.mm harness.cpp hello_cube.cpp)
   set(CMAKE_CXX_COMPILER "clang++")
+  list (APPEND EXTRA_LIBS "-framework QuartzCore")
+  list (APPEND EXTRA_LIBS "-framework Metal")
 endif(WIN32)
 
 add_dependencies(kraken_cube kraken_cube_assets)

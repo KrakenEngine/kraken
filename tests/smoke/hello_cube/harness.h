@@ -31,5 +31,5 @@
 
 #pragma once
  
-bool test_init(void* windowHandle);
+bool test_init(void* platformHandle);
 bool test_shutdown();

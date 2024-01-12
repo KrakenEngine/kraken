@@ -132,11 +132,7 @@ typedef struct
 {
   KrStructureType sType;
   KrSurfaceMapIndex surfaceHandle;
-#if defined(_WIN32) || defined(_WIN64)
-  void* hWnd; // Can static cast to HWND
-#elif defined(__APPLE__)
-  void* view; // Can static cast to NSView
-#endif
+  void* platformHandle; // Can static cast to HWND on Windows and CAMetalLayer* on macOS
 } KrCreateWindowSurfaceInfo;
 
 typedef struct

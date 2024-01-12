@@ -41,9 +41,7 @@ class KRSurfaceManager : KRContextObject
 public:
   KRSurfaceManager(KRContext& context);
   ~KRSurfaceManager();
-#ifdef WIN32
-  KrResult create(HWND hWnd, KrSurfaceHandle& surfaceHandle);
-#endif
+  KrResult create(void* platformHandle, KrSurfaceHandle& surfaceHandle);
   KRSurface& get(KrSurfaceHandle surfaceHandle);
   KrResult destroy(KrSurfaceHandle& surfaceHandle);
   unordered_map<KrSurfaceHandle, std::unique_ptr<KRSurface>>& getSurfaces();

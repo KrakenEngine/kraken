@@ -136,7 +136,7 @@ if(ANDROID)
 elseif(WIN32)
     target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_WIN32_KHR)
 elseif(APPLE)
-    target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_MACOS_MVK)
+    target_compile_definitions(vulkan INTERFACE VK_USE_PLATFORM_METAL_EXT)
 elseif(UNIX)
     # See whether X11 is available. If not, fall back to direct-to-display mode.
     find_package(X11 QUIET)

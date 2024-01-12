@@ -48,12 +48,11 @@ void KRSurfaceManager::destroySurfaces()
   m_surfaces.clear();
 }
 
-#ifdef WIN32
-KrResult KRSurfaceManager::create(HWND hWnd, KrSurfaceHandle& surfaceHandle)
+KrResult KRSurfaceManager::create(void* platformHandle, KrSurfaceHandle& surfaceHandle)
 {
   surfaceHandle = 0;
 
-  std::unique_ptr<KRSurface> surface = std::make_unique<KRSurface>(*m_pContext, m_topSurfaceHandle, hWnd);
+  std::unique_ptr<KRSurface> surface = std::make_unique<KRSurface>(*m_pContext, m_topSurfaceHandle, platformHandle);
 
   KrResult initialize_result = surface->initialize();
   if (initialize_result != KR_SUCCESS) {
@@ -65,8 +64,6 @@ KrResult KRSurfaceManager::create(HWND hWnd, KrSurfaceHandle& surfaceHandle)
 
   return KR_SUCCESS;
 }
-
-#endif
 
 KrResult KRSurfaceManager::destroy(KrSurfaceHandle& surfaceHandle)
 {

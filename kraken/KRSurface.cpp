@@ -35,20 +35,10 @@
 
 using namespace hydra;
 
-#if defined(WIN32)
-KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, HWND hWnd)
-#elif defined(__APPLE__)
-KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, CAMetalLayer* layer)
-#else
-KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle)
-#endif
+KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformHandle)
   : KRContextObject(context)
   , m_handle(handle)
-#ifdef WIN32
-  , m_hWnd(hWnd)
-#elif defined(__APPLE__)
-  , m_layer(layer)
-#endif
+  , m_platformHandle(platformHandle)
   , m_deviceHandle(0)
   , m_surface(VK_NULL_HANDLE)
   , m_imageAvailableSemaphores{VK_NULL_HANDLE}
@@ -73,14 +63,17 @@ KrResult KRSurface::initialize()
   VkWin32SurfaceCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hinstance = GetModuleHandle(nullptr);
-  createInfo.hwnd = m_hWnd;
+  createInfo.hwnd = static_cast<HWND>(m_platformHandle);
   if (vkCreateWin32SurfaceKHR(m_pContext->getDeviceManager()->getVulkanInstance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
     return KR_ERROR_VULKAN;
   }
 #elif defined(__APPLE__)
-    VkMetalSurfaceCreateInfoEXT createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
-    createInfo.pLayer = m_layer; // CAMetalLayer
+  VkMetalSurfaceCreateInfoEXT createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
+  createInfo.pLayer = static_cast<CAMetalLayer*>(m_platformHandle);
+  if (vkCreateMetalSurfaceEXT(m_pContext->getDeviceManager()->getVulkanInstance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS) {
+    return KR_ERROR_VULKAN;
+  }
 #else
 #error Unsupported
 #endif

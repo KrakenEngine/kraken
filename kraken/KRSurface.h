@@ -41,13 +41,7 @@ class KRSwapchain;
 class KRSurface : public KRContextObject
 {
 public:
-#if defined(WIN32)
-  KRSurface(KRContext& context, KrSurfaceHandle handle, HWND hWnd);
-#elif defined(__APPLE__)
-  KRSurface(KRContext& context, KrSurfaceHandle handle, CAMetalLayer* layer);
-#else
-  KRSurface(KRContext& context, KrSurfaceHandle handle);
-#endif
+  KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformHandle);
   ~KRSurface();
   void destroy();
   uint32_t getWidth() const;
@@ -69,11 +63,7 @@ public:
   void endFrame();
   KrSurfaceHandle m_handle;
 
-#ifdef WIN32
-  HWND m_hWnd;
-#elif defined(__APPLE__)
-  CAMetalLayer* m_layer;
-#endif
+  void* m_platformHandle;
   KrDeviceHandle m_deviceHandle;
   VkSurfaceKHR m_surface;
 
