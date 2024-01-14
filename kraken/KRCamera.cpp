@@ -781,23 +781,25 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
     fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
-
-    PipelineInfo info{};
-    std::string shader_name("debug_font");
-    info.shader_name = &shader_name;
-    info.pCamera = this;
-    info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-    info.rasterMode = RasterMode::kAlphaBlendNoTest;
-    info.cullMode = CullMode::kCullNone;
-    info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
-    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
-    KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
-    fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-    fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-
-    m_debug_text_vbo_data.bind(commandBuffer);
-
-    vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+    if (fontTexture->getStreamLevel(KRTexture::TEXTURE_USAGE_UI) != kraken_stream_level::STREAM_LEVEL_OUT) {
+      
+      PipelineInfo info{};
+      std::string shader_name("debug_font");
+      info.shader_name = &shader_name;
+      info.pCamera = this;
+      info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+      info.rasterMode = RasterMode::kAlphaBlendNoTest;
+      info.cullMode = CullMode::kCullNone;
+      info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+      info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+      KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
+      fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+      fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+      
+      m_debug_text_vbo_data.bind(commandBuffer);
+      
+      vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+    }
     
     debugPass.end(commandBuffer);
 

@@ -236,7 +236,7 @@ KrResult KRSurface::createSwapChain()
   
   info.clearColor = true;
   info.keepColor = true;
-  info.clearDepth = false;
+  info.clearDepth = true;
   info.keepDepth = false;
   info.finalPass = true;
   m_blackFramePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
