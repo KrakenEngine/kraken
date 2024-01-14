@@ -162,6 +162,8 @@ void KRPresentationThread::renderFrame()
     float deltaTime = 0.005; // TODO - Replace dummy value
     if (scene) {
       scene->renderFrame(commandBuffer, surface, deltaTime);
+    } else {
+      surface.renderBlackFrame(commandBuffer);
     }
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {

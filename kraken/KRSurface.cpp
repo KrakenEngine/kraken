@@ -49,6 +49,9 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
   m_deferredGBufferPass = std::make_unique<KRRenderPass>(context);
   m_deferredOpaquePass = std::make_unique<KRRenderPass>(context);
+  m_postCompositePass = std::make_unique<KRRenderPass>(context);
+  m_debugPass = std::make_unique<KRRenderPass>(context);
+  m_blackFramePass = std::make_unique<KRRenderPass>(context);
   m_swapChain = std::make_unique<KRSwapchain>(context);
 }
 
@@ -124,6 +127,18 @@ void KRSurface::destroy()
   if (m_deferredOpaquePass) {
     m_deferredOpaquePass->destroy(*device);
   }
+  
+  if (m_postCompositePass) {
+    m_postCompositePass->destroy(*device);
+  }
+  
+  if (m_debugPass) {
+    m_debugPass->destroy(*device);
+  }
+  
+  if (m_blackFramePass) {
+    m_blackFramePass->destroy(*device);
+  }
 
   for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
     if (device && m_renderFinishedSemaphores[i] != VK_NULL_HANDLE) {
@@ -184,17 +199,47 @@ KrResult KRSurface::createSwapChain()
 
 
   KRRenderPass::RenderPassInfo info{};
+  info.clearColor = true;
+  info.keepColor = true;
   info.clearDepth = true;
   info.keepDepth = false;
+  info.finalPass = false;
   m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
 
+  info.clearColor = true;
+  info.keepColor = true;
   info.clearDepth = true;
   info.keepDepth = true;
+  info.finalPass = false;
   m_deferredGBufferPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
 
+  info.clearColor = false;
+  info.keepColor = true;
+  info.clearDepth = false;
+  info.keepDepth = true;
+  info.finalPass = false;
+  m_deferredOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  
+  info.clearColor = false;
+  info.keepColor = true;
+  info.clearDepth = false;
+  info.keepDepth = true;
+  info.finalPass = false;
+  m_debugPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  
+  info.clearColor = false;
+  info.keepColor = true;
   info.clearDepth = false;
   info.keepDepth = false;
-  m_deferredOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  info.finalPass = true;
+  m_postCompositePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  
+  info.clearColor = true;
+  info.keepColor = true;
+  info.clearDepth = false;
+  info.keepDepth = false;
+  info.finalPass = true;
+  m_blackFramePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
 
   m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_forwardOpaquePass);
 
@@ -264,7 +309,29 @@ KRRenderPass& KRSurface::getDeferredOpaquePass()
   return *m_deferredOpaquePass;
 }
 
+KRRenderPass& KRSurface::getPostCompositePass()
+{
+  return *m_postCompositePass;
+}
+
+KRRenderPass& KRSurface::getDebugPass()
+{
+  return *m_debugPass;
+}
+
+KRRenderPass& KRSurface::getBlackFramePass()
+{
+  return *m_blackFramePass;
+}
+
 void KRSurface::endFrame()
 {
   m_frameIndex++;;
+}
+
+
+void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
+{
+  m_blackFramePass->begin(commandBuffer, *this, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+  m_blackFramePass->end(commandBuffer);
 }

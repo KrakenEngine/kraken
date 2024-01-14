@@ -48,6 +48,7 @@ public:
   uint32_t getHeight() const;
   hydra::Vector2i getDimensions() const;
   VkFormat getDepthFormat() const;
+  void renderBlackFrame(VkCommandBuffer &commandBuffer);
 
   KRSurface(const KRSurface&) = delete;
   KRSurface& operator=(const KRSurface&) = delete;
@@ -59,6 +60,9 @@ public:
 
   KRRenderPass& getDeferredGBufferPass();
   KRRenderPass& getDeferredOpaquePass();
+  KRRenderPass& getPostCompositePass();
+  KRRenderPass& getDebugPass();
+  KRRenderPass& getBlackFramePass();
 
   void endFrame();
   KrSurfaceHandle m_handle;
@@ -75,6 +79,10 @@ public:
   std::unique_ptr<KRRenderPass> m_forwardOpaquePass;
   std::unique_ptr<KRRenderPass> m_deferredGBufferPass;
   std::unique_ptr<KRRenderPass> m_deferredOpaquePass;
+  std::unique_ptr<KRRenderPass> m_postCompositePass;
+  std::unique_ptr<KRRenderPass> m_debugPass;
+  std::unique_ptr<KRRenderPass> m_blackFramePass;
+  
 
   // TODO - This needs to be advanced per swap chain
   uint64_t m_frameIndex;

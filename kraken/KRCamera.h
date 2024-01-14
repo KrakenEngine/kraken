@@ -90,6 +90,7 @@ private:
   int volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
 
   void renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface);
+  void renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface);
 
   void destroyBuffers();
 

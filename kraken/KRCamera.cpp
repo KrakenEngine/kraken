@@ -404,10 +404,23 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
   //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
 
+  GL_PUSH_GROUP_MARKER("Debug Overlays");
+
+  renderDebug(commandBuffer, compositeSurface);
+  
+  
+  GL_POP_GROUP_MARKER;
+  
   GL_PUSH_GROUP_MARKER("Post Processing");
 
+  KRRenderPass& postCompositePass = compositeSurface.getPostCompositePass();
+  postCompositePass.begin(commandBuffer, compositeSurface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+  
   renderPost(commandBuffer, compositeSurface);
 
+  postCompositePass.end(commandBuffer);
+  
+  
   GL_POP_GROUP_MARKER;
 }
 
@@ -573,62 +586,67 @@ void KRCamera::destroyBuffers()
 void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
   /*
-    // TODO - Re-enable once post fx shader is converted for Vulkan
-    KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+   // TODO - Re-enable once post fx shader is converted for Vulkan
+   KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+   
+   PipelineInfo info{};
+   std::string shader_name("PostShader");
+   info.shader_name = &shader_name;
+   info.pCamera = this;
+   info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+   info.rasterMode = RasterMode::kOpaqueNoTest;
+   info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+   info.vertexAttributes = vertices.getVertexAttributes();
+   
+   KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
+   
+   postShader->setPushConstant(KRPipeline::PushConstant::fade_color, m_fade_color);
+   postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+   
+   m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
+   m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
+   
+   if(settings.volumetric_environment_enable) {
+   m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 2, volumetricLightAccumulationTexture);
+   }
+   
+   // Update attribute values.
+   m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
+   
+   vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+   */
+  
+  
+  //    if(bShowShadowBuffer) {
+  //        KRPipeline *blitShader = m_pContext->getPipelineManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+  //
+  //        for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
+  //            Matrix4 viewMatrix = Matrix4();
+  //            viewMatrix.scale(0.20, 0.20, 0.20);
+  //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
+  //            getContext().getPipelineManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, Matrix4()), shadowViewports, Matrix4(), Vector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+  //            m_pContext->getTextureManager()->selectTexture(1, NULL);
+  //            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
+  //            m_pContext->getTextureManager()->_setActiveTexture(0);
+  //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
+  //#if GL_EXT_shadow_samplers
+  //            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_NONE)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
+  //#endif
+  //            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+  //#if GL_EXT_shadow_samplers
+  //            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
+  //#endif
+  //        }
+  //
+  //        m_pContext->getTextureManager()->selectTexture(0, NULL);
+  //        m_pContext->getTextureManager()->_setActiveTexture(0);
+  //        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
+  //    }
+  
+}
 
-    PipelineInfo info{};
-    std::string shader_name("PostShader");
-    info.shader_name = &shader_name;
-    info.pCamera = this;
-    info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-    info.rasterMode = RasterMode::kOpaqueNoTest;
-    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
-    info.vertexAttributes = vertices.getVertexAttributes();
-
-    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
-
-    postShader->setPushConstant(KRPipeline::PushConstant::fade_color, m_fade_color);
-    postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
-
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
-    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
-
-    if(settings.volumetric_environment_enable) {
-        m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 2, volumetricLightAccumulationTexture);
-    }
-
-  // Update attribute values.
-    m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
-
-    vkCmdDraw(commandBuffer, 4, 1, 0, 0);
- */
-
-
- //    if(bShowShadowBuffer) {
- //        KRPipeline *blitShader = m_pContext->getPipelineManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
- //        
- //        for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
- //            Matrix4 viewMatrix = Matrix4();
- //            viewMatrix.scale(0.20, 0.20, 0.20);
- //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
- //            getContext().getPipelineManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, Matrix4()), shadowViewports, Matrix4(), Vector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
- //            m_pContext->getTextureManager()->selectTexture(1, NULL);
- //            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
- //            m_pContext->getTextureManager()->_setActiveTexture(0);
- //            GLDEBUG(glBindTexture(GL_TEXTURE_2D, shadowDepthTexture[iShadow]));
- //#if GL_EXT_shadow_samplers
- //            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_NONE)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
- //#endif
- //            GLDEBUG(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
- //#if GL_EXT_shadow_samplers
- //            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT)); // TODO - Detect GL_EXT_shadow_samplers and only activate if available
- //#endif
- //        }
- //        
- //        m_pContext->getTextureManager()->selectTexture(0, NULL);
- //        m_pContext->getTextureManager()->_setActiveTexture(0);
- //        GLDEBUG(glBindTexture(GL_TEXTURE_2D, 0));
- //    }
+void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
+{
   const char* szText = settings.m_debug_text.c_str();
 
   std::string debug_text;
@@ -755,6 +773,11 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
         iCol++;
       }
     }
+    
+    m_debug_text_vbo_data.load(commandBuffer);
+    
+    KRRenderPass& debugPass = surface.getDebugPass();
+    debugPass.begin(commandBuffer, surface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
     fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
@@ -772,10 +795,11 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
     fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
     fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
 
-    m_debug_text_vbo_data.load(commandBuffer);
     m_debug_text_vbo_data.bind(commandBuffer);
 
     vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+    
+    debugPass.end(commandBuffer);
 
     m_debug_text_vertices.unlock();
 

@@ -44,8 +44,11 @@ public:
 
   struct RenderPassInfo
   {
+    bool clearColor;
+    bool keepColor;
     bool clearDepth;
     bool keepDepth;
+    bool finalPass;
   };
 
   void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info);
