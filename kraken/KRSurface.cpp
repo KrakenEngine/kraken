@@ -45,6 +45,8 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   , m_renderFinishedSemaphores{VK_NULL_HANDLE}
   , m_inFlightFences{VK_NULL_HANDLE}
   , m_frameIndex(0)
+  , m_renderGraph(context)
+  , m_blackFrameRenderGraph(context)
 {
   m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
   m_deferredGBufferPass = std::make_unique<KRRenderPass>(context);
@@ -212,6 +214,7 @@ KrResult KRSurface::createSwapChain()
   info.clearStencilValue = 0;
   info.finalPass = false;
   m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  m_renderGraph.addRenderPass(m_forwardOpaquePass.get());
 
   info.clearColor = true;
   info.keepColor = true;
@@ -219,6 +222,7 @@ KrResult KRSurface::createSwapChain()
   info.keepDepth = true;
   info.finalPass = false;
   m_deferredGBufferPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  m_renderGraph.addRenderPass(m_deferredGBufferPass.get());
 
   info.clearColor = false;
   info.keepColor = true;
@@ -226,6 +230,7 @@ KrResult KRSurface::createSwapChain()
   info.keepDepth = true;
   info.finalPass = false;
   m_deferredOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  m_renderGraph.addRenderPass(m_deferredOpaquePass.get());
   
   info.clearColor = false;
   info.keepColor = true;
@@ -233,6 +238,7 @@ KrResult KRSurface::createSwapChain()
   info.keepDepth = true;
   info.finalPass = false;
   m_debugPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  m_renderGraph.addRenderPass(m_debugPass.get());
   
   info.clearColor = false;
   info.keepColor = true;
@@ -240,6 +246,7 @@ KrResult KRSurface::createSwapChain()
   info.keepDepth = false;
   info.finalPass = true;
   m_postCompositePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  m_renderGraph.addRenderPass(m_postCompositePass.get());
   
   info.clearColor = true;
   info.keepColor = true;
@@ -247,6 +254,8 @@ KrResult KRSurface::createSwapChain()
   info.keepDepth = false;
   info.finalPass = true;
   m_blackFramePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
+  
+  m_blackFrameRenderGraph.addRenderPass(m_blackFramePass.get());
 
   m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_forwardOpaquePass);
 
@@ -339,6 +348,5 @@ void KRSurface::endFrame()
 
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
-  m_blackFramePass->begin(commandBuffer, *this);
-  m_blackFramePass->end(commandBuffer);
+  m_blackFrameRenderGraph.render(commandBuffer, *this);
 }

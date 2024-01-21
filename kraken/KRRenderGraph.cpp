@@ -30,4 +30,29 @@
 //
 
 #include "KRRenderGraph.h"
+#include "KRRenderPass.h"
+#include "KRSurface.h"
 
+KRRenderGraph::KRRenderGraph(KRContext& context)
+  : KRContextObject(context)
+{
+  
+}
+
+KRRenderGraph::~KRRenderGraph()
+{
+}
+
+void KRRenderGraph::addRenderPass(KRRenderPass *pass)
+{
+  m_renderPasses.push_back(pass);
+}
+
+
+void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface)
+{
+  for(KRRenderPass* pass : m_renderPasses) {
+    pass->begin(commandBuffer, surface);
+    pass->end(commandBuffer);
+  }
+}

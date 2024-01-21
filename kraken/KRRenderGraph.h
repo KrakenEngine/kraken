@@ -33,3 +33,22 @@
 
 #include "KREngine-common.h"
 
+#include "KRContextObject.h"
+
+class KRRenderPass;
+class KRSurface;
+
+class KRRenderGraph : public KRContextObject
+{
+public:
+  KRRenderGraph(KRContext& context);
+  ~KRRenderGraph();
+  
+  void addRenderPass(KRRenderPass* pass);
+  void render(VkCommandBuffer &commandBuffer, KRSurface& surface);
+    
+private:
+  
+  std::vector<KRRenderPass*> m_renderPasses;
+
+};

@@ -33,6 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContext.h"
+#include "KRRenderGraph.h"
 
 class KRDevice;
 class KRRenderPass;
@@ -90,4 +91,6 @@ public:
 private:
   void destroySwapChain();
   KrResult createSwapChain();
+  KRRenderGraph m_renderGraph;
+  KRRenderGraph m_blackFrameRenderGraph;
 };
