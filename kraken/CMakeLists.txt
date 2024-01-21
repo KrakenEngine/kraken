@@ -53,6 +53,7 @@ add_sources(KRParticleSystem.cpp)
 add_sources(KRParticleSystemNewtonian.cpp)
 add_sources(KRPointLight.cpp)
 add_sources(KRPresentationThread.cpp)
+add_sources(KRRenderGraph.cpp)
 add_sources(KRRenderSettings.cpp)
 add_sources(KRResource+blend.cpp)
 # add_sources(KRResource+fbx.cpp) # TODO - Locate FBX SDK dependencies
