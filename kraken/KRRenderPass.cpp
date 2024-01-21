@@ -38,6 +38,7 @@ using namespace hydra;
 KRRenderPass::KRRenderPass(KRContext& context)
   : KRContextObject(context)
   , m_renderPass(VK_NULL_HANDLE)
+  , m_info{}
 {
 
 }
@@ -52,6 +53,7 @@ void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFor
   if (m_renderPass) {
     return;
   }
+  m_info = info;
 
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = swapChainImageFormat;
@@ -124,13 +126,13 @@ void KRRenderPass::destroy(KRDevice& device)
   }
 }
 
-void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface, const Vector4& clearColor)
+void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
   std::array<VkClearValue, 2> clearValues{};
-  clearValues[0].color.float32[0] = clearColor[0];
-  clearValues[0].color.float32[1] = clearColor[1];
-  clearValues[0].color.float32[2] = clearColor[2];
-  clearValues[0].color.float32[3] = clearColor[3];
+  clearValues[0].color.float32[0] = m_info.clearColorValue[0];
+  clearValues[0].color.float32[1] = m_info.clearColorValue[1];
+  clearValues[0].color.float32[2] = m_info.clearColorValue[2];
+  clearValues[0].color.float32[3] = m_info.clearColorValue[3];
   clearValues[1].depthStencil = { 1.0f, 0 };
 
   VkRenderPassBeginInfo renderPassInfo{};

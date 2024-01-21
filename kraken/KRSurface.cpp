@@ -204,6 +204,7 @@ KrResult KRSurface::createSwapChain()
   info.clearDepth = true;
   info.keepDepth = false;
   info.finalPass = false;
+  info.clearColorValue = Vector4::Zero();
   m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
 
   info.clearColor = true;
@@ -332,6 +333,6 @@ void KRSurface::endFrame()
 
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
-  m_blackFramePass->begin(commandBuffer, *this, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+  m_blackFramePass->begin(commandBuffer, *this);
   m_blackFramePass->end(commandBuffer);
 }
