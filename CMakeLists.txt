@@ -208,6 +208,9 @@ endif()
 include_directories(3rdparty/spirv-reflect)
 add_sources(3rdparty/spirv-reflect/spirv_reflect.c)
 
+source_group("Public Headers", FILES ${KRAKEN_PUBLIC_HEADERS})
+source_group("Private Headers", FILES ${KRAKEN_PRIVATE_HEADERS})
+
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
