@@ -657,9 +657,6 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
     }
   }
 
-  // TODO - Test code for Vulkan conversion, remove once texture streaming working
-  szText = "Hello, earthlings!";
-
   if (*szText) {
     int row_count = 1;
     const int MAX_TABS = 5;
