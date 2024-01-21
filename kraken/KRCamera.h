@@ -115,8 +115,6 @@ private:
   mimir::Block m_debug_text_vertices;
   KRMeshManager::KRVBOData m_debug_text_vbo_data;
 
-  //    std::string getDebugText();
-
   uint64_t m_last_frame_start;
   int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
   int m_frame_times_filled;

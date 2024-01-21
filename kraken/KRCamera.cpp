@@ -71,7 +71,8 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
   return KR_SUCCESS;
 }
 
-KRCamera::KRCamera(KRScene& scene, std::string name) : KRNode(scene, name)
+KRCamera::KRCamera(KRScene& scene, std::string name)
+  : KRNode(scene, name)
 {
   m_surfaceHandle = KR_NULL_HANDLE;
   m_last_frame_start = 0;
