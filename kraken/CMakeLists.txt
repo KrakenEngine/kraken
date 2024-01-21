@@ -5,6 +5,7 @@ set(KRAKEN_PRIVATE_HEADERS "${KRAKEN_PRIVATE_HEADERS}" PARENT_SCOPE)
 
 # Private Implementation
 add_sources(kraken.cpp)
+add_private_headers(KREngine-common.h)
 add_source_and_header(KRAmbientZone)
 add_source_and_header(KRAnimation)
 add_source_and_header(KRAnimationAttribute)
