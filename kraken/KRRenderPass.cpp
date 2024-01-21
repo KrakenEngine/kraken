@@ -75,8 +75,8 @@ void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFor
   depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   depthAttachment.loadOp = info.clearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
   depthAttachment.storeOp = info.keepDepth ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depthAttachment.stencilLoadOp = info.clearStencil ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+  depthAttachment.stencilStoreOp = info.keepStencil ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.initialLayout = info.clearDepth ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
   depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
@@ -133,7 +133,8 @@ void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
   clearValues[0].color.float32[1] = m_info.clearColorValue[1];
   clearValues[0].color.float32[2] = m_info.clearColorValue[2];
   clearValues[0].color.float32[3] = m_info.clearColorValue[3];
-  clearValues[1].depthStencil = { 1.0f, 0 };
+  clearValues[1].depthStencil.depth = m_info.clearDepthValue;
+  clearValues[1].depthStencil.stencil = m_info.clearStencilValue;
 
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

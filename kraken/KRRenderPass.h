@@ -48,15 +48,21 @@ public:
     bool keepColor;
     bool clearDepth;
     bool keepDepth;
+    bool clearStencil;
+    bool keepStencil;
     bool finalPass;
+    hydra::Vector4 clearColorValue;
+    float clearDepthValue;
+    uint32_t clearStencilValue;
   };
 
   void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info);
   void destroy(KRDevice& device);
 
-  void begin(VkCommandBuffer& commandBuffer, KRSurface& surface, const hydra::Vector4& clearColor);
+  void begin(VkCommandBuffer& commandBuffer, KRSurface& surface);
   void end(VkCommandBuffer& commandBuffer);
 
   // private:
   VkRenderPass m_renderPass;
+  RenderPassInfo m_info;
 };

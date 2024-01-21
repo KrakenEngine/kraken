@@ -197,7 +197,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Start render pass
     KRRenderPass& deferredGBufferPass = compositeSurface.getDeferredGBufferPass();
-    deferredGBufferPass.begin(commandBuffer, compositeSurface, Vector4::Zero());
+    deferredGBufferPass.begin(commandBuffer, compositeSurface);
 
     // Render the geometry
     scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
@@ -234,7 +234,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Start render pass
     KRRenderPass& deferredOpaquePass = compositeSurface.getDeferredOpaquePass();
-    deferredOpaquePass.begin(commandBuffer, compositeSurface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+    deferredOpaquePass.begin(commandBuffer, compositeSurface);
 
     // Set source to buffers from pass 2
     m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, lightAccumulationTexture);
@@ -253,7 +253,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Start render pass
     KRRenderPass& forwardOpaquePass = compositeSurface.getForwardOpaquePass();
-    forwardOpaquePass.begin(commandBuffer, compositeSurface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+    forwardOpaquePass.begin(commandBuffer, compositeSurface);
 
     // Render the geometry
     scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
@@ -414,7 +414,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   GL_PUSH_GROUP_MARKER("Post Processing");
 
   KRRenderPass& postCompositePass = compositeSurface.getPostCompositePass();
-  postCompositePass.begin(commandBuffer, compositeSurface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+  postCompositePass.begin(commandBuffer, compositeSurface);
   
   renderPost(commandBuffer, compositeSurface);
 
@@ -774,7 +774,7 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
     m_debug_text_vbo_data.load(commandBuffer);
     
     KRRenderPass& debugPass = surface.getDebugPass();
-    debugPass.begin(commandBuffer, surface, Vector4::Create(0.0f, 0.0f, 0.0f, 1.0f));
+    debugPass.begin(commandBuffer, surface);
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
     fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);

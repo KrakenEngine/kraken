@@ -201,10 +201,16 @@ KrResult KRSurface::createSwapChain()
   KRRenderPass::RenderPassInfo info{};
   info.clearColor = true;
   info.keepColor = true;
-  info.clearDepth = true;
-  info.keepDepth = false;
-  info.finalPass = false;
   info.clearColorValue = Vector4::Zero();
+
+  info.clearDepth = true;
+  info.keepDepth = true;
+  info.clearDepthValue = 1.0f;
+  
+  info.clearStencil = true;
+  info.keepStencil = true;
+  info.clearStencilValue = 0;
+  info.finalPass = false;
   m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
 
   info.clearColor = true;
