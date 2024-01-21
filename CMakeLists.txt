@@ -59,6 +59,28 @@ macro (add_public_header)
     endif()
 endmacro()
 
+macro (add_private_headers)
+    file (RELATIVE_PATH _relPath "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    foreach (_src ${ARGN})
+        if (_relPath)
+            list (APPEND KRAKEN_PRIVATE_HEADERS "${_relPath}/${_src}")
+        else()
+            list (APPEND KRAKEN_PRIVATE_HEADERS "${_src}")
+        endif()
+    endforeach()
+    if (_relPath)
+        # propagate KRAKEN_PRIVATE_HEADERS to parent directory
+        set (KRAKEN_PRIVATE_HEADERS ${KRAKEN_PRIVATE_HEADERS} PARENT_SCOPE)
+    endif()
+endmacro()
+
+macro (add_source_and_header)
+    foreach (_src ${ARGN})
+        add_sources("${_src}.cpp")
+        add_private_headers("${_src}.h")
+    endforeach()
+endmacro()
+
 IF(APPLE)
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-c++11-extensions")
@@ -186,24 +208,24 @@ endif()
 include_directories(3rdparty/spirv-reflect)
 add_sources(3rdparty/spirv-reflect/spirv_reflect.c)
 
-add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
   kraken
 PROPERTIES
   PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
-  PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
+  PRIVATE_HEADER "${KRAKEN_PRIVATE_HEADERS}"
   ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
   OUTPUT_NAME kraken_static
 )
 
-add_library(kraken_dynamic SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS})
+add_library(kraken_dynamic SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken_dynamic ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
   kraken_dynamic
 PROPERTIES
   PUBLIC_HEADER "${KRAKEN_PUBLIC_HEADERS}"
-  PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
+  PRIVATE_HEADER "${KRAKEN_PRIVATE_HEADERS}"
   ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
   OUTPUT_NAME kraken
 )
