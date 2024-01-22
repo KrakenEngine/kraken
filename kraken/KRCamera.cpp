@@ -187,7 +187,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   if (settings.m_cShadowBuffers > 0) {
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
 
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS), false /*settings.bEnableDeferredLighting*/);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_SHADOWMAP), false /*settings.bEnableDeferredLighting*/);
     GL_POP_GROUP_MARKER;
   }
 
@@ -968,9 +968,6 @@ std::string KRCamera::getDebugText()
         break;
       case RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE:
         stream << "vol add";
-        break;
-      case RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS:
-        stream << "g shadow";
         break;
       case RenderPassType::RENDER_PASS_SHADOWMAP:
         stream << "shadow";

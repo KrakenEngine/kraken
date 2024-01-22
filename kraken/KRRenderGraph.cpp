@@ -44,17 +44,103 @@ KRRenderGraph::~KRRenderGraph()
 {
 }
 
+int KRRenderGraph::addAttachment(const char* name, VkFormat format)
+{
+  AttachmentInfo& attachment = m_attachments.emplace_back(AttachmentInfo{});
+  strncpy(attachment.name, name, RENDER_PASS_ATTACHMENT_NAME_LENGTH);
+  attachment.format = format;
+  
+  return static_cast<int>(m_attachments.size());
+}
+
 void KRRenderGraph::addRenderPass(KRDevice& device, const RenderPassInfo& info)
 {
-  KRRenderPass &pass = m_renderPasses.emplace_back(getContext());
-  pass.create(device, info);
+  int attachmentCount = 0;
+  std::array<VkAttachmentDescription, RENDER_PASS_ATTACHMENT_MAX_COUNT> passAttachments{};
+  
+  if (info.depthAttachment.id != 0) {
+    VkAttachmentDescription& depthAttachment = passAttachments[attachmentCount++];
+    
+    depthAttachment.format = m_attachments[info.depthAttachment.id - 1].format;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = info.depthAttachment.loadOp;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    depthAttachment.stencilLoadOp = info.depthAttachment.stencilLoadOp;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+    depthAttachment.initialLayout = (info.depthAttachment.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+  }
+  
+  for(int i=0; i<RENDER_PASS_ATTACHMENT_MAX_COUNT; i++) {
+    const RenderPassAttachmentInfo& attachmentInfo = info.colorAttachments[i];
+    if (attachmentInfo.id == 0) {
+      continue;
+    }
+    
+    VkAttachmentDescription& colorAttachment = passAttachments[attachmentCount++];
+    colorAttachment.format = m_attachments[attachmentInfo.id - 1].format;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = attachmentInfo.loadOp;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = (attachmentInfo.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    if (info.finalPass) {
+      colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    } else {
+      colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+  }
+
+  VkAttachmentReference depthAttachmentRef{};
+  depthAttachmentRef.attachment = 0;
+  depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference colorAttachmentRef[RENDER_PASS_ATTACHMENT_MAX_COUNT]{};
+  for(int i=0; i < RENDER_PASS_ATTACHMENT_MAX_COUNT; i++) {
+    colorAttachmentRef[i].attachment = i;
+    colorAttachmentRef[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+  }
+
+  VkSubpassDescription subpass{};
+  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.colorAttachmentCount = attachmentCount;
+  subpass.pColorAttachments = colorAttachmentRef;
+  if (info.depthAttachment.id != 0) {
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.colorAttachmentCount--;
+    subpass.pColorAttachments++;
+  } else {
+    subpass.pDepthStencilAttachment = nullptr;
+  }
+
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+  VkRenderPassCreateInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderPassInfo.attachmentCount = attachmentCount;
+  renderPassInfo.pAttachments = passAttachments.data();
+  renderPassInfo.subpassCount = 1;
+  renderPassInfo.pSubpasses = &subpass;
+  renderPassInfo.dependencyCount = 1;
+  renderPassInfo.pDependencies = &dependency;
+  
+  KRRenderPass *pass = new KRRenderPass(getContext());
+  pass->create(device, info, renderPassInfo);
+  m_renderPasses.push_back(pass);
 }
 
 KRRenderPass* KRRenderGraph::getRenderPass(RenderPassType type)
 {
-  for(KRRenderPass& pass : m_renderPasses) {
-    if (pass.getType() == type) {
-      return &pass;
+  for(KRRenderPass* pass : m_renderPasses) {
+    if (pass->getType() == type) {
+      return pass;
     }
   }
   return nullptr;
@@ -62,16 +148,18 @@ KRRenderPass* KRRenderGraph::getRenderPass(RenderPassType type)
 
 void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface)
 {
-  for(KRRenderPass& pass : m_renderPasses) {
-    pass.begin(commandBuffer, surface);
-    pass.end(commandBuffer);
+  for(KRRenderPass* pass : m_renderPasses) {
+    pass->begin(commandBuffer, surface);
+    pass->end(commandBuffer);
   }
 }
 
 void KRRenderGraph::destroy(KRDevice& device)
 {
-  for(KRRenderPass& pass : m_renderPasses) {
-    pass.destroy(device);
+  for(KRRenderPass* pass : m_renderPasses) {
+    pass->destroy(device);
+    delete pass;
   }
   m_renderPasses.clear();
+  m_attachments.clear();
 }

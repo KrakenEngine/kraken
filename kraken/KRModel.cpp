@@ -210,7 +210,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION
     && ri.renderPass->getType()!= RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
-    && ri.renderPass->getType() != RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS
+    && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PRESTREAM) {
     loadModel();
 
@@ -247,7 +247,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
           m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
         }
 
-        if (m_pLightMap && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_GENERATE_SHADOWMAPS) {
+        if (m_pLightMap && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
           m_pLightMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
           // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
           // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);

@@ -46,7 +46,6 @@ enum RenderPassType : uint8_t
   RENDER_PASS_PARTICLE_OCCLUSION,
   RENDER_PASS_ADDITIVE_PARTICLES,
   RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
-  RENDER_PASS_GENERATE_SHADOWMAPS,
   RENDER_PASS_SHADOWMAP,
   RENDER_PASS_PRESTREAM,
   RENDER_PASS_POST_COMPOSITE,
@@ -54,23 +53,21 @@ enum RenderPassType : uint8_t
   RENDER_PASS_BLACK_FRAME,
 };
 
+#define RENDER_PASS_ATTACHMENT_MAX_COUNT 16
+
+struct RenderPassAttachmentInfo
+{
+  int id;
+  VkAttachmentLoadOp loadOp;
+  VkAttachmentLoadOp stencilLoadOp;
+  VkClearValue clearVaue;
+};
+
 struct RenderPassInfo
 {
   RenderPassType type;
-  bool clearColor;
-  bool keepColor;
-  hydra::Vector4 clearColorValue;
-  VkFormat colorFormat;
-  
-  bool clearDepth;
-  bool keepDepth;
-  float clearDepthValue;
-  
-  bool clearStencil;
-  bool keepStencil;
-  uint32_t clearStencilValue;
-  
-  VkFormat depthStencilFormat;
+  RenderPassAttachmentInfo colorAttachments[RENDER_PASS_ATTACHMENT_MAX_COUNT];
+  RenderPassAttachmentInfo depthAttachment;
   
   bool finalPass;
 };
@@ -82,7 +79,7 @@ public:
   KRRenderPass(KRContext& context);
   ~KRRenderPass();
 
-  void create(KRDevice& device, const RenderPassInfo& info);
+  void create(KRDevice& device, const RenderPassInfo& m_info, const VkRenderPassCreateInfo& info);
   void destroy(KRDevice& device);
 
   void begin(VkCommandBuffer& commandBuffer, KRSurface& surface);

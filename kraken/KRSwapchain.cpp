@@ -180,8 +180,8 @@ KrResult KRSwapchain::create(KRDevice& device, VkSurfaceKHR& surface, VkSurfaceF
 
   for (size_t i = 0; i < m_imageViews.size(); i++) {
     std::array<VkImageView, 2> attachments = {
-      m_imageViews[i],
-      m_depthImageView
+      m_depthImageView,
+      m_imageViews[i]
     };
 
     VkFramebufferCreateInfo framebufferInfo{};

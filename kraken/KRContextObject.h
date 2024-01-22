@@ -41,6 +41,8 @@ public:
   ~KRContextObject();
 
   KRContext& getContext() const;
+  KRContextObject(const KRContextObject&) = delete;
+  KRContextObject& operator=(KRContextObject&) = delete;
 protected:
   KRContext* m_pContext;
 };

@@ -232,7 +232,7 @@ void KRLight::render(RenderInfo& ri)
 
   KRNode::render(ri);
 
-  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
     allocateShadowBuffers(configureShadowBufferViewports(ri.viewport));
     renderShadowBuffers(ri);
   }

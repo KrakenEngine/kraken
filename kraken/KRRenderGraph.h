@@ -42,12 +42,15 @@ class KRDevice;
 struct RenderPassInfo;
 enum RenderPassType : uint8_t;
 
+#define RENDER_PASS_ATTACHMENT_NAME_LENGTH 64
+
 class KRRenderGraph : public KRContextObject
 {
 public:
   KRRenderGraph(KRContext& context);
   ~KRRenderGraph();
   
+  int addAttachment(const char* name, VkFormat format);
   void addRenderPass(KRDevice& device, const RenderPassInfo& info);
   KRRenderPass* getRenderPass(RenderPassType type);
   void render(VkCommandBuffer &commandBuffer, KRSurface& surface);
@@ -55,6 +58,13 @@ public:
     
 private:
   
-  std::list<KRRenderPass> m_renderPasses;
+  struct AttachmentInfo
+  {
+    char name[RENDER_PASS_ATTACHMENT_NAME_LENGTH];
+    VkFormat format;
+  };
+  
+  std::vector<AttachmentInfo> m_attachments;
+  std::vector<KRRenderPass*> m_renderPasses;
 
 };

@@ -101,7 +101,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     int light_directional_count = 0;
     int light_point_count = 0;
     int light_spot_count = 0;
-    if(info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && info.renderPass != RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS) {
+    if(info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && info.renderPass != RenderPassType::RENDER_PASS_SHADOWMAP) {
         if (info.directional_lights) {
           light_directional_count = (int)info.directional_lights->size();
         }

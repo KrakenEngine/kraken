@@ -170,71 +170,134 @@ KrResult KRSurface::createSwapChain()
   if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount) {
     imageCount = surfaceCapabilities.maxImageCount;
   }
-
+  
+  // ----- Configuration -----
+  int shadow_buffer_count = 0;
+  bool enable_deferred_lighting = false;
+  // -------------------------
+  
+  int attachment_compositeDepth = m_renderGraph->addAttachment("Composite Depth", depthImageFormat);
+  int attachment_compositeColor = m_renderGraph->addAttachment("Composite Color", selectedSurfaceFormat.format);
+  int attachment_lightAccumulation = m_renderGraph->addAttachment("Light Accumulation", VK_FORMAT_B8G8R8A8_UINT);
+  int attachment_gbuffer = m_renderGraph->addAttachment("GBuffer", VK_FORMAT_B8G8R8A8_UINT);
+  int attachment_shadow_cascades[3];
+  attachment_shadow_cascades[0] = m_renderGraph->addAttachment("Shadow Cascade 0", VK_FORMAT_D32_SFLOAT);
+  attachment_shadow_cascades[1] = m_renderGraph->addAttachment("Shadow Cascade 1", VK_FORMAT_D32_SFLOAT);
+  attachment_shadow_cascades[2] = m_renderGraph->addAttachment("Shadow Cascade 2", VK_FORMAT_D32_SFLOAT);
 
   RenderPassInfo info{};
-  info.clearColor = true;
-  info.keepColor = true;
-  info.clearColorValue = Vector4::Zero();
-  info.colorFormat = selectedSurfaceFormat.format;
+  info.finalPass = false;
+  
+  // info.type = RenderPassType::RENDER_PASS_PRESTREAM;
+  // m_renderGraph->addRenderPass(*device, info);
 
-  info.clearDepth = true;
-  info.keepDepth = true;
-  info.clearDepthValue = 1.0f;
+  for (int shadow_index = 0; shadow_index < shadow_buffer_count; shadow_index++) {
+    info.depthAttachment.id = attachment_shadow_cascades[shadow_index];
+    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
+    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
+    info.type = RenderPassType::RENDER_PASS_SHADOWMAP;
+    m_renderGraph->addRenderPass(*device, info);
+  }
   
-  info.clearStencil = true;
-  info.keepStencil = true;
-  info.clearStencilValue = 0;
-  info.depthStencilFormat = depthImageFormat;
-  
-  info.finalPass = false;
-  info.type = RenderPassType::RENDER_PASS_FORWARD_OPAQUE;
-  m_renderGraph->addRenderPass(*device, info);
+  if (enable_deferred_lighting) {
+    //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
+    
+    info.depthAttachment.id = attachment_compositeDepth;
+    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
+    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
+    
+    info.colorAttachments[0].id = attachment_compositeColor;
+    info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
+    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    info.type = RenderPassType::RENDER_PASS_DEFERRED_GBUFFER;
+    m_renderGraph->addRenderPass(*device, info);
+    
+    //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
+    
+    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    
+    info.colorAttachments[1].id = attachment_lightAccumulation;
+    info.colorAttachments[1].clearVaue.color.float32[0] = 0.0f;
+    info.colorAttachments[1].clearVaue.color.float32[1] = 0.0f;
+    info.colorAttachments[1].clearVaue.color.float32[2] = 0.0f;
+    info.colorAttachments[1].clearVaue.color.float32[3] = 0.0f;
+    info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    info.type = RenderPassType::RENDER_PASS_DEFERRED_LIGHTS;
+    m_renderGraph->addRenderPass(*device, info);
+    
+    //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
+    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    info.type = RenderPassType::RENDER_PASS_DEFERRED_OPAQUE;
+    m_renderGraph->addRenderPass(*device, info);
+    
+    info.colorAttachments[1] = {};
 
-  info.clearColor = true;
-  info.keepColor = true;
-  info.clearDepth = true;
-  info.keepDepth = true;
-  info.finalPass = false;
-  info.type = RenderPassType::RENDER_PASS_DEFERRED_GBUFFER;
-  m_renderGraph->addRenderPass(*device, info);
-
-  info.clearColor = false;
-  info.keepColor = true;
-  info.clearDepth = false;
-  info.keepDepth = true;
-  info.finalPass = false;
-  info.type = RenderPassType::RENDER_PASS_DEFERRED_LIGHTS;
+  } else {
+    // !enable_deferred_lighting
+    
+    // ----====---- Opaque Geometry, Forward Rendering ----====----
+    info.depthAttachment.id = attachment_compositeDepth;
+    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
+    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
+    
+    info.colorAttachments[0].id = attachment_compositeColor;
+    info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
+    info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
+    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    
+    info.type = RenderPassType::RENDER_PASS_FORWARD_OPAQUE;
+    m_renderGraph->addRenderPass(*device, info);
+  }
+  
+  // ----====---- Transparent Geometry, Forward Rendering ----====----
+  info.depthAttachment.id = attachment_compositeDepth;
+  info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+  info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
+  info.depthAttachment.clearVaue.depthStencil.stencil = 0;
+  
+  info.colorAttachments[0].id = attachment_compositeColor;
+  info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
+  info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
+  info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
+  info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
+  info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+  info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  
+  info.type = RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT;
   m_renderGraph->addRenderPass(*device, info);
   
-  info.clearColor = false;
-  info.keepColor = true;
-  info.clearDepth = false;
-  info.keepDepth = true;
-  info.finalPass = false;
-  info.type = RenderPassType::RENDER_PASS_DEFERRED_OPAQUE;
-  m_renderGraph->addRenderPass(*device, info);
-  
-  info.clearColor = false;
-  info.keepColor = true;
-  info.clearDepth = false;
-  info.keepDepth = true;
-  info.finalPass = false;
   info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
   m_renderGraph->addRenderPass(*device, info);
   
-  info.clearColor = false;
-  info.keepColor = true;
-  info.clearDepth = false;
-  info.keepDepth = false;
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_POST_COMPOSITE;
   m_renderGraph->addRenderPass(*device, info);
   
-  info.clearColor = true;
-  info.keepColor = true;
-  info.clearDepth = true;
-  info.keepDepth = false;
+  
+  int attachment_blackFrameDepth = m_blackFrameRenderGraph->addAttachment("Composite Depth", depthImageFormat);
+  int attachment_blackFrameColor = m_blackFrameRenderGraph->addAttachment("Composite Color", selectedSurfaceFormat.format);
+  
+  info.colorAttachments[0].id = attachment_blackFrameColor;
+  info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  info.depthAttachment.id = attachment_blackFrameDepth;
+  info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
   m_blackFrameRenderGraph->addRenderPass(*device, info);

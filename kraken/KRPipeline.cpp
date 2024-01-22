@@ -662,7 +662,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   //int light_point_count = 0;
   //int light_spot_count = 0;
   // TODO - Need to support multiple lights and more light types in forward rendering
-  if (renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && renderPass->getType() != RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS) {
+  if (renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
 
 
     if (directional_lights) {
