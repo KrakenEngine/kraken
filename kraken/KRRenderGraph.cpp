@@ -32,6 +32,7 @@
 #include "KRRenderGraph.h"
 #include "KRRenderPass.h"
 #include "KRSurface.h"
+#include "KRDevice.h"
 
 KRRenderGraph::KRRenderGraph(KRContext& context)
   : KRContextObject(context)
@@ -43,16 +44,34 @@ KRRenderGraph::~KRRenderGraph()
 {
 }
 
-void KRRenderGraph::addRenderPass(KRRenderPass *pass)
+void KRRenderGraph::addRenderPass(KRDevice& device, const RenderPassInfo& info)
 {
-  m_renderPasses.push_back(pass);
+  KRRenderPass &pass = m_renderPasses.emplace_back(getContext());
+  pass.create(device, info);
 }
 
+KRRenderPass* KRRenderGraph::getRenderPass(RenderPassType type)
+{
+  for(KRRenderPass& pass : m_renderPasses) {
+    if (pass.getType() == type) {
+      return &pass;
+    }
+  }
+  return nullptr;
+}
 
 void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface)
 {
-  for(KRRenderPass* pass : m_renderPasses) {
-    pass->begin(commandBuffer, surface);
-    pass->end(commandBuffer);
+  for(KRRenderPass& pass : m_renderPasses) {
+    pass.begin(commandBuffer, surface);
+    pass.end(commandBuffer);
   }
+}
+
+void KRRenderGraph::destroy(KRDevice& device)
+{
+  for(KRRenderPass& pass : m_renderPasses) {
+    pass.destroy(device);
+  }
+  m_renderPasses.clear();
 }

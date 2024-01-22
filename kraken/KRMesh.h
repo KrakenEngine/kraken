@@ -56,6 +56,7 @@ using namespace kraken;
 
 class KRMaterial;
 class KRNode;
+class KRRenderPass;
 
 enum class ModelFormat : __uint8_t
 {
@@ -133,7 +134,7 @@ public:
   void optimize();
   void optimizeIndexes();
 
-  void renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
+  void renderNoMaterials(VkCommandBuffer& commandBuffer, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
   bool isReady() const;
 
   float getMaxDimension();
@@ -245,7 +246,7 @@ private:
 
   void getSubmeshes();
   void getMaterials();
-  void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
+  void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
 
   static bool rayCast(const hydra::Vector3& start, const hydra::Vector3& dir, const hydra::Triangle3& tri, const hydra::Vector3& tri_n0, const hydra::Vector3& tri_n1, const hydra::Vector3& tri_n2, hydra::HitInfo& hitinfo);
   static bool sphereCast(const hydra::Matrix4& model_to_world, const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, const hydra::Triangle3& tri, hydra::HitInfo& hitinfo);

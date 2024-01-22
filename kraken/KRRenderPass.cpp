@@ -48,7 +48,7 @@ KRRenderPass::~KRRenderPass()
   assert(m_renderPass == VK_NULL_HANDLE);
 }
 
-void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info)
+void KRRenderPass::create(KRDevice& device, const RenderPassInfo& info)
 {
   if (m_renderPass) {
     return;
@@ -56,7 +56,7 @@ void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFor
   m_info = info;
 
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = swapChainImageFormat;
+  colorAttachment.format = info.colorFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = info.clearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
   colorAttachment.storeOp = info.keepColor ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -71,7 +71,7 @@ void KRRenderPass::create(KRDevice& device, VkFormat swapChainImageFormat, VkFor
 
 
   VkAttachmentDescription depthAttachment{};
-  depthAttachment.format = depthImageFormat;
+  depthAttachment.format = info.depthStencilFormat;
   depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   depthAttachment.loadOp = info.clearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
   depthAttachment.storeOp = info.keepDepth ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -151,4 +151,10 @@ void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
 void KRRenderPass::end(VkCommandBuffer& commandBuffer)
 {
   vkCmdEndRenderPass(commandBuffer);
+}
+
+
+RenderPassType KRRenderPass::getType() const
+{
+  return m_info.type;
 }

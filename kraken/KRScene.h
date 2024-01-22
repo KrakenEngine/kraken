@@ -71,7 +71,7 @@ public:
   bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, float deltaTime);
-  void render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<hydra::AABB, int>& visibleBounds, const KRViewport& viewport, KRNode::RenderPass renderPass, bool new_frame);
+  void render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<hydra::AABB, int>& visibleBounds, const KRViewport& viewport, const KRRenderPass* renderPass, bool new_frame);
   void render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordered_map<hydra::AABB, int>& visibleBounds, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
 
   void updateOctree(const KRViewport& viewport);

@@ -34,6 +34,7 @@
 #include "KRDirectionalLight.h"
 #include "KRPipeline.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 #include "assert.h"
 
 using namespace hydra;
@@ -131,7 +132,7 @@ void KRDirectionalLight::render(RenderInfo& ri)
 
   KRLight::render(ri);
 
-  if (ri.renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_DEFERRED_LIGHTS) {
     // Lights are rendered on the second pass of the deferred renderer
 
     std::vector<KRDirectionalLight*> this_light;

@@ -111,7 +111,7 @@ const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
     "fade_color", // PushConstant::fade_color
 };
 
-KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
+KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
   , m_deviceHandle(deviceHandle)
 {
@@ -459,7 +459,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRender
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = nullptr;
   pipelineInfo.layout = m_pipelineLayout;
-  pipelineInfo.renderPass = renderPass.m_renderPass;
+  pipelineInfo.renderPass = renderPass->m_renderPass;
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
@@ -651,7 +651,7 @@ void KRPipeline::updateDescriptorBinding()
   // Vulkan Refactoring
 }
 
-bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass)
+bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRRenderPass* renderPass)
 {
   updateDescriptorBinding();
   updateDescriptorSets();
@@ -662,7 +662,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   //int light_point_count = 0;
   //int light_spot_count = 0;
   // TODO - Need to support multiple lights and more light types in forward rendering
-  if (renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
+  if (renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && renderPass->getType() != RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS) {
 
 
     if (directional_lights) {

@@ -34,6 +34,7 @@
 #include "KRPointLight.h"
 #include "KRCamera.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -78,9 +79,9 @@ void KRPointLight::render(RenderInfo& ri)
 
   KRLight::render(ri);
 
-  bool bVisualize = ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.bShowDeferred;
+  bool bVisualize = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.bShowDeferred;
 
-  if (ri.renderPass == KRNode::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_DEFERRED_LIGHTS || bVisualize) {
     // Lights are rendered on the second pass of the deferred renderer
 
     std::vector<KRPointLight*> this_light;

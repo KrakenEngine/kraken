@@ -37,6 +37,7 @@
 #include "KRMeshCube.h"
 #include "KRMeshQuad.h"
 #include "KRMeshSphere.h"
+#include "KRRenderPass.h"
 
 using namespace mimir;
 
@@ -441,7 +442,7 @@ size_t KRMeshManager::getActiveVBOCount()
   return m_vbosActive.size();
 }
 
-void KRMeshManager::log_draw_call(KRNode::RenderPass pass, const std::string& object_name, const std::string& material_name, int vertex_count)
+void KRMeshManager::log_draw_call(RenderPassType pass, const std::string& object_name, const std::string& material_name, int vertex_count)
 {
   if (m_draw_call_logging_enabled) {
     draw_call_info info;

@@ -31,6 +31,7 @@
 
 #include "KRAmbientZone.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -128,7 +129,7 @@ void KRAmbientZone::render(RenderInfo& ri)
 
   bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES;
 
-  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
     KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
     if (sphereModel) {
 

@@ -39,6 +39,7 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 #include "KRAudioManager.h"
+#include "KRRenderPass.h"
 
 using namespace mimir;
 using namespace hydra;
@@ -102,7 +103,7 @@ std::set<KRLight*>& KRScene::getLights()
   return m_lights;
 }
 
-void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<AABB, int>& visibleBounds, const KRViewport& viewport, KRNode::RenderPass renderPass, bool new_frame)
+void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<AABB, int>& visibleBounds, const KRViewport& viewport, const KRRenderPass* renderPass, bool new_frame)
 {
   if (new_frame) {
     // Expire cached occlusion test results.
@@ -217,7 +218,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
       }
     } else {
       bool in_viewport = false;
-      if (ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+      if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
         // When pre-streaming, objects are streamed in behind and in-front of the camera
         AABB viewportExtents = AABB::Create(ri.viewport.getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport.getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
         in_viewport = octreeBounds.intersects(viewportExtents);
@@ -299,7 +300,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           info.point_lights = &ri.point_lights;
           info.directional_lights = &ri.directional_lights;
           info.spot_lights = &ri.spot_lights;
-          info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+          info.renderPass = ri.renderPass;
           info.rasterMode = RasterMode::kAdditive;
           info.vertexAttributes = vertices.getVertexAttributes();
           info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
@@ -307,7 +308,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
           pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass);
           vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
-          m_pContext->getMeshManager()->log_draw_call(ri.renderPass, "octree", "occlusion_test", 14);
+          m_pContext->getMeshManager()->log_draw_call(ri.renderPass->getType(), "octree", "occlusion_test", 14);
 
           pOctreeNode->endOcclusionQuery();
 
@@ -352,7 +353,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           }
 
           // Render child octrees
-          const int* childOctreeOrder = ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport.getBackToFrontOrder() : ri.viewport.getFrontToBackOrder();
+          const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport.getBackToFrontOrder() : ri.viewport.getFrontToBackOrder();
 
           for (int i = 0; i < 8; i++) {
             render(ri, pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);

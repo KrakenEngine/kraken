@@ -45,16 +45,10 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   , m_renderFinishedSemaphores{VK_NULL_HANDLE}
   , m_inFlightFences{VK_NULL_HANDLE}
   , m_frameIndex(0)
-  , m_renderGraph(context)
-  , m_blackFrameRenderGraph(context)
+  , m_renderGraph(std::make_unique<KRRenderGraph>(context))
+  , m_blackFrameRenderGraph(std::make_unique<KRRenderGraph>(context))
+  , m_swapChain(std::make_unique<KRSwapchain>(context))
 {
-  m_forwardOpaquePass = std::make_unique<KRRenderPass>(context);
-  m_deferredGBufferPass = std::make_unique<KRRenderPass>(context);
-  m_deferredOpaquePass = std::make_unique<KRRenderPass>(context);
-  m_postCompositePass = std::make_unique<KRRenderPass>(context);
-  m_debugPass = std::make_unique<KRRenderPass>(context);
-  m_blackFramePass = std::make_unique<KRRenderPass>(context);
-  m_swapChain = std::make_unique<KRSwapchain>(context);
 }
 
 KRSurface::~KRSurface()
@@ -117,30 +111,8 @@ void KRSurface::destroy()
   destroySwapChain();
 
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
-
-  if (m_forwardOpaquePass) {
-    m_forwardOpaquePass->destroy(*device);
-  }
-
-  if (m_deferredGBufferPass) {
-    m_deferredGBufferPass->destroy(*device);
-  }
-
-  if (m_deferredOpaquePass) {
-    m_deferredOpaquePass->destroy(*device);
-  }
-  
-  if (m_postCompositePass) {
-    m_postCompositePass->destroy(*device);
-  }
-  
-  if (m_debugPass) {
-    m_debugPass->destroy(*device);
-  }
-  
-  if (m_blackFramePass) {
-    m_blackFramePass->destroy(*device);
-  }
+  m_renderGraph->destroy(*device);
+  m_blackFrameRenderGraph->destroy(*device);
 
   for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
     if (device && m_renderFinishedSemaphores[i] != VK_NULL_HANDLE) {
@@ -200,10 +172,11 @@ KrResult KRSurface::createSwapChain()
   }
 
 
-  KRRenderPass::RenderPassInfo info{};
+  RenderPassInfo info{};
   info.clearColor = true;
   info.keepColor = true;
   info.clearColorValue = Vector4::Zero();
+  info.colorFormat = selectedSurfaceFormat.format;
 
   info.clearDepth = true;
   info.keepDepth = true;
@@ -212,52 +185,61 @@ KrResult KRSurface::createSwapChain()
   info.clearStencil = true;
   info.keepStencil = true;
   info.clearStencilValue = 0;
+  info.depthStencilFormat = depthImageFormat;
+  
   info.finalPass = false;
-  m_forwardOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  m_renderGraph.addRenderPass(m_forwardOpaquePass.get());
+  info.type = RenderPassType::RENDER_PASS_FORWARD_OPAQUE;
+  m_renderGraph->addRenderPass(*device, info);
 
   info.clearColor = true;
   info.keepColor = true;
   info.clearDepth = true;
   info.keepDepth = true;
   info.finalPass = false;
-  m_deferredGBufferPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  m_renderGraph.addRenderPass(m_deferredGBufferPass.get());
+  info.type = RenderPassType::RENDER_PASS_DEFERRED_GBUFFER;
+  m_renderGraph->addRenderPass(*device, info);
 
   info.clearColor = false;
   info.keepColor = true;
   info.clearDepth = false;
   info.keepDepth = true;
   info.finalPass = false;
-  m_deferredOpaquePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  m_renderGraph.addRenderPass(m_deferredOpaquePass.get());
+  info.type = RenderPassType::RENDER_PASS_DEFERRED_LIGHTS;
+  m_renderGraph->addRenderPass(*device, info);
   
   info.clearColor = false;
   info.keepColor = true;
   info.clearDepth = false;
   info.keepDepth = true;
   info.finalPass = false;
-  m_debugPass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  m_renderGraph.addRenderPass(m_debugPass.get());
+  info.type = RenderPassType::RENDER_PASS_DEFERRED_OPAQUE;
+  m_renderGraph->addRenderPass(*device, info);
+  
+  info.clearColor = false;
+  info.keepColor = true;
+  info.clearDepth = false;
+  info.keepDepth = true;
+  info.finalPass = false;
+  info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
+  m_renderGraph->addRenderPass(*device, info);
   
   info.clearColor = false;
   info.keepColor = true;
   info.clearDepth = false;
   info.keepDepth = false;
   info.finalPass = true;
-  m_postCompositePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  m_renderGraph.addRenderPass(m_postCompositePass.get());
+  info.type = RenderPassType::RENDER_PASS_POST_COMPOSITE;
+  m_renderGraph->addRenderPass(*device, info);
   
   info.clearColor = true;
   info.keepColor = true;
   info.clearDepth = true;
   info.keepDepth = false;
   info.finalPass = true;
-  m_blackFramePass->create(*device, selectedSurfaceFormat.format, depthImageFormat, info);
-  
-  m_blackFrameRenderGraph.addRenderPass(m_blackFramePass.get());
+  info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
+  m_blackFrameRenderGraph->addRenderPass(*device, info);
 
-  m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_forwardOpaquePass);
+  m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
 
   return KR_SUCCESS;
 }
@@ -310,34 +292,9 @@ VkFormat KRSurface::getDepthFormat() const
   return m_swapChain->m_depthFormat;
 }
 
-KRRenderPass& KRSurface::getForwardOpaquePass()
+KRRenderPass* KRSurface::getRenderPass(RenderPassType type)
 {
-  return *m_forwardOpaquePass;
-}
-
-KRRenderPass& KRSurface::getDeferredGBufferPass()
-{
-  return *m_deferredGBufferPass;
-}
-
-KRRenderPass& KRSurface::getDeferredOpaquePass()
-{
-  return *m_deferredOpaquePass;
-}
-
-KRRenderPass& KRSurface::getPostCompositePass()
-{
-  return *m_postCompositePass;
-}
-
-KRRenderPass& KRSurface::getDebugPass()
-{
-  return *m_debugPass;
-}
-
-KRRenderPass& KRSurface::getBlackFramePass()
-{
-  return *m_blackFramePass;
+  return m_renderGraph->getRenderPass(type);
 }
 
 void KRSurface::endFrame()
@@ -348,5 +305,5 @@ void KRSurface::endFrame()
 
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
-  m_blackFrameRenderGraph.render(commandBuffer, *this);
+  m_blackFrameRenderGraph->render(commandBuffer, *this);
 }

@@ -40,6 +40,7 @@
 
 class KRContext;
 class KRMesh;
+enum RenderPassType : uint8_t;
 
 class KRMeshManager : public KRResourceManager
 {
@@ -191,13 +192,13 @@ public:
 
   struct draw_call_info
   {
-    KRNode::RenderPass pass;
+    RenderPassType pass;
     char object_name[256];
     char material_name[256];
     int vertex_count;
   };
 
-  void log_draw_call(KRNode::RenderPass pass, const std::string& object_name, const std::string& material_name, int vertex_count);
+  void log_draw_call(RenderPassType pass, const std::string& object_name, const std::string& material_name, int vertex_count);
   std::vector<draw_call_info> getDrawCalls();
 
 

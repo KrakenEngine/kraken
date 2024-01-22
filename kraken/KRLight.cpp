@@ -42,6 +42,7 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -231,12 +232,12 @@ void KRLight::render(RenderInfo& ri)
 
   KRNode::render(ri);
 
-  if (ri.renderPass == KRNode::RENDER_PASS_GENERATE_SHADOWMAPS && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
     allocateShadowBuffers(configureShadowBufferViewports(ri.viewport));
     renderShadowBuffers(ri);
   }
 
-  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.camera->settings.dust_particle_enable) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES && ri.camera->settings.dust_particle_enable) {
     // Render brownian particles for dust floating in air
     if (m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
 
@@ -296,7 +297,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
 
-  if (ri.renderPass == KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && ri.camera->settings.volumetric_environment_enable && m_light_shafts) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE && ri.camera->settings.volumetric_environment_enable && m_light_shafts) {
     std::string shader_name = ri.camera->settings.volumetric_environment_downsample != 0 ? "volumetric_fog_downsampled" : "volumetric_fog";
 
     std::vector<KRDirectionalLight*> this_directional_light;
@@ -321,7 +322,7 @@ void KRLight::render(RenderInfo& ri)
     info.point_lights = &this_point_light;
     info.directional_lights = &this_directional_light;
     info.spot_lights = &this_spot_light;
-    info.renderPass = KRNode::RENDER_PASS_ADDITIVE_PARTICLES;
+    info.renderPass = ri.renderPass;
     info.rasterMode = RasterMode::kAdditive;
     info.cullMode = CullMode::kCullNone;
     info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
@@ -337,14 +338,14 @@ void KRLight::render(RenderInfo& ri)
 
     pFogShader->setPushConstant(KRPipeline::PushConstant::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
     pFogShader->setPushConstant(KRPipeline::PushConstant::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
-    pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
+    pFogShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass);
 
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
     vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
 
   }
 
-  if (ri.renderPass == KRNode::RENDER_PASS_PARTICLE_OCCLUSION) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION) {
     if (m_flareTexture.size() && m_flareSize > 0.0f) {
       KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
       if (sphereModel) {
@@ -391,7 +392,7 @@ void KRLight::render(RenderInfo& ri)
     }
   }
 
-  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_flareTexture.size() && m_flareSize > 0.0f) {
 
       if (m_occlusionQuery) {
@@ -534,14 +535,14 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       std::string shader_name("ShadowShader");
       info.shader_name = &shader_name;
       info.pCamera = ri.camera;
-      info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+      info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kOpaqueLessTest; // TODO - This is sub-optimal.  Evaluate increasing depth buffer resolution instead of disabling depth test.
       info.cullMode = CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
       KRPipeline* shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-      shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_SHADOWMAP);
+      shadowShader->bind(ri.commandBuffer, *ri.camera, m_shadowViewports[iShadow], Matrix4(), nullptr, nullptr, nullptr, ri.renderPass);
 
-      getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], KRNode::RENDER_PASS_SHADOWMAP, true);
+      getScene().render(ri.commandBuffer, *ri.surface, ri.camera, m_shadowViewports[iShadow].getVisibleBounds(), m_shadowViewports[iShadow], ri.renderPass, true);
     }
   }
 }

@@ -37,6 +37,7 @@
 #include "KRPipeline.h"
 #include "KRPipelineManager.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 #include "../3rdparty/forsyth/forsyth.h"
 
 using namespace mimir;
@@ -254,7 +255,7 @@ kraken_stream_level KRMesh::getStreamLevel()
 void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name, const Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const Vector3& rim_color, float rim_power, float lod_coverage)
 {
   //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
-  if (ri.renderPass != KRNode::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass != KRNode::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass != KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
+  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass->getType() != RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
     preStream(lod_coverage);
     if (getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
 
@@ -264,7 +265,7 @@ void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name
       getMaterials();
 
       int cSubmeshes = (int)m_submeshes.size();
-      if (ri.renderPass == KRNode::RENDER_PASS_SHADOWMAP) {
+      if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP) {
         for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
           KRMaterial* pMaterial = m_materials[iSubmesh];
 
@@ -284,7 +285,7 @@ void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name
             KRMaterial* pMaterial = m_materials[iSubmesh];
 
             if (pMaterial != NULL && pMaterial == (*mat_itr)) {
-              if ((!pMaterial->isTransparent() && ri.renderPass != KRNode::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT)) {
+              if ((!pMaterial->isTransparent() && ri.renderPass->getType() != RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT)) {
                 std::vector<Matrix4> bone_bind_poses;
                 for (int i = 0; i < (int)bones.size(); i++) {
                   bone_bind_poses.push_back(getBoneBindPose(i));
@@ -437,7 +438,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
   }
 }
 
-void KRMesh::renderNoMaterials(VkCommandBuffer& commandBuffer, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage)
+void KRMesh::renderNoMaterials(VkCommandBuffer& commandBuffer, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage)
 {
   int submesh_count = getSubmeshCount();
   for (int i = 0; i < submesh_count; i++) {
@@ -458,7 +459,7 @@ bool KRMesh::isReady() const
   return true;
 }
 
-void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode::RenderPass renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage)
+void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage)
 {
   getSubmeshes();
 
@@ -485,7 +486,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
       if (vertex_draw_count > index_count - index_group_offset) vertex_draw_count = index_count - index_group_offset;
 
       vkCmdDrawIndexed(commandBuffer, vertex_draw_count, 1, index_group_offset, 0, 0);
-      m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, vertex_draw_count);
+      m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, vertex_draw_count);
       cVertexes -= vertex_draw_count;
       index_group_offset = 0;
     }
@@ -515,7 +516,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
           vkCmdDrawIndexed(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0, 0);
           break;
         }
-        m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, (MAX_VBO_SIZE - iVertex));
+        m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, (MAX_VBO_SIZE - iVertex));
 
         cVertexes -= (MAX_VBO_SIZE - iVertex);
         iVertex = 0;
@@ -531,7 +532,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, KRNode:
         default:
           break;
         }
-        m_pContext->getMeshManager()->log_draw_call(renderPass, object_name, material_name, cVertexes);
+        m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, cVertexes);
 
         cVertexes = 0;
       }

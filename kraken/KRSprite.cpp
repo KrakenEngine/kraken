@@ -42,6 +42,7 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -118,7 +119,7 @@ AABB KRSprite::getBounds()
 void KRSprite::render(RenderInfo& ri)
 {
 
-  if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass == KRNode::RENDER_PASS_PRESTREAM) {
+  if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
     // Pre-stream sprites, even if the alpha is zero
     if (m_spriteTexture.size() && m_pSpriteTexture == NULL) {
       if (!m_pSpriteTexture && m_spriteTexture.size()) {
@@ -136,7 +137,7 @@ void KRSprite::render(RenderInfo& ri)
   KRNode::render(ri);
 
 
-  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_spriteTexture.size() && m_spriteAlpha > 0.0f) {
 
 

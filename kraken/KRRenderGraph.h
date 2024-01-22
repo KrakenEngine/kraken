@@ -34,9 +34,13 @@
 #include "KREngine-common.h"
 
 #include "KRContextObject.h"
+#include "KRRenderPass.h"
 
 class KRRenderPass;
 class KRSurface;
+class KRDevice;
+struct RenderPassInfo;
+enum RenderPassType : uint8_t;
 
 class KRRenderGraph : public KRContextObject
 {
@@ -44,11 +48,13 @@ public:
   KRRenderGraph(KRContext& context);
   ~KRRenderGraph();
   
-  void addRenderPass(KRRenderPass* pass);
+  void addRenderPass(KRDevice& device, const RenderPassInfo& info);
+  KRRenderPass* getRenderPass(RenderPassType type);
   void render(VkCommandBuffer &commandBuffer, KRSurface& surface);
+  void destroy(KRDevice& device);
     
 private:
   
-  std::vector<KRRenderPass*> m_renderPasses;
+  std::list<KRRenderPass> m_renderPasses;
 
 };

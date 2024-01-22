@@ -55,6 +55,7 @@ class KRNode;
 class KRPointLight;
 class KRSpotLight;
 class KRDirectionalLight;
+class KRRenderPass;
 namespace tinyxml2 {
 class XMLNode;
 class XMLAttribute;
@@ -63,20 +64,6 @@ class XMLAttribute;
 class KRNode : public KRContextObject
 {
 public:
-  enum RenderPass
-  {
-    RENDER_PASS_FORWARD_OPAQUE,
-    RENDER_PASS_DEFERRED_GBUFFER,
-    RENDER_PASS_DEFERRED_LIGHTS,
-    RENDER_PASS_DEFERRED_OPAQUE,
-    RENDER_PASS_FORWARD_TRANSPARENT,
-    RENDER_PASS_PARTICLE_OCCLUSION,
-    RENDER_PASS_ADDITIVE_PARTICLES,
-    RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
-    RENDER_PASS_GENERATE_SHADOWMAPS,
-    RENDER_PASS_SHADOWMAP,
-    RENDER_PASS_PRESTREAM
-  };
 
   enum LodVisibility
   {
@@ -104,7 +91,7 @@ public:
     std::vector<KRDirectionalLight*> directional_lights;
     std::vector<KRSpotLight*> spot_lights;
     KRViewport viewport;
-    RenderPass renderPass;
+    const KRRenderPass* renderPass;
   };
 
   static void InitNodeInfo(KrNodeInfo* nodeInfo);

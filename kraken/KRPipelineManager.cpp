@@ -37,6 +37,7 @@
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
 #include "KRSwapchain.h"
+#include "KRRenderPass.h"
 
 #ifndef ANDROID
 #include "glslang/Public/ShaderLang.h"
@@ -83,7 +84,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
   std::vector<KRShader*> shaders;
   shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".vert", "spv"));
   shaders.push_back(m_pContext->getShaderManager()->get(*info.shader_name + ".frag", "spv"));
-  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, surface.getForwardOpaquePass(), surface.getDimensions(), surface.getDimensions(), info, info.shader_name->c_str(), shaders, info.vertexAttributes, info.modelFormat);
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE), surface.getDimensions(), surface.getDimensions(), info, info.shader_name->c_str(), shaders, info.vertexAttributes, info.modelFormat);
 
   m_pipelines[key] = pipeline;
 
@@ -100,7 +101,7 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     int light_directional_count = 0;
     int light_point_count = 0;
     int light_spot_count = 0;
-    if(info.renderPass != KRNode::RENDER_PASS_DEFERRED_LIGHTS && info.renderPass != KRNode::RENDER_PASS_DEFERRED_GBUFFER && info.renderPass != KRNode::RENDER_PASS_DEFERRED_OPAQUE && info.renderPass != KRNode::RENDER_PASS_GENERATE_SHADOWMAPS) {
+    if(info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && info.renderPass != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && info.renderPass != RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS) {
         if (info.directional_lights) {
           light_directional_count = (int)info.directional_lights->size();
         }
@@ -236,13 +237,13 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define ENABLE_FADE_COLOR " << (bFadeColorEnabled ? "1" : "0");
         stream << "\n#define FOG_TYPE " << info.pCamera->settings.fog_type;
         switch(info.renderPass) {
-            case KRNode::RENDER_PASS_DEFERRED_GBUFFER:
+            case RenderPassType::RENDER_PASS_DEFERRED_GBUFFER:
                 stream << "\n#define GBUFFER_PASS " << 1;
                 break;
-            case KRNode::RENDER_PASS_DEFERRED_LIGHTS:
+            case RenderPassType::RENDER_PASS_DEFERRED_LIGHTS:
                 stream << "\n#define GBUFFER_PASS " << 2;
                 break;
-            case KRNode::RENDER_PASS_DEFERRED_OPAQUE:
+            case RenderPassType::RENDER_PASS_DEFERRED_OPAQUE:
                 stream << "\n#define GBUFFER_PASS " << 3;
                 break;
             default:

@@ -38,6 +38,7 @@
 class KRDevice;
 class KRRenderPass;
 class KRSwapchain;
+class KRRenderGraph;
 
 class KRSurface : public KRContextObject
 {
@@ -57,13 +58,7 @@ public:
 
   KrResult initialize();
   KrResult recreateSwapChain();
-  KRRenderPass& getForwardOpaquePass();
-
-  KRRenderPass& getDeferredGBufferPass();
-  KRRenderPass& getDeferredOpaquePass();
-  KRRenderPass& getPostCompositePass();
-  KRRenderPass& getDebugPass();
-  KRRenderPass& getBlackFramePass();
+  KRRenderPass* getRenderPass(RenderPassType type);
 
   void endFrame();
   KrSurfaceHandle m_handle;
@@ -77,13 +72,6 @@ public:
   VkFence m_inFlightFences[KRENGINE_MAX_FRAMES_IN_FLIGHT];
 
   std::unique_ptr<KRSwapchain> m_swapChain;
-  std::unique_ptr<KRRenderPass> m_forwardOpaquePass;
-  std::unique_ptr<KRRenderPass> m_deferredGBufferPass;
-  std::unique_ptr<KRRenderPass> m_deferredOpaquePass;
-  std::unique_ptr<KRRenderPass> m_postCompositePass;
-  std::unique_ptr<KRRenderPass> m_debugPass;
-  std::unique_ptr<KRRenderPass> m_blackFramePass;
-  
 
   // TODO - This needs to be advanced per swap chain
   uint64_t m_frameIndex;
@@ -91,6 +79,6 @@ public:
 private:
   void destroySwapChain();
   KrResult createSwapChain();
-  KRRenderGraph m_renderGraph;
-  KRRenderGraph m_blackFrameRenderGraph;
+  std::unique_ptr<KRRenderGraph> m_renderGraph;
+  std::unique_ptr<KRRenderGraph> m_blackFrameRenderGraph;
 };

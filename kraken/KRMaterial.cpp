@@ -33,6 +33,7 @@
 
 #include "KRMaterial.h"
 #include "KRTextureManager.h"
+#include "KRRenderPass.h"
 
 #include "KRContext.h"
 
@@ -414,14 +415,14 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
 
   pShader->setPushConstant(KRPipeline::PushConstant::material_ambient, m_ambientColor + ri.camera->settings.ambient_intensity);
 
-  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
     // We pre-multiply the light color with the material color in the forward renderer
     pShader->setPushConstant(KRPipeline::PushConstant::material_diffuse, Vector3::Create(m_diffuseColor.x * ri.camera->settings.light_intensity.x, m_diffuseColor.y * ri.camera->settings.light_intensity.y, m_diffuseColor.z * ri.camera->settings.light_intensity.z));
   } else {
     pShader->setPushConstant(KRPipeline::PushConstant::material_diffuse, m_diffuseColor);
   }
 
-  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_OPAQUE) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
     // We pre-multiply the light color with the material color in the forward renderer
     pShader->setPushConstant(KRPipeline::PushConstant::material_specular, Vector3::Create(m_specularColor.x * ri.camera->settings.light_intensity.x, m_specularColor.y * ri.camera->settings.light_intensity.y, m_specularColor.z * ri.camera->settings.light_intensity.z));
   } else {

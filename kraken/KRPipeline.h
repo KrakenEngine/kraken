@@ -207,18 +207,18 @@ public:
   CullMode cullMode;
   uint32_t vertexAttributes;
   ModelFormat modelFormat;
-  KRNode::RenderPass renderPass;
+  const KRRenderPass* renderPass;
 };
 
 class KRPipeline : public KRContextObject
 {
 public:
 
-  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass& renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
+  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, KRRenderPass* renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
   virtual ~KRPipeline();
   const char* getKey() const;
 
-  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const hydra::Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRNode::RenderPass& renderPass);
+  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const hydra::Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRRenderPass* renderPass);
 
   enum class PushConstant : uint8_t
   {

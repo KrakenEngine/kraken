@@ -34,6 +34,7 @@
 #include "KRDirectionalLight.h"
 #include "KRRenderPass.h"
 #include "KRPipeline.h"
+#include "KRRenderPass.h"
 
 using namespace mimir;
 using namespace hydra;
@@ -180,13 +181,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   scene.updateOctree(m_viewport);
 
   // ----====---- Pre-stream resources ----====----
-  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_PRESTREAM, true);
+  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PRESTREAM), true);
 
   // ----====---- Generate Shadowmaps for Lights ----====----
   if (settings.m_cShadowBuffers > 0) {
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
 
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_GENERATE_SHADOWMAPS, false /*settings.bEnableDeferredLighting*/);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS), false /*settings.bEnableDeferredLighting*/);
     GL_POP_GROUP_MARKER;
   }
 
@@ -197,14 +198,14 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 1 (Opaque)");
 
     // Start render pass
-    KRRenderPass& deferredGBufferPass = compositeSurface.getDeferredGBufferPass();
-    deferredGBufferPass.begin(commandBuffer, compositeSurface);
+    KRRenderPass* deferredGBufferPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_GBUFFER);
+    deferredGBufferPass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_GBUFFER, false);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, deferredGBufferPass, false);
 
     // End render pass
-    deferredGBufferPass.end(commandBuffer);
+    deferredGBufferPass->end(commandBuffer);
 
     GL_POP_GROUP_MARKER;
 
@@ -225,7 +226,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 7, compositeDepthTexture);
 
     // Render the geometry
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_LIGHTS, false);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_LIGHTS), false);
 
     GL_POP_GROUP_MARKER;
 
@@ -234,18 +235,18 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 3 (Opaque)");
 
     // Start render pass
-    KRRenderPass& deferredOpaquePass = compositeSurface.getDeferredOpaquePass();
-    deferredOpaquePass.begin(commandBuffer, compositeSurface);
+    KRRenderPass* deferredOpaquePass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_OPAQUE);
+    deferredOpaquePass->begin(commandBuffer, compositeSurface);
 
     // Set source to buffers from pass 2
     m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, lightAccumulationTexture);
 
     // Render the geometry
     // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_DEFERRED_OPAQUE, false);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, deferredOpaquePass, false);
 
     // End render pass
-    deferredOpaquePass.end(commandBuffer);
+    deferredOpaquePass->end(commandBuffer);
 
     GL_POP_GROUP_MARKER;
   } else {
@@ -253,11 +254,11 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
 
     // Start render pass
-    KRRenderPass& forwardOpaquePass = compositeSurface.getForwardOpaquePass();
-    forwardOpaquePass.begin(commandBuffer, compositeSurface);
+    KRRenderPass* forwardOpaquePass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
+    forwardOpaquePass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_OPAQUE, false);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, forwardOpaquePass, false);
 
     GL_POP_GROUP_MARKER;
 
@@ -269,19 +270,19 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
       std::string shader_name("vulkan_test");
       info.shader_name = &shader_name;
       info.pCamera = this;
-      info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
-      info.rasterMode = RasterMode::kAlphaBlend;
+      info.renderPass = forwardOpaquePass;
+      info.rasterMode = RasterMode::kOpaque;
       info.vertexAttributes = sphereMesh->getVertexAttributes();
       info.modelFormat = sphereMesh->getModelFormat();
       KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
-      testPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+      testPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
       sphereMesh->renderNoMaterials(commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
     }
 
     // ----------  End: Vulkan Debug Code ----------
 
 
-    forwardOpaquePass.end(commandBuffer);
+    forwardOpaquePass->end(commandBuffer);
   }
 
   // ----====---- Sky Box ----====----
@@ -299,13 +300,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     PipelineInfo info{};
     info.shader_name = &shader_name;
     info.pCamera = this;
-    info.renderPass = KRNode::RENDER_PASS_FORWARD_OPAQUE;
+    info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
     info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
     info.cullMode = CullMode::kCullNone;
 
     KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
     pPipeline->setImageBinding("diffuseTexture", m_pSkyBoxTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-    pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_OPAQUE);
+    pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
@@ -320,7 +321,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   GL_PUSH_GROUP_MARKER("Forward Rendering - Transparent");
 
   // Render all transparent geometry
-  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_FORWARD_TRANSPARENT, false);
+  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT), false);
 
   GL_POP_GROUP_MARKER;
 
@@ -329,7 +330,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   GL_PUSH_GROUP_MARKER("Particle Occlusion Tests");
 
   // ----====---- Perform Occlusion Tests ----====----
-  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, RENDER_PASS_PARTICLE_OCCLUSION, false);
+  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION), false);
 
   GL_POP_GROUP_MARKER;
 
@@ -338,7 +339,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   GL_PUSH_GROUP_MARKER("Additive Particles");
 
   // Render all flares
-  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, KRNode::RENDER_PASS_ADDITIVE_PARTICLES, false);
+  scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), m_viewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES), false);
 
   GL_POP_GROUP_MARKER;
 
@@ -368,7 +369,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
       GLDEBUG(glDepthRangef(0.0, 1.0));
     }
 
-    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), volumetricLightingViewport, KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE, false);
+    scene.render(commandBuffer, compositeSurface, this, m_viewport.getVisibleBounds(), volumetricLightingViewport, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE), false);
 
     GL_POP_GROUP_MARKER;
   }
@@ -386,7 +387,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     std::string shader_name("visualize_overlay");
     info.shader_name = &shader_name;
     info.pCamera = this;
-    info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+    info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
     info.rasterMode = RasterMode::kAdditive;
     info.vertexAttributes = vertices.getVertexAttributes();
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
@@ -397,7 +398,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
       Matrix4 matModel = Matrix4();
       matModel.scale((*itr).first.size() * 0.5f);
       matModel.translate((*itr).first.center());
-      pVisShader->bind(commandBuffer, *this, m_viewport, matModel, nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+      pVisShader->bind(commandBuffer, *this, m_viewport, matModel, nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
       vkCmdDraw(commandBuffer, 14, 1, 0, 0);
     }
   }
@@ -414,12 +415,12 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   
   GL_PUSH_GROUP_MARKER("Post Processing");
 
-  KRRenderPass& postCompositePass = compositeSurface.getPostCompositePass();
-  postCompositePass.begin(commandBuffer, compositeSurface);
+  KRRenderPass* postCompositePass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_POST_COMPOSITE);
+  postCompositePass->begin(commandBuffer, compositeSurface);
   
   renderPost(commandBuffer, compositeSurface);
 
-  postCompositePass.end(commandBuffer);
+  postCompositePass->end(commandBuffer);
   
   
   GL_POP_GROUP_MARKER;
@@ -594,7 +595,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
    std::string shader_name("PostShader");
    info.shader_name = &shader_name;
    info.pCamera = this;
-   info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+   info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
    info.rasterMode = RasterMode::kOpaqueNoTest;
    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
    info.vertexAttributes = vertices.getVertexAttributes();
@@ -602,7 +603,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
    
    postShader->setPushConstant(KRPipeline::PushConstant::fade_color, m_fade_color);
-   postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+   postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
    
    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 1, compositeColorTexture);
@@ -619,13 +620,13 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
   
   
   //    if(bShowShadowBuffer) {
-  //        KRPipeline *blitShader = m_pContext->getPipelineManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+  //        KRPipeline *blitShader = m_pContext->getPipelineManager()->getShader("simple_blit", this, false, false, false, 0, false, false, false, false, false, false, false, false, false, false, false, false, false, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
   //
   //        for(int iShadow=0; iShadow < m_cShadowBuffers; iShadow++) {
   //            Matrix4 viewMatrix = Matrix4();
   //            viewMatrix.scale(0.20, 0.20, 0.20);
   //            viewMatrix.translate(-0.70, 0.70 - 0.45 * iShadow, 0.0);
-  //            getContext().getPipelineManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, Matrix4()), shadowViewports, Matrix4(), Vector3(), NULL, 0, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+  //            getContext().getPipelineManager()->selectShader(blitShader, KRViewport(getViewportSize(), viewMatrix, Matrix4()), shadowViewports, Matrix4(), Vector3(), NULL, 0, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
   //            m_pContext->getTextureManager()->selectTexture(1, NULL);
   //            m_pContext->getMeshManager()->bindVBO(&getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES);
   //            m_pContext->getTextureManager()->_setActiveTexture(0);
@@ -774,8 +775,8 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
     
     m_debug_text_vbo_data.load(commandBuffer);
     
-    KRRenderPass& debugPass = surface.getDebugPass();
-    debugPass.begin(commandBuffer, surface);
+    KRRenderPass* debugPass = surface.getRenderPass(RenderPassType::RENDER_PASS_DEBUG_OVERLAYS);
+    debugPass->begin(commandBuffer, surface);
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
     fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
@@ -785,21 +786,21 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
       std::string shader_name("debug_font");
       info.shader_name = &shader_name;
       info.pCamera = this;
-      info.renderPass = KRNode::RENDER_PASS_FORWARD_TRANSPARENT;
+      info.renderPass = surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
       info.rasterMode = RasterMode::kAlphaBlendNoTest;
       info.cullMode = CullMode::kCullNone;
       info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
       KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
       fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-      fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, KRNode::RENDER_PASS_FORWARD_TRANSPARENT);
+      fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
       
       m_debug_text_vbo_data.bind(commandBuffer);
       
       vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
     }
     
-    debugPass.end(commandBuffer);
+    debugPass->end(commandBuffer);
 
     m_debug_text_vertices.unlock();
 
@@ -944,34 +945,34 @@ std::string KRCamera::getDebugText()
       draw_call_count++;
       stream << "\n" << draw_call_count << "\t" << (*itr).vertex_count << "\t";
       switch ((*itr).pass) {
-      case KRNode::RENDER_PASS_FORWARD_OPAQUE:
+      case RenderPassType::RENDER_PASS_FORWARD_OPAQUE:
         stream << "opaq";
         break;
-      case KRNode::RENDER_PASS_DEFERRED_GBUFFER:
+      case RenderPassType::RENDER_PASS_DEFERRED_GBUFFER:
         stream << "d gb";
         break;
-      case KRNode::RENDER_PASS_DEFERRED_LIGHTS:
+      case RenderPassType::RENDER_PASS_DEFERRED_LIGHTS:
         stream << "d light";
         break;
-      case KRNode::RENDER_PASS_DEFERRED_OPAQUE:
+      case RenderPassType::RENDER_PASS_DEFERRED_OPAQUE:
         stream << "d opaq";
         break;
-      case KRNode::RENDER_PASS_FORWARD_TRANSPARENT:
+      case RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT:
         stream << "trans";
         break;
-      case KRNode::RENDER_PASS_PARTICLE_OCCLUSION:
+      case RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION:
         stream << "p occl";
         break;
-      case KRNode::RENDER_PASS_ADDITIVE_PARTICLES:
+      case RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES:
         stream << "a part";
         break;
-      case KRNode::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE:
+      case RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE:
         stream << "vol add";
         break;
-      case KRNode::RENDER_PASS_GENERATE_SHADOWMAPS:
+      case RenderPassType::RENDER_PASS_GENERATE_SHADOWMAPS:
         stream << "g shadow";
         break;
-      case KRNode::RENDER_PASS_SHADOWMAP:
+      case RenderPassType::RENDER_PASS_SHADOWMAP:
         stream << "shadow";
         break;
       default:

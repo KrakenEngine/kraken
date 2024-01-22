@@ -33,6 +33,7 @@
 #include "KRCollider.h"
 #include "KRContext.h"
 #include "KRMesh.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -217,7 +218,7 @@ void KRCollider::render(RenderInfo& ri)
 
   KRNode::render(ri);
 
-  if (ri.renderPass == KRNode::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
     loadModel();
     if (m_model) {
 

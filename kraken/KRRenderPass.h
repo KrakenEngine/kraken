@@ -36,31 +36,59 @@
 
 class KRSurface;
 
+enum RenderPassType : uint8_t
+{
+  RENDER_PASS_FORWARD_OPAQUE,
+  RENDER_PASS_DEFERRED_GBUFFER,
+  RENDER_PASS_DEFERRED_LIGHTS,
+  RENDER_PASS_DEFERRED_OPAQUE,
+  RENDER_PASS_FORWARD_TRANSPARENT,
+  RENDER_PASS_PARTICLE_OCCLUSION,
+  RENDER_PASS_ADDITIVE_PARTICLES,
+  RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE,
+  RENDER_PASS_GENERATE_SHADOWMAPS,
+  RENDER_PASS_SHADOWMAP,
+  RENDER_PASS_PRESTREAM,
+  RENDER_PASS_POST_COMPOSITE,
+  RENDER_PASS_DEBUG_OVERLAYS,
+  RENDER_PASS_BLACK_FRAME,
+};
+
+struct RenderPassInfo
+{
+  RenderPassType type;
+  bool clearColor;
+  bool keepColor;
+  hydra::Vector4 clearColorValue;
+  VkFormat colorFormat;
+  
+  bool clearDepth;
+  bool keepDepth;
+  float clearDepthValue;
+  
+  bool clearStencil;
+  bool keepStencil;
+  uint32_t clearStencilValue;
+  
+  VkFormat depthStencilFormat;
+  
+  bool finalPass;
+};
+
 class KRRenderPass : public KRContextObject
 {
 public:
+  
   KRRenderPass(KRContext& context);
   ~KRRenderPass();
 
-  struct RenderPassInfo
-  {
-    bool clearColor;
-    bool keepColor;
-    bool clearDepth;
-    bool keepDepth;
-    bool clearStencil;
-    bool keepStencil;
-    bool finalPass;
-    hydra::Vector4 clearColorValue;
-    float clearDepthValue;
-    uint32_t clearStencilValue;
-  };
-
-  void create(KRDevice& device, VkFormat swapChainImageFormat, VkFormat depthImageFormat, const RenderPassInfo& info);
+  void create(KRDevice& device, const RenderPassInfo& info);
   void destroy(KRDevice& device);
 
   void begin(VkCommandBuffer& commandBuffer, KRSurface& surface);
   void end(VkCommandBuffer& commandBuffer);
+  
+  RenderPassType getType() const;
 
   // private:
   VkRenderPass m_renderPass;

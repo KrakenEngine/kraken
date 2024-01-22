@@ -34,6 +34,7 @@
 #include "KRParticleSystemNewtonian.h"
 #include "KRTexture.h"
 #include "KRContext.h"
+#include "KRRenderPass.h"
 
 using namespace hydra;
 
@@ -87,7 +88,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
 
   KRNode::render(ri);
 
-  if (ri.renderPass == KRNode::RENDER_PASS_ADDITIVE_PARTICLES) {
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (ri.viewport.visible(getBounds())) {
 
       int particle_count = 10000;
