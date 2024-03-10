@@ -146,7 +146,7 @@ KRRenderPass* KRRenderGraph::getRenderPass(RenderPassType type)
   return nullptr;
 }
 
-void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface)
+void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRScene* scene)
 {
   for(KRRenderPass* pass : m_renderPasses) {
     pass->begin(commandBuffer, surface);

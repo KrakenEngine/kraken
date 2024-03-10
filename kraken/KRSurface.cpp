@@ -368,5 +368,5 @@ void KRSurface::endFrame()
 
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
-  m_blackFrameRenderGraph->render(commandBuffer, *this);
+  m_blackFrameRenderGraph->render(commandBuffer, *this, nullptr);
 }
