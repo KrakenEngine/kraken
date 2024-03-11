@@ -32,6 +32,7 @@
 #include "KRSurface.h"
 #include "KRSwapchain.h"
 #include "KRRenderPass.h"
+#include "KRRenderGraphBlackFrame.h"
 
 using namespace hydra;
 
@@ -46,8 +47,9 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   , m_inFlightFences{VK_NULL_HANDLE}
   , m_frameIndex(0)
   , m_renderGraph(std::make_unique<KRRenderGraph>(context))
-  , m_blackFrameRenderGraph(std::make_unique<KRRenderGraph>(context))
+  , m_blackFrameRenderGraph(std::make_unique<KRRenderGraphBlackFrame>(context))
   , m_swapChain(std::make_unique<KRSwapchain>(context))
+  , m_surfaceFormat{}
 {
 }
 
@@ -143,8 +145,8 @@ KrResult KRSurface::createSwapChain()
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
 
   KrResult res = KR_SUCCESS;
-  VkSurfaceFormatKHR selectedSurfaceFormat{};
-  res = device->selectSurfaceFormat(m_surface, selectedSurfaceFormat);
+  m_surfaceFormat = {};
+  res = device->selectSurfaceFormat(m_surface, m_surfaceFormat);
   if (res != KR_SUCCESS) return res;
 
   VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
@@ -177,7 +179,7 @@ KrResult KRSurface::createSwapChain()
   // -------------------------
   
   int attachment_compositeDepth = m_renderGraph->addAttachment("Composite Depth", depthImageFormat);
-  int attachment_compositeColor = m_renderGraph->addAttachment("Composite Color", selectedSurfaceFormat.format);
+  int attachment_compositeColor = m_renderGraph->addAttachment("Composite Color", m_surfaceFormat.format);
   int attachment_lightAccumulation = m_renderGraph->addAttachment("Light Accumulation", VK_FORMAT_B8G8R8A8_UINT);
   int attachment_gbuffer = m_renderGraph->addAttachment("GBuffer", VK_FORMAT_B8G8R8A8_UINT);
   int attachment_shadow_cascades[3];
@@ -291,18 +293,9 @@ KrResult KRSurface::createSwapChain()
   m_renderGraph->addRenderPass(*device, info);
   
   
-  int attachment_blackFrameDepth = m_blackFrameRenderGraph->addAttachment("Composite Depth", depthImageFormat);
-  int attachment_blackFrameColor = m_blackFrameRenderGraph->addAttachment("Composite Color", selectedSurfaceFormat.format);
+  m_blackFrameRenderGraph->initialize(*this);
   
-  info.colorAttachments[0].id = attachment_blackFrameColor;
-  info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  info.depthAttachment.id = attachment_blackFrameDepth;
-  info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-  info.finalPass = true;
-  info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
-  m_blackFrameRenderGraph->addRenderPass(*device, info);
-
-  m_swapChain->create(*device, m_surface, selectedSurfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
+  m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
 
   return KR_SUCCESS;
 }
@@ -369,4 +362,9 @@ void KRSurface::endFrame()
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
   m_blackFrameRenderGraph->render(commandBuffer, *this, nullptr);
+}
+
+VkFormat KRSurface::getSurfaceFormat() const
+{
+  return m_surfaceFormat.format;
 }

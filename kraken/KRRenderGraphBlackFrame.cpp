@@ -1,5 +1,5 @@
 //
-//  KRSurface.h
+//  KRRenderGraphBlackFrame.cpp
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -29,60 +29,39 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#pragma once
+#include "KRREnderGraphBlackFrame.h"
+#include "KRRenderPass.h"
+#include "KRSurface.h"
+#include "KRDevice.h"
 
-#include "KREngine-common.h"
-#include "KRContext.h"
-
-class KRDevice;
-class KRRenderPass;
-class KRSwapchain;
-class KRRenderGraph;
-class KRRenderGraphBlackFrame;
-enum RenderPassType : uint8_t;
-
-class KRSurface : public KRContextObject
+KRRenderGraphBlackFrame::KRRenderGraphBlackFrame(KRContext& context)
+  : KRRenderGraph(context)
 {
-public:
-  KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformHandle);
-  ~KRSurface();
-  void destroy();
-  uint32_t getWidth() const;
-  uint32_t getHeight() const;
-  hydra::Vector2i getDimensions() const;
-  VkFormat getDepthFormat() const;
-  void renderBlackFrame(VkCommandBuffer &commandBuffer);
-  VkFormat getSurfaceFormat() const;
-
-  KRSurface(const KRSurface&) = delete;
-  KRSurface& operator=(const KRSurface&) = delete;
-  std::unique_ptr<KRDevice>& getDevice();
-
-  KrResult initialize();
-  KrResult recreateSwapChain();
-  KRRenderPass* getRenderPass(RenderPassType type);
-
-  void endFrame();
-  KrSurfaceHandle m_handle;
-
-  void* m_platformHandle;
-  KrDeviceHandle m_deviceHandle;
-  VkSurfaceKHR m_surface;
-
-  VkSemaphore m_imageAvailableSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-  VkSemaphore m_renderFinishedSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-  VkFence m_inFlightFences[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-
-  std::unique_ptr<KRSwapchain> m_swapChain;
-
-  // TODO - This needs to be advanced per swap chain
-  uint64_t m_frameIndex;
-
-private:
-  void destroySwapChain();
-  KrResult createSwapChain();
-  std::unique_ptr<KRRenderGraph> m_renderGraph;
-  std::unique_ptr<KRRenderGraphBlackFrame> m_blackFrameRenderGraph;
   
-  VkSurfaceFormatKHR m_surfaceFormat;
-};
+}
+
+KRRenderGraphBlackFrame::~KRRenderGraphBlackFrame()
+{
+}
+
+void KRRenderGraphBlackFrame::initialize(KRSurface &surface)
+{
+  VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
+  KrResult res = KR_SUCCESS;
+  res = surface.getDevice()->selectDepthFormat(depthImageFormat);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+  
+  int attachment_blackFrameDepth = addAttachment("Composite Depth", depthImageFormat);
+  int attachment_blackFrameColor = addAttachment("Composite Color", surface.getSurfaceFormat());
+  
+  RenderPassInfo info{};
+  info.colorAttachments[0].id = attachment_blackFrameColor;
+  info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  info.depthAttachment.id = attachment_blackFrameDepth;
+  info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  info.finalPass = true;
+  info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
+  addRenderPass(*surface.getDevice(), info);
+}

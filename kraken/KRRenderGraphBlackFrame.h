@@ -1,5 +1,5 @@
 //
-//  KRSurface.h
+//  KRRenderGraphBlackFrame.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -31,58 +31,14 @@
 
 #pragma once
 
-#include "KREngine-common.h"
-#include "KRContext.h"
+#include "KRRenderGraph.h"
 
-class KRDevice;
-class KRRenderPass;
-class KRSwapchain;
-class KRRenderGraph;
-class KRRenderGraphBlackFrame;
-enum RenderPassType : uint8_t;
-
-class KRSurface : public KRContextObject
+class KRRenderGraphBlackFrame : public KRRenderGraph
 {
 public:
-  KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformHandle);
-  ~KRSurface();
-  void destroy();
-  uint32_t getWidth() const;
-  uint32_t getHeight() const;
-  hydra::Vector2i getDimensions() const;
-  VkFormat getDepthFormat() const;
-  void renderBlackFrame(VkCommandBuffer &commandBuffer);
-  VkFormat getSurfaceFormat() const;
-
-  KRSurface(const KRSurface&) = delete;
-  KRSurface& operator=(const KRSurface&) = delete;
-  std::unique_ptr<KRDevice>& getDevice();
-
-  KrResult initialize();
-  KrResult recreateSwapChain();
-  KRRenderPass* getRenderPass(RenderPassType type);
-
-  void endFrame();
-  KrSurfaceHandle m_handle;
-
-  void* m_platformHandle;
-  KrDeviceHandle m_deviceHandle;
-  VkSurfaceKHR m_surface;
-
-  VkSemaphore m_imageAvailableSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-  VkSemaphore m_renderFinishedSemaphores[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-  VkFence m_inFlightFences[KRENGINE_MAX_FRAMES_IN_FLIGHT];
-
-  std::unique_ptr<KRSwapchain> m_swapChain;
-
-  // TODO - This needs to be advanced per swap chain
-  uint64_t m_frameIndex;
-
-private:
-  void destroySwapChain();
-  KrResult createSwapChain();
-  std::unique_ptr<KRRenderGraph> m_renderGraph;
-  std::unique_ptr<KRRenderGraphBlackFrame> m_blackFrameRenderGraph;
+  KRRenderGraphBlackFrame(KRContext& context);
+  ~KRRenderGraphBlackFrame();
   
-  VkSurfaceFormatKHR m_surfaceFormat;
+  void initialize(KRSurface& surface);
+  
 };
