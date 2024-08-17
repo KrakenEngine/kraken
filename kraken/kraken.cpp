@@ -32,7 +32,7 @@
 #include "public/kraken.h"
 
 #include "KRContext.h"
-#include "KRBundle.h"
+#include "resources/bundle/KRBundle.h"
 #include "hydra.h"
 #include "KRLODSet.h"
 #include "KRLODGroup.h"

@@ -32,7 +32,7 @@
 #include "KRAnimationAttribute.h"
 #include "KRContext.h"
 #include "KRAnimationManager.h"
-#include "KRAnimationCurveManager.h"
+#include "resources/animation_curve/KRAnimationCurveManager.h"
 
 
 KRAnimationAttribute::KRAnimationAttribute(KRContext& context) : KRContextObject(context)

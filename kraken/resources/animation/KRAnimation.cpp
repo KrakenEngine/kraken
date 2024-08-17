@@ -32,7 +32,7 @@
 #include "KRAnimationManager.h"
 #include "KRContext.h"
 #include "KRNode.h"
-#include "KRAnimationCurve.h"
+#include "resources/animation_curve/KRAnimationCurve.h"
 #include "KREngine-common.h"
 
 using namespace mimir;

@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "KRViewport.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"

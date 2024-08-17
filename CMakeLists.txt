@@ -220,7 +220,6 @@ add_source_and_header(3rdparty/forsyth/forsyth)
 source_group("3rd Party/Forsyth" FILES 3rdparty/forsyth/forsyth.h 3rdparty/forsyth/forsyth.cpp)
 
 source_group("Public Headers", FILES ${KRAKEN_PUBLIC_HEADERS})
-# source_group("Private Headers", FILES ${KRAKEN_PRIVATE_HEADERS})
 
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
@@ -233,6 +232,8 @@ PROPERTIES
   OUTPUT_NAME kraken_static
 )
 
+target_include_directories(kraken PRIVATE "kraken")
+
 add_library(kraken_dynamic SHARED ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken_dynamic ${EXTRA_LIBS} )
 SET_TARGET_PROPERTIES(
@@ -243,6 +244,8 @@ PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "lib${LIB_SUFFIX}"
   OUTPUT_NAME kraken
 )
+
+target_include_directories(kraken_dynamic PRIVATE "kraken")
 
 install(TARGETS kraken
         RUNTIME DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/export/${CMAKE_BUILD_TYPE}/bin/win

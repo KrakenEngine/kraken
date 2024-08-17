@@ -1,5 +1,5 @@
 //
-//  KRBundle.h
+//  KRAnimationCurveManager.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -28,25 +28,36 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
+
 #pragma once
 
 #include "KREngine-common.h"
-#include "KRResource.h"
+
+#include "resources/KRResourceManager.h"
+
+#include "KRAnimationCurve.h"
+#include "KRContextObject.h"
 #include "block.h"
 
-class KRBundle : public KRResource
+using std::map;
+
+class KRAnimationCurveManager : public KRResourceManager
 {
 public:
-  KRBundle(KRContext& context, std::string name, mimir::Block* pData);
-  KRBundle(KRContext& context, std::string name);
-  virtual ~KRBundle();
-  virtual std::string getExtension();
-  virtual bool save(const std::string& path);
-  virtual bool save(mimir::Block& data);
+  KRAnimationCurveManager(KRContext& context);
+  virtual ~KRAnimationCurveManager();
 
-  mimir::Block* append(KRResource& resource);
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+
+  KRAnimationCurve* loadAnimationCurve(const std::string& name, mimir::Block* data);
+  KRAnimationCurve* getAnimationCurve(const std::string& name);
+  void addAnimationCurve(KRAnimationCurve* new_animation_curve);
+  unordered_map<std::string, KRAnimationCurve*>& getAnimationCurves();
+
+  void deleteAnimationCurve(KRAnimationCurve* curve);
 
 private:
-  mimir::Block* m_pData;
-  static size_t RoundUpSize(size_t s);
+  unordered_map<std::string, KRAnimationCurve*> m_animationCurves;
 };
+

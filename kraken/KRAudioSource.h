@@ -32,7 +32,7 @@
 #pragma once
 
 #include "KREngine-common.h"
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "KRNode.h"
 #include "KRTexture.h"
 

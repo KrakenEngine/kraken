@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 
-#include "KRResourceManager.h"
+#include "resources/KRResourceManager.h"
 
 #include "KRTexture.h"
 #include "KRContextObject.h"

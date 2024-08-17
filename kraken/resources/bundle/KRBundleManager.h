@@ -1,5 +1,5 @@
 //
-//  KRAnimationCurveManager.h
+//  KRBundleManager.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -31,33 +31,31 @@
 
 #pragma once
 
+#include "resources/KRResourceManager.h"
+
 #include "KREngine-common.h"
-
-#include "KRResourceManager.h"
-
-#include "KRAnimationCurve.h"
 #include "KRContextObject.h"
 #include "block.h"
 
-using std::map;
+class KRContext;
+class KRBundle;
 
-class KRAnimationCurveManager : public KRResourceManager
+class KRBundleManager : public KRResourceManager
 {
 public:
-  KRAnimationCurveManager(KRContext& context);
-  virtual ~KRAnimationCurveManager();
+  KRBundleManager(KRContext& context);
+  ~KRBundleManager();
 
   virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
   virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  KRAnimationCurve* loadAnimationCurve(const std::string& name, mimir::Block* data);
-  KRAnimationCurve* getAnimationCurve(const std::string& name);
-  void addAnimationCurve(KRAnimationCurve* new_animation_curve);
-  unordered_map<std::string, KRAnimationCurve*>& getAnimationCurves();
+  KRBundle* loadBundle(const char* szName, mimir::Block* pData);
+  KRBundle* getBundle(const char* szName);
+  KRBundle* createBundle(const char* szName);
 
-  void deleteAnimationCurve(KRAnimationCurve* curve);
+  std::vector<std::string> getBundleNames();
+  unordered_map<std::string, KRBundle*> getBundles();
 
 private:
-  unordered_map<std::string, KRAnimationCurve*> m_animationCurves;
+  unordered_map<std::string, KRBundle*> m_bundles;
 };
-

@@ -1,5 +1,5 @@
 //
-//  KRAnimation.h
+//  KRAnimationCurve.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -34,52 +34,52 @@
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "block.h"
-#include "KRResource.h"
-#include "KRAnimationLayer.h"
+#include "resources/KRResource.h"
 
-
-class KRAnimation : public KRResource
+class KRAnimationCurve : public KRResource
 {
 
 public:
-  KRAnimation(KRContext& context, std::string name);
-  virtual ~KRAnimation();
+  KRAnimationCurve(KRContext& context, const std::string& name);
+  virtual ~KRAnimationCurve();
 
   virtual std::string getExtension();
+  virtual bool save(const std::string& path);
   virtual bool save(mimir::Block& data);
+  virtual bool load(mimir::Block* data);
 
-  static KRAnimation* Load(KRContext& context, const std::string& name, mimir::Block* data);
+  float getFrameRate();
+  void setFrameRate(float frame_rate);
+  int getFrameStart();
+  void setFrameStart(int frame_number);
+  int getFrameCount();
+  void setFrameCount(int frame_count);
+  float getValue(float local_time);
+  float getValue(int frame_number);
+  void setValue(int frame_number, float value);
 
-  void addLayer(KRAnimationLayer* layer);
-  unordered_map<std::string, KRAnimationLayer*>& getLayers();
-  KRAnimationLayer* getLayer(const char* szName);
-  bool getAutoPlay() const;
-  void setAutoPlay(bool auto_play);
-  bool getLooping() const;
-  void setLooping(bool looping);
-  void Play();
-  void Stop();
-  void update(float deltaTime);
-  float getTime();
-  void setTime(float time);
-  float getDuration();
-  void setDuration(float duration);
-  float getStartTime();
-  void setStartTime(float start_time);
-  bool isPlaying();
 
-  KRAnimation* split(const std::string& name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
-  void deleteCurves();
+  static KRAnimationCurve* Load(KRContext& context, const std::string& name, mimir::Block* data);
+
+  bool valueChanges(float start_time, float duration);
+  bool valueChanges(int start_frame, int frame_count);
+
+  KRAnimationCurve* split(const std::string& name, float start_time, float duration);
+  KRAnimationCurve* split(const std::string& name, int start_frame, int frame_count);
 
   void _lockData();
   void _unlockData();
 
 private:
-  unordered_map<std::string, KRAnimationLayer*> m_layers;
-  bool m_auto_play;
-  bool m_loop;
-  bool m_playing;
-  float m_local_time;
-  float m_duration;
-  float m_start_time;
+  mimir::Block* m_pData;
+
+  typedef struct
+  {
+    char szTag[16];
+    float frame_rate;
+    int32_t frame_start;
+    int32_t frame_count;
+  } animation_curve_header;
+
 };
+

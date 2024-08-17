@@ -1,5 +1,5 @@
 //
-//  KRAnimationManager.h
+//  KRBundle.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -28,42 +28,25 @@
 //  authors and should not be interpreted as representing official policies, either expressed
 //  or implied, of Kearwood Gilbert.
 //
-
 #pragma once
 
 #include "KREngine-common.h"
-
-#include "KRResourceManager.h"
-
-#include "KRAnimation.h"
-#include "KRContextObject.h"
+#include "resources/KRResource.h"
 #include "block.h"
 
-
-
-class KRAnimationManager : public KRResourceManager
+class KRBundle : public KRResource
 {
 public:
-  KRAnimationManager(KRContext& context);
-  virtual ~KRAnimationManager();
+  KRBundle(KRContext& context, std::string name, mimir::Block* pData);
+  KRBundle(KRContext& context, std::string name);
+  virtual ~KRBundle();
+  virtual std::string getExtension();
+  virtual bool save(const std::string& path);
+  virtual bool save(mimir::Block& data);
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
-  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
-
-  KRAnimation* loadAnimation(const char* szName, mimir::Block* data);
-  KRAnimation* getAnimation(const char* szName);
-  void addAnimation(KRAnimation* new_animation);
-  unordered_map<std::string, KRAnimation*>& getAnimations();
-  void deleteAnimation(KRAnimation* animation, bool delete_curves);
-
-  void startFrame(float deltaTime);
-  void endFrame(float deltaTime);
-
-  void updateActiveAnimations(KRAnimation* animation);
+  mimir::Block* append(KRResource& resource);
 
 private:
-  unordered_map<std::string, KRAnimation*> m_animations;
-  set<KRAnimation*> m_activeAnimations;
-  set<KRAnimation*> m_animationsToUpdate;
+  mimir::Block* m_pData;
+  static size_t RoundUpSize(size_t s);
 };
-

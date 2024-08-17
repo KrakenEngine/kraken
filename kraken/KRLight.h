@@ -30,7 +30,7 @@
 //
 #pragma once
 
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "KRNode.h"
 #include "KRTexture.h"
 

@@ -32,7 +32,7 @@
 #include "KRShaderManager.h"
 #include "KREngine-common.h"
 #include "KRContext.h"
-#include "KRSourceManager.h"
+#include "resources/source/KRSourceManager.h"
 #include "KRUnknownManager.h"
 #include "KRUnknown.h"
 

@@ -34,7 +34,7 @@
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "block.h"
-#include "KRResource.h"
+#include "resources/KRResource.h"
 
 class KRAudioBuffer;
 

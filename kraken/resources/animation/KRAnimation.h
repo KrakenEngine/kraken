@@ -1,5 +1,5 @@
 //
-//  KRBundleManager.h
+//  KRAnimation.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -31,31 +31,55 @@
 
 #pragma once
 
-#include "KRResourceManager.h"
-
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "block.h"
+#include "resources/KRResource.h"
+#include "KRAnimationLayer.h"
 
-class KRContext;
-class KRBundle;
 
-class KRBundleManager : public KRResourceManager
+class KRAnimation : public KRResource
 {
+
 public:
-  KRBundleManager(KRContext& context);
-  ~KRBundleManager();
+  KRAnimation(KRContext& context, std::string name);
+  virtual ~KRAnimation();
 
-  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
-  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
+  virtual std::string getExtension();
+  virtual bool save(mimir::Block& data);
 
-  KRBundle* loadBundle(const char* szName, mimir::Block* pData);
-  KRBundle* getBundle(const char* szName);
-  KRBundle* createBundle(const char* szName);
+  static KRAnimation* Load(KRContext& context, const std::string& name, mimir::Block* data);
 
-  std::vector<std::string> getBundleNames();
-  unordered_map<std::string, KRBundle*> getBundles();
+  void addLayer(KRAnimationLayer* layer);
+  unordered_map<std::string, KRAnimationLayer*>& getLayers();
+  KRAnimationLayer* getLayer(const char* szName);
+  bool getAutoPlay() const;
+  void setAutoPlay(bool auto_play);
+  bool getLooping() const;
+  void setLooping(bool looping);
+  void Play();
+  void Stop();
+  void update(float deltaTime);
+  float getTime();
+  void setTime(float time);
+  float getDuration();
+  void setDuration(float duration);
+  float getStartTime();
+  void setStartTime(float start_time);
+  bool isPlaying();
+
+  KRAnimation* split(const std::string& name, float start_time, float duration, bool strip_unchanging_attributes = true, bool clone_curves = true);
+  void deleteCurves();
+
+  void _lockData();
+  void _unlockData();
 
 private:
-  unordered_map<std::string, KRBundle*> m_bundles;
+  unordered_map<std::string, KRAnimationLayer*> m_layers;
+  bool m_auto_play;
+  bool m_loop;
+  bool m_playing;
+  float m_local_time;
+  float m_duration;
+  float m_start_time;
 };

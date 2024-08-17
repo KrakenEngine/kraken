@@ -33,7 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
-#include "KRResource.h"
+#include "resources/KRResource.h"
 
 namespace mimir {
   class Block;

@@ -39,7 +39,7 @@
 #include "KRPipelineManager.h"
 #include "KRPipeline.h"
 #include "KRCamera.h"
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "KRScene.h"
 #include "KRBone.h"
 

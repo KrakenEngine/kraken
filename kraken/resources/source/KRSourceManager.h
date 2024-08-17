@@ -1,5 +1,5 @@
 //
-//  KRSource.h
+//  SourceManager.h
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -32,26 +32,30 @@
 #pragma once
 
 #include "KREngine-common.h"
+
+#include "resources/KRResourceManager.h"
+#include "resources/source/KRSource.h"
 #include "KRContextObject.h"
 #include "block.h"
-#include "KRResource.h"
 
-class KRSource : public KRResource
+class KRSourceManager : public KRResourceManager
 {
-
 public:
-  KRSource(KRContext& context, std::string name, std::string extension);
-  KRSource(KRContext& context, std::string name, std::string extension, mimir::Block* data);
-  virtual ~KRSource();
+  KRSourceManager(KRContext& context);
+  virtual ~KRSourceManager();
 
-  virtual std::string getExtension();
+  virtual KRResource* loadResource(const std::string& name, const std::string& extension, mimir::Block* data) override;
+  virtual KRResource* getResource(const std::string& name, const std::string& extension) override;
 
-  virtual bool save(mimir::Block& data);
+  void add(KRSource* source);
 
-  mimir::Block* getData();
+  KRSource* load(const std::string& name, const std::string& extension, mimir::Block* data);
+  KRSource* get(const std::string& name, const std::string& extension);
+
+  const unordered_map<std::string, KRSource*>& get(const std::string& extension);
+
+  unordered_map<std::string, unordered_map<std::string, KRSource*> >& getSources();
 
 private:
-
-  std::string m_extension;
-  mimir::Block* m_pData;
+  unordered_map<std::string, unordered_map<std::string, KRSource*> > m_sources;
 };

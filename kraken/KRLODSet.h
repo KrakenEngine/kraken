@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "KRNode.h"
 
 class KRLODGroup;

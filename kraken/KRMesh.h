@@ -50,7 +50,7 @@ using namespace kraken;
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-#include "KRMaterialManager.h"
+#include "resources/material/KRMaterialManager.h"
 #include "KRCamera.h"
 #include "KRViewport.h"
 

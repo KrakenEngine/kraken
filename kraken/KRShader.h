@@ -34,7 +34,7 @@
 #include "KREngine-common.h"
 #include "KRContextObject.h"
 #include "block.h"
-#include "KRResource.h"
+#include "resources/KRResource.h"
 #include "spirv_reflect.h"
 
 enum class ShaderStage : uint8_t
