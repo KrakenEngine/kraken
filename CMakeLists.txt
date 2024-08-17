@@ -99,6 +99,7 @@ IF(APPLE)
 ENDIF (APPLE)
 
 add_subdirectory(kraken)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/kraken PREFIX Source FILES ${SRCS} ${KRAKEN_PRIVATE_HEADERS})
 
 add_public_header(hydra/include/aabb.h)
 add_public_header(hydra/include/hitinfo.h)
@@ -149,6 +150,7 @@ list (APPEND EXTRA_LIBS CMP_Core)
 add_library(vulkan INTERFACE)
 set(VULKAN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/vulkan/include)
 target_sources(vulkan INTERFACE ${VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
+source_group("3rd Party/Vulkan" FILES ${VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
 target_include_directories(vulkan INTERFACE ${VULKAN_INCLUDE_DIR})
 
 target_compile_definitions(vulkan INTERFACE VK_NO_PROTOTYPES)
@@ -206,10 +208,19 @@ endif()
 
 # ---- SPIRV-Reflect ----
 include_directories(3rdparty/spirv-reflect)
-add_sources(3rdparty/spirv-reflect/spirv_reflect.c)
+add_source_and_header(3rdparty/spirv-reflect/spirv_reflect)
+source_group("3rd Party/SPIRV Reflect" FILES 3rdparty/spirv-reflect/spirv_reflect.h 3rdparty/spirv-reflect/spirv_reflect.c 3rdparty/spirv-reflect/spirv_reflect.cpp)
+
+# ---- TinyXML2 ----
+add_source_and_header(3rdparty/tinyxml2/tinyxml2)
+source_group("3rd Party/TinyXML 2" FILES 3rdparty/tinyxml2/tinyxml2.h 3rdparty/tinyxml2/tinyxml2.cpp)
+
+# ---- Forsyth ----
+add_source_and_header(3rdparty/forsyth/forsyth)
+source_group("3rd Party/Forsyth" FILES 3rdparty/forsyth/forsyth.h 3rdparty/forsyth/forsyth.cpp)
 
 source_group("Public Headers", FILES ${KRAKEN_PUBLIC_HEADERS})
-source_group("Private Headers", FILES ${KRAKEN_PRIVATE_HEADERS})
+# source_group("Private Headers", FILES ${KRAKEN_PRIVATE_HEADERS})
 
 add_library(kraken STATIC ${SRCS} ${KRAKEN_PUBLIC_HEADERS} ${KRAKEN_PRIVATE_HEADERS})
 TARGET_LINK_LIBRARIES( kraken ${EXTRA_LIBS} )
