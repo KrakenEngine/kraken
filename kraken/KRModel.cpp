@@ -33,7 +33,7 @@
 
 #include "KRModel.h"
 #include "KRContext.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRNode.h"
 #include "KRRenderPass.h"
 

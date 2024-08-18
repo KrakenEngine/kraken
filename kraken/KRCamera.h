@@ -39,7 +39,7 @@
 #include "KRContext.h"
 #include "KRViewport.h"
 #include "KRRenderSettings.h"
-#include "KRMeshManager.h"
+#include "resources/mesh/KRMeshManager.h"
 
 #define KRAKEN_FPS_AVERAGE_FRAME_COUNT 30
 

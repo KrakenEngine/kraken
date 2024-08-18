@@ -35,8 +35,8 @@
 
 #include "KRContext.h"
 #include "KRCamera.h"
-#include "KRAudioManager.h"
-#include "KRAudioSample.h"
+#include "resources/audio/KRAudioManager.h"
+#include "resources/audio/KRAudioSample.h"
 #include "resources/bundle/KRBundle.h"
 #include "KRPresentationThread.h"
 #include "KRStreamerThread.h"

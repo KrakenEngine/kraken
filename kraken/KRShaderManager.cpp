@@ -33,8 +33,8 @@
 #include "KREngine-common.h"
 #include "KRContext.h"
 #include "resources/source/KRSourceManager.h"
-#include "KRUnknownManager.h"
-#include "KRUnknown.h"
+#include "resources/unknown/KRUnknownManager.h"
+#include "resources/unknown/KRUnknown.h"
 
 #include "mimir.h"
 

@@ -33,13 +33,13 @@
 
 #include "KREngine-common.h"
 
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRModel.h"
 #include "KRCamera.h"
-#include "KRMeshManager.h"
+#include "resources/mesh/KRMeshManager.h"
 #include "KRNode.h"
 #include "KRContext.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRTexture.h"
 #include "KRBone.h"
 

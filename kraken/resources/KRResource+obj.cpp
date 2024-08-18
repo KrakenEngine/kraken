@@ -32,7 +32,7 @@
 #include "KREngine-common.h"
 
 #include "KRResource.h"
-#include "KRMesh.h"
+#include "mesh/KRMesh.h"
 
 #include "mimir.h"
 

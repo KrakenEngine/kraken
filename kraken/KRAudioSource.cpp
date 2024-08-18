@@ -31,8 +31,8 @@
 
 #include "KRAudioSource.h"
 #include "KRContext.h"
-#include "KRAudioManager.h"
-#include "KRAudioSample.h"
+#include "resources/audio/KRAudioManager.h"
+#include "resources/audio/KRAudioSample.h"
 #include "KRAudioBuffer.h"
 #include "KRRenderPass.h"
 

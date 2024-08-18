@@ -30,7 +30,7 @@
 //
 
 #include "KRAudioBuffer.h"
-#include "KRAudioManager.h"
+#include "resources/audio/KRAudioManager.h"
 
 
 KRAudioBuffer::KRAudioBuffer(KRAudioManager* manager, KRAudioSample* sound, int index, int frameCount, int frameRate, int bytesPerFrame, void (*fn_populate)(KRAudioSample*, int, void*))

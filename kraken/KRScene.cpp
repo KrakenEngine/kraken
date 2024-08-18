@@ -38,7 +38,7 @@
 #include "KRDirectionalLight.h"
 #include "KRSpotLight.h"
 #include "KRPointLight.h"
-#include "KRAudioManager.h"
+#include "resources/audio/KRAudioManager.h"
 #include "KRRenderPass.h"
 
 using namespace mimir;

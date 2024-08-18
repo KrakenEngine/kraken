@@ -36,7 +36,7 @@
 #include "KRCamera.h"
 #include "KRNode.h"
 #include "KRViewport.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRShader.h"
 
 class KRSampler;

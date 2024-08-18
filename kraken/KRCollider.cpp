@@ -32,7 +32,7 @@
 #include "KREngine-common.h"
 #include "KRCollider.h"
 #include "KRContext.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRRenderPass.h"
 
 using namespace hydra;

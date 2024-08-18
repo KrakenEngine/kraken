@@ -34,9 +34,9 @@
 #include "KREngine-common.h"
 
 #include "KRModel.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRCamera.h"
-#include "KRMeshManager.h"
+#include "resources/mesh/KRMeshManager.h"
 #include "KRNode.h"
 #include "KRLocator.h"
 #include "KRAmbientZone.h"

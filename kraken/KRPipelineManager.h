@@ -37,7 +37,7 @@
 #include "block.h"
 #include "KRNode.h"
 #include "KRSurface.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 
 using std::map;
 using std::vector;

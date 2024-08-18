@@ -37,13 +37,13 @@
 #define KRAKEN_COLLIDER_PHYSICS 1
 #define KRAKEN_COLLIDER_AUDIO 2
 
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRModel.h"
 #include "KRCamera.h"
-#include "KRMeshManager.h"
+#include "resources/mesh/KRMeshManager.h"
 #include "KRNode.h"
 #include "KRContext.h"
-#include "KRMesh.h"
+#include "resources/mesh/KRMesh.h"
 #include "KRTexture.h"
 
 class KRCollider : public KRNode
