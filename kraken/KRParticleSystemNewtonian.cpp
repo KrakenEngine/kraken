@@ -32,7 +32,6 @@
 
 #include "KREngine-common.h"
 #include "KRParticleSystemNewtonian.h"
-#include "KRTexture.h"
 #include "KRContext.h"
 #include "KRRenderPass.h"
 

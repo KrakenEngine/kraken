@@ -44,7 +44,6 @@
 #include "KRNode.h"
 #include "KRContext.h"
 #include "resources/mesh/KRMesh.h"
-#include "KRTexture.h"
 
 class KRCollider : public KRNode
 {

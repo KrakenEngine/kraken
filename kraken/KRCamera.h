@@ -35,7 +35,7 @@
 
 #include "KRPipeline.h"
 #include "KRContextObject.h"
-#include "KRTexture.h"
+#include "resources/texture/KRTexture.h"
 #include "KRContext.h"
 #include "KRViewport.h"
 #include "KRRenderSettings.h"

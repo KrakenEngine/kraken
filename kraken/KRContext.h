@@ -33,8 +33,8 @@
 
 #include "KREngine-common.h"
 #include "resources/bundle/KRBundleManager.h"
-#include "KRSceneManager.h"
-#include "KRTextureManager.h"
+#include "resources/scene/KRSceneManager.h"
+#include "resources/texture/KRTextureManager.h"
 #include "resources/material/KRMaterialManager.h"
 #include "KRPipelineManager.h"
 #include "KRSamplerManager.h"

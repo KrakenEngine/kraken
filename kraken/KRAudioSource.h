@@ -34,7 +34,6 @@
 #include "KREngine-common.h"
 #include "resources/KRResource.h"
 #include "KRNode.h"
-#include "KRTexture.h"
 
 class KRAudioSample;
 class KRAudioBuffer;

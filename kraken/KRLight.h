@@ -32,7 +32,7 @@
 
 #include "resources/KRResource.h"
 #include "KRNode.h"
-#include "KRTexture.h"
+#include "resources/texture/KRTexture.h"
 
 static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
 

@@ -40,7 +40,7 @@
 #include "KRNode.h"
 #include "KRContext.h"
 #include "resources/mesh/KRMesh.h"
-#include "KRTexture.h"
+#include "resources/texture/KRTexture.h"
 #include "KRBone.h"
 
 class KRModel : public KRNode

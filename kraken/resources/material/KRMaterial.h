@@ -35,12 +35,12 @@
 
 #include "KREngine-common.h"
 
-#include "KRTexture.h"
+#include "resources/texture/KRTexture.h"
 #include "KRPipelineManager.h"
 #include "KRPipeline.h"
 #include "KRCamera.h"
 #include "resources/KRResource.h"
-#include "KRScene.h"
+#include "resources/scene/KRScene.h"
 #include "KRBone.h"
 
 enum class CullMode : __uint32_t;

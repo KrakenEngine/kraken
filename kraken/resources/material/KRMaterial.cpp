@@ -32,7 +32,7 @@
 #include "KREngine-common.h"
 
 #include "KRMaterial.h"
-#include "KRTextureManager.h"
+#include "resources/texture/KRTextureManager.h"
 #include "KRRenderPass.h"
 
 #include "KRContext.h"

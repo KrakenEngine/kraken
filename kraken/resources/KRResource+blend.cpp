@@ -32,7 +32,7 @@
 #include "KREngine-common.h"
 
 #include "KRResource.h"
-#include "KRScene.h"
+#include "scene/KRScene.h"
 #include "KRResource+blend.h"
 
 #include "mimir.h"

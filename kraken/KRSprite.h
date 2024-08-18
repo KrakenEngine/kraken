@@ -33,7 +33,7 @@
 
 #include "resources/KRResource.h"
 #include "KRNode.h"
-#include "KRTexture.h"
+#include "resources/texture/KRTexture.h"
 
 class KRSprite : public KRNode
 {

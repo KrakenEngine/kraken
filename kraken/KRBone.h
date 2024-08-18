@@ -33,7 +33,6 @@
 
 #include "resources/KRResource.h"
 #include "KRNode.h"
-#include "KRTexture.h"
 
 class RenderInfo;
 

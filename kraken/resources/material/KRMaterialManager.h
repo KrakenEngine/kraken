@@ -36,7 +36,7 @@
 #include "resources/KRResourceManager.h"
 
 #include "KRMaterial.h"
-#include "KRTextureManager.h"
+#include "resources/texture/KRTextureManager.h"
 #include "KRMaterialManager.h"
 
 class KRMaterial;
