@@ -31,7 +31,7 @@
 #include "KRAnimation.h"
 #include "KRAnimationManager.h"
 #include "KRContext.h"
-#include "KRNode.h"
+#include "nodes/KRNode.h"
 #include "resources/animation_curve/KRAnimationCurve.h"
 #include "KREngine-common.h"
 

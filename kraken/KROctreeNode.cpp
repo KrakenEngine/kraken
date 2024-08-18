@@ -30,8 +30,8 @@
 //
 
 #include "KROctreeNode.h"
-#include "KRNode.h"
-#include "KRCollider.h"
+#include "nodes/KRNode.h"
+#include "nodes/KRCollider.h"
 
 using namespace hydra;
 

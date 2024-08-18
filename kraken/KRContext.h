@@ -42,7 +42,7 @@
 #include "resources/animation/KRAnimationManager.h"
 #include "resources/animation_curve/KRAnimationCurveManager.h"
 #include "resources/unknown/KRUnknownManager.h"
-#include "KRShaderManager.h"
+#include "resources/shader/KRShaderManager.h"
 #include "resources/source/KRSourceManager.h"
 #include "KRSurfaceManager.h"
 #include "KRUniformBufferManager.h"

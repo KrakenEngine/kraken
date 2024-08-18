@@ -33,14 +33,14 @@
 
 #include "KREngine-common.h"
 
-#include "KRModel.h"
+#include "nodes/KRModel.h"
 #include "resources/mesh/KRMesh.h"
-#include "KRCamera.h"
+#include "nodes/KRCamera.h"
 #include "resources/mesh/KRMeshManager.h"
-#include "KRNode.h"
-#include "KRLocator.h"
-#include "KRAmbientZone.h"
-#include "KRReverbZone.h"
+#include "nodes/KRNode.h"
+#include "nodes/KRLocator.h"
+#include "nodes/KRAmbientZone.h"
+#include "nodes/KRReverbZone.h"
 #include "KROctree.h"
 class KRModel;
 class KRLight;

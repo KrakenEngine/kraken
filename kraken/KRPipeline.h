@@ -33,11 +33,11 @@
 #pragma once
 
 #include "KREngine-common.h"
-#include "KRCamera.h"
-#include "KRNode.h"
+#include "nodes/KRCamera.h"
+#include "nodes/KRNode.h"
 #include "KRViewport.h"
 #include "resources/mesh/KRMesh.h"
-#include "KRShader.h"
+#include "resources/shader/KRShader.h"
 
 class KRSampler;
 class KRShader;

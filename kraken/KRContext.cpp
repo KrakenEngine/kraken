@@ -34,7 +34,7 @@
 #include "mimir.h"
 
 #include "KRContext.h"
-#include "KRCamera.h"
+#include "nodes/KRCamera.h"
 #include "resources/audio/KRAudioManager.h"
 #include "resources/audio/KRAudioSample.h"
 #include "resources/bundle/KRBundle.h"

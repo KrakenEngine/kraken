@@ -31,8 +31,8 @@
 
 #include "public/kraken.h"
 #include "KROctree.h"
-#include "KRNode.h"
-#include "KRCollider.h"
+#include "nodes/KRNode.h"
+#include "nodes/KRCollider.h"
 
 using namespace hydra;
 

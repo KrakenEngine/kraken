@@ -31,7 +31,7 @@
 
 #include "KRSourceManager.h"
 #include "KREngine-common.h"
-#include "KRShader.h"
+#include "resources/shader/KRShader.h"
 
 using namespace mimir;
 

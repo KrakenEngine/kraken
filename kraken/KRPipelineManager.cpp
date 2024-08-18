@@ -32,10 +32,10 @@
 #include "KREngine-common.h"
 
 #include "KRPipelineManager.h"
-#include "KRLight.h"
-#include "KRDirectionalLight.h"
-#include "KRSpotLight.h"
-#include "KRPointLight.h"
+#include "nodes/KRLight.h"
+#include "nodes/KRDirectionalLight.h"
+#include "nodes/KRSpotLight.h"
+#include "nodes/KRPointLight.h"
 #include "KRSwapchain.h"
 #include "KRRenderPass.h"
 

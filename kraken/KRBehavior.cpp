@@ -30,7 +30,7 @@
 //
 
 #include "KRBehavior.h"
-#include "KRNode.h"
+#include "nodes/KRNode.h"
 
 KRBehaviorFactoryFunctionMap m_factoryFunctions;
 

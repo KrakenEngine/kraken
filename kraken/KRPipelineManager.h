@@ -33,9 +33,9 @@
 
 #include "KREngine-common.h"
 
-#include "KRCamera.h"
+#include "nodes/KRCamera.h"
 #include "block.h"
-#include "KRNode.h"
+#include "nodes/KRNode.h"
 #include "KRSurface.h"
 #include "resources/mesh/KRMesh.h"
 

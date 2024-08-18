@@ -36,7 +36,7 @@
 #include "resources/KRResourceManager.h"
 #include "KRContextObject.h"
 #include "block.h"
-#include "KRNode.h"
+#include "nodes/KRNode.h"
 
 class KRContext;
 class KRMesh;

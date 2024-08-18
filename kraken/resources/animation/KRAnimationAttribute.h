@@ -33,7 +33,7 @@
 
 #include "KRContextObject.h"
 #include "KREngine-common.h"
-#include "KRNode.h"
+#include "nodes/KRNode.h"
 #include "resources/animation_curve/KRAnimationCurve.h"
 
 class KRAnimationAttribute : public KRContextObject

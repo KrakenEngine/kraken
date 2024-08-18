@@ -38,10 +38,10 @@
 #include "resources/texture/KRTexture.h"
 #include "KRPipelineManager.h"
 #include "KRPipeline.h"
-#include "KRCamera.h"
+#include "nodes/KRCamera.h"
 #include "resources/KRResource.h"
 #include "resources/scene/KRScene.h"
-#include "KRBone.h"
+#include "nodes/KRBone.h"
 
 enum class CullMode : __uint32_t;
 enum class ModelFormat : __uint8_t;

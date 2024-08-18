@@ -35,7 +35,7 @@
 #include "block.h"
 #include "KRAudioBuffer.h"
 #include "KRContext.h"
-#include "KRCollider.h"
+#include "nodes/KRCollider.h"
 #include "siren.h"
 
 using namespace mimir;

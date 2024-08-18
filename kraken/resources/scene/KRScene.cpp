@@ -31,13 +31,13 @@
 
 #include "KREngine-common.h"
 
-#include "KRLight.h"
+#include "nodes/KRLight.h"
 
 #include "KRScene.h"
-#include "KRNode.h"
-#include "KRDirectionalLight.h"
-#include "KRSpotLight.h"
-#include "KRPointLight.h"
+#include "nodes/KRNode.h"
+#include "nodes/KRDirectionalLight.h"
+#include "nodes/KRSpotLight.h"
+#include "nodes/KRPointLight.h"
 #include "resources/audio/KRAudioManager.h"
 #include "KRRenderPass.h"
 

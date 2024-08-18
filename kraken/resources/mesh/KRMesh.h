@@ -34,7 +34,7 @@
 #include "KREngine-common.h"
 
 #include "KRContext.h"
-#include "KRBone.h"
+#include "nodes/KRBone.h"
 #include "KRMeshManager.h"
 
 #include "KREngine-common.h"
@@ -51,7 +51,7 @@ using namespace kraken;
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 #include "resources/material/KRMaterialManager.h"
-#include "KRCamera.h"
+#include "nodes/KRCamera.h"
 #include "KRViewport.h"
 
 class KRMaterial;

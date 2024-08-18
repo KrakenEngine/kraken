@@ -31,10 +31,10 @@
 
 #include "KRPipeline.h"
 #include "assert.h"
-#include "KRLight.h"
-#include "KRDirectionalLight.h"
-#include "KRSpotLight.h"
-#include "KRPointLight.h"
+#include "nodes/KRLight.h"
+#include "nodes/KRDirectionalLight.h"
+#include "nodes/KRSpotLight.h"
+#include "nodes/KRPointLight.h"
 #include "KRContext.h"
 #include "KRRenderPass.h"
 
