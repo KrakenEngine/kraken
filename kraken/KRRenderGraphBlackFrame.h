@@ -39,6 +39,6 @@ public:
   KRRenderGraphBlackFrame(KRContext& context);
   ~KRRenderGraphBlackFrame();
   
-  void initialize(KRSurface& surface);
+  KrResult initialize(KRSurface& surface);
   
 };

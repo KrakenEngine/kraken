@@ -44,7 +44,7 @@ KRRenderGraphBlackFrame::~KRRenderGraphBlackFrame()
 {
 }
 
-void KRRenderGraphBlackFrame::initialize(KRSurface &surface)
+KrResult KRRenderGraphBlackFrame::initialize(KRSurface &surface)
 {
   VkFormat depthImageFormat = VK_FORMAT_UNDEFINED;
   KrResult res = KR_SUCCESS;
@@ -64,4 +64,6 @@ void KRRenderGraphBlackFrame::initialize(KRSurface &surface)
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
   addRenderPass(*surface.getDevice(), info);
+
+  return KR_SUCCESS;
 }

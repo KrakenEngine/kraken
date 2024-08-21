@@ -293,7 +293,10 @@ KrResult KRSurface::createSwapChain()
   m_renderGraph->addRenderPass(*device, info);
   
   
-  m_blackFrameRenderGraph->initialize(*this);
+  res = m_blackFrameRenderGraph->initialize(*this);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
   
   m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
 
