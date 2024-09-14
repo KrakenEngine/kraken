@@ -76,4 +76,5 @@ bool test_shutdown()
   }
 
   KrShutdown();
+  return true;
 }
