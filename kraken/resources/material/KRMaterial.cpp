@@ -467,7 +467,7 @@ void KRMaterial::bind(const KRNode::RenderInfo& ri, ModelFormat modelFormat, __u
     pShader->setImageBinding("reflectionTexture", m_pReflectionMap, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
-  pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+  pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, matModel, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
 }
 
 const std::string& KRMaterial::getName() const

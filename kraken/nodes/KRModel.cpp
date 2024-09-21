@@ -199,7 +199,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
 {
 
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-    preStream(ri.viewport);
+    preStream(*ri.viewport);
   }
 
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
@@ -226,7 +226,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
       }
       */
 
-      float lod_coverage = ri.viewport.coverage(getBounds()); // This also checks the view frustrum culling
+      float lod_coverage = ri.viewport->coverage(getBounds()); // This also checks the view frustrum culling
 
       if (lod_coverage > m_min_lod_coverage) {
 
@@ -256,7 +256,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
         Matrix4 matModel = getModelMatrix();
         if (m_faces_camera) {
           Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
-          Vector3 camera_pos = ri.viewport.getCameraPosition();
+          Vector3 camera_pos = ri.viewport->getCameraPosition();
           matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
         }
 

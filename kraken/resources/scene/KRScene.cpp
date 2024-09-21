@@ -103,8 +103,9 @@ std::set<KRLight*>& KRScene::getLights()
   return m_lights;
 }
 
-void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamera* pCamera, unordered_map<AABB, int>& visibleBounds, const KRViewport& viewport, const KRRenderPass* renderPass, bool new_frame)
+void KRScene::render(KRNode::RenderInfo& ri, bool new_frame)
 {
+  unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
   if (new_frame) {
     // Expire cached occlusion test results.
     // Cached "failed" results are expired on the next frame (marked with .second of -1)
@@ -123,11 +124,6 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamer
   if (getFirstLight() == NULL) {
     addDefaultLights();
   }
-
-  KRNode::RenderInfo ri(commandBuffer);
-  ri.camera = pCamera;
-  ri.viewport = viewport;
-  ri.renderPass = renderPass;
 
   std::vector<KRPointLight*> point_lights;
   std::vector<KRDirectionalLight*>directional_lights;
@@ -171,10 +167,10 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamer
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-      render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+      render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
     }
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-      render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
+      render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
     }
     remainingOctrees = newRemainingOctrees;
     remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -183,12 +179,13 @@ void KRScene::render(VkCommandBuffer& commandBuffer, KRSurface& surface, KRCamer
   newRemainingOctrees.clear();
   newRemainingOctreesTestResults.clear();
   for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-    render(ri, *octree_itr, visibleBounds, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+    render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
   }
 }
 
-void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordered_map<AABB, int>& visibleBounds, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {
+  unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
   if (pOctreeNode) {
 
     AABB octreeBounds = pOctreeNode->getBounds();
@@ -220,10 +217,10 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
       bool in_viewport = false;
       if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
         // When pre-streaming, objects are streamed in behind and in-front of the camera
-        AABB viewportExtents = AABB::Create(ri.viewport.getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport.getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
+        AABB viewportExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
         in_viewport = octreeBounds.intersects(viewportExtents);
       } else {
-        in_viewport = ri.viewport.visible(pOctreeNode->getBounds());
+        in_viewport = ri.viewport->visible(pOctreeNode->getBounds());
       }
       if (in_viewport) {
 
@@ -239,7 +236,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
         if (!bVisible) {
           // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
           // The near clipping plane of the camera is taken into consideration by expanding the match area
-          AABB cameraExtents = AABB::Create(ri.viewport.getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveNearZ()), ri.viewport.getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveNearZ()));
+          AABB cameraExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveNearZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveNearZ()));
           bVisible = octreeBounds.intersects(cameraExtents);
           if (bVisible) {
             // Record the frame number in which the camera was within the bounds
@@ -287,7 +284,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           Matrix4 matModel = Matrix4();
           matModel.scale(octreeBounds.size() * 0.5f);
           matModel.translate(octreeBounds.center());
-          Matrix4 mvpmatrix = matModel * ri.viewport.getViewProjectionMatrix();
+          Matrix4 mvpmatrix = matModel * ri.viewport->getViewProjectionMatrix();
 
           KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
 
@@ -306,7 +303,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
           KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-          pPipeline->bind(ri.commandBuffer, *info.pCamera, ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass);
+          pPipeline->bind(ri.commandBuffer, *info.pCamera, *ri.viewport, matModel, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass);
           vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
           m_pContext->getMeshManager()->log_draw_call(ri.renderPass->getType(), "octree", "occlusion_test", 14);
 
@@ -353,10 +350,10 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, unordere
           }
 
           // Render child octrees
-          const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport.getBackToFrontOrder() : ri.viewport.getFrontToBackOrder();
+          const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport->getBackToFrontOrder() : ri.viewport->getFrontToBackOrder();
 
           for (int i = 0; i < 8; i++) {
-            render(ri, pOctreeNode->getChildren()[childOctreeOrder[i]], visibleBounds, remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+            render(ri, pOctreeNode->getChildren()[childOctreeOrder[i]], remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
           }
 
           // Remove lights added at this octree level from the stack

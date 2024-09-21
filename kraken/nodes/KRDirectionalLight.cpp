@@ -138,7 +138,7 @@ void KRDirectionalLight::render(RenderInfo& ri)
     std::vector<KRDirectionalLight*> this_light;
     this_light.push_back(this);
 
-    Matrix4 matModelViewInverseTranspose = ri.viewport.getViewMatrix() * getModelMatrix();
+    Matrix4 matModelViewInverseTranspose = ri.viewport->getViewMatrix() * getModelMatrix();
     matModelViewInverseTranspose.transpose();
     matModelViewInverseTranspose.invert();
 
@@ -163,7 +163,7 @@ void KRDirectionalLight::render(RenderInfo& ri)
     pShader->setPushConstant(KRPipeline::PushConstant::light_direction_view_space, light_direction_view_space);
     pShader->setPushConstant(KRPipeline::PushConstant::light_color, m_color);
     pShader->setPushConstant(KRPipeline::PushConstant::light_intensity, m_intensity * 0.01f);
-    pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass);
+    pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass);
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

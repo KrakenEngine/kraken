@@ -95,9 +95,9 @@ void KRPointLight::render(RenderInfo& ri)
     sphereModelMatrix.scale(influence_radius);
     sphereModelMatrix.translate(light_position.x, light_position.y, light_position.z);
 
-    if (ri.viewport.visible(getBounds())) { // Cull out any lights not within the view frustrum
+    if (ri.viewport->visible(getBounds())) { // Cull out any lights not within the view frustrum
 
-      Vector3 view_light_position = Matrix4::Dot(ri.viewport.getViewMatrix(), light_position);
+      Vector3 view_light_position = Matrix4::Dot(ri.viewport->getViewMatrix(), light_position);
 
       bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + ri.camera->settings.getPerspectiveNearZ()) * (influence_radius + ri.camera->settings.getPerspectiveNearZ());
 
@@ -121,7 +121,7 @@ void KRPointLight::render(RenderInfo& ri)
       pShader->setPushConstant(KRPipeline::PushConstant::light_decay_start, getDecayStart());
       pShader->setPushConstant(KRPipeline::PushConstant::light_cutoff, KRLIGHT_MIN_INFLUENCE);
       pShader->setPushConstant(KRPipeline::PushConstant::light_position, light_position);
-      pShader->bind(ri.commandBuffer, *ri.camera, ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass);
+      pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass);
 
       if (bInsideLight) {
         // Render a full screen quad
