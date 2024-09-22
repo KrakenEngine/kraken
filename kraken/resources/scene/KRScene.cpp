@@ -44,8 +44,6 @@
 using namespace mimir;
 using namespace hydra;
 
-const long KRENGINE_OCCLUSION_TEST_EXPIRY = 10;
-
 KRScene::KRScene(KRContext& context, std::string name) : KRResource(context, name)
 {
   m_pFirstLight = NULL;
@@ -103,23 +101,8 @@ std::set<KRLight*>& KRScene::getLights()
   return m_lights;
 }
 
-void KRScene::render(KRNode::RenderInfo& ri, bool new_frame)
+void KRScene::render(KRNode::RenderInfo& ri)
 {
-  unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
-  if (new_frame) {
-    // Expire cached occlusion test results.
-    // Cached "failed" results are expired on the next frame (marked with .second of -1)
-    // Cached "success" results are expired after KRENGINE_OCCLUSION_TEST_EXPIRY frames (marked with .second of the last frame
-    std::set<AABB> expired_visible_bounds;
-    for (unordered_map<AABB, int>::iterator visible_bounds_itr = visibleBounds.begin(); visible_bounds_itr != visibleBounds.end(); visible_bounds_itr++) {
-      if ((*visible_bounds_itr).second == -1 || (*visible_bounds_itr).second + KRENGINE_OCCLUSION_TEST_EXPIRY < getContext().getCurrentFrame()) {
-        expired_visible_bounds.insert((*visible_bounds_itr).first);
-      }
-    }
-    for (std::set<AABB>::iterator expired_visible_bounds_itr = expired_visible_bounds.begin(); expired_visible_bounds_itr != expired_visible_bounds.end(); expired_visible_bounds_itr++) {
-      visibleBounds.erase(*expired_visible_bounds_itr);
-    }
-  }
 
   if (getFirstLight() == NULL) {
     addDefaultLights();

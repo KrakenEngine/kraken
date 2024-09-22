@@ -179,6 +179,8 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
 
   scene.updateOctree(m_viewport);
+  
+  m_viewport.expireOcclusionResults(getContext().getCurrentFrame());
 
   // ----====---- Pre-stream resources ----====----
   KRNode::RenderInfo ri(commandBuffer);
@@ -187,13 +189,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PRESTREAM);
   ri.surface = &compositeSurface;
   
-  scene.render(ri, true);
+  scene.render(ri);
 
   // ----====---- Generate Shadowmaps for Lights ----====----
   if (settings.m_cShadowBuffers > 0) {
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_SHADOWMAP);
-    scene.render(ri, false /*settings.bEnableDeferredLighting*/);
+    scene.render(ri);
     GL_POP_GROUP_MARKER;
   }
 
@@ -208,7 +210,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(ri, false);
+    scene.render(ri);
 
     // End render pass
     ri.renderPass->end(commandBuffer);
@@ -234,7 +236,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     // Render the geometry
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_LIGHTS);
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri, false);
+    scene.render(ri);
     ri.renderPass->end(commandBuffer);
 
     GL_POP_GROUP_MARKER;
@@ -252,7 +254,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Render the geometry
     // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-    scene.render(ri, false);
+    scene.render(ri);
 
     // End render pass
     ri.renderPass->end(commandBuffer);
@@ -267,7 +269,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(ri, false);
+    scene.render(ri);
 
     GL_POP_GROUP_MARKER;
 
@@ -334,7 +336,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   // Render all transparent geometry
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
   ri.renderPass->begin(commandBuffer, compositeSurface);
-  scene.render(ri, false);
+  scene.render(ri);
   ri.renderPass->end(commandBuffer);
   GL_POP_GROUP_MARKER;
 
@@ -346,7 +348,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION);
   if (ri.renderPass) {
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri, false);
+    scene.render(ri);
     ri.renderPass->end(commandBuffer);
   }
 
@@ -360,7 +362,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES);
   if (ri.renderPass) {
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri, false);
+    scene.render(ri);
     ri.renderPass->end(commandBuffer);
   }
 
@@ -395,7 +397,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
     ri.viewport = &volumetricLightingViewport;
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri, false);
+    scene.render(ri);
     ri.renderPass->end(commandBuffer);
     ri.viewport = &m_viewport;
     GL_POP_GROUP_MARKER;

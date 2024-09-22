@@ -71,7 +71,7 @@ public:
   bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, float deltaTime);
-  void render(KRNode::RenderInfo& ri, bool new_frame);
+  void render(KRNode::RenderInfo& ri);
 
   void updateOctree(const KRViewport& viewport);
   void buildOctreeForTheFirstTime();

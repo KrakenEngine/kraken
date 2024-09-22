@@ -70,6 +70,7 @@ public:
 
   bool visible(const hydra::AABB& b) const;
   float coverage(const hydra::AABB& b) const;
+  void expireOcclusionResults(long frame);
 
 private:
   hydra::Vector2 m_size;

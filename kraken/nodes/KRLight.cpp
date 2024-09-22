@@ -544,7 +544,8 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       ri.viewport = &m_shadowViewports[iShadow];
       shadowShader->bind(ri, Matrix4());
 
-      getScene().render(ri, true);
+      m_shadowViewports[iShadow].expireOcclusionResults(m_pContext->getCurrentFrame());
+      getScene().render(ri);
     }
   }
   ri.viewport = prevViewport;
