@@ -209,7 +209,7 @@ public:
 
   KRScene& getScene();
 
-  virtual void render(const RenderInfo& ri);
+  virtual void render(RenderInfo& ri);
 
   virtual void physicsUpdate(float deltaTime);
   virtual bool hasPhysics();

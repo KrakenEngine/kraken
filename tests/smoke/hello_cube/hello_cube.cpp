@@ -37,12 +37,14 @@ bool smoke_load()
   enum
   {
     kSceneResourceHandle = 10,
-    kSkyboxTextureResourceHandle
+    kSkyboxTextureResourceHandle,
+    kCubeMeshResourceHandle
   };
 
   enum
   {
-    kCameraNodeHandle = 10
+    kCameraNodeHandle = 10,
+    kCubeNodeHandle = 11
   };
 
   KrLoadResourceInfo load_resource_info = {};
@@ -63,6 +65,12 @@ bool smoke_load()
   KrResult res = KrMapResource(&map_skybox_resource);
   assert(res == KR_SUCCESS);
   */
+  
+  KrMapResourceInfo map_cube_mesh_resource = { KR_STRUCTURE_TYPE_MAP_RESOURCE };
+  map_cube_mesh_resource.pResourceName = "__cube";
+  map_cube_mesh_resource.resourceHandle = kCubeMeshResourceHandle;
+  res = KrMapResource(&map_cube_mesh_resource);
+  assert(res == KR_SUCCESS);
 
   // Create a scene
   KrCreateSceneInfo create_scene_info = { KR_STRUCTURE_TYPE_CREATE_SCENE };
@@ -83,6 +91,19 @@ bool smoke_load()
   create_camera_info.node.camera.surfaceHandle = 1;
   // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
   res = KrCreateNode(&create_camera_info);
+  assert(res == KR_SUCCESS);
+  
+  // Add a cube to the scene
+  KrCreateNodeInfo create_cube_info = { KR_STRUCTURE_TYPE_CREATE_NODE };
+  res = KrInitNodeInfo(&create_cube_info.node, KR_STRUCTURE_TYPE_NODE_MODEL);
+  assert(res == KR_SUCCESS);
+  create_cube_info.relativeNodeHandle = KR_NULL_HANDLE;
+  create_cube_info.location = KR_SCENE_NODE_APPEND_CHILD;
+  create_cube_info.newNodeHandle = kCubeNodeHandle;
+  create_cube_info.sceneHandle = kSceneResourceHandle;
+  create_cube_info.node.pName = "my_cube";
+  create_cube_info.node.model.mesh = kCubeMeshResourceHandle;
+  res = KrCreateNode(&create_cube_info);
   assert(res == KR_SUCCESS);
   
   return true;

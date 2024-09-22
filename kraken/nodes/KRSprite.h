@@ -43,17 +43,17 @@ public:
   KRSprite(KRScene& scene, std::string name);
 
   virtual ~KRSprite();
-  virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual std::string getElementName() override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
 
   void setSpriteTexture(std::string sprite_texture);
   void setSpriteAlpha(float alpha);
   float getSpriteAlpha() const;
 
-  virtual void render(RenderInfo& ri);
+  virtual void render(RenderInfo& ri) override;
 
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
 protected:
 

@@ -52,11 +52,13 @@ public:
   KRModel(KRScene& scene, std::string name);
   KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, hydra::Vector3 rim_color = hydra::Vector3::Zero(), float rim_power = 0.0f);
   virtual ~KRModel();
+  
+  KrResult update(const KrNodeInfo* nodeInfo) override;
 
   virtual std::string getElementName();
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
-  virtual void render(KRNode::RenderInfo& ri);
+  virtual void render(KRNode::RenderInfo& ri) override;
 
   virtual hydra::AABB getBounds();
 

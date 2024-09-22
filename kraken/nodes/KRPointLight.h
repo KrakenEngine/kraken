@@ -43,7 +43,7 @@ public:
   virtual std::string getElementName();
   virtual hydra::AABB getBounds();
 
-  virtual void render(RenderInfo& ri);
+  virtual void render(RenderInfo& ri) override;
 
 private:
   void generateMesh();

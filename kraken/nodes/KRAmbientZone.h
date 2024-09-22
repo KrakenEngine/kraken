@@ -45,7 +45,7 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
   virtual void loadXML(tinyxml2::XMLElement* e);
 
-  void render(RenderInfo& ri);
+  void render(RenderInfo& ri) override;
 
   std::string getZone();
   void setZone(const std::string& zone);

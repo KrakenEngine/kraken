@@ -46,7 +46,7 @@ public:
   hydra::Vector3 getLocalLightDirection();
   hydra::Vector3 getWorldLightDirection();
 
-  virtual void render(RenderInfo& ri);
+  virtual void render(RenderInfo& ri) override;
   virtual hydra::AABB getBounds();
 
 protected:

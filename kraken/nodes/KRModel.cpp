@@ -44,9 +44,9 @@ void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
   nodeInfo->model.faces_camera = false;
-  nodeInfo->model.light_map_texture = -1;
+  nodeInfo->model.light_map_texture = KR_NULL_HANDLE;
   nodeInfo->model.lod_min_coverage = 0.0f;
-  nodeInfo->model.mesh = -1;
+  nodeInfo->model.mesh = KR_NULL_HANDLE;
   nodeInfo->model.receives_shadow = true;
   nodeInfo->model.rim_color = Vector3::Zero();
   nodeInfo->model.rim_power = 0.0f;
@@ -112,6 +112,50 @@ KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_na
 KRModel::~KRModel()
 {
 
+}
+
+KrResult KRModel::update(const KrNodeInfo* nodeInfo)
+{
+  KrResult res = KRNode::update(nodeInfo);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+  m_faces_camera = nodeInfo->model.faces_camera;
+  m_min_lod_coverage = nodeInfo->model.lod_min_coverage;
+  m_receivesShadow = nodeInfo->model.receives_shadow;
+  m_rim_color = nodeInfo->model.rim_color;
+  m_rim_power = nodeInfo->model.rim_power;
+  
+  KRTexture* light_map_texture = nullptr;
+  if (nodeInfo->model.light_map_texture != KR_NULL_HANDLE) {
+    res = m_pContext->getMappedResource<KRTexture>(nodeInfo->model.light_map_texture, &light_map_texture);
+    if (res != KR_SUCCESS) {
+      return res;
+    }
+  }
+  m_pLightMap = light_map_texture;
+  if (m_pLightMap) {
+    m_lightMap = m_pLightMap->getName();
+  } else {
+    m_lightMap = "";
+  }
+
+  KRMesh* mesh = nullptr;
+  if (nodeInfo->model.mesh != KR_NULL_HANDLE) {
+    res = m_pContext->getMappedResource<KRMesh>(nodeInfo->model.mesh, &mesh);
+    if (res != KR_SUCCESS) {
+      return res;
+    }
+  }
+  if (mesh != nullptr) {
+    m_models.clear();
+    m_model_name = mesh->getName();
+  } else {
+    m_models.clear();
+    m_model_name = "";
+  }
+
+  return KR_SUCCESS;
 }
 
 std::string KRModel::getElementName()
@@ -197,7 +241,6 @@ void KRModel::loadModel()
 
 void KRModel::render(KRNode::RenderInfo& ri)
 {
-
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
     preStream(*ri.viewport);
   }

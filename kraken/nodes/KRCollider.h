@@ -70,7 +70,7 @@ public:
   float getAudioOcclusion();
   void setAudioOcclusion(float audio_occlusion);
 
-  void render(RenderInfo& ri);
+  void render(RenderInfo& ri) override;
 
 private:
   KRMesh* m_model;

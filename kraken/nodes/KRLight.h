@@ -64,7 +64,7 @@ public:
   void setFlareOcclusionSize(float occlusion_size);
   void deleteBuffers();
 
-  virtual void render(RenderInfo& ri);
+  virtual void render(RenderInfo& ri) override;
 
   int getShadowBufferCount();
   int* getShadowTextures();

@@ -48,7 +48,7 @@ public:
   virtual void loadXML(tinyxml2::XMLElement* e);
   virtual hydra::AABB getBounds();
 
-  void render(RenderInfo& ri);
+  void render(RenderInfo& ri) override;
 
   void setBindPose(const hydra::Matrix4& pose);
   const hydra::Matrix4& getBindPose();

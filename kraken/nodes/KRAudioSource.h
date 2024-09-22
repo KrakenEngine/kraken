@@ -50,7 +50,7 @@ public:
   virtual void loadXML(tinyxml2::XMLElement* e);
   virtual void physicsUpdate(float deltaTime);
 
-  void render(RenderInfo& ri);
+  void render(RenderInfo& ri) override;
 
   // ---- Audio Playback Controls ----
 

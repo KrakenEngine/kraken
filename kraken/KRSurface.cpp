@@ -190,8 +190,8 @@ KrResult KRSurface::createSwapChain()
   RenderPassInfo info{};
   info.finalPass = false;
   
-  // info.type = RenderPassType::RENDER_PASS_PRESTREAM;
-  // m_renderGraph->addRenderPass(*device, info);
+  info.type = RenderPassType::RENDER_PASS_PRESTREAM;
+  m_renderGraph->addRenderPass(*device, info);
 
   for (int shadow_index = 0; shadow_index < shadow_buffer_count; shadow_index++) {
     info.depthAttachment.id = attachment_shadow_cascades[shadow_index];

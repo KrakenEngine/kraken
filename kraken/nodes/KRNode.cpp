@@ -677,7 +677,7 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
   return new_node;
 }
 
-void KRNode::render(const RenderInfo& ri)
+void KRNode::render(RenderInfo& ri)
 {
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
