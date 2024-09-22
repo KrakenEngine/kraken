@@ -284,7 +284,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
       info.vertexAttributes = sphereMesh->getVertexAttributes();
       info.modelFormat = sphereMesh->getModelFormat();
       KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
-      testPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, info.renderPass);
+      testPipeline->bind(ri, Matrix4());
       sphereMesh->renderNoMaterials(commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
     }
 
@@ -305,17 +305,19 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   if (m_pSkyBoxTexture) {
     m_pSkyBoxTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
 
+    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
+    
     std::string shader_name("sky_box");
     PipelineInfo info{};
     info.shader_name = &shader_name;
     info.pCamera = this;
-    info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
+    info.renderPass = ri.renderPass;
     info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
     info.cullMode = CullMode::kCullNone;
 
     KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
     pPipeline->setImageBinding("diffuseTexture", m_pSkyBoxTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-    pPipeline->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
+    pPipeline->bind(ri, Matrix4());
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
@@ -395,6 +397,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass->begin(commandBuffer, compositeSurface);
     scene.render(ri, false);
     ri.renderPass->end(commandBuffer);
+    ri.viewport = &m_viewport;
     GL_POP_GROUP_MARKER;
   }
 
@@ -407,22 +410,25 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   if (settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
     KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
 
+    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
+    
     PipelineInfo info{};
     std::string shader_name("visualize_overlay");
     info.shader_name = &shader_name;
     info.pCamera = this;
-    info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
+    info.renderPass = ri.renderPass;
     info.rasterMode = RasterMode::kAdditive;
     info.vertexAttributes = vertices.getVertexAttributes();
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
     KRPipeline* pVisShader = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
 
+    
     m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
     for (unordered_map<AABB, int>::iterator itr = m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
       Matrix4 matModel = Matrix4();
       matModel.scale((*itr).first.size() * 0.5f);
       matModel.translate((*itr).first.center());
-      pVisShader->bind(commandBuffer, *this, m_viewport, matModel, nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
+      pVisShader->bind(ri,matModel);
       vkCmdDraw(commandBuffer, 14, 1, 0, 0);
     }
   }
@@ -816,8 +822,16 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
       info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
       KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
+      
+      RenderInfo ri(commandBuffer);
+      ri.camera = this;
+      ri.renderPass = surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
+      ri.surface = &surface;
+      ri.viewport = &m_viewport;
+      
+      
       fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-      fontShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
+      fontShader->bind(ri, Matrix4());
       
       m_debug_text_vbo_data.bind(commandBuffer);
       

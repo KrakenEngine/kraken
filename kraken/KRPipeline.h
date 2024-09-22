@@ -218,7 +218,7 @@ public:
   virtual ~KRPipeline();
   const char* getKey() const;
 
-  bool bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const hydra::Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRRenderPass* renderPass);
+  bool bind(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
 
   enum class PushConstant : uint8_t
   {

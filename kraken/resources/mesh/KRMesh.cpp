@@ -252,7 +252,7 @@ kraken_stream_level KRMesh::getStreamLevel()
 }
 
 
-void KRMesh::render(const KRNode::RenderInfo& ri, const std::string& object_name, const Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const Vector3& rim_color, float rim_power, float lod_coverage)
+void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, const Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const Vector3& rim_color, float rim_power, float lod_coverage)
 {
   //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
   if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass->getType() != RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {

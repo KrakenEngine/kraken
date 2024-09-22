@@ -121,7 +121,7 @@ void KRPointLight::render(RenderInfo& ri)
       pShader->setPushConstant(KRPipeline::PushConstant::light_decay_start, getDecayStart());
       pShader->setPushConstant(KRPipeline::PushConstant::light_cutoff, KRLIGHT_MIN_INFLUENCE);
       pShader->setPushConstant(KRPipeline::PushConstant::light_position, light_position);
-      pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, sphereModelMatrix, &this_light, nullptr, nullptr, ri.renderPass);
+      pShader->bind(ri, sphereModelMatrix); // TODO: Pass light index to shader
 
       if (bInsideLight) {
         // Render a full screen quad

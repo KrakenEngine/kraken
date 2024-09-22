@@ -163,7 +163,7 @@ void KRDirectionalLight::render(RenderInfo& ri)
     pShader->setPushConstant(KRPipeline::PushConstant::light_direction_view_space, light_direction_view_space);
     pShader->setPushConstant(KRPipeline::PushConstant::light_color, m_color);
     pShader->setPushConstant(KRPipeline::PushConstant::light_intensity, m_intensity * 0.01f);
-    pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, getModelMatrix(), nullptr, &this_light, nullptr, ri.renderPass);
+    pShader->bind(ri, getModelMatrix()); // TODO: Need to pass in the light index to the shader
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

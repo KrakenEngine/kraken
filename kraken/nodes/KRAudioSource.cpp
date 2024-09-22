@@ -215,7 +215,7 @@ void KRAudioSource::render(RenderInfo& ri)
       info.vertexAttributes = sphereModel->getVertexAttributes();
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, sphereModelMatrix, &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+      pShader->bind(ri, sphereModelMatrix);
 
       sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
     } // sphereModels.size()

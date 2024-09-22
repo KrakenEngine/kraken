@@ -651,69 +651,66 @@ void KRPipeline::updateDescriptorBinding()
   // Vulkan Refactoring
 }
 
-bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KRViewport& viewport, const Matrix4& matModel, const std::vector<KRPointLight*>* point_lights, const std::vector<KRDirectionalLight*>* directional_lights, const std::vector<KRSpotLight*>* spot_lights, const KRRenderPass* renderPass)
+bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
   updateDescriptorBinding();
   updateDescriptorSets();
-  bindDescriptorSets(commandBuffer);
+  bindDescriptorSets(ri.commandBuffer);
   setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
   //int light_point_count = 0;
   //int light_spot_count = 0;
   // TODO - Need to support multiple lights and more light types in forward rendering
-  if (renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
+  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
 
-
-    if (directional_lights) {
-      for (std::vector<KRDirectionalLight*>::const_iterator light_itr = directional_lights->begin(); light_itr != directional_lights->end(); light_itr++) {
-        KRDirectionalLight* directional_light = (*light_itr);
-        if (light_directional_count == 0) {
-          int cShadowBuffers = directional_light->getShadowBufferCount();
-          if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
-            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 3, directional_light->getShadowTextures()[0])) {
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            }
-          }
-
-          if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && camera.settings.m_cShadowBuffers > 1) {
-            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 4, directional_light->getShadowTextures()[1])) {
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            }
-          }
-
-          if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && camera.settings.m_cShadowBuffers > 2) {
-            // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-            if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 5, directional_light->getShadowTextures()[2])) {
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-              GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-            }
-          }
-
-          Matrix4 matBias;
-          matBias.translate(1.0, 1.0, 1.0);
-          matBias.scale(0.5);
-          for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
-            setPushConstant(static_cast<PushConstant>(static_cast<int>(PushConstant::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
-          }
-
-          if (hasPushConstant(PushConstant::light_direction_model_space)) {
-            Matrix4 inverseModelMatrix = matModel;
-            inverseModelMatrix.invert();
-
-            // Bind the light direction vector
-            Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
-            lightDirObject.normalize();
-            setPushConstant(PushConstant::light_direction_model_space, lightDirObject);
+    for (std::vector<KRDirectionalLight*>::const_iterator light_itr = ri.directional_lights.begin(); light_itr != ri.directional_lights.end(); light_itr++) {
+      KRDirectionalLight* directional_light = (*light_itr);
+      if (light_directional_count == 0) {
+        int cShadowBuffers = directional_light->getShadowBufferCount();
+        if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
+          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
+          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 3, directional_light->getShadowTextures()[0])) {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
           }
         }
 
-        light_directional_count++;
+        if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && ri.camera->settings.m_cShadowBuffers > 1) {
+          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
+          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 4, directional_light->getShadowTextures()[1])) {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+          }
+        }
+
+        if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && ri.camera->settings.m_cShadowBuffers > 2) {
+          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
+          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 5, directional_light->getShadowTextures()[2])) {
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+          }
+        }
+
+        Matrix4 matBias;
+        matBias.translate(1.0, 1.0, 1.0);
+        matBias.scale(0.5);
+        for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
+          setPushConstant(static_cast<PushConstant>(static_cast<int>(PushConstant::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
+        }
+
+        if (hasPushConstant(PushConstant::light_direction_model_space)) {
+          Matrix4 inverseModelMatrix = matModel;
+          inverseModelMatrix.invert();
+
+          // Bind the light direction vector
+          Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
+          lightDirObject.normalize();
+          setPushConstant(PushConstant::light_direction_model_space, lightDirObject);
+        }
       }
+
+      light_directional_count++;
     }
 
     //light_point_count = point_lights.size();
@@ -726,14 +723,14 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
 
     if (hasPushConstant(PushConstant::camerapos_model_space)) {
       // Transform location of camera to object space for calculation of specular halfVec
-      Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, viewport.getCameraPosition());
+      Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, ri.viewport->getCameraPosition());
       setPushConstant(PushConstant::camerapos_model_space, cameraPosObject);
     }
   }
 
   if (hasPushConstant(PushConstant::mvp) || hasPushConstant(KRPipeline::PushConstant::invmvp)) {
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    Matrix4 mvpMatrix = matModel * viewport.getViewProjectionMatrix();
+    Matrix4 mvpMatrix = matModel * ri.viewport->getViewProjectionMatrix();
     setPushConstant(PushConstant::mvp, mvpMatrix);
 
     if (hasPushConstant(KRPipeline::PushConstant::invmvp)) {
@@ -742,7 +739,7 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   }
 
   if (hasPushConstant(KRPipeline::PushConstant::view_space_model_origin) || hasPushConstant(PushConstant::model_view_inverse_transpose) || hasPushConstant(KRPipeline::PushConstant::model_view)) {
-    Matrix4 matModelView = matModel * viewport.getViewMatrix();
+    Matrix4 matModelView = matModel * ri.viewport->getViewMatrix();
     setPushConstant(PushConstant::model_view, matModelView);
 
 
@@ -767,11 +764,11 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   }
 
   if (hasPushConstant(KRPipeline::PushConstant::invp)) {
-    setPushConstant(PushConstant::invp, viewport.getInverseProjectionMatrix());
+    setPushConstant(PushConstant::invp, ri.viewport->getInverseProjectionMatrix());
   }
 
   if (hasPushConstant(KRPipeline::PushConstant::invmvp_no_translate)) {
-    Matrix4 matInvMVPNoTranslate = matModel * viewport.getViewMatrix();;
+    Matrix4 matInvMVPNoTranslate = matModel * ri.viewport->getViewMatrix();;
     // Remove the translation
     matInvMVPNoTranslate.getPointer()[3] = 0;
     matInvMVPNoTranslate.getPointer()[7] = 0;
@@ -780,40 +777,40 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
     matInvMVPNoTranslate.getPointer()[13] = 0;
     matInvMVPNoTranslate.getPointer()[14] = 0;
     matInvMVPNoTranslate.getPointer()[15] = 1.0;
-    matInvMVPNoTranslate = matInvMVPNoTranslate * viewport.getProjectionMatrix();
+    matInvMVPNoTranslate = matInvMVPNoTranslate * ri.viewport->getProjectionMatrix();
     matInvMVPNoTranslate.invert();
     setPushConstant(PushConstant::invmvp_no_translate, matInvMVPNoTranslate);
   }
 
   setPushConstant(PushConstant::model_matrix, matModel);
   if (hasPushConstant(PushConstant::projection_matrix)) {
-    setPushConstant(PushConstant::projection_matrix, viewport.getProjectionMatrix());
+    setPushConstant(PushConstant::projection_matrix, ri.viewport->getProjectionMatrix());
   }
 
   if (hasPushConstant(PushConstant::viewport)) {
     setPushConstant(PushConstant::viewport, Vector4::Create(
       (float)0.0,
       (float)0.0,
-      (float)viewport.getSize().x,
-      (float)viewport.getSize().y
+      (float)ri.viewport->getSize().x,
+      (float)ri.viewport->getSize().y
     )
     );
   }
 
   // Fog parameters
-  setPushConstant(PushConstant::fog_near, camera.settings.fog_near);
-  setPushConstant(PushConstant::fog_far, camera.settings.fog_far);
-  setPushConstant(PushConstant::fog_density, camera.settings.fog_density);
-  setPushConstant(PushConstant::fog_color, camera.settings.fog_color);
+  setPushConstant(PushConstant::fog_near, ri.camera->settings.fog_near);
+  setPushConstant(PushConstant::fog_far, ri.camera->settings.fog_far);
+  setPushConstant(PushConstant::fog_density, ri.camera->settings.fog_density);
+  setPushConstant(PushConstant::fog_color, ri.camera->settings.fog_color);
 
   if (hasPushConstant(PushConstant::fog_scale)) {
-    setPushConstant(PushConstant::fog_scale, 1.0f / (camera.settings.fog_far - camera.settings.fog_near));
+    setPushConstant(PushConstant::fog_scale, 1.0f / (ri.camera->settings.fog_far - ri.camera->settings.fog_near));
   }
   if (hasPushConstant(PushConstant::density_premultiplied_exponential)) {
-    setPushConstant(PushConstant::density_premultiplied_exponential, -camera.settings.fog_density * 1.442695f); // -fog_density / log(2)
+    setPushConstant(PushConstant::density_premultiplied_exponential, -ri.camera->settings.fog_density * 1.442695f); // -fog_density / log(2)
   }
   if (hasPushConstant(PushConstant::density_premultiplied_squared)) {
-    setPushConstant(PushConstant::density_premultiplied_squared, (float)(-camera.settings.fog_density * camera.settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+    setPushConstant(PushConstant::density_premultiplied_squared, (float)(-ri.camera->settings.fog_density * ri.camera->settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
   }
 
   // Sets the diffuseTexture variable to the first texture unit
@@ -841,11 +838,11 @@ bool KRPipeline::bind(VkCommandBuffer& commandBuffer, KRCamera& camera, const KR
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     if (pushConstants.buffer) {
-      vkCmdPushConstants(commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
+      vkCmdPushConstants(ri.commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
     }
   }
 
-  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+  vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
   return true;
 }

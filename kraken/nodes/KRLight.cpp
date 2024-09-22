@@ -287,7 +287,7 @@ void KRLight::render(RenderInfo& ri)
         pParticleShader->setPushConstant(KRPipeline::PushConstant::light_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
         pParticleShader->setPushConstant(KRPipeline::PushConstant::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
         pParticleShader->setPushConstant(KRPipeline::PushConstant::flare_size, m_dust_particle_size);
-        pParticleShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, particleModelMatrix, &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass);
+        pParticleShader->bind(ri, particleModelMatrix); // TODO: Pass light index to shader
 
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
 
@@ -338,7 +338,7 @@ void KRLight::render(RenderInfo& ri)
 
     pFogShader->setPushConstant(KRPipeline::PushConstant::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
     pFogShader->setPushConstant(KRPipeline::PushConstant::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
-    pFogShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, Matrix4(), &this_point_light, &this_directional_light, &this_spot_light, ri.renderPass);
+    pFogShader->bind(ri, Matrix4()); // TODO: Pass indexes of lights to shader
 
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
     vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
@@ -371,7 +371,7 @@ void KRLight::render(RenderInfo& ri)
         info.vertexAttributes = sphereModel->getVertexAttributes();
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pPipeline->bind(ri.commandBuffer, *info.pCamera, *ri.viewport, occlusion_test_sphere_matrix, info.point_lights, info.directional_lights, info.spot_lights, info.renderPass);
+        pPipeline->bind(ri, occlusion_test_sphere_matrix);
 
         GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
 #if TARGET_OS_IPHONE || defined(ANDROID)
@@ -429,7 +429,7 @@ void KRLight::render(RenderInfo& ri)
             pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, 1.0f);
             pShader->setPushConstant(KRPipeline::PushConstant::flare_size, m_flareSize);
             pShader->setImageBinding("diffuseTexture", m_pFlareTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-            pShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, getModelMatrix(), &ri.point_lights, &ri.directional_lights, &ri.spot_lights, ri.renderPass);
+            pShader->bind(ri, getModelMatrix());
 
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
             vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
@@ -542,7 +542,7 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       KRPipeline* shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
       ri.viewport = &m_shadowViewports[iShadow];
-      shadowShader->bind(ri.commandBuffer, *ri.camera, *ri.viewport, Matrix4(), nullptr, nullptr, nullptr, ri.renderPass);
+      shadowShader->bind(ri, Matrix4());
 
       getScene().render(ri, true);
     }

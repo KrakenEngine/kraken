@@ -119,7 +119,7 @@ public:
     std::vector<std::vector<float> > bone_weights;
   } mesh_info;
 
-  void render(const KRNode::RenderInfo& ri, const std::string& object_name, const hydra::Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const hydra::Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
+  void render(KRNode::RenderInfo& ri, const std::string& object_name, const hydra::Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, const hydra::Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
 
   std::string m_lodBaseName;
 
