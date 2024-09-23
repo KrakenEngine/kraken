@@ -344,7 +344,7 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
 
   PipelineInfo info{};
-  std::string shader_name("ObjectShader");
+  std::string shader_name("object");
   info.shader_name = &shader_name;
   info.pCamera = ri.camera;
   info.point_lights = &ri.point_lights;

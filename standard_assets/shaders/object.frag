@@ -1,5 +1,5 @@
 //
-//  ObjectShader_osx.fsh
+//  object.frag
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -29,98 +29,166 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#version 450
+#extension GL_GOOGLE_include_directive : enable
 
 //#extension GL_EXT_shadow_samplers : require
 
-out vec4 colorOut;
+layout(location = 0) out vec4 colorOut;
 
-#if ENABLE_RIM_COLOR == 1
-    uniform lowp vec3 rim_color;
-    uniform mediump float rim_power;
-#endif
-
-#if FOG_TYPE > 0
-    // FOG_TYPE 1 - Linear
-    // FOG_TYPE 2 - Exponential
-    // FOG_TYPE 3 - Exponential squared
-    uniform lowp vec3 fog_color;
-    uniform mediump float fog_near;
-    #if FOG_TYPE == 1
-        uniform mediump float fog_far;
-        uniform mediump float fog_scale;
-    #endif
-
-    #if FOG_TYPE > 1
-        uniform mediump float fog_density;
-    #endif
-
-    #if FOG_TYPE == 2
-        uniform mediump float fog_density_premultiplied_exponential;
-    #endif
-    #if FOG_TYPE == 3
-        uniform mediump float fog_density_premultiplied_squared;
-    #endif
-#endif
-
-
+/*
 #if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
-    uniform mediump float material_shininess;
     #if HAS_NORMAL_MAP == 1
-        uniform sampler2D normalTexture;
+        
     #else
-        in mediump vec3 normal;
+        layout(location = 0) in mediump vec3 normal;
     #endif
 
     #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
-        in highp vec2    texCoord;
+        layout(location = 1) in highp vec2    texCoord;
     #endif
     #if HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1
-        in highp vec2  normal_uv;
+        layout(location = 2) in highp vec2  normal_uv;
     #else
         #define normal_uv texCoord
     #endif
 #else
     #if HAS_DIFFUSE_MAP == 1
-        in highp vec2    texCoord;
+        layout(location = 3) in highp vec2    texCoord;
     #endif
-#endif
-
-
-#if GBUFFER_PASS == 3
-    uniform sampler2D gbuffer_frame;
-    uniform sampler2D gbuffer_depth;
 #endif
 
 #if GBUFFER_PASS == 1
     #if HAS_NORMAL_MAP == 1
-        in highp mat3 tangent_to_view_matrix;
-    #else
-        uniform highp mat4 model_view_inverse_transpose_matrix;
+        layout(location = 4) in highp mat3 tangent_to_view_matrix;
     #endif
 
     #if HAS_DIFFUSE_MAP == 1 && ALPHA_TEST == 1
-        uniform sampler2D 		diffuseTexture;
         #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-            in highp vec2  diffuse_uv;
+            layout(location = 5) in highp vec2  diffuse_uv;
         #else
             #define diffuse_uv texCoord
         #endif
     #endif
 #else
-    uniform lowp vec3   material_ambient, material_diffuse, material_specular;
-    uniform lowp float  material_alpha;
+
+    #if ENABLE_RIM_COLOR == 1
+        #define NEED_EYEVEC
+    #endif
+
+    #if HAS_REFLECTION_CUBE_MAP == 1
+        #if HAS_NORMAL_MAP == 1
+            layout(location = 6) in highp mat3 tangent_to_world_matrix;
+            #define NEED_EYEVEC
+
+        #else
+            layout(location = 7) in mediump vec3 reflectionVec;
+        #endif
+    #endif
+
+    #ifdef NEED_EYEVEC
+        layout(location = 8) in mediump vec3 eyeVec;
+    #endif
 
 
+    #if SHADOW_QUALITY >= 1
+        layout(location = 9) in highp vec4  shadowMapCoord1;
+    #endif
+
+    #if HAS_LIGHT_MAP == 1
+        layout(location = 10) in mediump vec2  lightmap_uv;
+    #endif
+
+    #if SHADOW_QUALITY >= 2
+        layout(location = 11) in highp vec4  shadowMapCoord2;
+    #endif
+
+    #if SHADOW_QUALITY >= 3
+        layout(location = 12) in highp vec4  shadowMapCoord3;
+    #endif
+
+    #if ENABLE_PER_PIXEL == 1
+        layout(location = 13) in mediump vec3    lightVec;
+        layout(location = 14) in mediump vec3    halfVec;
+    #else
+        layout(location = 15) in mediump float   lamberFactor;
+        layout(location = 16) in mediump float   specularFactor;
+    #endif
+
+    #if (HAS_SPEC_MAP_OFFSET == 1|| HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+        layout(location = 17) in mediump vec2 spec_uv;
+    #else
+        #define spec_uv texCoord
+    #endif
+
+    #if (HAS_REFLECTION_MAP_OFFSET == 1|| HAS_REFLECTION_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
+        layout(location = 18) in mediump vec2 reflection_uv;
+    #else
+        #define reflection_uv texCoord
+    #endif
+
+    #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
+        layout(location = 19) in highp vec2  diffuse_uv;
+    #else
+        #define diffuse_uv texCoord
+    #endif
+
+#endif
+ */
+
+#if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
+    #if HAS_DIFFUSE_MAP == 1 || HAS_NORMAL_MAP == 1 || HAS_SPEC_MAP == 1 || HAS_REFLECTION_MAP == 1
+        layout(location=0) in highp vec2 texCoord;
+    #endif
+    #if HAS_NORMAL_MAP == 1
+        #if HAS_NORMAL_MAP_OFFSET == 1 || HAS_NORMAL_MAP_SCALE == 1
+        layout(location=1) in highp vec2 normal_uv;
+        #endif
+    #else
+      layout(location=2) in mediump vec3 normal;
+    #endif
+#else
     #if HAS_DIFFUSE_MAP == 1
-        uniform sampler2D 		diffuseTexture;
+      layout(location=3) in highp vec2 texCoord;
+    #endif
+#endif
+
+#if GBUFFER_PASS == 1
+    #if HAS_NORMAL_MAP == 1
+      layout(location=4) in highp mat3 tangent_to_view_matrix;
+    #endif
+#else
+    #if HAS_LIGHT_MAP == 1
+      layout(location=5) in mediump vec2    lightmap_uv;
     #endif
 
-    #if HAS_SPEC_MAP == 1
-        uniform sampler2D 		specularTexture;
-    #endif
+    #if ENABLE_PER_PIXEL == 1
+        layout(location=6) in mediump vec3    lightVec;
+        layout(location=7) in mediump vec3    halfVec;
 
-    #if HAS_REFLECTION_MAP == 1
-        uniform sampler2D 		reflectionTexture;
+        #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
+          layout(location = 8) in highp vec2 spec_uv;
+        #endif
+
+        #if HAS_REFLECTION_MAP_OFFSET == 1 || HAS_REFLECTION_MAP_SCALE == 1
+          layout(location = 9) in highp vec2 reflection_uv;
+        #endif
+
+        #if SHADOW_QUALITY >= 1
+          layout(location = 10) in highp vec4  shadowMapCoord1;
+        #endif
+
+        #if SHADOW_QUALITY >= 2
+          layout(location = 11) in highp vec4  shadowMapCoord2;
+        #endif
+
+        #if SHADOW_QUALITY >= 3
+          layout(location = 12) in highp vec4  shadowMapCoord3;
+        #endif
+
+    #else
+      layout(location = 13) in mediump float   lamberFactor;
+      layout(location = 14) in mediump float   specularFactor;
     #endif
 
     #if ENABLE_RIM_COLOR == 1
@@ -128,78 +196,208 @@ out vec4 colorOut;
     #endif
 
     #if HAS_REFLECTION_CUBE_MAP == 1
-        uniform lowp vec3       material_reflection;
-        uniform samplerCube     reflectionCubeTexture;
         #if HAS_NORMAL_MAP == 1
-            in highp mat3 tangent_to_world_matrix;
             #define NEED_EYEVEC
-
-            uniform highp mat4 model_matrix;
+          layout(location = 15) in highp mat3 tangent_to_world_matrix;
         #else
-            in mediump vec3 reflectionVec;
+          layout(location = 16) in mediump vec3 reflectionVec;
         #endif
     #endif
 
     #ifdef NEED_EYEVEC
-        in mediump vec3 eyeVec;
-    #endif
-
-
-    #if SHADOW_QUALITY >= 1
-        #ifdef GL_EXT_shadow_samplers
-            uniform sampler2DShadow   shadowTexture1;
-        #else
-            uniform sampler2D   shadowTexture1;
-        #endif
-        in highp vec4  shadowMapCoord1;
-    #endif
-
-    #if HAS_LIGHT_MAP == 1
-        uniform sampler2D     lightmapTexture;
-        in mediump vec2  lightmap_uv;
-    #endif
-
-    #if SHADOW_QUALITY >= 2
-        uniform sampler2D   shadowTexture2;
-        in highp vec4	shadowMapCoord2;
-    #endif
-
-    #if SHADOW_QUALITY >= 3
-        uniform sampler2D   shadowTexture3;
-        in highp vec4  shadowMapCoord3;
-    #endif
-
-    #if ENABLE_PER_PIXEL == 1
-        in mediump vec3    lightVec;
-        in mediump vec3    halfVec;
-    #else
-        in mediump float   lamberFactor;
-        in mediump float   specularFactor;
-    #endif
-
-    #if (HAS_SPEC_MAP_OFFSET == 1|| HAS_SPEC_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-        in mediump vec2 spec_uv;
-    #else
-        #define spec_uv texCoord
-    #endif
-
-    #if (HAS_REFLECTION_MAP_OFFSET == 1|| HAS_REFLECTION_MAP_SCALE == 1) && ENABLE_PER_PIXEL == 1
-        in mediump vec2 reflection_uv;
-    #else
-        #define reflection_uv texCoord
+      layout(location = 17) in mediump vec3 eyeVec;
     #endif
 
     #if HAS_DIFFUSE_MAP_OFFSET == 1 || HAS_DIFFUSE_MAP_SCALE == 1
-        in highp vec2  diffuse_uv;
+      layout(location = 18) in highp vec2  diffuse_uv;
+    #endif
+
+#endif
+
+layout( push_constant ) uniform constants
+{
+  highp mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
+#if BONE_COUNT > 0
+  highp mat4 bone_transforms[BONE_COUNT];
+#endif
+#if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
+  #if HAS_NORMAL_MAP == 1
+    #if HAS_NORMAL_MAP_SCALE == 1
+      highp vec2 normalTexture_Scale;
+    #endif
+    #if HAS_NORMAL_MAP_OFFSET == 1
+      highp vec2 normalTexture_Offset;
+    #endif
+  #endif
+#else
+  mediump float material_shininess;
+#endif
+#if GBUFFER_PASS == 1
+    #if HAS_NORMAL_MAP == 1
+        highp mat4 model_view_inverse_transpose_matrix;
+    #endif
+#else
+  highp vec3 light_direction_model_space; // Must be normalized before entering shader
+  highp vec3 camera_position_model_space;
+  #if ENABLE_PER_PIXEL == 1
+      #if HAS_SPEC_MAP_SCALE == 1
+          highp vec2 specularTexture_Scale;
+      #endif
+
+      #if HAS_SPEC_MAP_OFFSET == 1
+          highp vec2 specularTexture_Offset;
+      #endif
+      
+      #if HAS_REFLECTION_MAP_SCALE == 1
+          highp vec2 reflectionTexture_Scale;
+      #endif
+
+      #if HAS_REFLECTION_MAP_OFFSET == 1
+          highp vec2 reflectionTexture_Offset;
+      #endif
+      
+      #if SHADOW_QUALITY >= 1
+          highp mat4 shadow_mvp1;
+      #endif
+
+      #if SHADOW_QUALITY >= 2
+          highp mat4 shadow_mvp2;
+      #endif
+
+      #if SHADOW_QUALITY >= 3
+          highp mat4 shadow_mvp3;
+      #endif
+  #endif // ENABLE_PER_PIXEL
+  
+  #if HAS_REFLECTION_CUBE_MAP == 1
+      #if HAS_NORMAL_MAP == 1
+          #define NEED_EYEVEC
+          highp mat4 model_inverse_transpose_matrix;
+      #else
+          highp mat4 model_matrix;
+      #endif
+  #endif
+  
+  #if HAS_DIFFUSE_MAP_SCALE == 1
+      highp vec2  diffuseTexture_Scale;
+  #endif
+
+  #if HAS_DIFFUSE_MAP_OFFSET == 1
+      highp vec2  diffuseTexture_Offset;
+  #endif
+#endif
+
+
+#if ENABLE_RIM_COLOR == 1
+    lowp vec3 rim_color;
+    mediump float rim_power;
+#endif
+
+#if FOG_TYPE > 0
+    // FOG_TYPE 1 - Linear
+    // FOG_TYPE 2 - Exponential
+    // FOG_TYPE 3 - Exponential squared
+    lowp vec3 fog_color;
+    mediump float fog_near;
+    #if FOG_TYPE == 1
+        mediump float fog_far;
+        mediump float fog_scale;
+    #endif
+
+    #if FOG_TYPE > 1
+        mediump float fog_density;
+    #endif
+
+    #if FOG_TYPE == 2
+        mediump float fog_density_premultiplied_exponential;
+    #endif
+    #if FOG_TYPE == 3
+        mediump float fog_density_premultiplied_squared;
+    #endif
+#endif
+
+
+#if ENABLE_PER_PIXEL == 1 || GBUFFER_PASS == 1
+    mediump float material_shininess;
+    #if HAS_NORMAL_MAP == 1
+        sampler2D normalTexture;
+    #endif
+#endif
+
+
+#if GBUFFER_PASS == 3
+    sampler2D gbuffer_frame;
+    sampler2D gbuffer_depth;
+#endif
+
+#if GBUFFER_PASS == 1
+    #if HAS_NORMAL_MAP == 1
+
     #else
-        #define diffuse_uv texCoord
+        highp mat4 model_view_inverse_transpose_matrix;
+    #endif
+
+    #if HAS_DIFFUSE_MAP == 1 && ALPHA_TEST == 1
+        sampler2D     diffuseTexture;
+    #endif
+#else
+    lowp vec3 material_ambient;
+    lowp vec3 material_diffuse;
+    lowp vec3 material_specular;
+    lowp float material_alpha;
+
+
+    #if HAS_DIFFUSE_MAP == 1
+        sampler2D     diffuseTexture;
+    #endif
+
+    #if HAS_SPEC_MAP == 1
+        sampler2D     specularTexture;
+    #endif
+
+    #if HAS_REFLECTION_MAP == 1
+        sampler2D     reflectionTexture;
+    #endif
+
+    #if ENABLE_RIM_COLOR == 1
+        #define NEED_EYEVEC
+    #endif
+
+    #if HAS_REFLECTION_CUBE_MAP == 1
+        lowp vec3       material_reflection;
+        samplerCube     reflectionCubeTexture;
+        #if HAS_NORMAL_MAP == 1
+            highp mat4 model_matrix;
+        #endif
+    #endif
+
+    #if SHADOW_QUALITY >= 1
+        #ifdef GL_EXT_shadow_samplers
+            sampler2DShadow   shadowTexture1;
+        #else
+            sampler2D   shadowTexture1;
+        #endif
+    #endif
+
+    #if HAS_LIGHT_MAP == 1
+        sampler2D     lightmapTexture;
+    #endif
+
+    #if SHADOW_QUALITY >= 2
+        ampler2D   shadowTexture2;
+    #endif
+
+    #if SHADOW_QUALITY >= 3
+        sampler2D   shadowTexture3;
     #endif
 
 #endif
 
 #if GBUFFER_PASS == 1 || GBUFFER_PASS == 3
-    uniform mediump vec4 viewport;
+    mediump vec4 viewport;
 #endif
+
+} PushConstants;
 
 void main()
 {

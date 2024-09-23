@@ -181,28 +181,31 @@ void KRMesh::loadPack(Block* data)
 
 void KRMesh::getMaterials()
 {
-  if (m_materials.size() == 0) {
+  if (m_materials.size() != 0) {
+    return;
+  }
 
-    for (std::vector<KRMesh::Submesh>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
-      const char* szMaterialName = (*itr).szMaterialName;
-      KRMaterial* pMaterial = nullptr;
-      if (*szMaterialName != '\0') {
-        pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
-      }
-      m_materials.push_back(pMaterial);
-      if (pMaterial) {
-        m_uniqueMaterials.insert(pMaterial);
-      } else if (*szMaterialName != '\0') {
-        KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
-      }
+  for (std::vector<KRMesh::Submesh>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
+    const char* szMaterialName = (*itr).szMaterialName;
+    KRMaterial* pMaterial = nullptr;
+    if (*szMaterialName != '\0') {
+      pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
     }
+    m_materials.push_back(pMaterial);
+    if (pMaterial) {
+      m_uniqueMaterials.insert(pMaterial);
+    } else if (*szMaterialName != '\0') {
+      KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
+      m_materials.clear();
+      return;
+    }
+  }
 
-    m_hasTransparency = false;
-    for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-      if ((*mat_itr)->isTransparent()) {
-        m_hasTransparency = true;
-        break;
-      }
+  m_hasTransparency = false;
+  for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
+    if ((*mat_itr)->isTransparent()) {
+      m_hasTransparency = true;
+      break;
     }
   }
 }

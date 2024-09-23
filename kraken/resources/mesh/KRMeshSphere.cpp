@@ -110,7 +110,7 @@ KRMeshSphere::KRMeshSphere(KRContext& context) : KRMesh(context, "__sphere")
 
   mi.submesh_starts.push_back(0);
   mi.submesh_lengths.push_back((int)mi.vertices.size());
-  mi.material_names.push_back("");
+  mi.material_names.push_back("__white");
 
 
   mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;

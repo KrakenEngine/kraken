@@ -1,4 +1,5 @@
 add_subdirectory(hrtf_kemar)
 add_subdirectory(shaders)
 add_standard_asset(font.tga)
+add_standard_asset(__white.mtl)
 set(KRAKEN_STANDARD_ASSETS "${KRAKEN_STANDARD_ASSETS}" PARENT_SCOPE)
