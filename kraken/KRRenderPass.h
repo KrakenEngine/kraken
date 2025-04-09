@@ -86,6 +86,7 @@ public:
   void end(VkCommandBuffer& commandBuffer);
   
   RenderPassType getType() const;
+  bool isFinal() const;
 
   // private:
   VkRenderPass m_renderPass;

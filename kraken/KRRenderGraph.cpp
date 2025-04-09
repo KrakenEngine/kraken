@@ -146,6 +146,16 @@ KRRenderPass* KRRenderGraph::getRenderPass(RenderPassType type)
   return nullptr;
 }
 
+KRRenderPass* KRRenderGraph::getFinalRenderPass()
+{
+  for (KRRenderPass* pass : m_renderPasses) {
+    if (pass->isFinal()) {
+      return pass;
+    }
+  }
+  return nullptr;
+}
+
 void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRScene* scene)
 {
   for(KRRenderPass* pass : m_renderPasses) {

@@ -103,3 +103,8 @@ RenderPassType KRRenderPass::getType() const
 {
   return m_info.type;
 }
+
+bool KRRenderPass::isFinal() const
+{
+  return m_info.finalPass;
+}

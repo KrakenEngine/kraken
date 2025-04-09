@@ -53,6 +53,7 @@ public:
   int addAttachment(const char* name, VkFormat format);
   void addRenderPass(KRDevice& device, const RenderPassInfo& info);
   KRRenderPass* getRenderPass(RenderPassType type);
+  KRRenderPass* getFinalRenderPass();
   void render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRScene* scene);
   void destroy(KRDevice& device);
     

@@ -298,7 +298,7 @@ KrResult KRSurface::createSwapChain()
     return res;
   }
   
-  m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE));
+  m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getFinalRenderPass());
 
   return KR_SUCCESS;
 }
