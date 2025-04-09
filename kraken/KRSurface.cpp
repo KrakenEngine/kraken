@@ -33,6 +33,8 @@
 #include "KRSwapchain.h"
 #include "KRRenderPass.h"
 #include "KRRenderGraphBlackFrame.h"
+#include "KRRenderGraphDeferred.h"
+#include "KRRenderGraphForward.h"
 
 using namespace hydra;
 
@@ -46,7 +48,8 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   , m_renderFinishedSemaphores{VK_NULL_HANDLE}
   , m_inFlightFences{VK_NULL_HANDLE}
   , m_frameIndex(0)
-  , m_renderGraph(std::make_unique<KRRenderGraph>(context))
+  , m_renderGraphForward(std::make_unique<KRRenderGraphForward>(context))
+  , m_renderGraphDeferred(std::make_unique<KRRenderGraphDeferred>(context))
   , m_blackFrameRenderGraph(std::make_unique<KRRenderGraphBlackFrame>(context))
   , m_swapChain(std::make_unique<KRSwapchain>(context))
   , m_surfaceFormat{}
@@ -113,7 +116,8 @@ void KRSurface::destroy()
   destroySwapChain();
 
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
-  m_renderGraph->destroy(*device);
+  m_renderGraphForward->destroy(*device);
+  m_renderGraphDeferred->destroy(*device);
   m_blackFrameRenderGraph->destroy(*device);
 
   for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
@@ -173,132 +177,26 @@ KrResult KRSurface::createSwapChain()
     imageCount = surfaceCapabilities.maxImageCount;
   }
   
-  // ----- Configuration -----
-  int shadow_buffer_count = 0;
-  bool enable_deferred_lighting = false;
-  // -------------------------
   
-  int attachment_compositeDepth = m_renderGraph->addAttachment("Composite Depth", depthImageFormat);
-  int attachment_compositeColor = m_renderGraph->addAttachment("Composite Color", m_surfaceFormat.format);
-  int attachment_lightAccumulation = m_renderGraph->addAttachment("Light Accumulation", VK_FORMAT_B8G8R8A8_UINT);
-  int attachment_gbuffer = m_renderGraph->addAttachment("GBuffer", VK_FORMAT_B8G8R8A8_UINT);
-  int attachment_shadow_cascades[3];
-  attachment_shadow_cascades[0] = m_renderGraph->addAttachment("Shadow Cascade 0", VK_FORMAT_D32_SFLOAT);
-  attachment_shadow_cascades[1] = m_renderGraph->addAttachment("Shadow Cascade 1", VK_FORMAT_D32_SFLOAT);
-  attachment_shadow_cascades[2] = m_renderGraph->addAttachment("Shadow Cascade 2", VK_FORMAT_D32_SFLOAT);
-
-  RenderPassInfo info{};
-  info.finalPass = false;
-  
-  info.type = RenderPassType::RENDER_PASS_PRESTREAM;
-  m_renderGraph->addRenderPass(*device, info);
-
-  for (int shadow_index = 0; shadow_index < shadow_buffer_count; shadow_index++) {
-    info.depthAttachment.id = attachment_shadow_cascades[shadow_index];
-    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
-    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
-    info.type = RenderPassType::RENDER_PASS_SHADOWMAP;
-    m_renderGraph->addRenderPass(*device, info);
-  }
-  
-  if (enable_deferred_lighting) {
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
-    
-    info.depthAttachment.id = attachment_compositeDepth;
-    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
-    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
-    
-    info.colorAttachments[0].id = attachment_compositeColor;
-    info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
-    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    info.type = RenderPassType::RENDER_PASS_DEFERRED_GBUFFER;
-    m_renderGraph->addRenderPass(*device, info);
-    
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
-    
-    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    
-    info.colorAttachments[1].id = attachment_lightAccumulation;
-    info.colorAttachments[1].clearVaue.color.float32[0] = 0.0f;
-    info.colorAttachments[1].clearVaue.color.float32[1] = 0.0f;
-    info.colorAttachments[1].clearVaue.color.float32[2] = 0.0f;
-    info.colorAttachments[1].clearVaue.color.float32[3] = 0.0f;
-    info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    info.type = RenderPassType::RENDER_PASS_DEFERRED_LIGHTS;
-    m_renderGraph->addRenderPass(*device, info);
-    
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
-    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    info.type = RenderPassType::RENDER_PASS_DEFERRED_OPAQUE;
-    m_renderGraph->addRenderPass(*device, info);
-    
-    info.colorAttachments[1] = {};
-
-  } else {
-    // !enable_deferred_lighting
-    
-    // ----====---- Opaque Geometry, Forward Rendering ----====----
-    info.depthAttachment.id = attachment_compositeDepth;
-    info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
-    info.depthAttachment.clearVaue.depthStencil.stencil = 0;
-    
-    info.colorAttachments[0].id = attachment_compositeColor;
-    info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
-    info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
-    info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    
-    info.type = RenderPassType::RENDER_PASS_FORWARD_OPAQUE;
-    m_renderGraph->addRenderPass(*device, info);
-  }
-  
-  // ----====---- Transparent Geometry, Forward Rendering ----====----
-  info.depthAttachment.id = attachment_compositeDepth;
-  info.depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-  info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
-  info.depthAttachment.clearVaue.depthStencil.stencil = 0;
-  
-  info.colorAttachments[0].id = attachment_compositeColor;
-  info.colorAttachments[0].clearVaue.color.float32[0] = 0.0f;
-  info.colorAttachments[0].clearVaue.color.float32[1] = 0.0f;
-  info.colorAttachments[0].clearVaue.color.float32[2] = 0.0f;
-  info.colorAttachments[0].clearVaue.color.float32[3] = 0.0f;
-  info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-  info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  
-  info.type = RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT;
-  m_renderGraph->addRenderPass(*device, info);
-  
-  info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
-  m_renderGraph->addRenderPass(*device, info);
-  
-  info.finalPass = true;
-  info.type = RenderPassType::RENDER_PASS_POST_COMPOSITE;
-  m_renderGraph->addRenderPass(*device, info);
   
   
   res = m_blackFrameRenderGraph->initialize(*this);
   if (res != KR_SUCCESS) {
     return res;
   }
+
+  res = m_renderGraphForward->initialize(*this);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+
+  res = m_renderGraphDeferred->initialize(*this);
+  if (res != KR_SUCCESS) {
+    return res;
+  }
+
   
-  m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraph->getFinalRenderPass());
+  m_swapChain->create(*device, m_surface, m_surfaceFormat, depthImageFormat, swapExtent, imageCount, *m_renderGraphForward->getFinalRenderPass());
 
   return KR_SUCCESS;
 }
@@ -353,12 +251,12 @@ VkFormat KRSurface::getDepthFormat() const
 
 KRRenderPass* KRSurface::getRenderPass(RenderPassType type)
 {
-  return m_renderGraph->getRenderPass(type);
+  return m_renderGraphForward->getRenderPass(type);
 }
 
 void KRSurface::endFrame()
 {
-  m_frameIndex++;;
+  m_frameIndex++;
 }
 
 

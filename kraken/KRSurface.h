@@ -39,6 +39,8 @@ class KRRenderPass;
 class KRSwapchain;
 class KRRenderGraph;
 class KRRenderGraphBlackFrame;
+class KRRenderGraphDeferred;
+class KRRenderGraphForward;
 enum RenderPassType : uint8_t;
 
 class KRSurface : public KRContextObject
@@ -81,7 +83,8 @@ public:
 private:
   void destroySwapChain();
   KrResult createSwapChain();
-  std::unique_ptr<KRRenderGraph> m_renderGraph;
+  std::unique_ptr<KRRenderGraphForward> m_renderGraphForward;
+  std::unique_ptr<KRRenderGraphDeferred> m_renderGraphDeferred;
   std::unique_ptr<KRRenderGraphBlackFrame> m_blackFrameRenderGraph;
   
   VkSurfaceFormatKHR m_surfaceFormat;
