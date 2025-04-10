@@ -133,6 +133,7 @@ void KRRenderGraph::addRenderPass(KRDevice& device, const RenderPassInfo& info)
   
   KRRenderPass *pass = new KRRenderPass(getContext());
   pass->create(device, info, renderPassInfo);
+  
   m_renderPasses.push_back(pass);
 }
 

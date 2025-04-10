@@ -587,6 +587,11 @@ void KRDevice::setDebugLabel(const VkCommandBuffer& commandBuffer, const char* d
   setDebugLabel((uint64_t)commandBuffer, VK_OBJECT_TYPE_COMMAND_BUFFER, debugLabel);
 }
 
+void KRDevice::setDebugLabel(const VkRenderPass& renderPass, const char* debugLabel)
+{
+  setDebugLabel((uint64_t)renderPass, VK_OBJECT_TYPE_RENDER_PASS, debugLabel);
+}
+
 void KRDevice::setDebugLabel(const VkDevice& device, const char* debugLabel)
 {
   setDebugLabel((uint64_t)device, VK_OBJECT_TYPE_DEVICE, debugLabel);

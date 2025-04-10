@@ -56,6 +56,10 @@ void KRRenderPass::create(KRDevice& device, const RenderPassInfo& info, const Vk
   if (vkCreateRenderPass(device.m_logicalDevice, &createInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
     // failed! TODO - Error handling
   }
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  device.setDebugLabel(m_renderPass, info.debugLabel);
+#endif
 }
 
 void KRRenderPass::destroy(KRDevice& device)

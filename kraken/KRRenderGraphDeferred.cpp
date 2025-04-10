@@ -71,6 +71,9 @@ KrResult KRRenderGraphDeferred::initialize(KRSurface &surface)
   info.finalPass = false;
 
   info.type = RenderPassType::RENDER_PASS_PRESTREAM;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "PreStream", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   for (int shadow_index = 0; shadow_index < shadow_buffer_count; shadow_index++) {
@@ -80,6 +83,9 @@ KrResult KRRenderGraphDeferred::initialize(KRSurface &surface)
     info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
     info.depthAttachment.clearVaue.depthStencil.stencil = 0;
     info.type = RenderPassType::RENDER_PASS_SHADOWMAP;
+#if KRENGINE_DEBUG_GPU_LABELS
+    snprintf(info.debugLabel, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "Shadow Map %i", shadow_index);
+#endif
     addRenderPass(*surface.getDevice(), info);
   }
 
@@ -100,6 +106,9 @@ KrResult KRRenderGraphDeferred::initialize(KRSurface &surface)
   info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   info.type = RenderPassType::RENDER_PASS_DEFERRED_GBUFFER;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Deferred GBuffer", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
@@ -115,12 +124,18 @@ KrResult KRRenderGraphDeferred::initialize(KRSurface &surface)
   info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   info.colorAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   info.type = RenderPassType::RENDER_PASS_DEFERRED_LIGHTS;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Deferred Lights", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
   info.colorAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   info.colorAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
   info.type = RenderPassType::RENDER_PASS_DEFERRED_OPAQUE;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Deferred Opaque", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   info.colorAttachments[1] = {};
@@ -141,13 +156,22 @@ KrResult KRRenderGraphDeferred::initialize(KRSurface &surface)
   info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
   info.type = RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Forward Transparent", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Debug Overlays", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_POST_COMPOSITE;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Post Composite", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   return KR_SUCCESS;

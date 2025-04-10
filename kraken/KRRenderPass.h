@@ -68,6 +68,9 @@ struct RenderPassInfo
   RenderPassType type;
   RenderPassAttachmentInfo colorAttachments[RENDER_PASS_ATTACHMENT_MAX_COUNT];
   RenderPassAttachmentInfo depthAttachment;
+#if KRENGINE_DEBUG_GPU_LABELS
+  char debugLabel[KRENGINE_DEBUG_GPU_LABEL_MAX_LEN];
+#endif
   
   bool finalPass;
 };

@@ -56,6 +56,7 @@ public:
   void setDebugLabel(const VkBuffer& buffer, const char* debugLabel);
   void setDebugLabel(const VkQueue& queue, const char* debugLabel);
   void setDebugLabel(const VkCommandBuffer& commandBuffer, const char* debugLabel);
+  void setDebugLabel(const VkRenderPass& renderPass, const char* debugLabel);
   void setDebugLabel(const VkDevice& device, const char* debugLabel);
 #endif // KRENGINE_DEBUG_GPU_LABELS
 

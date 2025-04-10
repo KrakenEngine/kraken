@@ -63,6 +63,10 @@ KrResult KRRenderGraphBlackFrame::initialize(KRSurface &surface)
   info.depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_BLACK_FRAME;
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Black Frame", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   return KR_SUCCESS;

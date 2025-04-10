@@ -70,6 +70,9 @@ KrResult KRRenderGraphForward::initialize(KRSurface &surface)
   info.finalPass = false;
 
   info.type = RenderPassType::RENDER_PASS_PRESTREAM;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "PreStream", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   for (int shadow_index = 0; shadow_index < shadow_buffer_count; shadow_index++) {
@@ -79,6 +82,9 @@ KrResult KRRenderGraphForward::initialize(KRSurface &surface)
     info.depthAttachment.clearVaue.depthStencil.depth = 1.0f;
     info.depthAttachment.clearVaue.depthStencil.stencil = 0;
     info.type = RenderPassType::RENDER_PASS_SHADOWMAP;
+#if KRENGINE_DEBUG_GPU_LABELS
+    snprintf(info.debugLabel, KRENGINE_DEBUG_GPU_LABEL_MAX_LEN, "Shadow Map %i", shadow_index);
+#endif
     addRenderPass(*surface.getDevice(), info);
   }
 
@@ -98,6 +104,9 @@ KrResult KRRenderGraphForward::initialize(KRSurface &surface)
   info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
   info.type = RenderPassType::RENDER_PASS_FORWARD_OPAQUE;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Forward Opaque", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -116,13 +125,22 @@ KrResult KRRenderGraphForward::initialize(KRSurface &surface)
   info.colorAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
   info.type = RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Forward Transparent", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Debug Overlays", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   info.finalPass = true;
   info.type = RenderPassType::RENDER_PASS_POST_COMPOSITE;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Post Composite", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
   addRenderPass(*surface.getDevice(), info);
 
   return KR_SUCCESS;
