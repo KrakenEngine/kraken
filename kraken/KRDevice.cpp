@@ -557,6 +557,7 @@ void KRDevice::getQueueFamiliesForSharing(uint32_t* queueFamilyIndices, uint32_t
 }
 
 #if KRENGINE_DEBUG_GPU_LABELS
+
 void KRDevice::setDebugLabel(uint64_t objectHandle, VkObjectType objectType, const char* debugLabel)
 {
   VkDebugUtilsObjectNameInfoEXT debugInfo{};

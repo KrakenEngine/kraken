@@ -72,6 +72,19 @@ void KRRenderPass::destroy(KRDevice& device)
 
 void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
 {
+
+#if KRENGINE_DEBUG_GPU_LABELS
+  VkDebugUtilsLabelEXT debugLabel{};
+  debugLabel.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+  debugLabel.color[0] = 0.0f;
+  debugLabel.color[1] = 0.0f;
+  debugLabel.color[2] = 0.0f;
+  debugLabel.color[3] = 0.0f;
+  debugLabel.pNext = nullptr;
+  debugLabel.pLabelName = m_info.debugLabel;
+  vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &debugLabel);
+#endif
+
   int attachmentCount = 0;
   std::array<VkClearValue, RENDER_PASS_ATTACHMENT_MAX_COUNT> clearValues{};
   if (m_info.depthAttachment.id != 0) {
@@ -100,8 +113,10 @@ void KRRenderPass::begin(VkCommandBuffer& commandBuffer, KRSurface& surface)
 void KRRenderPass::end(VkCommandBuffer& commandBuffer)
 {
   vkCmdEndRenderPass(commandBuffer);
+#if KRENGINE_DEBUG_GPU_LABELS
+  vkCmdEndDebugUtilsLabelEXT(commandBuffer);
+#endif
 }
-
 
 RenderPassType KRRenderPass::getType() const
 {
