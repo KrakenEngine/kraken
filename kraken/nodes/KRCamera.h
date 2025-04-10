@@ -59,9 +59,11 @@ public:
 
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
 
+  void render(KRNode::RenderInfo& ri);
+
   KRRenderSettings settings;
 
-  const KRViewport& getViewport() const;
+  KRViewport* getViewport();
 
 
   virtual std::string getElementName() override;
@@ -89,8 +91,8 @@ private:
 
   int volumetricLightAccumulationBuffer, volumetricLightAccumulationTexture;
 
-  void renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface);
-  void renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface);
+  void renderPost(RenderInfo& ri);
+  void renderDebug(RenderInfo& ri);
 
   void destroyBuffers();
 

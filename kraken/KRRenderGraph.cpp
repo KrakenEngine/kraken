@@ -157,10 +157,23 @@ KRRenderPass* KRRenderGraph::getFinalRenderPass()
   return nullptr;
 }
 
-void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRScene* scene)
+void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRCamera* camera)
 {
+  KRNode::RenderInfo ri(commandBuffer);
+  ri.camera = camera;
+  if (camera) {
+    ri.viewport = camera->getViewport();
+  } else {
+    ri.viewport = nullptr;
+  }
+  ri.surface = &surface;
+
   for(KRRenderPass* pass : m_renderPasses) {
+    ri.renderPass = pass;
     pass->begin(commandBuffer, surface);
+    if (camera) {
+      camera->render(ri);
+    }
     pass->end(commandBuffer);
   }
 }

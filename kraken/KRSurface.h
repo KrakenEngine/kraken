@@ -85,7 +85,7 @@ private:
   KrResult createSwapChain();
   std::unique_ptr<KRRenderGraphForward> m_renderGraphForward;
   std::unique_ptr<KRRenderGraphDeferred> m_renderGraphDeferred;
-  std::unique_ptr<KRRenderGraphBlackFrame> m_blackFrameRenderGraph;
+  std::unique_ptr<KRRenderGraphBlackFrame> m_renderGraphBlackFrame;
   
   VkSurfaceFormatKHR m_surfaceFormat;
 };

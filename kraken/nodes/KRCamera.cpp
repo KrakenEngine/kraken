@@ -145,6 +145,92 @@ const std::string KRCamera::getSkyBox() const
   return m_skyBox;
 }
 
+void KRCamera::render(KRNode::RenderInfo& ri)
+{
+  KRScene& scene = getScene();
+
+  switch (ri.renderPass->getType()) {
+  case RenderPassType::RENDER_PASS_FORWARD_OPAQUE:
+    {
+      // ----====---- Sky Box ----====----
+
+      GL_PUSH_GROUP_MARKER("Sky Box");
+
+      if (!m_pSkyBoxTexture && m_skyBox.length()) {
+        m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBox.c_str());
+      }
+
+      if (m_pSkyBoxTexture) {
+        m_pSkyBoxTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
+
+        std::string shader_name("sky_box");
+        PipelineInfo info{};
+        info.shader_name = &shader_name;
+        info.pCamera = this;
+        info.renderPass = ri.renderPass;
+        info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
+        info.cullMode = CullMode::kCullNone;
+
+        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+        pPipeline->setImageBinding("diffuseTexture", m_pSkyBoxTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+        pPipeline->bind(ri, Matrix4());
+
+        // Render a full screen quad
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+      }
+
+      GL_POP_GROUP_MARKER;
+    }
+    break;
+   case RenderPassType::RENDER_PASS_DEBUG_OVERLAYS:
+    {
+      // ----====---- Debug Overlays ----====----
+
+      if (settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
+        KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
+
+        PipelineInfo info{};
+        std::string shader_name("visualize_overlay");
+        info.shader_name = &shader_name;
+        info.pCamera = this;
+        info.renderPass = ri.renderPass;
+        info.rasterMode = RasterMode::kAdditive;
+        info.vertexAttributes = vertices.getVertexAttributes();
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+        KRPipeline* pVisShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+
+
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+        for (unordered_map<AABB, int>::iterator itr = m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
+          Matrix4 matModel = Matrix4();
+          matModel.scale((*itr).first.size() * 0.5f);
+          matModel.translate((*itr).first.center());
+          pVisShader->bind(ri, matModel);
+          vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
+        }
+      }
+
+      renderDebug(ri);
+    }
+    break;
+   case RenderPassType::RENDER_PASS_POST_COMPOSITE:
+     {
+      renderPost(ri);
+     }
+     break;
+  default:
+    break;
+  }
+  
+  scene.render(ri);
+
+  switch (ri.renderPass->getType()) {
+  default:
+    break;
+  }
+}
+
 void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface)
 {
   if (compositeSurface.m_handle != m_surfaceHandle) {
@@ -189,13 +275,13 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PRESTREAM);
   ri.surface = &compositeSurface;
   
-  scene.render(ri);
+  render(ri);
 
   // ----====---- Generate Shadowmaps for Lights ----====----
   if (settings.m_cShadowBuffers > 0) {
     GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_SHADOWMAP);
-    scene.render(ri);
+    render(ri);
     GL_POP_GROUP_MARKER;
   }
 
@@ -210,7 +296,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(ri);
+    render(ri);
 
     // End render pass
     ri.renderPass->end(commandBuffer);
@@ -236,7 +322,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     // Render the geometry
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_LIGHTS);
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri);
+    render(ri);
     ri.renderPass->end(commandBuffer);
 
     GL_POP_GROUP_MARKER;
@@ -254,7 +340,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     // Render the geometry
     // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-    scene.render(ri);
+    render(ri);
 
     // End render pass
     ri.renderPass->end(commandBuffer);
@@ -269,44 +355,14 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass->begin(commandBuffer, compositeSurface);
 
     // Render the geometry
-    scene.render(ri);
+    render(ri);
 
     GL_POP_GROUP_MARKER;
 
     ri.renderPass->end(commandBuffer);
   }
 
-  // ----====---- Sky Box ----====----
 
-  GL_PUSH_GROUP_MARKER("Sky Box");
-
-  if (!m_pSkyBoxTexture && m_skyBox.length()) {
-    m_pSkyBoxTexture = getContext().getTextureManager()->getTextureCube(m_skyBox.c_str());
-  }
-
-  if (m_pSkyBoxTexture) {
-    m_pSkyBoxTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
-
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
-    
-    std::string shader_name("sky_box");
-    PipelineInfo info{};
-    info.shader_name = &shader_name;
-    info.pCamera = this;
-    info.renderPass = ri.renderPass;
-    info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
-    info.cullMode = CullMode::kCullNone;
-
-    KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
-    pPipeline->setImageBinding("diffuseTexture", m_pSkyBoxTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-    pPipeline->bind(ri, Matrix4());
-
-    // Render a full screen quad
-    m_pContext->getMeshManager()->bindVBO(commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-    vkCmdDraw(commandBuffer, 4, 1, 0, 0);
-  }
-
-  GL_POP_GROUP_MARKER;
 
 
   // ----====---- Transparent Geometry, Forward Rendering ----====----
@@ -316,7 +372,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   // Render all transparent geometry
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
   ri.renderPass->begin(commandBuffer, compositeSurface);
-  scene.render(ri);
+  render(ri);
   ri.renderPass->end(commandBuffer);
   GL_POP_GROUP_MARKER;
 
@@ -328,7 +384,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION);
   if (ri.renderPass) {
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri);
+   render(ri);
     ri.renderPass->end(commandBuffer);
   }
 
@@ -342,7 +398,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES);
   if (ri.renderPass) {
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri);
+    render(ri);
     ri.renderPass->end(commandBuffer);
   }
 
@@ -377,7 +433,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
     ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
     ri.viewport = &volumetricLightingViewport;
     ri.renderPass->begin(commandBuffer, compositeSurface);
-    scene.render(ri);
+    render(ri);
     ri.renderPass->end(commandBuffer);
     ri.viewport = &m_viewport;
     GL_POP_GROUP_MARKER;
@@ -389,38 +445,12 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
   GL_PUSH_GROUP_MARKER("Debug Overlays");
 
-  if (settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
-    KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
-
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
-    
-    PipelineInfo info{};
-    std::string shader_name("visualize_overlay");
-    info.shader_name = &shader_name;
-    info.pCamera = this;
-    info.renderPass = ri.renderPass;
-    info.rasterMode = RasterMode::kAdditive;
-    info.vertexAttributes = vertices.getVertexAttributes();
-    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
-    KRPipeline* pVisShader = getContext().getPipelineManager()->getPipeline(compositeSurface, info);
-
-    
-    m_pContext->getMeshManager()->bindVBO(commandBuffer, &vertices, 1.0f);
-    for (unordered_map<AABB, int>::iterator itr = m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
-      Matrix4 matModel = Matrix4();
-      matModel.scale((*itr).first.size() * 0.5f);
-      matModel.translate((*itr).first.center());
-      pVisShader->bind(ri,matModel);
-      vkCmdDraw(commandBuffer, 14, 1, 0, 0);
-    }
-  }
   GL_POP_GROUP_MARKER;
 
   //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
 
   GL_PUSH_GROUP_MARKER("Debug Overlays");
 
-  renderDebug(commandBuffer, compositeSurface);
   
   
   GL_POP_GROUP_MARKER;
@@ -430,7 +460,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   KRRenderPass* postCompositePass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_POST_COMPOSITE);
   postCompositePass->begin(commandBuffer, compositeSurface);
   
-  renderPost(commandBuffer, compositeSurface);
+  renderPost(ri);
 
   postCompositePass->end(commandBuffer);
   
@@ -597,7 +627,7 @@ void KRCamera::destroyBuffers()
     */
 }
 
-void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
+void KRCamera::renderPost(RenderInfo& ri)
 {
   /*
    // TODO - Re-enable once post fx shader is converted for Vulkan
@@ -659,7 +689,7 @@ void KRCamera::renderPost(VkCommandBuffer& commandBuffer, KRSurface& surface)
   
 }
 
-void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
+void KRCamera::renderDebug(RenderInfo& ri)
 {
   const char* szText = settings.m_debug_text.c_str();
 
@@ -785,10 +815,8 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
       }
     }
     
-    m_debug_text_vbo_data.load(commandBuffer);
+    m_debug_text_vbo_data.load(ri.commandBuffer);
     
-    KRRenderPass* debugPass = surface.getRenderPass(RenderPassType::RENDER_PASS_DEBUG_OVERLAYS);
-    debugPass->begin(commandBuffer, surface);
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
     fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
@@ -798,29 +826,20 @@ void KRCamera::renderDebug(VkCommandBuffer& commandBuffer, KRSurface& surface)
       std::string shader_name("debug_font");
       info.shader_name = &shader_name;
       info.pCamera = this;
-      info.renderPass = surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
+      info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAlphaBlendNoTest;
       info.cullMode = CullMode::kCullNone;
       info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
-      KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
-      
-      RenderInfo ri(commandBuffer);
-      ri.camera = this;
-      ri.renderPass = surface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
-      ri.surface = &surface;
-      ri.viewport = &m_viewport;
-      
+      KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
       fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
       fontShader->bind(ri, Matrix4());
       
-      m_debug_text_vbo_data.bind(commandBuffer);
+      m_debug_text_vbo_data.bind(ri.commandBuffer);
       
-      vkCmdDraw(commandBuffer, vertex_count, 1, 0, 0);
+      vkCmdDraw(ri.commandBuffer, vertex_count, 1, 0, 0);
     }
-    
-    debugPass->end(commandBuffer);
 
     m_debug_text_vertices.unlock();
 
@@ -1024,9 +1043,9 @@ std::string KRCamera::getDebugText()
 }
 
 
-const KRViewport& KRCamera::getViewport() const
+KRViewport* KRCamera::getViewport()
 {
-  return m_viewport;
+  return &m_viewport;
 }
 
 void KRCamera::setFadeColor(const Vector4& fade_color)

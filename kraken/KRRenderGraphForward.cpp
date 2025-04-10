@@ -130,6 +130,24 @@ KrResult KRRenderGraphForward::initialize(KRSurface &surface)
 #endif
   addRenderPass(*surface.getDevice(), info);
 
+  info.type = RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Particle Occlusion", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
+  addRenderPass(*surface.getDevice(), info);
+
+  info.type = RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Additive Particles", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
+  addRenderPass(*surface.getDevice(), info);
+
+  info.type = RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE;
+#if KRENGINE_DEBUG_GPU_LABELS
+  strncpy(info.debugLabel, "Additive Volumetric Effects", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);
+#endif
+  addRenderPass(*surface.getDevice(), info);
+
   info.type = RenderPassType::RENDER_PASS_DEBUG_OVERLAYS;
 #if KRENGINE_DEBUG_GPU_LABELS
   strncpy(info.debugLabel, "Debug Overlays", KRENGINE_DEBUG_GPU_LABEL_MAX_LEN);

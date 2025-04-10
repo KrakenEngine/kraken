@@ -50,7 +50,7 @@ KRSurface::KRSurface(KRContext& context, KrSurfaceHandle handle, void* platformH
   , m_frameIndex(0)
   , m_renderGraphForward(std::make_unique<KRRenderGraphForward>(context))
   , m_renderGraphDeferred(std::make_unique<KRRenderGraphDeferred>(context))
-  , m_blackFrameRenderGraph(std::make_unique<KRRenderGraphBlackFrame>(context))
+  , m_renderGraphBlackFrame(std::make_unique<KRRenderGraphBlackFrame>(context))
   , m_swapChain(std::make_unique<KRSwapchain>(context))
   , m_surfaceFormat{}
 {
@@ -118,7 +118,7 @@ void KRSurface::destroy()
   std::unique_ptr<KRDevice>& device = m_pContext->getDeviceManager()->getDevice(m_deviceHandle);
   m_renderGraphForward->destroy(*device);
   m_renderGraphDeferred->destroy(*device);
-  m_blackFrameRenderGraph->destroy(*device);
+  m_renderGraphBlackFrame->destroy(*device);
 
   for (int i=0; i < KRENGINE_MAX_FRAMES_IN_FLIGHT; i++) {
     if (device && m_renderFinishedSemaphores[i] != VK_NULL_HANDLE) {
@@ -180,7 +180,7 @@ KrResult KRSurface::createSwapChain()
   
   
   
-  res = m_blackFrameRenderGraph->initialize(*this);
+  res = m_renderGraphBlackFrame->initialize(*this);
   if (res != KR_SUCCESS) {
     return res;
   }
@@ -262,7 +262,7 @@ void KRSurface::endFrame()
 
 void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
 {
-  m_blackFrameRenderGraph->render(commandBuffer, *this, nullptr);
+  m_renderGraphBlackFrame->render(commandBuffer, *this, nullptr);
 }
 
 VkFormat KRSurface::getSurfaceFormat() const
