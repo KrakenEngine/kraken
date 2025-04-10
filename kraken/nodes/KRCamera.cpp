@@ -35,6 +35,7 @@
 #include "KRRenderPass.h"
 #include "KRPipeline.h"
 #include "KRRenderPass.h"
+#include "KRRenderGraph.h"
 
 using namespace mimir;
 using namespace hydra;
@@ -231,7 +232,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
   }
 }
 
-void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface)
+void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface, KRRenderGraph& renderGraph)
 {
   if (compositeSurface.m_handle != m_surfaceHandle) {
     // Only render to the assigned surface
@@ -268,204 +269,7 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
   
   m_viewport.expireOcclusionResults(getContext().getCurrentFrame());
 
-  // ----====---- Pre-stream resources ----====----
-  KRNode::RenderInfo ri(commandBuffer);
-  ri.camera = this;
-  ri.viewport = &m_viewport;
-  ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PRESTREAM);
-  ri.surface = &compositeSurface;
-  
-  render(ri);
-
-  // ----====---- Generate Shadowmaps for Lights ----====----
-  if (settings.m_cShadowBuffers > 0) {
-    GL_PUSH_GROUP_MARKER("Generate Shadowmaps");
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_SHADOWMAP);
-    render(ri);
-    GL_POP_GROUP_MARKER;
-  }
-
-  if (settings.bEnableDeferredLighting) {
-
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 1 ----====----
-
-    GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 1 (Opaque)");
-
-    // Start render pass
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_GBUFFER);
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-
-    // Render the geometry
-    render(ri);
-
-    // End render pass
-    ri.renderPass->end(commandBuffer);
-
-    GL_POP_GROUP_MARKER;
-
-
-
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 2 ----====----
-
-    GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 2 (Opaque)");
-
-    // Set render target
-    GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, lightAccumulationBuffer));
-    GLDEBUG(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, compositeDepthTexture, 0));
-    GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-    GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
-
-    // Set source to buffers from pass 1
-    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, compositeColorTexture);
-    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 7, compositeDepthTexture);
-
-    // Render the geometry
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_LIGHTS);
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-    render(ri);
-    ri.renderPass->end(commandBuffer);
-
-    GL_POP_GROUP_MARKER;
-
-    //  ----====---- Opaque Geometry, Deferred rendering Pass 3 ----====----
-
-    GL_PUSH_GROUP_MARKER("Deferred Lighting - Pass 3 (Opaque)");
-
-    // Start render pass
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_DEFERRED_OPAQUE);
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-
-    // Set source to buffers from pass 2
-    m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 6, lightAccumulationTexture);
-
-    // Render the geometry
-    // TODO: At this point, we only want to render octree nodes that produced fragments during the 1st pass into the GBuffer
-    render(ri);
-
-    // End render pass
-    ri.renderPass->end(commandBuffer);
-
-    GL_POP_GROUP_MARKER;
-  } else {
-    // ----====---- Opaque Geometry, Forward Rendering ----====----
-    GL_PUSH_GROUP_MARKER("Forward Rendering - Opaque");
-
-    // Start render pass
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-
-    // Render the geometry
-    render(ri);
-
-    GL_POP_GROUP_MARKER;
-
-    ri.renderPass->end(commandBuffer);
-  }
-
-
-
-
-  // ----====---- Transparent Geometry, Forward Rendering ----====----
-
-  GL_PUSH_GROUP_MARKER("Forward Rendering - Transparent");
-
-  // Render all transparent geometry
-  ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
-  ri.renderPass->begin(commandBuffer, compositeSurface);
-  render(ri);
-  ri.renderPass->end(commandBuffer);
-  GL_POP_GROUP_MARKER;
-
-  // ----====---- Particle Occlusion Tests ----====----
-
-  GL_PUSH_GROUP_MARKER("Particle Occlusion Tests");
-
-  // ----====---- Perform Occlusion Tests ----====----
-  ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION);
-  if (ri.renderPass) {
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-   render(ri);
-    ri.renderPass->end(commandBuffer);
-  }
-
-  GL_POP_GROUP_MARKER;
-
-  // ----====---- Flares ----====----
-
-  GL_PUSH_GROUP_MARKER("Additive Particles");
-
-  // Render all flares
-  ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES);
-  if (ri.renderPass) {
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-    render(ri);
-    ri.renderPass->end(commandBuffer);
-  }
-
-  GL_POP_GROUP_MARKER;
-
-  // ----====---- Volumetric Lighting ----====----
-
-  if (settings.volumetric_environment_enable) {
-
-    GL_PUSH_GROUP_MARKER("Volumetric Lighting");
-
-    KRViewport volumetricLightingViewport = KRViewport(Vector2::Create((float)volumetricBufferWidth, (float)volumetricBufferHeight), m_viewport.getViewMatrix(), m_viewport.getProjectionMatrix());
-
-    if (settings.volumetric_environment_downsample != 0) {
-      // Set render target
-      GLDEBUG(glBindFramebuffer(GL_FRAMEBUFFER, volumetricLightAccumulationBuffer));
-      GLDEBUG(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-      GLDEBUG(glClear(GL_COLOR_BUFFER_BIT));
-
-      // Disable z-buffer test
-      GLDEBUG(glDisable(GL_DEPTH_TEST));
-      m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 0, compositeDepthTexture);
-
-      GLDEBUG(glViewport(0, 0, (int)volumetricLightingViewport.getSize().x, (int)volumetricLightingViewport.getSize().y));
-    } else {
-      // Enable z-buffer test
-      GLDEBUG(glEnable(GL_DEPTH_TEST));
-      GLDEBUG(glDepthFunc(GL_LEQUAL));
-      GLDEBUG(glDepthRangef(0.0, 1.0));
-    }
-
-    ri.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE);
-    ri.viewport = &volumetricLightingViewport;
-    ri.renderPass->begin(commandBuffer, compositeSurface);
-    render(ri);
-    ri.renderPass->end(commandBuffer);
-    ri.viewport = &m_viewport;
-    GL_POP_GROUP_MARKER;
-  }
-
-
-
-  // ----====---- Debug Overlay ----====----
-
-  GL_PUSH_GROUP_MARKER("Debug Overlays");
-
-  GL_POP_GROUP_MARKER;
-
-  //    fprintf(stderr, "VBO Mem: %i Kbyte    Texture Mem: %i/%i Kbyte (active/total)     Shader Handles: %i   Visible Bounds: %i  Max Texture LOD: %i\n", (int)m_pContext->getMeshManager()->getMemUsed() / 1024, (int)m_pContext->getTextureManager()->getActiveMemUsed() / 1024, (int)m_pContext->getTextureManager()->getMemUsed() / 1024, (int)m_pContext->getPipelineManager()->getShaderHandlesUsed(), (int)m_visibleBounds.size(), m_pContext->getTextureManager()->getLODDimCap());
-
-  GL_PUSH_GROUP_MARKER("Debug Overlays");
-
-  
-  
-  GL_POP_GROUP_MARKER;
-  
-  GL_PUSH_GROUP_MARKER("Post Processing");
-
-  KRRenderPass* postCompositePass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_POST_COMPOSITE);
-  postCompositePass->begin(commandBuffer, compositeSurface);
-  
-  renderPost(ri);
-
-  postCompositePass->end(commandBuffer);
-  
-  
-  GL_POP_GROUP_MARKER;
+  renderGraph.render(commandBuffer, compositeSurface, this);
 }
 
 

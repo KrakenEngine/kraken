@@ -45,6 +45,7 @@
 class KRModel;
 class KRLight;
 class KRSurface;
+class KRRenderGraph;
 
 using std::vector;
 
@@ -70,7 +71,7 @@ public:
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo, unsigned int layer_mask);
   bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
-  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, float deltaTime);
+  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& surface, KRRenderGraph& renderGraph, float deltaTime);
   void render(KRNode::RenderInfo& ri);
 
   void updateOctree(const KRViewport& viewport);

@@ -47,6 +47,7 @@ class KRModel;
 class KRScene;
 class KRViewport;
 class KRSurface;
+class KRRenderGraph;
 
 class KRCamera : public KRNode
 {
@@ -57,7 +58,7 @@ public:
 
   KrResult update(const KrNodeInfo* nodeInfo) override;
 
-  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface);
+  void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface, KRRenderGraph& renderGraph);
 
   void render(KRNode::RenderInfo& ri);
 

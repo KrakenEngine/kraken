@@ -249,20 +249,9 @@ VkFormat KRSurface::getDepthFormat() const
   return m_swapChain->m_depthFormat;
 }
 
-KRRenderPass* KRSurface::getRenderPass(RenderPassType type)
-{
-  return m_renderGraphForward->getRenderPass(type);
-}
-
 void KRSurface::endFrame()
 {
   m_frameIndex++;
-}
-
-
-void KRSurface::renderBlackFrame(VkCommandBuffer &commandBuffer)
-{
-  m_renderGraphBlackFrame->render(commandBuffer, *this, nullptr);
 }
 
 VkFormat KRSurface::getSurfaceFormat() const

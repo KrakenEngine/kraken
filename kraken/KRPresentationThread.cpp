@@ -32,6 +32,10 @@
 #include "KRPresentationThread.h"
 #include "KRRenderPass.h"
 #include "KRSwapchain.h"
+#include "KRRenderGraph.h"
+#include "KRRenderGraphDeferred.h"
+#include "KRRenderGraphForward.h"
+#include "KRRenderGraphBlackFrame.h"
 
 KRPresentationThread::KRPresentationThread(KRContext& context)
   : KRContextObject(context)
@@ -161,9 +165,10 @@ void KRPresentationThread::renderFrame()
     // TODO - This needs to be moved to the Render thread...
     float deltaTime = 0.005; // TODO - Replace dummy value
     if (scene) {
-      scene->renderFrame(commandBuffer, surface, deltaTime);
+      KRRenderGraphForward* renderGraph = surface.m_renderGraphForward.get();
+      scene->renderFrame(commandBuffer, surface, *renderGraph, deltaTime);
     } else {
-      surface.renderBlackFrame(commandBuffer);
+      surface.m_renderGraphBlackFrame->render(commandBuffer, surface, nullptr);
     }
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {

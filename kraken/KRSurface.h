@@ -53,7 +53,6 @@ public:
   uint32_t getHeight() const;
   hydra::Vector2i getDimensions() const;
   VkFormat getDepthFormat() const;
-  void renderBlackFrame(VkCommandBuffer &commandBuffer);
   VkFormat getSurfaceFormat() const;
 
   KRSurface(const KRSurface&) = delete;
@@ -62,7 +61,6 @@ public:
 
   KrResult initialize();
   KrResult recreateSwapChain();
-  KRRenderPass* getRenderPass(RenderPassType type);
 
   void endFrame();
   KrSurfaceHandle m_handle;
@@ -83,6 +81,9 @@ public:
 private:
   void destroySwapChain();
   KrResult createSwapChain();
+
+public:
+  // TODO - These need to be relocated...
   std::unique_ptr<KRRenderGraphForward> m_renderGraphForward;
   std::unique_ptr<KRRenderGraphDeferred> m_renderGraphDeferred;
   std::unique_ptr<KRRenderGraphBlackFrame> m_renderGraphBlackFrame;
