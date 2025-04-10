@@ -273,26 +273,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
     GL_POP_GROUP_MARKER;
 
-    // ----------  Start: Vulkan Debug Code ----------
-
-    KRMesh* sphereMesh = getContext().getMeshManager()->getMaxLODModel("__sphere");
-    if (sphereMesh && sphereMesh->isReady()) {
-      PipelineInfo info{};
-      std::string shader_name("vulkan_test");
-      info.shader_name = &shader_name;
-      info.pCamera = this;
-      info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_OPAQUE);
-      info.rasterMode = RasterMode::kOpaque;
-      info.vertexAttributes = sphereMesh->getVertexAttributes();
-      info.modelFormat = sphereMesh->getModelFormat();
-      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(compositeSurface, info);
-      testPipeline->bind(ri, Matrix4());
-      sphereMesh->renderNoMaterials(commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
-    }
-
-    // ----------  End: Vulkan Debug Code ----------
-
-
     ri.renderPass->end(commandBuffer);
   }
 
