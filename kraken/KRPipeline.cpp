@@ -501,7 +501,7 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
   PushConstantInfo& pushConstants = m_stages[static_cast<int>(stage)].pushConstants;
   for (int i = 0; i < reflection->push_constant_block_count; i++) {
     const SpvReflectBlockVariable& block = reflection->push_constant_blocks[i];
-    if (stricmp(block.name, "constants") == 0) {
+    if (stricmp(block.name, "PushConstants") == 0) {
       if (block.size > 0) {
         pushConstants.buffer = (__uint8_t*)malloc(block.size);
         memset(pushConstants.buffer, 0, block.size);
