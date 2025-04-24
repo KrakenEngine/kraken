@@ -532,6 +532,10 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
         case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
           vkCmdDraw(commandBuffer, cVertexes, 1, iVertex, 0);
           break;
+        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+          vkCmdDrawIndexed(commandBuffer, cVertexes, 1, iVertex, 0, 0);
+          break;
         default:
           break;
         }
