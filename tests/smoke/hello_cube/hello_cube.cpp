@@ -79,6 +79,10 @@ bool smoke_load()
   res = KrCreateScene(&create_scene_info);
   assert(res == KR_SUCCESS);
 
+  hydra::Vector3 cameraPos = hydra::Vector3::Create(1.0, 5.0, 3.0);
+  hydra::Matrix4 cameraMat = hydra::Matrix4::LookAt(cameraPos, hydra::Vector3::Create(0.0, 0.0, 0.0), hydra::Vector3::Up());
+  hydra::Quaternion cameraRot = hydra::Quaternion::FromRotationMatrix(cameraMat);
+  
   // Add a camera to the scene
   KrCreateNodeInfo create_camera_info = { KR_STRUCTURE_TYPE_CREATE_NODE };
   res = KrInitNodeInfo(&create_camera_info.node, KR_STRUCTURE_TYPE_NODE_CAMERA);
@@ -89,6 +93,8 @@ bool smoke_load()
   create_camera_info.sceneHandle = kSceneResourceHandle;
   create_camera_info.node.pName = "my_camera";
   create_camera_info.node.camera.surfaceHandle = 1;
+  create_camera_info.node.translate = hydra::Vector3::Create(1.0, 5.0, 3.0);
+  create_camera_info.node.rotate = cameraRot.eulerXYZ();
   // create_camera_info.node.camera.skybox_texture = kSkyboxTextureResourceHandle;
   res = KrCreateNode(&create_camera_info);
   assert(res == KR_SUCCESS);
