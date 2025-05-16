@@ -105,6 +105,7 @@ void KRScene::render(KRNode::RenderInfo& ri)
 {
 
   // ----------  Start: Vulkan Debug Code ----------
+  /*
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
     KRMesh* sphereMesh = getContext().getMeshManager()->getMaxLODModel("__sphere");
     if (sphereMesh && sphereMesh->isReady()) {
@@ -121,16 +122,12 @@ void KRScene::render(KRNode::RenderInfo& ri)
       sphereMesh->renderNoMaterials(ri.commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
     }
   }
-
+  */
   // ----------  End: Vulkan Debug Code ----------
 
   if (getFirstLight() == NULL) {
     addDefaultLights();
   }
-
-  std::vector<KRPointLight*> point_lights;
-  std::vector<KRDirectionalLight*>directional_lights;
-  std::vector<KRSpotLight*>spot_lights;
 
   std::set<KRNode*> outerNodes = std::set<KRNode*>(m_nodeTree.getOuterSceneNodes()); // HACK - Copying the std::set as it is potentially modified as KRNode's update their bounds during the iteration.  This is very expensive and will be eliminated in the future.
 
@@ -139,15 +136,15 @@ void KRScene::render(KRNode::RenderInfo& ri)
     KRNode* node = (*itr);
     KRPointLight* point_light = dynamic_cast<KRPointLight*>(node);
     if (point_light) {
-      point_lights.push_back(point_light);
+      ri.point_lights.push_back(point_light);
     }
     KRDirectionalLight* directional_light = dynamic_cast<KRDirectionalLight*>(node);
     if (directional_light) {
-      directional_lights.push_back(directional_light);
+      ri.directional_lights.push_back(directional_light);
     }
     KRSpotLight* spot_light = dynamic_cast<KRSpotLight*>(node);
     if (spot_light) {
-      spot_lights.push_back(spot_light);
+      ri.spot_lights.push_back(spot_light);
     }
   }
 

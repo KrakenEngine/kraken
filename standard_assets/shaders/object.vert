@@ -32,6 +32,10 @@
 #version 450
 #extension GL_GOOGLE_include_directive : enable
 
+// TODO - HACK! Need to dynamically set these defines...
+#define ENABLE_DIFFUSE 1
+#define ENABLE_PER_PIXEL 1
+
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec3 vertex_normal;
 
@@ -273,7 +277,7 @@ layout( push_constant ) uniform constants
 
     #if ENABLE_PER_PIXEL == 1
         layout(location=6) out mediump vec3    lightVec;
-        layout(location=7) out out mediump vec3    halfVec;
+        layout(location=7) out mediump vec3    halfVec;
 
         #if HAS_SPEC_MAP_OFFSET == 1 || HAS_SPEC_MAP_SCALE == 1
           layout(location = 8) out highp vec2 spec_uv;

@@ -32,6 +32,10 @@
 #version 450
 #extension GL_GOOGLE_include_directive : enable
 
+// TODO - HACK! Need to dynamically set these defines...
+#define ENABLE_DIFFUSE 1
+#define ENABLE_PER_PIXEL 1
+
 //#extension GL_EXT_shadow_samplers : require
 
 layout(location = 0) out vec4 colorOut;
@@ -428,7 +432,7 @@ void main()
         #else
             mediump vec3 view_space_normal = vec3(model_view_inverse_transpose_matrix * vec4(normal, 1.0));
         #endif
-        colorOut = vec4(view_space_normal * 0.5 + 0.5, material_shininess / 100.0);
+        colorOut = vec4(view_space_normal * 0.5 + 0.5, PushConstants.material_shininess / 100.0);
     #else
         #if HAS_DIFFUSE_MAP == 1
             #if ALPHA_TEST == 1
@@ -453,13 +457,13 @@ void main()
                 mediump float lamberFactor = max(0.0,dot(lightVec, normal));
             #endif
             mediump float specularFactor = 0.0;
-            if(material_shininess > 0.0) {
+            if(PushConstants.material_shininess > 0.0) {
                 #if GBUFFER_PASS == 3
-                    specularFactor = gbuffer_specular_factor;   
+                    specularFactor = gbuffer_specular_factor;
                 #else
                     mediump float halfVecDot = dot(halfVec,normal);
                     if(halfVecDot > 0.0) {
-                        specularFactor = max(0.0,pow(halfVecDot, material_shininess));
+                        specularFactor = max(0.0,pow(halfVecDot, PushConstants.material_shininess));
                     }
                 #endif
             }
@@ -542,7 +546,7 @@ void main()
             
         #if ENABLE_DIFFUSE == 1
             // -------------------- Add diffuse light --------------------
-            colorOut += diffuseMaterial * vec4(material_diffuse * lamberFactor, 1.0);
+            colorOut += diffuseMaterial * vec4(PushConstants.material_diffuse * lamberFactor, 1.0);
         #endif
 
         // -------------------- Apply material_alpha --------------------
@@ -625,4 +629,6 @@ void main()
     #if BONE_COUNT > 0
         colorOut.b = 1.0;
     #endif
+
+    colorOut.a = 1.0; // HACK?
 }
