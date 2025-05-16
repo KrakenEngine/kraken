@@ -39,6 +39,8 @@ KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
 
   KRMesh::mesh_info mi;
 
+  /*
+  // Cube without normals
   mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
   mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
   mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
@@ -59,7 +61,118 @@ KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
   mi.submesh_lengths.push_back((int)mi.vertices.size());
   mi.material_names.push_back("__white");
   mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+  */
 
+  // Cube with normals
+  int b = 0;
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, 1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, 1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, 1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, 1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, 1.0));
+  
+  mi.vertex_indexes.push_back(b+0);
+  mi.vertex_indexes.push_back(b+1);
+  mi.vertex_indexes.push_back(b+2);
+  mi.vertex_indexes.push_back(b+2);
+  mi.vertex_indexes.push_back(b+1);
+  mi.vertex_indexes.push_back(b+3);
+  b += 4;
+
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, 1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, 1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, 1.0, 0.0));
+
+  mi.vertex_indexes.push_back(b + 3);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 0);
+  b += 4;
+
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, -1.0));
+  mi.normals.push_back(Vector3::Create(1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(1.0, 0.0, 0.0));
+
+  mi.vertex_indexes.push_back(b + 0);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 3);
+  b += 4;
+
+  mi.vertices.push_back(Vector3::Create(1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, 0.0, -1.0));
+
+  mi.vertex_indexes.push_back(b + 3);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 0);
+  b += 4;
+
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(1.0, -1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, -1.0));
+  mi.normals.push_back(Vector3::Create(0.0, -1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, -1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, -1.0, 0.0));
+  mi.normals.push_back(Vector3::Create(0.0, -1.0, 0.0));
+
+  mi.vertex_indexes.push_back(b + 0);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 3);
+  b += 4;
+
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, 1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, 1.0, -1.0));
+  mi.vertices.push_back(Vector3::Create(-1.0, -1.0, -1.0));
+  mi.normals.push_back(Vector3::Create(-1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(-1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(-1.0, 0.0, 0.0));
+  mi.normals.push_back(Vector3::Create(-1.0, 0.0, 0.0));
+
+  mi.vertex_indexes.push_back(b + 3);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 2);
+  mi.vertex_indexes.push_back(b + 1);
+  mi.vertex_indexes.push_back(b + 0);
+  b += 4;
+
+
+  mi.submesh_starts.push_back(0);
+  mi.submesh_lengths.push_back((int)mi.vertex_indexes.size());
+  mi.vertex_index_bases.push_back(std::make_pair<int, int>(0, 0));
+  mi.material_names.push_back("__white");
+  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
 
   LoadData(mi, true, true);
 }
