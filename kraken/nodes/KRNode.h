@@ -56,6 +56,7 @@ class KRPointLight;
 class KRSpotLight;
 class KRDirectionalLight;
 class KRRenderPass;
+class KRPipeline;
 namespace tinyxml2 {
 class XMLNode;
 class XMLAttribute;
@@ -92,6 +93,7 @@ public:
     std::vector<KRSpotLight*> spot_lights;
     KRViewport* viewport;
     KRRenderPass* renderPass;
+    KRPipeline* pipeline;
   };
 
   static void InitNodeInfo(KrNodeInfo* nodeInfo);

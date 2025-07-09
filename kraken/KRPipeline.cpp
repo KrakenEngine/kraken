@@ -842,7 +842,10 @@ bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
     }
   }
 
-  vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+  if (ri.pipeline != this) {
+    vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+    ri.pipeline = this;
+  }
 
   return true;
 }
