@@ -651,11 +651,8 @@ void KRPipeline::updateDescriptorBinding()
   // Vulkan Refactoring
 }
 
-bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
+void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  updateDescriptorBinding();
-  updateDescriptorSets();
-  bindDescriptorSets(ri.commandBuffer);
   setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
@@ -841,6 +838,14 @@ bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
       vkCmdPushConstants(ri.commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
     }
   }
+}
+
+bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
+{
+  updateDescriptorBinding();
+  updateDescriptorSets();
+  bindDescriptorSets(ri.commandBuffer);
+  updatePushConstants(ri, matModel);
 
   if (ri.pipeline != this) {
     vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);

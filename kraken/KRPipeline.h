@@ -306,11 +306,12 @@ public:
   void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
 
   VkPipeline& getPipeline();
-  void updateDescriptorBinding();
-  void updateDescriptorSets();
   void bindDescriptorSets(VkCommandBuffer& commandBuffer);
 
 private:
+  void updateDescriptorBinding();
+  void updateDescriptorSets();
+  void updatePushConstants(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
   static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
 
   struct PushConstantInfo
