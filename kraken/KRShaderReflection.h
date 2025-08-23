@@ -111,5 +111,5 @@ const char* SHADER_VALUE_NAMES[];
 class KRReflectedObject
 {
 public:
-  static std::map<ShaderValue, std::pair<size_t, size_t>> ValueMap;
+  virtual bool GetShaderValue(ShaderValue value, void* buffer, size_t size) = 0;
 };

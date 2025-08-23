@@ -40,11 +40,14 @@
 class KRLight;
 
 class KRViewport
+  : public KRReflectedObject
 {
 public:
   KRViewport();
   KRViewport(const hydra::Vector2& size, const hydra::Matrix4& matView, const hydra::Matrix4& matProjection);
   ~KRViewport();
+
+  bool GetShaderValue(ShaderValue value, void* buffer, size_t size) final;
 
   const hydra::Vector2& getSize() const;
   const hydra::Matrix4& getViewMatrix() const;
