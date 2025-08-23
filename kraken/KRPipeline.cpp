@@ -40,77 +40,6 @@
 
 using namespace hydra;
 
-
-const char* KRPipeline::KRENGINE_PUSH_CONSTANT_NAMES[] = {
-    "material_ambient", // PushConstant::material_ambient
-    "material_diffuse", // PushConstant::material_diffuse
-    "material_specular", // PushConstant::material_specular
-    "material_reflection", // PushConstant::material_reflection
-    "material_alpha", // PushConstant::material_alpha
-    "material_shininess", // PushConstant::material_shininess
-    "light_position", // PushConstant::light_position
-    "light_direction_model_space", // PushConstant::light_direction_model_space
-    "light_direction_view_space", // PushConstant::light_direction_view_space
-    "light_color", //    PushConstant::light_color
-    "light_decay_start", //    PushConstant::light_decay_start
-    "light_cutoff", //    PushConstant::light_cutoff
-    "light_intensity", //    PushConstant::light_intensity
-    "flare_size", //    PushConstant::flare_size
-    "view_space_model_origin", //    PushConstant::view_space_model_origin
-    "mvp_matrix", //    PushConstant::mvp
-    "inv_projection_matrix", //    PushConstant::invp
-    "inv_mvp_matrix", //    PushConstant::invmvp
-    "inv_mvp_matrix_no_translate", //    PushConstant::invmvp_no_translate
-    "model_view_inverse_transpose_matrix", //    PushConstant::model_view_inverse_transpose
-    "model_inverse_transpose_matrix", //    PushConstant::model_inverse_transpose
-    "model_view_matrix", //    PushConstant::model_view
-    "model_matrix", //    PushConstant::model_matrix
-    "projection_matrix", //    PushConstant::projection_matrix
-    "camera_position_model_space", //    PushConstant::camerapos_model_space
-    "viewport", //    PushConstant::viewport
-    "diffuseTexture", //    PushConstant::diffusetexture
-    "specularTexture", //    PushConstant::speculartexture
-    "reflectionCubeTexture", //    PushConstant::reflectioncubetexture
-    "reflectionTexture", //    PushConstant::reflectiontexture
-    "normalTexture", //    PushConstant::normaltexture
-    "diffuseTexture_Scale", //    PushConstant::diffusetexture_scale
-    "specularTexture_Scale", //    PushConstant::speculartexture_scale
-    "reflectionTexture_Scale", //    PushConstant::reflectiontexture_scale
-    "normalTexture_Scale", //    PushConstant::normaltexture_scale
-    "normalTexture_Scale", //    PushConstant::ambienttexture_scale
-    "diffuseTexture_Offset", //    PushConstant::diffusetexture_offset
-    "specularTexture_Offset", //    PushConstant::speculartexture_offset
-    "reflectionTexture_Offset", //    PushConstant::reflectiontexture_offset
-    "normalTexture_Offset", //    PushConstant::normaltexture_offset
-    "ambientTexture_Offset", //    PushConstant::ambienttexture_offset
-    "shadow_mvp1", //    PushConstant::shadow_mvp1
-    "shadow_mvp2", //    PushConstant::shadow_mvp2
-    "shadow_mvp3", //    PushConstant::shadow_mvp3
-    "shadowTexture1", //    PushConstant::shadowtexture1
-    "shadowTexture2", //    PushConstant::shadowtexture2
-    "shadowTexture3", //    PushConstant::shadowtexture3
-    "lightmapTexture", //    PushConstant::lightmaptexture
-    "gbuffer_frame", //    PushConstant::gbuffer_frame
-    "gbuffer_depth", //    PushConstant::gbuffer_depth
-    "depthFrame", //    PushConstant::depth_frame
-    "volumetricEnvironmentFrame", //    PushConstant::volumetric_environment_frame
-    "renderFrame", //    PushConstant::render_frame
-    "time_absolute", //    PushConstant::absolute_time
-    "fog_near", //    PushConstant::fog_near
-    "fog_far", //    PushConstant::fog_far
-    "fog_density", //    PushConstant::fog_density
-    "fog_color", //    PushConstant::fog_color
-    "fog_scale", //    PushConstant::fog_scale
-    "fog_density_premultiplied_exponential", //    PushConstant::density_premultiplied_exponential
-    "fog_density_premultiplied_squared", //    PushConstant::density_premultiplied_squared
-    "slice_depth_scale", //    PushConstant::slice_depth_scale
-    "particle_origin", //    PushConstant::particle_origin
-    "bone_transforms", //    PushConstant::bone_transforms
-    "rim_color", // PushConstant::rim_color
-    "rim_power", // PushConstant::rim_power
-    "fade_color", // PushConstant::fade_color
-};
-
 KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
   : KRContextObject(context)
   , m_deviceHandle(deviceHandle)
@@ -511,7 +440,7 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
         for (int iUniform = 0; iUniform < kPushConstantCount; iUniform++) {
           for (int iMember = 0; iMember < block.member_count; iMember++) {
             const SpvReflectBlockVariable& member = block.members[iMember];
-            if (stricmp(KRENGINE_PUSH_CONSTANT_NAMES[iUniform], member.name) == 0) {
+            if (stricmp(SHADER_VALUE_NAMES[iUniform], member.name) == 0) {
               pushConstants.offset[iUniform] = member.offset;
               pushConstants.size[iUniform] = member.size;
             }
@@ -559,7 +488,7 @@ void KRPipeline::initDescriptorSetStage(ShaderStage stage, const SpvReflectShade
   }
 }
 
-bool KRPipeline::hasPushConstant(PushConstant location) const
+bool KRPipeline::hasPushConstant(ShaderValue location) const
 {
   for (const StageInfo& stageInfo : m_stages) {
     const PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -570,7 +499,7 @@ bool KRPipeline::hasPushConstant(PushConstant location) const
   return false;
 }
 
-void KRPipeline::setPushConstant(PushConstant location, float value)
+void KRPipeline::setPushConstant(ShaderValue location, float value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -582,7 +511,7 @@ void KRPipeline::setPushConstant(PushConstant location, float value)
 }
 
 
-void KRPipeline::setPushConstant(PushConstant location, int value)
+void KRPipeline::setPushConstant(ShaderValue location, int value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -593,7 +522,7 @@ void KRPipeline::setPushConstant(PushConstant location, int value)
   }
 }
 
-void KRPipeline::setPushConstant(PushConstant location, const Vector2& value)
+void KRPipeline::setPushConstant(ShaderValue location, const Vector2& value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -603,7 +532,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Vector2& value)
     }
   }
 }
-void KRPipeline::setPushConstant(PushConstant location, const Vector3& value)
+void KRPipeline::setPushConstant(ShaderValue location, const Vector3& value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -614,7 +543,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Vector3& value)
   }
 }
 
-void KRPipeline::setPushConstant(PushConstant location, const Vector4& value)
+void KRPipeline::setPushConstant(ShaderValue location, const Vector4& value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -625,7 +554,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Vector4& value)
   }
 }
 
-void KRPipeline::setPushConstant(PushConstant location, const Matrix4& value)
+void KRPipeline::setPushConstant(ShaderValue location, const Matrix4& value)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -636,7 +565,7 @@ void KRPipeline::setPushConstant(PushConstant location, const Matrix4& value)
   }
 }
 
-void KRPipeline::setPushConstant(PushConstant location, const Matrix4* value, const size_t count)
+void KRPipeline::setPushConstant(ShaderValue location, const Matrix4* value, const size_t count)
 {
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -653,7 +582,7 @@ void KRPipeline::updateDescriptorBinding()
 
 void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  setPushConstant(PushConstant::absolute_time, getContext().getAbsoluteTime());
+  setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
   //int light_point_count = 0;
@@ -665,7 +594,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
       KRDirectionalLight* directional_light = (*light_itr);
       if (light_directional_count == 0) {
         int cShadowBuffers = directional_light->getShadowBufferCount();
-        if (hasPushConstant(PushConstant::shadowtexture1) && cShadowBuffers > 0) {
+        if (hasPushConstant(ShaderValue::shadowtexture1) && cShadowBuffers > 0) {
           // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
           if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 3, directional_light->getShadowTextures()[0])) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -673,7 +602,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
           }
         }
 
-        if (hasPushConstant(PushConstant::shadowtexture2) && cShadowBuffers > 1 && ri.camera->settings.m_cShadowBuffers > 1) {
+        if (hasPushConstant(ShaderValue::shadowtexture2) && cShadowBuffers > 1 && ri.camera->settings.m_cShadowBuffers > 1) {
           // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
           if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 4, directional_light->getShadowTextures()[1])) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -681,7 +610,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
           }
         }
 
-        if (hasPushConstant(PushConstant::shadowtexture3) && cShadowBuffers > 2 && ri.camera->settings.m_cShadowBuffers > 2) {
+        if (hasPushConstant(ShaderValue::shadowtexture3) && cShadowBuffers > 2 && ri.camera->settings.m_cShadowBuffers > 2) {
           // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
           if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 5, directional_light->getShadowTextures()[2])) {
             GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -693,17 +622,17 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
         matBias.translate(1.0, 1.0, 1.0);
         matBias.scale(0.5);
         for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
-          setPushConstant(static_cast<PushConstant>(static_cast<int>(PushConstant::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
+          setPushConstant(static_cast<ShaderValue>(static_cast<int>(ShaderValue::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
         }
 
-        if (hasPushConstant(PushConstant::light_direction_model_space)) {
+        if (hasPushConstant(ShaderValue::light_direction_model_space)) {
           Matrix4 inverseModelMatrix = matModel;
           inverseModelMatrix.invert();
 
           // Bind the light direction vector
           Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
           lightDirObject.normalize();
-          setPushConstant(PushConstant::light_direction_model_space, lightDirObject);
+          setPushConstant(ShaderValue::light_direction_model_space, lightDirObject);
         }
       }
 
@@ -714,57 +643,57 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
     //light_spot_count = spot_lights.size();
   }
 
-  if (hasPushConstant(PushConstant::camerapos_model_space)) {
+  if (hasPushConstant(ShaderValue::camerapos_model_space)) {
     Matrix4 inverseModelMatrix = matModel;
     inverseModelMatrix.invert();
 
-    if (hasPushConstant(PushConstant::camerapos_model_space)) {
+    if (hasPushConstant(ShaderValue::camerapos_model_space)) {
       // Transform location of camera to object space for calculation of specular halfVec
       Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, ri.viewport->getCameraPosition());
-      setPushConstant(PushConstant::camerapos_model_space, cameraPosObject);
+      setPushConstant(ShaderValue::camerapos_model_space, cameraPosObject);
     }
   }
 
-  if (hasPushConstant(PushConstant::mvp) || hasPushConstant(KRPipeline::PushConstant::invmvp)) {
+  if (hasPushConstant(ShaderValue::mvp) || hasPushConstant(ShaderValue::invmvp)) {
     // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
     Matrix4 mvpMatrix = matModel * ri.viewport->getViewProjectionMatrix();
-    setPushConstant(PushConstant::mvp, mvpMatrix);
+    setPushConstant(ShaderValue::mvp, mvpMatrix);
 
-    if (hasPushConstant(KRPipeline::PushConstant::invmvp)) {
-      setPushConstant(KRPipeline::PushConstant::invmvp, Matrix4::Invert(mvpMatrix));
+    if (hasPushConstant(ShaderValue::invmvp)) {
+      setPushConstant(ShaderValue::invmvp, Matrix4::Invert(mvpMatrix));
     }
   }
 
-  if (hasPushConstant(KRPipeline::PushConstant::view_space_model_origin) || hasPushConstant(PushConstant::model_view_inverse_transpose) || hasPushConstant(KRPipeline::PushConstant::model_view)) {
+  if (hasPushConstant(ShaderValue::view_space_model_origin) || hasPushConstant(ShaderValue::model_view_inverse_transpose) || hasPushConstant(ShaderValue::model_view)) {
     Matrix4 matModelView = matModel * ri.viewport->getViewMatrix();
-    setPushConstant(PushConstant::model_view, matModelView);
+    setPushConstant(ShaderValue::model_view, matModelView);
 
 
-    if (hasPushConstant(KRPipeline::PushConstant::view_space_model_origin)) {
+    if (hasPushConstant(ShaderValue::view_space_model_origin)) {
       Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
-      setPushConstant(PushConstant::view_space_model_origin, view_space_model_origin);
+      setPushConstant(ShaderValue::view_space_model_origin, view_space_model_origin);
     }
 
-    if (hasPushConstant(PushConstant::model_view_inverse_transpose)) {
+    if (hasPushConstant(ShaderValue::model_view_inverse_transpose)) {
       Matrix4 matModelViewInverseTranspose = matModelView;
       matModelViewInverseTranspose.transpose();
       matModelViewInverseTranspose.invert();
-      setPushConstant(PushConstant::model_view_inverse_transpose, matModelViewInverseTranspose);
+      setPushConstant(ShaderValue::model_view_inverse_transpose, matModelViewInverseTranspose);
     }
   }
 
-  if (hasPushConstant(PushConstant::model_inverse_transpose)) {
+  if (hasPushConstant(ShaderValue::model_inverse_transpose)) {
     Matrix4 matModelInverseTranspose = matModel;
     matModelInverseTranspose.transpose();
     matModelInverseTranspose.invert();
-    setPushConstant(PushConstant::model_inverse_transpose, matModelInverseTranspose);
+    setPushConstant(ShaderValue::model_inverse_transpose, matModelInverseTranspose);
   }
 
-  if (hasPushConstant(KRPipeline::PushConstant::invp)) {
-    setPushConstant(PushConstant::invp, ri.viewport->getInverseProjectionMatrix());
+  if (hasPushConstant(ShaderValue::invp)) {
+    setPushConstant(ShaderValue::invp, ri.viewport->getInverseProjectionMatrix());
   }
 
-  if (hasPushConstant(KRPipeline::PushConstant::invmvp_no_translate)) {
+  if (hasPushConstant(ShaderValue::invmvp_no_translate)) {
     Matrix4 matInvMVPNoTranslate = matModel * ri.viewport->getViewMatrix();;
     // Remove the translation
     matInvMVPNoTranslate.getPointer()[3] = 0;
@@ -776,16 +705,16 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
     matInvMVPNoTranslate.getPointer()[15] = 1.0;
     matInvMVPNoTranslate = matInvMVPNoTranslate * ri.viewport->getProjectionMatrix();
     matInvMVPNoTranslate.invert();
-    setPushConstant(PushConstant::invmvp_no_translate, matInvMVPNoTranslate);
+    setPushConstant(ShaderValue::invmvp_no_translate, matInvMVPNoTranslate);
   }
 
-  setPushConstant(PushConstant::model_matrix, matModel);
-  if (hasPushConstant(PushConstant::projection_matrix)) {
-    setPushConstant(PushConstant::projection_matrix, ri.viewport->getProjectionMatrix());
+  setPushConstant(ShaderValue::model_matrix, matModel);
+  if (hasPushConstant(ShaderValue::projection_matrix)) {
+    setPushConstant(ShaderValue::projection_matrix, ri.viewport->getProjectionMatrix());
   }
 
-  if (hasPushConstant(PushConstant::viewport)) {
-    setPushConstant(PushConstant::viewport, Vector4::Create(
+  if (hasPushConstant(ShaderValue::viewport)) {
+    setPushConstant(ShaderValue::viewport, Vector4::Create(
       (float)0.0,
       (float)0.0,
       (float)ri.viewport->getSize().x,
@@ -795,42 +724,42 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
   }
 
   // Fog parameters
-  setPushConstant(PushConstant::fog_near, ri.camera->settings.fog_near);
-  setPushConstant(PushConstant::fog_far, ri.camera->settings.fog_far);
-  setPushConstant(PushConstant::fog_density, ri.camera->settings.fog_density);
-  setPushConstant(PushConstant::fog_color, ri.camera->settings.fog_color);
+  setPushConstant(ShaderValue::fog_near, ri.camera->settings.fog_near);
+  setPushConstant(ShaderValue::fog_far, ri.camera->settings.fog_far);
+  setPushConstant(ShaderValue::fog_density, ri.camera->settings.fog_density);
+  setPushConstant(ShaderValue::fog_color, ri.camera->settings.fog_color);
 
-  if (hasPushConstant(PushConstant::fog_scale)) {
-    setPushConstant(PushConstant::fog_scale, 1.0f / (ri.camera->settings.fog_far - ri.camera->settings.fog_near));
+  if (hasPushConstant(ShaderValue::fog_scale)) {
+    setPushConstant(ShaderValue::fog_scale, 1.0f / (ri.camera->settings.fog_far - ri.camera->settings.fog_near));
   }
-  if (hasPushConstant(PushConstant::density_premultiplied_exponential)) {
-    setPushConstant(PushConstant::density_premultiplied_exponential, -ri.camera->settings.fog_density * 1.442695f); // -fog_density / log(2)
+  if (hasPushConstant(ShaderValue::density_premultiplied_exponential)) {
+    setPushConstant(ShaderValue::density_premultiplied_exponential, -ri.camera->settings.fog_density * 1.442695f); // -fog_density / log(2)
   }
-  if (hasPushConstant(PushConstant::density_premultiplied_squared)) {
-    setPushConstant(PushConstant::density_premultiplied_squared, (float)(-ri.camera->settings.fog_density * ri.camera->settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+  if (hasPushConstant(ShaderValue::density_premultiplied_squared)) {
+    setPushConstant(ShaderValue::density_premultiplied_squared, (float)(-ri.camera->settings.fog_density * ri.camera->settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
   }
 
   // Sets the diffuseTexture variable to the first texture unit
-  setPushConstant(PushConstant::diffusetexture, 0);
+  setPushConstant(ShaderValue::diffusetexture, 0);
 
   // Sets the specularTexture variable to the second texture unit
-  setPushConstant(PushConstant::speculartexture, 1);
+  setPushConstant(ShaderValue::speculartexture, 1);
 
   // Sets the normalTexture variable to the third texture unit
-  setPushConstant(PushConstant::normaltexture, 2);
+  setPushConstant(ShaderValue::normaltexture, 2);
 
   // Sets the shadowTexture variable to the fourth texture unit
-  setPushConstant(PushConstant::shadowtexture1, 3);
-  setPushConstant(PushConstant::shadowtexture2, 4);
-  setPushConstant(PushConstant::shadowtexture3, 5);
-  setPushConstant(PushConstant::reflectioncubetexture, 4);
-  setPushConstant(PushConstant::lightmaptexture, 5);
-  setPushConstant(PushConstant::gbuffer_frame, 6);
-  setPushConstant(PushConstant::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-  setPushConstant(PushConstant::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
-  setPushConstant(PushConstant::depth_frame, 0);
-  setPushConstant(PushConstant::render_frame, 1);
-  setPushConstant(PushConstant::volumetric_environment_frame, 2);
+  setPushConstant(ShaderValue::shadowtexture1, 3);
+  setPushConstant(ShaderValue::shadowtexture2, 4);
+  setPushConstant(ShaderValue::shadowtexture3, 5);
+  setPushConstant(ShaderValue::reflectioncubetexture, 4);
+  setPushConstant(ShaderValue::lightmaptexture, 5);
+  setPushConstant(ShaderValue::gbuffer_frame, 6);
+  setPushConstant(ShaderValue::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
+  setPushConstant(ShaderValue::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
+  setPushConstant(ShaderValue::depth_frame, 0);
+  setPushConstant(ShaderValue::render_frame, 1);
+  setPushConstant(ShaderValue::volumetric_environment_frame, 2);
 
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;

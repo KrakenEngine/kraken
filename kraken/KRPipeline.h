@@ -220,88 +220,16 @@ public:
 
   bool bind(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
 
-  enum class PushConstant : uint8_t
-  {
-    material_ambient = 0,
-    material_diffuse,
-    material_specular,
-    material_reflection,
-    material_alpha,
-    material_shininess,
-    light_position,
-    light_direction_model_space,
-    light_direction_view_space,
-    light_color,
-    light_decay_start,
-    light_cutoff,
-    light_intensity,
-    flare_size,
-    view_space_model_origin,
-    mvp,
-    invp,
-    invmvp,
-    invmvp_no_translate,
-    model_view_inverse_transpose,
-    model_inverse_transpose,
-    model_view,
-    model_matrix,
-    projection_matrix,
-    camerapos_model_space,
-    viewport,
-    diffusetexture,
-    speculartexture,
-    reflectioncubetexture,
-    reflectiontexture,
-    normaltexture,
-    diffusetexture_scale,
-    speculartexture_scale,
-    reflectiontexture_scale,
-    normaltexture_scale,
-    ambienttexture_scale,
-    diffusetexture_offset,
-    speculartexture_offset,
-    reflectiontexture_offset,
-    normaltexture_offset,
-    ambienttexture_offset,
-    shadow_mvp1,
-    shadow_mvp2,
-    shadow_mvp3,
-    shadowtexture1,
-    shadowtexture2,
-    shadowtexture3,
-    lightmaptexture,
-    gbuffer_frame,
-    gbuffer_depth,
-    depth_frame,
-    volumetric_environment_frame,
-    render_frame,
-    absolute_time,
-    fog_near,
-    fog_far,
-    fog_density,
-    fog_color,
-    fog_scale,
-    density_premultiplied_exponential,
-    density_premultiplied_squared,
-    slice_depth_scale,
-    particle_origin,
-    bone_transforms,
-    rim_color,
-    rim_power,
-    fade_color,
-    NUM_PUSH_CONSTANTS
-  };
+  static const size_t kPushConstantCount = static_cast<size_t>(ShaderValue::NUM_PUSH_CONSTANTS);
 
-  static const size_t kPushConstantCount = static_cast<size_t>(PushConstant::NUM_PUSH_CONSTANTS);
-
-  bool hasPushConstant(PushConstant location) const;
-  void setPushConstant(PushConstant location, float value);
-  void setPushConstant(PushConstant location, int value);
-  void setPushConstant(PushConstant location, const hydra::Vector2& value);
-  void setPushConstant(PushConstant location, const hydra::Vector3& value);
-  void setPushConstant(PushConstant location, const hydra::Vector4& value);
-  void setPushConstant(PushConstant location, const hydra::Matrix4& value);
-  void setPushConstant(PushConstant location, const hydra::Matrix4* value, const size_t count);
+  bool hasPushConstant(ShaderValue location) const;
+  void setPushConstant(ShaderValue location, float value);
+  void setPushConstant(ShaderValue location, int value);
+  void setPushConstant(ShaderValue location, const hydra::Vector2& value);
+  void setPushConstant(ShaderValue location, const hydra::Vector3& value);
+  void setPushConstant(ShaderValue location, const hydra::Vector4& value);
+  void setPushConstant(ShaderValue location, const hydra::Matrix4& value);
+  void setPushConstant(ShaderValue location, const hydra::Matrix4* value, const size_t count);
 
   void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
 
@@ -312,7 +240,6 @@ private:
   void updateDescriptorBinding();
   void updateDescriptorSets();
   void updatePushConstants(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
-  static const char* KRENGINE_PUSH_CONSTANT_NAMES[];
 
   struct PushConstantInfo
   {

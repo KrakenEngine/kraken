@@ -160,9 +160,9 @@ void KRDirectionalLight::render(RenderInfo& ri)
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
     KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-    pShader->setPushConstant(KRPipeline::PushConstant::light_direction_view_space, light_direction_view_space);
-    pShader->setPushConstant(KRPipeline::PushConstant::light_color, m_color);
-    pShader->setPushConstant(KRPipeline::PushConstant::light_intensity, m_intensity * 0.01f);
+    pShader->setPushConstant(ShaderValue::light_direction_view_space, light_direction_view_space);
+    pShader->setPushConstant(ShaderValue::light_color, m_color);
+    pShader->setPushConstant(ShaderValue::light_intensity, m_intensity * 0.01f);
     pShader->bind(ri, getModelMatrix()); // TODO: Need to pass in the light index to the shader
 
     // Render a full screen quad

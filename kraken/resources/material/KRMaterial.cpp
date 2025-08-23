@@ -376,11 +376,11 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
   // Rim highlighting parameters
-  pShader->setPushConstant(KRPipeline::PushConstant::rim_color, rim_color);
-  pShader->setPushConstant(KRPipeline::PushConstant::rim_power, rim_power);
+  pShader->setPushConstant(ShaderValue::rim_color, rim_color);
+  pShader->setPushConstant(ShaderValue::rim_power, rim_power);
 
   // Bind bones
-  if (pShader->hasPushConstant(KRPipeline::PushConstant::bone_transforms)) {
+  if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {
     float bone_mats[256 * 16];
     float* bone_mat_component = bone_mats;
     for (int bone_index = 0; bone_index < bones.size(); bone_index++) {
@@ -407,40 +407,40 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
         *bone_mat_component++ = t[i];
       }
     }
-    if (pShader->hasPushConstant(KRPipeline::PushConstant::bone_transforms)) {
-      pShader->setPushConstant(KRPipeline::PushConstant::bone_transforms, (Matrix4*)bone_mats, bones.size());
+    if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {
+      pShader->setPushConstant(ShaderValue::bone_transforms, (Matrix4*)bone_mats, bones.size());
     }
   }
 
 
-  pShader->setPushConstant(KRPipeline::PushConstant::material_ambient, m_ambientColor + ri.camera->settings.ambient_intensity);
+  pShader->setPushConstant(ShaderValue::material_ambient, m_ambientColor + ri.camera->settings.ambient_intensity);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
     // We pre-multiply the light color with the material color in the forward renderer
-    pShader->setPushConstant(KRPipeline::PushConstant::material_diffuse, Vector3::Create(m_diffuseColor.x * ri.camera->settings.light_intensity.x, m_diffuseColor.y * ri.camera->settings.light_intensity.y, m_diffuseColor.z * ri.camera->settings.light_intensity.z));
+    pShader->setPushConstant(ShaderValue::material_diffuse, Vector3::Create(m_diffuseColor.x * ri.camera->settings.light_intensity.x, m_diffuseColor.y * ri.camera->settings.light_intensity.y, m_diffuseColor.z * ri.camera->settings.light_intensity.z));
   } else {
-    pShader->setPushConstant(KRPipeline::PushConstant::material_diffuse, m_diffuseColor);
+    pShader->setPushConstant(ShaderValue::material_diffuse, m_diffuseColor);
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
     // We pre-multiply the light color with the material color in the forward renderer
-    pShader->setPushConstant(KRPipeline::PushConstant::material_specular, Vector3::Create(m_specularColor.x * ri.camera->settings.light_intensity.x, m_specularColor.y * ri.camera->settings.light_intensity.y, m_specularColor.z * ri.camera->settings.light_intensity.z));
+    pShader->setPushConstant(ShaderValue::material_specular, Vector3::Create(m_specularColor.x * ri.camera->settings.light_intensity.x, m_specularColor.y * ri.camera->settings.light_intensity.y, m_specularColor.z * ri.camera->settings.light_intensity.z));
   } else {
-    pShader->setPushConstant(KRPipeline::PushConstant::material_specular, m_specularColor);
+    pShader->setPushConstant(ShaderValue::material_specular, m_specularColor);
   }
 
-  pShader->setPushConstant(KRPipeline::PushConstant::material_shininess, m_ns);
-  pShader->setPushConstant(KRPipeline::PushConstant::material_reflection, m_reflectionColor);
-  pShader->setPushConstant(KRPipeline::PushConstant::diffusetexture_scale, m_diffuseMapScale);
-  pShader->setPushConstant(KRPipeline::PushConstant::speculartexture_scale, m_specularMapScale);
-  pShader->setPushConstant(KRPipeline::PushConstant::reflectiontexture_scale, m_reflectionMapScale);
-  pShader->setPushConstant(KRPipeline::PushConstant::normaltexture_scale, m_normalMapScale);
-  pShader->setPushConstant(KRPipeline::PushConstant::diffusetexture_offset, m_diffuseMapOffset);
-  pShader->setPushConstant(KRPipeline::PushConstant::speculartexture_offset, m_specularMapOffset);
-  pShader->setPushConstant(KRPipeline::PushConstant::reflectiontexture_offset, m_reflectionMapOffset);
-  pShader->setPushConstant(KRPipeline::PushConstant::normaltexture_offset, m_normalMapOffset);
+  pShader->setPushConstant(ShaderValue::material_shininess, m_ns);
+  pShader->setPushConstant(ShaderValue::material_reflection, m_reflectionColor);
+  pShader->setPushConstant(ShaderValue::diffusetexture_scale, m_diffuseMapScale);
+  pShader->setPushConstant(ShaderValue::speculartexture_scale, m_specularMapScale);
+  pShader->setPushConstant(ShaderValue::reflectiontexture_scale, m_reflectionMapScale);
+  pShader->setPushConstant(ShaderValue::normaltexture_scale, m_normalMapScale);
+  pShader->setPushConstant(ShaderValue::diffusetexture_offset, m_diffuseMapOffset);
+  pShader->setPushConstant(ShaderValue::speculartexture_offset, m_specularMapOffset);
+  pShader->setPushConstant(ShaderValue::reflectiontexture_offset, m_reflectionMapOffset);
+  pShader->setPushConstant(ShaderValue::normaltexture_offset, m_normalMapOffset);
 
-  pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, m_tr);
+  pShader->setPushConstant(ShaderValue::material_alpha, m_tr);
 
   if (bDiffuseMap) {
     m_pDiffuseMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);

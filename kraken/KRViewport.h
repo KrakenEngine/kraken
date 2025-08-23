@@ -35,6 +35,8 @@
 
 #include "aabb.h"
 
+#include "KRShaderReflection.h"
+
 class KRLight;
 
 class KRViewport

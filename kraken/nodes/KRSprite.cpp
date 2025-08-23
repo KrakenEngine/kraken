@@ -165,7 +165,7 @@ void KRSprite::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, m_spriteAlpha);
+        pShader->setPushConstant(ShaderValue::material_alpha, m_spriteAlpha);
         pShader->setImageBinding("diffuseTexture", m_pSpriteTexture, m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
         pShader->bind(ri, getModelMatrix());
 

@@ -284,9 +284,9 @@ void KRLight::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-        pParticleShader->setPushConstant(KRPipeline::PushConstant::light_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-        pParticleShader->setPushConstant(KRPipeline::PushConstant::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-        pParticleShader->setPushConstant(KRPipeline::PushConstant::flare_size, m_dust_particle_size);
+        pParticleShader->setPushConstant(ShaderValue::light_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+        pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
+        pParticleShader->setPushConstant(ShaderValue::flare_size, m_dust_particle_size);
         pParticleShader->bind(ri, particleModelMatrix); // TODO: Pass light index to shader
 
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -336,8 +336,8 @@ void KRLight::render(RenderInfo& ri)
     float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
     float slice_spacing = (slice_far - slice_near) / slice_count;
 
-    pFogShader->setPushConstant(KRPipeline::PushConstant::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
-    pFogShader->setPushConstant(KRPipeline::PushConstant::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
+    pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
+    pFogShader->setPushConstant(ShaderValue::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
     pFogShader->bind(ri, Matrix4()); // TODO: Pass indexes of lights to shader
 
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
@@ -426,8 +426,8 @@ void KRLight::render(RenderInfo& ri)
 
 
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            pShader->setPushConstant(KRPipeline::PushConstant::material_alpha, 1.0f);
-            pShader->setPushConstant(KRPipeline::PushConstant::flare_size, m_flareSize);
+            pShader->setPushConstant(ShaderValue::material_alpha, 1.0f);
+            pShader->setPushConstant(ShaderValue::flare_size, m_flareSize);
             pShader->setImageBinding("diffuseTexture", m_pFlareTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
             pShader->bind(ri, getModelMatrix());
 
