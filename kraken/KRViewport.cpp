@@ -55,7 +55,7 @@ KRViewport::KRViewport(const Vector2& size, const Matrix4& matView, const Matrix
   calculateDerivedValues();
 }
 
-bool KRViewport::GetShaderValue(ShaderValue value, void* buffer, size_t size)
+bool KRViewport::getShaderValue(ShaderValue value, void* buffer, size_t size) const
 {
   return false;
 }

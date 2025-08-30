@@ -37,6 +37,7 @@
 #include "nodes/KRPointLight.h"
 #include "KRContext.h"
 #include "KRRenderPass.h"
+#include "KRModelView.h"
 
 using namespace hydra;
 
@@ -499,6 +500,25 @@ bool KRPipeline::hasPushConstant(ShaderValue location) const
   return false;
 }
 
+
+void KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> objects)
+{
+  for (StageInfo& stageInfo : m_stages) {
+    PushConstantInfo& pushConstants = stageInfo.pushConstants;
+    for (int i = 0; i < kPushConstantCount; i++) {
+      size_t size = pushConstants.size[static_cast<size_t>(i)];
+      if (size != 0) {
+        void* constant = (pushConstants.buffer + pushConstants.offset[static_cast<size_t>(i)]);
+        for (const KRReflectedObject* object : objects) {
+          if (object->getShaderValue(static_cast<ShaderValue>(i), constant, size)) {
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 void KRPipeline::setPushConstant(ShaderValue location, float value)
 {
   for (StageInfo& stageInfo : m_stages) {
@@ -582,6 +602,11 @@ void KRPipeline::updateDescriptorBinding()
 
 void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
+  KRModelView modelView(ri.viewport, matModel);
+
+  std::vector<const KRReflectedObject*> objects = { &modelView };
+  setPushConstants(objects);
+
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
 
   int light_directional_count = 0;
@@ -641,17 +666,6 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 
     //light_point_count = point_lights.size();
     //light_spot_count = spot_lights.size();
-  }
-
-  if (hasPushConstant(ShaderValue::camerapos_model_space)) {
-    Matrix4 inverseModelMatrix = matModel;
-    inverseModelMatrix.invert();
-
-    if (hasPushConstant(ShaderValue::camerapos_model_space)) {
-      // Transform location of camera to object space for calculation of specular halfVec
-      Vector3 cameraPosObject = Matrix4::Dot(inverseModelMatrix, ri.viewport->getCameraPosition());
-      setPushConstant(ShaderValue::camerapos_model_space, cameraPosObject);
-    }
   }
 
   if (hasPushConstant(ShaderValue::mvp) || hasPushConstant(ShaderValue::invmvp)) {

@@ -1,5 +1,5 @@
 //
-//  KRShaderReflection.h
+//  KRModelView.cpp
 //  Kraken Engine
 //
 //  Copyright 2024 Kearwood Gilbert. All rights reserved.
@@ -29,87 +29,39 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include "KREngine-common.h"
 
-#pragma once
+#include "KRModelView.h"
+#include "KRViewport.h"
 
-#include <map>
+using namespace hydra;
 
-enum class ShaderValue : uint8_t
+KRModelView::KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel)
+  : m_viewport(viewport)
+  , m_matModel(matModel)
 {
-  material_ambient = 0,
-  material_diffuse,
-  material_specular,
-  material_reflection,
-  material_alpha,
-  material_shininess,
-  light_position,
-  light_direction_model_space,
-  light_direction_view_space,
-  light_color,
-  light_decay_start,
-  light_cutoff,
-  light_intensity,
-  flare_size,
-  view_space_model_origin,
-  mvp,
-  invp,
-  invmvp,
-  invmvp_no_translate,
-  model_view_inverse_transpose,
-  model_inverse_transpose,
-  model_view,
-  model_matrix,
-  projection_matrix,
-  camerapos_model_space,
-  viewport,
-  diffusetexture,
-  speculartexture,
-  reflectioncubetexture,
-  reflectiontexture,
-  normaltexture,
-  diffusetexture_scale,
-  speculartexture_scale,
-  reflectiontexture_scale,
-  normaltexture_scale,
-  ambienttexture_scale,
-  diffusetexture_offset,
-  speculartexture_offset,
-  reflectiontexture_offset,
-  normaltexture_offset,
-  ambienttexture_offset,
-  shadow_mvp1,
-  shadow_mvp2,
-  shadow_mvp3,
-  shadowtexture1,
-  shadowtexture2,
-  shadowtexture3,
-  lightmaptexture,
-  gbuffer_frame,
-  gbuffer_depth,
-  depth_frame,
-  volumetric_environment_frame,
-  render_frame,
-  absolute_time,
-  fog_near,
-  fog_far,
-  fog_density,
-  fog_color,
-  fog_scale,
-  density_premultiplied_exponential,
-  density_premultiplied_squared,
-  slice_depth_scale,
-  particle_origin,
-  bone_transforms,
-  rim_color,
-  rim_power,
-  fade_color,
-  NUM_PUSH_CONSTANTS
-};
+  m_matModelInverse = matModel;
+  m_matModelInverse.invert();
+}
 
-const char* SHADER_VALUE_NAMES[];
-
-class KRReflectedObject
+KRModelView::~KRModelView()
 {
-public:
-  virtual bool getShaderValue(ShaderValue value, void* buffer, size_t size) const = 0;
-};
+
+}
+
+bool KRModelView::getShaderValue(ShaderValue value, void* buffer, size_t size) const
+{
+  if (size == sizeof(Vector3)) {
+    switch (value) {
+      case ShaderValue::camerapos_model_space:
+      {
+        // Transform location of camera to object space for calculation of specular halfVec
+        Vector3 cameraPosObject = Matrix4::Dot(m_matModelInverse, m_viewport->getCameraPosition());
+        memcpy(buffer, &cameraPosObject, sizeof(Vector3));
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
