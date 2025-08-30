@@ -604,7 +604,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 {
   KRModelView modelView(ri.viewport, matModel);
 
-  std::vector<const KRReflectedObject*> objects = { &modelView };
+  std::vector<const KRReflectedObject*> objects = { &modelView, ri.viewport };
   setPushConstants(objects);
 
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
@@ -666,75 +666,6 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 
     //light_point_count = point_lights.size();
     //light_spot_count = spot_lights.size();
-  }
-
-  if (hasPushConstant(ShaderValue::mvp) || hasPushConstant(ShaderValue::invmvp)) {
-    // Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram
-    Matrix4 mvpMatrix = matModel * ri.viewport->getViewProjectionMatrix();
-    setPushConstant(ShaderValue::mvp, mvpMatrix);
-
-    if (hasPushConstant(ShaderValue::invmvp)) {
-      setPushConstant(ShaderValue::invmvp, Matrix4::Invert(mvpMatrix));
-    }
-  }
-
-  if (hasPushConstant(ShaderValue::view_space_model_origin) || hasPushConstant(ShaderValue::model_view_inverse_transpose) || hasPushConstant(ShaderValue::model_view)) {
-    Matrix4 matModelView = matModel * ri.viewport->getViewMatrix();
-    setPushConstant(ShaderValue::model_view, matModelView);
-
-
-    if (hasPushConstant(ShaderValue::view_space_model_origin)) {
-      Vector3 view_space_model_origin = Matrix4::Dot(matModelView, Vector3::Zero()); // Origin point of model space is the light source position.  No perspective, so no w divide required
-      setPushConstant(ShaderValue::view_space_model_origin, view_space_model_origin);
-    }
-
-    if (hasPushConstant(ShaderValue::model_view_inverse_transpose)) {
-      Matrix4 matModelViewInverseTranspose = matModelView;
-      matModelViewInverseTranspose.transpose();
-      matModelViewInverseTranspose.invert();
-      setPushConstant(ShaderValue::model_view_inverse_transpose, matModelViewInverseTranspose);
-    }
-  }
-
-  if (hasPushConstant(ShaderValue::model_inverse_transpose)) {
-    Matrix4 matModelInverseTranspose = matModel;
-    matModelInverseTranspose.transpose();
-    matModelInverseTranspose.invert();
-    setPushConstant(ShaderValue::model_inverse_transpose, matModelInverseTranspose);
-  }
-
-  if (hasPushConstant(ShaderValue::invp)) {
-    setPushConstant(ShaderValue::invp, ri.viewport->getInverseProjectionMatrix());
-  }
-
-  if (hasPushConstant(ShaderValue::invmvp_no_translate)) {
-    Matrix4 matInvMVPNoTranslate = matModel * ri.viewport->getViewMatrix();;
-    // Remove the translation
-    matInvMVPNoTranslate.getPointer()[3] = 0;
-    matInvMVPNoTranslate.getPointer()[7] = 0;
-    matInvMVPNoTranslate.getPointer()[11] = 0;
-    matInvMVPNoTranslate.getPointer()[12] = 0;
-    matInvMVPNoTranslate.getPointer()[13] = 0;
-    matInvMVPNoTranslate.getPointer()[14] = 0;
-    matInvMVPNoTranslate.getPointer()[15] = 1.0;
-    matInvMVPNoTranslate = matInvMVPNoTranslate * ri.viewport->getProjectionMatrix();
-    matInvMVPNoTranslate.invert();
-    setPushConstant(ShaderValue::invmvp_no_translate, matInvMVPNoTranslate);
-  }
-
-  setPushConstant(ShaderValue::model_matrix, matModel);
-  if (hasPushConstant(ShaderValue::projection_matrix)) {
-    setPushConstant(ShaderValue::projection_matrix, ri.viewport->getProjectionMatrix());
-  }
-
-  if (hasPushConstant(ShaderValue::viewport)) {
-    setPushConstant(ShaderValue::viewport, Vector4::Create(
-      (float)0.0,
-      (float)0.0,
-      (float)ri.viewport->getSize().x,
-      (float)ri.viewport->getSize().y
-    )
-    );
   }
 
   // Fog parameters

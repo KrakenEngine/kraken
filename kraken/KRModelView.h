@@ -54,4 +54,5 @@ private:
 
   // Derived values
   hydra::Matrix4 m_matModelInverse;
+  hydra::Matrix4 m_matModelView;
 };
