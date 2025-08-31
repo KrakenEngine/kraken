@@ -249,7 +249,7 @@ bool KRRenderSettings::getShaderValue(ShaderValue value, float* output) const
     *output = -fog_density * 1.442695f; // -fog_density / log(2)
     return true;
   case ShaderValue::density_premultiplied_squared:
-    *output = (float)(-fog_density * fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+    *output = (float)(-fog_density * fog_density * 1.442695); // -fog_density * fog_density / log(2)
     return true;
   }
   return false;
