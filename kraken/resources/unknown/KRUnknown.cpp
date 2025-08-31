@@ -2,7 +2,7 @@
 //  KRUnknown.cpp
 //  Kraken Engine
 //
-//  Copyright 2024 Kearwood Gilbert. All rights reserved.
+//  Copyright 2025 Kearwood Gilbert. All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without modification, are
 //  permitted provided that the following conditions are met:
