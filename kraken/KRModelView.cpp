@@ -68,6 +68,7 @@ bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
         return true;
       }
     }
+    return false;
 }
 bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
 {

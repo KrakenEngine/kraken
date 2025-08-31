@@ -33,6 +33,7 @@
 #include "KRRenderPass.h"
 #include "KRSurface.h"
 #include "KRDevice.h"
+#include <array>
 
 KRRenderGraph::KRRenderGraph(KRContext& context)
   : KRContextObject(context)

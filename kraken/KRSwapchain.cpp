@@ -32,6 +32,8 @@
 #include "KRSwapchain.h"
 #include "KRRenderPass.h"
 
+#include <array>
+
 KRSwapchain::KRSwapchain(KRContext& context)
   : KRContextObject(context)
   , m_swapChain(VK_NULL_HANDLE)

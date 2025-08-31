@@ -32,6 +32,7 @@
 #include "KRRenderPass.h"
 #include "KRSurface.h"
 #include "KRSwapchain.h"
+#include <array>
 
 using namespace hydra;
 
