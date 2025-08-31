@@ -634,12 +634,15 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 {
   KRModelView modelView(ri.viewport, matModel);
 
-  std::vector<const KRReflectedObject*> objects = {
-    &modelView,
-    ri.viewport,
-    &ri.camera->settings
-  };
-  setPushConstants(objects);
+  ri.reflectedObjects.push_back(&modelView);
+  ri.reflectedObjects.push_back(ri.viewport);
+  ri.reflectedObjects.push_back(&ri.camera->settings);
+
+  setPushConstants(ri.reflectedObjects);
+
+  ri.reflectedObjects.pop_back();
+  ri.reflectedObjects.pop_back();
+  ri.reflectedObjects.pop_back();
 
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
 

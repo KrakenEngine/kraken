@@ -42,6 +42,7 @@
 #include "resources/KRResource.h"
 #include "resources/scene/KRScene.h"
 #include "nodes/KRBone.h"
+#include "KRShaderReflection.h"
 
 enum class CullMode : __uint32_t;
 enum class ModelFormat : __uint8_t;
@@ -50,7 +51,9 @@ class KRTextureManager;
 class KRContext;
 class KRSurface;
 
-class KRMaterial : public KRResource
+class KRMaterial
+  : public KRResource
+  , public KRReflectedObject
 {
 public:
   typedef enum
@@ -137,4 +140,9 @@ private:
   alpha_mode_type m_alpha_mode;
 
   void getTextures();
+
+private:
+  bool getShaderValue(ShaderValue value, float* output) const final;
+  bool getShaderValue(ShaderValue value, hydra::Vector2* output) const final;
+  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
 };

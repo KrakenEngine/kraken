@@ -412,7 +412,6 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
     }
   }
 
-
   pShader->setPushConstant(ShaderValue::material_ambient, m_ambientColor + ri.camera->settings.ambient_intensity);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
@@ -428,19 +427,6 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   } else {
     pShader->setPushConstant(ShaderValue::material_specular, m_specularColor);
   }
-
-  pShader->setPushConstant(ShaderValue::material_shininess, m_ns);
-  pShader->setPushConstant(ShaderValue::material_reflection, m_reflectionColor);
-  pShader->setPushConstant(ShaderValue::diffusetexture_scale, m_diffuseMapScale);
-  pShader->setPushConstant(ShaderValue::speculartexture_scale, m_specularMapScale);
-  pShader->setPushConstant(ShaderValue::reflectiontexture_scale, m_reflectionMapScale);
-  pShader->setPushConstant(ShaderValue::normaltexture_scale, m_normalMapScale);
-  pShader->setPushConstant(ShaderValue::diffusetexture_offset, m_diffuseMapOffset);
-  pShader->setPushConstant(ShaderValue::speculartexture_offset, m_specularMapOffset);
-  pShader->setPushConstant(ShaderValue::reflectiontexture_offset, m_reflectionMapOffset);
-  pShader->setPushConstant(ShaderValue::normaltexture_offset, m_normalMapOffset);
-
-  pShader->setPushConstant(ShaderValue::material_alpha, m_tr);
 
   if (bDiffuseMap) {
     m_pDiffuseMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
@@ -467,7 +453,9 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
     pShader->setImageBinding("reflectionTexture", m_pReflectionMap, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
+  ri.reflectedObjects.push_back(this);
   pShader->bind(ri, matModel);
+  ri.reflectedObjects.pop_back();
 }
 
 const std::string& KRMaterial::getName() const
@@ -475,3 +463,57 @@ const std::string& KRMaterial::getName() const
   return m_name;
 }
 
+
+bool KRMaterial::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::material_alpha:
+    *output = m_tr;
+    return true;
+  case ShaderValue::material_shininess:
+    *output = m_ns;
+    return true;
+  }
+  return false;
+}
+
+bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector2* output) const
+{
+  switch (value) {
+  case ShaderValue::diffusetexture_scale:
+    *output = m_diffuseMapScale;
+    return true;
+  case ShaderValue::speculartexture_scale:
+    *output = m_specularMapScale;
+    return true;
+  case ShaderValue::reflectiontexture_scale:
+    *output = m_reflectionMapScale;
+    return true;
+  case ShaderValue::normaltexture_scale:
+    *output = m_normalMapScale;
+    return true;
+  case ShaderValue::diffusetexture_offset:
+    *output = m_diffuseMapOffset;
+    return true;
+  case ShaderValue::speculartexture_offset:
+    *output = m_specularMapOffset;
+    return true;
+  case ShaderValue::reflectiontexture_offset:
+    *output = m_reflectionMapOffset;
+    return true;
+  case ShaderValue::normaltexture_offset:
+    *output = m_normalMapOffset;
+    return true;
+  }
+  return false;
+}
+
+bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+{
+  switch (value) {
+  case ShaderValue::material_reflection:
+    *output = m_reflectionColor;
+    return true;
+  }
+  return false;
+}

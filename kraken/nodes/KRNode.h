@@ -35,6 +35,7 @@
 #include "KRViewport.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
+#include "KRShaderReflection.h"
 
 using namespace kraken;
 
@@ -62,7 +63,9 @@ class XMLNode;
 class XMLAttribute;
 }
 
-class KRNode : public KRContextObject
+class KRNode
+  : public KRContextObject
+  , public KRReflectedObject
 {
 public:
 
@@ -94,6 +97,8 @@ public:
     KRViewport* viewport;
     KRRenderPass* renderPass;
     KRPipeline* pipeline;
+
+    std::vector<const KRReflectedObject*> reflectedObjects;
   };
 
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
