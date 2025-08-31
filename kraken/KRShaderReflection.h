@@ -33,6 +33,7 @@
 #pragma once
 
 #include <map>
+#include "hydra.h"
 
 enum class ShaderValueType : uint8_t
 {
@@ -44,6 +45,8 @@ enum class ShaderValueType : uint8_t
   type_vector2,
   type_vector3,
   type_vector4,
+  type_matrix2,
+  type_matrix2x3,
   type_matrix4,
   NUM_SHADER_VALUE_TYPES
 };
@@ -125,5 +128,17 @@ const char* SHADER_VALUE_NAMES[];
 class KRReflectedObject
 {
 public:
-  virtual bool getShaderValue(ShaderValue value, void* buffer, size_t size) const = 0;
+  bool getShaderValue(ShaderValue value, ShaderValueType type, void* output) const;
+private:
+  virtual bool getShaderValue(ShaderValue value, int32_t* output) const;
+  virtual bool getShaderValue(ShaderValue value, int64_t* output) const;
+  virtual bool getShaderValue(ShaderValue value, float* output) const;
+  virtual bool getShaderValue(ShaderValue value, double* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Vector2* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Vector3* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Vector4* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Matrix2* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Matrix2x3* output) const;
+  virtual bool getShaderValue(ShaderValue value, hydra::Matrix4* output) const;
+
 };

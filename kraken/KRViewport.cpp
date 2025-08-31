@@ -55,36 +55,35 @@ KRViewport::KRViewport(const Vector2& size, const Matrix4& matView, const Matrix
   calculateDerivedValues();
 }
 
-bool KRViewport::getShaderValue(ShaderValue value, void* buffer, size_t size) const
+bool KRViewport::getShaderValue(ShaderValue value, Matrix4* output) const
 {
-  if (size == sizeof(Matrix4)) {
-    switch (value) {
-      case ShaderValue::projection_matrix:
-      {
-        memcpy(buffer, &m_matProjection, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::invp:
-      {
-        memcpy(buffer, &m_matInverseProjection, sizeof(Matrix4));
-        return true;
-      }
-    }
+  switch (value) {
+  case ShaderValue::projection_matrix:
+  {
+    *output = m_matProjection;
+    return true;
   }
+  case ShaderValue::invp:
+  {
+    *output = m_matInverseProjection;
+    return true;
+  }
+  return false;
+  }
+}
 
-  if (size == sizeof(Vector4)) {
-    switch (value) {
-      case ShaderValue::viewport:
-      {
-        Vector4 viewport = Vector4::Create(
-          0.0f,
-          0.0f,
-          getSize().x,
-          getSize().y
-        );
-        memcpy(buffer, &viewport, sizeof(Vector4));
-        return true;
-      }
+bool KRViewport::getShaderValue(ShaderValue value, Vector4* output) const
+{
+  switch (value) {
+    case ShaderValue::viewport:
+    {
+      *output = Vector4::Create(
+        0.0f,
+        0.0f,
+        getSize().x,
+        getSize().y
+      );
+      return true;
     }
   }
 

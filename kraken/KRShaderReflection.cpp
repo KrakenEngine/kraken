@@ -31,6 +31,8 @@
 
 #include "KRShaderReflection.h"
 
+using namespace hydra;
+
 const char* SHADER_VALUE_NAMES[] = {
     "material_ambient", // PushConstant::material_ambient
     "material_diffuse", // PushConstant::material_diffuse
@@ -100,3 +102,81 @@ const char* SHADER_VALUE_NAMES[] = {
     "rim_power", // PushConstant::rim_power
     "fade_color", // PushConstant::fade_color
 };
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, ShaderValueType type, void* output) const
+{
+  switch (type) {
+  case ShaderValueType::type_int32:
+    return getShaderValue(value, static_cast<int32_t*>(output));
+  case ShaderValueType::type_int64:
+    return getShaderValue(value, static_cast<int64_t*>(output));
+  case ShaderValueType::type_float32:
+    return getShaderValue(value, static_cast<float*>(output));
+  case ShaderValueType::type_float64:
+    return getShaderValue(value, static_cast<double*>(output));
+  case ShaderValueType::type_vector2:
+    return getShaderValue(value, static_cast<Vector2*>(output));
+  case ShaderValueType::type_vector3:
+    return getShaderValue(value, static_cast<Vector3*>(output));
+  case ShaderValueType::type_vector4:
+    return getShaderValue(value, static_cast<Vector4*>(output));
+  case ShaderValueType::type_matrix2:
+    return getShaderValue(value, static_cast<Matrix2*>(output));
+  case ShaderValueType::type_matrix2x3:
+    return getShaderValue(value, static_cast<Matrix2x3*>(output));
+  case ShaderValueType::type_matrix4:
+    return getShaderValue(value, static_cast<Matrix4*>(output));
+  default:
+    return false;
+  }
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, int32_t* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, int64_t* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, float* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, double* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector2* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector4* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix2* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix2x3* output) const
+{
+  return false;
+}
+
+bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix4* output) const
+{
+  return false;
+}

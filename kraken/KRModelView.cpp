@@ -51,84 +51,81 @@ KRModelView::~KRModelView()
 
 }
 
-bool KRModelView::getShaderValue(ShaderValue value, void* buffer, size_t size) const
+bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
 {
-  if (size == sizeof(Vector3)) {
+
     switch (value) {
       case ShaderValue::camerapos_model_space:
       {
         // Transform location of camera to object space for calculation of specular halfVec
-        Vector3 cameraPosObject = Matrix4::Dot(m_matModelInverse, m_viewport->getCameraPosition());
-        memcpy(buffer, &cameraPosObject, sizeof(Vector3));
+        *output = Matrix4::Dot(m_matModelInverse, m_viewport->getCameraPosition());
         return true;
       }
       case ShaderValue::view_space_model_origin:
       {
         // Origin point of model space is the light source position.  No perspective, so no w divide required
-        Vector3 viewSpaceModelOrigin = Matrix4::Dot(m_matModelView, Vector3::Zero());
-        memcpy(buffer, &viewSpaceModelOrigin, sizeof(Vector3));
+        *output = Matrix4::Dot(m_matModelView, Vector3::Zero());
         return true;
       }
     }
-  }
-
-  if (size == sizeof(Matrix4)) {
-    switch (value) {
-      case ShaderValue::model_matrix:
-      {
-        memcpy(buffer, &m_matModel, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::model_view:
-      {
-        memcpy(buffer, &m_matModelView, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::model_view_inverse_transpose:
-      {
-        Matrix4 matModelViewInverseTranspose = m_matModelView;
-        matModelViewInverseTranspose.transpose();
-        matModelViewInverseTranspose.invert();
-        memcpy(buffer, &matModelViewInverseTranspose, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::model_inverse_transpose:
-      {
-        Matrix4 matModelInverseTranspose = m_matModel;
-        matModelInverseTranspose.transpose();
-        matModelInverseTranspose.invert();
-        memcpy(buffer, &matModelInverseTranspose, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::invmvp_no_translate:
-      {
-        Matrix4 matInvMVPNoTranslate = m_matModelView;
-        // Remove the translation
-        matInvMVPNoTranslate.getPointer()[3] = 0;
-        matInvMVPNoTranslate.getPointer()[7] = 0;
-        matInvMVPNoTranslate.getPointer()[11] = 0;
-        matInvMVPNoTranslate.getPointer()[12] = 0;
-        matInvMVPNoTranslate.getPointer()[13] = 0;
-        matInvMVPNoTranslate.getPointer()[14] = 0;
-        matInvMVPNoTranslate.getPointer()[15] = 1.0;
-        matInvMVPNoTranslate = matInvMVPNoTranslate * m_viewport->getProjectionMatrix();
-        matInvMVPNoTranslate.invert();
-        memcpy(buffer, &matInvMVPNoTranslate, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::mvp:
-      {
-        Matrix4 mvpMatrix = m_matModel * m_viewport->getViewProjectionMatrix();
-        memcpy(buffer, &mvpMatrix, sizeof(Matrix4));
-        return true;
-      }
-      case ShaderValue::invmvp:
-      {
-        Matrix4 mvpMatrix = m_matModel * m_viewport->getViewProjectionMatrix();
-        Matrix4 invMVP = Matrix4::Invert(mvpMatrix);
-        memcpy(buffer, &invMVP, sizeof(Matrix4));
-        return true;
-      }
+}
+bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
+{
+  switch (value) {
+    case ShaderValue::model_matrix:
+    {
+      *output = m_matModel;
+      return true;
+    }
+    case ShaderValue::model_view:
+    {
+      *output = m_matModelView;
+      return true;
+    }
+    case ShaderValue::model_view_inverse_transpose:
+    {
+      Matrix4 matModelViewInverseTranspose = m_matModelView;
+      matModelViewInverseTranspose.transpose();
+      matModelViewInverseTranspose.invert();
+      *output = matModelViewInverseTranspose;
+      return true;
+    }
+    case ShaderValue::model_inverse_transpose:
+    {
+      Matrix4 matModelInverseTranspose = m_matModel;
+      matModelInverseTranspose.transpose();
+      matModelInverseTranspose.invert();
+      *output = matModelInverseTranspose;
+      return true;
+    }
+    case ShaderValue::invmvp_no_translate:
+    {
+      Matrix4 matInvMVPNoTranslate = m_matModelView;
+      // Remove the translation
+      matInvMVPNoTranslate.getPointer()[3] = 0;
+      matInvMVPNoTranslate.getPointer()[7] = 0;
+      matInvMVPNoTranslate.getPointer()[11] = 0;
+      matInvMVPNoTranslate.getPointer()[12] = 0;
+      matInvMVPNoTranslate.getPointer()[13] = 0;
+      matInvMVPNoTranslate.getPointer()[14] = 0;
+      matInvMVPNoTranslate.getPointer()[15] = 1.0;
+      matInvMVPNoTranslate = matInvMVPNoTranslate * m_viewport->getProjectionMatrix();
+      matInvMVPNoTranslate.invert();
+      *output = matInvMVPNoTranslate;
+      return true;
+    }
+    case ShaderValue::mvp:
+    {
+      Matrix4 mvpMatrix = m_matModel * m_viewport->getViewProjectionMatrix();
+      *output = mvpMatrix;
+      return true;
+    }
+    case ShaderValue::invmvp:
+    {
+      Matrix4 mvpMatrix = m_matModel * m_viewport->getViewProjectionMatrix();
+      Matrix4 invMVP = Matrix4::Invert(mvpMatrix);
+      *output = invMVP;
+      return true;
     }
   }
 

@@ -456,21 +456,22 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
                   pushConstants.type[iUniform] = ShaderValueType::type_vector4;
                   break;
                 }
-              }
-              if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 32) {
+              } else if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 32) {
                 pushConstants.type[iUniform] = ShaderValueType::type_float32;
-              }
-              if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 64) {
+              } else if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 64) {
                 pushConstants.type[iUniform] = ShaderValueType::type_float64;
-              }
-              if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 32) {
+              } else if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 32) {
                 pushConstants.type[iUniform] = ShaderValueType::type_int32;
-              }
-              if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 64) {
+              } else if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 64) {
                 pushConstants.type[iUniform] = ShaderValueType::type_int64;
-              }
-              if (member.type_description->op == SpvOpTypeMatrix && member.numeric.scalar.width == 32 && member.numeric.matrix.column_count == 4 && member.numeric.matrix.row_count == 4) {
-                pushConstants.type[iUniform] = ShaderValueType::type_matrix4;
+              } else if (member.type_description->op == SpvOpTypeMatrix && member.numeric.scalar.width == 32) {
+                if (member.numeric.matrix.column_count == 2 && member.numeric.matrix.row_count == 2) {
+                  pushConstants.type[iUniform] = ShaderValueType::type_matrix2;
+                } else if (member.numeric.matrix.column_count == 2 && member.numeric.matrix.row_count == 3) {
+                  pushConstants.type[iUniform] = ShaderValueType::type_matrix2x3;
+                } else if (member.numeric.matrix.column_count == 4 && member.numeric.matrix.row_count == 4) {
+                  pushConstants.type[iUniform] = ShaderValueType::type_matrix4;
+                }
               }
               // TODO: Support unsigned integer binding?
             }
@@ -539,7 +540,7 @@ void KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> ob
       if (size != 0) {
         void* constant = (pushConstants.buffer + pushConstants.offset[static_cast<size_t>(i)]);
         for (const KRReflectedObject* object : objects) {
-          if (object->getShaderValue(static_cast<ShaderValue>(i), constant, size)) {
+          if (object->getShaderValue(static_cast<ShaderValue>(i), pushConstants.type[static_cast<size_t>(i)], constant)) {
             break;
           }
         }
