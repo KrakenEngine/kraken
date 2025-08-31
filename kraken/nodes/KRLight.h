@@ -53,9 +53,9 @@ public:
   virtual void loadXML(tinyxml2::XMLElement* e);
 
   void setIntensity(float intensity);
-  float getIntensity();
+  float getIntensity() const;
   void setDecayStart(float decayStart);
-  float getDecayStart();
+  float getDecayStart() const;
   const hydra::Vector3& getColor();
   void setColor(const hydra::Vector3& color);
 
@@ -73,6 +73,9 @@ public:
 
 protected:
   KRLight(KRScene& scene, std::string name);
+
+  bool getShaderValue(ShaderValue value, float* output) const override;
+  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
 
   float m_intensity;
   float m_decayStart;

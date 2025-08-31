@@ -130,6 +130,8 @@ void KRDirectionalLight::render(RenderInfo& ri)
 
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
+  ri.reflectedObjects.push_back(this);
+
   KRLight::render(ri);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_DEFERRED_LIGHTS) {
@@ -161,14 +163,14 @@ void KRDirectionalLight::render(RenderInfo& ri)
 
     KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     pShader->setPushConstant(ShaderValue::light_direction_view_space, light_direction_view_space);
-    pShader->setPushConstant(ShaderValue::light_color, m_color);
-    pShader->setPushConstant(ShaderValue::light_intensity, m_intensity * 0.01f);
     pShader->bind(ri, getModelMatrix()); // TODO: Need to pass in the light index to the shader
 
     // Render a full screen quad
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
     vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
   }
+
+  ri.reflectedObjects.pop_back();
 }
 
 AABB KRDirectionalLight::getBounds()

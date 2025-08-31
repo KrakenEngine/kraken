@@ -200,7 +200,7 @@ void KRLight::setIntensity(float intensity)
 {
   m_intensity = intensity;
 }
-float KRLight::getIntensity()
+float KRLight::getIntensity() const
 {
   return m_intensity;
 }
@@ -220,7 +220,7 @@ void KRLight::setDecayStart(float decayStart)
   m_decayStart = decayStart;
 }
 
-float KRLight::getDecayStart()
+float KRLight::getDecayStart() const
 {
   return m_decayStart;
 }
@@ -231,6 +231,8 @@ void KRLight::render(RenderInfo& ri)
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
   KRNode::render(ri);
+
+  ri.reflectedObjects.push_back(this);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
     allocateShadowBuffers(configureShadowBufferViewports(*ri.viewport));
@@ -284,9 +286,8 @@ void KRLight::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-        pParticleShader->setPushConstant(ShaderValue::light_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+        pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
         pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-        pParticleShader->setPushConstant(ShaderValue::flare_size, m_dust_particle_size);
         pParticleShader->bind(ri, particleModelMatrix); // TODO: Pass light index to shader
 
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -427,7 +428,6 @@ void KRLight::render(RenderInfo& ri)
 
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             pShader->setPushConstant(ShaderValue::material_alpha, 1.0f);
-            pShader->setPushConstant(ShaderValue::flare_size, m_flareSize);
             pShader->setImageBinding("diffuseTexture", m_pFlareTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
             pShader->bind(ri, getModelMatrix());
 
@@ -439,6 +439,7 @@ void KRLight::render(RenderInfo& ri)
     }
 
   }
+  ri.reflectedObjects.pop_back();
 }
 
 void KRLight::allocateShadowBuffers(int cBuffers)
@@ -574,4 +575,40 @@ int* KRLight::getShadowTextures()
 KRViewport* KRLight::getShadowViewports()
 {
   return m_shadowViewports;
+}
+
+bool KRLight::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::light_intensity:
+    *output = m_intensity * 0.01f;
+    return true;
+  case ShaderValue::light_decay_start:
+    *output = getDecayStart();
+    return true;
+  case ShaderValue::light_cutoff:
+    *output = KRLIGHT_MIN_INFLUENCE;
+    return true;
+  case ShaderValue::flare_size:
+    *output = m_flareSize;
+    return true;
+  case ShaderValue::dust_particle_size:
+    *output = m_dust_particle_size;
+    return true;
+
+  }
+  return KRNode::getShaderValue(value, output);
+}
+
+bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+{
+  switch (value) {
+  case ShaderValue::light_position:
+    *output = m_localTranslation;
+    return true;
+  case ShaderValue::light_color:
+    *output = m_color;
+    return true;
+  }
+  return KRNode::getShaderValue(value, output);
 }

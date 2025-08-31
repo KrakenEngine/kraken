@@ -85,6 +85,8 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
 
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
+  ri.reflectedObjects.push_back(this);
+
   KRNode::render(ri);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
@@ -105,7 +107,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-      pParticleShader->setPushConstant(ShaderValue::flare_size, 1.0f);
+      pParticleShader->setPushConstant(ShaderValue::dust_particle_size, 1.0f);
       pParticleShader->bind(ri, getModelMatrix());
 
       m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -113,4 +115,5 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
     }
   }
+  ri.reflectedObjects.pop_back();
 }

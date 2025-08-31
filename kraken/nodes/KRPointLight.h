@@ -45,6 +45,10 @@ public:
 
   virtual void render(RenderInfo& ri) override;
 
+protected:
+  bool getShaderValue(ShaderValue value, float* output) const override;
+  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
+
 private:
   void generateMesh();
 

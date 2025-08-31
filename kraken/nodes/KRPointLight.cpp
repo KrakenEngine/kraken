@@ -77,6 +77,8 @@ void KRPointLight::render(RenderInfo& ri)
 {
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
 
+  ri.reflectedObjects.push_back(this);
+
   KRLight::render(ri);
 
   bool bVisualize = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.bShowDeferred;
@@ -116,11 +118,6 @@ void KRPointLight::render(RenderInfo& ri)
       info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      pShader->setPushConstant(ShaderValue::light_color, m_color);
-      pShader->setPushConstant(ShaderValue::light_intensity, m_intensity * 0.01f);
-      pShader->setPushConstant(ShaderValue::light_decay_start, getDecayStart());
-      pShader->setPushConstant(ShaderValue::light_cutoff, KRLIGHT_MIN_INFLUENCE);
-      pShader->setPushConstant(ShaderValue::light_position, light_position);
       pShader->bind(ri, sphereModelMatrix); // TODO: Pass light index to shader
 
       if (bInsideLight) {
@@ -138,6 +135,16 @@ void KRPointLight::render(RenderInfo& ri)
 
     }
   }
+  ri.reflectedObjects.pop_back();
+}
+
+bool KRPointLight::getShaderValue(ShaderValue value, float* output) const
+{
+  return KRLight::getShaderValue(value, output);
+}
+bool KRPointLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+{
+  return KRLight::getShaderValue(value, output);
 }
 
 void KRPointLight::generateMesh()

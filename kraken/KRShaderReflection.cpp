@@ -48,6 +48,8 @@ const char* SHADER_VALUE_NAMES[] = {
     "light_cutoff", //    PushConstant::light_cutoff
     "light_intensity", //    PushConstant::light_intensity
     "flare_size", //    PushConstant::flare_size
+    "dust_particle_size", //  PushConstant::dust_particle_size
+    "dust_particle_color", //   PushConstant::dust_particle_color
     "view_space_model_origin", //    PushConstant::view_space_model_origin
     "mvp_matrix", //    PushConstant::mvp
     "inv_projection_matrix", //    PushConstant::invp

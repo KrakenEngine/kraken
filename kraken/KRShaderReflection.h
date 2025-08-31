@@ -67,6 +67,8 @@ enum class ShaderValue : uint8_t
   light_cutoff,
   light_intensity,
   flare_size,
+  dust_particle_size,
+  dust_particle_color,
   view_space_model_origin,
   mvp,
   invp,
