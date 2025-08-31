@@ -171,7 +171,6 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     key.second.push_back((int)(info.pCamera->settings.flash_intensity * 1000.0f));
     key.second.push_back((int)(info.pCamera->settings.vignette_radius * 1000.0f));
     key.second.push_back((int)(info.pCamera->settings.vignette_falloff * 1000.0f));
-    key.second.push_back(info.bRimColor);
     key.second.push_back(bFadeColorEnabled);
 
     KRPipeline *pPipeline = m_pipelines[key];
@@ -233,7 +232,6 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
         stream << "\n#define ENABLE_AMBIENT " << (info.pCamera->settings.bEnableAmbient ? "1" : "0");
         stream << "\n#define ENABLE_DIFFUSE " << (info.pCamera->settings.bEnableDiffuse ? "1" : "0");
         stream << "\n#define ENABLE_SPECULAR " << (info.pCamera->settings.bEnableSpecular ? "1" : "0");
-        stream << "\n#define ENABLE_RIM_COLOR " << (info.bRimColor ? "1" : "0");
         stream << "\n#define ENABLE_FADE_COLOR " << (bFadeColorEnabled ? "1" : "0");
         stream << "\n#define FOG_TYPE " << info.pCamera->settings.fog_type;
         switch(info.renderPass) {

@@ -58,9 +58,6 @@ KRRenderSettings::KRRenderSettings()
   bEnableDeferredLighting = false;
   max_anisotropy = 4.0f;
 
-  ambient_intensity = Vector3::Zero();
-  light_intensity = Vector3::One();
-
   perspective_fov = 45.0f * D2R;
   perspective_nearz = 0.3f;     // was 0.05f
   perspective_farz = 1000.0f;
@@ -130,8 +127,6 @@ KRRenderSettings& KRRenderSettings::operator=(const KRRenderSettings& s)
   bEnableDiffuse = s.bEnableDiffuse;
   bEnableSpecular = s.bEnableSpecular;
   bEnableDeferredLighting = s.bEnableDeferredLighting;
-  light_intensity = s.light_intensity;
-  ambient_intensity = s.ambient_intensity;
   perspective_fov = s.perspective_fov;
 
   dof_quality = s.dof_quality;

@@ -202,7 +202,6 @@ public:
   bool bNormalMapOffset : 1;
   bool bReflectionMapOffset : 1;
   bool bAlphaTest : 1;
-  bool bRimColor : 1;
   RasterMode rasterMode;
   CullMode cullMode;
   uint32_t vertexAttributes;
@@ -220,7 +219,7 @@ public:
 
   bool bind(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
 
-  static const size_t kPushConstantCount = static_cast<size_t>(ShaderValue::NUM_PUSH_CONSTANTS);
+  static const size_t kPushConstantCount = static_cast<size_t>(ShaderValue::NUM_SHADER_VALUES);
 
   void setPushConstants(const std::vector<const KRReflectedObject*> objects);
   bool hasPushConstant(ShaderValue location) const;

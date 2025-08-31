@@ -90,7 +90,7 @@ public:
   bool isTransparent();
   const std::string& getName() const;
 
-  void bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<hydra::Matrix4>& bind_poses, const hydra::Matrix4& matModel, KRTexture* pLightMap, const hydra::Vector3& rim_color, float rim_power, float lod_coverage = 0.0f);
+  void bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<hydra::Matrix4>& bind_poses, const hydra::Matrix4& matModel, KRTexture* pLightMap, float lod_coverage = 0.0f);
 
   bool needsVertexTangents();
 

@@ -120,7 +120,7 @@ enum class ShaderValue : uint8_t
   rim_color,
   rim_power,
   fade_color,
-  NUM_PUSH_CONSTANTS
+  NUM_SHADER_VALUES
 };
 
 const char* SHADER_VALUE_NAMES[];
@@ -129,7 +129,7 @@ class KRReflectedObject
 {
 public:
   bool getShaderValue(ShaderValue value, ShaderValueType type, void* output) const;
-private:
+protected:
   virtual bool getShaderValue(ShaderValue value, int32_t* output) const;
   virtual bool getShaderValue(ShaderValue value, int64_t* output) const;
   virtual bool getShaderValue(ShaderValue value, float* output) const;

@@ -241,6 +241,8 @@ void KRModel::loadModel()
 
 void KRModel::render(KRNode::RenderInfo& ri)
 {
+  ri.reflectedObjects.push_back(this);
+
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
     preStream(*ri.viewport);
   }
@@ -303,10 +305,12 @@ void KRModel::render(KRNode::RenderInfo& ri)
           matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
         }
 
-        pModel->render(ri, getName(), matModel, m_pLightMap, m_bones[pModel], m_rim_color, m_rim_power, lod_coverage);
+        pModel->render(ri, getName(), matModel, m_pLightMap, m_bones[pModel], lod_coverage);
       }
     }
   }
+
+  ri.reflectedObjects.pop_back();
 }
 
 void KRModel::preStream(const KRViewport& viewport)
@@ -361,4 +365,26 @@ AABB KRModel::getBounds()
     return AABB::Infinite();
   }
 }
+
+
+bool KRModel::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+{
+  switch (value) {
+  case ShaderValue::rim_color:
+    *output = m_rim_color;
+    return true;
+  }
+  return KRNode::getShaderValue(value, output);
+}
+
+bool KRModel::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::rim_power:
+    *output = m_rim_power;
+    return true;
+  }
+  return KRNode::getShaderValue(value, output);
+}
+
 

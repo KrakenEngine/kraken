@@ -95,4 +95,8 @@ private:
 
   hydra::Vector3 m_rim_color;
   float m_rim_power;
+
+private:
+  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
+  bool getShaderValue(ShaderValue value, float* output) const override;
 };

@@ -325,7 +325,7 @@ void KRMaterial::getTextures()
   }
 }
 
-void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, const Vector3& rim_color, float rim_power, float lod_coverage)
+void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
 {
   bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
 
@@ -368,16 +368,11 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   info.bReflectionMapOffset = m_reflectionMapOffset != default_offset && bReflectionMap;
   info.bAlphaTest = bAlphaTest;
   info.rasterMode = bAlphaBlend ? RasterMode::kAlphaBlend : RasterMode::kOpaque;
-  info.bRimColor = rim_power != 0.0f;
   info.renderPass = ri.renderPass;
   info.modelFormat = modelFormat;
   info.vertexAttributes = vertexAttributes;
   info.cullMode = cullMode;
   KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-
-  // Rim highlighting parameters
-  pShader->setPushConstant(ShaderValue::rim_color, rim_color);
-  pShader->setPushConstant(ShaderValue::rim_power, rim_power);
 
   // Bind bones
   if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {
@@ -410,22 +405,6 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
     if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {
       pShader->setPushConstant(ShaderValue::bone_transforms, (Matrix4*)bone_mats, bones.size());
     }
-  }
-
-  pShader->setPushConstant(ShaderValue::material_ambient, m_ambientColor + ri.camera->settings.ambient_intensity);
-
-  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
-    // We pre-multiply the light color with the material color in the forward renderer
-    pShader->setPushConstant(ShaderValue::material_diffuse, Vector3::Create(m_diffuseColor.x * ri.camera->settings.light_intensity.x, m_diffuseColor.y * ri.camera->settings.light_intensity.y, m_diffuseColor.z * ri.camera->settings.light_intensity.z));
-  } else {
-    pShader->setPushConstant(ShaderValue::material_diffuse, m_diffuseColor);
-  }
-
-  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
-    // We pre-multiply the light color with the material color in the forward renderer
-    pShader->setPushConstant(ShaderValue::material_specular, Vector3::Create(m_specularColor.x * ri.camera->settings.light_intensity.x, m_specularColor.y * ri.camera->settings.light_intensity.y, m_specularColor.z * ri.camera->settings.light_intensity.z));
-  } else {
-    pShader->setPushConstant(ShaderValue::material_specular, m_specularColor);
   }
 
   if (bDiffuseMap) {
@@ -513,6 +492,15 @@ bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector3* output) const
   switch (value) {
   case ShaderValue::material_reflection:
     *output = m_reflectionColor;
+    return true;
+  case ShaderValue::material_ambient:
+    *output = m_ambientColor;
+    return true;
+  case ShaderValue::material_diffuse:
+    *output = m_diffuseColor;
+    return true;
+  case ShaderValue::material_specular:
+    *output = m_specularColor;
     return true;
   }
   return false;

@@ -71,8 +71,6 @@ public:
   bool bEnableDiffuse;
   bool bEnableSpecular;
   bool bEnableDeferredLighting;
-  hydra::Vector3 light_intensity;
-  hydra::Vector3 ambient_intensity;
   float perspective_fov;
 
   int dof_quality;
