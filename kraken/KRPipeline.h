@@ -246,6 +246,7 @@ private:
   {
     int offset[kPushConstantCount];
     __uint8_t size[kPushConstantCount];
+    ShaderValueType type[kPushConstantCount];
     uint8_t* buffer;
     int bufferSize;
     VkPipelineLayout layout;

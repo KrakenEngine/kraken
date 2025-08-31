@@ -34,6 +34,20 @@
 
 #include <map>
 
+enum class ShaderValueType : uint8_t
+{
+  type_null = 0,
+  type_int32,
+  type_int64,
+  type_float32,
+  type_float64,
+  type_vector2,
+  type_vector3,
+  type_vector4,
+  type_matrix4,
+  NUM_SHADER_VALUE_TYPES
+};
+
 enum class ShaderValue : uint8_t
 {
   material_ambient = 0,

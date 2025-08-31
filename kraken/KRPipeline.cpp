@@ -444,6 +444,35 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
             if (stricmp(SHADER_VALUE_NAMES[iUniform], member.name) == 0) {
               pushConstants.offset[iUniform] = member.offset;
               pushConstants.size[iUniform] = member.size;
+              if (member.type_description->op == SpvOpTypeVector && member.numeric.scalar.width == 32) {
+                switch (member.numeric.vector.component_count) {
+                case 2:
+                  pushConstants.type[iUniform] = ShaderValueType::type_vector2;
+                  break;
+                case 3:
+                  pushConstants.type[iUniform] = ShaderValueType::type_vector3;
+                  break;
+                case 4:
+                  pushConstants.type[iUniform] = ShaderValueType::type_vector4;
+                  break;
+                }
+              }
+              if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 32) {
+                pushConstants.type[iUniform] = ShaderValueType::type_float32;
+              }
+              if (member.type_description->op == SpvOpTypeFloat && member.numeric.scalar.width == 64) {
+                pushConstants.type[iUniform] = ShaderValueType::type_float64;
+              }
+              if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 32) {
+                pushConstants.type[iUniform] = ShaderValueType::type_int32;
+              }
+              if (member.type_description->op == SpvOpTypeInt && member.numeric.scalar.width == 64) {
+                pushConstants.type[iUniform] = ShaderValueType::type_int64;
+              }
+              if (member.type_description->op == SpvOpTypeMatrix && member.numeric.scalar.width == 32 && member.numeric.matrix.column_count == 4 && member.numeric.matrix.row_count == 4) {
+                pushConstants.type[iUniform] = ShaderValueType::type_matrix4;
+              }
+              // TODO: Support unsigned integer binding?
             }
           }
         }
