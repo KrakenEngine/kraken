@@ -229,3 +229,38 @@ void KRRenderSettings::setEnableRealtimeOcclusion(bool enable)
 {
   m_enable_realtime_occlusion = enable;
 }
+
+bool KRRenderSettings::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::fog_near:
+    *output = fog_near;
+    return true;
+  case ShaderValue::fog_far:
+    *output = fog_far;
+    return true;
+  case ShaderValue::fog_density:
+    *output = fog_density;
+    return true;
+  case ShaderValue::fog_scale:
+    *output = 1.0f / (fog_far - fog_near);
+    return true;
+  case ShaderValue::density_premultiplied_exponential:
+    *output = -fog_density * 1.442695f; // -fog_density / log(2)
+    return true;
+  case ShaderValue::density_premultiplied_squared:
+    *output = (float)(-fog_density * fog_density * 1.442695)); // -fog_density * fog_density / log(2)
+    return true;
+  }
+  return false;
+}
+
+bool KRRenderSettings::getShaderValue(ShaderValue value, Vector3* output) const
+{
+  switch (value) {
+  case ShaderValue::fog_color:
+    *output = fog_color;
+    return true;
+  }
+  return false;
+}

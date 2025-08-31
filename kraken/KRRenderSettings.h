@@ -33,7 +33,10 @@
 
 #include "KREngine-common.h"
 
+#include "KRShaderReflection.h"
+
 class KRRenderSettings
+  : public KRReflectedObject
 {
 public:
   KRRenderSettings();
@@ -135,4 +138,7 @@ public:
 private:
   float m_lodBias;
   bool m_enable_realtime_occlusion;
+
+  bool getShaderValue(ShaderValue value, float* output) const final;
+  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
 };

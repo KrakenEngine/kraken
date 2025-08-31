@@ -634,7 +634,11 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 {
   KRModelView modelView(ri.viewport, matModel);
 
-  std::vector<const KRReflectedObject*> objects = { &modelView, ri.viewport };
+  std::vector<const KRReflectedObject*> objects = {
+    &modelView,
+    ri.viewport,
+    &ri.camera->settings
+  };
   setPushConstants(objects);
 
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
@@ -696,22 +700,6 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 
     //light_point_count = point_lights.size();
     //light_spot_count = spot_lights.size();
-  }
-
-  // Fog parameters
-  setPushConstant(ShaderValue::fog_near, ri.camera->settings.fog_near);
-  setPushConstant(ShaderValue::fog_far, ri.camera->settings.fog_far);
-  setPushConstant(ShaderValue::fog_density, ri.camera->settings.fog_density);
-  setPushConstant(ShaderValue::fog_color, ri.camera->settings.fog_color);
-
-  if (hasPushConstant(ShaderValue::fog_scale)) {
-    setPushConstant(ShaderValue::fog_scale, 1.0f / (ri.camera->settings.fog_far - ri.camera->settings.fog_near));
-  }
-  if (hasPushConstant(ShaderValue::density_premultiplied_exponential)) {
-    setPushConstant(ShaderValue::density_premultiplied_exponential, -ri.camera->settings.fog_density * 1.442695f); // -fog_density / log(2)
-  }
-  if (hasPushConstant(ShaderValue::density_premultiplied_squared)) {
-    setPushConstant(ShaderValue::density_premultiplied_squared, (float)(-ri.camera->settings.fog_density * ri.camera->settings.fog_density * 1.442695)); // -fog_density * fog_density / log(2)
   }
 
   // Sets the diffuseTexture variable to the first texture unit
