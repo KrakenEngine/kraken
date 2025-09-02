@@ -118,6 +118,7 @@ AABB KRSprite::getBounds()
 
 void KRSprite::render(RenderInfo& ri)
 {
+  ri.reflectedObjects.push_back(this);
 
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
     // Pre-stream sprites, even if the alpha is zero
@@ -165,7 +166,6 @@ void KRSprite::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->setPushConstant(ShaderValue::material_alpha, m_spriteAlpha);
         pShader->setImageBinding("diffuseTexture", m_pSpriteTexture, m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
         pShader->bind(ri, getModelMatrix());
 
@@ -174,4 +174,15 @@ void KRSprite::render(RenderInfo& ri)
       }
     }
   }
+  ri.reflectedObjects.pop_back();
+}
+
+bool KRSprite::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::material_alpha:
+    *output = m_spriteAlpha;
+    return true;
+  }
+  return KRNode::getShaderValue(value, output);
 }

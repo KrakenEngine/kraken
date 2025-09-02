@@ -142,6 +142,7 @@ bool KRPointLight::getShaderValue(ShaderValue value, float* output) const
 {
   return KRLight::getShaderValue(value, output);
 }
+
 bool KRPointLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
 {
   return KRLight::getShaderValue(value, output);

@@ -57,6 +57,8 @@ public:
 
 protected:
 
+  bool getShaderValue(ShaderValue value, float* output) const override;
+
   std::string m_spriteTexture;
   KRTexture* m_pSpriteTexture;
   float m_spriteAlpha;

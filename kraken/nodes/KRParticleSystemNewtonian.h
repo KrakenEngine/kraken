@@ -51,6 +51,8 @@ public:
 
   virtual void physicsUpdate(float deltaTime);
   virtual bool hasPhysics();
+protected:
+  bool getShaderValue(ShaderValue value, float* output) const override;
 private:
   float m_particlesAbsoluteTime;
 };

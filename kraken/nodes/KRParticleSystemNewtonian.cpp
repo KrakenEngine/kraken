@@ -107,7 +107,6 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-      pParticleShader->setPushConstant(ShaderValue::dust_particle_size, 1.0f);
       pParticleShader->bind(ri, getModelMatrix());
 
       m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -116,4 +115,14 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
     }
   }
   ri.reflectedObjects.pop_back();
+}
+
+bool KRParticleSystemNewtonian::getShaderValue(ShaderValue value, float* output) const
+{
+  switch (value) {
+  case ShaderValue::dust_particle_size:
+    *output = 1.0f;
+    return true;
+  }
+  return KRParticleSystem::getShaderValue(value, output);
 }
