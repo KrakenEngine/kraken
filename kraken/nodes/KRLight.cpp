@@ -68,8 +68,6 @@ KRLight::KRLight(KRScene& scene, std::string name) : KRNode(scene, name)
   m_intensity = 1.0f;
   m_dust_particle_intensity = 1.0f;
   m_color = Vector3::One();
-  m_flareTexture = "";
-  m_pFlareTexture = NULL;
   m_flareSize = 0.0f;
   m_flareOcclusionSize = 0.05f;
   m_casts_shadow = true;
@@ -108,7 +106,7 @@ tinyxml2::XMLElement* KRLight::saveXML(tinyxml2::XMLNode* parent)
   e->SetAttribute("decay_start", m_decayStart);
   e->SetAttribute("flare_size", m_flareSize);
   e->SetAttribute("flare_occlusion_size", m_flareOcclusionSize);
-  e->SetAttribute("flare_texture", m_flareTexture.c_str());
+  e->SetAttribute("flare_texture", m_flareTexture.getName().c_str());
   e->SetAttribute("casts_shadow", m_casts_shadow ? "true" : "false");
   e->SetAttribute("light_shafts", m_light_shafts ? "true" : "false");
   e->SetAttribute("dust_particle_density", m_dust_particle_density);
@@ -173,17 +171,15 @@ void KRLight::loadXML(tinyxml2::XMLElement* e)
 
   const char* szFlareTexture = e->Attribute("flare_texture");
   if (szFlareTexture) {
-    m_flareTexture = szFlareTexture;
+    m_flareTexture.setName(szFlareTexture);
   } else {
-    m_flareTexture = "";
+    m_flareTexture.clear();
   }
-  m_pFlareTexture = NULL;
 }
 
 void KRLight::setFlareTexture(std::string flare_texture)
 {
-  m_flareTexture = flare_texture;
-  m_pFlareTexture = NULL;
+  m_flareTexture.setName(flare_texture);
 }
 
 void KRLight::setFlareSize(float flare_size)
@@ -347,7 +343,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION) {
-    if (m_flareTexture.size() && m_flareSize > 0.0f) {
+    if (m_flareTexture.isSet() && m_flareSize > 0.0f) {
       KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
       if (sphereModel) {
 
@@ -394,7 +390,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
-    if (m_flareTexture.size() && m_flareSize > 0.0f) {
+    if (m_flareTexture.isSet() && m_flareSize > 0.0f) {
 
       if (m_occlusionQuery) {
         int params = 0;
@@ -402,13 +398,10 @@ void KRLight::render(RenderInfo& ri)
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
 
         if (params) {
+          m_flareTexture.load(&getContext());
 
-          if (!m_pFlareTexture && m_flareTexture.size()) {
-            m_pFlareTexture = getContext().getTextureManager()->getTexture(m_flareTexture);
-          }
-
-          if (m_pFlareTexture) {
-            m_pFlareTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
+          if (m_flareTexture.isLoaded()) {
+            m_flareTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
             // Render light flare on transparency pass
@@ -428,7 +421,7 @@ void KRLight::render(RenderInfo& ri)
 
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             pShader->setPushConstant(ShaderValue::material_alpha, 1.0f);
-            pShader->setImageBinding("diffuseTexture", m_pFlareTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+            pShader->setImageBinding("diffuseTexture", m_flareTexture.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
             pShader->bind(ri, getModelMatrix());
 
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

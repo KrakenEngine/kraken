@@ -67,6 +67,12 @@ void KRResourceBinding::set(KRResource* resource)
   m_name = resource->getName();
 }
 
+
+bool KRResourceBinding::isSet() const
+{
+  return m_name.size() > 0;
+}
+
 const std::string& KRResourceBinding::getName() const
 {
   return m_name;

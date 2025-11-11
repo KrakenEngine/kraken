@@ -46,6 +46,7 @@ public:
 
   KRResource* get();
   void set(KRResource* resource);
+  bool isSet() const;
   void clear();
 
   const std::string& getName() const;

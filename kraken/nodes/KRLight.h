@@ -33,6 +33,7 @@
 #include "resources/KRResource.h"
 #include "KRNode.h"
 #include "resources/texture/KRTexture.h"
+#include "resources/texture/KRTextureBinding.h"
 
 static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
 
@@ -81,8 +82,7 @@ protected:
   float m_decayStart;
   hydra::Vector3 m_color;
 
-  std::string m_flareTexture;
-  KRTexture* m_pFlareTexture;
+  KRTextureBinding m_flareTexture;
   float m_flareSize;
   float m_flareOcclusionSize;
 
