@@ -36,6 +36,7 @@
 #include "KRPipeline.h"
 #include "KRContextObject.h"
 #include "resources/texture/KRTexture.h"
+#include "resources/texture/KRTextureBinding.h"
 #include "KRContext.h"
 #include "KRViewport.h"
 #include "KRRenderSettings.h"
@@ -101,8 +102,8 @@ private:
   void destroyBuffers();
 
   KrSurfaceHandle m_surfaceHandle;
-  KRTexture* m_pSkyBoxTexture;
-  std::string m_skyBox;
+
+  KRTextureBinding m_skyBox;
   KRViewport m_viewport;
 
   float m_particlesAbsoluteTime;
