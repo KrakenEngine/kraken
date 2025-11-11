@@ -81,6 +81,9 @@ public:
   void setSkyBox(const std::string& skyBox);
   const std::string getSkyBox() const;
 
+protected:
+  bool getShaderValue(ShaderValue value, hydra::Vector4* output) const override;
+
 private:
   void createBuffers(int renderBufferWidth, int renderBufferHeight);
 

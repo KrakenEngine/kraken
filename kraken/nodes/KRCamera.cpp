@@ -448,7 +448,6 @@ void KRCamera::renderPost(RenderInfo& ri)
    
    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
    
-   postShader->setPushConstant(KRPipeline::PushConstant::fade_color, m_fade_color);
    postShader->bind(commandBuffer, *this, m_viewport, Matrix4(), nullptr, nullptr, nullptr, compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT));
    
    m_pContext->getTextureManager()->selectTexture(GL_TEXTURE_2D, 0, compositeDepthTexture);
@@ -860,4 +859,15 @@ void KRCamera::setFadeColor(const Vector4& fade_color)
 Vector4 KRCamera::getFadeColor()
 {
   return m_fade_color;
+}
+
+bool KRCamera::getShaderValue(ShaderValue value, hydra::Vector4* output) const
+{
+  switch (value)     {
+  case ShaderValue::fade_color:
+    *output = m_fade_color;
+    return true;
+  }
+
+  return KRNode::getShaderValue(value, output);
 }
