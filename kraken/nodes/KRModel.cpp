@@ -54,7 +54,6 @@ void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 KRModel::KRModel(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_pLightMap(nullptr)
   , m_min_lod_coverage(0.0f)
   , m_receivesShadow(true)
   , m_faces_camera(false)
@@ -82,8 +81,7 @@ KRModel::KRModel(KRScene& scene, std::string name)
 KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
   : KRNode(scene, instance_name)
 {
-  m_lightMap = light_map;
-  m_pLightMap = NULL;
+  m_lightMap.setName(light_map);
   m_model_name = model_name;
   m_min_lod_coverage = lod_min_coverage;
   m_receivesShadow = receives_shadow;
@@ -133,12 +131,7 @@ KrResult KRModel::update(const KrNodeInfo* nodeInfo)
       return res;
     }
   }
-  m_pLightMap = light_map_texture;
-  if (m_pLightMap) {
-    m_lightMap = m_pLightMap->getName();
-  } else {
-    m_lightMap = "";
-  }
+  m_lightMap.set(light_map_texture);
 
   KRMesh* mesh = nullptr;
   if (nodeInfo->model.mesh != KR_NULL_HANDLE) {
@@ -167,7 +160,7 @@ tinyxml2::XMLElement* KRModel::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
   e->SetAttribute("mesh", m_model_name.c_str());
-  e->SetAttribute("light_map", m_lightMap.c_str());
+  e->SetAttribute("light_map", m_lightMap.getName().c_str());
   e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
   e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
   e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
@@ -198,13 +191,12 @@ float KRModel::getRimPower()
 
 void KRModel::setLightMap(const std::string& name)
 {
-  m_lightMap = name;
-  m_pLightMap = NULL;
+  m_lightMap.setName(name);
 }
 
 std::string KRModel::getLightMap()
 {
-  return m_lightMap;
+  return m_lightMap.getName();
 }
 
 void KRModel::loadModel()
@@ -288,12 +280,10 @@ void KRModel::render(KRNode::RenderInfo& ri)
           }
         }
 
-        if (m_pLightMap == NULL && m_lightMap.size()) {
-          m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
-        }
+        m_lightMap.load(&getContext());
 
-        if (m_pLightMap && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
-          m_pLightMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+        if (m_lightMap.isLoaded() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
+          m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
           // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
           // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
         }
@@ -305,7 +295,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
           matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
         }
 
-        pModel->render(ri, getName(), matModel, m_pLightMap, m_bones[pModel], lod_coverage);
+        pModel->render(ri, getName(), matModel, m_lightMap.get(), m_bones[pModel], lod_coverage);
       }
     }
   }
@@ -322,12 +312,10 @@ void KRModel::preStream(const KRViewport& viewport)
     (*itr)->preStream(lod_coverage);
   }
 
-  if (m_pLightMap == NULL && m_lightMap.size()) {
-    m_pLightMap = getContext().getTextureManager()->getTexture(m_lightMap);
-  }
+  m_lightMap.load(&getContext());
 
-  if (m_pLightMap) {
-    m_pLightMap->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+  if (m_lightMap.isLoaded()) {
+    m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
   }
 }
 

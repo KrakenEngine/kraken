@@ -33,7 +33,6 @@
 
 #include "resources/KRResource.h"
 #include "KRNode.h"
-#include "resources/texture/KRTexture.h"
 
 class KRReverbZone : public KRNode
 {

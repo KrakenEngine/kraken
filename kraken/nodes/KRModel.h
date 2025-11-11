@@ -41,6 +41,7 @@
 #include "KRContext.h"
 #include "resources/mesh/KRMesh.h"
 #include "resources/texture/KRTexture.h"
+#include "resources/texture/KRTextureBinding.h"
 #include "KRBone.h"
 
 class KRModel : public KRNode
@@ -77,8 +78,7 @@ private:
 
   std::vector<KRMesh*> m_models;
   unordered_map<KRMesh*, std::vector<KRBone*> > m_bones; // Outer std::map connects model to set of bones
-  KRTexture* m_pLightMap;
-  std::string m_lightMap;
+  KRTextureBinding m_lightMap;
   std::string m_model_name;
 
 
