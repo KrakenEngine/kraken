@@ -1,5 +1,5 @@
 //
-//  KRSprite.h
+//  KRResource.cpp
 //  Kraken Engine
 //
 //  Copyright 2025 Kearwood Gilbert. All rights reserved.
@@ -29,37 +29,64 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#pragma once
+#include "KREngine-common.h"
+#include "KRResourceBinding.h"
+#include "KRContext.h"
 
-#include "resources/KRResource.h"
-#include "KRNode.h"
-#include "resources/texture/KRTexture.h"
-#include "resources/texture/KRTextureBinding.h"
-
-class KRSprite : public KRNode
+KRResourceBinding::KRResourceBinding(std::string& name)
+  : m_name(name)
+  , m_resource(nullptr)
 {
-public:
-  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+}
 
-  KRSprite(KRScene& scene, std::string name);
+KRResourceBinding::KRResourceBinding()
+  : m_resource(nullptr)
+{
+}
 
-  virtual ~KRSprite();
-  virtual std::string getElementName() override;
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
-  virtual void loadXML(tinyxml2::XMLElement* e) override;
+KRResourceBinding::~KRResourceBinding()
+{
+  m_resource = nullptr;
+  m_name.clear();
+}
 
-  void setSpriteTexture(std::string sprite_texture);
-  void setSpriteAlpha(float alpha);
-  float getSpriteAlpha() const;
+KRResource* KRResourceBinding::get()
+{
+  return m_resource;
+}
 
-  virtual void render(RenderInfo& ri) override;
+void KRResourceBinding::set(KRResource* resource)
+{
+  if (resource == nullptr) {
+    m_resource = nullptr;
+    m_name.clear();
+    return;
+  }
 
-  virtual hydra::AABB getBounds() override;
+  m_resource = resource;
+  m_name = resource->getName();
+}
 
-protected:
+const std::string& KRResourceBinding::getName() const
+{
+  return m_name;
+}
 
-  bool getShaderValue(ShaderValue value, float* output) const override;
+void KRResourceBinding::setName(const std::string& name)
+{
+  if (m_name == name) {
+    return;
+  }
+  m_name = name;
+  m_resource = nullptr;
+}
 
-  KRTextureBinding m_spriteTexture;
-  float m_spriteAlpha;
-};
+void KRResourceBinding::clear()
+{
+  set(nullptr);
+}
+
+bool KRResourceBinding::isLoaded() const
+{
+  return m_resource != nullptr;
+}

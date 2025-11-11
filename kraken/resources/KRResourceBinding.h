@@ -1,5 +1,5 @@
 //
-//  KRSprite.h
+//  KRResourceBinding.h
 //  Kraken Engine
 //
 //  Copyright 2025 Kearwood Gilbert. All rights reserved.
@@ -31,35 +31,30 @@
 
 #pragma once
 
-#include "resources/KRResource.h"
-#include "KRNode.h"
-#include "resources/texture/KRTexture.h"
-#include "resources/texture/KRTextureBinding.h"
+#include "KREngine-common.h"
+#include "KRContextObject.h"
 
-class KRSprite : public KRNode
+class KRResource;
+class KRContext;
+
+class KRResourceBinding
 {
 public:
-  static void InitNodeInfo(KrNodeInfo* nodeInfo);
+  KRResourceBinding(std::string& name);
+  KRResourceBinding();
+  ~KRResourceBinding();
 
-  KRSprite(KRScene& scene, std::string name);
+  KRResource* get();
+  void set(KRResource* resource);
+  void clear();
 
-  virtual ~KRSprite();
-  virtual std::string getElementName() override;
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
-  virtual void loadXML(tinyxml2::XMLElement* e) override;
+  const std::string& getName() const;
+  void setName(const std::string& name);
 
-  void setSpriteTexture(std::string sprite_texture);
-  void setSpriteAlpha(float alpha);
-  float getSpriteAlpha() const;
-
-  virtual void render(RenderInfo& ri) override;
-
-  virtual hydra::AABB getBounds() override;
+  virtual bool load(KRContext* context) = 0;
+  bool isLoaded() const;
 
 protected:
-
-  bool getShaderValue(ShaderValue value, float* output) const override;
-
-  KRTextureBinding m_spriteTexture;
-  float m_spriteAlpha;
+  KRResource* m_resource;
+  std::string m_name;
 };
