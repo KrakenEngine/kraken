@@ -60,7 +60,6 @@ KRAudioSource::KRAudioSource(KRScene& scene, std::string name) : KRNode(scene, n
   m_playing = false;
   m_is3d = true;
   m_isPrimed = false;
-  m_audioFile = NULL;
   m_gain = 1.0f;
   m_pitch = 1.0f;
   m_looping = false;
@@ -91,7 +90,7 @@ std::string KRAudioSource::getElementName()
 tinyxml2::XMLElement* KRAudioSource::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("sample", m_audio_sample_name.c_str());
+  e->SetAttribute("sample", m_sample.getName().c_str());
   e->SetAttribute("gain", m_gain);
   e->SetAttribute("pitch", m_pitch);
   e->SetAttribute("looping", m_looping ? "true" : "false");
@@ -106,7 +105,12 @@ tinyxml2::XMLElement* KRAudioSource::saveXML(tinyxml2::XMLNode* parent)
 
 void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
 {
-  m_audio_sample_name = e->Attribute("sample");
+  const char* szAudioSampleName = e->Attribute("sample");
+  if (szAudioSampleName == nullptr) {
+    m_sample.clear();
+  } else {
+    m_sample.setName(szAudioSampleName);
+  }
 
   float gain = 1.0f;
   if (e->QueryFloatAttribute("gain", &gain) != tinyxml2::XML_SUCCESS) {
@@ -166,10 +170,8 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
 void KRAudioSource::prime()
 {
   if (!m_isPrimed) {
-    if (m_audioFile == NULL && m_audio_sample_name.size() != 0) {
-      m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
-    }
-    if (m_audioFile) {
+    m_sample.load(&getContext());
+    if (m_sample.isLoaded()) {
       // Prime the buffer queue
       m_nextBufferIndex = 0;
       for (int i = 0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
@@ -183,9 +185,9 @@ void KRAudioSource::prime()
 
 void KRAudioSource::queueBuffer()
 {
-  KRAudioBuffer* buffer = m_audioFile->getBuffer(m_nextBufferIndex);
+  KRAudioBuffer* buffer = m_sample.get()->getBuffer(m_nextBufferIndex);
   m_audioBuffers.push(buffer);
-  m_nextBufferIndex = (m_nextBufferIndex + 1) % m_audioFile->getBufferCount();
+  m_nextBufferIndex = (m_nextBufferIndex + 1) % m_sample.get()->getBufferCount();
 }
 
 void KRAudioSource::render(RenderInfo& ri)
@@ -365,20 +367,18 @@ bool KRAudioSource::isPlaying()
 
 void KRAudioSource::setSample(const std::string& sound_name)
 {
-  m_audio_sample_name = sound_name;
+  m_sample.setName(sound_name);
 }
 
 std::string KRAudioSource::getSample()
 {
-  return m_audio_sample_name;
+  return m_sample.getName();
 }
 
 KRAudioSample* KRAudioSource::getAudioSample()
 {
-  if (m_audioFile == NULL && m_audio_sample_name.size() != 0) {
-    m_audioFile = getContext().getAudioManager()->get(m_audio_sample_name);
-  }
-  return m_audioFile;
+  m_sample.load(&getContext());
+  return m_sample.get();
 }
 
 void KRAudioSource::advanceFrames(int frame_count)

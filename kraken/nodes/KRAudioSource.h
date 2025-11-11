@@ -33,6 +33,7 @@
 
 #include "KREngine-common.h"
 #include "resources/KRResource.h"
+#include "resources/audio/KRAudioSampleBinding.h"
 #include "KRNode.h"
 
 class KRAudioSample;
@@ -132,9 +133,7 @@ private:
   int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
   void advanceBuffer();
 
-  std::string m_audio_sample_name;
-
-  KRAudioSample* m_audioFile;
+  KRAudioSampleBinding m_sample;
   unsigned int m_sourceID;
   float m_gain;
   float m_pitch;
