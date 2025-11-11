@@ -36,6 +36,7 @@
 #include "KREngine-common.h"
 
 #include "resources/texture/KRTexture.h"
+#include "resources/texture/KRTextureBinding.h"
 #include "KRPipelineManager.h"
 #include "KRPipeline.h"
 #include "nodes/KRCamera.h"
@@ -100,18 +101,12 @@ public:
 private:
   std::string m_name;
 
-  KRTexture* m_pAmbientMap; // mtl map_Ka value
-  KRTexture* m_pDiffuseMap; // mtl map_Kd value
-  KRTexture* m_pSpecularMap; // mtl map_Ks value
-  KRTexture* m_pReflectionMap; // mtl refl value
-  KRTexture* m_pReflectionCube;
-  KRTexture* m_pNormalMap; // mtl map_Normal value
-  std::string m_ambientMap;
-  std::string m_diffuseMap;
-  std::string m_specularMap;
-  std::string m_reflectionMap;
-  std::string m_reflectionCube;
-  std::string m_normalMap;
+  KRTextureBinding m_ambientMap; // mtl map_Ka value
+  KRTextureBinding m_diffuseMap; // mtl map_Kd value
+  KRTextureBinding m_specularMap; // mtl map_Ks value
+  KRTextureBinding m_reflectionMap; // mtl refl value
+  KRTextureBinding m_reflectionCube;
+  KRTextureBinding m_normalMap; // mtl map_Normal value
 
   hydra::Vector2 m_ambientMapScale;
   hydra::Vector2 m_ambientMapOffset;
