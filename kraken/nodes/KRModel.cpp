@@ -254,13 +254,14 @@ void KRModel::loadModel()
 
 void KRModel::render(KRNode::RenderInfo& ri)
 {
-  ri.reflectedObjects.push_back(this);
-
-  if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-    preStream(*ri.viewport);
+  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
+    if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
+      preStream(*ri.viewport);
+    }
   }
-
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+
+  ri.reflectedObjects.push_back(this);
 
   KRNode::render(ri);
 

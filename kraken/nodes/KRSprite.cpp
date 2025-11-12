@@ -114,8 +114,6 @@ AABB KRSprite::getBounds()
 
 void KRSprite::render(RenderInfo& ri)
 {
-  ri.reflectedObjects.push_back(this);
-
   if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
     // Pre-stream sprites, even if the alpha is zero
     m_spriteTexture.load(&getContext());
@@ -126,6 +124,8 @@ void KRSprite::render(RenderInfo& ri)
   }
 
   if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
+
+  ri.reflectedObjects.push_back(this);
 
   KRNode::render(ri);
 
