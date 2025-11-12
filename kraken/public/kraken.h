@@ -301,7 +301,7 @@ typedef struct
       bool faces_camera;
       float rim_power;
       hydra::Vector3 rim_color;
-      KrResourceMapIndex mesh;
+      KrResourceMapIndex mesh[8];
       KrResourceMapIndex light_map_texture;
     } model;
     struct

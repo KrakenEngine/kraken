@@ -130,7 +130,7 @@ void KRAmbientZone::render(RenderInfo& ri)
   bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_SIREN_AMBIENT_ZONES;
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    KRMesh* sphereModel = getContext().getMeshManager()->getMesh("__sphere");
     if (sphereModel) {
 
       Matrix4 sphereModelMatrix = getModelMatrix();

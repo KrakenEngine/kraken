@@ -200,7 +200,7 @@ void KRAudioSource::render(RenderInfo& ri)
   bool bVisualize = false;
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && bVisualize) {
-    KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    KRMesh* sphereModel = getContext().getMeshManager()->getMesh("__sphere");
     if (sphereModel) {
       Matrix4 sphereModelMatrix = getModelMatrix();
 

@@ -344,7 +344,7 @@ void KRLight::render(RenderInfo& ri)
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION) {
     if (m_flareTexture.isSet() && m_flareSize > 0.0f) {
-      KRMesh* sphereModel = getContext().getMeshManager()->getMaxLODModel("__sphere");
+      KRMesh* sphereModel = getContext().getMeshManager()->getMesh("__sphere");
       if (sphereModel) {
 
         Matrix4 occlusion_test_sphere_matrix = Matrix4();

@@ -653,7 +653,14 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
     }
     Vector3 rim_color = Vector3::Zero();
     rim_color = kraken::getXMLAttribute("rim_color", e, Vector3::Zero());
-    new_node = new KRModel(scene, szName, e->Attribute("mesh"), e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
+    std::string meshNames[KRModel::kMeshLODCount];
+    meshNames[0] = e->Attribute("mesh");
+    for (int lod = 1; lod < KRModel::kMeshLODCount; lod++) {
+      char attribName[8];
+      snprintf(attribName, 8, "mesh%i", lod);
+      meshNames[lod] = e->Attribute(attribName);
+    }
+    new_node = new KRModel(scene, szName, meshNames, e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
   } else if (strcmp(szElementName, "collider") == 0) {
     new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
   } else if (strcmp(szElementName, "bone") == 0) {

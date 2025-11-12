@@ -44,6 +44,7 @@ using namespace kraken;
 #include "siren.h"
 
 #include <stdint.h>
+#include <array>
 #include <vector>
 #include <string>
 #include <set>

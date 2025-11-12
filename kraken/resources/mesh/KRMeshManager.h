@@ -58,13 +58,12 @@ public:
   void startFrame(float deltaTime);
   void endFrame(float deltaTime);
 
-  KRMesh* loadModel(const char* szName, mimir::Block* pData);
-  std::vector<KRMesh*> getModel(const char* szName);
-  KRMesh* getMaxLODModel(const char* szName);
-  void addModel(KRMesh* model);
+  KRMesh* loadMesh(const char* szName, mimir::Block* pData);
+  KRMesh* getMesh(const char* szName);
+  void addMesh(KRMesh* mesh);
 
-  std::vector<std::string> getModelNames();
-  unordered_multimap<std::string, KRMesh*>& getModels();
+  std::vector<std::string> getMeshNames();
+  unordered_map<std::string, KRMesh*>& getMeshes();
 
   class KRVBOData
   {
@@ -217,7 +216,7 @@ private:
   mimir::Block KRENGINE_VBO_2D_SQUARE_VERTICES;
   __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
 
-  unordered_multimap<std::string, KRMesh*> m_models; // Multiple models with the same name/key may be inserted, representing multiple LOD levels of the model
+  unordered_map<std::string, KRMesh*> m_meshes;
 
   long m_vboMemUsed;
   KRVBOData* m_currentVBO;

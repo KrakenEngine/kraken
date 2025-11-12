@@ -46,7 +46,9 @@ void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->model.faces_camera = false;
   nodeInfo->model.light_map_texture = KR_NULL_HANDLE;
   nodeInfo->model.lod_min_coverage = 0.0f;
-  nodeInfo->model.mesh = KR_NULL_HANDLE;
+  for (int lod = 0; lod < kMeshLODCount; lod++) {
+    nodeInfo->model.mesh[lod] = KR_NULL_HANDLE;
+  }
   nodeInfo->model.receives_shadow = true;
   nodeInfo->model.rim_color = Vector3::Zero();
   nodeInfo->model.rim_power = 0.0f;
@@ -78,11 +80,13 @@ KRModel::KRModel(KRScene& scene, std::string name)
   m_boundsCachedMat.c[15] = -1.0f;
 }
 
-KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
+KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
   : KRNode(scene, instance_name)
 {
   m_lightMap.setName(light_map);
-  m_model_name = model_name;
+  for (int lod = 0; lod < kMeshLODCount; lod++) {
+    m_meshes[lod].setName(model_name[lod]);
+  }
   m_min_lod_coverage = lod_min_coverage;
   m_receivesShadow = receives_shadow;
   m_faces_camera = faces_camera;
@@ -133,19 +137,15 @@ KrResult KRModel::update(const KrNodeInfo* nodeInfo)
   }
   m_lightMap.set(light_map_texture);
 
-  KRMesh* mesh = nullptr;
-  if (nodeInfo->model.mesh != KR_NULL_HANDLE) {
-    res = m_pContext->getMappedResource<KRMesh>(nodeInfo->model.mesh, &mesh);
-    if (res != KR_SUCCESS) {
-      return res;
+  for (int lod = 0; lod < kMeshLODCount; lod++) {
+    KRMesh* mesh = nullptr;
+    if (nodeInfo->model.mesh[lod] != KR_NULL_HANDLE) {
+      res = m_pContext->getMappedResource<KRMesh>(nodeInfo->model.mesh[lod], &mesh);
+      if (res != KR_SUCCESS) {
+        return res;
+      }
     }
-  }
-  if (mesh != nullptr) {
-    m_models.clear();
-    m_model_name = mesh->getName();
-  } else {
-    m_models.clear();
-    m_model_name = "";
+    m_meshes[lod].set(mesh);
   }
 
   return KR_SUCCESS;
@@ -159,7 +159,12 @@ std::string KRModel::getElementName()
 tinyxml2::XMLElement* KRModel::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("mesh", m_model_name.c_str());
+  e->SetAttribute("mesh", m_meshes[0].getName().c_str());
+  for (int lod = 1; lod < kMeshLODCount; lod++) {
+    char attribName[8];
+    snprintf(attribName, 8, "mesh%i", lod);
+    e->SetAttribute(attribName, m_meshes[lod].getName().c_str());
+  }
   e->SetAttribute("light_map", m_lightMap.getName().c_str());
   e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
   e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
@@ -201,33 +206,49 @@ std::string KRModel::getLightMap()
 
 void KRModel::loadModel()
 {
-  if (m_models.size() == 0) {
-    std::vector<KRMesh*> models = m_pContext->getMeshManager()->getModel(m_model_name.c_str()); // The model manager returns the LOD levels in sorted order, with the highest detail first
-    unordered_map<KRMesh*, std::vector<KRBone*> > bones;
-    if (models.size() > 0) {
+  bool meshChanged = false;
+  for (int lod = 0; lod < kMeshLODCount; lod++) {
+    KRMesh* prevMesh = nullptr;
+    prevMesh = m_meshes[lod].get();
+    m_meshes[lod].load(&getContext());
+    if (m_meshes[lod].get() != prevMesh) {
+      meshChanged = true;
+    }
+    if (m_meshes[lod].isLoaded()) {
+      KRMesh* model = m_meshes[lod].get();
+      std::vector<KRBone*> model_bones;
+      int bone_count = model->getBoneCount();
       bool all_bones_found = true;
-      for (std::vector<KRMesh*>::iterator model_itr = models.begin(); model_itr != models.end(); model_itr++) {
-        KRMesh* model = *model_itr;
-        std::vector<KRBone*> model_bones;
-        int bone_count = model->getBoneCount();
-        for (int bone_index = 0; bone_index < bone_count; bone_index++) {
-          KRBone* matching_bone = dynamic_cast<KRBone*>(getScene().getRootNode()->find<KRNode>(model->getBoneName(bone_index)));
-          if (matching_bone) {
-            model_bones.push_back(matching_bone);
-          } else {
-            all_bones_found = false; // Reject when there are any missing bones or multiple matches
-          }
+      for (int bone_index = 0; bone_index < bone_count; bone_index++) {
+        KRBone* matching_bone = dynamic_cast<KRBone*>(getScene().getRootNode()->find<KRNode>(model->getBoneName(bone_index)));
+        if (matching_bone) {
+          model_bones.push_back(matching_bone);
+        } else {
+          all_bones_found = false; // Reject when there are any missing bones or multiple matches
         }
-        bones[model] = model_bones;
       }
       if (all_bones_found) {
-        m_models = models;
-        m_bones = bones;
-        getScene().notify_sceneGraphModify(this);
+        if (m_bones[lod] != model_bones) {
+          m_bones[lod] = model_bones;
+          meshChanged = true;
+        }
+      } else {
+        if (!m_bones[lod].empty()) {
+          m_bones[lod].clear();
+          meshChanged = true;
+        }
       }
-
-      invalidateBounds();
+    } else {
+      if (!m_bones[lod].empty()) {
+        m_bones[lod].clear();
+        meshChanged = true;
+      }
     }
+  }
+  
+  if (meshChanged) {
+    getScene().notify_sceneGraphModify(this);
+    invalidateBounds();
   }
 }
 
@@ -243,6 +264,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
 
   KRNode::render(ri);
 
+  // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
   if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION
@@ -251,43 +273,43 @@ void KRModel::render(KRNode::RenderInfo& ri)
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PRESTREAM) {
     loadModel();
 
-    if (m_models.size() > 0) {
-      // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
+    /*
+    float lod_coverage = 0.0f;
+    if(m_models.size() > 1) {
+        lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
+    } else if(viewport.visible(getBounds())) {
+        lod_coverage = 1.0f;
+    }
+    */
 
-      /*
-      float lod_coverage = 0.0f;
-      if(m_models.size() > 1) {
-          lod_coverage = viewport.coverage(getBounds()); // This also checks the view frustrum culling
-      } else if(viewport.visible(getBounds())) {
-          lod_coverage = 1.0f;
-      }
-      */
+    float lod_coverage = ri.viewport->coverage(getBounds()); // This also checks the view frustrum culling
+    if (lod_coverage > m_min_lod_coverage) {
+      // ---===--- Select the best LOD model based on screen coverage ---===---
+      int bestLOD = -1;
+      KRMesh* pModel = nullptr;
+      for (int lod = 0; lod < kMeshLODCount; lod++) {
+        if (m_meshes[lod].isLoaded()) {
+          KRMesh* pLODModel = m_meshes[lod].get();
 
-      float lod_coverage = ri.viewport->coverage(getBounds()); // This also checks the view frustrum culling
-
-      if (lod_coverage > m_min_lod_coverage) {
-
-        // ---===--- Select the best LOD model based on screen coverage ---===---
-        std::vector<KRMesh*>::iterator itr = m_models.begin();
-        KRMesh* pModel = *itr++;
-
-        while (itr != m_models.end()) {
-          KRMesh* pLODModel = *itr++;
-          if ((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage && pLODModel->getLODCoverage() < pModel->getLODCoverage()) {
-            pModel = pLODModel;
-          } else {
-            break;
+          if ((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage) {
+            if(bestLOD == -1 || pLODModel->getLODCoverage() < pModel->getLODCoverage()) {
+              pModel = pLODModel;
+              bestLOD = lod;
+              continue;
+            }
           }
         }
+      }
 
-        m_lightMap.load(&getContext());
+      m_lightMap.load(&getContext());
 
-        if (m_lightMap.isLoaded() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
-          m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
-          // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
-          // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
-        }
+      if (m_lightMap.isLoaded() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
+        m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+        // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
+        // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+      }
 
+      if (pModel) {
         Matrix4 matModel = getModelMatrix();
         if (m_faces_camera) {
           Vector3 model_center = Matrix4::Dot(matModel, Vector3::Zero());
@@ -295,7 +317,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
           matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
         }
 
-        pModel->render(ri, getName(), matModel, m_lightMap.get(), m_bones[pModel], lod_coverage);
+        pModel->render(ri, getName(), matModel, m_lightMap.get(), m_bones[bestLOD], lod_coverage);
       }
     }
   }
@@ -308,8 +330,10 @@ void KRModel::preStream(const KRViewport& viewport)
   loadModel();
   float lod_coverage = viewport.coverage(getBounds());
 
-  for (auto itr = m_models.begin(); itr != m_models.end(); itr++) {
-    (*itr)->preStream(lod_coverage);
+  for (int i = 0; i < kMeshLODCount; i++) {
+    if (m_meshes[i].isLoaded()) {
+      m_meshes[i].get()->preStream(lod_coverage);
+    }
   }
 
   m_lightMap.load(&getContext());
@@ -326,8 +350,10 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
 
   loadModel();
 
-  for (auto itr = m_models.begin(); itr != m_models.end(); itr++) {
-    stream_level = KRMIN(stream_level, (*itr)->getStreamLevel());
+  for (int lod = 0; lod < kMeshLODCount; lod++) {
+    if (m_meshes[lod].isLoaded()) {
+        stream_level = KRMIN(stream_level, m_meshes[lod].get()->getStreamLevel());
+    }
   }
 
   return stream_level;
@@ -336,22 +362,28 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
 AABB KRModel::getBounds()
 {
   loadModel();
-  if (m_models.size() > 0) {
+
+  // Get the bounds of the lowest lod mesh
+  for(int lod=0; lod<kMeshLODCount; lod++) {
+    if (!m_meshes[lod].isLoaded()) {
+      continue;
+    }
+    KRMesh* mesh = m_meshes[lod].get();
     if (m_faces_camera) {
-      AABB normal_bounds = AABB::Create(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+      AABB normal_bounds = AABB::Create(mesh->getMinPoint(), mesh->getMaxPoint(), getModelMatrix());
       float max_dimension = normal_bounds.longest_radius();
       return AABB::Create(normal_bounds.center() - Vector3::Create(max_dimension), normal_bounds.center() + Vector3::Create(max_dimension));
     } else {
-
       if (!(m_boundsCachedMat == getModelMatrix())) {
         m_boundsCachedMat = getModelMatrix();
-        m_boundsCached = AABB::Create(m_models[0]->getMinPoint(), m_models[0]->getMaxPoint(), getModelMatrix());
+        m_boundsCached = AABB::Create(mesh->getMinPoint(), mesh->getMaxPoint(), getModelMatrix());
       }
       return m_boundsCached;
     }
-  } else {
-    return AABB::Infinite();
   }
+
+  // No models loaded
+  return AABB::Infinite();
 }
 
 

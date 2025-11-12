@@ -40,6 +40,7 @@
 #include "KRNode.h"
 #include "KRContext.h"
 #include "resources/mesh/KRMesh.h"
+#include "resources/mesh/KRMeshBinding.h"
 #include "resources/texture/KRTexture.h"
 #include "resources/texture/KRTextureBinding.h"
 #include "KRBone.h"
@@ -48,10 +49,12 @@ class KRModel : public KRNode
 {
 
 public:
+  static const int kMeshLODCount = 8;
+
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
   KRModel(KRScene& scene, std::string name);
-  KRModel(KRScene& scene, std::string instance_name, std::string model_name, std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, hydra::Vector3 rim_color = hydra::Vector3::Zero(), float rim_power = 0.0f);
+  KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, hydra::Vector3 rim_color = hydra::Vector3::Zero(), float rim_power = 0.0f);
   virtual ~KRModel();
   
   KrResult update(const KrNodeInfo* nodeInfo) override;
@@ -76,10 +79,9 @@ public:
 private:
   void preStream(const KRViewport& viewport);
 
-  std::vector<KRMesh*> m_models;
-  unordered_map<KRMesh*, std::vector<KRBone*> > m_bones; // Outer std::map connects model to set of bones
+  std::array<KRMeshBinding, kMeshLODCount> m_meshes;
+  std::array<std::vector<KRBone*>, kMeshLODCount> m_bones; // Connects model to set of bones
   KRTextureBinding m_lightMap;
-  std::string m_model_name;
 
 
   float m_min_lod_coverage;

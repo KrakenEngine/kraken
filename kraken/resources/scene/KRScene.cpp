@@ -107,7 +107,7 @@ void KRScene::render(KRNode::RenderInfo& ri)
   // ----------  Start: Vulkan Debug Code ----------
   /*
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
-    KRMesh* sphereMesh = getContext().getMeshManager()->getMaxLODModel("__sphere");
+    KRMesh* sphereMesh = getContext().getMeshManager()->getMesh("__sphere");
     if (sphereMesh && sphereMesh->isReady()) {
       PipelineInfo info{};
       std::string shader_name("vulkan_test");

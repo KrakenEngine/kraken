@@ -260,7 +260,7 @@ std::vector<KRResource*> KRContext::getResources()
   for (unordered_map<std::string, KRMaterial*>::iterator itr = m_pMaterialManager->getMaterials().begin(); itr != m_pMaterialManager->getMaterials().end(); itr++) {
     resources.push_back((*itr).second);
   }
-  for (unordered_multimap<std::string, KRMesh*>::iterator itr = m_pMeshManager->getModels().begin(); itr != m_pMeshManager->getModels().end(); itr++) {
+  for (unordered_map<std::string, KRMesh*>::iterator itr = m_pMeshManager->getMeshes().begin(); itr != m_pMeshManager->getMeshes().end(); itr++) {
     resources.push_back((*itr).second);
   }
   for (unordered_map<std::string, KRAnimation*>::iterator itr = m_pAnimationManager->getAnimations().begin(); itr != m_pAnimationManager->getAnimations().end(); itr++) {
@@ -309,7 +309,7 @@ KRResource* KRContext::loadResource(const std::string& file_name, Block* data)
   if (extension.compare("krbundle") == 0) {
     resource = m_pBundleManager->loadBundle(name.c_str(), data);
   } else if (extension.compare("krmesh") == 0) {
-    resource = m_pMeshManager->loadModel(name.c_str(), data);
+    resource = m_pMeshManager->loadMesh(name.c_str(), data);
   } else if (extension.compare("krscene") == 0) {
     resource = m_pSceneManager->loadScene(name.c_str(), data);
   } else if (extension.compare("kranimation") == 0) {

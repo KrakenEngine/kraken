@@ -127,7 +127,7 @@ bool smoke_load()
   create_cube_info.newNodeHandle = kCubeNodeHandle;
   create_cube_info.sceneHandle = kSceneResourceHandle;
   create_cube_info.node.pName = "my_cube";
-  create_cube_info.node.model.mesh = kCubeMeshResourceHandle;
+  create_cube_info.node.model.mesh[1] = kCubeMeshResourceHandle;
   res = KrCreateNode(&create_cube_info);
   assert(res == KR_SUCCESS);
   

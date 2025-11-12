@@ -103,7 +103,7 @@ void KRCollider::loadXML(tinyxml2::XMLElement* e)
 void KRCollider::loadModel()
 {
   if (m_model == nullptr) {
-    m_model = m_pContext->getMeshManager()->getMaxLODModel(m_model_name.c_str());
+    m_model = m_pContext->getMeshManager()->getMesh(m_model_name.c_str());
     if (m_model) {
       getScene().notify_sceneGraphModify(this);
     }

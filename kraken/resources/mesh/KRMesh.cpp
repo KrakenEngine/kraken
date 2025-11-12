@@ -67,31 +67,8 @@ KRMesh::KRMesh(KRContext& context, std::string name, Block* data) : KRResource(c
   loadPack(data);
 }
 
-
-void KRMesh::parseName(const std::string& name, std::string& lodBaseName, int& lodCoverage)
-{
-  lodCoverage = 100;
-  lodBaseName = name;
-
-  size_t last_underscore_pos = name.find_last_of('_');
-  if (last_underscore_pos != std::string::npos) {
-    // Found an underscore
-    std::string suffix = name.substr(last_underscore_pos + 1);
-    if (suffix.find("lod") == 0) {
-      std::string lod_level_string = suffix.substr(3);
-      char* end = NULL;
-      int c = (int)strtol(lod_level_string.c_str(), &end, 10);
-      if (c >= 0 && c <= 100 && *end == '\0') {
-        lodCoverage = c;
-        lodBaseName = name.substr(0, last_underscore_pos);
-      }
-    }
-  }
-}
-
 void KRMesh::setName(const std::string name)
 {
-  parseName(name, m_lodBaseName, m_lodCoverage);
   m_lodCoverage = 100;
   m_lodBaseName = name;
 }

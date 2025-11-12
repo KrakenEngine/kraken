@@ -70,8 +70,6 @@ class KRMesh : public KRResource
 {
 
 public:
-  static void parseName(const std::string& name, std::string& lodBaseName, int& lodCoverage);
-
   KRMesh(KRContext& context, std::string name, mimir::Block* data);
   KRMesh(KRContext& context, std::string name);
   virtual ~KRMesh();

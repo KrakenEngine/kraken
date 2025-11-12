@@ -55,9 +55,9 @@ KRMeshManager::KRMeshManager(KRContext& context)
 
 void KRMeshManager::init()
 {
-  addModel(new KRMeshCube(*m_pContext));
-  addModel(new KRMeshQuad(*m_pContext));
-  addModel(new KRMeshSphere(*m_pContext));
+  addMesh(new KRMeshCube(*m_pContext));
+  addMesh(new KRMeshQuad(*m_pContext));
+  addMesh(new KRMeshSphere(*m_pContext));
 
   // ----  Initialize stock models ----
   static const float _KRENGINE_VBO_3D_CUBE_VERTEX_DATA[] = {
@@ -114,87 +114,59 @@ void KRMeshManager::init()
 
 KRMeshManager::~KRMeshManager()
 {
-  for (unordered_multimap<std::string, KRMesh*>::iterator itr = m_models.begin(); itr != m_models.end(); ++itr) {
+  for (unordered_map<std::string, KRMesh*>::iterator itr = m_meshes.begin(); itr != m_meshes.end(); ++itr) {
     delete (*itr).second;
   }
-  m_models.clear();
+  m_meshes.clear();
 }
 
 KRResource* KRMeshManager::loadResource(const std::string& name, const std::string& extension, Block* data)
 {
   if (extension.compare("krmesh") == 0) {
-    return loadModel(name.c_str(), data);
+    return loadMesh(name.c_str(), data);
   }
   return nullptr;
 }
 KRResource* KRMeshManager::getResource(const std::string& name, const std::string& extension)
 {
   if (extension.compare("krmesh") == 0) {
-    std::string lodBaseName;
-    int lodCoverage;
-    KRMesh::parseName(name, lodBaseName, lodCoverage);
-    std::vector<KRMesh*> models = getModel(lodBaseName.c_str());
-    for (KRMesh* mesh : models) {
-      if (mesh->getLODCoverage() == lodCoverage) {
-        return mesh;
-      }
-    }
+    return getMesh(name.c_str());
   }
   return nullptr;
 }
 
-KRMesh* KRMeshManager::loadModel(const char* szName, Block* pData)
+KRMesh* KRMeshManager::loadMesh(const char* szName, Block* pData)
 {
-  KRMesh* pModel = new KRMesh(*m_pContext, szName, pData);
-  addModel(pModel);
-  return pModel;
+  KRMesh* mesh = new KRMesh(*m_pContext, szName, pData);
+  addMesh(mesh);
+  return mesh;
 }
 
-void KRMeshManager::addModel(KRMesh* model)
+void KRMeshManager::addMesh(KRMesh* mesh)
 {
-  std::string lowerName = model->getLODBaseName();
+  std::string lowerName = mesh->getLODBaseName();
   std::transform(lowerName.begin(), lowerName.end(),
                  lowerName.begin(), ::tolower);
 
-  m_models.insert(std::pair<std::string, KRMesh*>(lowerName, model));
+  m_meshes[lowerName] = mesh;
 }
 
-KRMesh* KRMeshManager::getMaxLODModel(const char* szName)
+KRMesh* KRMeshManager::getMesh(const char* szName)
 {
-  std::vector<KRMesh*> models = getModel(szName);
-  // models are always in order of highest LOD first
-  if (models.size()) {
-    return models[0];
+  std::string lower_name = szName;
+  std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+
+  unordered_map<std::string, KRMesh*>::iterator itr = m_meshes.find(lower_name);
+  if (itr == m_meshes.end()) {
+    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Model not found: %s", lower_name.c_str());
+    return nullptr;
   }
-  return nullptr;
+  return itr->second;
 }
 
-std::vector<KRMesh*> KRMeshManager::getModel(const char* szName)
+unordered_map<std::string, KRMesh*>& KRMeshManager::getMeshes()
 {
-  std::string lowerName = szName;
-  std::transform(lowerName.begin(), lowerName.end(),
-                 lowerName.begin(), ::tolower);
-
-
-  std::vector<KRMesh*> matching_models;
-
-  std::pair<unordered_multimap<std::string, KRMesh*>::iterator, unordered_multimap<std::string, KRMesh*>::iterator> range = m_models.equal_range(lowerName);
-  for (unordered_multimap<std::string, KRMesh*>::iterator itr_match = range.first; itr_match != range.second; itr_match++) {
-    matching_models.push_back(itr_match->second);
-  }
-
-  std::sort(matching_models.begin(), matching_models.end(), KRMesh::lod_sort_predicate);
-
-  if (matching_models.size() == 0) {
-    KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Model not found: %s", lowerName.c_str());
-  }
-
-  return matching_models;
-}
-
-unordered_multimap<std::string, KRMesh*>& KRMeshManager::getModels()
-{
-  return m_models;
+  return m_meshes;
 }
 
 void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRVBOData* vbo_data, float lodCoverage)
