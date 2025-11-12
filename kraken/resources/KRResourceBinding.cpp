@@ -33,7 +33,7 @@
 #include "KRResourceBinding.h"
 #include "KRContext.h"
 
-KRResourceBinding::KRResourceBinding(std::string& name)
+KRResourceBinding::KRResourceBinding(const std::string& name)
   : m_name(name)
   , m_resource(nullptr)
 {

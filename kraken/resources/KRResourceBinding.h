@@ -40,7 +40,7 @@ class KRContext;
 class KRResourceBinding
 {
 public:
-  KRResourceBinding(std::string& name);
+  KRResourceBinding(const std::string& name);
   KRResourceBinding();
   ~KRResourceBinding();
 

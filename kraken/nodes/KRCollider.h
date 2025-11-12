@@ -41,6 +41,7 @@
 #include "KRModel.h"
 #include "KRCamera.h"
 #include "resources/mesh/KRMeshManager.h"
+#include "resources/mesh/KRMeshBinding.h"
 #include "KRNode.h"
 #include "KRContext.h"
 #include "resources/mesh/KRMesh.h"
@@ -73,8 +74,7 @@ public:
   void render(RenderInfo& ri) override;
 
 private:
-  KRMesh* m_model;
-  std::string m_model_name;
+  KRMeshBinding m_model;
 
   unsigned int m_layer_mask;
   float m_audio_occlusion;
