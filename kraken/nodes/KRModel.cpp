@@ -262,7 +262,6 @@ void KRModel::render(KRNode::RenderInfo& ri)
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION
     && ri.renderPass->getType()!= RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
-    loadModel();
 
     /*
     float lod_coverage = 0.0f;
@@ -292,7 +291,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
         }
       }
 
-      m_lightMap.bind(&getContext());
+      
 
       if (m_lightMap.isBound() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
         m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
@@ -317,6 +316,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
 void KRModel::preStream(const KRViewport& viewport)
 {
   KRNode::preStream(viewport);
+  m_lightMap.bind(&getContext());
   loadModel();
   float lod_coverage = viewport.coverage(getBounds());
 
