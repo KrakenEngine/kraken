@@ -254,13 +254,6 @@ void KRModel::loadModel()
 
 void KRModel::render(KRNode::RenderInfo& ri)
 {
-  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-    if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM) {
-      preStream(*ri.viewport);
-    }
-  }
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   ri.reflectedObjects.push_back(this);
 
   KRNode::render(ri);
@@ -328,6 +321,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
 
 void KRModel::preStream(const KRViewport& viewport)
 {
+  KRNode::preStream(viewport);
   loadModel();
   float lod_coverage = viewport.coverage(getBounds());
 

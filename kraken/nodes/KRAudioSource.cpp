@@ -192,9 +192,6 @@ void KRAudioSource::queueBuffer()
 
 void KRAudioSource::render(RenderInfo& ri)
 {
-
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   KRNode::render(ri);
 
   bool bVisualize = false;

@@ -216,6 +216,7 @@ public:
 
   KRScene& getScene();
 
+  virtual void preStream(const KRViewport& viewport);
   virtual void render(RenderInfo& ri);
 
   virtual void physicsUpdate(float deltaTime);

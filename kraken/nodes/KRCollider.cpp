@@ -210,8 +210,6 @@ void KRCollider::setAudioOcclusion(float audio_occlusion)
 
 void KRCollider::render(RenderInfo& ri)
 {
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   KRNode::render(ri);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {

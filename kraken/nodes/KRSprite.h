@@ -52,6 +52,7 @@ public:
   void setSpriteAlpha(float alpha);
   float getSpriteAlpha() const;
 
+  virtual void preStream(const KRViewport& viewport) override;
   virtual void render(RenderInfo& ri) override;
 
   virtual hydra::AABB getBounds() override;

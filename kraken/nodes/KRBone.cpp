@@ -75,8 +75,6 @@ AABB KRBone::getBounds()
 
 void KRBone::render(RenderInfo& ri)
 {
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   KRNode::render(ri);
 
   bool bVisualize = ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_BONES;

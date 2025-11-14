@@ -63,6 +63,7 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
   virtual void render(KRNode::RenderInfo& ri) override;
+  virtual void preStream(const KRViewport& viewport) override;
 
   virtual hydra::AABB getBounds();
 
@@ -77,7 +78,6 @@ public:
   virtual kraken_stream_level getStreamLevel(const KRViewport& viewport);
 
 private:
-  void preStream(const KRViewport& viewport);
 
   std::array<KRMeshBinding, kMeshLODCount> m_meshes;
   std::array<std::vector<KRBone*>, kMeshLODCount> m_bones; // Connects model to set of bones

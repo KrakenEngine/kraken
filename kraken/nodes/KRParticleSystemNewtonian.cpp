@@ -82,9 +82,6 @@ bool KRParticleSystemNewtonian::hasPhysics()
 
 void KRParticleSystemNewtonian::render(RenderInfo& ri)
 {
-
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   ri.reflectedObjects.push_back(this);
 
   KRNode::render(ri);

@@ -223,9 +223,6 @@ float KRLight::getDecayStart() const
 
 void KRLight::render(RenderInfo& ri)
 {
-
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   KRNode::render(ri);
 
   ri.reflectedObjects.push_back(this);

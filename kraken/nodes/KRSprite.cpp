@@ -112,23 +112,23 @@ AABB KRSprite::getBounds()
 }
 
 
+void KRSprite::preStream(const KRViewport& viewport)
+{
+  KRNode::preStream(viewport);
+
+  // Pre-stream sprites, even if the alpha is zero
+  m_spriteTexture.load(&getContext());
+
+  if (m_spriteTexture.isLoaded()) {
+    m_spriteTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+  }
+}
+
 void KRSprite::render(RenderInfo& ri)
 {
-  if (m_lod_visible >= LOD_VISIBILITY_PRESTREAM && ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-    // Pre-stream sprites, even if the alpha is zero
-    m_spriteTexture.load(&getContext());
-
-    if (m_spriteTexture.isLoaded()) {
-      m_spriteTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
-    }
-  }
-
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   ri.reflectedObjects.push_back(this);
 
   KRNode::render(ri);
-
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_spriteAlpha > 0.0f) {

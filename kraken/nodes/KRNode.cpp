@@ -684,10 +684,13 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
   return new_node;
 }
 
+void KRNode::preStream(const KRViewport& viewport)
+{
+
+}
+
 void KRNode::render(RenderInfo& ri)
 {
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   m_lastRenderFrame = getContext().getCurrentFrame();
 }
 

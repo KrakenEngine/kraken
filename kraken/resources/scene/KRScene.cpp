@@ -151,7 +151,15 @@ void KRScene::render(KRNode::RenderInfo& ri)
   // Render outer nodes
   for (std::set<KRNode*>::iterator itr = outerNodes.begin(); itr != outerNodes.end(); itr++) {
     KRNode* node = (*itr);
-    node->render(ri);
+    if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
+      if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
+        node->preStream(*ri.viewport);
+      }
+    } else {
+      if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM) {
+        node->render(ri);
+      }
+    }
   }
 
   std::vector<KROctreeNode*> remainingOctrees;
@@ -346,7 +354,16 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vec
           // Render objects that are at this octree level
           for (std::set<KRNode*>::iterator itr = pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
             //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-            (*itr)->render(ri);
+            if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
+              if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
+                (*itr)->preStream(*ri.viewport);
+              }
+            } else {
+              if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM)
+              {
+                (*itr)->render(ri);
+              }
+            }
           }
 
           // Render child octrees
