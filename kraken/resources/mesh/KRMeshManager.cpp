@@ -171,7 +171,7 @@ unordered_map<std::string, KRMesh*>& KRMeshManager::getMeshes()
 
 void KRMeshManager::bindVBO(VkCommandBuffer& commandBuffer, KRVBOData* vbo_data, float lodCoverage)
 {
-  vbo_data->resetPoolExpiry(lodCoverage);
+  vbo_data->requestResidency(lodCoverage);
 
   bool vbo_changed = false;
   if (m_currentVBO == NULL) {
@@ -632,7 +632,7 @@ void KRMeshManager::KRVBOData::bind(VkCommandBuffer& commandBuffer)
   }
 }
 
-void KRMeshManager::KRVBOData::resetPoolExpiry(float lodCoverage)
+void KRMeshManager::KRVBOData::requestResidency(float lodCoverage)
 {
   long current_frame = m_manager->getContext().getCurrentFrame();
   if (current_frame != m_last_frame_used) {

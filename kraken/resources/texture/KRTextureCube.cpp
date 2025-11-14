@@ -146,12 +146,12 @@ long KRTextureCube::getMemRequiredForSize(int max_dim)
 }
 
 
-void KRTextureCube::resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage)
+void KRTextureCube::requestResidency(float lodCoverage, texture_usage_t textureUsage)
 {
-    KRTexture::resetPoolExpiry(lodCoverage, textureUsage);
+    KRTexture::requestResidency(lodCoverage, textureUsage);
     for(int i=0; i<6; i++) {
         if(m_textures[i]) {
-            m_textures[i]->resetPoolExpiry(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
+            m_textures[i]->requestResidency(lodCoverage, textureUsage); // Ensure that side of cube maps do not expire from the texture pool prematurely, as they are referenced indirectly
         }
     }
 }

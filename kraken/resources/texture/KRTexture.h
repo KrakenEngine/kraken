@@ -77,7 +77,7 @@ public:
 
   float getStreamPriority();
 
-  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage);
+  virtual void requestResidency(float lodCoverage, texture_usage_t textureUsage);
   virtual bool isAnimated();
 
   virtual KRTexture* compress(bool premultiply_alpha = false);

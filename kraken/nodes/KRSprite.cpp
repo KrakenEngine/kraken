@@ -120,7 +120,7 @@ void KRSprite::preStream(const KRViewport& viewport)
   m_spriteTexture.bind(&getContext());
 
   if (m_spriteTexture.isBound()) {
-    m_spriteTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+    m_spriteTexture.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
   }
 }
 

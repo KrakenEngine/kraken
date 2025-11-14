@@ -396,7 +396,7 @@ void KRLight::render(RenderInfo& ri)
           m_flareTexture.bind(&getContext());
 
           if (m_flareTexture.isBound()) {
-            m_flareTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
+            m_flareTexture.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
             // Render light flare on transparency pass

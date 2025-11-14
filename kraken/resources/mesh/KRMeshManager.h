@@ -123,7 +123,7 @@ public:
       return (long)m_size;
     }
 
-    void resetPoolExpiry(float lodCoverage);
+    void requestResidency(float lodCoverage);
     long getLastFrameUsed()
     {
       return m_last_frame_used;

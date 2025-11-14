@@ -146,7 +146,7 @@ void KRTexture::resize(int max_dim)
   m_handle_lock.clear();
 }
 
-void KRTexture::resetPoolExpiry(float lodCoverage, KRTexture::texture_usage_t textureUsage)
+void KRTexture::requestResidency(float lodCoverage, KRTexture::texture_usage_t textureUsage)
 {
   long current_frame = getContext().getCurrentFrame();
   if (current_frame != m_last_frame_used) {

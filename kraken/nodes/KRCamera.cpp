@@ -150,7 +150,7 @@ void KRCamera::preStream(const KRViewport& viewport)
   m_skyBox.bind(&getContext());
 
   if (m_skyBox.isBound()) {
-    m_skyBox.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
+    m_skyBox.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
   }
 }
 
@@ -625,7 +625,7 @@ void KRCamera::renderDebug(RenderInfo& ri)
     
 
     KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
-    fontTexture->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_UI);
+    fontTexture->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_UI);
     if (fontTexture->getStreamLevel(KRTexture::TEXTURE_USAGE_UI) != kraken_stream_level::STREAM_LEVEL_OUT) {
       
       PipelineInfo info{};

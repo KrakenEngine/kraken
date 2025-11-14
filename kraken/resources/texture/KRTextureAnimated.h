@@ -46,7 +46,7 @@ public:
   virtual bool save(Block& data) override;
 
   virtual long getMemRequiredForSize(int max_dim) override;
-  virtual void resetPoolExpiry(float lodCoverage, texture_usage_t textureUsage) override;
+  virtual void requestResidency(float lodCoverage, texture_usage_t textureUsage) override;
 
   virtual long getReferencedMemSize() override;
 

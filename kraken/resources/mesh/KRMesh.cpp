@@ -198,7 +198,7 @@ void KRMesh::preStream(float lodCoverage)
 
   for (Submesh& mesh : m_submeshes) {
     for (shared_ptr<KRMeshManager::KRVBOData>& vbo : mesh.vbo_data_blocks) {
-      vbo->resetPoolExpiry(lodCoverage);
+      vbo->requestResidency(lodCoverage);
     }
   }
 }

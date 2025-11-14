@@ -294,7 +294,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
       
 
       if (m_lightMap.isBound() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
-        m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+        m_lightMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
         // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
         // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
       }
@@ -316,7 +316,6 @@ void KRModel::render(KRNode::RenderInfo& ri)
 void KRModel::preStream(const KRViewport& viewport)
 {
   KRNode::preStream(viewport);
-  m_lightMap.bind(&getContext());
   loadModel();
   float lod_coverage = viewport.coverage(getBounds());
 
@@ -329,7 +328,7 @@ void KRModel::preStream(const KRViewport& viewport)
   m_lightMap.bind(&getContext());
 
   if (m_lightMap.isBound()) {
-    m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+    m_lightMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
   }
 }
 
