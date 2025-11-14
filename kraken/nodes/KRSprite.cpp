@@ -126,8 +126,6 @@ void KRSprite::preStream(const KRViewport& viewport)
 
 void KRSprite::render(RenderInfo& ri)
 {
-  ri.reflectedObjects.push_back(this);
-
   KRNode::render(ri);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
@@ -160,7 +158,6 @@ void KRSprite::render(RenderInfo& ri)
       }
     }
   }
-  ri.reflectedObjects.pop_back();
 }
 
 bool KRSprite::getShaderValue(ShaderValue value, float* output) const

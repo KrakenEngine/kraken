@@ -157,7 +157,9 @@ void KRScene::render(KRNode::RenderInfo& ri)
       }
     } else {
       if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM) {
+        ri.reflectedObjects.push_back(node);
         node->render(ri);
+        ri.reflectedObjects.pop_back();
       }
     }
   }
@@ -361,7 +363,9 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vec
             } else {
               if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM)
               {
+                ri.reflectedObjects.push_back(*itr);
                 (*itr)->render(ri);
+                ri.reflectedObjects.pop_back();
               }
             }
           }

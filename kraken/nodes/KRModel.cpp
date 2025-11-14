@@ -254,8 +254,6 @@ void KRModel::loadModel()
 
 void KRModel::render(KRNode::RenderInfo& ri)
 {
-  ri.reflectedObjects.push_back(this);
-
   KRNode::render(ri);
 
   // Don't render meshes on second pass of the deferred lighting renderer, as only lights will be applied
@@ -263,8 +261,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES
     && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION
     && ri.renderPass->getType()!= RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE
-    && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP
-    && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PRESTREAM) {
+    && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
     loadModel();
 
     /*
@@ -315,8 +312,6 @@ void KRModel::render(KRNode::RenderInfo& ri)
       }
     }
   }
-
-  ri.reflectedObjects.pop_back();
 }
 
 void KRModel::preStream(const KRViewport& viewport)

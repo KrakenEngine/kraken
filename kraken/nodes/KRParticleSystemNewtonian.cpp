@@ -82,8 +82,6 @@ bool KRParticleSystemNewtonian::hasPhysics()
 
 void KRParticleSystemNewtonian::render(RenderInfo& ri)
 {
-  ri.reflectedObjects.push_back(this);
-
   KRNode::render(ri);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
@@ -111,7 +109,6 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
     }
   }
-  ri.reflectedObjects.pop_back();
 }
 
 bool KRParticleSystemNewtonian::getShaderValue(ShaderValue value, float* output) const

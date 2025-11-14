@@ -127,9 +127,6 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport& viewpor
 
 void KRDirectionalLight::render(RenderInfo& ri)
 {
-
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   ri.reflectedObjects.push_back(this);
 
   KRLight::render(ri);

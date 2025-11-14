@@ -75,8 +75,6 @@ AABB KRPointLight::getBounds()
 
 void KRPointLight::render(RenderInfo& ri)
 {
-  if (m_lod_visible <= LOD_VISIBILITY_PRESTREAM) return;
-
   ri.reflectedObjects.push_back(this);
 
   KRLight::render(ri);
