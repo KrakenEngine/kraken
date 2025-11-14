@@ -142,42 +142,42 @@ bool KRMaterial::save(Block& data)
 
 void KRMaterial::setAmbientMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset)
 {
-  m_ambientMap.setName(texture_name);
+  m_ambientMap.set(texture_name);
   m_ambientMapScale = texture_scale;
   m_ambientMapOffset = texture_offset;
 }
 
 void KRMaterial::setDiffuseMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset)
 {
-  m_diffuseMap.setName(texture_name);
+  m_diffuseMap.set(texture_name);
   m_diffuseMapScale = texture_scale;
   m_diffuseMapOffset = texture_offset;
 }
 
 void KRMaterial::setSpecularMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset)
 {
-  m_specularMap.setName(texture_name);
+  m_specularMap.set(texture_name);
   m_specularMapScale = texture_scale;
   m_specularMapOffset = texture_offset;
 }
 
 void KRMaterial::setNormalMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset)
 {
-  m_normalMap.setName(texture_name);
+  m_normalMap.set(texture_name);
   m_normalMapScale = texture_scale;
   m_normalMapOffset = texture_offset;
 }
 
 void KRMaterial::setReflectionMap(std::string texture_name, Vector2 texture_scale, Vector2 texture_offset)
 {
-  m_reflectionMap.setName(texture_name);
+  m_reflectionMap.set(texture_name);
   m_reflectionMapScale = texture_scale;
   m_reflectionMapOffset = texture_offset;
 }
 
 void KRMaterial::setReflectionCube(std::string texture_name)
 {
-  m_reflectionCube.setName(texture_name);
+  m_reflectionCube.set(texture_name);
 }
 
 void KRMaterial::setAlphaMode(KRMaterial::alpha_mode_type alpha_mode)

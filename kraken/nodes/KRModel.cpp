@@ -83,9 +83,9 @@ KRModel::KRModel(KRScene& scene, std::string name)
 KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
   : KRNode(scene, instance_name)
 {
-  m_lightMap.setName(light_map);
+  m_lightMap.set(light_map);
   for (int lod = 0; lod < kMeshLODCount; lod++) {
-    m_meshes[lod].setName(model_name[lod]);
+    m_meshes[lod].set(model_name[lod]);
   }
   m_min_lod_coverage = lod_min_coverage;
   m_receivesShadow = receives_shadow;
@@ -196,7 +196,7 @@ float KRModel::getRimPower()
 
 void KRModel::setLightMap(const std::string& name)
 {
-  m_lightMap.setName(name);
+  m_lightMap.set(name);
 }
 
 std::string KRModel::getLightMap()

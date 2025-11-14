@@ -59,7 +59,7 @@ KRCollider::KRCollider(KRScene& scene, std::string collider_name, std::string mo
   , m_layer_mask(layer_mask)
   , m_audio_occlusion(audio_occlusion)
 {
-  m_model.setName(model_name);
+  m_model.set(model_name);
 }
 
 KRCollider::~KRCollider()
@@ -84,7 +84,7 @@ tinyxml2::XMLElement* KRCollider::saveXML(tinyxml2::XMLNode* parent)
 void KRCollider::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-  m_model.setName(e->Attribute("mesh"));
+  m_model.set(e->Attribute("mesh"));
 
   m_layer_mask = 65535;
   if (e->QueryUnsignedAttribute("layer_mask", &m_layer_mask) != tinyxml2::XML_SUCCESS) {

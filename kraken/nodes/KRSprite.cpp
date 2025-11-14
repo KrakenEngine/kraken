@@ -85,7 +85,7 @@ void KRSprite::loadXML(tinyxml2::XMLElement* e)
 
   const char* szSpriteTexture = e->Attribute("sprite_texture");
   if (szSpriteTexture) {
-    m_spriteTexture.setName(szSpriteTexture);
+    m_spriteTexture.set(szSpriteTexture);
   } else {
     m_spriteTexture.clear();
   }
@@ -93,7 +93,7 @@ void KRSprite::loadXML(tinyxml2::XMLElement* e)
 
 void KRSprite::setSpriteTexture(std::string sprite_texture)
 {
-  m_spriteTexture.setName(sprite_texture);
+  m_spriteTexture.set(sprite_texture);
 }
 
 void KRSprite::setSpriteAlpha(float alpha)

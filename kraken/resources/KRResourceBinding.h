@@ -46,11 +46,11 @@ public:
 
   KRResource* get();
   void set(KRResource* resource);
+  void set(const std::string& name);
   bool isSet() const;
   void clear();
 
   const std::string& getName() const;
-  void setName(const std::string& name);
 
   virtual bool bind(KRContext* context) = 0;
   bool isBound() const;

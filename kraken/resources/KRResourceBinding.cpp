@@ -78,7 +78,7 @@ const std::string& KRResourceBinding::getName() const
   return m_name;
 }
 
-void KRResourceBinding::setName(const std::string& name)
+void KRResourceBinding::set(const std::string& name)
 {
   if (m_name == name) {
     return;

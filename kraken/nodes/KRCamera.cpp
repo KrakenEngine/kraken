@@ -121,7 +121,7 @@ void KRCamera::loadXML(tinyxml2::XMLElement* e)
   KRNode::loadXML(e);
   const char* szSkyBoxName = e->Attribute("skybox");
   if (szSkyBoxName) {
-    m_skyBox.setName(szSkyBoxName);
+    m_skyBox.set(szSkyBoxName);
   } else {
     m_skyBox.clear();
   }
@@ -135,7 +135,7 @@ void KRCamera::loadXML(tinyxml2::XMLElement* e)
 
 void KRCamera::setSkyBox(const std::string& skyBox)
 {
-  m_skyBox.setName(skyBox);
+  m_skyBox.set(skyBox);
 }
 
 const std::string KRCamera::getSkyBox() const

@@ -171,7 +171,7 @@ void KRLight::loadXML(tinyxml2::XMLElement* e)
 
   const char* szFlareTexture = e->Attribute("flare_texture");
   if (szFlareTexture) {
-    m_flareTexture.setName(szFlareTexture);
+    m_flareTexture.set(szFlareTexture);
   } else {
     m_flareTexture.clear();
   }
@@ -179,7 +179,7 @@ void KRLight::loadXML(tinyxml2::XMLElement* e)
 
 void KRLight::setFlareTexture(std::string flare_texture)
 {
-  m_flareTexture.setName(flare_texture);
+  m_flareTexture.set(flare_texture);
 }
 
 void KRLight::setFlareSize(float flare_size)

@@ -109,7 +109,7 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
   if (szAudioSampleName == nullptr) {
     m_sample.clear();
   } else {
-    m_sample.setName(szAudioSampleName);
+    m_sample.set(szAudioSampleName);
   }
 
   float gain = 1.0f;
@@ -364,7 +364,7 @@ bool KRAudioSource::isPlaying()
 
 void KRAudioSource::setSample(const std::string& sound_name)
 {
-  m_sample.setName(sound_name);
+  m_sample.set(sound_name);
 }
 
 std::string KRAudioSource::getSample()
