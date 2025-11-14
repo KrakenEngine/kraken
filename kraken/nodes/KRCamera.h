@@ -61,7 +61,8 @@ public:
 
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface, KRRenderGraph& renderGraph);
 
-  void render(KRNode::RenderInfo& ri);
+  void preStream(const KRViewport& viewport) final;
+  void render(KRNode::RenderInfo& ri) final;
 
   KRRenderSettings settings;
 

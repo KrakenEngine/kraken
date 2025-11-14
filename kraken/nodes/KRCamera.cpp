@@ -143,6 +143,17 @@ const std::string KRCamera::getSkyBox() const
   return m_skyBox.getName();
 }
 
+void KRCamera::preStream(const KRViewport& viewport)
+{
+  KRNode::preStream(viewport);
+
+  m_skyBox.bind(&getContext());
+
+  if (m_skyBox.isBound()) {
+    m_skyBox.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
+  }
+}
+
 void KRCamera::render(KRNode::RenderInfo& ri)
 {
   KRScene& scene = getScene();
@@ -154,10 +165,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
 
       GL_PUSH_GROUP_MARKER("Sky Box");
 
-      m_skyBox.bind(&getContext());
-
       if (m_skyBox.isBound()) {
-        m_skyBox.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
 
         std::string shader_name("sky_box");
         PipelineInfo info{};
