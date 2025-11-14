@@ -39,7 +39,7 @@ KRMesh* KRMeshBinding::get()
   return static_cast<KRMesh*>(m_resource);
 }
 
-bool KRMeshBinding::load(KRContext* context)
+bool KRMeshBinding::bind(KRContext* context)
 {
   if (m_name.size() == 0) {
     return true;

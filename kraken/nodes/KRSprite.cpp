@@ -117,9 +117,9 @@ void KRSprite::preStream(const KRViewport& viewport)
   KRNode::preStream(viewport);
 
   // Pre-stream sprites, even if the alpha is zero
-  m_spriteTexture.load(&getContext());
+  m_spriteTexture.bind(&getContext());
 
-  if (m_spriteTexture.isLoaded()) {
+  if (m_spriteTexture.isBound()) {
     m_spriteTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
   }
 }
@@ -130,7 +130,7 @@ void KRSprite::render(RenderInfo& ri)
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_spriteAlpha > 0.0f) {
-      if (m_spriteTexture.isLoaded()) {
+      if (m_spriteTexture.isBound()) {
         // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
 
         KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;

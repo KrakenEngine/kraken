@@ -39,7 +39,7 @@ KRTexture* KRTextureBinding::get()
   return static_cast<KRTexture*>(m_resource);
 }
 
-bool KRTextureBinding::load(KRContext* context)
+bool KRTextureBinding::bind(KRContext* context)
 {
   if (m_name.size() == 0) {
     return true;

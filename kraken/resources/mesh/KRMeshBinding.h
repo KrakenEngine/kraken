@@ -41,6 +41,6 @@ class KRMeshBinding : public KRResourceBinding
 public:
   KRMesh* get();
 
-  bool load(KRContext* context) override final;
+  bool bind(KRContext* context) override final;
 private:
 };

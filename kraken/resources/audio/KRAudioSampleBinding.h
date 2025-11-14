@@ -41,6 +41,6 @@ class KRAudioSampleBinding : public KRResourceBinding
 public:
   KRAudioSample* get();
 
-  bool load(KRContext* context) override final;
+  bool bind(KRContext* context) override final;
 private:
 };

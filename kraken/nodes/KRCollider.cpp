@@ -100,7 +100,7 @@ void KRCollider::loadXML(tinyxml2::XMLElement* e)
 void KRCollider::loadModel()
 {
   KRMesh* prevModel = m_model.get();
-  m_model.load(&getContext());
+  m_model.bind(&getContext());
   if (m_model.get() != prevModel) {
     getScene().notify_sceneGraphModify(this);
   }
@@ -109,7 +109,7 @@ void KRCollider::loadModel()
 AABB KRCollider::getBounds()
 {
   loadModel();
-  if (m_model.isLoaded()) {
+  if (m_model.isBound()) {
     return AABB::Create(m_model.get()->getMinPoint(), m_model.get()->getMaxPoint(), getModelMatrix());
   } else {
     return AABB::Infinite();
@@ -120,7 +120,7 @@ bool KRCollider::lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isLoaded()) {
+    if (m_model.isBound()) {
       if (getBounds().intersectsLine(v0, v1)) {
         Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
         Vector3 v1_model_space = Matrix4::Dot(getInverseModelMatrix(), v1);
@@ -145,7 +145,7 @@ bool KRCollider::rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isLoaded()) {
+    if (m_model.isBound()) {
       if (getBounds().intersectsRay(v0, dir)) {
         Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
         Vector3 dir_model_space = Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), dir));
@@ -170,7 +170,7 @@ bool KRCollider::sphereCast(const Vector3& v0, const Vector3& v1, float radius, 
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isLoaded()) {
+    if (m_model.isBound()) {
       AABB sphereCastBounds = AABB::Create( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
           Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
           Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
@@ -214,7 +214,7 @@ void KRCollider::render(RenderInfo& ri)
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
     loadModel();
-    if (m_model.isLoaded()) {
+    if (m_model.isBound()) {
 
       GL_PUSH_GROUP_MARKER("Debug Overlays");
 

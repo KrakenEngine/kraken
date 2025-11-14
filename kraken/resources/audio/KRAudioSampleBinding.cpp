@@ -42,7 +42,7 @@ KRAudioSample* KRAudioSampleBinding::get()
   return static_cast<KRAudioSample*>(m_resource);
 }
 
-bool KRAudioSampleBinding::load(KRContext* context)
+bool KRAudioSampleBinding::bind(KRContext* context)
 {
   if (m_name.size() == 0) {
     return true;

@@ -232,27 +232,27 @@ void KRMaterial::preStream(float lodCoverage)
 {
   getTextures();
 
-  if (m_ambientMap.isLoaded()) {
+  if (m_ambientMap.isBound()) {
     m_ambientMap.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
   }
 
-  if (m_diffuseMap.isLoaded()) {
+  if (m_diffuseMap.isBound()) {
     m_diffuseMap.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
   }
 
-  if (m_normalMap.isLoaded()) {
+  if (m_normalMap.isBound()) {
     m_normalMap.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
   }
 
-  if (m_specularMap.isLoaded()) {
+  if (m_specularMap.isBound()) {
     m_specularMap.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
   }
 
-  if (m_reflectionMap.isLoaded()) {
+  if (m_reflectionMap.isBound()) {
     m_reflectionMap.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
   }
 
-  if (m_reflectionCube.isLoaded()) {
+  if (m_reflectionCube.isBound()) {
     m_reflectionCube.get()->resetPoolExpiry(lodCoverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
   }
 }
@@ -264,27 +264,27 @@ kraken_stream_level KRMaterial::getStreamLevel()
 
   getTextures();
 
-  if (m_ambientMap.isLoaded()) {
+  if (m_ambientMap.isBound()) {
     stream_level = KRMIN(stream_level, m_ambientMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_AMBIENT_MAP));
   }
 
-  if (m_diffuseMap.isLoaded()) {
+  if (m_diffuseMap.isBound()) {
     stream_level = KRMIN(stream_level, m_diffuseMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_DIFFUSE_MAP));
   }
 
-  if (m_normalMap.isLoaded()) {
+  if (m_normalMap.isBound()) {
     stream_level = KRMIN(stream_level, m_normalMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_NORMAL_MAP));
   }
 
-  if (m_specularMap.isLoaded()) {
+  if (m_specularMap.isBound()) {
     stream_level = KRMIN(stream_level, m_specularMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_SPECULAR_MAP));
   }
 
-  if (m_reflectionMap.isLoaded()) {
+  if (m_reflectionMap.isBound()) {
     stream_level = KRMIN(stream_level, m_reflectionMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_REFLECTION_MAP));
   }
 
-  if (m_reflectionCube.isLoaded()) {
+  if (m_reflectionCube.isBound()) {
     stream_level = KRMIN(stream_level, m_reflectionCube.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_REFECTION_CUBE));
   }
 
@@ -293,12 +293,12 @@ kraken_stream_level KRMaterial::getStreamLevel()
 
 void KRMaterial::getTextures()
 {
-  m_ambientMap.load(&getContext());
-  m_diffuseMap.load(&getContext());
-  m_normalMap.load(&getContext());
-  m_specularMap.load(&getContext());
-  m_reflectionMap.load(&getContext());
-  m_reflectionCube.load(&getContext());
+  m_ambientMap.bind(&getContext());
+  m_diffuseMap.bind(&getContext());
+  m_normalMap.bind(&getContext());
+  m_specularMap.bind(&getContext());
+  m_reflectionMap.bind(&getContext());
+  m_reflectionCube.bind(&getContext());
 }
 
 void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
@@ -311,11 +311,11 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   Vector2 default_offset = Vector2::Zero();
 
   bool bHasReflection = m_reflectionColor != Vector3::Zero();
-  bool bDiffuseMap = m_diffuseMap.isLoaded() && ri.camera->settings.bEnableDiffuseMap;
-  bool bNormalMap = m_normalMap.isLoaded() && ri.camera->settings.bEnableNormalMap;
-  bool bSpecMap = m_specularMap.isLoaded() && ri.camera->settings.bEnableSpecMap;
-  bool bReflectionMap = m_reflectionMap.isLoaded() && ri.camera->settings.bEnableReflectionMap && ri.camera->settings.bEnableReflection && bHasReflection;
-  bool bReflectionCubeMap = m_reflectionCube.isLoaded() && ri.camera->settings.bEnableReflection && bHasReflection;
+  bool bDiffuseMap = m_diffuseMap.isBound() && ri.camera->settings.bEnableDiffuseMap;
+  bool bNormalMap = m_normalMap.isBound() && ri.camera->settings.bEnableNormalMap;
+  bool bSpecMap = m_specularMap.isBound() && ri.camera->settings.bEnableSpecMap;
+  bool bReflectionMap = m_reflectionMap.isBound() && ri.camera->settings.bEnableReflectionMap && ri.camera->settings.bEnableReflection && bHasReflection;
+  bool bReflectionCubeMap = m_reflectionCube.isBound() && ri.camera->settings.bEnableReflection && bHasReflection;
   bool bAlphaTest = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_TEST) && bDiffuseMap;
   bool bAlphaBlend = (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE) || (m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE);
 

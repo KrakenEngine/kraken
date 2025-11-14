@@ -52,8 +52,8 @@ public:
   const std::string& getName() const;
   void setName(const std::string& name);
 
-  virtual bool load(KRContext* context) = 0;
-  bool isLoaded() const;
+  virtual bool bind(KRContext* context) = 0;
+  bool isBound() const;
 
 protected:
   KRResource* m_resource;

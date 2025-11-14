@@ -393,9 +393,9 @@ void KRLight::render(RenderInfo& ri)
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
 
         if (params) {
-          m_flareTexture.load(&getContext());
+          m_flareTexture.bind(&getContext());
 
-          if (m_flareTexture.isLoaded()) {
+          if (m_flareTexture.isBound()) {
             m_flareTexture.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 

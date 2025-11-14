@@ -210,11 +210,11 @@ void KRModel::loadModel()
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     KRMesh* prevMesh = nullptr;
     prevMesh = m_meshes[lod].get();
-    m_meshes[lod].load(&getContext());
+    m_meshes[lod].bind(&getContext());
     if (m_meshes[lod].get() != prevMesh) {
       meshChanged = true;
     }
-    if (m_meshes[lod].isLoaded()) {
+    if (m_meshes[lod].isBound()) {
       KRMesh* model = m_meshes[lod].get();
       std::vector<KRBone*> model_bones;
       int bone_count = model->getBoneCount();
@@ -279,7 +279,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
       int bestLOD = -1;
       KRMesh* pModel = nullptr;
       for (int lod = 0; lod < kMeshLODCount; lod++) {
-        if (m_meshes[lod].isLoaded()) {
+        if (m_meshes[lod].isBound()) {
           KRMesh* pLODModel = m_meshes[lod].get();
 
           if ((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage) {
@@ -292,9 +292,9 @@ void KRModel::render(KRNode::RenderInfo& ri)
         }
       }
 
-      m_lightMap.load(&getContext());
+      m_lightMap.bind(&getContext());
 
-      if (m_lightMap.isLoaded() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
+      if (m_lightMap.isBound() && ri.camera->settings.bEnableLightMap && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP && ri.renderPass->getType() != RENDER_PASS_SHADOWMAP) {
         m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
         // TODO - Vulkan refactoring.  We need to bind the shadow map in KRMesh::Render
         // m_pContext->getTextureManager()->selectTexture(5, m_pLightMap, lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
@@ -321,14 +321,14 @@ void KRModel::preStream(const KRViewport& viewport)
   float lod_coverage = viewport.coverage(getBounds());
 
   for (int i = 0; i < kMeshLODCount; i++) {
-    if (m_meshes[i].isLoaded()) {
+    if (m_meshes[i].isBound()) {
       m_meshes[i].get()->preStream(lod_coverage);
     }
   }
 
-  m_lightMap.load(&getContext());
+  m_lightMap.bind(&getContext());
 
-  if (m_lightMap.isLoaded()) {
+  if (m_lightMap.isBound()) {
     m_lightMap.get()->resetPoolExpiry(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
   }
 }
@@ -341,7 +341,7 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
   loadModel();
 
   for (int lod = 0; lod < kMeshLODCount; lod++) {
-    if (m_meshes[lod].isLoaded()) {
+    if (m_meshes[lod].isBound()) {
         stream_level = KRMIN(stream_level, m_meshes[lod].get()->getStreamLevel());
     }
   }
@@ -355,7 +355,7 @@ AABB KRModel::getBounds()
 
   // Get the bounds of the lowest lod mesh
   for(int lod=0; lod<kMeshLODCount; lod++) {
-    if (!m_meshes[lod].isLoaded()) {
+    if (!m_meshes[lod].isBound()) {
       continue;
     }
     KRMesh* mesh = m_meshes[lod].get();

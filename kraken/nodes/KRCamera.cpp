@@ -154,9 +154,9 @@ void KRCamera::render(KRNode::RenderInfo& ri)
 
       GL_PUSH_GROUP_MARKER("Sky Box");
 
-      m_skyBox.load(&getContext());
+      m_skyBox.bind(&getContext());
 
-      if (m_skyBox.isLoaded()) {
+      if (m_skyBox.isBound()) {
         m_skyBox.get()->resetPoolExpiry(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
 
         std::string shader_name("sky_box");

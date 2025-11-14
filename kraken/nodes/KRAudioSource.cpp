@@ -170,8 +170,8 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
 void KRAudioSource::prime()
 {
   if (!m_isPrimed) {
-    m_sample.load(&getContext());
-    if (m_sample.isLoaded()) {
+    m_sample.bind(&getContext());
+    if (m_sample.isBound()) {
       // Prime the buffer queue
       m_nextBufferIndex = 0;
       for (int i = 0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
@@ -374,7 +374,7 @@ std::string KRAudioSource::getSample()
 
 KRAudioSample* KRAudioSource::getAudioSample()
 {
-  m_sample.load(&getContext());
+  m_sample.bind(&getContext());
   return m_sample.get();
 }
 

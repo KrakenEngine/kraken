@@ -92,7 +92,7 @@ void KRResourceBinding::clear()
   set(nullptr);
 }
 
-bool KRResourceBinding::isLoaded() const
+bool KRResourceBinding::isBound() const
 {
   return m_resource != nullptr;
 }
