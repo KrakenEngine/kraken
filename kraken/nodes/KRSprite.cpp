@@ -112,15 +112,15 @@ AABB KRSprite::getBounds()
 }
 
 
-void KRSprite::preStream(const KRViewport& viewport)
+void KRSprite::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
-  KRNode::preStream(viewport);
+  KRNode::preStream(viewport, resourceRequests);
 
   // Pre-stream sprites, even if the alpha is zero
   m_spriteTexture.bind(&getContext());
 
   if (m_spriteTexture.isBound()) {
-    m_spriteTexture.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_SPRITE);
+    resourceRequests.emplace_back(m_spriteTexture.get(), KRTexture::TEXTURE_USAGE_SPRITE);
   }
 }
 

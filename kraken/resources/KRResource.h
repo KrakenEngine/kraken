@@ -48,6 +48,10 @@ public:
 
   KrResult moveToBundle(KRBundle* bundle);
 
+  // TODO: requestResidency is a temporary interface until the streaming system is updated
+  // to directly balance memory from KRResourceRequest's
+  virtual void requestResidency(uint32_t usage, float lodCoverage);
+
   virtual ~KRResource();
 
   static KRMesh* LoadObj(KRContext& context, const std::string& path);

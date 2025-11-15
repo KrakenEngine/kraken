@@ -32,6 +32,7 @@
 #pragma once
 
 #include "resources/KRResource.h"
+#include "resources/KRResourceRequest.h"
 #include "KRViewport.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
@@ -216,7 +217,7 @@ public:
 
   KRScene& getScene();
 
-  virtual void preStream(const KRViewport& viewport);
+  virtual void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests);
   virtual void render(RenderInfo& ri);
 
   virtual void physicsUpdate(float deltaTime);

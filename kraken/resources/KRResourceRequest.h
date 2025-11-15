@@ -1,5 +1,5 @@
 //
-//  KRResource.cpp
+//  KRResource.h
 //  Kraken Engine
 //
 //  Copyright 2025 Kearwood Gilbert. All rights reserved.
@@ -29,50 +29,22 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#pragma once
+
 #include "KREngine-common.h"
-#include "KRResource.h"
-#include "resources/bundle/KRBundle.h"
-#include "KRContext.h"
 
-using namespace mimir;
+class KRResource;
+class KRResourceRequest
+{
+public:
+  KRResourceRequest(KRResource* resource, uint32_t usage, float lodCoverage = 0.0f)
+    : resource(resource)
+    , usage(usage)
+    , coverage(static_cast<uint8_t>(KRCLAMP(lodCoverage / 1.0f * 255.f, 0, 255.f)))
+  {
 
-KRResource::KRResource(KRContext& context, std::string name) : KRContextObject(context)
-{
-  m_name = name;
-  context.addResource(this, name);
-}
-KRResource::~KRResource()
-{
-  m_pContext->removeResource(this);
-}
-
-std::string KRResource::getName()
-{
-  return m_name;
-}
-
-bool KRResource::save(const std::string& path)
-{
-  Block data;
-  if (save(data)) {
-    return data.save(path);
-  } else {
-    return false;
   }
-}
-
-KrResult KRResource::moveToBundle(KRBundle* bundle)
-{
-  Block* data = bundle->append(*this);
-  if (data == nullptr) {
-    return KR_ERROR_UNEXPECTED;
-  }
-  // TODO(kearwood) - We must re-attach the KRResource to the returned Block
-  delete data;
-  return KR_SUCCESS;
-}
-
-void KRResource::requestResidency(uint32_t usage, float lodCoverage)
-{
-
-}
+  KRResource* resource;
+  unsigned int usage : 24;
+  uint8_t coverage : 8;
+};

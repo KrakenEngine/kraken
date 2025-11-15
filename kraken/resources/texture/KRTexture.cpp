@@ -146,6 +146,12 @@ void KRTexture::resize(int max_dim)
   m_handle_lock.clear();
 }
 
+void KRTexture::requestResidency(uint32_t usage, float lodCoverage)
+{
+  KRResource::requestResidency(usage, lodCoverage);
+  requestResidency(lodCoverage, static_cast<KRTexture::texture_usage_t>(usage));
+}
+
 void KRTexture::requestResidency(float lodCoverage, KRTexture::texture_usage_t textureUsage)
 {
   long current_frame = getContext().getCurrentFrame();

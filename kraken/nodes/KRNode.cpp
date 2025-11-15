@@ -684,7 +684,7 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
   return new_node;
 }
 
-void KRNode::preStream(const KRViewport& viewport)
+void KRNode::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
 
 }

@@ -143,14 +143,14 @@ const std::string KRCamera::getSkyBox() const
   return m_skyBox.getName();
 }
 
-void KRCamera::preStream(const KRViewport& viewport)
+void KRCamera::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
-  KRNode::preStream(viewport);
+  KRNode::preStream(viewport, resourceRequests);
 
   m_skyBox.bind(&getContext());
 
   if (m_skyBox.isBound()) {
-    m_skyBox.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_SKY_CUBE);
+    resourceRequests.emplace_back(m_skyBox.get(), KRTexture::TEXTURE_USAGE_SKY_CUBE);
   }
 }
 

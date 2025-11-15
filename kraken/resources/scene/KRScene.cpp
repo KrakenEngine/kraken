@@ -39,6 +39,7 @@
 #include "nodes/KRSpotLight.h"
 #include "nodes/KRPointLight.h"
 #include "resources/audio/KRAudioManager.h"
+#include "resources/KRResourceRequest.h"
 #include "KRRenderPass.h"
 
 using namespace mimir;
@@ -103,6 +104,7 @@ std::set<KRLight*>& KRScene::getLights()
 
 void KRScene::render(KRNode::RenderInfo& ri)
 {
+  std::list<KRResourceRequest> resourceRequests;
 
   // ----------  Start: Vulkan Debug Code ----------
   /*
@@ -153,7 +155,7 @@ void KRScene::render(KRNode::RenderInfo& ri)
     KRNode* node = (*itr);
     if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
       if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
-        node->preStream(*ri.viewport);
+        node->preStream(*ri.viewport, resourceRequests);
       }
     } else {
       if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM) {
@@ -177,10 +179,10 @@ void KRScene::render(KRNode::RenderInfo& ri)
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-      render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+      render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
     }
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-      render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
+      render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
     }
     remainingOctrees = newRemainingOctrees;
     remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -189,11 +191,16 @@ void KRScene::render(KRNode::RenderInfo& ri)
   newRemainingOctrees.clear();
   newRemainingOctreesTestResults.clear();
   for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-    render(ri, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+    render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+  }
+
+  // TODO: WIP Refactoring, this will be moved to the streaming system
+  for (KRResourceRequest request : resourceRequests) {
+    request.resource->requestResidency(request.usage, static_cast<float>(request.coverage) / 255.f);
   }
 }
 
-void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KRNode::RenderInfo& ri, std::list<KRResourceRequest>& resourceRequests, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
 {
   unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
   if (pOctreeNode) {
@@ -358,7 +365,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vec
             //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
             if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
               if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
-                (*itr)->preStream(*ri.viewport);
+                (*itr)->preStream(*ri.viewport, resourceRequests);
               }
             } else {
               if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM)
@@ -374,7 +381,7 @@ void KRScene::render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vec
           const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport->getBackToFrontOrder() : ri.viewport->getFrontToBackOrder();
 
           for (int i = 0; i < 8; i++) {
-            render(ri, pOctreeNode->getChildren()[childOctreeOrder[i]], remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+            render(ri, resourceRequests, pOctreeNode->getChildren()[childOctreeOrder[i]], remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
           }
 
           // Remove lights added at this octree level from the stack

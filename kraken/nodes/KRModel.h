@@ -63,7 +63,7 @@ public:
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
 
   virtual void render(KRNode::RenderInfo& ri) override;
-  virtual void preStream(const KRViewport& viewport) override;
+  virtual void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests) override;
 
   virtual hydra::AABB getBounds();
 

@@ -313,9 +313,9 @@ void KRModel::render(KRNode::RenderInfo& ri)
   }
 }
 
-void KRModel::preStream(const KRViewport& viewport)
+void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
-  KRNode::preStream(viewport);
+  KRNode::preStream(viewport, resourceRequests);
   loadModel();
   float lod_coverage = viewport.coverage(getBounds());
 

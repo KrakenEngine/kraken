@@ -92,7 +92,7 @@ public:
   std::set<KRLight*>& getLights();
 
 private:
-  void render(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
+  void render(KRNode::RenderInfo& ri, std::list<KRResourceRequest>& resourceRequests, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly);
 
   KRNode* m_pRootNode;
   KRLight* m_pFirstLight;
