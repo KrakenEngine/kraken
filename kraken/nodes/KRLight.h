@@ -65,6 +65,7 @@ public:
   void setFlareOcclusionSize(float occlusion_size);
   void deleteBuffers();
 
+  virtual void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests) override;
   virtual void render(RenderInfo& ri) override;
 
   int getShadowBufferCount();

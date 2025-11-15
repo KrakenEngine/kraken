@@ -221,6 +221,18 @@ float KRLight::getDecayStart() const
   return m_decayStart;
 }
 
+void KRLight::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
+{
+  KRNode::preStream(viewport, resourceRequests);
+
+  // Pre-stream sprites, even if the alpha is zero
+  m_flareTexture.bind(&getContext());
+
+  if (m_flareTexture.isBound()) {
+    resourceRequests.emplace_back(m_flareTexture.get(), KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
+  }
+}
+
 void KRLight::render(RenderInfo& ri)
 {
   KRNode::render(ri);
@@ -338,7 +350,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION) {
-    if (m_flareTexture.isSet() && m_flareSize > 0.0f) {
+    if (m_flareTexture.isBound() && m_flareSize > 0.0f) {
       KRMesh* sphereModel = getContext().getMeshManager()->getMesh("__sphere");
       if (sphereModel) {
 
@@ -385,7 +397,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
-    if (m_flareTexture.isSet() && m_flareSize > 0.0f) {
+    if (m_flareTexture.isBound() && m_flareSize > 0.0f) {
 
       if (m_occlusionQuery) {
         int params = 0;
@@ -393,10 +405,6 @@ void KRLight::render(RenderInfo& ri)
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
 
         if (params) {
-          m_flareTexture.bind(&getContext());
-
-          if (m_flareTexture.isBound()) {
-            m_flareTexture.get()->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
             KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
             // Render light flare on transparency pass
@@ -422,7 +430,6 @@ void KRLight::render(RenderInfo& ri)
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
             vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
           }
-        }
       }
     }
 

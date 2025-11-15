@@ -328,7 +328,7 @@ void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
   m_lightMap.bind(&getContext());
 
   if (m_lightMap.isBound()) {
-    m_lightMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_LIGHT_MAP);
+    resourceRequests.emplace_back(m_lightMap.get(), KRTexture::TEXTURE_USAGE_LIGHT_MAP);
   }
 }
 
