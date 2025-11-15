@@ -321,7 +321,7 @@ void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
 
   for (int i = 0; i < kMeshLODCount; i++) {
     if (m_meshes[i].isBound()) {
-      m_meshes[i].get()->preStream(lod_coverage);
+      m_meshes[i].get()->preStream(resourceRequests, lod_coverage);
     }
   }
 

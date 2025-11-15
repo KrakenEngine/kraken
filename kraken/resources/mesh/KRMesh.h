@@ -75,7 +75,7 @@ public:
   virtual ~KRMesh();
 
   kraken_stream_level getStreamLevel();
-  void preStream(float lodCoverage);
+  void preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage);
 
   bool hasTransparency();
 

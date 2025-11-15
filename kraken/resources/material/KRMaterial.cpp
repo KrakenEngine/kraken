@@ -228,32 +228,32 @@ bool KRMaterial::isTransparent()
   return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-void KRMaterial::preStream(float lodCoverage)
+void KRMaterial::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
 {
   getTextures();
 
   if (m_ambientMap.isBound()) {
-    m_ambientMap.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
+    resourceRequests.emplace_back(m_ambientMap.get(), KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
   }
 
   if (m_diffuseMap.isBound()) {
-    m_diffuseMap.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
+    resourceRequests.emplace_back(m_diffuseMap.get(), KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
   }
 
   if (m_normalMap.isBound()) {
-    m_normalMap.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
+    resourceRequests.emplace_back(m_normalMap.get(), KRTexture::TEXTURE_USAGE_NORMAL_MAP);
   }
 
   if (m_specularMap.isBound()) {
-    m_specularMap.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
+    resourceRequests.emplace_back(m_specularMap.get(), KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
   }
 
   if (m_reflectionMap.isBound()) {
-    m_reflectionMap.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
+    resourceRequests.emplace_back(m_reflectionMap.get(), KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
   }
 
   if (m_reflectionCube.isBound()) {
-    m_reflectionCube.get()->requestResidency(lodCoverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
+    resourceRequests.emplace_back(m_reflectionCube.get(), KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
   }
 }
 
@@ -384,27 +384,22 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   }
 
   if (bDiffuseMap) {
-    m_diffuseMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
     pShader->setImageBinding("diffuseTexture", m_diffuseMap.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
   if (bSpecMap) {
-    m_specularMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
     pShader->setImageBinding("specularTexture", m_specularMap.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
   if (bNormalMap) {
-    m_normalMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_NORMAL_MAP);
     pShader->setImageBinding("normalTexture", m_normalMap.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
   }
 
   if (bReflectionCubeMap) {
-    m_reflectionCube.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
     pShader->setImageBinding("reflectionCubeTexture", m_reflectionCube.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
   if (bReflectionMap) {
-    m_reflectionMap.get()->requestResidency(lod_coverage, KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
     pShader->setImageBinding("reflectionTexture", m_reflectionMap.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 

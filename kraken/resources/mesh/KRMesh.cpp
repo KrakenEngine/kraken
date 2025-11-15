@@ -187,13 +187,13 @@ void KRMesh::getMaterials()
   }
 }
 
-void KRMesh::preStream(float lodCoverage)
+void KRMesh::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
 {
   getSubmeshes();
   getMaterials();
 
   for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-    (*mat_itr)->preStream(lodCoverage);
+    (*mat_itr)->preStream(resourceRequests, lodCoverage);
   }
 
   for (Submesh& mesh : m_submeshes) {
@@ -236,7 +236,6 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
 {
   //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
   if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass->getType() != RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-    preStream(lod_coverage);
     if (getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
 
     } else {
