@@ -90,7 +90,7 @@ public:
   virtual int getFaceCount() const = 0;
   virtual VkFormat getFormat() const = 0;
 
-  kraken_stream_level getStreamLevel(KRTexture::texture_usage_t textureUsage);
+  kraken_stream_level getStreamLevel();
   float getLastFrameLodCoverage() const;
 
   void _swapHandles();

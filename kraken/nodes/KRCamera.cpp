@@ -630,7 +630,7 @@ void KRCamera::renderDebug(RenderInfo& ri)
     m_debug_text_vbo_data.load(ri.commandBuffer);
 
     KRTexture* fontTexture = m_fontTexture.get();
-    if (fontTexture->getStreamLevel(KRTexture::TEXTURE_USAGE_UI) != kraken_stream_level::STREAM_LEVEL_OUT) {
+    if (fontTexture->getStreamLevel() != kraken_stream_level::STREAM_LEVEL_OUT) {
       
       PipelineInfo info{};
       std::string shader_name("debug_font");

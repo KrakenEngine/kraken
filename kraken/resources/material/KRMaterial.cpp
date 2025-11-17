@@ -265,27 +265,27 @@ kraken_stream_level KRMaterial::getStreamLevel()
   getTextures();
 
   if (m_ambientMap.isBound()) {
-    stream_level = KRMIN(stream_level, m_ambientMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_AMBIENT_MAP));
+    stream_level = KRMIN(stream_level, m_ambientMap.get()->getStreamLevel());
   }
 
   if (m_diffuseMap.isBound()) {
-    stream_level = KRMIN(stream_level, m_diffuseMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_DIFFUSE_MAP));
+    stream_level = KRMIN(stream_level, m_diffuseMap.get()->getStreamLevel());
   }
 
   if (m_normalMap.isBound()) {
-    stream_level = KRMIN(stream_level, m_normalMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_NORMAL_MAP));
+    stream_level = KRMIN(stream_level, m_normalMap.get()->getStreamLevel());
   }
 
   if (m_specularMap.isBound()) {
-    stream_level = KRMIN(stream_level, m_specularMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_SPECULAR_MAP));
+    stream_level = KRMIN(stream_level, m_specularMap.get()->getStreamLevel());
   }
 
   if (m_reflectionMap.isBound()) {
-    stream_level = KRMIN(stream_level, m_reflectionMap.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_REFLECTION_MAP));
+    stream_level = KRMIN(stream_level, m_reflectionMap.get()->getStreamLevel());
   }
 
   if (m_reflectionCube.isBound()) {
-    stream_level = KRMIN(stream_level, m_reflectionCube.get()->getStreamLevel(KRTexture::TEXTURE_USAGE_REFECTION_CUBE));
+    stream_level = KRMIN(stream_level, m_reflectionCube.get()->getStreamLevel());
   }
 
   return stream_level;

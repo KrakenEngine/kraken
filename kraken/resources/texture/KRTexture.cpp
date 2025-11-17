@@ -166,7 +166,7 @@ void KRTexture::requestResidency(float lodCoverage, KRTexture::texture_usage_t t
   m_last_frame_usage = static_cast<texture_usage_t>(static_cast<int>(m_last_frame_usage) | static_cast<int>(textureUsage));
 }
 
-kraken_stream_level KRTexture::getStreamLevel(KRTexture::texture_usage_t textureUsage)
+kraken_stream_level KRTexture::getStreamLevel()
 {
   if (m_current_lod_max_dim == 0) {
     return kraken_stream_level::STREAM_LEVEL_OUT;
