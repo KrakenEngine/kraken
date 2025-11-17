@@ -89,6 +89,7 @@ KRCamera::KRCamera(KRScene& scene, std::string name)
   m_frame_times_filled = 0;
 
   m_fade_color = Vector4::Zero();
+  m_fontTexture.set("font");
 
   m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, KRMeshManager::KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -148,9 +149,14 @@ void KRCamera::preStream(const KRViewport& viewport, std::list<KRResourceRequest
   KRNode::preStream(viewport, resourceRequests);
 
   m_skyBox.bind(&getContext());
+  m_fontTexture.bind(&getContext());
 
   if (m_skyBox.isBound()) {
     resourceRequests.emplace_back(m_skyBox.get(), KRTexture::TEXTURE_USAGE_SKY_CUBE);
+  }
+
+  if (m_fontTexture.isBound()) {
+    resourceRequests.emplace_back(m_fontTexture.get(), KRTexture::TEXTURE_USAGE_UI);
   }
 }
 
@@ -622,10 +628,8 @@ void KRCamera::renderDebug(RenderInfo& ri)
     }
     
     m_debug_text_vbo_data.load(ri.commandBuffer);
-    
 
-    KRTexture* fontTexture = m_pContext->getTextureManager()->getTexture("font");
-    fontTexture->requestResidency(0.0f, KRTexture::TEXTURE_USAGE_UI);
+    KRTexture* fontTexture = m_fontTexture.get();
     if (fontTexture->getStreamLevel(KRTexture::TEXTURE_USAGE_UI) != kraken_stream_level::STREAM_LEVEL_OUT) {
       
       PipelineInfo info{};

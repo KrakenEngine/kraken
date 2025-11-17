@@ -104,7 +104,6 @@ private:
 
   KrSurfaceHandle m_surfaceHandle;
 
-  KRTextureBinding m_skyBox;
   KRViewport m_viewport;
 
   float m_particlesAbsoluteTime;
@@ -122,6 +121,9 @@ private:
 
   mimir::Block m_debug_text_vertices;
   KRMeshManager::KRVBOData m_debug_text_vbo_data;
+
+  KRTextureBinding m_fontTexture;
+  KRTextureBinding m_skyBox;
 
   uint64_t m_last_frame_start;
   int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];
