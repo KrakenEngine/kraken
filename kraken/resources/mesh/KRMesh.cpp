@@ -252,15 +252,10 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
       if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP) {
         for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
           KRMaterial* pMaterial = m_materials[iSubmesh];
-
-          if (pMaterial != NULL) {
-
-            if (!pMaterial->isTransparent()) {
-              // Exclude transparent and semi-transparent meshes from shadow maps
-              renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-            }
+          if (pMaterial && !pMaterial->isTransparent()) {
+            // Exclude transparent and semi-transparent meshes from shadow maps
+            renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
           }
-
         }
       } else {
         // Apply submeshes in per-material batches to reduce number of state changes
