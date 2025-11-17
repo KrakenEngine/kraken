@@ -322,6 +322,7 @@ void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
   for (int i = 0; i < kMeshLODCount; i++) {
     if (m_meshes[i].isBound()) {
       m_meshes[i].get()->preStream(resourceRequests, lod_coverage);
+      resourceRequests.emplace_back(m_meshes[i].get(), 0); // TODO: Pass in LOD level to drive streaming priority of meshes
     }
   }
 

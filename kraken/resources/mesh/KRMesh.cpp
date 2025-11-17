@@ -187,6 +187,17 @@ void KRMesh::getMaterials()
   }
 }
 
+void KRMesh::requestResidency(uint32_t usage, float lodCoverage)
+{
+  KRResource::requestResidency(usage, lodCoverage);
+
+  for (Submesh& mesh : m_submeshes) {
+    for (shared_ptr<KRMeshManager::KRVBOData>& vbo : mesh.vbo_data_blocks) {
+      vbo->requestResidency(lodCoverage);
+    }
+  }
+}
+
 void KRMesh::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
 {
   getSubmeshes();
@@ -194,12 +205,6 @@ void KRMesh::preStream(std::list<KRResourceRequest>& resourceRequests, float lod
 
   for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
     (*mat_itr)->preStream(resourceRequests, lodCoverage);
-  }
-
-  for (Submesh& mesh : m_submeshes) {
-    for (shared_ptr<KRMeshManager::KRVBOData>& vbo : mesh.vbo_data_blocks) {
-      vbo->requestResidency(lodCoverage);
-    }
   }
 }
 

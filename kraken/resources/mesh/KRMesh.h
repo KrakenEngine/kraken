@@ -76,6 +76,7 @@ public:
 
   kraken_stream_level getStreamLevel();
   void preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage);
+  void requestResidency(uint32_t usage, float lodCoverage) final;
 
   bool hasTransparency();
 
