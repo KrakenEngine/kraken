@@ -33,14 +33,16 @@
 #include "KRResourceBinding.h"
 #include "KRContext.h"
 
-KRResourceBinding::KRResourceBinding(const std::string& name)
+KRResourceBinding::KRResourceBinding(const std::string& name, uint64_t usage)
   : m_name(name)
   , m_resource(nullptr)
+  , m_usage(usage)
 {
 }
 
-KRResourceBinding::KRResourceBinding()
+KRResourceBinding::KRResourceBinding(uint64_t usage)
   : m_resource(nullptr)
+  , m_usage(usage)
 {
 }
 
@@ -48,6 +50,14 @@ KRResourceBinding::~KRResourceBinding()
 {
   m_resource = nullptr;
   m_name.clear();
+}
+
+void KRResourceBinding::submitRequest(KRContext* context, std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
+{
+  bind(context);
+  if (isBound()) {
+    resourceRequests.emplace_back(get(), m_usage, lodCoverage);
+  }
 }
 
 KRResource* KRResourceBinding::get()

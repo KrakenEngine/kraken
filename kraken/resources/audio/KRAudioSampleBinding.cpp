@@ -36,6 +36,17 @@
 #include "KRAudioSample.h"
 #include "KRAudioManager.h"
 
+KRAudioSampleBinding::KRAudioSampleBinding()
+  : KRResourceBinding(0)
+{
+
+}
+
+KRAudioSampleBinding::KRAudioSampleBinding(const std::string& name)
+  : KRResourceBinding(name, 0)
+{
+
+}
 
 KRAudioSample* KRAudioSampleBinding::get()
 {

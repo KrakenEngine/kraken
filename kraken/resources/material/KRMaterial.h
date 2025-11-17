@@ -134,8 +134,6 @@ private:
 
   alpha_mode_type m_alpha_mode;
 
-  void getTextures();
-
 private:
   bool getShaderValue(ShaderValue value, float* output) const final;
   bool getShaderValue(ShaderValue value, hydra::Vector2* output) const final;

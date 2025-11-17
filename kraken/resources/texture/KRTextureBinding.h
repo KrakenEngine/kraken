@@ -33,12 +33,15 @@
 
 #include "KREngine-common.h"
 #include "resources/KRResourceBinding.h"
+#include "resources/texture/KRTexture.h"
 
 class KRTexture;
 
 class KRTextureBinding : public KRResourceBinding
 {
 public:
+  KRTextureBinding(const std::string& name, KRTexture::texture_usage_t usage);
+  KRTextureBinding(KRTexture::texture_usage_t usage);
   KRTexture* get();
 
   bool bind(KRContext* context) override final;

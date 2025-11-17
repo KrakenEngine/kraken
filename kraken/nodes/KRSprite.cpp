@@ -54,7 +54,9 @@ void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->sprite.texture = -1;
 }
 
-KRSprite::KRSprite(KRScene& scene, std::string name) : KRNode(scene, name)
+KRSprite::KRSprite(KRScene& scene, std::string name)
+  : KRNode(scene, name)
+  , m_spriteTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_SPRITE))
 {
   m_spriteAlpha = 1.0f;
 }
@@ -117,11 +119,7 @@ void KRSprite::preStream(const KRViewport& viewport, std::list<KRResourceRequest
   KRNode::preStream(viewport, resourceRequests);
 
   // Pre-stream sprites, even if the alpha is zero
-  m_spriteTexture.bind(&getContext());
-
-  if (m_spriteTexture.isBound()) {
-    resourceRequests.emplace_back(m_spriteTexture.get(), KRTexture::TEXTURE_USAGE_SPRITE);
-  }
+  m_spriteTexture.submitRequest(&getContext(), resourceRequests);
 }
 
 void KRSprite::render(RenderInfo& ri)

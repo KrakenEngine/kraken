@@ -34,6 +34,18 @@
 #include "KRTexture.h"
 #include "KRTextureBinding.h"
 
+KRTextureBinding::KRTextureBinding(const std::string& name, KRTexture::texture_usage_t usage)
+  : KRResourceBinding(name, static_cast<uint64_t>(usage))
+{
+
+}
+
+KRTextureBinding::KRTextureBinding(KRTexture::texture_usage_t usage)
+  : KRResourceBinding(static_cast<uint64_t>(usage))
+{
+
+}
+
 KRTexture* KRTextureBinding::get()
 {
   return static_cast<KRTexture*>(m_resource);

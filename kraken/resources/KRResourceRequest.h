@@ -37,14 +37,15 @@ class KRResource;
 class KRResourceRequest
 {
 public:
-  KRResourceRequest(KRResource* resource, uint32_t usage, float lodCoverage = 0.0f)
+  KRResourceRequest(KRResource* resource, uint64_t usage, float lodCoverage = 0.0f)
     : resource(resource)
     , usage(usage)
     , coverage(static_cast<uint8_t>(KRCLAMP(lodCoverage / 1.0f * 255.f, 0, 255.f)))
   {
 
   }
+
   KRResource* resource;
-  unsigned int usage : 24;
+  uint64_t usage : 56;
   uint8_t coverage : 8;
 };

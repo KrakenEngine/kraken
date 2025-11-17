@@ -70,6 +70,8 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
 
 KRCamera::KRCamera(KRScene& scene, std::string name)
   : KRNode(scene, name)
+  , m_fontTexture(KRTextureBinding("font", KRTexture::TEXTURE_USAGE_UI))
+  , m_skyBox(KRTextureBinding(KRTexture::TEXTURE_USAGE_SKY_CUBE))
 {
   m_surfaceHandle = KR_NULL_HANDLE;
   m_last_frame_start = 0;
@@ -148,16 +150,8 @@ void KRCamera::preStream(const KRViewport& viewport, std::list<KRResourceRequest
 {
   KRNode::preStream(viewport, resourceRequests);
 
-  m_skyBox.bind(&getContext());
-  m_fontTexture.bind(&getContext());
-
-  if (m_skyBox.isBound()) {
-    resourceRequests.emplace_back(m_skyBox.get(), KRTexture::TEXTURE_USAGE_SKY_CUBE);
-  }
-
-  if (m_fontTexture.isBound()) {
-    resourceRequests.emplace_back(m_fontTexture.get(), KRTexture::TEXTURE_USAGE_UI);
-  }
+  m_skyBox.submitRequest(&getContext(), resourceRequests);
+  m_fontTexture.submitRequest(&getContext(), resourceRequests);
 }
 
 void KRCamera::render(KRNode::RenderInfo& ri)

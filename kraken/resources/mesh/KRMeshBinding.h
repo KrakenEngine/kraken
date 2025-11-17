@@ -39,6 +39,8 @@ class KRMesh;
 class KRMeshBinding : public KRResourceBinding
 {
 public:
+  KRMeshBinding();
+  KRMeshBinding(const std::string& name);
   KRMesh* get();
 
   bool bind(KRContext* context) override final;

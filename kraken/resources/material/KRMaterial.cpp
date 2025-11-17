@@ -40,7 +40,14 @@
 using namespace mimir;
 using namespace hydra;
 
-KRMaterial::KRMaterial(KRContext& context, const char* szName) : KRResource(context, szName)
+KRMaterial::KRMaterial(KRContext& context, const char* szName)
+  : KRResource(context, szName)
+  , m_ambientMap(KRTextureBinding(KRTexture::TEXTURE_USAGE_AMBIENT_MAP))
+  , m_diffuseMap(KRTexture::TEXTURE_USAGE_DIFFUSE_MAP)
+  , m_specularMap(KRTexture::TEXTURE_USAGE_NORMAL_MAP)
+  , m_reflectionMap(KRTexture::TEXTURE_USAGE_REFLECTION_MAP)
+  , m_reflectionCube(KRTexture::TEXTURE_USAGE_REFECTION_CUBE)
+  , m_normalMap(KRTexture::TEXTURE_USAGE_NORMAL_MAP)
 {
   m_name = szName;
   m_ambientColor = Vector3::Zero();
@@ -230,39 +237,17 @@ bool KRMaterial::isTransparent()
 
 void KRMaterial::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
 {
-  getTextures();
-
-  if (m_ambientMap.isBound()) {
-    resourceRequests.emplace_back(m_ambientMap.get(), KRTexture::TEXTURE_USAGE_AMBIENT_MAP);
-  }
-
-  if (m_diffuseMap.isBound()) {
-    resourceRequests.emplace_back(m_diffuseMap.get(), KRTexture::TEXTURE_USAGE_DIFFUSE_MAP);
-  }
-
-  if (m_normalMap.isBound()) {
-    resourceRequests.emplace_back(m_normalMap.get(), KRTexture::TEXTURE_USAGE_NORMAL_MAP);
-  }
-
-  if (m_specularMap.isBound()) {
-    resourceRequests.emplace_back(m_specularMap.get(), KRTexture::TEXTURE_USAGE_SPECULAR_MAP);
-  }
-
-  if (m_reflectionMap.isBound()) {
-    resourceRequests.emplace_back(m_reflectionMap.get(), KRTexture::TEXTURE_USAGE_REFLECTION_MAP);
-  }
-
-  if (m_reflectionCube.isBound()) {
-    resourceRequests.emplace_back(m_reflectionCube.get(), KRTexture::TEXTURE_USAGE_REFECTION_CUBE);
-  }
+  m_ambientMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  m_diffuseMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  m_normalMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  m_specularMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  m_reflectionMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  m_reflectionCube.submitRequest(&getContext(), resourceRequests, lodCoverage);
 }
-
 
 kraken_stream_level KRMaterial::getStreamLevel()
 {
   kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
-
-  getTextures();
 
   if (m_ambientMap.isBound()) {
     stream_level = KRMIN(stream_level, m_ambientMap.get()->getStreamLevel());
@@ -291,21 +276,9 @@ kraken_stream_level KRMaterial::getStreamLevel()
   return stream_level;
 }
 
-void KRMaterial::getTextures()
-{
-  m_ambientMap.bind(&getContext());
-  m_diffuseMap.bind(&getContext());
-  m_normalMap.bind(&getContext());
-  m_specularMap.bind(&getContext());
-  m_reflectionMap.bind(&getContext());
-  m_reflectionCube.bind(&getContext());
-}
-
 void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
 {
   bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
-
-  getTextures();
 
   Vector2 default_scale = Vector2::One();
   Vector2 default_offset = Vector2::Zero();

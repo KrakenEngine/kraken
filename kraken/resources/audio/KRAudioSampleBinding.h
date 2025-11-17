@@ -39,6 +39,8 @@ class KRAudioSample;
 class KRAudioSampleBinding : public KRResourceBinding
 {
 public:
+  KRAudioSampleBinding();
+  KRAudioSampleBinding(const std::string& name);
   KRAudioSample* get();
 
   bool bind(KRContext* context) override final;

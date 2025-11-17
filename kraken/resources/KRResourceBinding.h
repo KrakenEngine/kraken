@@ -33,6 +33,7 @@
 
 #include "KREngine-common.h"
 #include "KRContextObject.h"
+#include "KRResourceRequest.h"
 
 class KRResource;
 class KRContext;
@@ -40,9 +41,11 @@ class KRContext;
 class KRResourceBinding
 {
 public:
-  KRResourceBinding(const std::string& name);
-  KRResourceBinding();
+  KRResourceBinding(const std::string& name, uint64_t usage);
+  KRResourceBinding(uint64_t usage);
   ~KRResourceBinding();
+
+  void submitRequest(KRContext* context, std::list<KRResourceRequest>& resourceRequests, float lodCoverage = 0.f);
 
   KRResource* get();
   void set(KRResource* resource);
@@ -58,4 +61,5 @@ public:
 protected:
   KRResource* m_resource;
   std::string m_name;
+  uint64_t m_usage;
 };

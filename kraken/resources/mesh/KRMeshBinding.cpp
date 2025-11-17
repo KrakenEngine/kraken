@@ -34,6 +34,18 @@
 #include "KRMesh.h"
 #include "KRMeshBinding.h"
 
+KRMeshBinding::KRMeshBinding()
+  : KRResourceBinding(0)
+{
+
+}
+
+KRMeshBinding::KRMeshBinding(const std::string& name)
+  : KRResourceBinding(name, 0)
+{
+
+}
+
 KRMesh* KRMeshBinding::get()
 {
   return static_cast<KRMesh*>(m_resource);

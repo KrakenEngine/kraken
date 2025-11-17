@@ -63,7 +63,9 @@ void KRLight::InitNodeInfo(KrNodeInfo* nodeInfo)
   nodeInfo->light.light_shafts = true;
 }
 
-KRLight::KRLight(KRScene& scene, std::string name) : KRNode(scene, name)
+KRLight::KRLight(KRScene& scene, std::string name)
+  : KRNode(scene, name)
+  , m_flareTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_LIGHT_FLARE))
 {
   m_intensity = 1.0f;
   m_dust_particle_intensity = 1.0f;
@@ -226,11 +228,7 @@ void KRLight::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
   KRNode::preStream(viewport, resourceRequests);
 
   // Pre-stream sprites, even if the alpha is zero
-  m_flareTexture.bind(&getContext());
-
-  if (m_flareTexture.isBound()) {
-    resourceRequests.emplace_back(m_flareTexture.get(), KRTexture::TEXTURE_USAGE_LIGHT_FLARE);
-  }
+  m_flareTexture.submitRequest(&getContext(), resourceRequests);
 }
 
 void KRLight::render(RenderInfo& ri)

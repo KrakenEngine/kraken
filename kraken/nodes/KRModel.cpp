@@ -56,6 +56,7 @@ void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 KRModel::KRModel(KRScene& scene, std::string name)
   : KRNode(scene, name)
+  , m_lightMap(KRTexture::TEXTURE_USAGE_LIGHT_MAP)
   , m_min_lod_coverage(0.0f)
   , m_receivesShadow(true)
   , m_faces_camera(false)
@@ -82,8 +83,8 @@ KRModel::KRModel(KRScene& scene, std::string name)
 
 KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
   : KRNode(scene, instance_name)
+  , m_lightMap(light_map, KRTexture::TEXTURE_USAGE_LIGHT_MAP)
 {
-  m_lightMap.set(light_map);
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     m_meshes[lod].set(model_name[lod]);
   }
@@ -312,17 +313,10 @@ void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
   float lod_coverage = viewport.coverage(getBounds());
 
   for (int i = 0; i < kMeshLODCount; i++) {
-    if (m_meshes[i].isBound()) {
-      m_meshes[i].get()->preStream(resourceRequests, lod_coverage);
-      resourceRequests.emplace_back(m_meshes[i].get(), 0, lod_coverage);
-    }
+    m_meshes[i].submitRequest(&getContext(), resourceRequests, lod_coverage);
   }
 
-  m_lightMap.bind(&getContext());
-
-  if (m_lightMap.isBound()) {
-    resourceRequests.emplace_back(m_lightMap.get(), KRTexture::TEXTURE_USAGE_LIGHT_MAP);
-  }
+  m_lightMap.submitRequest(&getContext(), resourceRequests);
 }
 
 
