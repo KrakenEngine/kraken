@@ -67,16 +67,7 @@ KRLight::KRLight(KRScene& scene, std::string name)
   : KRNode(scene, name)
   , m_flareTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_LIGHT_FLARE))
 {
-  m_intensity = 1.0f;
-  m_dust_particle_intensity = 1.0f;
   m_color = Vector3::One();
-  m_flareSize = 0.0f;
-  m_flareOcclusionSize = 0.05f;
-  m_casts_shadow = true;
-  m_light_shafts = true;
-  m_dust_particle_density = 0.1f;
-  m_dust_particle_size = 1.0f;
-  m_dust_particle_intensity = 1.0f;
   m_occlusionQuery = 0;
   m_decayStart = 0;
 
@@ -101,19 +92,19 @@ KRLight::~KRLight()
 tinyxml2::XMLElement* KRLight::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("intensity", m_intensity);
+  m_intensity.save(e);
   e->SetAttribute("color_r", m_color.x);
   e->SetAttribute("color_g", m_color.y);
   e->SetAttribute("color_b", m_color.z);
-  e->SetAttribute("decay_start", m_decayStart);
-  e->SetAttribute("flare_size", m_flareSize);
-  e->SetAttribute("flare_occlusion_size", m_flareOcclusionSize);
+  m_decayStart.save(e);
+  m_flareSize.save(e);
+  m_flareOcclusionSize.save(e);
+  m_casts_shadow.save(e);
+  m_light_shafts.save(e);
+  m_dust_particle_density.save(e);
+  m_dust_particle_size.save(e);
+  m_dust_particle_intensity.save(e);
   e->SetAttribute("flare_texture", m_flareTexture.getName().c_str());
-  e->SetAttribute("casts_shadow", m_casts_shadow ? "true" : "false");
-  e->SetAttribute("light_shafts", m_light_shafts ? "true" : "false");
-  e->SetAttribute("dust_particle_density", m_dust_particle_density);
-  e->SetAttribute("dust_particle_size", m_dust_particle_size);
-  e->SetAttribute("dust_particle_intensity", m_dust_particle_intensity);
   return e;
 }
 
@@ -132,44 +123,15 @@ void KRLight::loadXML(tinyxml2::XMLElement* e)
   }
   m_color = Vector3::Create(x, y, z);
 
-  if (e->QueryFloatAttribute("intensity", &m_intensity) != tinyxml2::XML_SUCCESS) {
-    m_intensity = 100.0;
-  }
-
-  if (e->QueryFloatAttribute("decay_start", &m_decayStart) != tinyxml2::XML_SUCCESS) {
-    m_decayStart = 0.0;
-  }
-
-  if (e->QueryFloatAttribute("flare_size", &m_flareSize) != tinyxml2::XML_SUCCESS) {
-    m_flareSize = 0.0;
-  }
-
-  if (e->QueryFloatAttribute("flare_occlusion_size", &m_flareOcclusionSize) != tinyxml2::XML_SUCCESS) {
-    m_flareOcclusionSize = 0.05f;
-  }
-
-  if (e->QueryBoolAttribute("casts_shadow", &m_casts_shadow) != tinyxml2::XML_SUCCESS) {
-    m_casts_shadow = true;
-  }
-
-  if (e->QueryBoolAttribute("light_shafts", &m_light_shafts) != tinyxml2::XML_SUCCESS) {
-    m_light_shafts = true;
-  }
-
-  m_dust_particle_density = 0.1f;
-  if (e->QueryFloatAttribute("dust_particle_density", &m_dust_particle_density) != tinyxml2::XML_SUCCESS) {
-    m_dust_particle_density = 0.1f;
-  }
-
-  m_dust_particle_size = 1.0f;
-  if (e->QueryFloatAttribute("dust_particle_size", &m_dust_particle_size) != tinyxml2::XML_SUCCESS) {
-    m_dust_particle_size = 1.0f;
-  }
-
-  m_dust_particle_intensity = 1.0f;
-  if (e->QueryFloatAttribute("dust_particle_intensity", &m_dust_particle_intensity) != tinyxml2::XML_SUCCESS) {
-    m_dust_particle_intensity = 1.0f;
-  }
+  m_intensity.load(e);
+  m_decayStart.load(e);
+  m_flareSize.load(e);
+  m_flareOcclusionSize.load(e);
+  m_casts_shadow.load(e);
+  m_light_shafts.load(e);
+  m_dust_particle_density.load(e);
+  m_dust_particle_size.load(e);
+  m_dust_particle_intensity.load(e);
 
   const char* szFlareTexture = e->Attribute("flare_texture");
   if (szFlareTexture) {
@@ -338,7 +300,7 @@ void KRLight::render(RenderInfo& ri)
     float slice_spacing = (slice_far - slice_near) / slice_count;
 
     pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
-    pFogShader->setPushConstant(ShaderValue::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 1000.0f));
+    pFogShader->setPushConstant(ShaderValue::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
     pFogShader->bind(ri, Matrix4()); // TODO: Pass indexes of lights to shader
 
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
@@ -572,7 +534,7 @@ bool KRLight::getShaderValue(ShaderValue value, float* output) const
 {
   switch (value) {
   case ShaderValue::light_intensity:
-    *output = m_intensity * 0.01f;
+    *output = m_intensity;
     return true;
   case ShaderValue::light_decay_start:
     *output = getDecayStart();

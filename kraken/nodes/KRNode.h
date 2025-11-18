@@ -95,13 +95,21 @@ public:
 
   void save(tinyxml2::XMLElement* element) const
   {
-    element->SetAttribute(config::name, val);
+    if constexpr (std::is_same<T, bool>::value) {
+      element->SetAttribute(config::name, val ? "true" : "false");
+    } else {
+      element->SetAttribute(config::name, val);
+    }
   }
 
   void load(tinyxml2::XMLElement* element)
   {
     if constexpr (std::is_same<T, float>::value) {
       if (element->QueryFloatAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+        val = config::defaultVal;
+      }
+    } else if constexpr (std::is_same<T, bool>::value) {
+      if (element->QueryBoolAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
     } else {
