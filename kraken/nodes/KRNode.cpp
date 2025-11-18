@@ -686,6 +686,28 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
 
 void KRNode::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
+  float lod_coverage = viewport.coverage(getBounds());
+
+  // Walk through the resource tree recursively, submitting a resource request for each
+  // resource that is bound
+  std::list<KRResourceBinding*> bindings[2];
+  getResourceBindings(bindings[0]);
+  int bufferRead = 0;
+  while (!bindings[bufferRead].empty()) {
+    int bufferWrite = bufferRead ? 0 : 1;
+    for (KRResourceBinding* binding : bindings[bufferRead]) {
+      binding->submitRequest(&getContext(), resourceRequests, lod_coverage);
+      if (binding->isBound()) {
+        binding->get()->getResourceBindings(bindings[bufferWrite]);
+      }
+    }
+    bindings[bufferRead].clear();
+    bufferRead = bufferWrite;
+  }
+}
+
+void KRNode::getResourceBindings(std::list<KRResourceBinding*>& bindings)
+{
 
 }
 

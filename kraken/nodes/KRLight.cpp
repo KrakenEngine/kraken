@@ -223,12 +223,11 @@ float KRLight::getDecayStart() const
   return m_decayStart;
 }
 
-void KRLight::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
+void KRLight::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
-  KRNode::preStream(viewport, resourceRequests);
+  KRNode::getResourceBindings(bindings);
 
-  // Pre-stream sprites, even if the alpha is zero
-  m_flareTexture.submitRequest(&getContext(), resourceRequests);
+  bindings.push_back(&m_flareTexture);
 }
 
 void KRLight::render(RenderInfo& ri)

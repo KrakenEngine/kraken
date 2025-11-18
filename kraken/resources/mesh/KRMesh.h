@@ -36,6 +36,7 @@
 #include "KRContext.h"
 #include "nodes/KRBone.h"
 #include "KRMeshManager.h"
+#include "resources/material/KRMaterialBinding.h"
 
 #include "KREngine-common.h"
 
@@ -75,7 +76,8 @@ public:
   virtual ~KRMesh();
 
   kraken_stream_level getStreamLevel();
-  void preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage);
+  virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings) override;
+  void preStream();
   void requestResidency(uint32_t usage, float lodCoverage) final;
 
   bool hasTransparency();
@@ -251,7 +253,7 @@ private:
   static bool sphereCast(const hydra::Matrix4& model_to_world, const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, const hydra::Triangle3& tri, hydra::HitInfo& hitinfo);
 
   int m_lodCoverage; // This LOD level is activated when the bounding box of the model will cover less than this percent of the screen (100 = highest detail model)
-  vector<KRMaterial*> m_materials;
+  vector<KRMaterialBinding> m_materials;
   set<KRMaterial*> m_uniqueMaterials;
 
   bool m_hasTransparency;

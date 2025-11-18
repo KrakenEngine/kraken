@@ -1,5 +1,5 @@
 //
-//  KRResource.cpp
+//  KRMaterialBinding.cpp
 //  Kraken Engine
 //
 //  Copyright 2025 Kearwood Gilbert. All rights reserved.
@@ -30,54 +30,36 @@
 //
 
 #include "KREngine-common.h"
-#include "KRResource.h"
-#include "resources/bundle/KRBundle.h"
 #include "KRContext.h"
+#include "KRMaterial.h"
+#include "KRMaterialBinding.h"
 
-using namespace mimir;
+KRMaterialBinding::KRMaterialBinding()
+  : KRResourceBinding(0)
+{
 
-KRResource::KRResource(KRContext& context, std::string name) : KRContextObject(context)
-{
-  m_name = name;
-  context.addResource(this, name);
-}
-KRResource::~KRResource()
-{
-  m_pContext->removeResource(this);
 }
 
-std::string KRResource::getName()
+KRMaterialBinding::KRMaterialBinding(const std::string& name)
+  : KRResourceBinding(name, 0)
 {
-  return m_name;
+
 }
 
-bool KRResource::save(const std::string& path)
+KRMaterial* KRMaterialBinding::get()
 {
-  Block data;
-  if (save(data)) {
-    return data.save(path);
-  } else {
-    return false;
+  return static_cast<KRMaterial*>(m_resource);
+}
+
+bool KRMaterialBinding::bind(KRContext* context)
+{
+  if (m_name.size() == 0) {
+    return true;
   }
-}
-
-KrResult KRResource::moveToBundle(KRBundle* bundle)
-{
-  Block* data = bundle->append(*this);
-  if (data == nullptr) {
-    return KR_ERROR_UNEXPECTED;
+  if (m_resource != nullptr) {
+    return true;
   }
-  // TODO(kearwood) - We must re-attach the KRResource to the returned Block
-  delete data;
-  return KR_SUCCESS;
-}
+  m_resource = context->getMaterialManager()->getMaterial(m_name.c_str());
 
-void KRResource::requestResidency(uint32_t usage, float lodCoverage)
-{
-
-}
-
-void KRResource::getResourceBindings(std::list<KRResourceBinding*>& bindings)
-{
-
+  return (m_resource != nullptr);
 }

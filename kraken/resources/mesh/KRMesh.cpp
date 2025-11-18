@@ -164,26 +164,7 @@ void KRMesh::getMaterials()
 
   for (std::vector<KRMesh::Submesh>::iterator itr = m_submeshes.begin(); itr != m_submeshes.end(); itr++) {
     const char* szMaterialName = (*itr).szMaterialName;
-    KRMaterial* pMaterial = nullptr;
-    if (*szMaterialName != '\0') {
-      pMaterial = getContext().getMaterialManager()->getMaterial(szMaterialName);
-    }
-    m_materials.push_back(pMaterial);
-    if (pMaterial) {
-      m_uniqueMaterials.insert(pMaterial);
-    } else if (*szMaterialName != '\0') {
-      KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Missing material: %s", szMaterialName);
-      m_materials.clear();
-      return;
-    }
-  }
-
-  m_hasTransparency = false;
-  for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-    if ((*mat_itr)->isTransparent()) {
-      m_hasTransparency = true;
-      break;
-    }
+    m_materials.push_back(KRMaterialBinding(szMaterialName));
   }
 }
 
@@ -198,13 +179,26 @@ void KRMesh::requestResidency(uint32_t usage, float lodCoverage)
   }
 }
 
-void KRMesh::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
+void KRMesh::preStream()
 {
   getSubmeshes();
   getMaterials();
 
-  for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-    (*mat_itr)->preStream(resourceRequests, lodCoverage);
+  m_hasTransparency = false;
+  for(KRMaterialBinding& material : m_materials) {
+    if (material.isBound() && material.get()->isTransparent()) {
+      m_hasTransparency = true;
+      break;
+    }
+  }
+}
+
+void KRMesh::getResourceBindings(std::list<KRResourceBinding*>& bindings)
+{
+  KRResource::getResourceBindings(bindings);
+
+  for (KRResourceBinding& binding : m_materials) {
+    bindings.push_back(&binding);
   }
 }
 
@@ -214,8 +208,10 @@ kraken_stream_level KRMesh::getStreamLevel()
   getSubmeshes();
   getMaterials();
 
-  for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-    stream_level = KRMIN(stream_level, (*mat_itr)->getStreamLevel());
+  for (KRMaterialBinding& material : m_materials) {
+    if (material.isBound()) {
+      stream_level = KRMIN(stream_level, material.get()->getStreamLevel());
+    }
   }
   bool all_vbo_data_loaded = true;
   bool vbo_data_loaded = false;
@@ -251,46 +247,42 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
       int cSubmeshes = (int)m_submeshes.size();
       if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP) {
         for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
-          KRMaterial* pMaterial = m_materials[iSubmesh];
+          KRMaterial* pMaterial = m_materials[iSubmesh].get();
           if (pMaterial && !pMaterial->isTransparent()) {
             // Exclude transparent and semi-transparent meshes from shadow maps
             renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
           }
         }
       } else {
-        // Apply submeshes in per-material batches to reduce number of state changes
-        for (std::set<KRMaterial*>::iterator mat_itr = m_uniqueMaterials.begin(); mat_itr != m_uniqueMaterials.end(); mat_itr++) {
-          for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
-            KRMaterial* pMaterial = m_materials[iSubmesh];
+        for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
+          KRMaterial* pMaterial = m_materials[iSubmesh].get();
 
-            if (pMaterial != NULL && pMaterial == (*mat_itr)) {
-              if ((!pMaterial->isTransparent() && ri.renderPass->getType() != RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT)) {
-                std::vector<Matrix4> bone_bind_poses;
-                for (int i = 0; i < (int)bones.size(); i++) {
-                  bone_bind_poses.push_back(getBoneBindPose(i));
-                }
+          if (pMaterial) {
+            if ((!pMaterial->isTransparent() && ri.renderPass->getType() != RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT)) {
+              std::vector<Matrix4> bone_bind_poses;
+              for (int i = 0; i < (int)bones.size(); i++) {
+                bone_bind_poses.push_back(getBoneBindPose(i));
+              }
 
+              switch (pMaterial->getAlphaMode()) {
+              case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
+              case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
+                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
+                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                break;
+              case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
+                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
+                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                break;
+              case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
+                  // Render back faces first
+                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
+                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
 
-                switch (pMaterial->getAlphaMode()) {
-                case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
-                case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                  pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                  break;
-                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDONESIDE: // Blended alpha with backface culling
-                  pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                  break;
-                case KRMaterial::KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE: // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
-                    // Render back faces first
-                  pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-
-                  // Render front faces second
-                  pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
-                  break;
-                }
+                // Render front faces second
+                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
+                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                break;
               }
             }
           }

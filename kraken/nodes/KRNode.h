@@ -52,6 +52,7 @@ class KRTextureManager;
 class KRContext;
 class KRScene;
 class KRSurface;
+class KRResourceBinding;
 
 class KRNode;
 class KRPointLight;
@@ -218,6 +219,7 @@ public:
   KRScene& getScene();
 
   virtual void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests);
+  virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings);
   virtual void render(RenderInfo& ri);
 
   virtual void physicsUpdate(float deltaTime);

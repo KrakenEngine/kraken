@@ -38,6 +38,7 @@
 class KRBundle;
 class KRScene;
 class KRMesh;
+class KRResourceBinding;
 class KRResource : public KRContextObject
 {
 public:
@@ -51,6 +52,8 @@ public:
   // TODO: requestResidency is a temporary interface until the streaming system is updated
   // to directly balance memory from KRResourceRequest's
   virtual void requestResidency(uint32_t usage, float lodCoverage);
+
+  virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings);
 
   virtual ~KRResource();
 

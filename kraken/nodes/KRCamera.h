@@ -61,7 +61,7 @@ public:
 
   void renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeSurface, KRRenderGraph& renderGraph);
 
-  void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests) final;
+  void getResourceBindings(std::list<KRResourceBinding*>& bindings) final;
   void render(KRNode::RenderInfo& ri) final;
 
   KRRenderSettings settings;

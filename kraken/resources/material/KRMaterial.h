@@ -96,7 +96,8 @@ public:
   bool needsVertexTangents();
 
   kraken_stream_level getStreamLevel();
-  void preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage);
+
+  virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings) override;
 
 private:
   std::string m_name;

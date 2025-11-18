@@ -306,19 +306,28 @@ void KRModel::render(KRNode::RenderInfo& ri)
   }
 }
 
+void KRModel::getResourceBindings(std::list<KRResourceBinding*>& bindings)
+{
+  KRNode::getResourceBindings(bindings);
+
+  for (int i = 0; i < kMeshLODCount; i++) {
+    bindings.push_back(&m_meshes[i]);
+  }
+  bindings.push_back(&m_lightMap);
+}
+
+
 void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
 {
   KRNode::preStream(viewport, resourceRequests);
   loadModel();
-  float lod_coverage = viewport.coverage(getBounds());
 
   for (int i = 0; i < kMeshLODCount; i++) {
-    m_meshes[i].submitRequest(&getContext(), resourceRequests, lod_coverage);
+    if (m_meshes[i].isBound()) {
+      m_meshes[i].get()->preStream();
+    }
   }
-
-  m_lightMap.submitRequest(&getContext(), resourceRequests);
 }
-
 
 kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
 {

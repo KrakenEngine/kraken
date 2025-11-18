@@ -113,13 +113,11 @@ AABB KRSprite::getBounds()
   return AABB::Create(-Vector3::One() * 0.5f, Vector3::One() * 0.5f, getModelMatrix());
 }
 
-
-void KRSprite::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
+void KRSprite::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
-  KRNode::preStream(viewport, resourceRequests);
+  KRNode::getResourceBindings(bindings);
 
-  // Pre-stream sprites, even if the alpha is zero
-  m_spriteTexture.submitRequest(&getContext(), resourceRequests);
+  bindings.push_back(&m_spriteTexture);
 }
 
 void KRSprite::render(RenderInfo& ri)

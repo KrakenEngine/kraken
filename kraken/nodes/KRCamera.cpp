@@ -146,12 +146,12 @@ const std::string KRCamera::getSkyBox() const
   return m_skyBox.getName();
 }
 
-void KRCamera::preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests)
+void KRCamera::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
-  KRNode::preStream(viewport, resourceRequests);
+  KRNode::getResourceBindings(bindings);
 
-  m_skyBox.submitRequest(&getContext(), resourceRequests);
-  m_fontTexture.submitRequest(&getContext(), resourceRequests);
+  bindings.push_back(&m_skyBox);
+  bindings.push_back(&m_fontTexture);
 }
 
 void KRCamera::render(KRNode::RenderInfo& ri)

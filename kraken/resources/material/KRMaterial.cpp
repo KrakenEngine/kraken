@@ -235,14 +235,16 @@ bool KRMaterial::isTransparent()
   return m_tr < 1.0 || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDONESIDE || m_alpha_mode == KRMATERIAL_ALPHA_MODE_BLENDTWOSIDE;
 }
 
-void KRMaterial::preStream(std::list<KRResourceRequest>& resourceRequests, float lodCoverage)
+void KRMaterial::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
-  m_ambientMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
-  m_diffuseMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
-  m_normalMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
-  m_specularMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
-  m_reflectionMap.submitRequest(&getContext(), resourceRequests, lodCoverage);
-  m_reflectionCube.submitRequest(&getContext(), resourceRequests, lodCoverage);
+  KRResource::getResourceBindings(bindings);
+
+  bindings.push_back(&m_ambientMap);
+  bindings.push_back(&m_diffuseMap);
+  bindings.push_back(&m_normalMap);
+  bindings.push_back(&m_specularMap);
+  bindings.push_back(&m_reflectionMap);
+  bindings.push_back(&m_reflectionCube);
 }
 
 kraken_stream_level KRMaterial::getStreamLevel()
