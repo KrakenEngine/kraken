@@ -62,5 +62,6 @@ protected:
   bool getShaderValue(ShaderValue value, float* output) const override;
 
   KRTextureBinding m_spriteTexture;
-  float m_spriteAlpha;
+
+  KRNODE_PROPERTY(float, m_spriteAlpha, 1.f, "sprite_alpha");
 };

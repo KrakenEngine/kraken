@@ -50,7 +50,7 @@ using namespace hydra;
 void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->sprite.alpha = 1.0f;
+  nodeInfo->sprite.alpha = decltype(m_spriteAlpha)::defaultVal;
   nodeInfo->sprite.texture = -1;
 }
 
@@ -58,7 +58,6 @@ KRSprite::KRSprite(KRScene& scene, std::string name)
   : KRNode(scene, name)
   , m_spriteTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_SPRITE))
 {
-  m_spriteAlpha = 1.0f;
 }
 
 KRSprite::~KRSprite()
@@ -73,7 +72,7 @@ tinyxml2::XMLElement* KRSprite::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
   e->SetAttribute("sprite_texture", m_spriteTexture.getName().c_str());
-  e->SetAttribute("sprite_alpha", m_spriteAlpha);
+  m_spriteAlpha.save(e);
   return e;
 }
 
@@ -81,9 +80,7 @@ void KRSprite::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
 
-  if (e->QueryFloatAttribute("sprite_alpha", &m_spriteAlpha) != tinyxml2::XML_SUCCESS) {
-    m_spriteAlpha = 1.0f;
-  }
+  m_spriteAlpha.load(e);
 
   const char* szSpriteTexture = e->Attribute("sprite_texture");
   if (szSpriteTexture) {

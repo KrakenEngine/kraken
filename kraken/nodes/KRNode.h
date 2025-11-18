@@ -37,6 +37,7 @@
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
 #include "KRShaderReflection.h"
+#include <type_traits>
 
 using namespace kraken;
 
@@ -64,6 +65,59 @@ namespace tinyxml2 {
 class XMLNode;
 class XMLAttribute;
 }
+
+template <typename T, class config>
+class KRNodeProperty
+{
+public:
+  static constexpr T defaultVal = config::defaultVal;
+  static constexpr const char* name = config::name;
+  KRNodeProperty()
+    : val(config::defaultVal)
+  {
+  }
+
+  KRNodeProperty(T& val)
+    : val(val)
+  {
+  }
+
+  KRNodeProperty& operator=(const T& v)
+  {
+    val = v;
+    return *this;
+  }
+
+  operator const T& () const
+  {
+    return val;
+  }
+
+  void save(tinyxml2::XMLElement* element) const
+  {
+    element->SetAttribute(config::name, val);
+  }
+
+  void load(tinyxml2::XMLElement* element)
+  {
+    if constexpr (std::is_same<T, float>::value) {
+      if (element->QueryFloatAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+        val = config::defaultVal;
+      }
+    } else {
+      static_assert(false, "Typename not implemented.");
+    }
+  }
+
+  T val;
+};
+
+#define KRNODE_PROPERTY(PROP_TYPE, VAR, PROP_DEFAULT, PROP_NAME) \
+   struct VAR ## _config { \
+    static constexpr float defaultVal = PROP_DEFAULT; \
+    static constexpr const char* name = PROP_NAME; \
+  }; \
+  KRNodeProperty<PROP_TYPE, VAR ## _config> VAR;
 
 class KRNode
   : public KRContextObject
