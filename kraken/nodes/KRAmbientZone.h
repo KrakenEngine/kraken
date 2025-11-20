@@ -31,8 +31,12 @@
 
 #pragma once
 
+#include "KREngine-common.h"
 #include "resources/KRResource.h"
+#include "resources/audio/KRAudioSampleBinding.h"
 #include "KRNode.h"
+
+class KRAudioSample;
 
 class KRAmbientZone : public KRNode
 {
@@ -53,7 +57,7 @@ public:
   float getGradientDistance();
   void setGradientDistance(float gradient_distance);
 
-  std::string getAmbient();
+  KRAudioSample* getAmbient();
   void setAmbient(const std::string& ambient);
 
   float getAmbientGain();
@@ -68,6 +72,6 @@ private:
 
   float m_gradient_distance;
 
-  std::string m_ambient;
+  KRAudioSampleBinding m_ambient;
   float m_ambient_gain;
 };
