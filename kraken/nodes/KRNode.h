@@ -97,6 +97,8 @@ public:
   {
     if constexpr (std::is_same<T, bool>::value) {
       element->SetAttribute(config::name, val ? "true" : "false");
+    } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
+      kraken::setXMLAttribute(config::name, element, val, config::defaultVal);
     } else {
       element->SetAttribute(config::name, val);
     }
@@ -112,6 +114,8 @@ public:
       if (element->QueryBoolAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
+    } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
+      kraken::getXMLAttribute(config::name, element, config::defaultVal);
     } else {
       static_assert(false, "Typename not implemented.");
     }
@@ -122,7 +126,7 @@ public:
 
 #define KRNODE_PROPERTY(PROP_TYPE, VAR, PROP_DEFAULT, PROP_NAME) \
    struct VAR ## _config { \
-    static constexpr float defaultVal = PROP_DEFAULT; \
+    static constexpr PROP_TYPE defaultVal = PROP_DEFAULT; \
     static constexpr const char* name = PROP_NAME; \
   }; \
   KRNodeProperty<PROP_TYPE, VAR ## _config> VAR;

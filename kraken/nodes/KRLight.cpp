@@ -67,9 +67,7 @@ KRLight::KRLight(KRScene& scene, std::string name)
   : KRNode(scene, name)
   , m_flareTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_LIGHT_FLARE))
 {
-  m_color = Vector3::One();
   m_occlusionQuery = 0;
-  m_decayStart = 0;
 
   // Initialize shadow buffers
   m_cShadowBuffers = 0;
@@ -93,9 +91,7 @@ tinyxml2::XMLElement* KRLight::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
   m_intensity.save(e);
-  e->SetAttribute("color_r", m_color.x);
-  e->SetAttribute("color_g", m_color.y);
-  e->SetAttribute("color_b", m_color.z);
+  m_color.save(e);
   m_decayStart.save(e);
   m_flareSize.save(e);
   m_flareOcclusionSize.save(e);
@@ -111,18 +107,8 @@ tinyxml2::XMLElement* KRLight::saveXML(tinyxml2::XMLNode* parent)
 void KRLight::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-  float x = 1.0f, y = 1.0f, z = 1.0f;
-  if (e->QueryFloatAttribute("color_r", &x) != tinyxml2::XML_SUCCESS) {
-    x = 1.0;
-  }
-  if (e->QueryFloatAttribute("color_g", &y) != tinyxml2::XML_SUCCESS) {
-    y = 1.0;
-  }
-  if (e->QueryFloatAttribute("color_b", &z) != tinyxml2::XML_SUCCESS) {
-    z = 1.0;
-  }
-  m_color = Vector3::Create(x, y, z);
 
+  m_color.load(e);
   m_intensity.load(e);
   m_decayStart.load(e);
   m_flareSize.load(e);
@@ -248,7 +234,7 @@ void KRLight::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-        pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+        pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color.val * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
         pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
         pParticleShader->bind(ri, particleModelMatrix); // TODO: Pass light index to shader
 
@@ -300,7 +286,7 @@ void KRLight::render(RenderInfo& ri)
     float slice_spacing = (slice_far - slice_near) / slice_count;
 
     pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
-    pFogShader->setPushConstant(ShaderValue::light_color, (m_color * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
+    pFogShader->setPushConstant(ShaderValue::light_color, (m_color.val * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
     pFogShader->bind(ri, Matrix4()); // TODO: Pass indexes of lights to shader
 
     m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);

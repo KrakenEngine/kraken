@@ -79,10 +79,9 @@ protected:
   bool getShaderValue(ShaderValue value, float* output) const override;
   bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
 
+  // Properties
   KRNODE_PROPERTY(float, m_decayStart, 0.f, "decay_start");
-  hydra::Vector3 m_color;
-
-  KRTextureBinding m_flareTexture;
+  KRNODE_PROPERTY(hydra::Vector3, m_color, hydra::Vector3({1.f, 1.f, 1.f}), "decay_start");
   KRNODE_PROPERTY(float, m_intensity, 1.f, "intensity");
   KRNODE_PROPERTY(float, m_flareSize, 0.f, "flare_size");
   KRNODE_PROPERTY(float, m_flareOcclusionSize, 0.05f, "flare_occlusion_size");
@@ -91,6 +90,7 @@ protected:
   KRNODE_PROPERTY(float, m_dust_particle_density, 0.1f, "dust_particle_density");
   KRNODE_PROPERTY(float, m_dust_particle_size, 1.f, "dust_particle_size");
   KRNODE_PROPERTY(float, m_dust_particle_intensity, 1.f, "dust_particle_intensity");
+  KRTextureBinding m_flareTexture;
 
   int m_occlusionQuery; // Occlusion query for attenuating occluded flares
 
