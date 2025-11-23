@@ -100,6 +100,8 @@ public:
       element->SetAttribute(config::name, val ? "true" : "false");
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
       kraken::setXMLAttribute(config::name, element, val, config::defaultVal);
+    } else if constexpr (std::is_same<T, std::string>::value) {
+      element->SetAttribute(config::name, val.c_str());
     } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
       element->SetAttribute(config::name, val.getName().c_str());
     } else {
@@ -119,6 +121,13 @@ public:
       }
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
       kraken::getXMLAttribute(config::name, element, config::defaultVal);
+    } else if constexpr (std::is_same<T, std::string>::value) {
+      const char* name = element->Attribute(config::name);
+      if (name) {
+        val = name;
+      } else {
+        val = config::defaultVal;
+      }
     } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
         const char* name = element->Attribute(config::name);
         if (name) {
