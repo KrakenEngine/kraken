@@ -52,6 +52,8 @@ public:
   void setOuterAngle(float outerAngle);
 
 private:
-  float m_innerAngle; // Inner angle of the cone, in radians.  Inside this radius, the light will be at full brightness
-  float m_outerAngle; // Outer angle of the cone, in radians.  Outside this radius, the light will be completely attenuated
+  // Inner angle of the cone, in radians.  Inside this radius, the light will be at full brightness
+  KRNODE_PROPERTY(float, m_innerAngle, M_PI_4, "inner_angle");
+  // Outer angle of the cone, in radians.  Outside this radius, the light will be completely attenuated
+  KRNODE_PROPERTY(float, m_outerAngle, M_PI_2, "outer_angle");
 };

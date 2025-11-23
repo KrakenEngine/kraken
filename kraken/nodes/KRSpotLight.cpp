@@ -38,14 +38,12 @@ using namespace hydra;
 void KRSpotLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRLight::InitNodeInfo(nodeInfo);
-  nodeInfo->light.spot.inner_angle = M_PI_4;
-  nodeInfo->light.spot.outer_angle = M_PI_2;
+  nodeInfo->light.spot.inner_angle = decltype(m_innerAngle)::defaultVal;
+  nodeInfo->light.spot.outer_angle = decltype(m_outerAngle)::defaultVal;
 }
 
 KRSpotLight::KRSpotLight(KRScene& scene, std::string name) : KRLight(scene, name)
 {
-  m_innerAngle = M_PI_4;
-  m_outerAngle = M_PI_2;
 }
 
 KRSpotLight::~KRSpotLight()
@@ -61,8 +59,8 @@ std::string KRSpotLight::getElementName()
 tinyxml2::XMLElement* KRSpotLight::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRLight::saveXML(parent);
-  e->SetAttribute("inner_angle", m_innerAngle);
-  e->SetAttribute("outer_angle", m_outerAngle);
+  m_innerAngle.save(e);
+  m_outerAngle.save(e);
   return e;
 }
 
@@ -70,8 +68,8 @@ void KRSpotLight::loadXML(tinyxml2::XMLElement* e)
 {
   KRLight::loadXML(e);
 
-  e->QueryFloatAttribute("inner_angle", &m_innerAngle);
-  e->QueryFloatAttribute("outer_angle", &m_outerAngle);
+  m_innerAngle.load(e);
+  m_outerAngle.load(e);
 }
 
 float KRSpotLight::getInnerAngle()
