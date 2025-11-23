@@ -56,7 +56,6 @@ void KRSprite::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 KRSprite::KRSprite(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_spriteTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_SPRITE))
 {
 }
 
@@ -71,7 +70,7 @@ std::string KRSprite::getElementName()
 tinyxml2::XMLElement* KRSprite::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("sprite_texture", m_spriteTexture.getName().c_str());
+  m_spriteTexture.save(e);
   m_spriteAlpha.save(e);
   return e;
 }
@@ -80,19 +79,13 @@ void KRSprite::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
 
+  m_spriteTexture.load(e);
   m_spriteAlpha.load(e);
-
-  const char* szSpriteTexture = e->Attribute("sprite_texture");
-  if (szSpriteTexture) {
-    m_spriteTexture.set(szSpriteTexture);
-  } else {
-    m_spriteTexture.clear();
-  }
 }
 
 void KRSprite::setSpriteTexture(std::string sprite_texture)
 {
-  m_spriteTexture.set(sprite_texture);
+  m_spriteTexture.val.set(sprite_texture);
 }
 
 void KRSprite::setSpriteAlpha(float alpha)
@@ -114,7 +107,7 @@ void KRSprite::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
   KRNode::getResourceBindings(bindings);
 
-  bindings.push_back(&m_spriteTexture);
+  bindings.push_back(&m_spriteTexture.val);
 }
 
 void KRSprite::render(RenderInfo& ri)
@@ -123,7 +116,7 @@ void KRSprite::render(RenderInfo& ri)
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_spriteAlpha > 0.0f) {
-      if (m_spriteTexture.isBound()) {
+      if (m_spriteTexture.val.isBound()) {
         // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
 
         KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
@@ -143,7 +136,7 @@ void KRSprite::render(RenderInfo& ri)
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
         KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pShader->setImageBinding("diffuseTexture", m_spriteTexture.get(), m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+        pShader->setImageBinding("diffuseTexture", m_spriteTexture.val.get(), m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
         pShader->bind(ri, getModelMatrix());
 
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

@@ -33,6 +33,7 @@
 
 #include "resources/KRResource.h"
 #include "resources/KRResourceRequest.h"
+#include "resources/KRResourceBinding.h"
 #include "KRViewport.h"
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
@@ -70,7 +71,7 @@ template <typename T, class config>
 class KRNodeProperty
 {
 public:
-  static constexpr T defaultVal = config::defaultVal;
+  static constexpr decltype(config::defaultVal) defaultVal = config::defaultVal;
   static constexpr const char* name = config::name;
   KRNodeProperty()
     : val(config::defaultVal)
@@ -99,6 +100,8 @@ public:
       element->SetAttribute(config::name, val ? "true" : "false");
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
       kraken::setXMLAttribute(config::name, element, val, config::defaultVal);
+    } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
+      element->SetAttribute(config::name, val.getName().c_str());
     } else {
       element->SetAttribute(config::name, val);
     }
@@ -116,6 +119,13 @@ public:
       }
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
       kraken::getXMLAttribute(config::name, element, config::defaultVal);
+    } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
+        const char* name = element->Attribute(config::name);
+        if (name) {
+          val.set(name);
+        } else {
+          val.clear();
+        }
     } else {
       static_assert(false, "Typename not implemented.");
     }
@@ -126,7 +136,7 @@ public:
 
 #define KRNODE_PROPERTY(PROP_TYPE, VAR, PROP_DEFAULT, PROP_NAME) \
    struct VAR ## _config { \
-    static constexpr PROP_TYPE defaultVal = PROP_DEFAULT; \
+    static constexpr decltype(PROP_DEFAULT) defaultVal = PROP_DEFAULT; \
     static constexpr const char* name = PROP_NAME; \
   }; \
   KRNodeProperty<PROP_TYPE, VAR ## _config> VAR;
