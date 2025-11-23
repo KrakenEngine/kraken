@@ -65,7 +65,6 @@ void KRLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 KRLight::KRLight(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_flareTexture(KRTextureBinding(KRTexture::TEXTURE_USAGE_LIGHT_FLARE))
 {
   m_occlusionQuery = 0;
 
@@ -100,7 +99,7 @@ tinyxml2::XMLElement* KRLight::saveXML(tinyxml2::XMLNode* parent)
   m_dust_particle_density.save(e);
   m_dust_particle_size.save(e);
   m_dust_particle_intensity.save(e);
-  e->SetAttribute("flare_texture", m_flareTexture.getName().c_str());
+  m_flareTexture.save(e);
   return e;
 }
 
@@ -118,18 +117,12 @@ void KRLight::loadXML(tinyxml2::XMLElement* e)
   m_dust_particle_density.load(e);
   m_dust_particle_size.load(e);
   m_dust_particle_intensity.load(e);
-
-  const char* szFlareTexture = e->Attribute("flare_texture");
-  if (szFlareTexture) {
-    m_flareTexture.set(szFlareTexture);
-  } else {
-    m_flareTexture.clear();
-  }
+  m_flareTexture.load(e);
 }
 
 void KRLight::setFlareTexture(std::string flare_texture)
 {
-  m_flareTexture.set(flare_texture);
+  m_flareTexture.val.set(flare_texture);
 }
 
 void KRLight::setFlareSize(float flare_size)
@@ -175,7 +168,7 @@ void KRLight::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
   KRNode::getResourceBindings(bindings);
 
-  bindings.push_back(&m_flareTexture);
+  bindings.push_back(&m_flareTexture.val);
 }
 
 void KRLight::render(RenderInfo& ri)
@@ -295,7 +288,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION) {
-    if (m_flareTexture.isBound() && m_flareSize > 0.0f) {
+    if (m_flareTexture.val.isBound() && m_flareSize > 0.0f) {
       KRMesh* sphereModel = getContext().getMeshManager()->getMesh("__sphere");
       if (sphereModel) {
 
@@ -342,7 +335,7 @@ void KRLight::render(RenderInfo& ri)
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
-    if (m_flareTexture.isBound() && m_flareSize > 0.0f) {
+    if (m_flareTexture.val.isBound() && m_flareSize > 0.0f) {
 
       if (m_occlusionQuery) {
         int params = 0;
@@ -369,7 +362,7 @@ void KRLight::render(RenderInfo& ri)
 
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
             pShader->setPushConstant(ShaderValue::material_alpha, 1.0f);
-            pShader->setImageBinding("diffuseTexture", m_flareTexture.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+            pShader->setImageBinding("diffuseTexture", m_flareTexture.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
             pShader->bind(ri, getModelMatrix());
 
             m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);

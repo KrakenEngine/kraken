@@ -90,7 +90,7 @@ protected:
   KRNODE_PROPERTY(float, m_dust_particle_density, 0.1f, "dust_particle_density");
   KRNODE_PROPERTY(float, m_dust_particle_size, 1.f, "dust_particle_size");
   KRNODE_PROPERTY(float, m_dust_particle_intensity, 1.f, "dust_particle_intensity");
-  KRTextureBinding m_flareTexture;
+  KRNODE_PROPERTY(KRTextureBinding, m_flareTexture, KRTexture::TEXTURE_USAGE_LIGHT_FLARE, "flare_texture");
 
   int m_occlusionQuery; // Occlusion query for attenuating occluded flares
 
