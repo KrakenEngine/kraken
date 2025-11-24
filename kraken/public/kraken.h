@@ -338,7 +338,7 @@ typedef struct
     struct
     {
       // KR_STRUCTURE_TYPE_NODE_AMBIENT_ZONE
-      char* pZoneName;
+      const char* pZoneName;
       float gradient;
       float gain;
       KrResourceMapIndex sample;
@@ -346,7 +346,7 @@ typedef struct
     struct
     {
       // KR_STRUCTURE_TYPE_NODE_REVERB_ZONE
-      char* pZoneName;
+      const char* pZoneName;
       float gradient;
       float gain;
       KrResourceMapIndex sample;

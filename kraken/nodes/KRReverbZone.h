@@ -32,7 +32,10 @@
 #pragma once
 
 #include "resources/KRResource.h"
+#include "resources/audio/KRAudioSampleBinding.h"
 #include "KRNode.h"
+
+class KRAudioSample;
 
 class KRReverbZone : public KRNode
 {
@@ -53,7 +56,7 @@ public:
   float getGradientDistance();
   void setGradientDistance(float gradient_distance);
 
-  std::string getReverb();
+  KRAudioSample* getReverb();
   void setReverb(const std::string& reverb);
 
   float getReverbGain();
@@ -64,10 +67,8 @@ public:
   float getContainment(const hydra::Vector3& pos);
 
 private:
-  std::string m_zone;
-
-  float m_gradient_distance;
-
-  std::string m_reverb;
-  float m_reverb_gain;
+  KRNODE_PROPERTY(std::string, m_zone, "", "zone");
+  KRNODE_PROPERTY(float, m_gradient_distance, 0.25f, "gradient");
+  KRNODE_PROPERTY(KRAudioSampleBinding, m_reverb, nullptr, "sample");
+  KRNODE_PROPERTY(float, m_reverb_gain, 1.f, "gain");
 };

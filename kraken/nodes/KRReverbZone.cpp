@@ -39,17 +39,14 @@ using namespace hydra;
 void KRReverbZone::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->reverb_zone.gain = 1.0f;
-  nodeInfo->reverb_zone.gradient = 0.25f;
+  nodeInfo->reverb_zone.gain = decltype(m_reverb_gain)::defaultVal;
+  nodeInfo->reverb_zone.gradient = decltype(m_gradient_distance)::defaultVal;
   nodeInfo->reverb_zone.sample = -1;
-  nodeInfo->reverb_zone.pZoneName = nullptr;
+  nodeInfo->reverb_zone.pZoneName = decltype(m_zone)::defaultVal;
 }
 
 KRReverbZone::KRReverbZone(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-  m_reverb = "";
-  m_reverb_gain = 1.0f;
-  m_gradient_distance = 0.25f;
 }
 
 KRReverbZone::~KRReverbZone()
@@ -63,10 +60,10 @@ std::string KRReverbZone::getElementName()
 tinyxml2::XMLElement* KRReverbZone::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("zone", m_zone.c_str());
-  e->SetAttribute("sample", m_reverb.c_str());
-  e->SetAttribute("gain", m_reverb_gain);
-  e->SetAttribute("gradient", m_gradient_distance);
+  m_zone.save(e);
+  m_reverb.save(e);
+  m_reverb_gain.save(e);
+  m_gradient_distance.save(e);
   return e;
 }
 
@@ -74,24 +71,16 @@ void KRReverbZone::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
 
-  m_zone = e->Attribute("zone");
-
-  m_gradient_distance = 0.25f;
-  if (e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
-    m_gradient_distance = 0.25f;
-  }
-
-  m_reverb = e->Attribute("sample");
-
-  m_reverb_gain = 1.0f;
-  if (e->QueryFloatAttribute("gain", &m_reverb_gain) != tinyxml2::XML_SUCCESS) {
-    m_reverb_gain = 1.0f;
-  }
+  m_zone.load(e);
+  m_gradient_distance.load(e);
+  m_reverb.load(e);
+  m_reverb_gain.load(e);
 }
 
-std::string KRReverbZone::getReverb()
+KRAudioSample* KRReverbZone::getReverb()
 {
-  return m_reverb;
+  m_reverb.val.bind(&getContext());
+  return m_reverb.val.get();
 }
 
 void KRReverbZone::setReverb(const std::string& reverb)

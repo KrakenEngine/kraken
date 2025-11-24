@@ -1453,7 +1453,7 @@ void KRAudioManager::startFrame(float deltaTime)
       if (zi.weight > 0.0f) {
         if (m_reverb_zone_weights.find(sphere->getZone()) == m_reverb_zone_weights.end()) {
           zi.reverb_zone = sphere;
-          zi.reverb_sample = get(sphere->getReverb());
+          zi.reverb_sample = sphere->getReverb();
           m_reverb_zone_weights[sphere->getZone()] = zi;
           m_reverb_zone_total_weight += zi.weight;
         } else {
