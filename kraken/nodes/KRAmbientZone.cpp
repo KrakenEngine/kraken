@@ -47,9 +47,6 @@ void KRAmbientZone::InitNodeInfo(KrNodeInfo* nodeInfo)
 
 KRAmbientZone::KRAmbientZone(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_ambient_gain(1.f)
-  , m_gradient_distance(0.25f)
-
 {
 
 }
@@ -65,46 +62,31 @@ std::string KRAmbientZone::getElementName()
 tinyxml2::XMLElement* KRAmbientZone::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("zone", m_zone.c_str());
-  e->SetAttribute("sample", m_ambient.getName().c_str());
-  e->SetAttribute("gain", m_ambient_gain);
-  e->SetAttribute("gradient", m_gradient_distance);
+  m_zone.save(e);
+  m_ambient.save(e);
+  m_ambient_gain.save(e);
+  m_gradient_distance.save(e);
   return e;
 }
 
 void KRAmbientZone::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-
-  m_zone = e->Attribute("zone");
-
-  m_gradient_distance = 0.25f;
-  if (e->QueryFloatAttribute("gradient", &m_gradient_distance) != tinyxml2::XML_SUCCESS) {
-    m_gradient_distance = 0.25f;
-  }
-
-  const char* szAudioSampleName = e->Attribute("sample");
-  if (szAudioSampleName == nullptr) {
-    m_ambient.clear();
-  } else {
-    m_ambient.set(szAudioSampleName);
-  }
-
-  m_ambient_gain = 1.0f;
-  if (e->QueryFloatAttribute("gain", &m_ambient_gain) != tinyxml2::XML_SUCCESS) {
-    m_ambient_gain = 1.0f;
-  }
+  m_zone.load(e);
+  m_gradient_distance.load(e);
+  m_ambient.load(e);
+  m_ambient_gain.load(e);
 }
 
 KRAudioSample* KRAmbientZone::getAmbient()
 {
-  m_ambient.bind(&getContext());
-  return m_ambient.get();
+  m_ambient.val.bind(&getContext());
+  return m_ambient.val.get();
 }
 
 void KRAmbientZone::setAmbient(const std::string& ambient)
 {
-  m_ambient.set(ambient);
+  m_ambient.val.set(ambient);
 }
 
 float KRAmbientZone::getAmbientGain()
