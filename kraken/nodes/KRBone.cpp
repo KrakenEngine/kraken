@@ -65,7 +65,6 @@ tinyxml2::XMLElement* KRBone::saveXML(tinyxml2::XMLNode* parent)
 void KRBone::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-  setScaleCompensation(true);
 }
 
 AABB KRBone::getBounds()
