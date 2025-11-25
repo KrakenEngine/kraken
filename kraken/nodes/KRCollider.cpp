@@ -41,15 +41,13 @@ using namespace hydra;
 void KRCollider::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->collider.audio_occlusion = 1.0f;
-  nodeInfo->collider.layer_mask = 65535;
+  nodeInfo->collider.audio_occlusion = decltype(m_audio_occlusion)::defaultVal;
+  nodeInfo->collider.layer_mask = decltype(m_layer_mask)::defaultVal;
   nodeInfo->collider.mesh = -1;
 }
 
 KRCollider::KRCollider(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_layer_mask(0xffff)
-  , m_audio_occlusion(1.0f)
 {
   
 }
@@ -59,7 +57,7 @@ KRCollider::KRCollider(KRScene& scene, std::string collider_name, std::string mo
   , m_layer_mask(layer_mask)
   , m_audio_occlusion(audio_occlusion)
 {
-  m_model.set(model_name);
+  m_model.val.set(model_name);
 }
 
 KRCollider::~KRCollider()
@@ -75,33 +73,25 @@ std::string KRCollider::getElementName()
 tinyxml2::XMLElement* KRCollider::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("mesh", m_model.getName().c_str());
-  e->SetAttribute("layer_mask", m_layer_mask);
-  e->SetAttribute("audio_occlusion", m_audio_occlusion);
+  m_model.save(e);
+  m_layer_mask.save(e);
+  m_audio_occlusion.save(e);
   return e;
 }
 
 void KRCollider::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-  m_model.set(e->Attribute("mesh"));
-
-  m_layer_mask = 65535;
-  if (e->QueryUnsignedAttribute("layer_mask", &m_layer_mask) != tinyxml2::XML_SUCCESS) {
-    m_layer_mask = 65535;
-  }
-
-  m_audio_occlusion = 1.0f;
-  if (e->QueryFloatAttribute("audio_occlusion", &m_audio_occlusion) != tinyxml2::XML_SUCCESS) {
-    m_audio_occlusion = 1.0f;
-  }
+  m_model.load(e);
+  m_layer_mask.load(e);
+  m_audio_occlusion.load(e);
 }
 
 void KRCollider::loadModel()
 {
-  KRMesh* prevModel = m_model.get();
-  m_model.bind(&getContext());
-  if (m_model.get() != prevModel) {
+  KRMesh* prevModel = m_model.val.get();
+  m_model.val.bind(&getContext());
+  if (m_model.val.get() != prevModel) {
     getScene().notify_sceneGraphModify(this);
   }
 }
@@ -109,8 +99,8 @@ void KRCollider::loadModel()
 AABB KRCollider::getBounds()
 {
   loadModel();
-  if (m_model.isBound()) {
-    return AABB::Create(m_model.get()->getMinPoint(), m_model.get()->getMaxPoint(), getModelMatrix());
+  if (m_model.val.isBound()) {
+    return AABB::Create(m_model.val.get()->getMinPoint(), m_model.val.get()->getMaxPoint(), getModelMatrix());
   } else {
     return AABB::Infinite();
   }
@@ -120,7 +110,7 @@ bool KRCollider::lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isBound()) {
+    if (m_model.val.isBound()) {
       if (getBounds().intersectsLine(v0, v1)) {
         Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
         Vector3 v1_model_space = Matrix4::Dot(getInverseModelMatrix(), v1);
@@ -130,7 +120,7 @@ bool KRCollider::lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo
           hitinfo_model_space = HitInfo(hit_position_model_space, Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal()), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
         }
 
-        if (m_model.get()->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
+        if (m_model.val.get()->lineCast(v0_model_space, v1_model_space, hitinfo_model_space)) {
           Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
           hitinfo = HitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
           return true;
@@ -145,7 +135,7 @@ bool KRCollider::rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isBound()) {
+    if (m_model.val.isBound()) {
       if (getBounds().intersectsRay(v0, dir)) {
         Vector3 v0_model_space = Matrix4::Dot(getInverseModelMatrix(), v0);
         Vector3 dir_model_space = Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), dir));
@@ -155,7 +145,7 @@ bool KRCollider::rayCast(const Vector3& v0, const Vector3& dir, HitInfo& hitinfo
           hitinfo_model_space = HitInfo(hit_position_model_space, Vector3::Normalize(Matrix4::DotNoTranslate(getInverseModelMatrix(), hitinfo.getNormal())), (hit_position_model_space - v0_model_space).magnitude(), hitinfo.getNode());
         }
 
-        if (m_model.get()->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
+        if (m_model.val.get()->rayCast(v0_model_space, dir_model_space, hitinfo_model_space)) {
           Vector3 hit_position_world_space = Matrix4::Dot(getModelMatrix(), hitinfo_model_space.getPosition());
           hitinfo = HitInfo(hit_position_world_space, Vector3::Normalize(Matrix4::DotNoTranslate(getModelMatrix(), hitinfo_model_space.getNormal())), (hit_position_world_space - v0).magnitude(), this);
           return true;
@@ -170,14 +160,14 @@ bool KRCollider::sphereCast(const Vector3& v0, const Vector3& v1, float radius, 
 {
   if (layer_mask & m_layer_mask) { // Only test if layer masks have a common bit set
     loadModel();
-    if (m_model.isBound()) {
+    if (m_model.val.isBound()) {
       AABB sphereCastBounds = AABB::Create( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
           Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
           Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
       );
 
       if (getBounds().intersects(sphereCastBounds)) {
-        if (m_model.get()->sphereCast(getModelMatrix(), v0, v1, radius, hitinfo)) {
+        if (m_model.val.get()->sphereCast(getModelMatrix(), v0, v1, radius, hitinfo)) {
           hitinfo = HitInfo(hitinfo.getPosition(), hitinfo.getNormal(), hitinfo.getDistance(), this);
           return true;
         }
@@ -214,7 +204,7 @@ void KRCollider::render(RenderInfo& ri)
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT && ri.camera->settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_COLLIDERS) {
     loadModel();
-    if (m_model.isBound()) {
+    if (m_model.val.isBound()) {
 
       GL_PUSH_GROUP_MARKER("Debug Overlays");
 
@@ -227,14 +217,14 @@ void KRCollider::render(RenderInfo& ri)
       info.spot_lights = &ri.spot_lights;
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAdditive;
-      info.modelFormat = m_model.get()->getModelFormat();
-      info.vertexAttributes = m_model.get()->getVertexAttributes();
+      info.modelFormat = m_model.val.get()->getModelFormat();
+      info.vertexAttributes = m_model.val.get()->getVertexAttributes();
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
       pShader->bind(ri, getModelMatrix());
 
-      m_model.get()->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+      m_model.val.get()->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
 
       GL_POP_GROUP_MARKER;
     }

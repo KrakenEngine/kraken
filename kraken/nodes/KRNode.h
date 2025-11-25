@@ -115,6 +115,10 @@ public:
       if (element->QueryIntAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
+    } else if constexpr (std::is_same<T, unsigned int>::value) {
+        if (element->QueryUnsignedAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+          val = config::defaultVal;
+        }
     } else if constexpr (std::is_same<T, float>::value) {
       if (element->QueryFloatAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
