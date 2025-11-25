@@ -39,9 +39,9 @@ using namespace hydra;
 void KRAmbientZone::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->ambient_zone.gain = 1.0f;
-  nodeInfo->ambient_zone.gradient = 0.25f;
-  nodeInfo->ambient_zone.pZoneName = nullptr;
+  nodeInfo->ambient_zone.gain = decltype(m_ambient_gain)::defaultVal;
+  nodeInfo->ambient_zone.gradient = decltype(m_gradient_distance)::defaultVal;
+  nodeInfo->ambient_zone.pZoneName = decltype(m_zone)::defaultVal;
   nodeInfo->ambient_zone.sample = -1;
 }
 
