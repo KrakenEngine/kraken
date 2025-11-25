@@ -54,13 +54,13 @@ public:
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
   KRModel(KRScene& scene, std::string name);
-  KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, hydra::Vector3 rim_color = hydra::Vector3::Zero(), float rim_power = 0.0f);
   virtual ~KRModel();
   
   KrResult update(const KrNodeInfo* nodeInfo) override;
 
   virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
 
   virtual void render(KRNode::RenderInfo& ri) override;
   virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings) override;
@@ -81,23 +81,20 @@ public:
 private:
 
   std::array<KRMeshBinding, kMeshLODCount> m_meshes;
+  
+  KRNODE_PROPERTY(KRTextureBinding, m_lightMap, KRTexture::TEXTURE_USAGE_LIGHT_MAP, "light_map");
+  KRNODE_PROPERTY(float, m_min_lod_coverage, 0.f, "min_lod_coverage");
+  KRNODE_PROPERTY(bool, m_receivesShadow, true, "receives_shadow");
+  KRNODE_PROPERTY(bool, m_faces_camera, false, "faces_camera");
+  KRNODE_PROPERTY(float, m_rim_power, 0.f, "rim_power");
+  KRNODE_PROPERTY(hydra::Vector3, m_rim_color, hydra::Vector3({ 0.f, 0.f, 0.f }), "rim_color");
+
   std::array<std::vector<KRBone*>, kMeshLODCount> m_bones; // Connects model to set of bones
-  KRTextureBinding m_lightMap;
-
-
-  float m_min_lod_coverage;
-  void loadModel();
-
-  bool m_receivesShadow;
-  bool m_faces_camera;
-
-
   hydra::Matrix4 m_boundsCachedMat;
   hydra::AABB m_boundsCached;
 
-
-  hydra::Vector3 m_rim_color;
-  float m_rim_power;
+  void loadModel();
+  
 
 private:
   bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;

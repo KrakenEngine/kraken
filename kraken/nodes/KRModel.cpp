@@ -43,57 +43,20 @@ using namespace hydra;
 void KRModel::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->model.faces_camera = false;
+  nodeInfo->model.faces_camera = decltype(m_faces_camera)::defaultVal;
   nodeInfo->model.light_map_texture = KR_NULL_HANDLE;
-  nodeInfo->model.lod_min_coverage = 0.0f;
+  nodeInfo->model.lod_min_coverage = decltype(m_min_lod_coverage)::defaultVal;
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     nodeInfo->model.mesh[lod] = KR_NULL_HANDLE;
   }
-  nodeInfo->model.receives_shadow = true;
-  nodeInfo->model.rim_color = Vector3::Zero();
-  nodeInfo->model.rim_power = 0.0f;
+  nodeInfo->model.receives_shadow = decltype(m_receivesShadow)::defaultVal;
+  nodeInfo->model.rim_color = decltype(m_rim_color)::defaultVal;
+  nodeInfo->model.rim_power = decltype(m_rim_power)::defaultVal;
 }
 
 KRModel::KRModel(KRScene& scene, std::string name)
   : KRNode(scene, name)
-  , m_lightMap(KRTexture::TEXTURE_USAGE_LIGHT_MAP)
-  , m_min_lod_coverage(0.0f)
-  , m_receivesShadow(true)
-  , m_faces_camera(false)
-  , m_rim_color(Vector3::Zero())
-  , m_rim_power(0.0f)
 {
-  m_boundsCachedMat.c[0] = -1.0f;
-  m_boundsCachedMat.c[1] = -1.0f;
-  m_boundsCachedMat.c[2] = -1.0f;
-  m_boundsCachedMat.c[3] = -1.0f;
-  m_boundsCachedMat.c[4] = -1.0f;
-  m_boundsCachedMat.c[5] = -1.0f;
-  m_boundsCachedMat.c[6] = -1.0f;
-  m_boundsCachedMat.c[7] = -1.0f;
-  m_boundsCachedMat.c[8] = -1.0f;
-  m_boundsCachedMat.c[9] = -1.0f;
-  m_boundsCachedMat.c[10] = -1.0f;
-  m_boundsCachedMat.c[11] = -1.0f;
-  m_boundsCachedMat.c[12] = -1.0f;
-  m_boundsCachedMat.c[13] = -1.0f;
-  m_boundsCachedMat.c[14] = -1.0f;
-  m_boundsCachedMat.c[15] = -1.0f;
-}
-
-KRModel::KRModel(KRScene& scene, std::string instance_name, std::string model_name[kMeshLODCount], std::string light_map, float lod_min_coverage, bool receives_shadow, bool faces_camera, Vector3 rim_color, float rim_power)
-  : KRNode(scene, instance_name)
-  , m_lightMap(light_map, KRTexture::TEXTURE_USAGE_LIGHT_MAP)
-{
-  for (int lod = 0; lod < kMeshLODCount; lod++) {
-    m_meshes[lod].set(model_name[lod]);
-  }
-  m_min_lod_coverage = lod_min_coverage;
-  m_receivesShadow = receives_shadow;
-  m_faces_camera = faces_camera;
-  m_rim_color = rim_color;
-  m_rim_power = rim_power;
-
   m_boundsCachedMat.c[0] = -1.0f;
   m_boundsCachedMat.c[1] = -1.0f;
   m_boundsCachedMat.c[2] = -1.0f;
@@ -136,7 +99,7 @@ KrResult KRModel::update(const KrNodeInfo* nodeInfo)
       return res;
     }
   }
-  m_lightMap.set(light_map_texture);
+  m_lightMap.val.set(light_map_texture);
 
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     KRMesh* mesh = nullptr;
@@ -157,6 +120,26 @@ std::string KRModel::getElementName()
   return "model";
 }
 
+void KRModel::loadXML(tinyxml2::XMLElement* e)
+{
+  KRNode::loadXML(e);
+  m_faces_camera.load(e);
+  m_min_lod_coverage.load(e);
+  m_receivesShadow.load(e);
+  m_rim_power.load(e);
+  m_rim_color.load(e);
+  std::string meshNames[KRModel::kMeshLODCount];
+
+  m_meshes[0].set(e->Attribute("mesh"));
+  for (int lod = 1; lod < KRModel::kMeshLODCount; lod++) {
+    char attribName[8];
+    snprintf(attribName, 8, "mesh%i", lod);
+    m_meshes[lod].set(e->Attribute(attribName));
+  }
+
+  m_lightMap.load(e);
+}
+
 tinyxml2::XMLElement* KRModel::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
@@ -166,12 +149,12 @@ tinyxml2::XMLElement* KRModel::saveXML(tinyxml2::XMLNode* parent)
     snprintf(attribName, 8, "mesh%i", lod);
     e->SetAttribute(attribName, m_meshes[lod].getName().c_str());
   }
-  e->SetAttribute("light_map", m_lightMap.getName().c_str());
-  e->SetAttribute("lod_min_coverage", m_min_lod_coverage);
-  e->SetAttribute("receives_shadow", m_receivesShadow ? "true" : "false");
-  e->SetAttribute("faces_camera", m_faces_camera ? "true" : "false");
-  kraken::setXMLAttribute("rim_color", e, m_rim_color, Vector3::Zero());
-  e->SetAttribute("rim_power", m_rim_power);
+  m_lightMap.save(e);
+  m_min_lod_coverage.save(e);
+  m_receivesShadow.save(e);
+  m_faces_camera.save(e);
+  m_rim_color.save(e);
+  m_rim_power.save(e);
   return e;
 }
 
@@ -197,12 +180,12 @@ float KRModel::getRimPower()
 
 void KRModel::setLightMap(const std::string& name)
 {
-  m_lightMap.set(name);
+  m_lightMap.val.set(name);
 }
 
 std::string KRModel::getLightMap()
 {
-  return m_lightMap.getName();
+  return m_lightMap.val.getName();
 }
 
 void KRModel::loadModel()
@@ -300,7 +283,7 @@ void KRModel::render(KRNode::RenderInfo& ri)
           matModel = Quaternion::Create(Vector3::Forward(), Vector3::Normalize(camera_pos - model_center)).rotationMatrix() * matModel;
         }
 
-        pModel->render(ri, getName(), matModel, m_lightMap.get(), m_bones[bestLOD], lod_coverage);
+        pModel->render(ri, getName(), matModel, m_lightMap.val.get(), m_bones[bestLOD], lod_coverage);
       }
     }
   }
@@ -313,7 +296,7 @@ void KRModel::getResourceBindings(std::list<KRResourceBinding*>& bindings)
   for (int i = 0; i < kMeshLODCount; i++) {
     bindings.push_back(&m_meshes[i]);
   }
-  bindings.push_back(&m_lightMap);
+  bindings.push_back(&m_lightMap.val);
 }
 
 

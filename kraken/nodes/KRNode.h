@@ -45,6 +45,7 @@ using namespace kraken;
 namespace hydra {
 class Matrix4;
 class AABB;
+class Vector3;
 } // namespace kraken
 class KRCamera;
 class KRPipelineManager;

@@ -635,32 +635,7 @@ KRNode* KRNode::LoadXML(KRScene& scene, tinyxml2::XMLElement* e)
   } else if (strcmp(szElementName, "sprite") == 0) {
     new_node = new KRSprite(scene, szName);
   } else if (strcmp(szElementName, "model") == 0) {
-    float lod_min_coverage = 0.0f;
-    if (e->QueryFloatAttribute("lod_min_coverage", &lod_min_coverage) != tinyxml2::XML_SUCCESS) {
-      lod_min_coverage = 0.0f;
-    }
-    bool receives_shadow = true;
-    if (e->QueryBoolAttribute("receives_shadow", &receives_shadow) != tinyxml2::XML_SUCCESS) {
-      receives_shadow = true;
-    }
-    bool faces_camera = false;
-    if (e->QueryBoolAttribute("faces_camera", &faces_camera) != tinyxml2::XML_SUCCESS) {
-      faces_camera = false;
-    }
-    float rim_power = 0.0f;
-    if (e->QueryFloatAttribute("rim_power", &rim_power) != tinyxml2::XML_SUCCESS) {
-      rim_power = 0.0f;
-    }
-    Vector3 rim_color = Vector3::Zero();
-    rim_color = kraken::getXMLAttribute("rim_color", e, Vector3::Zero());
-    std::string meshNames[KRModel::kMeshLODCount];
-    meshNames[0] = e->Attribute("mesh");
-    for (int lod = 1; lod < KRModel::kMeshLODCount; lod++) {
-      char attribName[8];
-      snprintf(attribName, 8, "mesh%i", lod);
-      meshNames[lod] = e->Attribute(attribName);
-    }
-    new_node = new KRModel(scene, szName, meshNames, e->Attribute("light_map"), lod_min_coverage, receives_shadow, faces_camera, rim_color, rim_power);
+    new_node = new KRModel(scene, szName);
   } else if (strcmp(szElementName, "collider") == 0) {
     new_node = new KRCollider(scene, szName, e->Attribute("mesh"), 65535, 1.0f);
   } else if (strcmp(szElementName, "bone") == 0) {
