@@ -102,8 +102,6 @@ private:
 
   void destroyBuffers();
 
-  KrSurfaceHandle m_surfaceHandle;
-
   KRViewport m_viewport;
 
   float m_particlesAbsoluteTime;
@@ -123,7 +121,9 @@ private:
   KRMeshManager::KRVBOData m_debug_text_vbo_data;
 
   KRTextureBinding m_fontTexture;
-  KRTextureBinding m_skyBox;
+  KRNODE_PROPERTY(KRTextureBinding, m_skyBox, KRTexture::TEXTURE_USAGE_SKY_CUBE, "skybox");
+
+  KRNODE_PROPERTY(KrSurfaceHandle, m_surfaceHandle, 1, "surface");
 
   uint64_t m_last_frame_start;
   int m_frame_times[KRAKEN_FPS_AVERAGE_FRAME_COUNT];

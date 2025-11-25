@@ -44,7 +44,7 @@ using namespace hydra;
 void KRCamera::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->camera.surfaceHandle = 1;
+  nodeInfo->camera.surfaceHandle = decltype(m_surfaceHandle)::defaultVal;
   nodeInfo->camera.skybox_texture = KR_NULL_HANDLE;
 }
 
@@ -63,7 +63,7 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
       return res;
     }
   }
-  m_skyBox.set(skybox_texture);
+  m_skyBox.val.set(skybox_texture);
 
   return KR_SUCCESS;
 }
@@ -71,7 +71,6 @@ KrResult KRCamera::update(const KrNodeInfo* nodeInfo)
 KRCamera::KRCamera(KRScene& scene, std::string name)
   : KRNode(scene, name)
   , m_fontTexture(KRTextureBinding("font", KRTexture::TEXTURE_USAGE_UI))
-  , m_skyBox(KRTextureBinding(KRTexture::TEXTURE_USAGE_SKY_CUBE))
 {
   m_surfaceHandle = KR_NULL_HANDLE;
   m_last_frame_start = 0;
@@ -113,7 +112,8 @@ std::string KRCamera::getElementName()
 tinyxml2::XMLElement* KRCamera::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("skybox", m_skyBox.getName().c_str());
+  m_skyBox.save(e);
+  m_surfaceHandle.save(e);
 
   return e;
 }
@@ -122,35 +122,25 @@ tinyxml2::XMLElement* KRCamera::saveXML(tinyxml2::XMLNode* parent)
 void KRCamera::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-  const char* szSkyBoxName = e->Attribute("skybox");
-  if (szSkyBoxName) {
-    m_skyBox.set(szSkyBoxName);
-  } else {
-    m_skyBox.clear();
-  }
-
-  unsigned int surfaceHandle = 1;
-  if (e->QueryUnsignedAttribute("surface", &surfaceHandle) != tinyxml2::XML_SUCCESS) {
-    surfaceHandle = 1;
-  }
-  m_surfaceHandle = surfaceHandle;
+  m_skyBox.load(e);
+  m_surfaceHandle.load(e);
 }
 
 void KRCamera::setSkyBox(const std::string& skyBox)
 {
-  m_skyBox.set(skyBox);
+  m_skyBox.val.set(skyBox);
 }
 
 const std::string KRCamera::getSkyBox() const
 {
-  return m_skyBox.getName();
+  return m_skyBox.val.getName();
 }
 
 void KRCamera::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 {
   KRNode::getResourceBindings(bindings);
 
-  bindings.push_back(&m_skyBox);
+  bindings.push_back(&m_skyBox.val);
   bindings.push_back(&m_fontTexture);
 }
 
@@ -165,7 +155,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
 
       GL_PUSH_GROUP_MARKER("Sky Box");
 
-      if (m_skyBox.isBound()) {
+      if (m_skyBox.val.isBound()) {
 
         std::string shader_name("sky_box");
         PipelineInfo info{};
@@ -176,7 +166,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
         info.cullMode = CullMode::kCullNone;
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pPipeline->setImageBinding("diffuseTexture", m_skyBox.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+        pPipeline->setImageBinding("diffuseTexture", m_skyBox.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
         pPipeline->bind(ri, Matrix4());
 
         // Render a full screen quad
