@@ -60,4 +60,34 @@ const Vector3 getXMLAttribute(const std::string& base_name, tinyxml2::XMLElement
   }
 }
 
+void setXMLAttribute(const std::string& base_name, tinyxml2::XMLElement* e, const AABB& value, const AABB& default_value)
+{
+  // TODO - Increase number of digits after the decimal in floating point format (6 -> 12?)
+  // FINDME, TODO - This needs optimization...
+  if (value != default_value) {
+    e->SetAttribute((base_name + "_min_x").c_str(), value.min.x);
+    e->SetAttribute((base_name + "_min_y").c_str(), value.min.y);
+    e->SetAttribute((base_name + "_min_z").c_str(), value.min.z);
+
+    e->SetAttribute((base_name + "_max_x").c_str(), value.max.x);
+    e->SetAttribute((base_name + "_max_y").c_str(), value.max.y);
+    e->SetAttribute((base_name + "_max_z").c_str(), value.max.z);
+  }
+}
+
+const AABB getXMLAttribute(const std::string& base_name, tinyxml2::XMLElement* e, const AABB& default_value)
+{
+  AABB value;
+  if (e->QueryFloatAttribute((base_name + "_min_x").c_str(), &value.min.x) == tinyxml2::XML_SUCCESS
+    && e->QueryFloatAttribute((base_name + "_min_y").c_str(), &value.min.y) == tinyxml2::XML_SUCCESS
+    && e->QueryFloatAttribute((base_name + "_min_z").c_str(), &value.min.z) == tinyxml2::XML_SUCCESS
+    && e->QueryFloatAttribute((base_name + "_max_x").c_str(), &value.max.x) == tinyxml2::XML_SUCCESS
+    && e->QueryFloatAttribute((base_name + "_max_y").c_str(), &value.max.y) == tinyxml2::XML_SUCCESS
+    && e->QueryFloatAttribute((base_name + "_max_z").c_str(), &value.max.z) == tinyxml2::XML_SUCCESS) {
+    return value;
+  } else {
+    return default_value;
+  }
+}
+
 } // namespace kraken

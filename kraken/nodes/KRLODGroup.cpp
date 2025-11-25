@@ -39,19 +39,15 @@ using namespace hydra;
 void KRLODGroup::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->lod_group.min_distance = 0.0f;
-  nodeInfo->lod_group.max_distance = 0.0f;
-  nodeInfo->lod_group.reference_min = Vector3::Zero();
-  nodeInfo->lod_group.reference_max = Vector3::Zero();
+  nodeInfo->lod_group.min_distance = decltype(m_min_distance)::defaultVal;
+  nodeInfo->lod_group.max_distance = decltype(m_max_distance)::defaultVal;
+  nodeInfo->lod_group.reference_min = decltype(m_reference)::defaultVal.min;
+  nodeInfo->lod_group.reference_max = decltype(m_reference)::defaultVal.max;
   nodeInfo->lod_group.use_world_units = true;
 }
 
 KRLODGroup::KRLODGroup(KRScene& scene, std::string name) : KRNode(scene, name)
 {
-  m_min_distance = 0.0f;
-  m_max_distance = 0.0f;
-  m_reference = AABB::Create(Vector3::Zero(), Vector3::Zero());
-  m_use_world_units = true;
 }
 
 KRLODGroup::~KRLODGroup()
@@ -65,66 +61,20 @@ std::string KRLODGroup::getElementName()
 tinyxml2::XMLElement* KRLODGroup::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("min_distance", m_min_distance);
-  e->SetAttribute("max_distance", m_max_distance);
-
-  e->SetAttribute("reference_min_x", m_reference.min.x);
-  e->SetAttribute("reference_min_y", m_reference.min.y);
-  e->SetAttribute("reference_min_z", m_reference.min.z);
-
-
-  e->SetAttribute("reference_max_x", m_reference.max.x);
-  e->SetAttribute("reference_max_y", m_reference.max.y);
-  e->SetAttribute("reference_max_z", m_reference.max.z);
-
-  e->SetAttribute("use_world_units", m_use_world_units ? "true" : "false");
+  m_min_distance.save(e);
+  m_max_distance.save(e);
+  m_reference.save(e);
+  m_use_world_units.save(e);
   return e;
 }
 
 void KRLODGroup::loadXML(tinyxml2::XMLElement* e)
 {
   KRNode::loadXML(e);
-
-  m_min_distance = 0.0f;
-  if (e->QueryFloatAttribute("min_distance", &m_min_distance) != tinyxml2::XML_SUCCESS) {
-    m_min_distance = 0.0f;
-  }
-
-  m_max_distance = 0.0f;
-  if (e->QueryFloatAttribute("max_distance", &m_max_distance) != tinyxml2::XML_SUCCESS) {
-    m_max_distance = 0.0f;
-  }
-
-
-  float x = 0.0f, y = 0.0f, z = 0.0f;
-  if (e->QueryFloatAttribute("reference_min_x", &x) != tinyxml2::XML_SUCCESS) {
-    x = 0.0f;
-  }
-  if (e->QueryFloatAttribute("reference_min_y", &y) != tinyxml2::XML_SUCCESS) {
-    y = 0.0f;
-  }
-  if (e->QueryFloatAttribute("reference_min_z", &z) != tinyxml2::XML_SUCCESS) {
-    z = 0.0f;
-  }
-
-  m_reference.min = Vector3::Create(x, y, z);
-
-  x = 0.0f; y = 0.0f; z = 0.0f;
-  if (e->QueryFloatAttribute("reference_max_x", &x) != tinyxml2::XML_SUCCESS) {
-    x = 0.0f;
-  }
-  if (e->QueryFloatAttribute("reference_max_y", &y) != tinyxml2::XML_SUCCESS) {
-    y = 0.0f;
-  }
-  if (e->QueryFloatAttribute("reference_max_z", &z) != tinyxml2::XML_SUCCESS) {
-    z = 0.0f;
-  }
-  m_reference.max = Vector3::Create(x, y, z);
-
-  m_use_world_units = true;
-  if (e->QueryBoolAttribute("use_world_units", &m_use_world_units) != tinyxml2::XML_SUCCESS) {
-    m_use_world_units = true;
-  }
+  m_min_distance.load(e);
+  m_max_distance.load(e);
+  m_reference.load(e);
+  m_use_world_units.load(e);
 }
 
 
@@ -152,7 +102,7 @@ KRNode::LodVisibility KRLODGroup::calcLODVisibility(const KRViewport& viewport)
 
     Vector3 world_camera_position = viewport.getCameraPosition();
     Vector3 local_camera_position = worldToLocal(world_camera_position);
-    Vector3 local_reference_point = m_reference.nearestPoint(local_camera_position);
+    Vector3 local_reference_point = m_reference.val.nearestPoint(local_camera_position);
 
     if (m_use_world_units) {
       Vector3 world_reference_point = localToWorld(local_reference_point);

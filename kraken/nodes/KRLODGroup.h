@@ -57,8 +57,8 @@ public:
   LodVisibility calcLODVisibility(const KRViewport& viewport);
 
 private:
-  float m_min_distance;
-  float m_max_distance;
-  hydra::AABB m_reference; // Point of reference, used for distance calculation.  Usually set to the bounding box center
-  bool m_use_world_units;
+  KRNODE_PROPERTY(float, m_min_distance, 0.f, "min_distance");
+  KRNODE_PROPERTY(float, m_max_distance, 0.f, "max_distance");
+  KRNODE_PROPERTY(hydra::AABB, m_reference, hydra::AABB({ 0.f, 0.f, 0.f, 0.f, 0.f, 0.f}), "reference"); // Point of reference, used for distance calculation.  Usually set to the bounding box center
+  KRNODE_PROPERTY(bool, m_use_world_units, true, "use_world_units");
 };
