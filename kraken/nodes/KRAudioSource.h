@@ -133,24 +133,24 @@ private:
   int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
   void advanceBuffer();
 
-  KRAudioSampleBinding m_sample;
-  unsigned int m_sourceID;
-  float m_gain;
-  float m_pitch;
-  bool m_looping;
+  KRNODE_PROPERTY(KRAudioSampleBinding, m_sample, nullptr, "sample");
+  KRNODE_PROPERTY(float, m_gain, 1.f, "gain");
+  KRNODE_PROPERTY(float, m_pitch, 1.f, "pitch");
+  KRNODE_PROPERTY(bool, m_looping, false, "looping");
+  KRNODE_PROPERTY(bool, m_is3d, true, "is3d");
+
+  // 3d only properties:
+  KRNODE_PROPERTY(float, m_referenceDistance, 1.f, "reference_distance");
+  KRNODE_PROPERTY(float, m_reverb, 0.f, "reverb"); // 0.0 (dry) - 1.0 (wet) (0-100% dry/wet mix, 0.0 default)
+  KRNODE_PROPERTY(float, m_rolloffFactor, 2.f, "rolloff_factor");
+  KRNODE_PROPERTY(bool, m_enable_occlusion, true, "enable_occlusion");
+  KRNODE_PROPERTY(bool, m_enable_obstruction, true, "enable_obstruction");
+
   std::queue<KRAudioBuffer*> m_audioBuffers;
   int m_nextBufferIndex;
   bool m_playing;
-  bool m_is3d;
   bool m_isPrimed;
 
   void prime();
   void queueBuffer();
-
-  // 3d only properties:
-  float m_referenceDistance;
-  float m_reverb; // type ALfloat	0.0 (dry) - 1.0 (wet) (0-100% dry/wet mix, 0.0 default)
-  float m_rolloffFactor;
-  bool m_enable_occlusion;
-  bool m_enable_obstruction;
 };

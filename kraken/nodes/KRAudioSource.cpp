@@ -42,15 +42,15 @@ using namespace hydra;
 void KRAudioSource::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->audio_source.enable_obstruction = true;
-  nodeInfo->audio_source.enable_occlusion = true;
-  nodeInfo->audio_source.gain = 1.0f;
+  nodeInfo->audio_source.enable_obstruction = decltype(m_enable_obstruction)::defaultVal;
+  nodeInfo->audio_source.enable_occlusion = decltype(m_enable_occlusion)::defaultVal;
+  nodeInfo->audio_source.gain = decltype(m_gain)::defaultVal;
   nodeInfo->audio_source.is_3d = true;
-  nodeInfo->audio_source.looping = false;
-  nodeInfo->audio_source.pitch = 1.0f;
-  nodeInfo->audio_source.reference_distance = 1.0f;
-  nodeInfo->audio_source.reverb = 0.0f;
-  nodeInfo->audio_source.rolloff_factor = 2.0f;
+  nodeInfo->audio_source.looping = decltype(m_looping)::defaultVal;
+  nodeInfo->audio_source.pitch = decltype(m_pitch)::defaultVal;
+  nodeInfo->audio_source.reference_distance = decltype(m_referenceDistance)::defaultVal;
+  nodeInfo->audio_source.reverb = decltype(m_reverb)::defaultVal;
+  nodeInfo->audio_source.rolloff_factor = decltype(m_rolloffFactor)::defaultVal;
   nodeInfo->audio_source.sample = -1;
 }
 
@@ -58,17 +58,7 @@ KRAudioSource::KRAudioSource(KRScene& scene, std::string name) : KRNode(scene, n
 {
   m_currentBufferFrame = 0;
   m_playing = false;
-  m_is3d = true;
   m_isPrimed = false;
-  m_gain = 1.0f;
-  m_pitch = 1.0f;
-  m_looping = false;
-
-  m_referenceDistance = 1.0f;
-  m_reverb = 0.0f;
-  m_rolloffFactor = 2.0f;
-  m_enable_occlusion = true;
-  m_enable_obstruction = true;
 
   m_start_audio_frame = -1;
   m_paused_audio_frame = 0;
@@ -90,79 +80,31 @@ std::string KRAudioSource::getElementName()
 tinyxml2::XMLElement* KRAudioSource::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("sample", m_sample.getName().c_str());
-  e->SetAttribute("gain", m_gain);
-  e->SetAttribute("pitch", m_pitch);
-  e->SetAttribute("looping", m_looping ? "true" : "false");
-  e->SetAttribute("is3d", m_is3d ? "true" : "false");
-  e->SetAttribute("reference_distance", m_referenceDistance);
-  e->SetAttribute("reverb", m_reverb);
-  e->SetAttribute("rolloff_factor", m_rolloffFactor);
-  e->SetAttribute("enable_occlusion", m_enable_occlusion ? "true" : "false");
-  e->SetAttribute("enable_obstruction", m_enable_obstruction ? "true" : "false");
+  m_sample.save(e);
+  m_gain.save(e);
+  m_pitch.save(e);
+  m_looping.save(e);
+  m_is3d.save(e);
+  m_referenceDistance.save(e);
+  m_reverb.save(e);
+  m_rolloffFactor.save(e);
+  m_enable_occlusion.save(e);
+  m_enable_obstruction.save(e);
   return e;
 }
 
 void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
 {
-  const char* szAudioSampleName = e->Attribute("sample");
-  if (szAudioSampleName == nullptr) {
-    m_sample.clear();
-  } else {
-    m_sample.set(szAudioSampleName);
-  }
-
-  float gain = 1.0f;
-  if (e->QueryFloatAttribute("gain", &gain) != tinyxml2::XML_SUCCESS) {
-    gain = 1.0f;
-  }
-  setGain(gain);
-
-  float pitch = 1.0f;
-  if (e->QueryFloatAttribute("pitch", &pitch) != tinyxml2::XML_SUCCESS) {
-    pitch = 1.0f;
-  }
-  setPitch(m_pitch);
-
-  bool looping = false;
-  if (e->QueryBoolAttribute("looping", &looping) != tinyxml2::XML_SUCCESS) {
-    looping = false;
-  }
-  setLooping(looping);
-
-  bool is3d = true;
-  if (e->QueryBoolAttribute("is3d", &is3d) != tinyxml2::XML_SUCCESS) {
-    is3d = true;
-  }
-  setIs3D(is3d);
-
-  float reference_distance = 1.0f;
-  if (e->QueryFloatAttribute("reference_distance", &reference_distance) != tinyxml2::XML_SUCCESS) {
-    reference_distance = 1.0f;
-  }
-  setReferenceDistance(reference_distance);
-
-  float reverb = 0.0f;
-  if (e->QueryFloatAttribute("reverb", &reverb) != tinyxml2::XML_SUCCESS) {
-    reverb = 0.0f;
-  }
-  setReverb(reverb);
-
-  float rolloff_factor = 2.0f;
-  if (e->QueryFloatAttribute("rolloff_factor", &rolloff_factor) != tinyxml2::XML_SUCCESS) {
-    rolloff_factor = 2.0f;
-  }
-  setRolloffFactor(rolloff_factor);
-
-  m_enable_obstruction = true;
-  if (e->QueryBoolAttribute("enable_obstruction", &m_enable_obstruction) != tinyxml2::XML_SUCCESS) {
-    m_enable_obstruction = true;
-  }
-
-  m_enable_occlusion = true;
-  if (e->QueryBoolAttribute("enable_occlusion", &m_enable_occlusion) != tinyxml2::XML_SUCCESS) {
-    m_enable_occlusion = true;
-  }
+  m_sample.load(e);
+  m_gain.load(e);
+  m_pitch.load(e);
+  m_looping.load(e);
+  m_is3d.load(e);
+  m_referenceDistance.load(e);
+  m_reverb.load(e);
+  m_rolloffFactor.load(e);
+  m_enable_obstruction.load(e);
+  m_enable_occlusion.load(e);
 
   KRNode::loadXML(e);
 }
@@ -170,8 +112,8 @@ void KRAudioSource::loadXML(tinyxml2::XMLElement* e)
 void KRAudioSource::prime()
 {
   if (!m_isPrimed) {
-    m_sample.bind(&getContext());
-    if (m_sample.isBound()) {
+    m_sample.val.bind(&getContext());
+    if (m_sample.val.isBound()) {
       // Prime the buffer queue
       m_nextBufferIndex = 0;
       for (int i = 0; i < KRENGINE_AUDIO_BUFFERS_PER_SOURCE; i++) {
@@ -185,9 +127,9 @@ void KRAudioSource::prime()
 
 void KRAudioSource::queueBuffer()
 {
-  KRAudioBuffer* buffer = m_sample.get()->getBuffer(m_nextBufferIndex);
+  KRAudioBuffer* buffer = m_sample.val.get()->getBuffer(m_nextBufferIndex);
   m_audioBuffers.push(buffer);
-  m_nextBufferIndex = (m_nextBufferIndex + 1) % m_sample.get()->getBufferCount();
+  m_nextBufferIndex = (m_nextBufferIndex + 1) % m_sample.val.get()->getBufferCount();
 }
 
 void KRAudioSource::render(RenderInfo& ri)
@@ -364,18 +306,18 @@ bool KRAudioSource::isPlaying()
 
 void KRAudioSource::setSample(const std::string& sound_name)
 {
-  m_sample.set(sound_name);
+  m_sample.val.set(sound_name);
 }
 
 std::string KRAudioSource::getSample()
 {
-  return m_sample.getName();
+  return m_sample.val.getName();
 }
 
 KRAudioSample* KRAudioSource::getAudioSample()
 {
-  m_sample.bind(&getContext());
-  return m_sample.get();
+  m_sample.val.bind(&getContext());
+  return m_sample.val.get();
 }
 
 void KRAudioSource::advanceFrames(int frame_count)
