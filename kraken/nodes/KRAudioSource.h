@@ -133,7 +133,7 @@ private:
   int m_currentBufferFrame; // Siren Audio Engine frame number within current buffer
   void advanceBuffer();
 
-  KRNODE_PROPERTY(KRAudioSampleBinding, m_sample, nullptr, "sample");
+  KRNODE_PROPERTY(KRAudioSampleBinding, m_sample, "", "sample");
   KRNODE_PROPERTY(float, m_gain, 1.f, "gain");
   KRNODE_PROPERTY(float, m_pitch, 1.f, "pitch");
   KRNODE_PROPERTY(bool, m_looping, false, "looping");

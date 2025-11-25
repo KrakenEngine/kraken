@@ -74,7 +74,7 @@ public:
   void render(RenderInfo& ri) override;
 
 private:
-  KRNODE_PROPERTY(KRMeshBinding, m_model, nullptr, "mesh");
+  KRNODE_PROPERTY(KRMeshBinding, m_model, "", "mesh");
   KRNODE_PROPERTY(unsigned int, m_layer_mask, 0xffffffff, "layer_mask");
   KRNODE_PROPERTY(float, m_audio_occlusion, 1.f, "audio_occlusion");
 

@@ -109,7 +109,7 @@ KrResult KRModel::update(const KrNodeInfo* nodeInfo)
         return res;
       }
     }
-    m_meshes[lod].set(mesh);
+    m_meshes[lod].val.set(mesh);
   }
 
   return KR_SUCCESS;
@@ -128,13 +128,12 @@ void KRModel::loadXML(tinyxml2::XMLElement* e)
   m_receivesShadow.load(e);
   m_rim_power.load(e);
   m_rim_color.load(e);
-  std::string meshNames[KRModel::kMeshLODCount];
 
-  m_meshes[0].set(e->Attribute("mesh"));
+  m_meshes[0].load(e);
   for (int lod = 1; lod < KRModel::kMeshLODCount; lod++) {
     char attribName[8];
     snprintf(attribName, 8, "mesh%i", lod);
-    m_meshes[lod].set(e->Attribute(attribName));
+    m_meshes[lod].load(e, attribName);
   }
 
   m_lightMap.load(e);
@@ -143,11 +142,11 @@ void KRModel::loadXML(tinyxml2::XMLElement* e)
 tinyxml2::XMLElement* KRModel::saveXML(tinyxml2::XMLNode* parent)
 {
   tinyxml2::XMLElement* e = KRNode::saveXML(parent);
-  e->SetAttribute("mesh", m_meshes[0].getName().c_str());
+  m_meshes[0].load(e);
   for (int lod = 1; lod < kMeshLODCount; lod++) {
     char attribName[8];
     snprintf(attribName, 8, "mesh%i", lod);
-    e->SetAttribute(attribName, m_meshes[lod].getName().c_str());
+    m_meshes[lod].load(e, attribName);
   }
   m_lightMap.save(e);
   m_min_lod_coverage.save(e);
@@ -193,13 +192,13 @@ void KRModel::loadModel()
   bool meshChanged = false;
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     KRMesh* prevMesh = nullptr;
-    prevMesh = m_meshes[lod].get();
-    m_meshes[lod].bind(&getContext());
-    if (m_meshes[lod].get() != prevMesh) {
+    prevMesh = m_meshes[lod].val.get();
+    m_meshes[lod].val.bind(&getContext());
+    if (m_meshes[lod].val.get() != prevMesh) {
       meshChanged = true;
     }
-    if (m_meshes[lod].isBound()) {
-      KRMesh* model = m_meshes[lod].get();
+    if (m_meshes[lod].val.isBound()) {
+      KRMesh* model = m_meshes[lod].val.get();
       std::vector<KRBone*> model_bones;
       int bone_count = model->getBoneCount();
       bool all_bones_found = true;
@@ -262,8 +261,8 @@ void KRModel::render(KRNode::RenderInfo& ri)
       int bestLOD = -1;
       KRMesh* pModel = nullptr;
       for (int lod = 0; lod < kMeshLODCount; lod++) {
-        if (m_meshes[lod].isBound()) {
-          KRMesh* pLODModel = m_meshes[lod].get();
+        if (m_meshes[lod].val.isBound()) {
+          KRMesh* pLODModel = m_meshes[lod].val.get();
 
           if ((float)pLODModel->getLODCoverage() / 100.0f > lod_coverage) {
             if(bestLOD == -1 || pLODModel->getLODCoverage() < pModel->getLODCoverage()) {
@@ -294,7 +293,7 @@ void KRModel::getResourceBindings(std::list<KRResourceBinding*>& bindings)
   KRNode::getResourceBindings(bindings);
 
   for (int i = 0; i < kMeshLODCount; i++) {
-    bindings.push_back(&m_meshes[i]);
+    bindings.push_back(&m_meshes[i].val);
   }
   bindings.push_back(&m_lightMap.val);
 }
@@ -306,8 +305,8 @@ void KRModel::preStream(const KRViewport& viewport, std::list<KRResourceRequest>
   loadModel();
 
   for (int i = 0; i < kMeshLODCount; i++) {
-    if (m_meshes[i].isBound()) {
-      m_meshes[i].get()->preStream();
+    if (m_meshes[i].val.isBound()) {
+      m_meshes[i].val.get()->preStream();
     }
   }
 }
@@ -319,8 +318,8 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
   loadModel();
 
   for (int lod = 0; lod < kMeshLODCount; lod++) {
-    if (m_meshes[lod].isBound()) {
-        stream_level = KRMIN(stream_level, m_meshes[lod].get()->getStreamLevel());
+    if (m_meshes[lod].val.isBound()) {
+        stream_level = KRMIN(stream_level, m_meshes[lod].val.get()->getStreamLevel());
     }
   }
 
@@ -333,10 +332,10 @@ AABB KRModel::getBounds()
 
   // Get the bounds of the lowest lod mesh
   for(int lod=0; lod<kMeshLODCount; lod++) {
-    if (!m_meshes[lod].isBound()) {
+    if (!m_meshes[lod].val.isBound()) {
       continue;
     }
-    KRMesh* mesh = m_meshes[lod].get();
+    KRMesh* mesh = m_meshes[lod].val.get();
     if (m_faces_camera) {
       AABB normal_bounds = AABB::Create(mesh->getMinPoint(), mesh->getMaxPoint(), getModelMatrix());
       float max_dimension = normal_bounds.longest_radius();

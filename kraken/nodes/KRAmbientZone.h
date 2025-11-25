@@ -71,5 +71,5 @@ private:
   KRNODE_PROPERTY(std::string, m_zone, "", "zone");
   KRNODE_PROPERTY(float, m_gradient_distance, 0.25f, "gradient");
   KRNODE_PROPERTY(float, m_ambient_gain, 1.f, "gain");
-  KRNODE_PROPERTY(KRAudioSampleBinding, m_ambient, nullptr, "sample");
+  KRNODE_PROPERTY(KRAudioSampleBinding, m_ambient, "", "sample");
 };

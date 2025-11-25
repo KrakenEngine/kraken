@@ -80,8 +80,7 @@ public:
 
 private:
 
-  std::array<KRMeshBinding, kMeshLODCount> m_meshes;
-  
+  KRNODE_PROPERTY_ARRAY(KRMeshBinding, m_meshes, "", "mesh", kMeshLODCount);
   KRNODE_PROPERTY(KRTextureBinding, m_lightMap, KRTexture::TEXTURE_USAGE_LIGHT_MAP, "light_map");
   KRNODE_PROPERTY(float, m_min_lod_coverage, 0.f, "min_lod_coverage");
   KRNODE_PROPERTY(bool, m_receivesShadow, true, "receives_shadow");

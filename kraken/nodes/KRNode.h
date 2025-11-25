@@ -97,52 +97,62 @@ public:
 
   void save(tinyxml2::XMLElement* element) const
   {
+    save(element, config::name);
+  }
+
+  void save(tinyxml2::XMLElement* element, const char* attributeName) const
+  {
     if constexpr (std::is_same<T, bool>::value) {
-      element->SetAttribute(config::name, val ? "true" : "false");
+      element->SetAttribute(attributeName, val ? "true" : "false");
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
-      kraken::setXMLAttribute(config::name, element, val, config::defaultVal);
+      kraken::setXMLAttribute(attributeName, element, val, config::defaultVal);
     } else if constexpr (std::is_same<T, hydra::AABB>::value) {
-      kraken::setXMLAttribute(config::name, element, val, config::defaultVal);
+      kraken::setXMLAttribute(attributeName, element, val, config::defaultVal);
     } else if constexpr (std::is_same<T, std::string>::value) {
-      element->SetAttribute(config::name, val.c_str());
+      element->SetAttribute(attributeName, val.c_str());
     } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
-      element->SetAttribute(config::name, val.getName().c_str());
+      element->SetAttribute(attributeName, val.getName().c_str());
     } else {
-      element->SetAttribute(config::name, val);
+      element->SetAttribute(attributeName, val);
     }
   }
 
   void load(tinyxml2::XMLElement* element)
   {
+    load(element, config::name);
+  }
+
+  void load(tinyxml2::XMLElement* element, const char* attributeName)
+  {
     if constexpr (std::is_same<T, int>::value) {
-      if (element->QueryIntAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+      if (element->QueryIntAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
     } else if constexpr (std::is_same<T, unsigned int>::value) {
-        if (element->QueryUnsignedAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+        if (element->QueryUnsignedAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
           val = config::defaultVal;
         }
     } else if constexpr (std::is_same<T, float>::value) {
-      if (element->QueryFloatAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+      if (element->QueryFloatAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
     } else if constexpr (std::is_same<T, bool>::value) {
-      if (element->QueryBoolAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+      if (element->QueryBoolAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
     } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
-      val = kraken::getXMLAttribute(config::name, element, config::defaultVal);
+      val = kraken::getXMLAttribute(attributeName, element, config::defaultVal);
     } else if constexpr (std::is_same<T, hydra::AABB>::value) {
-      val = kraken::getXMLAttribute(config::name, element, config::defaultVal);
+      val = kraken::getXMLAttribute(attributeName, element, config::defaultVal);
     } else if constexpr (std::is_same<T, std::string>::value) {
-      const char* name = element->Attribute(config::name);
+      const char* name = element->Attribute(attributeName);
       if (name) {
         val = name;
       } else {
         val = config::defaultVal;
       }
     } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
-        const char* name = element->Attribute(config::name);
+        const char* name = element->Attribute(attributeName);
         if (name) {
           val.set(name);
         } else {
@@ -162,6 +172,13 @@ public:
     static constexpr const char* name = PROP_NAME; \
   }; \
   KRNodeProperty<PROP_TYPE, VAR ## _config> VAR;
+
+#define KRNODE_PROPERTY_ARRAY(PROP_TYPE, VAR, PROP_DEFAULT, PROP_NAME, ARRAY_SIZE) \
+   struct VAR ## _config { \
+    static constexpr decltype(PROP_DEFAULT) defaultVal = PROP_DEFAULT; \
+    static constexpr const char* name = PROP_NAME; \
+  }; \
+  std::array<KRNodeProperty<PROP_TYPE, VAR ## _config>, ARRAY_SIZE> VAR;
 
 class KRNode
   : public KRContextObject
