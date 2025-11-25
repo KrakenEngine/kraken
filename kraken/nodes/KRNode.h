@@ -111,7 +111,11 @@ public:
 
   void load(tinyxml2::XMLElement* element)
   {
-    if constexpr (std::is_same<T, float>::value) {
+    if constexpr (std::is_same<T, int>::value) {
+      if (element->QueryIntAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
+        val = config::defaultVal;
+      }
+    } else if constexpr (std::is_same<T, float>::value) {
       if (element->QueryFloatAttribute(config::name, &val) != tinyxml2::XML_SUCCESS) {
         val = config::defaultVal;
       }
