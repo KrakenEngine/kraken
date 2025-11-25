@@ -50,17 +50,17 @@ using namespace hydra;
 void KRLight::InitNodeInfo(KrNodeInfo* nodeInfo)
 {
   KRNode::InitNodeInfo(nodeInfo);
-  nodeInfo->light.casts_shadow = true;
-  nodeInfo->light.color = Vector3::One();
-  nodeInfo->light.decay_start = 0.0f;
-  nodeInfo->light.dust_particle_density = 0.1f;
-  nodeInfo->light.dust_particle_intensity = 1.0f;
-  nodeInfo->light.dust_particle_size = 1.0f;
-  nodeInfo->light.flare_occlusion_size = 0.05f;
-  nodeInfo->light.flare_size = 0.0f;
+  nodeInfo->light.casts_shadow = decltype(m_casts_shadow)::defaultVal;
+  nodeInfo->light.color = decltype(m_color)::defaultVal;
+  nodeInfo->light.decay_start = decltype(m_decayStart)::defaultVal;
+  nodeInfo->light.dust_particle_density = decltype(m_dust_particle_density)::defaultVal;
+  nodeInfo->light.dust_particle_intensity = decltype(m_dust_particle_density)::defaultVal;
+  nodeInfo->light.dust_particle_size = decltype(m_dust_particle_size)::defaultVal;
+  nodeInfo->light.flare_occlusion_size = decltype(m_flareOcclusionSize)::defaultVal;
+  nodeInfo->light.flare_size = decltype(m_flareSize)::defaultVal;
   nodeInfo->light.flare_texture = -1;
-  nodeInfo->light.intensity = 1.0f;
-  nodeInfo->light.light_shafts = true;
+  nodeInfo->light.intensity = decltype(m_intensity)::defaultVal;
+  nodeInfo->light.light_shafts = decltype(m_light_shafts)::defaultVal;
 }
 
 KRLight::KRLight(KRScene& scene, std::string name)
