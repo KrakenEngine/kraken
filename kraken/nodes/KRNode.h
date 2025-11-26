@@ -38,6 +38,7 @@
 #include "KROctreeNode.h"
 #include "KRBehavior.h"
 #include "KRShaderReflection.h"
+#include "KRNodeProperty.h"
 #include <type_traits>
 
 using namespace kraken;
@@ -68,103 +69,7 @@ class XMLNode;
 class XMLAttribute;
 }
 
-template <typename T, class config>
-class KRNodeProperty
-{
-public:
-  static constexpr decltype(config::defaultVal) defaultVal = config::defaultVal;
-  static constexpr const char* name = config::name;
-  KRNodeProperty()
-    : val(config::defaultVal)
-  {
-  }
 
-  KRNodeProperty(T& val)
-    : val(val)
-  {
-  }
-
-  KRNodeProperty& operator=(const T& v)
-  {
-    val = v;
-    return *this;
-  }
-
-  operator const T& () const
-  {
-    return val;
-  }
-
-  void save(tinyxml2::XMLElement* element) const
-  {
-    save(element, config::name);
-  }
-
-  void save(tinyxml2::XMLElement* element, const char* attributeName) const
-  {
-    if constexpr (std::is_same<T, bool>::value) {
-      element->SetAttribute(attributeName, val ? "true" : "false");
-    } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
-      kraken::setXMLAttribute(attributeName, element, val, config::defaultVal);
-    } else if constexpr (std::is_same<T, hydra::AABB>::value) {
-      kraken::setXMLAttribute(attributeName, element, val, config::defaultVal);
-    } else if constexpr (std::is_same<T, std::string>::value) {
-      element->SetAttribute(attributeName, val.c_str());
-    } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
-      element->SetAttribute(attributeName, val.getName().c_str());
-    } else {
-      element->SetAttribute(attributeName, val);
-    }
-  }
-
-  void load(tinyxml2::XMLElement* element)
-  {
-    load(element, config::name);
-  }
-
-  void load(tinyxml2::XMLElement* element, const char* attributeName)
-  {
-    if constexpr (std::is_same<T, int>::value) {
-      if (element->QueryIntAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
-        val = config::defaultVal;
-      }
-    } else if constexpr (std::is_same<T, unsigned int>::value) {
-        if (element->QueryUnsignedAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
-          val = config::defaultVal;
-        }
-    } else if constexpr (std::is_same<T, float>::value) {
-      if (element->QueryFloatAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
-        val = config::defaultVal;
-      }
-    } else if constexpr (std::is_same<T, bool>::value) {
-      if (element->QueryBoolAttribute(attributeName, &val) != tinyxml2::XML_SUCCESS) {
-        val = config::defaultVal;
-      }
-    } else if constexpr (std::is_same<T, hydra::Vector3>::value) {
-      val = kraken::getXMLAttribute(attributeName, element, config::defaultVal);
-    } else if constexpr (std::is_same<T, hydra::AABB>::value) {
-      val = kraken::getXMLAttribute(attributeName, element, config::defaultVal);
-    } else if constexpr (std::is_same<T, std::string>::value) {
-      const char* name = element->Attribute(attributeName);
-      if (name) {
-        val = name;
-      } else {
-        val = config::defaultVal;
-      }
-    } else if constexpr (std::is_base_of<KRResourceBinding, T>::value) {
-        const char* name = element->Attribute(attributeName);
-        if (name) {
-          val.set(name);
-        } else {
-          val.clear();
-        }
-    } else {
-      static_assert(false, "Typename not implemented.");
-    }
-  }
-
-  T val;
-};
 
 #define KRNODE_PROPERTY(PROP_TYPE, VAR, PROP_DEFAULT, PROP_NAME) \
    struct VAR ## _config { \
