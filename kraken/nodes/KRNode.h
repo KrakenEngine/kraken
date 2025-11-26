@@ -363,16 +363,15 @@ public:
   KRNode* m_lastChildNode;
 
 protected:
-  hydra::Vector3 m_localTranslation;
-  hydra::Vector3 m_localScale;
-  hydra::Vector3 m_localRotation;
-
-  hydra::Vector3 m_rotationOffset;
-  hydra::Vector3 m_scalingOffset;
-  hydra::Vector3 m_rotationPivot;
-  hydra::Vector3 m_scalingPivot;
-  hydra::Vector3 m_preRotation;
-  hydra::Vector3 m_postRotation;
+  KRNODE_PROPERTY(hydra::Vector3, m_localTranslation, hydra::Vector3({ 0.f, 0.f, 0.f }), "translate");
+  KRNODE_PROPERTY(hydra::Vector3, m_localScale, hydra::Vector3({ 1.f, 1.f, 1.f }), "scale");
+  KRNODE_PROPERTY(hydra::Vector3, m_localRotation, hydra::Vector3({ 0.f, 0.f, 0.f }), "rotate");
+  KRNODE_PROPERTY(hydra::Vector3, m_rotationOffset, hydra::Vector3({ 0.f, 0.f, 0.f }), "rotate_offset");
+  KRNODE_PROPERTY(hydra::Vector3, m_scalingOffset, hydra::Vector3({ 0.f, 0.f, 0.f }), "scale_offset");
+  KRNODE_PROPERTY(hydra::Vector3, m_rotationPivot, hydra::Vector3({ 0.f, 0.f, 0.f }), "rotate_pivot");
+  KRNODE_PROPERTY(hydra::Vector3, m_scalingPivot, hydra::Vector3({ 0.f, 0.f, 0.f }), "scale_pivot");
+  KRNODE_PROPERTY(hydra::Vector3, m_preRotation, hydra::Vector3({ 0.f, 0.f, 0.f }), "pre_rotate");
+  KRNODE_PROPERTY(hydra::Vector3, m_postRotation, hydra::Vector3({ 0.f, 0.f, 0.f }), "post_rotate");
 
   hydra::Vector3 m_initialLocalTranslation;
   hydra::Vector3 m_initialLocalScale;
