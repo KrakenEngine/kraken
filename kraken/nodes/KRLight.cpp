@@ -293,7 +293,7 @@ void KRLight::render(RenderInfo& ri)
       if (sphereModel) {
 
         Matrix4 occlusion_test_sphere_matrix = Matrix4();
-        occlusion_test_sphere_matrix.scale(m_localScale * m_flareOcclusionSize);
+        occlusion_test_sphere_matrix.scale(m_localScale.val * m_flareOcclusionSize);
         occlusion_test_sphere_matrix.translate(m_localTranslation);
         if (m_parentNode) {
           occlusion_test_sphere_matrix *= m_parentNode->getModelMatrix();
