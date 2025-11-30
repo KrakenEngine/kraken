@@ -106,27 +106,6 @@ void KRScene::render(KRNode::RenderInfo& ri)
 {
   std::list<KRResourceRequest> resourceRequests;
 
-  // ----------  Start: Vulkan Debug Code ----------
-  /*
-  if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_OPAQUE) {
-    KRMesh* sphereMesh = getContext().getMeshManager()->getMesh("__sphere");
-    if (sphereMesh && sphereMesh->isReady()) {
-      PipelineInfo info{};
-      std::string shader_name("vulkan_test");
-      info.shader_name = &shader_name;
-      info.pCamera = ri.camera;
-      info.renderPass = ri.renderPass;
-      info.rasterMode = RasterMode::kOpaque;
-      info.vertexAttributes = sphereMesh->getVertexAttributes();
-      info.modelFormat = sphereMesh->getModelFormat();
-      KRPipeline* testPipeline = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-      testPipeline->bind(ri, Matrix4());
-      sphereMesh->renderNoMaterials(ri.commandBuffer, info.renderPass, "Vulkan Test", "vulkan_test", 1.0);
-    }
-  }
-  */
-  // ----------  End: Vulkan Debug Code ----------
-
   if (getFirstLight() == NULL) {
     addDefaultLights();
   }
