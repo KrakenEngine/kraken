@@ -62,14 +62,6 @@ public:
   bool canShrinkRoot() const;
   KROctreeNode* stripChild();
 
-  void beginOcclusionQuery();
-  void endOcclusionQuery();
-
-
-  int m_occlusionQuery;
-  bool m_occlusionTested;
-  bool m_activeQuery;
-
   bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo, unsigned int layer_mask);
   bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);

@@ -42,10 +42,6 @@ KROctreeNode::KROctreeNode(KROctreeNode* parent, const AABB& bounds) : m_bounds(
   for (int i = 0; i < 8; i++) {
     m_children[i] = NULL;
   }
-
-  m_occlusionQuery = 0;
-  m_occlusionTested = false;
-  m_activeQuery = false;
 }
 
 KROctreeNode::KROctreeNode(KROctreeNode* parent, const AABB& bounds, int iChild, KROctreeNode* pChild) : m_bounds(bounds)
@@ -58,10 +54,6 @@ KROctreeNode::KROctreeNode(KROctreeNode* parent, const AABB& bounds, int iChild,
   }
   m_children[iChild] = pChild;
   pChild->m_parent = this;
-
-  m_occlusionQuery = 0;
-  m_occlusionTested = false;
-  m_activeQuery = false;
 }
 
 KROctreeNode::~KROctreeNode()
@@ -70,37 +62,6 @@ KROctreeNode::~KROctreeNode()
     if (m_children[i] != NULL) {
       delete m_children[i];
     }
-  }
-
-  if (m_occlusionTested) {
-    GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
-  }
-}
-
-
-void KROctreeNode::beginOcclusionQuery()
-{
-  if (!m_occlusionTested) {
-    GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
-#if TARGET_OS_IPHONE || defined(ANDROID)
-    GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
-#else
-    GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
-#endif
-    m_occlusionTested = true;
-    m_activeQuery = true;
-  }
-}
-
-void KROctreeNode::endOcclusionQuery()
-{
-  if (m_activeQuery) {
-    // Only end a query if we started one
-#if TARGET_OS_IPHONE || defined(ANDROID)
-    GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
-#else
-    GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
-#endif
   }
 }
 

@@ -181,6 +181,8 @@ void KRCamera::render(KRNode::RenderInfo& ri)
     {
       // ----====---- Debug Overlays ----====----
 
+     /*
+     * // TODO: Implement octree visualization that is not dependent on the no longer present fragment query based occlusion testing
       if (settings.debug_display == KRRenderSettings::KRENGINE_DEBUG_DISPLAY_OCTREE) {
         KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
 
@@ -193,17 +195,8 @@ void KRCamera::render(KRNode::RenderInfo& ri)
         info.vertexAttributes = vertices.getVertexAttributes();
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
         KRPipeline* pVisShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-
-
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-        for (unordered_map<AABB, int>::iterator itr = m_viewport.getVisibleBounds().begin(); itr != m_viewport.getVisibleBounds().end(); itr++) {
-          Matrix4 matModel = Matrix4();
-          matModel.scale((*itr).first.size() * 0.5f);
-          matModel.translate((*itr).first.center());
-          pVisShader->bind(ri, matModel);
-          vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
-        }
       }
+      */
 
       renderDebug(ri);
     }
@@ -259,8 +252,6 @@ void KRCamera::renderFrame(VkCommandBuffer& commandBuffer, KRSurface& compositeS
 
 
   scene.updateOctree(m_viewport);
-  
-  m_viewport.expireOcclusionResults(getContext().getCurrentFrame());
 
   renderGraph.render(commandBuffer, compositeSurface, this);
 }
