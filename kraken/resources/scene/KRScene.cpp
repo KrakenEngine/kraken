@@ -158,10 +158,10 @@ void KRScene::render(KRNode::RenderInfo& ri)
     newRemainingOctrees.clear();
     newRemainingOctreesTestResults.clear();
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctrees.begin(); octree_itr != remainingOctrees.end(); octree_itr++) {
-      render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+      render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly);
     }
     for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResults.begin(); octree_itr != remainingOctreesTestResults.end(); octree_itr++) {
-      render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, false);
+      render_occlusionResultsPass(ri, *octree_itr, newRemainingOctrees, false);
     }
     remainingOctrees = newRemainingOctrees;
     remainingOctreesTestResults = newRemainingOctreesTestResults;
@@ -170,7 +170,7 @@ void KRScene::render(KRNode::RenderInfo& ri)
   newRemainingOctrees.clear();
   newRemainingOctreesTestResults.clear();
   for (std::vector<KROctreeNode*>::iterator octree_itr = remainingOctreesTestResultsOnly.begin(); octree_itr != remainingOctreesTestResultsOnly.end(); octree_itr++) {
-    render(ri, resourceRequests, *octree_itr, newRemainingOctrees, newRemainingOctreesTestResults, remainingOctreesTestResultsOnly, true, true);
+    render_occlusionResultsPass(ri, *octree_itr, newRemainingOctrees, true);
   }
 
   // TODO: WIP Refactoring, this will be moved to the streaming system
@@ -179,203 +179,210 @@ void KRScene::render(KRNode::RenderInfo& ri)
   }
 }
 
-void KRScene::render(KRNode::RenderInfo& ri, std::list<KRResourceRequest>& resourceRequests, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly, bool bOcclusionResultsPass, bool bOcclusionTestResultsOnly)
+void KRScene::render(KRNode::RenderInfo& ri, std::list<KRResourceRequest>& resourceRequests, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, std::vector<KROctreeNode*>& remainingOctreesTestResults, std::vector<KROctreeNode*>& remainingOctreesTestResultsOnly)
 {
   unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
   if (pOctreeNode) {
 
     AABB octreeBounds = pOctreeNode->getBounds();
 
-    if (bOcclusionResultsPass) {
-      // ----====---- Occlusion results pass ----====----
-      if (pOctreeNode->m_occlusionTested) {
-        int params = 0;
-        GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
-
-        if (params) {
-          // Record the frame number that the test has passed on
-          visibleBounds[octreeBounds] = getContext().getCurrentFrame();
-
-          if (!bOcclusionTestResultsOnly) {
-            // Schedule a pass to perform the rendering
-            remainingOctrees.push_back(pOctreeNode);
-          }
-        } else {
-          // Record -1 to indicate that the visibility test had failed
-          visibleBounds[octreeBounds] = -1;
-        }
-
-        GLDEBUG(glDeleteQueriesEXT(1, &pOctreeNode->m_occlusionQuery));
-        pOctreeNode->m_occlusionTested = false;
-        pOctreeNode->m_occlusionQuery = 0;
-      }
+    bool in_viewport = false;
+    if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
+      // When pre-streaming, objects are streamed in behind and in-front of the camera
+      AABB viewportExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
+      in_viewport = octreeBounds.intersects(viewportExtents);
     } else {
-      bool in_viewport = false;
-      if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-        // When pre-streaming, objects are streamed in behind and in-front of the camera
-        AABB viewportExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveFarZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveFarZ()));
-        in_viewport = octreeBounds.intersects(viewportExtents);
-      } else {
-        in_viewport = ri.viewport->visible(pOctreeNode->getBounds());
+      in_viewport = ri.viewport->visible(pOctreeNode->getBounds());
+    }
+    if (in_viewport) {
+
+      // ----====---- Rendering and occlusion test pass ----====----
+      bool bVisible = false;
+      bool bNeedOcclusionTest = true;
+
+      if (!ri.camera->settings.getEnableRealtimeOcclusion()) {
+        bVisible = true;
+        bNeedOcclusionTest = false;
       }
-      if (in_viewport) {
 
-        // ----====---- Rendering and occlusion test pass ----====----
-        bool bVisible = false;
-        bool bNeedOcclusionTest = true;
-
-        if (!ri.camera->settings.getEnableRealtimeOcclusion()) {
-          bVisible = true;
+      if (!bVisible) {
+        // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
+        // The near clipping plane of the camera is taken into consideration by expanding the match area
+        AABB cameraExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveNearZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveNearZ()));
+        bVisible = octreeBounds.intersects(cameraExtents);
+        if (bVisible) {
+          // Record the frame number in which the camera was within the bounds
+          visibleBounds[octreeBounds] = getContext().getCurrentFrame();
           bNeedOcclusionTest = false;
         }
+      }
 
-        if (!bVisible) {
-          // Assume bounding boxes are visible without occlusion test queries if the camera is inside the box.
-          // The near clipping plane of the camera is taken into consideration by expanding the match area
-          AABB cameraExtents = AABB::Create(ri.viewport->getCameraPosition() - Vector3::Create(ri.camera->settings.getPerspectiveNearZ()), ri.viewport->getCameraPosition() + Vector3::Create(ri.camera->settings.getPerspectiveNearZ()));
-          bVisible = octreeBounds.intersects(cameraExtents);
-          if (bVisible) {
-            // Record the frame number in which the camera was within the bounds
-            visibleBounds[octreeBounds] = getContext().getCurrentFrame();
+
+      if (!bVisible) {
+        // Check if a previous occlusion query has returned true, taking advantage of temporal consistency of visible elements from frame to frame
+        // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
+        unordered_map<AABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
+        if (match_itr != visibleBounds.end()) {
+          if ((*match_itr).second == -1) {
+            // We have already tested these bounds with a negative result
+            bNeedOcclusionTest = false;
+          } else {
+            bVisible = true;
+
+            // We set bNeedOcclusionTest to false only when the previous occlusion test is old and we need to perform an occlusion test to record if this octree node was visible for the next frame
             bNeedOcclusionTest = false;
           }
         }
 
+      }
 
-        if (!bVisible) {
-          // Check if a previous occlusion query has returned true, taking advantage of temporal consistency of visible elements from frame to frame
-          // If the previous frame rendered this octree, then attempt to render it in this frame without performing a pre-occlusion test
-          unordered_map<AABB, int>::iterator match_itr = visibleBounds.find(octreeBounds);
-          if (match_itr != visibleBounds.end()) {
-            if ((*match_itr).second == -1) {
-              // We have already tested these bounds with a negative result
-              bNeedOcclusionTest = false;
-            } else {
-              bVisible = true;
-
-              // We set bNeedOcclusionTest to false only when the previous occlusion test is old and we need to perform an occlusion test to record if this octree node was visible for the next frame
-              bNeedOcclusionTest = false;
-            }
-          }
-
-        }
-
-        if (!bVisible && bNeedOcclusionTest) {
-          // Optimization: If this is an empty octree node with only a single child node, then immediately try to render the child node without an occlusion test for this higher level, as it would be more expensive than the occlusion test for the child
-          if (pOctreeNode->getSceneNodes().empty()) {
-            int child_count = 0;
-            for (int i = 0; i < 8; i++) {
-              if (pOctreeNode->getChildren()[i] != NULL) child_count++;
-            }
-            if (child_count == 1) {
-              bVisible = true;
-              bNeedOcclusionTest = false;
-            }
-          }
-        }
-
-        if (bNeedOcclusionTest) {
-          pOctreeNode->beginOcclusionQuery();
-
-          Matrix4 matModel = Matrix4();
-          matModel.scale(octreeBounds.size() * 0.5f);
-          matModel.translate(octreeBounds.center());
-          Matrix4 mvpmatrix = matModel * ri.viewport->getViewProjectionMatrix();
-
-          KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
-
-          getContext().getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-
-          PipelineInfo info{};
-          std::string shader_name("occlusion_test");
-          info.shader_name = &shader_name;
-          info.pCamera = ri.camera;
-          info.point_lights = &ri.point_lights;
-          info.directional_lights = &ri.directional_lights;
-          info.spot_lights = &ri.spot_lights;
-          info.renderPass = ri.renderPass;
-          info.rasterMode = RasterMode::kAdditive;
-          info.vertexAttributes = vertices.getVertexAttributes();
-          info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
-
-          KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-          pPipeline->bind(ri, matModel);
-          vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
-          m_pContext->getMeshManager()->log_draw_call(ri.renderPass->getType(), "octree", "occlusion_test", 14);
-
-          pOctreeNode->endOcclusionQuery();
-
-          if (bVisible) {
-            // Schedule a pass to get the result of the occlusion test only for future frames and passes, without rendering the model or recurring further
-            remainingOctreesTestResultsOnly.push_back(pOctreeNode);
-          } else {
-            // Schedule a pass to get the result of the occlusion test and continue recursion and rendering if test is true
-            remainingOctreesTestResults.push_back(pOctreeNode);
-          }
-        }
-
-        if (bVisible) {
-
-          // Add lights that influence this octree level and its children to the stack
-          int directional_light_count = 0;
-          int spot_light_count = 0;
-          int point_light_count = 0;
-          for (std::set<KRNode*>::iterator itr = pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-            KRNode* node = (*itr);
-            KRDirectionalLight* directional_light = dynamic_cast<KRDirectionalLight*>(node);
-            if (directional_light) {
-              ri.directional_lights.push_back(directional_light);
-              directional_light_count++;
-            }
-            KRSpotLight* spot_light = dynamic_cast<KRSpotLight*>(node);
-            if (spot_light) {
-              ri.spot_lights.push_back(spot_light);
-              spot_light_count++;
-            }
-            KRPointLight* point_light = dynamic_cast<KRPointLight*>(node);
-            if (point_light) {
-              ri.point_lights.push_back(point_light);
-              point_light_count++;
-            }
-          }
-
-          // Render objects that are at this octree level
-          for (std::set<KRNode*>::iterator itr = pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
-            //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
-            if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
-              if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
-                (*itr)->preStream(*ri.viewport, resourceRequests);
-              }
-            } else {
-              if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM)
-              {
-                ri.reflectedObjects.push_back(*itr);
-                (*itr)->render(ri);
-                ri.reflectedObjects.pop_back();
-              }
-            }
-          }
-
-          // Render child octrees
-          const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport->getBackToFrontOrder() : ri.viewport->getFrontToBackOrder();
-
+      if (!bVisible && bNeedOcclusionTest) {
+        // Optimization: If this is an empty octree node with only a single child node, then immediately try to render the child node without an occlusion test for this higher level, as it would be more expensive than the occlusion test for the child
+        if (pOctreeNode->getSceneNodes().empty()) {
+          int child_count = 0;
           for (int i = 0; i < 8; i++) {
-            render(ri, resourceRequests, pOctreeNode->getChildren()[childOctreeOrder[i]], remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly, false, false);
+            if (pOctreeNode->getChildren()[i] != NULL) child_count++;
           }
-
-          // Remove lights added at this octree level from the stack
-          while (directional_light_count--) {
-            ri.directional_lights.pop_back();
-          }
-          while (spot_light_count--) {
-            ri.spot_lights.pop_back();
-          }
-          while (point_light_count--) {
-            ri.point_lights.pop_back();
+          if (child_count == 1) {
+            bVisible = true;
+            bNeedOcclusionTest = false;
           }
         }
       }
 
+      if (bNeedOcclusionTest) {
+        pOctreeNode->beginOcclusionQuery();
+
+        Matrix4 matModel = Matrix4();
+        matModel.scale(octreeBounds.size() * 0.5f);
+        matModel.translate(octreeBounds.center());
+        Matrix4 mvpmatrix = matModel * ri.viewport->getViewProjectionMatrix();
+
+        KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_3D_CUBE_VERTICES;
+
+        getContext().getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+
+        PipelineInfo info{};
+        std::string shader_name("occlusion_test");
+        info.shader_name = &shader_name;
+        info.pCamera = ri.camera;
+        info.point_lights = &ri.point_lights;
+        info.directional_lights = &ri.directional_lights;
+        info.spot_lights = &ri.spot_lights;
+        info.renderPass = ri.renderPass;
+        info.rasterMode = RasterMode::kAdditive;
+        info.vertexAttributes = vertices.getVertexAttributes();
+        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+
+        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+        pPipeline->bind(ri, matModel);
+        vkCmdDraw(ri.commandBuffer, 14, 1, 0, 0);
+        m_pContext->getMeshManager()->log_draw_call(ri.renderPass->getType(), "octree", "occlusion_test", 14);
+
+        pOctreeNode->endOcclusionQuery();
+
+        if (bVisible) {
+          // Schedule a pass to get the result of the occlusion test only for future frames and passes, without rendering the model or recurring further
+          remainingOctreesTestResultsOnly.push_back(pOctreeNode);
+        } else {
+          // Schedule a pass to get the result of the occlusion test and continue recursion and rendering if test is true
+          remainingOctreesTestResults.push_back(pOctreeNode);
+        }
+      }
+
+      if (bVisible) {
+
+        // Add lights that influence this octree level and its children to the stack
+        int directional_light_count = 0;
+        int spot_light_count = 0;
+        int point_light_count = 0;
+        for (std::set<KRNode*>::iterator itr = pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+          KRNode* node = (*itr);
+          KRDirectionalLight* directional_light = dynamic_cast<KRDirectionalLight*>(node);
+          if (directional_light) {
+            ri.directional_lights.push_back(directional_light);
+            directional_light_count++;
+          }
+          KRSpotLight* spot_light = dynamic_cast<KRSpotLight*>(node);
+          if (spot_light) {
+            ri.spot_lights.push_back(spot_light);
+            spot_light_count++;
+          }
+          KRPointLight* point_light = dynamic_cast<KRPointLight*>(node);
+          if (point_light) {
+            ri.point_lights.push_back(point_light);
+            point_light_count++;
+          }
+        }
+
+        // Render objects that are at this octree level
+        for (std::set<KRNode*>::iterator itr = pOctreeNode->getSceneNodes().begin(); itr != pOctreeNode->getSceneNodes().end(); itr++) {
+          //assert(pOctreeNode->getBounds().contains((*itr)->getBounds()));  // Sanity check
+          if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_PRESTREAM) {
+            if ((*itr)->getLODVisibility() >= KRNode::LOD_VISIBILITY_PRESTREAM) {
+              (*itr)->preStream(*ri.viewport, resourceRequests);
+            }
+          } else {
+            if ((*itr)->getLODVisibility() > KRNode::LOD_VISIBILITY_PRESTREAM)
+            {
+              ri.reflectedObjects.push_back(*itr);
+              (*itr)->render(ri);
+              ri.reflectedObjects.pop_back();
+            }
+          }
+        }
+
+        // Render child octrees
+        const int* childOctreeOrder = ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT || ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES || ri.renderPass->getType() == RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE ? ri.viewport->getBackToFrontOrder() : ri.viewport->getFrontToBackOrder();
+
+        for (int i = 0; i < 8; i++) {
+          render(ri, resourceRequests, pOctreeNode->getChildren()[childOctreeOrder[i]], remainingOctrees, remainingOctreesTestResults, remainingOctreesTestResultsOnly);
+        }
+
+        // Remove lights added at this octree level from the stack
+        while (directional_light_count--) {
+          ri.directional_lights.pop_back();
+        }
+        while (spot_light_count--) {
+          ri.spot_lights.pop_back();
+        }
+        while (point_light_count--) {
+          ri.point_lights.pop_back();
+        }
+      }
+    }
+
+  }
+}
+
+void KRScene::render_occlusionResultsPass(KRNode::RenderInfo& ri, KROctreeNode* pOctreeNode, std::vector<KROctreeNode*>& remainingOctrees, bool bOcclusionTestResultsOnly)
+{
+  unordered_map<AABB, int>& visibleBounds = ri.viewport->getVisibleBounds();
+  if (pOctreeNode) {
+
+    AABB octreeBounds = pOctreeNode->getBounds();
+
+    // ----====---- Occlusion results pass ----====----
+    if (pOctreeNode->m_occlusionTested) {
+      int params = 0;
+      GLDEBUG(glGetQueryObjectuivEXT(pOctreeNode->m_occlusionQuery, GL_QUERY_RESULT_EXT, &params));
+
+      if (params) {
+        // Record the frame number that the test has passed on
+        visibleBounds[octreeBounds] = getContext().getCurrentFrame();
+
+        if (!bOcclusionTestResultsOnly) {
+          // Schedule a pass to perform the rendering
+          remainingOctrees.push_back(pOctreeNode);
+        }
+      } else {
+        // Record -1 to indicate that the visibility test had failed
+        visibleBounds[octreeBounds] = -1;
+      }
+
+      GLDEBUG(glDeleteQueriesEXT(1, &pOctreeNode->m_occlusionQuery));
+      pOctreeNode->m_occlusionTested = false;
+      pOctreeNode->m_occlusionQuery = 0;
     }
   }
   //  fprintf(stderr, "Octree culled: (%f, %f, %f) - (%f, %f, %f)\n", pOctreeNode->getBounds().min.x, pOctreeNode->getBounds().min.y, pOctreeNode->getBounds().min.z, pOctreeNode->getBounds().max.x, pOctreeNode->getBounds().max.y, pOctreeNode->getBounds().max.z);
