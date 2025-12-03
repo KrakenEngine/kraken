@@ -179,3 +179,88 @@ bool KROctree::sphereCast(const Vector3& v0, const Vector3& v1, float radius, Hi
   return hit_found;
 }
 
+KROctree::Iterator KROctree::begin()
+{
+  return Iterator(this, false);
+}
+
+KROctree::Iterator KROctree::end()
+{
+  return Iterator(this, true);
+}
+
+KROctree::Iterator::Iterator(KROctree* octree, bool isEnd)
+  : octree(octree)
+{
+  if (isEnd) {
+    outerNodeItr = octree->m_outerSceneNodes.end();
+  } else {
+    outerNodeItr = octree->m_outerSceneNodes.begin();
+    if (octree->m_pRootNode != nullptr) {
+      octreeStack.push(octree->m_pRootNode);
+      nextNodeItr = octree->m_pRootNode->getSceneNodes().begin();
+    }
+  }
+}
+
+KRNode& KROctree::Iterator::operator*()
+{
+  if (outerNodeItr != octree->m_outerSceneNodes.end()) {
+    // First iterate through the outer scene nodes
+    return **outerNodeItr;
+  }
+
+  return **nextNodeItr;
+}
+
+
+KROctree::Iterator KROctree::Iterator::operator++()
+{
+  if (outerNodeItr != octree->m_outerSceneNodes.end()) {
+    // First iterate through outer nodes
+    outerNodeItr++;
+    return *this;
+  }
+
+  if (octreeStack.empty()) {
+    // We reached the end
+    return *this;
+  }
+  
+  nextNodeItr++;
+  KROctreeNode* octreeNode = octreeStack.front();
+  while (nextNodeItr == octreeNode->getSceneNodes().end()) {
+    for (int i = 0; i < 8; i++) {
+      KROctreeNode* childNode = octreeNode->getChildren()[i];
+      if (childNode) {
+        octreeStack.push(childNode);
+      }
+    }
+    octreeStack.pop();
+    if (octreeStack.empty()) {
+      // We reached the end
+      return *this;
+    }
+    octreeNode = octreeStack.front();
+
+    nextNodeItr = octreeNode->getSceneNodes().begin();
+  }
+
+  return *this;
+}
+
+bool KROctree::Iterator::operator!=(const KROctree::Iterator& other) const
+{
+  if (outerNodeItr != other.outerNodeItr) {
+    return true;
+  }
+
+  if (octreeStack.empty()) {
+    return !other.octreeStack.empty();
+  }
+
+  if (other.octreeStack.empty()) {
+    return true;
+  }
+  return other.nextNodeItr != nextNodeItr;
+}

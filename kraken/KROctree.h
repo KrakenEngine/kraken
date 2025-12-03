@@ -53,6 +53,24 @@ public:
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo, unsigned int layer_mask);
   bool sphereCast(const hydra::Vector3& v0, const hydra::Vector3& v1, float radius, hydra::HitInfo& hitinfo, unsigned int layer_mask);
 
+  class Iterator
+  {
+  public:
+    Iterator(KROctree* octree, bool isEnd);
+
+    Iterator operator++();
+    bool operator!=(const Iterator& other) const;
+    KRNode& operator*();
+  private:
+    KROctree* octree;
+    std::set<KRNode*>::iterator outerNodeItr;
+    std::queue<KROctreeNode*> octreeStack;
+    std::set<KRNode*>::iterator nextNodeItr;
+  };
+
+  Iterator begin();
+  Iterator end();
+
 private:
   KROctreeNode* m_pRootNode;
   std::set<KRNode*> m_outerSceneNodes;
