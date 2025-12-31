@@ -30,6 +30,7 @@
 //
 
 #include "KRShaderReflection.h"
+#include "KRContext.h"
 
 using namespace hydra;
 
@@ -104,6 +105,15 @@ const char* SHADER_VALUE_NAMES[] = {
     "rim_power", // PushConstant::rim_power
     "fade_color", // PushConstant::fade_color
 };
+
+bool IsShaderValueName(int index, const char* szName)
+{
+  assert(index >= 0 && index <= (int)ShaderValue::NUM_SHADER_VALUES);
+  if (stricmp(SHADER_VALUE_NAMES[index], szName) == 0) {
+    return true;
+  }
+  return false;
+}
 
 bool KRReflectedObject::getShaderValue(ShaderValue value, ShaderValueType type, void* output) const
 {

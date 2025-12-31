@@ -441,7 +441,7 @@ void KRPipeline::initPushConstantStage(ShaderStage stage, const SpvReflectShader
         for (int iUniform = 0; iUniform < kPushConstantCount; iUniform++) {
           for (int iMember = 0; iMember < block.member_count; iMember++) {
             const SpvReflectBlockVariable& member = block.members[iMember];
-            if (stricmp(SHADER_VALUE_NAMES[iUniform], member.name) == 0) {
+            if (IsShaderValueName(iUniform, member.name)) {
               pushConstants.offset[iUniform] = member.offset;
               pushConstants.size[iUniform] = member.size;
               if (member.type_description->op == SpvOpTypeVector && member.numeric.scalar.width == 32) {

@@ -125,7 +125,7 @@ enum class ShaderValue : uint8_t
   NUM_SHADER_VALUES
 };
 
-const char* SHADER_VALUE_NAMES[];
+bool IsShaderValueName(int index, const char* szName);
 
 class KRReflectedObject
 {
