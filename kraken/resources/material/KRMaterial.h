@@ -69,6 +69,29 @@ public:
     KRMATERIAL_SHADING_MODEL_UNLIT,
     KRMATERIAL_SHADING_MODEL_PBR
   } shading_model_type;
+  
+  typedef enum
+  {
+    KRMATERIAL_TEXTURE_CLAMP,
+    KRMATERIAL_TEXTURE_REPEAT,
+    KRMATERIAL_TEXTURE_MIRROR_REPEAT
+  } texture_wrap_type;
+  
+  typedef enum
+  {
+    KRMATERIAL_TEXTURE_MAG_NEAREST,
+    KRMATERIAL_TEXTURE_MAG_LINEAR
+  } texture_mag_filter_type;
+  
+  typedef enum
+  {
+    KRMATERIAL_TEXTURE_MIN_NEAREST,
+    KRMATERIAL_TEXTURE_MIN_LINEAR,
+    KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_NEAREST,
+    KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_NEAREST,
+    KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_LINEAR,
+    KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR
+  } texture_min_filter_type;
 
   struct TextureMap
   {
@@ -77,6 +100,11 @@ public:
     hydra::Vector2 scale{ 1.f, 1.f };
     hydra::Vector2 offset{ 0.f, 0.f };
     float rotation{ 0.f };
+    
+    texture_wrap_type wrapS = KRMATERIAL_TEXTURE_REPEAT;
+    texture_wrap_type wrapT = KRMATERIAL_TEXTURE_REPEAT;
+    texture_mag_filter_type magFilter = KRMATERIAL_TEXTURE_MAG_LINEAR;
+    texture_min_filter_type minFilter = KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR;
 
     TextureMap(KRTexture::texture_usage_t usage)
       : texture{ usage }

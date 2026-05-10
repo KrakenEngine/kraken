@@ -55,6 +55,60 @@ void tag_invoke(serialize_tag, builder_type& builder, const KRMaterial::TextureM
   builder.template append_key_value<"scale">(texture.scale);
   builder.append_comma();
   builder.template append_key_value<"rotation">(texture.rotation);
+  builder.append_comma();
+  switch(texture.wrapS) {
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_CLAMP:
+      builder.template append_key_value<"wrapS">("clamp");
+      break;
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT:
+      builder.template append_key_value<"wrapS">("repeat");
+      break;
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_MIRROR_REPEAT:
+      builder.template append_key_value<"wrapS">("repeat_mirror");
+      break;
+  }
+  builder.append_comma();
+  switch(texture.wrapT) {
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_CLAMP:
+      builder.template append_key_value<"wrapT">("clamp");
+      break;
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT:
+      builder.template append_key_value<"wrapT">("repeat");
+      break;
+    case KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_MIRROR_REPEAT:
+      builder.template append_key_value<"wrapT">("repeat_mirror");
+      break;
+  }
+  builder.append_comma();
+  switch(texture.magFilter) {
+    case KRMaterial::texture_mag_filter_type::KRMATERIAL_TEXTURE_MAG_NEAREST:
+      builder.template append_key_value<"magFilter">("nearest");
+      break;
+    case KRMaterial::texture_mag_filter_type::KRMATERIAL_TEXTURE_MAG_LINEAR:
+      builder.template append_key_value<"magFilter">("linear");
+      break;
+  }
+  builder.append_comma();
+  switch(texture.minFilter) {
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST:
+      builder.template append_key_value<"minFilter">("nearest");
+      break;
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR:
+      builder.template append_key_value<"minFilter">("linear");
+      break;
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_NEAREST:
+      builder.template append_key_value<"minFilter">("nearest_mipmap_nearest");
+      break;
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_NEAREST:
+      builder.template append_key_value<"minFilter">("linear_mipmap_nearest");
+      break;
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_LINEAR:
+      builder.template append_key_value<"minFilter">("nearest_mipmap_linear");
+      break;
+    case KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR:
+      builder.template append_key_value<"minFilter">("linear_mipmap_linear");
+      break;
+  }
   builder.end_object();
 }
 
@@ -84,6 +138,75 @@ simdjson::error_code KRMaterial::TextureMap::parse(simdjson::ondemand::value &va
   
   if ((error = obj["rotation"].get(rotation))) {
     return error;
+  }
+  
+  std::string strWrapS;
+  std::string strWrapT;
+  std::string strMinFilter;
+  std::string strMagFilter;
+  
+  if ((error = obj["wrapS"].get(strWrapS))) {
+    return error;
+  }
+  
+  if (strWrapS == "clamp") {
+    wrapS = KRMATERIAL_TEXTURE_CLAMP;
+  } else if(strWrapS == "repeat") {
+    wrapS = KRMATERIAL_TEXTURE_REPEAT;
+  } else if(strWrapS == "repeat_mirror") {
+    wrapS = KRMATERIAL_TEXTURE_MIRROR_REPEAT;
+  } else {
+    KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Unknown material texture wrap: %s.", strWrapS.c_str());
+    wrapS = KRMATERIAL_TEXTURE_REPEAT;
+  }
+  
+  if ((error = obj["wrapT"].get(strWrapT))) {
+    return error;
+  }
+  
+  if (strWrapT == "clamp") {
+    wrapT = KRMATERIAL_TEXTURE_CLAMP;
+  } else if(strWrapT == "repeat") {
+    wrapT = KRMATERIAL_TEXTURE_REPEAT;
+  } else if(strWrapT == "repeat_mirror") {
+    wrapT = KRMATERIAL_TEXTURE_MIRROR_REPEAT;
+  } else {
+    KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Unknown material texture wrap: %s.", strWrapT.c_str());
+    wrapS = KRMATERIAL_TEXTURE_REPEAT;
+  }
+  
+  if ((error = obj["minFilter"].get(strMinFilter))) {
+    return error;
+  }
+  
+  if (strMinFilter == "nearest") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_NEAREST;
+  } else if (strMinFilter =="linear") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_LINEAR;
+  } else if (strMinFilter == "nearest_mipmap_nearest") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_NEAREST;
+  } else if (strMinFilter == "linear_mipmap_nearest") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_NEAREST;
+  } else if (strMinFilter == "nearest_mipmap_linear") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_LINEAR;
+  } else if (strMinFilter == "linear_mipmap_linear") {
+    minFilter = KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR;
+  } else {
+    KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Unknown material texture min filter: %s.", strMinFilter.c_str());
+    minFilter = KRMATERIAL_TEXTURE_MIN_LINEAR;
+  }
+  
+  if ((error = obj["magFilter"].get(strMagFilter))) {
+    return error;
+  }
+  
+  if (strMagFilter == "nearest") {
+    magFilter = KRMATERIAL_TEXTURE_MAG_NEAREST;
+  } else if (strMagFilter == "linear") {
+    magFilter = KRMATERIAL_TEXTURE_MAG_LINEAR;
+  } else {
+    KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - Unknown material texture mag filter: %s.", strMagFilter.c_str());
+    magFilter = KRMATERIAL_TEXTURE_MAG_LINEAR;
   }
   
   return simdjson::SUCCESS;

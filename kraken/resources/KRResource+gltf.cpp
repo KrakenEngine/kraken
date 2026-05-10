@@ -114,6 +114,99 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
     }
   }
   
+  struct SamplerInfo
+  {
+    KRMaterial::texture_wrap_type wrapS = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT;
+    KRMaterial::texture_wrap_type wrapT = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT;
+    KRMaterial::texture_mag_filter_type magFilter = KRMaterial::texture_mag_filter_type::KRMATERIAL_TEXTURE_MAG_LINEAR;
+    KRMaterial::texture_min_filter_type minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR;
+  };
+  std::vector<SamplerInfo> samplers;
+  simdjson::ondemand::array jsonSamplers;
+  if(tryJson(jsonRoot["samplers"].get_array().get(jsonSamplers))) {
+    for (auto jsonSampler : jsonSamplers) {
+      SamplerInfo& sampler = samplers.emplace_back();
+      int jsonWrapS = 10497; // REPEAT
+      int jsonWrapT = 10497; // REPEAT
+      int jsonMinFilter = 9987; // LINEAR_MIPMAP_LINEAR
+      int jsonMagFilter = 9729; // LINEAR
+      tryJson(jsonSampler["wrapS"].get(jsonWrapS));
+      tryJson(jsonSampler["wrapT"].get(jsonWrapT));
+      tryJson(jsonSampler["minFilter"].get(jsonMinFilter));
+      tryJson(jsonSampler["magFilter"].get(jsonMagFilter));
+      
+      switch(jsonWrapS)
+      {
+        case 33071: // CLAMP_TO_EDGE
+          sampler.wrapS = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_CLAMP;
+          break;
+        case 10497: // REPEAT
+          sampler.wrapS = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT;
+          break;
+        case 33648: // MIRRORED_REPEAT
+          sampler.wrapS = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_MIRROR_REPEAT;
+          break;
+        default:
+          KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - GLTF: Sampler with unknown sampler wrap: %i", jsonWrapS);
+          break;
+      }
+      
+      switch(jsonWrapT)
+      {
+        case 33071: // CLAMP_TO_EDGE
+          sampler.wrapT = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_CLAMP;
+          break;
+        case 10497: // REPEAT
+          sampler.wrapT = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_REPEAT;
+          break;
+        case 33648: // MIRRORED_REPEAT
+          sampler.wrapT = KRMaterial::texture_wrap_type::KRMATERIAL_TEXTURE_MIRROR_REPEAT;
+          break;
+        default:
+          KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - GLTF: Sampler with unknown sampler wrap: %i", jsonWrapT);
+          break;
+      }
+      
+      switch(jsonMinFilter)
+      {
+        case 9728: // NEAREST
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST;
+          break;
+        case 9729: // LINEAR
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR;
+          break;
+        case 9984: // NEAREST_MIPMAP_NEAREST
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_NEAREST;
+          break;
+        case 9985: // LINEAR_MIPMAP_NEAREST
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_NEAREST;
+          break;
+        case 9986: // NEAREST_MIPMAP_LINEAR
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_NEAREST_MIPMAP_LINEAR;
+          break;
+        case 9987: // LINEAR_MIPMAP_LINEAR
+          sampler.minFilter = KRMaterial::texture_min_filter_type::KRMATERIAL_TEXTURE_MIN_LINEAR_MIPMAP_LINEAR;
+          break;
+        default:
+          KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - GLTF: Sampler with unknown minFilter: %i", jsonMinFilter);
+          break;
+      }
+      
+      switch(jsonMagFilter)
+      {
+        case 9728: // NEAREST
+          sampler.magFilter = KRMaterial::texture_mag_filter_type::KRMATERIAL_TEXTURE_MAG_NEAREST;
+          break;
+        case 9729: // LINEAR
+          sampler.magFilter = KRMaterial::texture_mag_filter_type::KRMATERIAL_TEXTURE_MAG_LINEAR;
+          break;
+        default:
+          KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - GLTF: Sampler with unknown magFilter: %i", jsonMagFilter);
+          break;
+      }
+    }
+  }
+  
   struct TextureInfo
   {
     std::string name;
@@ -122,6 +215,8 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
     hydra::Vector2 scale{ 1.f, 1.f };
     hydra::Vector2 offset{ 0.f, 0.f };
     float rotation{ 0.f };
+    
+    SamplerInfo sampler;
   };
   std::vector<TextureInfo> textures;
   simdjson::ondemand::array jsonTextures;
@@ -142,7 +237,11 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
       int samplerIndex = -1;
       if (tryJson(jsonTexture["sampler"].get(samplerIndex))) {
         KRContext::Log(KRContext::LOG_LEVEL_WARNING, "Kraken - GLTF: Sampler options not supported for texture: %s", texture.name.c_str());
-        // TODO - Implement texture sampler options
+        if (samplerIndex < 0 || samplerIndex >= samplers.size()) {
+          KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Kraken - GLTF: Could not load texture with a sampler index that is out of range: %s", texture.name.c_str());
+          continue;
+        }
+        texture.sampler = samplers[samplerIndex];
       }
       int imageIndex = -1;
       if (!tryJson(jsonTexture["source"].get(imageIndex))) {
@@ -166,9 +265,6 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
       textureIndex++;
     }
   }
-  
-  simdjson::ondemand::array samplers;
-  tryJson(jsonRoot["samplers"].get_array().get(samplers));
 
   KRBundle* bundle = new KRBundle(context, baseName);
 
@@ -204,6 +300,10 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
             textureMap.scale = texture.scale;
             textureMap.offset = texture.offset;
             textureMap.rotation = texture.rotation;
+            textureMap.wrapS = texture.sampler.wrapS;
+            textureMap.wrapT = texture.sampler.wrapT;
+            textureMap.minFilter = texture.sampler.minFilter;
+            textureMap.magFilter = texture.sampler.magFilter;
             textureMap.texture.set(texture.texture);
           }
         }
