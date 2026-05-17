@@ -58,7 +58,7 @@ public:
   
   KrResult update(const KrNodeInfo* nodeInfo) override;
 
-  virtual std::string getElementName();
+  virtual std::string getElementName() override;
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
   virtual void loadXML(tinyxml2::XMLElement* e) override;
 
@@ -66,7 +66,7 @@ public:
   virtual void getResourceBindings(std::list<KRResourceBinding*>& bindings) override;
   virtual void preStream(const KRViewport& viewport, std::list<KRResourceRequest>& resourceRequests) override;
 
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
   void setRimColor(const hydra::Vector3& rim_color);
   void setRimPower(float rim_power);
@@ -76,7 +76,7 @@ public:
   void setLightMap(const std::string& name);
   std::string getLightMap();
 
-  virtual kraken_stream_level getStreamLevel(const KRViewport& viewport);
+  virtual kraken_stream_level getStreamLevel(const KRViewport& viewport) override;
 
 private:
 

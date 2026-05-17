@@ -150,8 +150,7 @@ void KRMesh::loadPack(Block* data)
   m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
   m_pIndexBaseData->lock();
 
-  m_minPoint = Vector3::Create(ph.minx, ph.miny, ph.minz);
-  m_maxPoint = Vector3::Create(ph.maxx, ph.maxy, ph.maxz);
+  m_extents = ph.extents;
 
   updateAttributeOffsets();
 }
@@ -295,9 +294,10 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
 float KRMesh::getMaxDimension()
 {
   float m = 0.0;
-  if (m_maxPoint.x - m_minPoint.x > m) m = m_maxPoint.x - m_minPoint.x;
-  if (m_maxPoint.y - m_minPoint.y > m) m = m_maxPoint.y - m_minPoint.y;
-  if (m_maxPoint.z - m_minPoint.z > m) m = m_maxPoint.z - m_minPoint.z;
+  Vector3 size = m_extents.size();
+  if (size.x > m) m = size.x;
+  if (size.y > m) m = size.y;
+  if (size.z > m) m = size.z;
   return m;
 }
 
@@ -645,15 +645,10 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     }
     if (bFirstVertex) {
       bFirstVertex = false;
-      m_minPoint = source_vertex;
-      m_maxPoint = source_vertex;
+      m_extents.min = source_vertex;
+      m_extents.max = source_vertex;
     } else {
-      if (source_vertex.x < m_minPoint.x) m_minPoint.x = source_vertex.x;
-      if (source_vertex.y < m_minPoint.y) m_minPoint.y = source_vertex.y;
-      if (source_vertex.z < m_minPoint.z) m_minPoint.z = source_vertex.z;
-      if (source_vertex.x > m_maxPoint.x) m_maxPoint.x = source_vertex.x;
-      if (source_vertex.y > m_maxPoint.y) m_maxPoint.y = source_vertex.y;
-      if (source_vertex.z > m_maxPoint.z) m_maxPoint.z = source_vertex.z;
+      m_extents.encapsulate(source_vertex);
     }
     if ((int)mi.uva.size() > iVertex) {
       setVertexUVA(iVertex, mi.uva[iVertex]);
@@ -669,13 +664,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     }
   }
 
-  pHeader->minx = m_minPoint.x;
-  pHeader->miny = m_minPoint.y;
-  pHeader->minz = m_minPoint.z;
-  pHeader->maxx = m_maxPoint.x;
-  pHeader->maxy = m_maxPoint.y;
-  pHeader->maxz = m_maxPoint.z;
-
+  pHeader->extents = m_extents;
 
   __uint16_t* index_data = getIndexData();
   for (std::vector<__uint16_t>::const_iterator itr = mi.vertex_indexes.begin(); itr != mi.vertex_indexes.end(); itr++) {
@@ -765,14 +754,9 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   }
 }
 
-Vector3 KRMesh::getMinPoint() const
+const AABB& KRMesh::getExtents() const
 {
-  return m_minPoint;
-}
-
-Vector3 KRMesh::getMaxPoint() const
-{
-  return m_maxPoint;
+  return m_extents;
 }
 
 int KRMesh::getLODCoverage() const

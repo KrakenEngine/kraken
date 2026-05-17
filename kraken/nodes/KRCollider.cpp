@@ -100,7 +100,7 @@ AABB KRCollider::getBounds()
 {
   loadModel();
   if (m_model.val.isBound()) {
-    return AABB::Create(m_model.val.get()->getMinPoint(), m_model.val.get()->getMaxPoint(), getModelMatrix());
+    return AABB::Create(m_model.val.get()->getExtents(), getModelMatrix());
   } else {
     return AABB::Infinite();
   }

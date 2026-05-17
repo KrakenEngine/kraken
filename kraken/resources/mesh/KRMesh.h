@@ -140,8 +140,7 @@ public:
 
   float getMaxDimension();
 
-  hydra::Vector3 getMinPoint() const;
-  hydra::Vector3 getMaxPoint() const;
+  const hydra::AABB& getExtents() const;
 
   class Submesh
   {
@@ -258,11 +257,7 @@ private:
 
   bool m_hasTransparency;
 
-
-  hydra::Vector3 m_minPoint, m_maxPoint;
-
-
-
+  hydra::AABB m_extents;
 
   typedef struct
   {
@@ -272,12 +267,14 @@ private:
     int32_t vertex_count;
     int32_t submesh_count;
     int32_t bone_count;
-    float minx, miny, minz, maxx, maxy, maxz; // Axis aligned bounding box, in model's coordinate space
+    hydra::AABB extents; // Axis aligned bounding box, in model's coordinate space
     int32_t index_count;
     int32_t index_base_count;
     unsigned char reserved[444]; // Pad out to 512 bytes
   } pack_header;
 
+  static_assert(sizeof(pack_header) == 512);
+  
   vector<Submesh> m_submeshes;
   int m_vertex_attribute_offset[KRENGINE_NUM_ATTRIBUTES];
   int m_vertex_size;

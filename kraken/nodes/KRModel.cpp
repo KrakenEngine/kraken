@@ -337,13 +337,13 @@ AABB KRModel::getBounds()
     }
     KRMesh* mesh = m_meshes[lod].val.get();
     if (m_faces_camera) {
-      AABB normal_bounds = AABB::Create(mesh->getMinPoint(), mesh->getMaxPoint(), getModelMatrix());
+      AABB normal_bounds = AABB::Create(mesh->getExtents(), getModelMatrix());
       float max_dimension = normal_bounds.longest_radius();
       return AABB::Create(normal_bounds.center() - Vector3::Create(max_dimension), normal_bounds.center() + Vector3::Create(max_dimension));
     } else {
       if (!(m_boundsCachedMat == getModelMatrix())) {
         m_boundsCachedMat = getModelMatrix();
-        m_boundsCached = AABB::Create(mesh->getMinPoint(), mesh->getMaxPoint(), getModelMatrix());
+        m_boundsCached = AABB::Create(mesh->getExtents(), getModelMatrix());
       }
       return m_boundsCached;
     }
