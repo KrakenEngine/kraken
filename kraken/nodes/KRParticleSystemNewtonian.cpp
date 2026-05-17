@@ -117,6 +117,8 @@ bool KRParticleSystemNewtonian::getShaderValue(ShaderValue value, float* output)
   case ShaderValue::dust_particle_size:
     *output = 1.0f;
     return true;
+  default:
+    return KRParticleSystem::getShaderValue(value, output);
   }
-  return KRParticleSystem::getShaderValue(value, output);
+  
 }

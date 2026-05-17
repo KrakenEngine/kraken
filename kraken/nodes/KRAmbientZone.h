@@ -44,10 +44,10 @@ public:
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
   KRAmbientZone(KRScene& scene, std::string name);
-  virtual ~KRAmbientZone();
-  virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual ~KRAmbientZone() override;
+  virtual std::string getElementName() override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
 
   void render(RenderInfo& ri) override;
 
@@ -63,7 +63,7 @@ public:
   float getAmbientGain();
   void setAmbientGain(float ambient_gain);
 
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
   float getContainment(const hydra::Vector3& pos);
 

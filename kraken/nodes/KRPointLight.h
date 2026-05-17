@@ -40,8 +40,8 @@ public:
   KRPointLight(KRScene& scene, std::string name);
   virtual ~KRPointLight();
 
-  virtual std::string getElementName();
-  virtual hydra::AABB getBounds();
+  virtual std::string getElementName() override;
+  virtual hydra::AABB getBounds() override;
 
   virtual void render(RenderInfo& ri) override;
 

@@ -483,7 +483,7 @@ void KRDevice::createDescriptorSets(const std::vector<VkDescriptorSetLayout>& la
   VkDescriptorSetAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
   allocInfo.descriptorPool = m_descriptorPool;
-  allocInfo.descriptorSetCount = descriptorSets.size();
+  allocInfo.descriptorSetCount = (uint32_t)descriptorSets.size();
   allocInfo.pSetLayouts = layouts.data();
   if (vkAllocateDescriptorSets(m_logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
     // TODO - Vulkan Refactoring - Error Handling

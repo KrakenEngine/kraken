@@ -44,9 +44,9 @@ public:
 
   KRReverbZone(KRScene& scene, std::string name);
   virtual ~KRReverbZone();
-  virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual std::string getElementName() override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
 
   void render(RenderInfo& ri) override;
 
@@ -62,7 +62,7 @@ public:
   float getReverbGain();
   void setReverbGain(float reverb_gain);
 
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
   float getContainment(const hydra::Vector3& pos);
 

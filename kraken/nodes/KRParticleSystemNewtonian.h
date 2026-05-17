@@ -39,18 +39,18 @@ public:
   KRParticleSystemNewtonian(KRScene& scene, std::string name);
   virtual ~KRParticleSystemNewtonian();
 
-  virtual std::string getElementName();
-  virtual void loadXML(tinyxml2::XMLElement* e);
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
+  virtual std::string getElementName() override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
 
 
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
   virtual void render(RenderInfo& ri) override;
 
 
-  virtual void physicsUpdate(float deltaTime);
-  virtual bool hasPhysics();
+  virtual void physicsUpdate(float deltaTime) override;
+  virtual bool hasPhysics() override;
 protected:
   bool getShaderValue(ShaderValue value, float* output) const override;
 private:

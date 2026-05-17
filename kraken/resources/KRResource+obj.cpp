@@ -207,14 +207,14 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
           for (int iSymbol = 1; iSymbol < cSymbols; iSymbol++) {
             char* pChar = szSymbol[iSymbol];
             if (*pChar == '.' || (*pChar >= '0' && *pChar <= '9')) {
-              *pFace++ = strtol(pChar, &pChar, 10) - 1; // Vertex Index
+              *pFace++ = (int)strtol(pChar, &pChar, 10) - 1; // Vertex Index
 
               if (*pChar == '/') {
                 pChar++;
                 if (*pChar == '/') {
                   *pFace++ = -1;
                 } else {
-                  *pFace++ = strtol(pChar, &pChar, 10) - 1; // Texture Coordinate Index
+                  *pFace++ = (int)strtol(pChar, &pChar, 10) - 1; // Texture Coordinate Index
                 }
               } else {
                 *pFace++ = -1;
@@ -225,7 +225,7 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
                 if (*pChar == '/') {
                   *pFace++ = -1;
                 } else {
-                  *pFace++ = strtol(pChar, &pChar, 10) - 1; // Normal Index
+                  *pFace++ = (int)strtol(pChar, &pChar, 10) - 1; // Normal Index
                 }
               } else {
                 *pFace++ = -1;

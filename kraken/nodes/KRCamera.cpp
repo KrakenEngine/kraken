@@ -854,9 +854,11 @@ bool KRCamera::getShaderValue(ShaderValue value, hydra::Vector4* output) const
   case ShaderValue::fade_color:
     *output = m_fade_color;
     return true;
+  default:
+    return KRNode::getShaderValue(value, output);
   }
 
-  return KRNode::getShaderValue(value, output);
+  
 }
 
 bool KRCamera::alwaysStreamResources()

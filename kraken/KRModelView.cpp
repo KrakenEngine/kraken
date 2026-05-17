@@ -53,22 +53,22 @@ KRModelView::~KRModelView()
 
 bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
 {
-
-    switch (value) {
-      case ShaderValue::camerapos_model_space:
-      {
-        // Transform location of camera to object space for calculation of specular halfVec
-        *output = Matrix4::Dot(m_matModelInverse, m_viewport->getCameraPosition());
-        return true;
-      }
-      case ShaderValue::view_space_model_origin:
-      {
-        // Origin point of model space is the light source position.  No perspective, so no w divide required
-        *output = Matrix4::Dot(m_matModelView, Vector3::Zero());
-        return true;
-      }
+  switch (value) {
+    case ShaderValue::camerapos_model_space:
+    {
+      // Transform location of camera to object space for calculation of specular halfVec
+      *output = Matrix4::Dot(m_matModelInverse, m_viewport->getCameraPosition());
+      return true;
     }
-    return false;
+    case ShaderValue::view_space_model_origin:
+    {
+      // Origin point of model space is the light source position.  No perspective, so no w divide required
+      *output = Matrix4::Dot(m_matModelView, Vector3::Zero());
+      return true;
+    }
+    default:
+      return false;
+  }
 }
 bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
 {
@@ -128,8 +128,8 @@ bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
       *output = invMVP;
       return true;
     }
+    default:
+      return false;
   }
-
-  return false;
 }
 

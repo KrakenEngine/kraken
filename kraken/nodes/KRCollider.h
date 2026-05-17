@@ -56,10 +56,10 @@ public:
   KRCollider(KRScene& scene, std::string collider_name, std::string model_name, unsigned int layer_mask, float audio_occlusion);
   virtual ~KRCollider();
 
-  virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
-  virtual hydra::AABB getBounds();
+  virtual std::string getElementName() override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
+  virtual hydra::AABB getBounds() override;
 
   bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo, unsigned int layer_mask);

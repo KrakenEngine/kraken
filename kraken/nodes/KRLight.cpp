@@ -525,9 +525,9 @@ bool KRLight::getShaderValue(ShaderValue value, float* output) const
   case ShaderValue::dust_particle_size:
     *output = m_dust_particle_size;
     return true;
-
+  default:
+    return KRNode::getShaderValue(value, output);
   }
-  return KRNode::getShaderValue(value, output);
 }
 
 bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
@@ -539,6 +539,7 @@ bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
   case ShaderValue::light_color:
     *output = m_color;
     return true;
+  default:
+    return KRNode::getShaderValue(value, output);
   }
-  return KRNode::getShaderValue(value, output);
 }

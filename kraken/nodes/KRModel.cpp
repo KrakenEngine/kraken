@@ -360,8 +360,9 @@ bool KRModel::getShaderValue(ShaderValue value, hydra::Vector3* output) const
   case ShaderValue::rim_color:
     *output = m_rim_color;
     return true;
+  default:
+    return KRNode::getShaderValue(value, output);
   }
-  return KRNode::getShaderValue(value, output);
 }
 
 bool KRModel::getShaderValue(ShaderValue value, float* output) const
@@ -370,8 +371,9 @@ bool KRModel::getShaderValue(ShaderValue value, float* output) const
   case ShaderValue::rim_power:
     *output = m_rim_power;
     return true;
+  default:
+    return KRNode::getShaderValue(value, output);
   }
-  return KRNode::getShaderValue(value, output);
 }
 
 

@@ -149,6 +149,7 @@ void KRSprite::render(RenderInfo& ri)
 bool KRSprite::getShaderValue(ShaderValue value, float* output) const
 {
   switch (value) {
+    default:
+      return KRNode::getShaderValue(value, output);
   }
-  return KRNode::getShaderValue(value, output);
 }

@@ -845,7 +845,7 @@ void KRPipeline::bindDescriptorSets(VkCommandBuffer& commandBuffer)
   if (m_descriptorSets.empty()) {
     return;
   }
-  int descriptorSetCount = m_descriptorSets.size() / KRENGINE_MAX_FRAMES_IN_FLIGHT;
+  int descriptorSetCount = (int)m_descriptorSets.size() / KRENGINE_MAX_FRAMES_IN_FLIGHT;
   int startDescriptorSet = (getContext().getCurrentFrame() % KRENGINE_MAX_FRAMES_IN_FLIGHT) * descriptorSetCount;
   VkDescriptorSet descriptorSet = m_descriptorSets[startDescriptorSet];
   if (descriptorSet == VK_NULL_HANDLE) {

@@ -246,8 +246,9 @@ bool KRRenderSettings::getShaderValue(ShaderValue value, float* output) const
   case ShaderValue::density_premultiplied_squared:
     *output = (float)(-fog_density * fog_density * 1.442695); // -fog_density * fog_density / log(2)
     return true;
+  default:
+    return false;
   }
-  return false;
 }
 
 bool KRRenderSettings::getShaderValue(ShaderValue value, Vector3* output) const
@@ -256,6 +257,7 @@ bool KRRenderSettings::getShaderValue(ShaderValue value, Vector3* output) const
   case ShaderValue::fog_color:
     *output = fog_color;
     return true;
+  default:
+    return false;
   }
-  return false;
 }

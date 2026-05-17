@@ -29,7 +29,7 @@
 //  or implied, of Kearwood Gilbert.
 //
 
-#include "KRREnderGraphBlackFrame.h"
+#include "KRRenderGraphBlackFrame.h"
 #include "KRRenderPass.h"
 #include "KRSurface.h"
 #include "KRDevice.h"

@@ -124,9 +124,9 @@ public:
 
   std::string m_lodBaseName;
 
-  virtual std::string getExtension();
-  virtual bool save(const std::string& path);
-  virtual bool save(mimir::Block& data);
+  virtual std::string getExtension() override;
+  virtual bool save(const std::string& path) override;
+  virtual bool save(mimir::Block& data) override;
 
   void LoadData(const mesh_info& mi, bool calculate_normals, bool calculate_tangents);
   void loadPack(mimir::Block* data);

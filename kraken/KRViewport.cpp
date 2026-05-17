@@ -64,8 +64,9 @@ bool KRViewport::getShaderValue(ShaderValue value, Matrix4* output) const
     case ShaderValue::invp:
       *output = m_matInverseProjection;
       return true;
+    default:
+      return false;
   }
-  return false;
 }
 
 bool KRViewport::getShaderValue(ShaderValue value, Vector4* output) const
@@ -79,9 +80,9 @@ bool KRViewport::getShaderValue(ShaderValue value, Vector4* output) const
         getSize().y
       );
       return true;
+    default:
+      return false;
   }
-
-  return false;
 }
 
 

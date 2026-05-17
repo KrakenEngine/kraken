@@ -49,9 +49,9 @@ public:
   static void InitNodeInfo(KrNodeInfo* nodeInfo);
 
   virtual ~KRLight();
-  virtual std::string getElementName() = 0;
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
+  virtual std::string getElementName() override = 0;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
 
   void setIntensity(float intensity);
   float getIntensity() const;

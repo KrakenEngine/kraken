@@ -46,10 +46,10 @@ public:
 
   KRAudioSource(KRScene& scene, std::string name);
   virtual ~KRAudioSource();
-  virtual std::string getElementName();
-  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent);
-  virtual void loadXML(tinyxml2::XMLElement* e);
-  virtual void physicsUpdate(float deltaTime);
+  virtual std::string getElementName() override;
+  virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
+  virtual void loadXML(tinyxml2::XMLElement* e) override;
+  virtual void physicsUpdate(float deltaTime) override;
 
   void render(RenderInfo& ri) override;
 

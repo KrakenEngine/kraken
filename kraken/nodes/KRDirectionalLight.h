@@ -42,16 +42,16 @@ public:
   KRDirectionalLight(KRScene& scene, std::string name);
   virtual ~KRDirectionalLight();
 
-  virtual std::string getElementName();
+  virtual std::string getElementName() override;
   hydra::Vector3 getLocalLightDirection();
   hydra::Vector3 getWorldLightDirection();
 
   virtual void render(RenderInfo& ri) override;
-  virtual hydra::AABB getBounds();
+  virtual hydra::AABB getBounds() override;
 
 protected:
 
-  virtual int configureShadowBufferViewports(const KRViewport& viewport);
+  virtual int configureShadowBufferViewports(const KRViewport& viewport) override;
 
 };
 
