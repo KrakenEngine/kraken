@@ -174,7 +174,7 @@ VkFormat KRTexturePVR::getFormat() const
 
 long KRTexturePVR::getMemRequiredForLod(int lod)
 {
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
   return m_blocks[target_lod]->getSize();
 }
 
@@ -184,7 +184,7 @@ bool KRTexturePVR::getLodData(void* buffer, int lod)
     return false;
   }
 
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
   m_blocks[target_lod]->copy(buffer);
   return true;
 }

@@ -62,7 +62,7 @@ KRTextureKTX::KRTextureKTX(KRContext& context, Block* data, std::string name) : 
   uint32_t blockStart = sizeof(KTXHeader) + m_header.bytesOfKeyValueData;
   uint32_t width = m_header.pixelWidth, height = m_header.pixelHeight;
 
-  for (int mipmap_level = 0; mipmap_level < (int)KRMAX(m_header.numberOfMipmapLevels, 1); mipmap_level++) {
+  for (int mipmap_level = 0; mipmap_level < (int)std::max(m_header.numberOfMipmapLevels, (__uint32_t)1); mipmap_level++) {
     uint32_t blockLength;
     data->copy(&blockLength, blockStart, 4);
     blockStart += 4;
@@ -82,7 +82,7 @@ KRTextureKTX::KRTextureKTX(KRContext& context, Block* data, std::string name) : 
     }
   }
 
-  m_lod_count = (int)KRMAX(m_header.numberOfMipmapLevels, 1);
+  m_lod_count = (int)std::max(m_header.numberOfMipmapLevels, (__uint32_t)1);
 }
 
 KRTextureKTX::KRTextureKTX(KRContext& context, std::string name, unsigned int internal_format, unsigned int base_internal_format, int width, int height, const std::list<Block*>& blocks) : KRTexture2D(context, new Block(), name)
@@ -362,7 +362,7 @@ VkFormat KRTextureKTX::getFormat() const
 
 long KRTextureKTX::getMemRequiredForLod(int lod)
 {
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
   return (long)m_blocks[target_lod]->getSize();
 }
 
@@ -372,7 +372,7 @@ bool KRTextureKTX::getLodData(void* buffer, int lod)
     return false;
   }
 
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
   m_blocks[target_lod]->copy(buffer);
 
   return true;

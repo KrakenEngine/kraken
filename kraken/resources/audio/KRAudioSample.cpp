@@ -98,7 +98,7 @@ float KRAudioSample::sample(int frame_offset, int frame_rate, int channel)
 {
   loadInfo();
 
-  int c = KRMIN(channel, m_channelsPerFrame - 1);
+  int c = std::min(channel, m_channelsPerFrame - 1);
 
   if (frame_offset < 0) {
     return 0.0f; // Past the beginning of the recording
@@ -154,7 +154,7 @@ void KRAudioSample::sample(__int64_t frame_offset, int frame_count, int channel,
       }
     }
   } else {
-    int c = KRMIN(channel, m_channelsPerFrame - 1);
+    int c = std::min(channel, m_channelsPerFrame - 1);
 
     if (frame_offset + frame_count <= 0) {
       // Range is entirely before the sample
@@ -354,7 +354,7 @@ void KRAudioSample::PopulateBuffer(KRAudioSample* sound, int index, void* data)
 {
   int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / sound->m_bytesPerFrame;
   int startFrame = index * maxFramesPerBuffer;
-  __uint32_t frameCount = (__uint32_t)KRMIN(sound->m_totalFrames - startFrame, maxFramesPerBuffer);
+  __uint32_t frameCount = std::min((__uint32_t)sound->m_totalFrames - startFrame, (__uint32_t)maxFramesPerBuffer);
 
 #ifdef __APPLE__
   // Apple Audio Toolbox
@@ -376,7 +376,7 @@ KRAudioBuffer* KRAudioSample::getBuffer(int index)
 
   int maxFramesPerBuffer = KRENGINE_AUDIO_MAX_BUFFER_SIZE / m_bytesPerFrame;
   int startFrame = index * maxFramesPerBuffer;
-  __uint32_t frameCount = (__uint32_t)KRMIN(m_totalFrames - startFrame, maxFramesPerBuffer);
+  __uint32_t frameCount = std::min((__uint32_t)m_totalFrames - startFrame, (__uint32_t)maxFramesPerBuffer);
 
   KRAudioBuffer* buffer = new KRAudioBuffer(getContext().getAudioManager(), this, index, frameCount, m_frameRate, m_bytesPerFrame, PopulateBuffer);
 

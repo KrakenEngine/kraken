@@ -641,7 +641,7 @@ void KRMeshManager::KRVBOData::requestResidency(float lodCoverage)
 
     m_manager->primeVBO(this);
   }
-  m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
+  m_last_frame_max_lod_coverage = std::max(lodCoverage, m_last_frame_max_lod_coverage);
 }
 
 
@@ -649,7 +649,7 @@ float KRMeshManager::KRVBOData::getStreamPriority()
 {
   long current_frame = m_manager->getContext().getCurrentFrame();
   if (current_frame > m_last_frame_used + 5) {
-    return 1.0f - KRCLAMP((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
+    return 1.0f - std::clamp((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
   } else {
     return 10000.0f + m_last_frame_max_lod_coverage * 10.0f;
   }

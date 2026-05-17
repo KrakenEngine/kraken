@@ -627,8 +627,8 @@ void KRContext::doStreaming()
         const long KRENGINE_RESERVE_MEMORY = 0x4000000; // 64MB
 
         getMemoryStats(free_memory);
-        free_memory = KRCLAMP(free_memory - KRENGINE_RESERVE_MEMORY, 0, KRENGINE_GPU_MEM_TARGET);
-        total_memory = KRMIN(KRENGINE_GPU_MEM_MAX, free_memory * 3 / 4 + m_pTextureManager->getMemUsed() + m_pMeshManager->getMemUsed());
+        free_memory = std::clamp(free_memory - KRENGINE_RESERVE_MEMORY, 0, KRENGINE_GPU_MEM_TARGET);
+        total_memory = std::min(KRENGINE_GPU_MEM_MAX, free_memory * 3 / 4 + m_pTextureManager->getMemUsed() + m_pMeshManager->getMemUsed());
 
 #endif
         */

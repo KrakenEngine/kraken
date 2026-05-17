@@ -68,7 +68,7 @@ KRTextureKTX2::KRTextureKTX2(KRContext& context, Block* data, std::string name) 
   if (height < 1) {
     height = 1;
   }
-  m_lod_count = (int)KRMAX(m_header.levelCount, 1);
+  m_lod_count = (int)std::max(m_header.levelCount, (__uint32_t)1);
 }
 
 KRTextureKTX2::~KRTextureKTX2()
@@ -82,7 +82,7 @@ Vector3i KRTextureKTX2::getDimensions() const
 
 long KRTextureKTX2::getMemRequiredForLod(int lod)
 {
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
 
   KTX2LevelIndex levelIndex;
   m_pData->copy(&levelIndex, sizeof(m_header) + sizeof(KTX2LevelIndex) * target_lod, sizeof(KTX2LevelIndex));
@@ -93,7 +93,7 @@ long KRTextureKTX2::getMemRequiredForLod(int lod)
 bool KRTextureKTX2::getLodData(void* buffer, int lod)
 {
   unsigned char* converted_image = (unsigned char*)buffer;
-  int target_lod = KRMIN(lod, m_lod_count - 1);
+  int target_lod = std::min(lod, m_lod_count - 1);
 
   KTX2LevelIndex levelIndex;
   m_pData->copy(&levelIndex, sizeof(m_header) + sizeof(KTX2LevelIndex) * target_lod, sizeof(KTX2LevelIndex));

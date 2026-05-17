@@ -173,7 +173,7 @@ float KRAmbientZone::getContainment(const Vector3& pos)
       d = d > 1.0f ? 0.0f : 1.0f;
     } else {
       d = (1.0f - d) / m_gradient_distance;
-      d = KRCLAMP(d, 0.0f, 1.0f);
+      d = std::clamp(d, 0.0f, 1.0f);
     }
     return d;
 

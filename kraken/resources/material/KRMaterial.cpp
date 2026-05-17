@@ -697,47 +697,47 @@ kraken_stream_level KRMaterial::getStreamLevel()
   kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
 
   if (m_baseColorMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_baseColorMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_baseColorMap.texture.get()->getStreamLevel());
   }
 
   if (m_normalMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_normalMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_normalMap.texture.get()->getStreamLevel());
   }
 
   if (m_occlusionMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_occlusionMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_occlusionMap.texture.get()->getStreamLevel());
   }
 
   if (m_metalicRoughnessMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_metalicRoughnessMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_metalicRoughnessMap.texture.get()->getStreamLevel());
   }
 
   if (m_anisotropyMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_anisotropyMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_anisotropyMap.texture.get()->getStreamLevel());
   }
 
   if (m_clearcoatMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_clearcoatMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_clearcoatMap.texture.get()->getStreamLevel());
   }
 
   if (m_clearcoatRoughnessMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_clearcoatRoughnessMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_clearcoatRoughnessMap.texture.get()->getStreamLevel());
   }
 
   if (m_clearcoatNormalMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_clearcoatNormalMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_clearcoatNormalMap.texture.get()->getStreamLevel());
   }
 
   if (m_specularMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_specularMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_specularMap.texture.get()->getStreamLevel());
   }
 
   if (m_specularColorMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_specularColorMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_specularColorMap.texture.get()->getStreamLevel());
   }
 
   if (m_thicknessMap.texture.isBound()) {
-    stream_level = KRMIN(stream_level, m_thicknessMap.texture.get()->getStreamLevel());
+    stream_level = std::min(stream_level, m_thicknessMap.texture.get()->getStreamLevel());
   }
 
   return stream_level;

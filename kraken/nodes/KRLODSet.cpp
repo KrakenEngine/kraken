@@ -79,7 +79,7 @@ void KRLODSet::updateLODVisibility(const KRViewport& viewport)
     for (KRNode* childNode = m_firstChildNode; childNode != nullptr; childNode = childNode->m_nextNode) {
       KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(childNode);
       assert(lod_group != NULL);
-      LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
+      LodVisibility group_lod_visibility = std::min(lod_group->calcLODVisibility(viewport), m_lod_visible);
       /*
       // FINDME, TODO, HACK - Disabled streamer delayed LOD load due to performance issues:
         if(group_lod_visibility == LOD_VISIBILITY_VISIBLE) {
@@ -105,7 +105,7 @@ void KRLODSet::updateLODVisibility(const KRViewport& viewport)
       for (KRNode* childNode = m_firstChildNode; childNode != nullptr; childNode = childNode->m_nextNode) {
         KRLODGroup* lod_group = dynamic_cast<KRLODGroup*>(childNode);
         assert(lod_group != NULL);
-        LodVisibility group_lod_visibility = KRMIN(lod_group->calcLODVisibility(viewport), m_lod_visible);
+        LodVisibility group_lod_visibility = std::min(lod_group->calcLODVisibility(viewport), m_lod_visible);
         lod_group->setLODVisibility(group_lod_visibility);
       }
     }

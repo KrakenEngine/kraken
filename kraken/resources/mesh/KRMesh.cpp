@@ -209,7 +209,7 @@ kraken_stream_level KRMesh::getStreamLevel()
 
   for (KRMaterialBinding& material : m_materials) {
     if (material.isBound()) {
-      stream_level = KRMIN(stream_level, material.get()->getStreamLevel());
+      stream_level = std::min(stream_level, material.get()->getStreamLevel());
     }
   }
   bool all_vbo_data_loaded = true;

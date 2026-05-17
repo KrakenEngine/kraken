@@ -84,7 +84,7 @@ bool KRTexture2D::createGPUTexture(int targetLod)
       break;
     }
 
-    int min_mip = KRMIN(targetLod, m_lod_count - 1);
+    int min_mip = std::min(targetLod, m_lod_count - 1);
     int mip_count = m_lod_count - min_mip;
 
     VkImageViewCreateInfo viewInfo{};

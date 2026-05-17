@@ -38,9 +38,6 @@
 
 #include "simdjson.h"
 
-#define KRMIN(x,y) ((x) < (y) ? (x) : (y))
-#define KRMAX(x,y) ((x) > (y) ? (x) : (y))
-#define KRCLAMP(x, min, max) (KRMAX(KRMIN(x, max), min))
 #define KRALIGN(x) ((x + 3) & ~0x03)
 
 float const PI = 3.141592653589793f;

@@ -122,7 +122,7 @@ void KRTexture::resize(int lod)
 
   if (!m_haveNewHandles) {
     if (lod != -1) {
-      int target_lod = KRMIN(lod, m_lod_count - 1);
+      int target_lod = std::min(lod, m_lod_count - 1);
 
       if (m_new_lod != target_lod || m_handles.empty()) {
         assert(m_newTextureMemUsed == 0);
@@ -161,7 +161,7 @@ void KRTexture::requestResidency(float lodCoverage, KRTexture::texture_usage_t t
 
     getContext().getTextureManager()->primeTexture(this);
   }
-  m_last_frame_max_lod_coverage = KRMAX(lodCoverage, m_last_frame_max_lod_coverage);
+  m_last_frame_max_lod_coverage = std::max(lodCoverage, m_last_frame_max_lod_coverage);
   m_last_frame_usage = static_cast<texture_usage_t>(static_cast<int>(m_last_frame_usage) | static_cast<int>(textureUsage));
 }
 
@@ -180,7 +180,7 @@ float KRTexture::getStreamPriority()
 {
   long current_frame = getContext().getCurrentFrame();
   if (current_frame > m_last_frame_used + 5) {
-    return 1.0f - KRCLAMP((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
+    return 1.0f - std::clamp((float)(current_frame - m_last_frame_used) / 60.0f, 0.0f, 1.0f);
   } else {
     float priority = 100.0f;
     if (m_last_frame_usage & (TEXTURE_USAGE_UI | TEXTURE_USAGE_SHADOW_DEPTH)) {
@@ -294,7 +294,7 @@ bool KRTexture::allocate(KRDevice& device, int target_lod, VkImageCreateFlags im
 #endif
 )
 {
-  int min_mip = KRMIN(target_lod, m_lod_count - 1);
+  int min_mip = std::min(target_lod, m_lod_count - 1);
   int mip_count = m_lod_count - min_mip;
   hydra::Vector3i dimensions = getDimensions() / (1 << target_lod);
 
@@ -335,8 +335,8 @@ bool KRTexture::allocate(KRDevice& device, int target_lod, VkImageCreateFlags im
 
 long KRTexture::getMemRequiredForLodRange(int min_lod, int max_lod /* = 0xff */)
 {
-  int target_max_lod = KRMIN(max_lod, m_lod_count - 1);
-  int target_min_lod = KRMIN(min_lod, m_lod_count - 1);
+  int target_max_lod = std::min(max_lod, m_lod_count - 1);
+  int target_min_lod = std::min(min_lod, m_lod_count - 1);
 
   long memRequired = 0;
   for (int lod = target_min_lod; lod <= target_max_lod; lod++) {

@@ -254,7 +254,7 @@ bool KROctreeNode::sphereCast(const Vector3& v0, const Vector3& v1, float radius
   } else {
   */
 
-  AABB swept_bounds = AABB::Create(Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius), Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius));
+  AABB swept_bounds = AABB::Create(Vector3::Create(std::min(v0.x, v1.x) - radius, std::min(v0.y, v1.y) - radius, std::min(v0.z, v1.z) - radius), Vector3::Create(std::max(v0.x, v1.x) + radius, std::max(v0.y, v1.y) + radius, std::max(v0.z, v1.z) + radius));
   // FINDME, TODO - Investigate AABB - swept sphere intersections or OBB - AABB intersections: "if(getBounds().intersectsSweptSphere(v0, v1, radius)) {"
   if (getBounds().intersects(swept_bounds)) {
 

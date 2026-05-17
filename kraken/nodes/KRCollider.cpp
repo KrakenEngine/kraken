@@ -162,8 +162,8 @@ bool KRCollider::sphereCast(const Vector3& v0, const Vector3& v1, float radius, 
     loadModel();
     if (m_model.val.isBound()) {
       AABB sphereCastBounds = AABB::Create( // TODO - Need to cache this; perhaps encasulate within a "spherecast" class to be passed through these functions
-          Vector3::Create(KRMIN(v0.x, v1.x) - radius, KRMIN(v0.y, v1.y) - radius, KRMIN(v0.z, v1.z) - radius),
-          Vector3::Create(KRMAX(v0.x, v1.x) + radius, KRMAX(v0.y, v1.y) + radius, KRMAX(v0.z, v1.z) + radius)
+          Vector3::Create(std::min(v0.x, v1.x) - radius, std::min(v0.y, v1.y) - radius, std::min(v0.z, v1.z) - radius),
+          Vector3::Create(std::max(v0.x, v1.x) + radius, std::max(v0.y, v1.y) + radius, std::max(v0.z, v1.z) + radius)
       );
 
       if (getBounds().intersects(sphereCastBounds)) {

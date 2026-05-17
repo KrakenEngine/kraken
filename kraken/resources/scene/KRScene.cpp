@@ -476,7 +476,7 @@ kraken_stream_level KRScene::getStreamLevel()
 
   if (m_pRootNode) {
     KRViewport viewport; // This isn't used when prime is false
-    stream_level = KRMIN(stream_level, m_pRootNode->getStreamLevel(viewport));
+    stream_level = std::min(stream_level, m_pRootNode->getStreamLevel(viewport));
   }
 
   return stream_level;

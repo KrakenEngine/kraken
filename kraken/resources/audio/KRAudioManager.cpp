@@ -238,7 +238,7 @@ void KRAudioManager::renderReverbImpulseResponse(int impulse_response_offset, in
     for (unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr = m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
       siren_reverb_zone_weight_info zi = (*zone_itr).second;
       if (zi.reverb_sample) {
-        if (impulse_response_offset < KRMIN(zi.reverb_sample->getFrameCount(), m_reverb_max_length * 44100)) { // Optimization - when mixing multiple impulse responses (i.e. fading between reverb zones), do not process blocks past the end of a shorter impulse response sample when they differ in length
+        if (impulse_response_offset < std::min((int)zi.reverb_sample->getFrameCount(), (int)m_reverb_max_length * 44100)) { // Optimization - when mixing multiple impulse responses (i.e. fading between reverb zones), do not process blocks past the end of a shorter impulse response sample when they differ in length
           if (first_sample) {
             // If this is the first or only sample, write directly to the first half of the FFT input buffer
             first_sample = false;
@@ -313,8 +313,8 @@ void KRAudioManager::renderReverb()
   for (unordered_map<std::string, siren_reverb_zone_weight_info>::iterator zone_itr = m_reverb_zone_weights.begin(); zone_itr != m_reverb_zone_weights.end(); zone_itr++) {
     siren_reverb_zone_weight_info zi = (*zone_itr).second;
     if (zi.reverb_sample) {
-      int zone_sample_blocks = KRMIN((int)zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
-      impulse_response_blocks = KRMAX(impulse_response_blocks, zone_sample_blocks);
+      int zone_sample_blocks = std::min((int)zi.reverb_sample->getFrameCount(), (int)(m_reverb_max_length * 44100.0f)) / KRENGINE_AUDIO_BLOCK_LENGTH + 1;
+      impulse_response_blocks = std::max(impulse_response_blocks, zone_sample_blocks);
     }
   }
 
@@ -1483,10 +1483,10 @@ void KRAudioManager::startFrame(float deltaTime)
     Vector3 source_world_position = source->getWorldTranslation();
     Vector3 diff = source_world_position - m_listener_position;
     float distance = diff.magnitude();
-    float gain = source->getGain() * m_global_gain / pow(KRMAX(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
+    float gain = source->getGain() * m_global_gain / pow(std::max(distance / source->getReferenceDistance(), 1.0f), source->getRolloffFactor());
 
     // apply minimum-cutoff so that we don't waste cycles processing very quiet / distant sound sources
-    gain = KRMAX(gain - KRENGINE_AUDIO_CUTOFF, 0.0f) / (1.0f - KRENGINE_AUDIO_CUTOFF);
+    gain = std::max(gain - KRENGINE_AUDIO_CUTOFF, 0.0f) / (1.0f - KRENGINE_AUDIO_CUTOFF);
 
     if (gain > 0.0f) {
 

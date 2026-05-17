@@ -233,7 +233,7 @@ float KRViewport::coverage(const AABB& b) const
 
     float screen_depth = distance / 1000.0f;
 
-    return KRCLAMP(1.0f - screen_depth, 0.01f, 1.0f);
+    return std::clamp(1.0f - screen_depth, 0.01f, 1.0f);
 
     /*
 
@@ -253,13 +253,13 @@ float KRViewport::coverage(const AABB& b) const
         }
     }
 
-    screen_min.x = KRCLAMP(screen_min.x, 0.0f, 1.0f);
-    screen_min.y = KRCLAMP(screen_min.y, 0.0f, 1.0f);
-    screen_max.x = KRCLAMP(screen_max.x, 0.0f, 1.0f);
-    screen_max.y = KRCLAMP(screen_max.y, 0.0f, 1.0f);
+    screen_min.x = std::clamp(screen_min.x, 0.0f, 1.0f);
+    screen_min.y = std::clamp(screen_min.y, 0.0f, 1.0f);
+    screen_max.x = std::clamp(screen_max.x, 0.0f, 1.0f);
+    screen_max.y = std::clamp(screen_max.y, 0.0f, 1.0f);
 
     float c = (screen_max.x - screen_min.x) * (screen_max.y - screen_min.y);
-    return KRCLAMP(c, 0.01f, 1.0f);
+    return std::clamp(c, 0.01f, 1.0f);
     */
   }
 }

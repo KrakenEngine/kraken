@@ -319,7 +319,7 @@ kraken_stream_level KRModel::getStreamLevel(const KRViewport& viewport)
 
   for (int lod = 0; lod < kMeshLODCount; lod++) {
     if (m_meshes[lod].val.isBound()) {
-        stream_level = KRMIN(stream_level, m_meshes[lod].val.get()->getStreamLevel());
+        stream_level = std::min(stream_level, m_meshes[lod].val.get()->getStreamLevel());
     }
   }
 

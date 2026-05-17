@@ -40,7 +40,7 @@ public:
   KRResourceRequest(KRResource* resource, uint64_t usage, float lodCoverage = 0.0f)
     : resource(resource)
     , usage(usage)
-    , coverage(static_cast<uint8_t>(KRCLAMP(lodCoverage / 1.0f * 255.f, 0, 255.f)))
+    , coverage(static_cast<uint8_t>(std::clamp(lodCoverage / 1.0f * 255.f, 0.f, 255.f)))
   {
 
   }

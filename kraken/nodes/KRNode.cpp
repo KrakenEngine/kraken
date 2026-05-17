@@ -1167,7 +1167,7 @@ kraken_stream_level KRNode::getStreamLevel(const KRViewport& viewport)
   kraken_stream_level stream_level = kraken_stream_level::STREAM_LEVEL_IN_HQ;
 
   for (KRNode* child = m_firstChildNode; child != nullptr; child = child->m_nextNode) {
-    stream_level = KRMIN(stream_level, child->getStreamLevel(viewport));
+    stream_level = std::min(stream_level, child->getStreamLevel(viewport));
   }
 
   return stream_level;
