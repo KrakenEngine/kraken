@@ -38,12 +38,13 @@
 #include "KRShaderReflection.h"
 
 class KRViewport;
+class KRDirectionalLight;
 
 class KRModelView
   : public KRReflectedObject
 {
 public:
-  KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel);
+  KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight);
   ~KRModelView();
 
   bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
@@ -52,6 +53,7 @@ public:
 private:
   KRViewport* m_viewport;
   hydra::Matrix4 m_matModel;
+  KRDirectionalLight* m_directionalLight;
 
   // Derived values
   hydra::Matrix4 m_matModelInverse;

@@ -33,12 +33,14 @@
 
 #include "KRModelView.h"
 #include "KRViewport.h"
+#include "nodes/KRDirectionalLight.h"
 
 using namespace hydra;
 
-KRModelView::KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel)
+KRModelView::KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight)
   : m_viewport(viewport)
   , m_matModel(matModel)
+  , m_directionalLight(directionalLight)
 {
   m_matModelInverse = matModel;
   m_matModelInverse.invert();
@@ -53,6 +55,24 @@ KRModelView::~KRModelView()
 
 bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
 {
+  if (m_directionalLight) {
+    switch (value) {
+      case ShaderValue::light_direction_model_space:
+      {
+        Matrix4 inverseModelMatrix = m_matModel;
+        inverseModelMatrix.invert();
+
+        // Bind the light direction vector
+        Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, m_directionalLight->getWorldLightDirection());
+        lightDirObject.normalize();
+        *output = lightDirObject;
+        return true;
+      }
+      default:
+        break;
+    }
+  }
+  
   switch (value) {
     case ShaderValue::camerapos_model_space:
     {
@@ -72,6 +92,24 @@ bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
 }
 bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
 {
+  if (m_directionalLight) {
+    switch (value) {
+      case ShaderValue::shadow_mvp1:
+      case ShaderValue::shadow_mvp2:
+      case ShaderValue::shadow_mvp3:
+      {
+        Matrix4 matBias;
+        matBias.translate(1.0, 1.0, 1.0);
+        matBias.scale(0.5);
+        int iShadow = static_cast<int>(value) - static_cast<int>(ShaderValue::shadow_mvp1);
+        *output = m_matModel * m_directionalLight->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias;
+        return true;
+      }
+      default:
+        break;
+    }
+  }
+  
   switch (value) {
     case ShaderValue::model_matrix:
     {

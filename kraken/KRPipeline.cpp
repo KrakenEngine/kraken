@@ -639,7 +639,15 @@ void KRPipeline::updateDescriptorBinding()
 
 void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  KRModelView modelView(ri.viewport, matModel);
+  KRDirectionalLight* directionalLight = nullptr;
+  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
+    if (!ri.directional_lights.empty())
+    {
+      directionalLight = ri.directional_lights.front();
+    }
+  }
+  
+  KRModelView modelView(ri.viewport, matModel, directionalLight);
 
   ri.reflectedObjects.push_back(&modelView);
   ri.reflectedObjects.push_back(ri.viewport);
@@ -652,88 +660,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
   ri.reflectedObjects.pop_back();
 
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
-
-  int light_directional_count = 0;
-  //int light_point_count = 0;
-  //int light_spot_count = 0;
-  // TODO - Need to support multiple lights and more light types in forward rendering
-  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
-
-    for (std::vector<KRDirectionalLight*>::const_iterator light_itr = ri.directional_lights.begin(); light_itr != ri.directional_lights.end(); light_itr++) {
-      KRDirectionalLight* directional_light = (*light_itr);
-      if (light_directional_count == 0) {
-        int cShadowBuffers = directional_light->getShadowBufferCount();
-        if (hasPushConstant(ShaderValue::shadowtexture1) && cShadowBuffers > 0) {
-          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 3, directional_light->getShadowTextures()[0])) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-          }
-        }
-
-        if (hasPushConstant(ShaderValue::shadowtexture2) && cShadowBuffers > 1 && ri.camera->settings.m_cShadowBuffers > 1) {
-          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 4, directional_light->getShadowTextures()[1])) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-          }
-        }
-
-        if (hasPushConstant(ShaderValue::shadowtexture3) && cShadowBuffers > 2 && ri.camera->settings.m_cShadowBuffers > 2) {
-          // TODO - Vulkan Refactoring.  Note: Sampler needs clamp-to-edge and linear filtering
-          if (m_pContext->getTextureManager()->selectTexture(0 /*GL_TEXTURE_2D*/, 5, directional_light->getShadowTextures()[2])) {
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-            GLDEBUG(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-          }
-        }
-
-        Matrix4 matBias;
-        matBias.translate(1.0, 1.0, 1.0);
-        matBias.scale(0.5);
-        for (int iShadow = 0; iShadow < cShadowBuffers; iShadow++) {
-          setPushConstant(static_cast<ShaderValue>(static_cast<int>(ShaderValue::shadow_mvp1) + iShadow), matModel * directional_light->getShadowViewports()[iShadow].getViewProjectionMatrix() * matBias);
-        }
-
-        if (hasPushConstant(ShaderValue::light_direction_model_space)) {
-          Matrix4 inverseModelMatrix = matModel;
-          inverseModelMatrix.invert();
-
-          // Bind the light direction vector
-          Vector3 lightDirObject = Matrix4::Dot(inverseModelMatrix, directional_light->getWorldLightDirection());
-          lightDirObject.normalize();
-          setPushConstant(ShaderValue::light_direction_model_space, lightDirObject);
-        }
-      }
-
-      light_directional_count++;
-    }
-
-    //light_point_count = point_lights.size();
-    //light_spot_count = spot_lights.size();
-  }
-
-  // Sets the diffuseTexture variable to the first texture unit
-  setPushConstant(ShaderValue::diffusetexture, 0);
-
-  // Sets the specularTexture variable to the second texture unit
-  setPushConstant(ShaderValue::speculartexture, 1);
-
-  // Sets the normalTexture variable to the third texture unit
-  setPushConstant(ShaderValue::material_normal_map_texture, 2);
-
-  // Sets the shadowTexture variable to the fourth texture unit
-  setPushConstant(ShaderValue::shadowtexture1, 3);
-  setPushConstant(ShaderValue::shadowtexture2, 4);
-  setPushConstant(ShaderValue::shadowtexture3, 5);
-  setPushConstant(ShaderValue::reflectioncubetexture, 4);
-  setPushConstant(ShaderValue::lightmaptexture, 5);
-  setPushConstant(ShaderValue::gbuffer_frame, 6);
-  setPushConstant(ShaderValue::gbuffer_depth, 7); // Texture unit 7 is used for reading the depth buffer in gBuffer pass #2 and in post-processing pass
-  // setPushConstant(ShaderValue::reflectiontexture, 7); // Texture unit 7 is used for the reflection map textures in gBuffer pass #3 and when using forward rendering
-  setPushConstant(ShaderValue::depth_frame, 0);
-  setPushConstant(ShaderValue::render_frame, 1);
-  setPushConstant(ShaderValue::volumetric_environment_frame, 2);
-
+  
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     if (pushConstants.buffer) {
