@@ -102,11 +102,11 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-      pParticleShader->bind(ri, getModelMatrix());
-
-      m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
-
-      vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+      if (pParticleShader->bind(ri, getModelMatrix())) {
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+        
+        vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+      }
     }
   }
 }

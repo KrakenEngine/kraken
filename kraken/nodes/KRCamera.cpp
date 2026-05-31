@@ -167,11 +167,12 @@ void KRCamera::render(KRNode::RenderInfo& ri)
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         pPipeline->setImageBinding("diffuseTexture", m_skyBox.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-        pPipeline->bind(ri, Matrix4());
-
-        // Render a full screen quad
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+        if (pPipeline->bind(ri, Matrix4())) {
+          
+          // Render a full screen quad
+          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+          vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+        }
       }
 
       GL_POP_GROUP_MARKER;
@@ -631,11 +632,12 @@ void KRCamera::renderDebug(RenderInfo& ri)
   KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
   fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-  fontShader->bind(ri, Matrix4());
-      
-  m_debug_text_vbo_data.bind(ri.commandBuffer);
-      
-  vkCmdDraw(ri.commandBuffer, vertex_count, 1, 0, 0);
+  if (fontShader->bind(ri, Matrix4())) {
+    
+    m_debug_text_vbo_data.bind(ri.commandBuffer);
+    
+    vkCmdDraw(ri.commandBuffer, vertex_count, 1, 0, 0);
+  }
 
   m_debug_text_vertices.unlock();
 }

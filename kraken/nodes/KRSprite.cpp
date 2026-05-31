@@ -137,10 +137,10 @@ void KRSprite::render(RenderInfo& ri)
 
         KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         pShader->setImageBinding("diffuseTexture", m_spriteTexture.val.get(), m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-        pShader->bind(ri, getModelMatrix());
-
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+        if (pShader->bind(ri, getModelMatrix())) {
+          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+          vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+        }
       }
     }
   }

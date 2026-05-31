@@ -116,19 +116,20 @@ void KRPointLight::render(RenderInfo& ri)
       info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      pShader->bind(ri, sphereModelMatrix); // TODO: Pass light index to shader
-
-      if (bInsideLight) {
-        // Render a full screen quad
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-      } else {
-        // Render sphere of light's influence
-        generateMesh();
-
-        GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
-
-        vkCmdDraw(ri.commandBuffer, m_cVertices, 1, 0, 0);
+      if (pShader->bind(ri, sphereModelMatrix)) { // TODO: Pass light index to shader
+        
+        if (bInsideLight) {
+          // Render a full screen quad
+          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+          vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+        } else {
+          // Render sphere of light's influence
+          generateMesh();
+          
+          GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+          
+          vkCmdDraw(ri.commandBuffer, m_cVertices, 1, 0, 0);
+        }
       }
 
     }

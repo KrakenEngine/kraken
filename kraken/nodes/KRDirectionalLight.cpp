@@ -160,11 +160,11 @@ void KRDirectionalLight::render(RenderInfo& ri)
 
     KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     pShader->setPushConstant(ShaderValue::light_direction_view_space, light_direction_view_space);
-    pShader->bind(ri, getModelMatrix()); // TODO: Need to pass in the light index to the shader
-
-    // Render a full screen quad
-    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-    vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+    if (pShader->bind(ri, getModelMatrix())) { // TODO: Need to pass in the light index to the shader
+      // Render a full screen quad
+      m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+      vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+    }
   }
 
   ri.reflectedObjects.pop_back();

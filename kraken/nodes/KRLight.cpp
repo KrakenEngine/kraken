@@ -185,18 +185,18 @@ void KRLight::render(RenderInfo& ri)
     if (m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
 
       if (ri.viewport->visible(getBounds()) || true) { // FINDME, HACK need to remove "|| true"?
-
+        
         float particle_range = 600.0f;
-
+        
         int particle_count = (int)(m_dust_particle_density * pow(particle_range, 3));
         if (particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) {
           particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
         }
-
+        
         Matrix4 particleModelMatrix;
         particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
         particleModelMatrix.translate(ri.viewport->getCameraPosition());
-
+        
         std::vector<KRDirectionalLight*> this_directional_light;
         std::vector<KRSpotLight*> this_spot_light;
         std::vector<KRPointLight*> this_point_light;
@@ -212,7 +212,7 @@ void KRLight::render(RenderInfo& ri)
         if (point_light) {
           this_point_light.push_back(point_light);
         }
-
+        
         PipelineInfo info{};
         std::string shader_name("dust_particle");
         info.shader_name = &shader_name;
@@ -226,14 +226,15 @@ void KRLight::render(RenderInfo& ri)
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-
+        
         pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color.val * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
         pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-        pParticleShader->bind(ri, particleModelMatrix); // TODO: Pass light index to shader
-
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
-
-        vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+        if (pParticleShader->bind(ri, particleModelMatrix)) { // TODO: Pass light index to shader
+        
+          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+          
+          vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+        }
       }
     }
   }
@@ -474,9 +475,9 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       KRPipeline* shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
       ri.viewport = &m_shadowViewports[iShadow];
-      shadowShader->bind(ri, Matrix4());
-
-      getScene().render(ri);
+      if (shadowShader->bind(ri, Matrix4())) {
+        getScene().render(ri);
+      }
     }
   }
   ri.viewport = prevViewport;

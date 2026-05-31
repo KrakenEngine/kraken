@@ -134,9 +134,9 @@ void KRAmbientZone::render(RenderInfo& ri)
       info.vertexAttributes = sphereModel->getVertexAttributes();
 
       KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      pPipeline->bind(ri, sphereModelMatrix);
-
-      sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+      if (pPipeline->bind(ri, sphereModelMatrix)) {
+        sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
+      }
     } // sphereModel
   }
 }
