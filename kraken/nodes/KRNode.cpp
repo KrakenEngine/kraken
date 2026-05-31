@@ -166,7 +166,9 @@ void KRNode::makeOrphan()
 KRNode::~KRNode()
 {
   while (m_firstChildNode != nullptr) {
+    KRNode* nextChild = m_firstChildNode->m_nextNode;
     delete m_firstChildNode;
+    m_firstChildNode = nextChild;
   }
 
   makeOrphan();

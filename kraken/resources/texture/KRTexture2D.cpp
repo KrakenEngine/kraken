@@ -57,7 +57,7 @@ bool KRTexture2D::createGPUTexture(int targetLod)
   void* buffer = malloc(bufferSize);
 
   if (!getLodData(buffer, targetLod)) {
-    delete buffer;
+    free(buffer);
     return false;
   }
 
@@ -130,7 +130,7 @@ bool KRTexture2D::createGPUTexture(int targetLod)
     device.streamUpload((void*)buffer, bufferSize, texture.image, regions.data(), regions.size());
   }
 
-  delete buffer;
+  free(buffer);
 
   if (success) {
     m_new_lod = targetLod;

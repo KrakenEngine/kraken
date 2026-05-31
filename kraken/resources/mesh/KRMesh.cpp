@@ -266,21 +266,27 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
               switch (pMaterial->getAlphaMode()) {
               case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
               case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                {
+                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                }
                 break;
               case KRMaterial::KRMATERIAL_ALPHA_MODE_BLEND: // Blended Alpha
                 if (pMaterial->m_doubleSided) {
                   // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                   // 
                   // Render back faces before front faces
-                  pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                  if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                  {
+                    renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                  }
                 }
 
                 // Render front faces
-                pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage);
-                renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                {
+                  renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
+                }
                 break;
               }
             }

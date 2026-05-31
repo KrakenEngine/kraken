@@ -130,8 +130,6 @@ bool KRTextureTGA::getLodData(void* buffer, int lod)
     return false; // Mapped colors not supported
   }
 
-  Vector3i dimensions = { pHeader->width, pHeader->height, 1 };
-
   switch (pHeader->imagetype) {
   case 2: // rgb
     switch (pHeader->bitsperpixel) {

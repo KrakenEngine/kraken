@@ -151,9 +151,10 @@ bool KRTextureCube::createGPUTexture(int lod)
   }
 
   for (int i = 0; i < 6; i++) {
-      if (buffers[i]) {
-          delete buffers[i];
-      }
+    if (buffers[i]) {
+      free(buffers[i]);
+      buffers[i] = nullptr;
+    }
   }
 
   return success;

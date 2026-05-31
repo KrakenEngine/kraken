@@ -298,7 +298,7 @@ bool KRShaderManager::compileAll(KRBundle* outputBundle, KRUnknown* logResource)
       }
       sourceName = source->getName() + "." + source->getExtension();
       sourceText[0] = (char*)source->getData()->getStart();
-      sourceLen[0] = source->getData()->getSize();
+      sourceLen[0] = (int)source->getData()->getSize();
       sourceNameStr[0] = sourceName.c_str();
       shader.setStringsWithLengthsAndNames(sourceText, sourceLen, sourceNameStr, 1);
       //shader.setStrings(&sourceStr, 1);

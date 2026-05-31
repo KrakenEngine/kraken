@@ -150,7 +150,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   VkVertexInputBindingDescription bindingDescription{};
   bindingDescription.binding = 0;
-  bindingDescription.stride = KRMesh::VertexSizeForAttributes(vertexAttributes);
+  bindingDescription.stride = (uint32_t)KRMesh::VertexSizeForAttributes(vertexAttributes);
   bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   uint32_t vertexAttributeCount = 0;
@@ -164,7 +164,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
       desc.binding = 0;
       desc.location = attribute_locations[location_attrib] - 1;
       desc.format = KRMesh::AttributeVulkanFormat(mesh_attrib);
-      desc.offset = KRMesh::AttributeOffset(mesh_attrib, vertexAttributes);
+      desc.offset = (uint32_t)KRMesh::AttributeOffset(mesh_attrib, vertexAttributes);
     }
   }
 
@@ -533,8 +533,9 @@ bool KRPipeline::hasPushConstant(ShaderValue location) const
 }
 
 
-void KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> objects)
+bool KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> objects)
 {
+  bool success = true;
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     for (int i = 0; i < kPushConstantCount; i++) {
@@ -549,11 +550,13 @@ void KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> ob
           }
         }
         if(!found) {
+          success = false;
           KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Push constant not found: %s", getShaderValueName(i));
         }
       }
     }
   }
+  return success;
 }
 
 void KRPipeline::setPushConstant(ShaderValue location, float value)
@@ -637,7 +640,7 @@ void KRPipeline::updateDescriptorBinding()
   // Vulkan Refactoring
 }
 
-void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
+bool KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
   KRDirectionalLight* directionalLight = nullptr;
   if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
@@ -653,7 +656,7 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
   ri.reflectedObjects.push_back(ri.viewport);
   ri.reflectedObjects.push_back(&ri.camera->settings);
 
-  setPushConstants(ri.reflectedObjects);
+  bool success = setPushConstants(ri.reflectedObjects);
 
   ri.reflectedObjects.pop_back();
   ri.reflectedObjects.pop_back();
@@ -661,12 +664,18 @@ void KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
   
+  if (!success) {
+    return false;
+  }
+  
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
     if (pushConstants.buffer) {
       vkCmdPushConstants(ri.commandBuffer, pushConstants.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstants.bufferSize, pushConstants.buffer);
     }
   }
+  
+  return true;
 }
 
 bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
@@ -674,7 +683,9 @@ bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
   updateDescriptorBinding();
   updateDescriptorSets();
   bindDescriptorSets(ri.commandBuffer);
-  updatePushConstants(ri, matModel);
+  if (!updatePushConstants(ri, matModel)) {
+    return false;
+  }
 
   if (ri.pipeline != this) {
     vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);

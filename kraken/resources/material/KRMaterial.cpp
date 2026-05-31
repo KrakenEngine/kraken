@@ -743,14 +743,13 @@ kraken_stream_level KRMaterial::getStreamLevel()
   return stream_level;
 }
 
-void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
+bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
 {
   bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
 
   Vector2 default_scale = Vector2::One();
   Vector2 default_offset = Vector2::Zero();
 
-  bool bHasReflection = m_roughnessFactor > 0.f;
   bool bDiffuseMap = m_baseColorMap.texture.isBound() && ri.camera->settings.bEnableDiffuseMap;
   bool bNormalMap = m_normalMap.texture.isBound() && ri.camera->settings.bEnableNormalMap;
   bool bSpecMap = false;
@@ -845,9 +844,13 @@ void KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
     // pShader->setImageBinding("reflectionTexture", m_reflection.texture.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   }
 
+  bool success = true;
   ri.reflectedObjects.push_back(this);
-  pShader->bind(ri, matModel);
+  if (!pShader->bind(ri, matModel)) {
+    success = false;
+  }
   ri.reflectedObjects.pop_back();
+  return success;
 }
 
 bool KRMaterial::getShaderValue(ShaderValue value, float* output) const

@@ -221,7 +221,7 @@ public:
 
   static const size_t kPushConstantCount = static_cast<size_t>(ShaderValue::NUM_SHADER_VALUES);
 
-  void setPushConstants(const std::vector<const KRReflectedObject*> objects);
+  bool setPushConstants(const std::vector<const KRReflectedObject*> objects);
   bool hasPushConstant(ShaderValue location) const;
   void setPushConstant(ShaderValue location, float value);
   void setPushConstant(ShaderValue location, int value);
@@ -239,7 +239,7 @@ public:
 private:
   void updateDescriptorBinding();
   void updateDescriptorSets();
-  void updatePushConstants(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
+  bool updatePushConstants(KRNode::RenderInfo& ri, const hydra::Matrix4& matModel);
 
   struct PushConstantInfo
   {
