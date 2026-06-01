@@ -236,10 +236,7 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
 {
   //fprintf(stderr, "Rendering model: %s\n", m_name.c_str());
   if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES && ri.renderPass->getType() != RenderPassType::RENDER_PASS_PARTICLE_OCCLUSION && ri.renderPass->getType() != RenderPassType::RENDER_PASS_VOLUMETRIC_EFFECTS_ADDITIVE) {
-    if (getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
-
-    } else {
-
+    if (getStreamLevel() > kraken_stream_level::STREAM_LEVEL_OUT) {
       getSubmeshes();
       getMaterials();
 
@@ -260,7 +257,7 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
             if ((!pMaterial->isTransparent() && ri.renderPass->getType() != RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT) || (pMaterial->isTransparent() && ri.renderPass->getType() == RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT)) {
               std::vector<Matrix4> bone_bind_poses;
               for (int i = 0; i < (int)bones.size(); i++) {
-                bone_bind_poses.push_back(getBoneBindPose(i));
+                bone_bind_poses.push_back(getBoneBindPose(i)); 
               }
 
               switch (pMaterial->getAlphaMode()) {

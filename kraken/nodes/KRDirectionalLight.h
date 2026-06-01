@@ -43,8 +43,9 @@ public:
   virtual ~KRDirectionalLight();
 
   virtual std::string getElementName() override;
-  hydra::Vector3 getLocalLightDirection();
-  hydra::Vector3 getWorldLightDirection();
+  hydra::Vector3 getLocalLightDirection() const;
+  hydra::Vector3 getWorldLightDirection() const;
+  hydra::Vector3 getViewSpaceLightDirection(const hydra::Matrix4 & viewMatrix) const;
 
   virtual void render(RenderInfo& ri) override;
   virtual hydra::AABB getBounds() override;

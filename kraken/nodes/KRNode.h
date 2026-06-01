@@ -142,7 +142,7 @@ public:
   void prependChild(KRNode* child);
   void insertBefore(KRNode* child);
   void insertAfter(KRNode* child);
-  KRNode* getParent();
+  KRNode* getParent() const;
 
   void setLocalTranslation(const hydra::Vector3& v, bool set_original = false);
   void setLocalScale(const hydra::Vector3& v, bool set_original = false);
@@ -156,50 +156,50 @@ public:
   void setPreRotation(const hydra::Vector3& v, bool set_original = false);
   void setPostRotation(const hydra::Vector3& v, bool set_original = false);
 
-  const hydra::Vector3& getRotationOffset();
-  const hydra::Vector3& getScalingOffset();
-  const hydra::Vector3& getRotationPivot();
-  const hydra::Vector3& getScalingPivot();
-  const hydra::Vector3& getPreRotation();
-  const hydra::Vector3& getPostRotation();
+  const hydra::Vector3& getRotationOffset() const;
+  const hydra::Vector3& getScalingOffset() const;
+  const hydra::Vector3& getRotationPivot() const;
+  const hydra::Vector3& getScalingPivot() const;
+  const hydra::Vector3& getPreRotation() const;
+  const hydra::Vector3& getPostRotation() const;
 
-  const hydra::Vector3& getInitialRotationOffset();
-  const hydra::Vector3& getInitialScalingOffset();
-  const hydra::Vector3& getInitialRotationPivot();
-  const hydra::Vector3& getInitialScalingPivot();
-  const hydra::Vector3& getInitialPreRotation();
-  const hydra::Vector3& getInitialPostRotation();
+  const hydra::Vector3& getInitialRotationOffset() const;
+  const hydra::Vector3& getInitialScalingOffset() const;
+  const hydra::Vector3& getInitialRotationPivot() const;
+  const hydra::Vector3& getInitialScalingPivot() const;
+  const hydra::Vector3& getInitialPreRotation() const;
+  const hydra::Vector3& getInitialPostRotation() const;
 
 
-  const hydra::Vector3& getLocalTranslation();
-  const hydra::Vector3& getLocalScale();
-  const hydra::Vector3& getLocalRotation();
+  const hydra::Vector3& getLocalTranslation() const;
+  const hydra::Vector3& getLocalScale() const;
+  const hydra::Vector3& getLocalRotation() const;
 
-  const hydra::Vector3& getInitialLocalTranslation();
-  const hydra::Vector3& getInitialLocalScale();
-  const hydra::Vector3& getInitialLocalRotation();
+  const hydra::Vector3& getInitialLocalTranslation() const;
+  const hydra::Vector3& getInitialLocalScale() const;
+  const hydra::Vector3& getInitialLocalRotation() const;
 
-  const hydra::Vector3 getWorldTranslation();
-  const hydra::Vector3 getWorldScale();
-  const hydra::Quaternion getWorldRotation();
+  const hydra::Vector3 getWorldTranslation() const;
+  const hydra::Vector3 getWorldScale() const;
+  const hydra::Quaternion getWorldRotation() const;
 
-  const hydra::Quaternion getBindPoseWorldRotation();
-  const hydra::Quaternion getActivePoseWorldRotation();
+  const hydra::Quaternion getBindPoseWorldRotation() const;
+  const hydra::Quaternion getActivePoseWorldRotation() const;
 
-  const hydra::Vector3 localToWorld(const hydra::Vector3& local_point);
-  const hydra::Vector3 worldToLocal(const hydra::Vector3& world_point);
+  const hydra::Vector3 localToWorld(const hydra::Vector3& local_point) const;
+  const hydra::Vector3 worldToLocal(const hydra::Vector3& world_point) const;
 
   void setWorldTranslation(const hydra::Vector3& v);
   void setWorldScale(const hydra::Vector3& v);
   void setWorldRotation(const hydra::Vector3& v);
 
   virtual hydra::AABB getBounds();
-  void invalidateBounds() const;
-  const hydra::Matrix4& getModelMatrix();
-  const hydra::Matrix4& getInverseModelMatrix();
-  const hydra::Matrix4& getBindPoseMatrix();
-  const hydra::Matrix4& getActivePoseMatrix();
-  const hydra::Matrix4& getInverseBindPoseMatrix();
+  void invalidateBounds();
+  const hydra::Matrix4& getModelMatrix() const;
+  const hydra::Matrix4& getInverseModelMatrix() const;
+  const hydra::Matrix4& getBindPoseMatrix() const;
+  const hydra::Matrix4& getActivePoseMatrix() const;
+  const hydra::Matrix4& getInverseBindPoseMatrix() const;
 
   enum node_attribute_type
   {
@@ -250,7 +250,7 @@ public:
   LodVisibility getLODVisibility();
 
   void setScaleCompensation(bool scale_compensation);
-  bool getScaleCompensation();
+  bool getScaleCompensation() const;
   void setAnimationEnabled(node_attribute_type attrib, bool enable);
   bool getAnimationEnabled(node_attribute_type attrib) const;
 
@@ -299,23 +299,22 @@ private:
   long m_lastRenderFrame;
   void invalidateModelMatrix();
   void invalidateBindPoseMatrix();
-  hydra::Matrix4 m_modelMatrix;
-  hydra::Matrix4 m_inverseModelMatrix;
-  hydra::Matrix4 m_bindPoseMatrix;
-  hydra::Matrix4 m_activePoseMatrix;
-  hydra::Matrix4 m_inverseBindPoseMatrix;
-  bool m_modelMatrixValid;
-  bool m_inverseModelMatrixValid;
-  bool m_bindPoseMatrixValid;
-  bool m_activePoseMatrixValid;
-  bool m_inverseBindPoseMatrixValid;
+  // Members are mutable to enable lazy calculation from const accessors
+  mutable hydra::Matrix4 m_modelMatrix;
+  mutable hydra::Matrix4 m_inverseModelMatrix;
+  mutable hydra::Matrix4 m_bindPoseMatrix;
+  mutable hydra::Matrix4 m_activePoseMatrix;
+  mutable hydra::Matrix4 m_inverseBindPoseMatrix;
+  mutable bool m_modelMatrixValid;
+  mutable bool m_inverseModelMatrixValid;
+  mutable bool m_bindPoseMatrixValid;
+  mutable bool m_activePoseMatrixValid;
+  mutable bool m_inverseBindPoseMatrixValid;
 
-  mutable hydra::AABB m_bounds;
-  mutable bool m_boundsValid;
+  hydra::AABB m_bounds;
+  bool m_boundsValid;
 
   std::string m_name;
-
-
 
   KRScene* m_pScene;
 

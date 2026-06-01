@@ -52,7 +52,7 @@ public:
 
   hydra::AABB getBounds();
 
-  KROctreeNode* getParent();
+  KROctreeNode* getParent() const;
   void setChildNode(int iChild, KROctreeNode* pChild);
   int getChildIndex(KRNode* pNode);
   hydra::AABB getChildBounds(int iChild);

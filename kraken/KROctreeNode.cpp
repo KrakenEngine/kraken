@@ -170,7 +170,7 @@ KROctreeNode* KROctreeNode::stripChild()
 }
 
 
-KROctreeNode* KROctreeNode::getParent()
+KROctreeNode* KROctreeNode::getParent() const
 {
   return m_parent;
 }

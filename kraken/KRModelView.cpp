@@ -68,6 +68,11 @@ bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
         *output = lightDirObject;
         return true;
       }
+      case ShaderValue::light_direction_view_space:
+      {
+        *output = m_directionalLight->getViewSpaceLightDirection(m_viewport->getViewMatrix());
+        return true;
+      }
       default:
         break;
     }

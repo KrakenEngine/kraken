@@ -189,7 +189,7 @@ void KRNode::setScaleCompensation(bool scale_compensation)
     invalidateBindPoseMatrix();
   }
 }
-bool KRNode::getScaleCompensation()
+bool KRNode::getScaleCompensation() const
 {
   return m_scale_compensation;
 }
@@ -510,87 +510,87 @@ void KRNode::setPostRotation(const Vector3& v, bool set_original)
   invalidateModelMatrix();
 }
 
-const Vector3& KRNode::getRotationOffset()
+const Vector3& KRNode::getRotationOffset() const
 {
   return m_rotationOffset;
 }
-const Vector3& KRNode::getScalingOffset()
+const Vector3& KRNode::getScalingOffset() const
 {
   return m_scalingOffset;
 }
-const Vector3& KRNode::getRotationPivot()
+const Vector3& KRNode::getRotationPivot() const
 {
   return m_rotationPivot;
 }
-const Vector3& KRNode::getScalingPivot()
+const Vector3& KRNode::getScalingPivot() const
 {
   return m_scalingPivot;
 }
-const Vector3& KRNode::getPreRotation()
+const Vector3& KRNode::getPreRotation() const
 {
   return m_preRotation;
 }
-const Vector3& KRNode::getPostRotation()
+const Vector3& KRNode::getPostRotation() const
 {
   return m_postRotation;
 }
-const Vector3& KRNode::getInitialRotationOffset()
+const Vector3& KRNode::getInitialRotationOffset() const
 {
   return m_initialRotationOffset;
 }
-const Vector3& KRNode::getInitialScalingOffset()
+const Vector3& KRNode::getInitialScalingOffset() const
 {
   return m_initialScalingOffset;
 }
-const Vector3& KRNode::getInitialRotationPivot()
+const Vector3& KRNode::getInitialRotationPivot() const
 {
   return m_initialRotationPivot;
 }
-const Vector3& KRNode::getInitialScalingPivot()
+const Vector3& KRNode::getInitialScalingPivot() const
 {
   return m_initialScalingPivot;
 }
-const Vector3& KRNode::getInitialPreRotation()
+const Vector3& KRNode::getInitialPreRotation() const
 {
   return m_initialPreRotation;
 }
-const Vector3& KRNode::getInitialPostRotation()
+const Vector3& KRNode::getInitialPostRotation() const
 {
   return m_initialPostRotation;
 }
 
-const Vector3& KRNode::getLocalTranslation()
+const Vector3& KRNode::getLocalTranslation() const
 {
   return m_localTranslation;
 }
-const Vector3& KRNode::getLocalScale()
+const Vector3& KRNode::getLocalScale() const
 {
   return m_localScale;
 }
-const Vector3& KRNode::getLocalRotation()
+const Vector3& KRNode::getLocalRotation() const
 {
   return m_localRotation;
 }
 
-const Vector3& KRNode::getInitialLocalTranslation()
+const Vector3& KRNode::getInitialLocalTranslation() const
 {
   return m_initialLocalTranslation;
 }
-const Vector3& KRNode::getInitialLocalScale()
+const Vector3& KRNode::getInitialLocalScale() const
 {
   return m_initialLocalScale;
 }
-const Vector3& KRNode::getInitialLocalRotation()
+const Vector3& KRNode::getInitialLocalRotation() const
 {
   return m_initialLocalRotation;
 }
 
-const Vector3 KRNode::getWorldTranslation()
+const Vector3 KRNode::getWorldTranslation() const
 {
   return localToWorld(Vector3::Zero());
 }
 
-const Vector3 KRNode::getWorldScale()
+const Vector3 KRNode::getWorldScale() const
 {
   return Matrix4::DotNoTranslate(getModelMatrix(), m_localScale);
 }
@@ -683,7 +683,7 @@ void KRNode::render(RenderInfo& ri)
   m_lastRenderFrame = getContext().getCurrentFrame();
 }
 
-KRNode* KRNode::getParent()
+KRNode* KRNode::getParent() const
 {
   return m_parentNode;
 }
@@ -741,7 +741,7 @@ void KRNode::invalidateBindPoseMatrix()
   }
 }
 
-const Matrix4& KRNode::getModelMatrix()
+const Matrix4& KRNode::getModelMatrix() const
 {
 
   if (!m_modelMatrixValid) {
@@ -802,7 +802,7 @@ const Matrix4& KRNode::getModelMatrix()
   return m_modelMatrix;
 }
 
-const Matrix4& KRNode::getBindPoseMatrix()
+const Matrix4& KRNode::getBindPoseMatrix() const
 {
   if (!m_bindPoseMatrixValid) {
     m_bindPoseMatrix = Matrix4();
@@ -861,7 +861,7 @@ const Matrix4& KRNode::getBindPoseMatrix()
   return m_bindPoseMatrix;
 }
 
-const Matrix4& KRNode::getActivePoseMatrix()
+const Matrix4& KRNode::getActivePoseMatrix() const
 {
 
   if (!m_activePoseMatrixValid) {
@@ -919,7 +919,7 @@ const Matrix4& KRNode::getActivePoseMatrix()
 
 }
 
-const Quaternion KRNode::getWorldRotation()
+const Quaternion KRNode::getWorldRotation() const
 {
   Quaternion world_rotation = Quaternion::Create(m_postRotation) * Quaternion::Create(m_localRotation) * Quaternion::Create(m_preRotation);
   if (m_parentNode) {
@@ -928,7 +928,7 @@ const Quaternion KRNode::getWorldRotation()
   return world_rotation;
 }
 
-const Quaternion KRNode::getBindPoseWorldRotation()
+const Quaternion KRNode::getBindPoseWorldRotation() const
 {
   Quaternion world_rotation = Quaternion::Create(m_initialPostRotation) * Quaternion::Create(m_initialLocalRotation) * Quaternion::Create(m_initialPreRotation);
   if (dynamic_cast<KRBone*>(m_parentNode)) {
@@ -937,7 +937,7 @@ const Quaternion KRNode::getBindPoseWorldRotation()
   return world_rotation;
 }
 
-const Quaternion KRNode::getActivePoseWorldRotation()
+const Quaternion KRNode::getActivePoseWorldRotation() const
 {
   Quaternion world_rotation = Quaternion::Create(m_postRotation) * Quaternion::Create(m_localRotation) * Quaternion::Create(m_preRotation);
   if (dynamic_cast<KRBone*>(m_parentNode)) {
@@ -946,7 +946,7 @@ const Quaternion KRNode::getActivePoseWorldRotation()
   return world_rotation;
 }
 
-const Matrix4& KRNode::getInverseModelMatrix()
+const Matrix4& KRNode::getInverseModelMatrix() const
 {
   if (!m_inverseModelMatrixValid) {
     m_inverseModelMatrix = Matrix4::Invert(getModelMatrix());
@@ -954,7 +954,7 @@ const Matrix4& KRNode::getInverseModelMatrix()
   return m_inverseModelMatrix;
 }
 
-const Matrix4& KRNode::getInverseBindPoseMatrix()
+const Matrix4& KRNode::getInverseBindPoseMatrix() const
 {
   if (!m_inverseBindPoseMatrixValid) {
     m_inverseBindPoseMatrix = Matrix4::Invert(getBindPoseMatrix());
@@ -1142,12 +1142,12 @@ KRNode::LodVisibility KRNode::getLODVisibility()
   return m_lod_visible;
 }
 
-const Vector3 KRNode::localToWorld(const Vector3& local_point)
+const Vector3 KRNode::localToWorld(const Vector3& local_point) const
 {
   return Matrix4::Dot(getModelMatrix(), local_point);
 }
 
-const Vector3 KRNode::worldToLocal(const Vector3& world_point)
+const Vector3 KRNode::worldToLocal(const Vector3& world_point) const
 {
   return Matrix4::Dot(getInverseModelMatrix(), world_point);
 }
@@ -1175,7 +1175,7 @@ kraken_stream_level KRNode::getStreamLevel(const KRViewport& viewport)
   return stream_level;
 }
 
-void KRNode::invalidateBounds() const
+void KRNode::invalidateBounds()
 {
   m_boundsValid = false;
   if (m_parentNode) {

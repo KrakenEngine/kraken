@@ -61,12 +61,12 @@ std::string KRDirectionalLight::getElementName()
   return "directional_light";
 }
 
-Vector3 KRDirectionalLight::getWorldLightDirection()
+Vector3 KRDirectionalLight::getWorldLightDirection() const
 {
   return Matrix4::Dot(getWorldRotation().rotationMatrix(), getLocalLightDirection());
 }
 
-Vector3 KRDirectionalLight::getLocalLightDirection()
+Vector3 KRDirectionalLight::getLocalLightDirection() const
 {
   return Vector3::Up();           //&KRF HACK changed from Vector3::Forward(); - to compensate for the way Maya handles post rotation.
 }
@@ -125,6 +125,19 @@ int KRDirectionalLight::configureShadowBufferViewports(const KRViewport& viewpor
   return 1;
 }
 
+Vector3 KRDirectionalLight::getViewSpaceLightDirection(const Matrix4& viewMatrix) const
+{
+  Matrix4 matModelViewInverseTranspose = viewMatrix * getModelMatrix();
+  matModelViewInverseTranspose.transpose();
+  matModelViewInverseTranspose.invert();
+
+  Vector3 light_direction_view_space = getWorldLightDirection();
+  light_direction_view_space = Matrix4::Dot(matModelViewInverseTranspose, light_direction_view_space);
+  light_direction_view_space.normalize();
+
+  return light_direction_view_space;
+}
+
 void KRDirectionalLight::render(RenderInfo& ri)
 {
   ri.reflectedObjects.push_back(this);
@@ -136,14 +149,6 @@ void KRDirectionalLight::render(RenderInfo& ri)
 
     std::vector<KRDirectionalLight*> this_light;
     this_light.push_back(this);
-
-    Matrix4 matModelViewInverseTranspose = ri.viewport->getViewMatrix() * getModelMatrix();
-    matModelViewInverseTranspose.transpose();
-    matModelViewInverseTranspose.invert();
-
-    Vector3 light_direction_view_space = getWorldLightDirection();
-    light_direction_view_space = Matrix4::Dot(matModelViewInverseTranspose, light_direction_view_space);
-    light_direction_view_space.normalize();
 
     KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
@@ -159,13 +164,10 @@ void KRDirectionalLight::render(RenderInfo& ri)
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
     KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-    if (pShader) {
-      pShader->setPushConstant(ShaderValue::light_direction_view_space, light_direction_view_space);
-      if (pShader->bind(ri, getModelMatrix())) { // TODO: Need to pass in the light index to the shader
-        // Render a full screen quad
-        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-      }
+    if (pShader && pShader->bind(ri, getModelMatrix())) { // TODO: Need to pass in the light index to the shader
+      // Render a full screen quad
+      m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+      vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
     }
   }
 
