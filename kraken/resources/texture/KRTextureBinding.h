@@ -42,7 +42,7 @@ class KRTextureBinding : public KRResourceBinding
 public:
   KRTextureBinding(const std::string& name, KRTexture::texture_usage_t usage);
   KRTextureBinding(KRTexture::texture_usage_t usage);
-  KRTexture* get();
+  KRTexture* get() const;
 
   bool bind(KRContext* context) override final;
 private:

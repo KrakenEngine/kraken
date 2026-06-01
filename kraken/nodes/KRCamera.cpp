@@ -90,7 +90,6 @@ KRCamera::KRCamera(KRScene& scene, std::string name)
   m_frame_times_filled = 0;
 
   m_fade_color = Vector4::Zero();
-  m_fontTexture.set("font");
 
   m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), true, KRMeshManager::KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -146,13 +145,13 @@ void KRCamera::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 
 void KRCamera::render(KRNode::RenderInfo& ri)
 {
-  KRScene& scene = getScene();
+  ri.reflectedObjects.push_back(this);
 
   switch (ri.renderPass->getType()) {
   case RenderPassType::RENDER_PASS_FORWARD_OPAQUE:
     {
       // ----====---- Sky Box ----====----
-
+    
       GL_PUSH_GROUP_MARKER("Sky Box");
 
       if (m_skyBox.val.isBound()) {
@@ -210,7 +209,10 @@ void KRCamera::render(KRNode::RenderInfo& ri)
   default:
     break;
   }
+
+  ri.reflectedObjects.pop_back();
   
+  KRScene& scene = getScene();
   scene.render(ri);
 
   switch (ri.renderPass->getType()) {
@@ -479,21 +481,13 @@ void KRCamera::renderPost(RenderInfo& ri)
 
 void KRCamera::renderDebug(RenderInfo& ri)
 {
+  settings.m_debug_text = "Font Test"; // FNIDME!! KIPG!! HACK!! Debug text debugging...
+
   const char* szText = settings.m_debug_text.c_str();
   if (*szText == '\0') {
     if (m_debug_text_vertices.getSize() > 0) {
       m_debug_text_vertices = Block();
     }
-    return;
-  }
-
-  if (!m_fontTexture.isBound())
-  {
-    return;
-  }
-
-  KRTexture* fontTexture = m_fontTexture.get();
-  if (fontTexture->getStreamLevel() == kraken_stream_level::STREAM_LEVEL_OUT) {
     return;
   }
 
@@ -631,7 +625,6 @@ void KRCamera::renderDebug(RenderInfo& ri)
   info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
   KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
-  fontShader->setImageBinding("fontTexture", fontTexture, getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
   if (fontShader->bind(ri, Matrix4())) {
     
     m_debug_text_vbo_data.bind(ri.commandBuffer);
@@ -859,8 +852,17 @@ bool KRCamera::getShaderValue(ShaderValue value, hydra::Vector4* output) const
   default:
     return KRNode::getShaderValue(value, output);
   }
+}
 
-  
+bool KRCamera::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
+{
+  if (name == "fontTexture") {
+    *binding = &m_fontTexture;
+    *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
+    return true;
+  } else {
+    return KRNode::getImageBinding(name, binding, sample);
+  }
 }
 
 bool KRCamera::alwaysStreamResources()

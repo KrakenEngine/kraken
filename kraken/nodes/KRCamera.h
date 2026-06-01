@@ -86,6 +86,7 @@ public:
 
 protected:
   bool getShaderValue(ShaderValue value, hydra::Vector4* output) const override;
+  bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const override;
 
 private:
   void createBuffers(int renderBufferWidth, int renderBufferHeight);

@@ -533,6 +533,42 @@ bool KRPipeline::hasPushConstant(ShaderValue location) const
 }
 
 
+bool KRPipeline::setImageBindings(const std::vector<const KRReflectedObject*> objects)
+{
+  bool success = true;
+
+  for (int stage = 0; stage < static_cast<size_t>(ShaderStage::ShaderStageCount); stage++) {
+    StageInfo& stageInfo = m_stages[stage];
+    for (DescriptorSetInfo& descriptorSetInfo : stageInfo.descriptorSets) {
+      for (DescriptorBinding& binding : descriptorSetInfo.bindings) {
+        ImageDescriptorInfo* image = std::get_if<ImageDescriptorInfo>(&binding);
+        if (image) {
+          bool found = false;
+          const KRTextureBinding* binding = nullptr;
+          for (const KRReflectedObject* object : objects) {
+            KRSampler* sampler = nullptr;
+            if (object->getImageBinding(image->name, &binding, &sampler)) {
+              if (binding->isBound() && binding->get()->getStreamLevel() > kraken_stream_level::STREAM_LEVEL_OUT) {
+                image->texture = binding->get();
+                image->sampler = sampler;
+                found = true;
+              }
+              break;
+            }
+          }
+
+          if (!found) {
+            success = false;
+            KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Image binding not found: %s", image->name.c_str());
+          }
+        }
+      }
+    }
+  }
+
+  return success;
+}
+
 bool KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> objects)
 {
   bool success = true;
@@ -642,31 +678,10 @@ void KRPipeline::updateDescriptorBinding()
 
 bool KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  KRDirectionalLight* directionalLight = nullptr;
-  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
-    if (!ri.directional_lights.empty())
-    {
-      directionalLight = ri.directional_lights.front();
-    }
-  }
-  
-  KRModelView modelView(ri.viewport, matModel, directionalLight);
-
-  ri.reflectedObjects.push_back(&modelView);
-  ri.reflectedObjects.push_back(ri.viewport);
-  ri.reflectedObjects.push_back(&ri.camera->settings);
-
-  bool success = setPushConstants(ri.reflectedObjects);
-
-  ri.reflectedObjects.pop_back();
-  ri.reflectedObjects.pop_back();
-  ri.reflectedObjects.pop_back();
-
-  setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
-  
-  if (!success) {
+  if (!setPushConstants(ri.reflectedObjects)) {
     return false;
   }
+  setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
   
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;
@@ -680,19 +695,44 @@ bool KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
 
 bool KRPipeline::bind(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  updateDescriptorBinding();
-  updateDescriptorSets();
-  bindDescriptorSets(ri.commandBuffer);
-  if (!updatePushConstants(ri, matModel)) {
-    return false;
+  bool success = true;
+  KRDirectionalLight* directionalLight = nullptr;
+  if (ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_LIGHTS && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_GBUFFER && ri.renderPass->getType() != RenderPassType::RENDER_PASS_DEFERRED_OPAQUE && ri.renderPass->getType() != RenderPassType::RENDER_PASS_SHADOWMAP) {
+    if (!ri.directional_lights.empty()) {
+      directionalLight = ri.directional_lights.front();
+    }
   }
 
-  if (ri.pipeline != this) {
-    vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
-    ri.pipeline = this;
+  KRModelView modelView(ri.viewport, matModel, directionalLight);
+
+  ri.reflectedObjects.push_back(&modelView);
+  ri.reflectedObjects.push_back(ri.viewport);
+  ri.reflectedObjects.push_back(&ri.camera->settings);
+
+  if (success) {
+    success = updatePushConstants(ri, matModel);
   }
 
-  return true;
+  if (success) {
+    success = setImageBindings(ri.reflectedObjects);
+  }
+
+  if (success) {
+    updateDescriptorBinding();
+    updateDescriptorSets();
+    bindDescriptorSets(ri.commandBuffer);
+
+    if (ri.pipeline != this) {
+      vkCmdBindPipeline(ri.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+      ri.pipeline = this;
+    }
+  }
+
+  ri.reflectedObjects.pop_back();
+  ri.reflectedObjects.pop_back();
+  ri.reflectedObjects.pop_back();
+
+  return success;
 }
 
 void KRPipeline::updateDescriptorSets()

@@ -33,9 +33,12 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include "hydra.h"
 
 class KRResourceBinding;
+class KRSampler;
+class KRTextureBinding;
 
 enum class ShaderValueType : uint8_t
 {
@@ -221,6 +224,7 @@ class KRReflectedObject
 {
 public:
   bool getShaderValue(ShaderValue value, ShaderValueType type, void* output) const;
+  virtual bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const;
 protected:
   virtual bool getShaderValue(ShaderValue value, bool* output) const;
   virtual bool getShaderValue(ShaderValue value, int32_t* output) const;

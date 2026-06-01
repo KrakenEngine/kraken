@@ -46,7 +46,7 @@ KRTextureBinding::KRTextureBinding(KRTexture::texture_usage_t usage)
 
 }
 
-KRTexture* KRTextureBinding::get()
+KRTexture* KRTextureBinding::get() const
 {
   return static_cast<KRTexture*>(m_resource);
 }

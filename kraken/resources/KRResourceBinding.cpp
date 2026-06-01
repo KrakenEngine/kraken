@@ -60,7 +60,7 @@ void KRResourceBinding::submitRequest(KRContext* context, std::list<KRResourceRe
   }
 }
 
-KRResource* KRResourceBinding::get()
+KRResource* KRResourceBinding::get() const
 {
   return m_resource;
 }

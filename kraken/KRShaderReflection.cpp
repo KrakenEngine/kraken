@@ -308,3 +308,8 @@ bool KRReflectedObject::getShaderValue(ShaderValue value, KRResourceBinding* out
 {
   return false;
 }
+
+bool KRReflectedObject::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
+{
+  return false;
+}

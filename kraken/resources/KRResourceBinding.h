@@ -47,7 +47,7 @@ public:
 
   void submitRequest(KRContext* context, std::list<KRResourceRequest>& resourceRequests, float lodCoverage = 0.f);
 
-  KRResource* get();
+  KRResource* get() const;
   void set(KRResource* resource);
   void set(const std::string& name);
   bool isSet() const;
