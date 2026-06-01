@@ -154,24 +154,19 @@ void KRCamera::render(KRNode::RenderInfo& ri)
     
       GL_PUSH_GROUP_MARKER("Sky Box");
 
-      if (m_skyBox.val.isBound()) {
+      std::string shader_name("sky_box");
+      PipelineInfo info{};
+      info.shader_name = &shader_name;
+      info.pCamera = this;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
+      info.cullMode = CullMode::kCullNone;
 
-        std::string shader_name("sky_box");
-        PipelineInfo info{};
-        info.shader_name = &shader_name;
-        info.pCamera = this;
-        info.renderPass = ri.renderPass;
-        info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
-        info.cullMode = CullMode::kCullNone;
-
-        KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pPipeline->setImageBinding("diffuseTexture", m_skyBox.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-        if (pPipeline->bind(ri, Matrix4())) {
-          
-          // Render a full screen quad
-          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
-          vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-        }
+      KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+      if (pPipeline && pPipeline->bind(ri, Matrix4())) {
+        // Render a full screen quad
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES, 1.0f);
+        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
       }
 
       GL_POP_GROUP_MARKER;
@@ -625,7 +620,7 @@ void KRCamera::renderDebug(RenderInfo& ri)
   info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
   KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
-  if (fontShader->bind(ri, Matrix4())) {
+  if (fontShader && fontShader->bind(ri, Matrix4())) {
     
     m_debug_text_vbo_data.bind(ri.commandBuffer);
     
@@ -860,6 +855,11 @@ bool KRCamera::getImageBinding(const std::string& name, const KRTextureBinding**
     *binding = &m_fontTexture;
     *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
     return true;
+  } else if (name == "skyboxTexture") {
+    *binding = &m_skyBox.val;
+    *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
+    return true;
+    
   } else {
     return KRNode::getImageBinding(name, binding, sample);
   }

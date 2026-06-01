@@ -131,7 +131,7 @@ void KRReverbZone::render(RenderInfo& ri)
       info.vertexAttributes = sphereModel->getVertexAttributes();
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      if (pShader->bind(ri, sphereModelMatrix)) {
+      if (pShader && pShader->bind(ri, sphereModelMatrix)) {
         sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
       }
     } // sphereModel

@@ -226,14 +226,15 @@ void KRLight::render(RenderInfo& ri)
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-        
-        pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color.val * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-        pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-        if (pParticleShader->bind(ri, particleModelMatrix)) { // TODO: Pass light index to shader
-        
-          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
-          
-          vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+        if (pParticleShader) {
+          pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color.val * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
+          pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
+          if (pParticleShader->bind(ri, particleModelMatrix)) { // TODO: Pass light index to shader
+
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+
+            vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
+          }
         }
       }
     }
@@ -259,6 +260,12 @@ void KRLight::render(RenderInfo& ri)
       this_point_light.push_back(point_light);
     }
 
+    int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
+
+    float slice_near = -ri.camera->settings.getPerspectiveNearZ();
+    float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
+    float slice_spacing = (slice_far - slice_near) / slice_count;
+
     PipelineInfo info{};
     info.shader_name = &shader_name;
     info.pCamera = ri.camera;
@@ -272,19 +279,14 @@ void KRLight::render(RenderInfo& ri)
     info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
     KRPipeline* pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-
-    int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
-
-    float slice_near = -ri.camera->settings.getPerspectiveNearZ();
-    float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
-    float slice_spacing = (slice_far - slice_near) / slice_count;
-
-    pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
-    pFogShader->setPushConstant(ShaderValue::light_color, (m_color.val * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
-    pFogShader->bind(ri, Matrix4()); // TODO: Pass indexes of lights to shader
-
-    m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
-    vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
+    if (pFogShader) {
+      pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
+      pFogShader->setPushConstant(ShaderValue::light_color, (m_color.val * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
+      if (pFogShader->bind(ri, Matrix4())) { // TODO: Pass indexes of lights to shader
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
+        vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
+      }
+    }
 
   }
 
@@ -314,22 +316,23 @@ void KRLight::render(RenderInfo& ri)
         info.vertexAttributes = sphereModel->getVertexAttributes();
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        pPipeline->bind(ri, occlusion_test_sphere_matrix);
+        if (pPipeline && pPipeline->bind(ri, occlusion_test_sphere_matrix)) {
 
-        GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
+          GLDEBUG(glGenQueriesEXT(1, &m_occlusionQuery));
 #if TARGET_OS_IPHONE || defined(ANDROID)
-        GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
+          GLDEBUG(glBeginQueryEXT(GL_ANY_SAMPLES_PASSED_EXT, m_occlusionQuery));
 #else
-        GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
+          GLDEBUG(glBeginQuery(GL_SAMPLES_PASSED, m_occlusionQuery));
 #endif
 
-        sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "occlusion_test", 1.0f);
+          sphereModel->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "occlusion_test", 1.0f);
 
 #if TARGET_OS_IPHONE || defined(ANDROID)
-        GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
+          GLDEBUG(glEndQueryEXT(GL_ANY_SAMPLES_PASSED_EXT));
 #else
-        GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
+          GLDEBUG(glEndQuery(GL_SAMPLES_PASSED));
 #endif
+        }
       }
 
     }
@@ -362,11 +365,13 @@ void KRLight::render(RenderInfo& ri)
 
 
             KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            pShader->setImageBinding("diffuseTexture", m_flareTexture.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-            pShader->bind(ri, getModelMatrix());
-
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-            vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+            if (pShader) {
+              pShader->setImageBinding("diffuseTexture", m_flareTexture.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
+              if (pShader->bind(ri, getModelMatrix())) {
+                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+                vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
+              }
+            }
           }
       }
     }
@@ -464,6 +469,9 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
 
       GLDEBUG(glDisable(GL_DITHER));
 
+
+      ri.viewport = &m_shadowViewports[iShadow];
+
       // Use shader program
       PipelineInfo info{};
       std::string shader_name("ShadowShader");
@@ -474,8 +482,8 @@ void KRLight::renderShadowBuffers(RenderInfo& ri)
       info.cullMode = CullMode::kCullNone; // Disabling culling, which eliminates some self-cast shadow artifacts
       KRPipeline* shadowShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
 
-      ri.viewport = &m_shadowViewports[iShadow];
-      if (shadowShader->bind(ri, Matrix4())) {
+      
+      if (shadowShader && shadowShader->bind(ri, Matrix4())) {
         getScene().render(ri);
       }
     }

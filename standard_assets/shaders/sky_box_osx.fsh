@@ -32,10 +32,10 @@
 
 out vec4 colorOut;
 
-uniform samplerCube diffuseTexture;
+uniform samplerCube skyboxTexture;
 
 in mediump vec3 texCoord;
 
 void main() {
-    colorOut = textureCube(diffuseTexture, normalize(texCoord));
+    colorOut = textureCube(skyboxTexture, normalize(texCoord));
 }

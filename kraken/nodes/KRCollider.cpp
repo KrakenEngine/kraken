@@ -222,7 +222,7 @@ void KRCollider::render(RenderInfo& ri)
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 
-      if (pShader->bind(ri, getModelMatrix())) {
+      if (pShader && pShader->bind(ri, getModelMatrix())) {
         m_model.val.get()->renderNoMaterials(ri.commandBuffer, ri.renderPass, getName(), "visualize_overlay", 1.0f);
       }
 

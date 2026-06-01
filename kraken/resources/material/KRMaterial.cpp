@@ -788,6 +788,9 @@ bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   info.vertexAttributes = vertexAttributes;
   info.cullMode = cullMode;
   KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+  if (pShader == nullptr) {
+    return false;
+  }
 
   // Bind bones
   if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {

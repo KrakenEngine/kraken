@@ -116,7 +116,7 @@ void KRPointLight::render(RenderInfo& ri)
       info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-      if (pShader->bind(ri, sphereModelMatrix)) { // TODO: Pass light index to shader
+      if (pShader && pShader->bind(ri, sphereModelMatrix)) { // TODO: Pass light index to shader
         
         if (bInsideLight) {
           // Render a full screen quad
