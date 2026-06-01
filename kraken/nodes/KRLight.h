@@ -78,6 +78,7 @@ protected:
 
   bool getShaderValue(ShaderValue value, float* output) const override;
   bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
+  bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const final;
 
   // Properties
   KRNODE_PROPERTY(float, m_decayStart, 0.f, "decay_start");

@@ -859,7 +859,6 @@ bool KRCamera::getImageBinding(const std::string& name, const KRTextureBinding**
     *binding = &m_skyBox.val;
     *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
     return true;
-    
   } else {
     return KRNode::getImageBinding(name, binding, sample);
   }

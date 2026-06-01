@@ -843,20 +843,3 @@ VkPipeline& KRPipeline::getPipeline()
   return m_graphicsPipeline;
 }
 
-void KRPipeline::setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler)
-{
-  for (int stage = 0; stage < static_cast<size_t>(ShaderStage::ShaderStageCount); stage++) {
-    StageInfo& stageInfo = m_stages[stage];
-    for (DescriptorSetInfo& descriptorSetInfo : stageInfo.descriptorSets) {
-      for (DescriptorBinding& binding : descriptorSetInfo.bindings) {
-        ImageDescriptorInfo* image = std::get_if<ImageDescriptorInfo>(&binding);
-        if (image) {
-          if (image->name == name) {
-            image->texture = texture;
-            image->sampler = sampler;
-          }
-        }
-      }
-    }
-  }
-}

@@ -232,8 +232,6 @@ public:
   void setPushConstant(ShaderValue location, const hydra::Matrix4& value);
   void setPushConstant(ShaderValue location, const hydra::Matrix4* value, const size_t count);
 
-  void setImageBinding(const std::string& name, KRTexture* texture, KRSampler* sampler);
-
   VkPipeline& getPipeline();
   void bindDescriptorSets(VkCommandBuffer& commandBuffer);
 

@@ -825,28 +825,6 @@ bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
     }
   }
 
-  if (bDiffuseMap) {
-    pShader->setImageBinding("diffuseTexture", m_baseColorMap.texture.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
-  }
-
-  if (bSpecMap) {
-    pShader->setImageBinding("specularTexture", m_specularColorMap.texture.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
-  }
-
-  if (bNormalMap) {
-    pShader->setImageBinding("normalTexture", m_normalMap.texture.get(), getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER);
-  }
-
-  if (bReflectionCubeMap) {
-    // Deprecated by reflection cubes..
-    // pShader->setImageBinding("reflectionCubeTexture", m_reflectionCube.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-  }
-
-  if (bReflectionMap) {
-    // Deprecated by PBR model..
-    // pShader->setImageBinding("reflectionTexture", m_reflection.texture.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-  }
-
   bool success = true;
   ri.reflectedObjects.push_back(this);
   if (!pShader->bind(ri, matModel)) {
@@ -1176,5 +1154,61 @@ bool KRMaterial::getShaderValue(ShaderValue value, bool* output) const
       return true;
     default:
       return false;
+  }
+}
+
+bool KRMaterial::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
+{
+  // TODO - Need to implement sampler selection / generation system
+  if (name == "baseColorTexture") {
+    *binding = &m_baseColorMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "normalTexture") {
+    *binding = &m_normalMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "emissiveTexture") {
+    *binding = &m_emissiveMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "occlusionTexture") {
+    *binding = &m_occlusionMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "metalicRoughnessTexture") {
+    *binding = &m_metalicRoughnessMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "anisotropyTexture") {
+    *binding = &m_anisotropyMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "clearcoatTexture") {
+    *binding = &m_clearcoatMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "clearcoatNormalTexture") {
+    *binding = &m_clearcoatNormalMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "specularTexture") {
+    *binding = &m_specularMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "specularColorTexture") {
+    *binding = &m_specularColorMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "thicknessTexture") {
+    *binding = &m_thicknessMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else if (name == "transmissionTexture") {
+    *binding = &m_transmissionMap.texture;
+    *sample = getContext().getSamplerManager()->DEFAULT_WRAPPING_SAMPLER;
+    return true;
+  } else {
+    return KRReflectedObject::getImageBinding(name, binding, sample);
   }
 }

@@ -174,6 +174,7 @@ void KRLight::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 void KRLight::render(RenderInfo& ri)
 {
   KRNode::render(ri);
+  ri.reflectedObjects.push_back(this);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_SHADOWMAP && (ri.camera->settings.volumetric_environment_enable || ri.camera->settings.dust_particle_enable || (ri.camera->settings.m_cShadowBuffers > 0 && m_casts_shadow))) {
     allocateShadowBuffers(configureShadowBufferViewports(*ri.viewport));
@@ -336,6 +337,8 @@ void KRLight::render(RenderInfo& ri)
       }
 
     }
+
+    ri.reflectedObjects.pop_back();
   }
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
@@ -347,35 +350,31 @@ void KRLight::render(RenderInfo& ri)
         GLDEBUG(glDeleteQueriesEXT(1, &m_occlusionQuery));
 
         if (params) {
-            KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+          KRMeshManager::KRVBOData& vertices = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
-            // Render light flare on transparency pass
-            PipelineInfo info{};
-            std::string shader_name("flare");
-            info.shader_name = &shader_name;
-            info.pCamera = ri.camera;
-            info.point_lights = &ri.point_lights;
-            info.directional_lights = &ri.directional_lights;
-            info.spot_lights = &ri.spot_lights;
-            info.renderPass = ri.renderPass;
-            info.rasterMode = RasterMode::kAdditiveNoTest;
-            info.cullMode = CullMode::kCullNone;
-            info.vertexAttributes = vertices.getVertexAttributes();
-            info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+          // Render light flare on transparency pass
+          PipelineInfo info{};
+          std::string shader_name("flare");
+          info.shader_name = &shader_name;
+          info.pCamera = ri.camera;
+          info.point_lights = &ri.point_lights;
+          info.directional_lights = &ri.directional_lights;
+          info.spot_lights = &ri.spot_lights;
+          info.renderPass = ri.renderPass;
+          info.rasterMode = RasterMode::kAdditiveNoTest;
+          info.cullMode = CullMode::kCullNone;
+          info.vertexAttributes = vertices.getVertexAttributes();
+          info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
 
-            KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-            if (pShader) {
-              pShader->setImageBinding("diffuseTexture", m_flareTexture.val.get(), getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-              if (pShader->bind(ri, getModelMatrix())) {
-                m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-                vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-              }
-            }
+          KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+          if (pShader && pShader->bind(ri, getModelMatrix())) {
+            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+            vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
           }
+        }
       }
     }
-
   }
 }
 
@@ -550,5 +549,17 @@ bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
     return true;
   default:
     return KRNode::getShaderValue(value, output);
+  }
+}
+
+
+bool KRLight::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
+{
+  if (name == "flareTexture") {
+    *binding = &m_flareTexture.val;
+    *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
+    return true;
+  } else {
+    return KRNode::getImageBinding(name, binding, sample);
   }
 }

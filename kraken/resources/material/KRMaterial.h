@@ -190,4 +190,5 @@ private:
   bool getShaderValue(ShaderValue value, KRResourceBinding* output) const final;
   bool getShaderValue(ShaderValue value, int64_t* output) const final;
   bool getShaderValue(ShaderValue value, bool* output) const final;
+  bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const final;
 };

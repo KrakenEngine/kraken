@@ -113,39 +113,36 @@ void KRSprite::getResourceBindings(std::list<KRResourceBinding*>& bindings)
 void KRSprite::render(RenderInfo& ri)
 {
   KRNode::render(ri);
+  ri.reflectedObjects.push_back(this);
 
   if (ri.renderPass->getType() == RenderPassType::RENDER_PASS_ADDITIVE_PARTICLES) {
     if (m_spriteAlpha > 0.0f) {
-      if (m_spriteTexture.val.isBound()) {
-        // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
+      // TODO - Sprites are currently additive only.  Need to expose this and allow for multiple blending modes
 
-        KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+      KRMeshManager::KRVBOData& vertices = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
 
-        // Render light sprite on transparency pass
-        PipelineInfo info{};
-        std::string shader_name("sprite");
-        info.shader_name = &shader_name;
-        info.pCamera = ri.camera;
-        info.point_lights = &ri.point_lights;
-        info.directional_lights = &ri.directional_lights;
-        info.spot_lights = &ri.spot_lights;
-        info.renderPass = ri.renderPass;
-        info.rasterMode = RasterMode::kAdditive;
-        info.cullMode = CullMode::kCullNone;
-        info.vertexAttributes = vertices.getVertexAttributes();
-        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+      // Render light sprite on transparency pass
+      PipelineInfo info{};
+      std::string shader_name("sprite");
+      info.shader_name = &shader_name;
+      info.pCamera = ri.camera;
+      info.point_lights = &ri.point_lights;
+      info.directional_lights = &ri.directional_lights;
+      info.spot_lights = &ri.spot_lights;
+      info.renderPass = ri.renderPass;
+      info.rasterMode = RasterMode::kAdditive;
+      info.cullMode = CullMode::kCullNone;
+      info.vertexAttributes = vertices.getVertexAttributes();
+      info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
 
-        KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
-        if (pShader) {
-          pShader->setImageBinding("diffuseTexture", m_spriteTexture.val.get(), m_pContext->getSamplerManager()->DEFAULT_CLAMPED_SAMPLER);
-          if (pShader->bind(ri, getModelMatrix())) {
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
-            vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
-          }
-        }
+      KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
+      if (pShader && pShader->bind(ri, getModelMatrix())) {
+        m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &vertices, 1.0f);
+        vkCmdDraw(ri.commandBuffer, 4, 1, 0, 0);
       }
     }
   }
+  ri.reflectedObjects.pop_back();
 }
 
 bool KRSprite::getShaderValue(ShaderValue value, float* output) const
@@ -153,5 +150,16 @@ bool KRSprite::getShaderValue(ShaderValue value, float* output) const
   switch (value) {
     default:
       return KRNode::getShaderValue(value, output);
+  }
+}
+
+bool KRSprite::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
+{
+  if (name == "spriteTexture") {
+    *binding = &m_spriteTexture.val;
+    *sample = getContext().getSamplerManager()->DEFAULT_CLAMPED_SAMPLER;
+    return true;
+  } else {
+    return KRNode::getImageBinding(name, binding, sample);
   }
 }
