@@ -37,6 +37,8 @@
 
 #include "mimir.h"
 
+#include <format>
+
 using namespace mimir;
 using namespace hydra;
 
@@ -453,14 +455,14 @@ KRBundle* KRResource::LoadGltf(KRContext& context, const std::string& path)
 
   if (error) {
     // TODO - Report and handle error
-    return;
+    return nullptr;
   }
   
   ondemand::object jsonRoot;
   error = doc.get_object().get(jsonRoot);
   if (error) {
     // TODO - Report and handle error
-    return;
+    return nullptr;
   }
 
   simdjson::ondemand::array jsonBuffers;
