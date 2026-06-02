@@ -820,9 +820,12 @@ bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
         *bone_mat_component++ = t[i];
       }
     }
+    /*
+    * TODO: Implement Skinned Mesh bone transform buffer upload
     if (pShader->hasPushConstant(ShaderValue::bone_transforms)) {
       pShader->setPushConstant(ShaderValue::bone_transforms, (Matrix4*)bone_mats, bones.size());
     }
+    */
   }
 
   bool success = true;

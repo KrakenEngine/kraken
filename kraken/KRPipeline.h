@@ -224,13 +224,6 @@ public:
   bool setImageBindings(const std::vector<const KRReflectedObject*> objects);
   bool setPushConstants(const KRCamera* camera, const std::vector<const KRReflectedObject*> objects);
   bool hasPushConstant(ShaderValue location) const;
-  void setPushConstant(ShaderValue location, float value);
-  void setPushConstant(ShaderValue location, int value);
-  void setPushConstant(ShaderValue location, const hydra::Vector2& value);
-  void setPushConstant(ShaderValue location, const hydra::Vector3& value);
-  void setPushConstant(ShaderValue location, const hydra::Vector4& value);
-  void setPushConstant(ShaderValue location, const hydra::Matrix4& value);
-  void setPushConstant(ShaderValue location, const hydra::Matrix4* value, const size_t count);
 
   VkPipeline& getPipeline();
   void bindDescriptorSets(VkCommandBuffer& commandBuffer);

@@ -585,7 +585,7 @@ bool KRPipeline::setPushConstants(const KRCamera* camera, const std::vector<cons
             break;
           }
         }
-        if(!found) {
+        if (!found) {
           success = false;
           KRContext::Log(KRContext::LOG_LEVEL_ERROR, "Push constant not found: %s", getShaderValueName(i));
         }
@@ -593,82 +593,6 @@ bool KRPipeline::setPushConstants(const KRCamera* camera, const std::vector<cons
     }
   }
   return success;
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, float value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      float* constant = (float*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-
-void KRPipeline::setPushConstant(ShaderValue location, int value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      int* constant = (int*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, const Vector2& value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector2* constant = (Vector2*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, const Vector3& value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector3* constant = (Vector3*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, const Vector4& value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Vector4* constant = (Vector4*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, const Matrix4& value)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    if (pushConstants.size[static_cast<size_t>(location)] == sizeof(value)) {
-      Matrix4* constant = (Matrix4*)(pushConstants.buffer + pushConstants.offset[static_cast<size_t>(location)]);
-      *constant = value;
-    }
-  }
-}
-
-void KRPipeline::setPushConstant(ShaderValue location, const Matrix4* value, const size_t count)
-{
-  for (StageInfo& stageInfo : m_stages) {
-    PushConstantInfo& pushConstants = stageInfo.pushConstants;
-    // TODO - Vulkan refactoring
-    // GLDEBUG(glUniformMatrix4fv(pushConstants.offset[KRPipeline::PushConstant::bone_transforms], (int)bones.size(), GL_FALSE, bone_mats));
-  }
 }
 
 void KRPipeline::updateDescriptorBinding()
