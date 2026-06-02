@@ -628,6 +628,7 @@ void KRPipeline::setPushConstant(ShaderValue location, const Vector2& value)
     }
   }
 }
+
 void KRPipeline::setPushConstant(ShaderValue location, const Vector3& value)
 {
   for (StageInfo& stageInfo : m_stages) {
@@ -681,7 +682,6 @@ bool KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matM
   if (!setPushConstants(ri.camera, ri.reflectedObjects)) {
     return false;
   }
-  setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());
   
   for (StageInfo& stageInfo : m_stages) {
     PushConstantInfo& pushConstants = stageInfo.pushConstants;

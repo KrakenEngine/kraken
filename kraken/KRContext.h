@@ -58,7 +58,7 @@ class KRUniformBufferManager;
 class KRSurfaceManager;
 class KRSamplerManager;
 
-class KRContext
+class KRContext : public KRReflectedObject
 {
 public:
   static int KRENGINE_MAX_PIPELINE_HANDLES;
@@ -223,4 +223,6 @@ private:
   std::unique_ptr<KRPresentationThread> m_presentationThread;
 
   unordered_map<KrSurfaceMapIndex, KrSurfaceHandle> m_surfaceHandleMap;
+
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const;
 };

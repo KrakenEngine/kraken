@@ -914,3 +914,17 @@ KrResult KRContext::getMappedResource(KrResourceMapIndex resourceHandle, KRResou
   }
   return KR_SUCCESS;
 }
+
+
+bool KRContext::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
+{
+  switch (value)
+  {
+  case ShaderValue::absolute_time:
+    *output = getAbsoluteTime();
+    return true;
+  default:
+    break;
+  }
+  return KRReflectedObject::getShaderValue(camera, value, output);
+}

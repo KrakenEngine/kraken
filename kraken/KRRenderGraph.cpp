@@ -161,6 +161,7 @@ KRRenderPass* KRRenderGraph::getFinalRenderPass()
 void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, KRCamera* camera)
 {
   KRNode::RenderInfo ri(commandBuffer);
+  ri.reflectedObjects.push_back(&getContext());
   ri.camera = camera;
   if (camera) {
     ri.viewport = camera->getViewport();
@@ -177,6 +178,7 @@ void KRRenderGraph::render(VkCommandBuffer &commandBuffer, KRSurface& surface, K
     }
     pass->end(commandBuffer);
   }
+  ri.reflectedObjects.pop_back();
 }
 
 void KRRenderGraph::destroy(KRDevice& device)
