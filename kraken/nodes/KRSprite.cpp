@@ -145,11 +145,11 @@ void KRSprite::render(RenderInfo& ri)
   ri.reflectedObjects.pop_back();
 }
 
-bool KRSprite::getShaderValue(ShaderValue value, float* output) const
+bool KRSprite::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   switch (value) {
     default:
-      return KRNode::getShaderValue(value, output);
+      return KRNode::getShaderValue(camera, value, output);
   }
 }
 

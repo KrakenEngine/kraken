@@ -219,92 +219,92 @@ const char* getShaderValueName(int index)
   return SHADER_VALUE_NAMES[index];
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, ShaderValueType type, void* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, ShaderValueType type, void* output) const
 {
   switch (type) {
   case ShaderValueType::type_bool:
-    return getShaderValue(value, static_cast<bool*>(output));
+    return getShaderValue(camera, value, static_cast<bool*>(output));
   case ShaderValueType::type_int32:
-    return getShaderValue(value, static_cast<int32_t*>(output));
+    return getShaderValue(camera, value, static_cast<int32_t*>(output));
   case ShaderValueType::type_int64:
-    return getShaderValue(value, static_cast<int64_t*>(output));
+    return getShaderValue(camera, value, static_cast<int64_t*>(output));
   case ShaderValueType::type_float32:
-    return getShaderValue(value, static_cast<float*>(output));
+    return getShaderValue(camera, value, static_cast<float*>(output));
   case ShaderValueType::type_float64:
-    return getShaderValue(value, static_cast<double*>(output));
+    return getShaderValue(camera, value, static_cast<double*>(output));
   case ShaderValueType::type_vector2:
-    return getShaderValue(value, static_cast<Vector2*>(output));
+    return getShaderValue(camera, value, static_cast<Vector2*>(output));
   case ShaderValueType::type_vector3:
-    return getShaderValue(value, static_cast<Vector3*>(output));
+    return getShaderValue(camera, value, static_cast<Vector3*>(output));
   case ShaderValueType::type_vector4:
-    return getShaderValue(value, static_cast<Vector4*>(output));
+    return getShaderValue(camera, value, static_cast<Vector4*>(output));
   case ShaderValueType::type_matrix2:
-    return getShaderValue(value, static_cast<Matrix2*>(output));
+    return getShaderValue(camera, value, static_cast<Matrix2*>(output));
   case ShaderValueType::type_matrix2x3:
-    return getShaderValue(value, static_cast<Matrix2x3*>(output));
+    return getShaderValue(camera, value, static_cast<Matrix2x3*>(output));
   case ShaderValueType::type_matrix4:
-    return getShaderValue(value, static_cast<Matrix4*>(output));
+    return getShaderValue(camera, value, static_cast<Matrix4*>(output));
   default:
     return false;
   }
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, bool* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, bool* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, int32_t* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, int32_t* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, int64_t* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, int64_t* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, float* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, double* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, double* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector2* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Vector4* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix2* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix2* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix2x3* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix2x3* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, hydra::Matrix4* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix4* output) const
 {
   return false;
 }
 
-bool KRReflectedObject::getShaderValue(ShaderValue value, KRResourceBinding* output) const
+bool KRReflectedObject::getShaderValue(const KRCamera* camera, ShaderValue value, KRResourceBinding* output) const
 {
   return false;
 }

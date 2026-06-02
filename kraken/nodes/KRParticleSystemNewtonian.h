@@ -52,7 +52,7 @@ public:
   virtual void physicsUpdate(float deltaTime) override;
   virtual bool hasPhysics() override;
 protected:
-  bool getShaderValue(ShaderValue value, float* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const override;
 private:
   float m_particlesAbsoluteTime;
 };

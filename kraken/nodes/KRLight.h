@@ -36,6 +36,7 @@
 #include "resources/texture/KRTextureBinding.h"
 
 static const float KRLIGHT_MIN_INFLUENCE = 0.15f; // 0.05f
+static const float KRLIGHT_PARTICLE_RANGE = 600.0f;
 
 // KRENGINE_MAX_SHADOW_BUFFERS must be at least 6 to allow omni-directional lights to render cube maps
 
@@ -76,8 +77,9 @@ public:
 protected:
   KRLight(KRScene& scene, std::string name);
 
-  bool getShaderValue(ShaderValue value, float* output) const override;
-  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const override;
   bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const final;
 
   // Properties
@@ -107,4 +109,9 @@ protected:
 
   virtual int configureShadowBufferViewports(const KRViewport& viewport);
   void renderShadowBuffers(RenderInfo& ri);
+
+private:
+  hydra::Matrix4 getParticleModelMatrix(const KRViewport& viewport) const;
+  int getParticleCount() const;
+  int getSliceCount(const KRCamera* camera) const;
 };

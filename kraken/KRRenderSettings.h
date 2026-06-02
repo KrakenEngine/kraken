@@ -48,8 +48,8 @@ public:
   const hydra::Vector2& getViewportSize();
   void setViewportSize(const hydra::Vector2& size);
 
-  float getPerspectiveNearZ();
-  float getPerspectiveFarZ();
+  float getPerspectiveNearZ() const;
+  float getPerspectiveFarZ() const;
   void setPerspectiveNear(float v);
   void setPerpsectiveFarZ(float v);
 
@@ -137,6 +137,6 @@ private:
   float m_lodBias;
   bool m_enable_realtime_occlusion;
 
-  bool getShaderValue(ShaderValue value, float* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const final;
 };

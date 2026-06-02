@@ -59,7 +59,7 @@ public:
 
 protected:
 
-  bool getShaderValue(ShaderValue value, float* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const override;
   bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const final;
 
   KRNODE_PROPERTY(KRTextureBinding, m_spriteTexture, KRTexture::TEXTURE_USAGE_SPRITE, "sprite_texture");

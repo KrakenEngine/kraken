@@ -183,11 +183,12 @@ void KRRenderSettings::setViewportSize(const Vector2& size)
   m_viewportSize = size;
 }
 
-float KRRenderSettings::getPerspectiveNearZ()
+float KRRenderSettings::getPerspectiveNearZ() const
 {
   return perspective_nearz;
 }
-float KRRenderSettings::getPerspectiveFarZ()
+
+float KRRenderSettings::getPerspectiveFarZ() const
 {
   return perspective_farz;
 }
@@ -225,7 +226,7 @@ void KRRenderSettings::setEnableRealtimeOcclusion(bool enable)
   m_enable_realtime_occlusion = enable;
 }
 
-bool KRRenderSettings::getShaderValue(ShaderValue value, float* output) const
+bool KRRenderSettings::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   switch (value) {
   case ShaderValue::fog_near:
@@ -251,7 +252,7 @@ bool KRRenderSettings::getShaderValue(ShaderValue value, float* output) const
   }
 }
 
-bool KRRenderSettings::getShaderValue(ShaderValue value, Vector3* output) const
+bool KRRenderSettings::getShaderValue(const KRCamera* camera, ShaderValue value, Vector3* output) const
 {
   switch (value) {
   case ShaderValue::fog_color:

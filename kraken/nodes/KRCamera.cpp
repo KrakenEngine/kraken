@@ -823,9 +823,14 @@ std::string KRCamera::getDebugText()
 }
 
 
-KRViewport* KRCamera::getViewport()
+const KRViewport* KRCamera::getViewport() const
 {
   return &m_viewport;
+}
+
+const KRRenderSettings* KRCamera::getSettings() const
+{
+  return &settings;
 }
 
 void KRCamera::setFadeColor(const Vector4& fade_color)
@@ -838,14 +843,14 @@ Vector4 KRCamera::getFadeColor()
   return m_fade_color;
 }
 
-bool KRCamera::getShaderValue(ShaderValue value, hydra::Vector4* output) const
+bool KRCamera::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const
 {
   switch (value)     {
   case ShaderValue::fade_color:
     *output = m_fade_color;
     return true;
   default:
-    return KRNode::getShaderValue(value, output);
+    return KRNode::getShaderValue(camera, value, output);
   }
 }
 

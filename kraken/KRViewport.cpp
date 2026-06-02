@@ -55,7 +55,7 @@ KRViewport::KRViewport(const Vector2& size, const Matrix4& matView, const Matrix
   calculateDerivedValues();
 }
 
-bool KRViewport::getShaderValue(ShaderValue value, Matrix4* output) const
+bool KRViewport::getShaderValue(const KRCamera* camera, ShaderValue value, Matrix4* output) const
 {
   switch (value) {
     case ShaderValue::projection_matrix:
@@ -69,7 +69,7 @@ bool KRViewport::getShaderValue(ShaderValue value, Matrix4* output) const
   }
 }
 
-bool KRViewport::getShaderValue(ShaderValue value, Vector4* output) const
+bool KRViewport::getShaderValue(const KRCamera* camera, ShaderValue value, Vector4* output) const
 {
   switch (value) {
     case ShaderValue::viewport:

@@ -171,6 +171,31 @@ void KRLight::getResourceBindings(std::list<KRResourceBinding*>& bindings)
   bindings.push_back(&m_flareTexture.val);
 }
 
+Matrix4 KRLight::getParticleModelMatrix(const KRViewport& viewport) const
+{
+  Matrix4 particleModelMatrix;
+  particleModelMatrix.scale(KRLIGHT_PARTICLE_RANGE);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
+  particleModelMatrix.translate(viewport.getCameraPosition());
+
+  return particleModelMatrix;
+}
+
+int KRLight::getParticleCount() const
+{
+  int particle_count = (int)(m_dust_particle_density * pow(KRLIGHT_PARTICLE_RANGE, 3));
+  if (particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) {
+    particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
+  }
+
+  return particle_count;
+}
+
+int KRLight::getSliceCount(const KRCamera* camera) const
+{
+  int slice_count = (int)(camera->getSettings()->volumetric_environment_quality * 495.0) + 5;
+  return slice_count;
+}
+
 void KRLight::render(RenderInfo& ri)
 {
   KRNode::render(ri);
@@ -186,17 +211,6 @@ void KRLight::render(RenderInfo& ri)
     if (m_cShadowBuffers >= 1 && shadowValid[0] && m_dust_particle_density > 0.0f && m_dust_particle_size > 0.0f && m_dust_particle_intensity > 0.0f) {
 
       if (ri.viewport->visible(getBounds()) || true) { // FINDME, HACK need to remove "|| true"?
-        
-        float particle_range = 600.0f;
-        
-        int particle_count = (int)(m_dust_particle_density * pow(particle_range, 3));
-        if (particle_count > KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES) {
-          particle_count = KRMeshManager::KRENGINE_MAX_RANDOM_PARTICLES;
-        }
-        
-        Matrix4 particleModelMatrix;
-        particleModelMatrix.scale(particle_range);  // Scale the box symetrically to ensure that we don't have an uneven distribution of particles for different angles of the view frustrum
-        particleModelMatrix.translate(ri.viewport->getCameraPosition());
         
         std::vector<KRDirectionalLight*> this_directional_light;
         std::vector<KRSpotLight*> this_spot_light;
@@ -227,15 +241,9 @@ void KRLight::render(RenderInfo& ri)
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
         info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
-        if (pParticleShader) {
-          pParticleShader->setPushConstant(ShaderValue::dust_particle_color, m_color.val * ri.camera->settings.dust_particle_intensity * m_dust_particle_intensity * m_intensity);
-          pParticleShader->setPushConstant(ShaderValue::particle_origin, Matrix4::DotWDiv(Matrix4::Invert(particleModelMatrix), Vector3::Zero()));
-          if (pParticleShader->bind(ri, particleModelMatrix)) { // TODO: Pass light index to shader
-
-            m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
-
-            vkCmdDraw(ri.commandBuffer, particle_count * 3, 1, 0, 0);
-          }
+        if (pParticleShader && pParticleShader->bind(ri, getParticleModelMatrix(*ri.viewport))) { // TODO: Pass light index to shader
+          m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
+          vkCmdDraw(ri.commandBuffer, getParticleCount() *3, 1, 0, 0);
         }
       }
     }
@@ -261,12 +269,6 @@ void KRLight::render(RenderInfo& ri)
       this_point_light.push_back(point_light);
     }
 
-    int slice_count = (int)(ri.camera->settings.volumetric_environment_quality * 495.0) + 5;
-
-    float slice_near = -ri.camera->settings.getPerspectiveNearZ();
-    float slice_far = -ri.camera->settings.volumetric_environment_max_distance;
-    float slice_spacing = (slice_far - slice_near) / slice_count;
-
     PipelineInfo info{};
     info.shader_name = &shader_name;
     info.pCamera = ri.camera;
@@ -281,11 +283,9 @@ void KRLight::render(RenderInfo& ri)
 
     KRPipeline* pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
     if (pFogShader) {
-      pFogShader->setPushConstant(ShaderValue::slice_depth_scale, Vector2::Create(slice_near, slice_spacing));
-      pFogShader->setPushConstant(ShaderValue::light_color, (m_color.val * ri.camera->settings.volumetric_environment_intensity * m_intensity * -slice_spacing / 10.0f));
       if (pFogShader->bind(ri, Matrix4())) { // TODO: Pass indexes of lights to shader
         m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING, 1.0f);
-        vkCmdDraw(ri.commandBuffer, slice_count * 6, 1, 0, 0);
+        vkCmdDraw(ri.commandBuffer, getSliceCount(ri.camera) * 6, 1, 0, 0);
       }
     }
 
@@ -447,7 +447,7 @@ int KRLight::configureShadowBufferViewports(const KRViewport& viewport)
 
 void KRLight::renderShadowBuffers(RenderInfo& ri)
 {
-  KRViewport* prevViewport = ri.viewport;
+  const KRViewport* prevViewport = ri.viewport;
   for (int iShadow = 0; iShadow < m_cShadowBuffers; iShadow++) {
     if (!shadowValid[iShadow]) {
       shadowValid[iShadow] = true;
@@ -515,7 +515,7 @@ KRViewport* KRLight::getShadowViewports()
   return m_shadowViewports;
 }
 
-bool KRLight::getShaderValue(ShaderValue value, float* output) const
+bool KRLight::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   switch (value) {
   case ShaderValue::light_intensity:
@@ -534,11 +534,34 @@ bool KRLight::getShaderValue(ShaderValue value, float* output) const
     *output = m_dust_particle_size;
     return true;
   default:
-    return KRNode::getShaderValue(value, output);
+    return KRNode::getShaderValue(camera, value, output);
   }
 }
 
-bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+bool KRLight::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const
+{
+  if (camera) {
+    switch (value) {
+    case ShaderValue::slice_depth_scale:
+    {
+      int slice_count = getSliceCount(camera);
+
+      float slice_near = -camera->getSettings()->getPerspectiveNearZ();
+      float slice_far = -camera->getSettings()->volumetric_environment_max_distance;
+      float slice_spacing = (slice_far - slice_near) / slice_count;
+      *output = Vector2::Create(slice_near, slice_spacing);
+      return true;
+    }
+    break;
+    default:
+      break;
+    }
+  }
+
+  return KRNode::getShaderValue(camera, value, output);
+}
+
+bool KRLight::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const
 {
   switch (value) {
   case ShaderValue::light_position:
@@ -547,11 +570,16 @@ bool KRLight::getShaderValue(ShaderValue value, hydra::Vector3* output) const
   case ShaderValue::light_color:
     *output = m_color;
     return true;
+  case ShaderValue::particle_origin:
+    *output = Matrix4::DotWDiv(Matrix4::Invert(getParticleModelMatrix(*camera->getViewport())), Vector3::Zero());
+    return true;
+  case ShaderValue::dust_particle_color:
+    *output = m_color.val * m_dust_particle_intensity * m_intensity * camera->settings.dust_particle_intensity;
+    return true;
   default:
-    return KRNode::getShaderValue(value, output);
+    return KRNode::getShaderValue(camera, value, output);
   }
 }
-
 
 bool KRLight::getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const
 {

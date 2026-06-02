@@ -37,7 +37,7 @@
 
 using namespace hydra;
 
-KRModelView::KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight)
+KRModelView::KRModelView(const KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight)
   : m_viewport(viewport)
   , m_matModel(matModel)
   , m_directionalLight(directionalLight)
@@ -53,7 +53,7 @@ KRModelView::~KRModelView()
 
 }
 
-bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
+bool KRModelView::getShaderValue(const KRCamera* camera, ShaderValue value, Vector3* output) const
 {
   if (m_directionalLight) {
     switch (value) {
@@ -95,7 +95,7 @@ bool KRModelView::getShaderValue(ShaderValue value, Vector3* output) const
       return false;
   }
 }
-bool KRModelView::getShaderValue(ShaderValue value, Matrix4* output) const
+bool KRModelView::getShaderValue(const KRCamera* camera, ShaderValue value, Matrix4* output) const
 {
   if (m_directionalLight) {
     switch (value) {

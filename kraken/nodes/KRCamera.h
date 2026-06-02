@@ -66,9 +66,9 @@ public:
   bool alwaysStreamResources() override;
 
   KRRenderSettings settings;
+  const KRRenderSettings* getSettings() const;
 
-  KRViewport* getViewport();
-
+  const KRViewport* getViewport() const;
 
   virtual std::string getElementName() override;
   virtual tinyxml2::XMLElement* saveXML(tinyxml2::XMLNode* parent) override;
@@ -85,7 +85,7 @@ public:
   const std::string getSkyBox() const;
 
 protected:
-  bool getShaderValue(ShaderValue value, hydra::Vector4* output) const override;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const override;
   bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const override;
 
 private:

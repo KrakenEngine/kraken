@@ -39,6 +39,7 @@
 class KRResourceBinding;
 class KRSampler;
 class KRTextureBinding;
+class KRCamera;
 
 enum class ShaderValueType : uint8_t
 {
@@ -223,19 +224,19 @@ const char* getShaderValueName(int index);
 class KRReflectedObject
 {
 public:
-  bool getShaderValue(ShaderValue value, ShaderValueType type, void* output) const;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, ShaderValueType type, void* output) const;
   virtual bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const;
 protected:
-  virtual bool getShaderValue(ShaderValue value, bool* output) const;
-  virtual bool getShaderValue(ShaderValue value, int32_t* output) const;
-  virtual bool getShaderValue(ShaderValue value, int64_t* output) const;
-  virtual bool getShaderValue(ShaderValue value, float* output) const;
-  virtual bool getShaderValue(ShaderValue value, double* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Vector2* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Vector3* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Vector4* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Matrix2* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Matrix2x3* output) const;
-  virtual bool getShaderValue(ShaderValue value, hydra::Matrix4* output) const;
-  virtual bool getShaderValue(ShaderValue value, KRResourceBinding* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, bool* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, int32_t* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, int64_t* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, double* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix2* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix2x3* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix4* output) const;
+  virtual bool getShaderValue(const KRCamera* camera, ShaderValue value, KRResourceBinding* output) const;
 };

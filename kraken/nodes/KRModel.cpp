@@ -354,25 +354,25 @@ AABB KRModel::getBounds()
 }
 
 
-bool KRModel::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+bool KRModel::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const
 {
   switch (value) {
   case ShaderValue::rim_color:
     *output = m_rim_color;
     return true;
   default:
-    return KRNode::getShaderValue(value, output);
+    return KRNode::getShaderValue(camera, value, output);
   }
 }
 
-bool KRModel::getShaderValue(ShaderValue value, float* output) const
+bool KRModel::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   switch (value) {
   case ShaderValue::rim_power:
     *output = m_rim_power;
     return true;
   default:
-    return KRNode::getShaderValue(value, output);
+    return KRNode::getShaderValue(camera, value, output);
   }
 }
 

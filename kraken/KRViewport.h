@@ -47,8 +47,8 @@ public:
   KRViewport(const hydra::Vector2& size, const hydra::Matrix4& matView, const hydra::Matrix4& matProjection);
   ~KRViewport();
 
-  bool getShaderValue(ShaderValue value, hydra::Vector4* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Matrix4* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix4* output) const final;
 
   const hydra::Vector2& getSize() const;
   const hydra::Matrix4& getViewMatrix() const;

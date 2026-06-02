@@ -569,7 +569,7 @@ bool KRPipeline::setImageBindings(const std::vector<const KRReflectedObject*> ob
   return success;
 }
 
-bool KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> objects)
+bool KRPipeline::setPushConstants(const KRCamera* camera, const std::vector<const KRReflectedObject*> objects)
 {
   bool success = true;
   for (StageInfo& stageInfo : m_stages) {
@@ -580,7 +580,7 @@ bool KRPipeline::setPushConstants(const std::vector<const KRReflectedObject*> ob
         void* constant = (pushConstants.buffer + pushConstants.offset[static_cast<size_t>(i)]);
         bool found = false;
         for (const KRReflectedObject* object : objects) {
-          if (object->getShaderValue(static_cast<ShaderValue>(i), pushConstants.type[static_cast<size_t>(i)], constant)) {
+          if (object->getShaderValue(camera, static_cast<ShaderValue>(i), pushConstants.type[static_cast<size_t>(i)], constant)) {
             found = true;
             break;
           }
@@ -678,7 +678,7 @@ void KRPipeline::updateDescriptorBinding()
 
 bool KRPipeline::updatePushConstants(KRNode::RenderInfo& ri, const Matrix4& matModel)
 {
-  if (!setPushConstants(ri.reflectedObjects)) {
+  if (!setPushConstants(ri.camera, ri.reflectedObjects)) {
     return false;
   }
   setPushConstant(ShaderValue::absolute_time, getContext().getAbsoluteTime());

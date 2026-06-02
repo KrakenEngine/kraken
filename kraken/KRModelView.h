@@ -44,14 +44,14 @@ class KRModelView
   : public KRReflectedObject
 {
 public:
-  KRModelView(KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight);
+  KRModelView(const KRViewport* viewport, const hydra::Matrix4& matModel, KRDirectionalLight* directionalLight);
   ~KRModelView();
 
-  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Matrix4* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Matrix4* output) const final;
 
 private:
-  KRViewport* m_viewport;
+  const KRViewport* m_viewport;
   hydra::Matrix4 m_matModel;
   KRDirectionalLight* m_directionalLight;
 

@@ -116,7 +116,7 @@ public:
     std::vector<KRPointLight*> point_lights;
     std::vector<KRDirectionalLight*> directional_lights;
     std::vector<KRSpotLight*> spot_lights;
-    KRViewport* viewport;
+    const KRViewport* viewport;
     KRRenderPass* renderPass;
     KRPipeline* pipeline;
 

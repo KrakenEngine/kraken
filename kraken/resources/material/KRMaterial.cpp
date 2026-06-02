@@ -834,7 +834,7 @@ bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_
   return success;
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, float* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const
 {
   switch (value) {
     case ShaderValue::material_baseColor_map_rotation:
@@ -933,7 +933,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, float* output) const
   return false;
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector2* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const
 {
   switch (value) {
     case ShaderValue::material_baseColor_map_scale:
@@ -1020,7 +1020,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector2* output) const
   return false;
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector3* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const
 {
   switch (value) {
     case ShaderValue::material_emissive_factor:
@@ -1038,7 +1038,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector3* output) const
   return false;
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector4* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const
 {
   switch (value) {
     case ShaderValue::material_baseColor_factor:
@@ -1049,7 +1049,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, hydra::Vector4* output) const
   }
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, KRResourceBinding* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, KRResourceBinding* output) const
 {
   switch (value) {
     case ShaderValue::material_baseColor_map_texture:
@@ -1096,7 +1096,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, KRResourceBinding* output) co
   }
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, int64_t* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, int64_t* output) const
 {
   switch (value) {
     case ShaderValue::material_shadingModel:
@@ -1146,7 +1146,7 @@ bool KRMaterial::getShaderValue(ShaderValue value, int64_t* output) const
   }
 }
 
-bool KRMaterial::getShaderValue(ShaderValue value, bool* output) const
+bool KRMaterial::getShaderValue(const KRCamera* camera, ShaderValue value, bool* output) const
 {
   switch (value) {
     case ShaderValue::material_doubleSided:

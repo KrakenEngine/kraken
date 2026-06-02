@@ -183,12 +183,12 @@ public:
   float m_transmissionFactor = 0.f;
 
 private:
-  bool getShaderValue(ShaderValue value, float* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Vector2* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Vector3* output) const final;
-  bool getShaderValue(ShaderValue value, hydra::Vector4* output) const final;
-  bool getShaderValue(ShaderValue value, KRResourceBinding* output) const final;
-  bool getShaderValue(ShaderValue value, int64_t* output) const final;
-  bool getShaderValue(ShaderValue value, bool* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, float* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector2* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector3* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, hydra::Vector4* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, KRResourceBinding* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, int64_t* output) const final;
+  bool getShaderValue(const KRCamera* camera, ShaderValue value, bool* output) const final;
   bool getImageBinding(const std::string& name, const KRTextureBinding** binding, KRSampler** sample) const final;
 };
