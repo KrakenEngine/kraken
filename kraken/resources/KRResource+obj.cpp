@@ -287,11 +287,11 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
             iVertex += 2;
 
             mi.vertices.push_back(firstFaceVertex);
-            mi.uva.push_back(firstFaceUva);
+            mi.uv[0].push_back(firstFaceUva);
             mi.normals.push_back(firstFaceNormal);
 
             mi.vertices.push_back(prevFaceVertex);
-            mi.uva.push_back(prevFaceUva);
+            mi.uv[0].push_back(prevFaceUva);
             mi.normals.push_back(prevFaceNormal);
           }
           Vector3 vertex = indexed_vertices[pFace[iFaceVertex * 3 + 1]];
@@ -305,7 +305,7 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
           }
 
           mi.vertices.push_back(vertex);
-          mi.uva.push_back(new_uva);
+          mi.uv[0].push_back(new_uva);
           mi.normals.push_back(normal);
 
           if (iFaceVertex == 0) {

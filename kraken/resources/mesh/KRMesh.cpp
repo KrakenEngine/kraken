@@ -528,8 +528,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   bool use_short_vertexes = false;
   bool use_short_normals = true;
   bool use_short_tangents = true;
-  bool use_short_uva = true;
-  bool use_short_uvb = true;
+  bool use_short_uv[8] = { true, true, true, true, true, true, true, true };
 
   if (use_short_vertexes) {
     for (std::vector<Vector3>::const_iterator itr = mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
@@ -539,18 +538,22 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     }
   }
 
-  if (use_short_uva) {
-    for (std::vector<Vector2>::const_iterator itr = mi.uva.begin(); itr != mi.uva.end(); itr++) {
-      if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
-        use_short_uva = false;
+  for (int set = 0; set < 8; set++) {
+    if (use_short_uv[set]) {
+      for (std::vector<Vector2>::const_iterator itr = mi.uv[set].begin(); itr != mi.uv[set].end(); itr++) {
+        if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
+          use_short_uv[set] = false;
+          break;
+        }
       }
     }
-  }
 
-  if (use_short_uvb) {
-    for (std::vector<Vector2>::const_iterator itr = mi.uvb.begin(); itr != mi.uvb.end(); itr++) {
-      if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
-        use_short_uvb = false;
+    if (use_short_uv[set]) {
+      for (std::vector<Vector2>::const_iterator itr = mi.uv[set].begin(); itr != mi.uv[set].end(); itr++) {
+        if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
+          use_short_uv[set] = false;
+          break;
+        }
       }
     }
   }
@@ -577,18 +580,20 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
       vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT);
     }
   }
-  if (mi.uva.size()) {
-    if (use_short_uva) {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVA_SHORT);
-    } else {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVA);
+  for (int set = 0; set < 8; set++) {
+    if (mi.uv[set].size()) {
+      if (use_short_uv[set]) {
+        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXUVA_SHORT + set));
+      } else {
+        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXUVA + set));
+      }
     }
-  }
-  if (mi.uvb.size()) {
-    if (use_short_uvb) {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB_SHORT);
-    } else {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TEXUVB);
+    if (mi.uv[set].size()) {
+      if (use_short_uv[set]) {
+        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXUVB_SHORT + set));
+      } else {
+        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXUVB + set));
+      }
     }
   }
   if (mi.bone_names.size()) {
@@ -614,7 +619,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   pHeader->index_count = (__int32_t)index_count;
   pHeader->index_base_count = (__int32_t)index_base_count;
   pHeader->model_format = (__int32_t)mi.format;
-  strcpy(pHeader->szTag, "KROBJPACK1.2   ");
+  strcpy(pHeader->szTag, "KRMESH1.0      ");
   updateAttributeOffsets();
 
   pack_material* pPackMaterials = (pack_material*)(pHeader + 1);
@@ -653,11 +658,10 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     } else {
       m_extents.encapsulate(source_vertex);
     }
-    if ((int)mi.uva.size() > iVertex) {
-      setVertexUVA(iVertex, mi.uva[iVertex]);
-    }
-    if ((int)mi.uvb.size() > iVertex) {
-      setVertexUVB(iVertex, mi.uvb[iVertex]);
+    for (int set = 0; set < 8; set++) {
+      if ((int)mi.uv[set].size() > iVertex) {
+        setVertexUV(set, iVertex, mi.uv[set][iVertex]);
+      }
     }
     if ((int)mi.normals.size() > iVertex) {
       setVertexNormal(iVertex, Vector3::Normalize(mi.normals[iVertex]));
@@ -712,9 +716,9 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
           Vector3 first_tangent = getVertexTangent(iVertex);
           if (first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
 
-            Vector2 uv0 = getVertexUVA(iVertex);
-            Vector2 uv1 = getVertexUVA(iVertex + 1);
-            Vector2 uv2 = getVertexUVA(iVertex + 2);
+            Vector2 uv0 = getVertexUV(0, iVertex);
+            Vector2 uv1 = getVertexUV(0, iVertex + 1);
+            Vector2 uv2 = getVertexUV(0, iVertex + 2);
 
             Vector2 st1 = Vector2::Create(uv1.x - uv0.x, uv1.y - uv0.y);
             Vector2 st2 = Vector2::Create(uv2.x - uv0.x, uv2.y - uv0.y);
@@ -899,25 +903,13 @@ Vector3 KRMesh::getVertexTangent(int index) const
   }
 }
 
-Vector2 KRMesh::getVertexUVA(int index) const
+Vector2 KRMesh::getVertexUV(int set, int index) const
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA_SHORT)) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA_SHORT]);
+  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXUVA_SHORT + set))) {
+    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA_SHORT + set]);
     return Vector2::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA)) {
-    return Vector2::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA]));
-  } else {
-    return Vector2::Zero();
-  }
-}
-
-Vector2 KRMesh::getVertexUVB(int index) const
-{
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB_SHORT)) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB_SHORT]);
-    return Vector2::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB)) {
-    return Vector2::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB]));
+  } else if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXUVA + set))) {
+    return Vector2::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA + set]));
   } else {
     return Vector2::Zero();
   }
@@ -968,32 +960,19 @@ void KRMesh::setVertexTangent(int index, const Vector3& v)
   }
 }
 
-void KRMesh::setVertexUVA(int index, const Vector2& v)
+void KRMesh::setVertexUV(int set, int index, const Vector2& v)
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA_SHORT)) {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA_SHORT]);
+  if (has_vertex_attribute((vertex_attrib_t)((KRENGINE_ATTRIB_TEXUVA_SHORT + set))))
+  {
+    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA_SHORT + set]);
     vert[0] = (short)(v.x * 32767.0f);
     vert[1] = (short)(v.y * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA]);
+  } else if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXUVA + set))) {
+    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVA + set]);
     vert[0] = v.x;
     vert[1] = v.y;
   }
 }
-
-void KRMesh::setVertexUVB(int index, const Vector2& v)
-{
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB_SHORT)) {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB_SHORT]);
-    vert[0] = (short)(v.x * 32767.0f);
-    vert[1] = (short)(v.y * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXUVB]);
-    vert[0] = v.x;
-    vert[1] = v.y;
-  }
-}
-
 
 int KRMesh::getBoneIndex(int index, int weight_index) const
 {
@@ -1037,6 +1016,24 @@ size_t KRMesh::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVB)) {
     data_size += sizeof(float) * 2;
   }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVC)) {
+    data_size += sizeof(float) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVD)) {
+    data_size += sizeof(float) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVE)) {
+    data_size += sizeof(float) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVF)) {
+    data_size += sizeof(float) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVG)) {
+    data_size += sizeof(float) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVH)) {
+    data_size += sizeof(float) * 2;
+  }
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_BONEINDEXES)) {
     data_size += 4; // 4 bytes
   }
@@ -1056,6 +1053,24 @@ size_t KRMesh::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
     data_size += sizeof(short) * 2;
   }
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVB_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVC_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVD_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVE_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVF_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVG_SHORT)) {
+    data_size += sizeof(short) * 2;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXUVH_SHORT)) {
     data_size += sizeof(short) * 2;
   }
   return data_size;
@@ -1364,8 +1379,10 @@ void KRMesh::convertToIndexed()
       for (int i = 0; i < vertex_count; i++) {
 
         Vector3 vertex_position = getVertexPosition(source_index);
-        Vector2 vertex_uva = getVertexUVA(source_index);
-        Vector2 vertex_uvb = getVertexUVB(source_index);
+        Vector2 vertex_uv[8];
+        for (int set = 0; set < 8; set++) {
+          vertex_uv[set] = getVertexUV(set, source_index);
+        }
         Vector3 vertex_normal = getVertexNormal(source_index);
         Vector3 vertex_tangent = getVertexTangent(source_index);
         std::vector<int> vertex_bone_indexes;
@@ -1446,11 +1463,10 @@ void KRMesh::convertToIndexed()
           if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT) || has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
             mi.tangents.push_back(vertex_tangent);
           }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA) || has_vertex_attribute(KRENGINE_ATTRIB_TEXUVA_SHORT)) {
-            mi.uva.push_back(vertex_uva);
-          }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB) || has_vertex_attribute(KRENGINE_ATTRIB_TEXUVB_SHORT)) {
-            mi.uvb.push_back(vertex_uvb);
+          for (int set = 0; set < 8; set++) {
+            if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXUVA + set)) || has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXUVA_SHORT + set))) {
+              mi.uv[set].push_back(vertex_uv[set]);
+            }
           }
           if (has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
             mi.bone_indexes.push_back(vertex_bone_indexes);

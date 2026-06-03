@@ -89,6 +89,12 @@ public:
     KRENGINE_ATTRIB_TANGENT,
     KRENGINE_ATTRIB_TEXUVA,
     KRENGINE_ATTRIB_TEXUVB,
+    KRENGINE_ATTRIB_TEXUVC,
+    KRENGINE_ATTRIB_TEXUVD,
+    KRENGINE_ATTRIB_TEXUVE,
+    KRENGINE_ATTRIB_TEXUVF,
+    KRENGINE_ATTRIB_TEXUVG,
+    KRENGINE_ATTRIB_TEXUVH,
     KRENGINE_ATTRIB_BONEINDEXES,
     KRENGINE_ATTRIB_BONEWEIGHTS,
     KRENGINE_ATTRIB_VERTEX_SHORT,
@@ -96,10 +102,14 @@ public:
     KRENGINE_ATTRIB_TANGENT_SHORT,
     KRENGINE_ATTRIB_TEXUVA_SHORT,
     KRENGINE_ATTRIB_TEXUVB_SHORT,
+    KRENGINE_ATTRIB_TEXUVC_SHORT,
+    KRENGINE_ATTRIB_TEXUVD_SHORT,
+    KRENGINE_ATTRIB_TEXUVE_SHORT,
+    KRENGINE_ATTRIB_TEXUVF_SHORT,
+    KRENGINE_ATTRIB_TEXUVG_SHORT,
+    KRENGINE_ATTRIB_TEXUVH_SHORT,
     KRENGINE_NUM_ATTRIBUTES
   } vertex_attrib_t;
-
-
 
   typedef struct
   {
@@ -107,8 +117,7 @@ public:
     std::vector<hydra::Vector3> vertices;
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
-    std::vector<hydra::Vector2> uva;
-    std::vector<hydra::Vector2> uvb;
+    std::vector<hydra::Vector2> uv[8];
     std::vector<hydra::Vector3> normals;
     std::vector<hydra::Vector3> tangents;
     std::vector<int> submesh_starts;
@@ -206,16 +215,14 @@ public:
   hydra::Vector3 getVertexPosition(int index) const;
   hydra::Vector3 getVertexNormal(int index) const;
   hydra::Vector3 getVertexTangent(int index) const;
-  hydra::Vector2 getVertexUVA(int index) const;
-  hydra::Vector2 getVertexUVB(int index) const;
+  hydra::Vector2 getVertexUV(int set, int index) const;
   int getBoneIndex(int index, int weight_index) const;
   float getBoneWeight(int index, int weight_index) const;
 
   void setVertexPosition(int index, const hydra::Vector3& v);
   void setVertexNormal(int index, const hydra::Vector3& v);
   void setVertexTangent(int index, const hydra::Vector3& v);
-  void setVertexUVA(int index, const hydra::Vector2& v);
-  void setVertexUVB(int index, const hydra::Vector2& v);
+  void setVertexUV(int set, int index, const hydra::Vector2& v);
   void setBoneIndex(int index, int weight_index, int bone_index);
   void setBoneWeight(int index, int weight_index, float bone_weight);
 
