@@ -98,7 +98,7 @@ void KRMeshManager::init()
       -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
       1.0f,  1.0f, 0.0f, 1.0f, 1.0f
   };
-  KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA);
+  KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
   KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(float) * 5 * 4);
   KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
   memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
@@ -374,26 +374,26 @@ void KRMeshManager::initRandomParticles()
       vertex_data[iVertex].vertex.x = (float)(rand() % 2000) / 1000.0f - 1000.0f;
       vertex_data[iVertex].vertex.y = (float)(rand() % 2000) / 1000.0f - 1000.0f;
       vertex_data[iVertex].vertex.z = (float)(rand() % 2000) / 1000.0f - 1000.0f;
-      vertex_data[iVertex].uva.x = -0.5f;
-      vertex_data[iVertex].uva.y = -inscribed_circle_radius;
+      vertex_data[iVertex].texcoord0.x = -0.5f;
+      vertex_data[iVertex].texcoord0.y = -inscribed_circle_radius;
       iVertex++;
 
       vertex_data[iVertex].vertex.x = vertex_data[iVertex - 1].vertex.x;
       vertex_data[iVertex].vertex.y = vertex_data[iVertex - 1].vertex.y;
       vertex_data[iVertex].vertex.z = vertex_data[iVertex - 1].vertex.z;
-      vertex_data[iVertex].uva.x = 0.5f;
-      vertex_data[iVertex].uva.y = -inscribed_circle_radius;
+      vertex_data[iVertex].texcoord0.x = 0.5f;
+      vertex_data[iVertex].texcoord0.y = -inscribed_circle_radius;
       iVertex++;
 
       vertex_data[iVertex].vertex.x = vertex_data[iVertex - 1].vertex.x;
       vertex_data[iVertex].vertex.y = vertex_data[iVertex - 1].vertex.y;
       vertex_data[iVertex].vertex.z = vertex_data[iVertex - 1].vertex.z;
-      vertex_data[iVertex].uva.x = 0.0f;
-      vertex_data[iVertex].uva.y = -inscribed_circle_radius + equilateral_triangle_height;
+      vertex_data[iVertex].texcoord0.x = 0.0f;
+      vertex_data[iVertex].texcoord0.y = -inscribed_circle_radius + equilateral_triangle_height;
       iVertex++;
     }
 
-    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXUVA), false, KRVBOData::CONSTANT
+    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0), false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Random Particles [built-in]"
 #endif

@@ -1397,7 +1397,7 @@ void LoadMesh(KRContext& context, FbxScene* pFbxScene, FbxGeometryConverter* pGe
 //    std::vector<std::vector<int> > bone_indexes;
 //    
 //    std::vector<Vector3> vertices;
-//    std::vector<Vector2> uva;
+//    std::vector<Vector2> texcoord0;
 //    std::vector<Vector2> uvb;
 //    std::vector<Vector3> normals;
 //    std::vector<Vector3> tangents;
@@ -1479,7 +1479,7 @@ void LoadMesh(KRContext& context, FbxScene* pFbxScene, FbxGeometryConverter* pGe
                   new_uva = Vector2(uv[0], uv[1]);
                 }
               }
-              mi.uva.push_back(new_uva);
+              mi.texcoord0.push_back(new_uva);
             }
 
             if (uv_count >= 2) {

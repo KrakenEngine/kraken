@@ -177,7 +177,7 @@ public:
   typedef struct
   {
     hydra::Vector3 vertex;
-    hydra::Vector2 uva;
+    hydra::Vector2 texcoord0;
   } RandomParticleVertexData;
 
   typedef struct

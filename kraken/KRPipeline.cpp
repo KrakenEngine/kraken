@@ -77,27 +77,27 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
     KRMesh::KRENGINE_ATTRIB_VERTEX,
     KRMesh::KRENGINE_ATTRIB_NORMAL,
     KRMesh::KRENGINE_ATTRIB_TANGENT,
-    KRMesh::KRENGINE_ATTRIB_TEXUVA,
-    KRMesh::KRENGINE_ATTRIB_TEXUVB,
-    KRMesh::KRENGINE_ATTRIB_TEXUVC,
-    KRMesh::KRENGINE_ATTRIB_TEXUVD,
-    KRMesh::KRENGINE_ATTRIB_TEXUVE,
-    KRMesh::KRENGINE_ATTRIB_TEXUVF,
-    KRMesh::KRENGINE_ATTRIB_TEXUVG,
-    KRMesh::KRENGINE_ATTRIB_TEXUVH,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD1,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD2,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD3,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD4,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD5,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD6,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD7,
     KRMesh::KRENGINE_ATTRIB_BONEINDEXES,
     KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS,
     KRMesh::KRENGINE_ATTRIB_VERTEX,
     KRMesh::KRENGINE_ATTRIB_NORMAL,
     KRMesh::KRENGINE_ATTRIB_TANGENT,
-    KRMesh::KRENGINE_ATTRIB_TEXUVA,
-    KRMesh::KRENGINE_ATTRIB_TEXUVB,
-    KRMesh::KRENGINE_ATTRIB_TEXUVC,
-    KRMesh::KRENGINE_ATTRIB_TEXUVD,
-    KRMesh::KRENGINE_ATTRIB_TEXUVE,
-    KRMesh::KRENGINE_ATTRIB_TEXUVF,
-    KRMesh::KRENGINE_ATTRIB_TEXUVG,
-    KRMesh::KRENGINE_ATTRIB_TEXUVH,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD1,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD2,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD3,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD4,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD5,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD6,
+    KRMesh::KRENGINE_ATTRIB_TEXCOORD7,
   };
 
   uint32_t attribute_locations[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {};
@@ -143,9 +143,9 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
         } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TANGENT] = input_var.location + 1;
         } else if (strcmp(input_var.name, "vertex_uv") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVA] = input_var.location + 1;
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD0] = input_var.location + 1;
         } else if (strcmp(input_var.name, "vertex_lightmap_uv") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXUVB] = input_var.location + 1;
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD1] = input_var.location + 1;
         } else if (strcmp(input_var.name, "bone_indexes") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEINDEXES] = input_var.location + 1;
         } else if (strcmp(input_var.name, "bone_weights") == 0) {

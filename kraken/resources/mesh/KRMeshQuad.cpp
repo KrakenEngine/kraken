@@ -44,10 +44,10 @@ KRMeshQuad::KRMeshQuad(KRContext& context) : KRMesh(context, "__quad")
   mi.vertices.push_back(Vector3::Create(-1.0f, 1.0f, 0.0f));
   mi.vertices.push_back(Vector3::Create(1.0f, 1.0f, 0.0f));
 
-  mi.uv[0].push_back(Vector2::Create(0.0f, 0.0f));
-  mi.uv[0].push_back(Vector2::Create(1.0f, 0.0f));
-  mi.uv[0].push_back(Vector2::Create(0.0f, 1.0f));
-  mi.uv[0].push_back(Vector2::Create(1.0f, 1.0f));
+  mi.texcoord[0].push_back(Vector2::Create(0.0f, 0.0f));
+  mi.texcoord[0].push_back(Vector2::Create(1.0f, 0.0f));
+  mi.texcoord[0].push_back(Vector2::Create(0.0f, 1.0f));
+  mi.texcoord[0].push_back(Vector2::Create(1.0f, 1.0f));
 
 
   mi.submesh_starts.push_back(0);
