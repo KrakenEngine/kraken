@@ -77,6 +77,14 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
     KRMesh::KRENGINE_ATTRIB_VERTEX,
     KRMesh::KRENGINE_ATTRIB_NORMAL,
     KRMesh::KRENGINE_ATTRIB_TANGENT,
+    KRMesh::KRENGINE_ATTRIB_COLOR0,
+    KRMesh::KRENGINE_ATTRIB_COLOR1,
+    KRMesh::KRENGINE_ATTRIB_COLOR2,
+    KRMesh::KRENGINE_ATTRIB_COLOR3,
+    KRMesh::KRENGINE_ATTRIB_COLOR4,
+    KRMesh::KRENGINE_ATTRIB_COLOR5,
+    KRMesh::KRENGINE_ATTRIB_COLOR6,
+    KRMesh::KRENGINE_ATTRIB_COLOR7,
     KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
     KRMesh::KRENGINE_ATTRIB_TEXCOORD1,
     KRMesh::KRENGINE_ATTRIB_TEXCOORD2,
@@ -142,10 +150,38 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
           attribute_locations[KRMesh::KRENGINE_ATTRIB_NORMAL] = input_var.location + 1;
         } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TANGENT] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_uv") == 0) {
+        } else if (strcmp(input_var.name, "vertex_texcoord0") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD0] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_lightmap_uv") == 0) {
+        } else if (strcmp(input_var.name, "vertex_texcoord1") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD1] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord2") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD2] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord3") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD3] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord4") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD4] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord5") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD5] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord6") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD6] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_texcoord7") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD7] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color0") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR0] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color1") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR1] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color2") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR2] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color3") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR3] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color4") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR4] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color5") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR5] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color6") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR6] = input_var.location + 1;
+        } else if (strcmp(input_var.name, "vertex_color7") == 0) {
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR7] = input_var.location + 1;
         } else if (strcmp(input_var.name, "bone_indexes") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEINDEXES] = input_var.location + 1;
         } else if (strcmp(input_var.name, "bone_weights") == 0) {

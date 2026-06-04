@@ -42,10 +42,10 @@ layout(location = 1) in vec3 vertex_normal;
 #if HAS_NORMAL_MAP == 1
 layout(location = 2) in vec3 vertex_tangent;
 #endif
-layout(location = 3) in lowp vec3 vertex_uv;
+layout(location = 3) in lowp vec3 vertex_texcoord0;
 
 #if BONE_COUNT > 0
-    layout(location = 4) in lowp vec3 vertex_uv;
+    layout(location = 4) in lowp vec3 vertex_texcoord0;
     layout(location = 5) in highp vec4 bone_weights;
     layout(location = 6) in highp vec4 bone_indexes;
 #else
@@ -60,7 +60,7 @@ layout(location = 3) in lowp vec3 vertex_uv;
     #endif
 #else
     #if HAS_LIGHT_MAP == 1
-        layout(loction = 7) in mediump vec2  vertex_lightmap_uv;
+        layout(loction = 7) in mediump vec2  vertex_texcoord1;
     #endif //HAS_LIGHT_MAP
 #endif // GBUFFER_PASS
 
@@ -357,7 +357,7 @@ void main()
     
     #if HAS_DIFFUSE_MAP == 1 || (HAS_NORMAL_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_SPEC_MAP == 1 && ENABLE_PER_PIXEL == 1) || (HAS_REFLECTION_MAP == 1 && ENABLE_PER_PIXEL == 1)
         // Pass UV co-ordinates
-        texCoord = vertex_uv.st;
+        texCoord = vertex_texcoord0.st;
     #endif
     
 
@@ -421,7 +421,7 @@ void main()
     
         #if HAS_LIGHT_MAP == 1
             // Pass shadow UV co-ordinates
-            lightmap_uv = vertex_lightmap_uv.st;
+            lightmap_uv = vertex_texcoord1.st;
         #endif
     
 

@@ -30,7 +30,7 @@
 //
 
 
-in mediump vec2	vertex_uv;
+in mediump vec2	vertex_texcoord0;
 uniform highp mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 uniform mediump vec4    viewport;
 uniform mediump float   flare_size;
@@ -49,8 +49,8 @@ void main() {
     offset_center.xyz += vec3(sin((time_absolute + vertex_position.x * 100.0) * 0.05), sin((time_absolute + vertex_position.y * 100.0) * 0.07), sin((time_absolute + vertex_position.z * 100.0) * 0.03)) * 0.05;
     offset_center = vec4(mod(offset_center.x + 1.0, 2.0) - 1.0, mod(offset_center.y + 1.0, 2.0) - 1.0, mod(offset_center.z + 1.0, 2.0) - 1.0, 1.0);
     highp vec4 particle_center = mvp_matrix * offset_center;
-    texCoord = vertex_uv * 3.46410161513775; // 3.46410161513775 = 2 * sqrt(3); 1 / (2 * sqrt(3)) is the radius of a circle encompased by a equilateral triangle with a side length of 1.
-    gl_Position = particle_center + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+    texCoord = vertex_texcoord0 * 3.46410161513775; // 3.46410161513775 = 2 * sqrt(3); 1 / (2 * sqrt(3)) is the radius of a circle encompased by a equilateral triangle with a side length of 1.
+    gl_Position = particle_center + vec4(vertex_texcoord0.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_texcoord0.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
     
     shadowMapCoord1 = shadow_mvp1 * offset_center;
     

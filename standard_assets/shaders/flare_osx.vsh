@@ -30,7 +30,7 @@
 //
 
 
-in vec2	vertex_uv;
+in vec2	vertex_texcoord0;
 uniform mat4      mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices
 uniform vec4    viewport;
 uniform float   flare_size;
@@ -38,6 +38,6 @@ uniform float   flare_size;
 out vec2 texCoord;
 
 void main() {
-    texCoord = vertex_uv;
-    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_uv.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_uv.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
+    texCoord = vertex_texcoord0;
+    gl_Position = mvp_matrix * vec4(0.0, 0.0, 0.0, 1.0) + vec4(vertex_texcoord0.x * viewport.w / viewport.z * 2.0 - 1.0, vertex_texcoord0.y * 2.0 - 1.0, 0.0, 0.0) * flare_size;
 }

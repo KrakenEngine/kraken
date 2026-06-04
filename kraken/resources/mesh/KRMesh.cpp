@@ -547,15 +547,6 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
         }
       }
     }
-
-    if (use_short_texcoord[set]) {
-      for (std::vector<Vector2>::const_iterator itr = mi.texcoord[set].begin(); itr != mi.texcoord[set].end(); itr++) {
-        if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
-          use_short_texcoord[set] = false;
-          break;
-        }
-      }
-    }
   }
 
   __int32_t vertex_attrib_flags = 0;
@@ -568,38 +559,36 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   }
   if (mi.normals.size() || calculate_normals) {
     if (use_short_normals) {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_NORMAL_SHORT);
+      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_NORMAL_SHORT);
     } else {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_NORMAL);
+      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_NORMAL);
     }
   }
   if (mi.tangents.size() || calculate_tangents) {
     if (use_short_tangents) {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT_SHORT);
+      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_TANGENT_SHORT);
     } else {
-      vertex_attrib_flags += (1 << KRENGINE_ATTRIB_TANGENT);
+      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_TANGENT);
     }
   }
   for (int set = 0; set < 8; set++) {
     if (mi.texcoord[set].size()) {
       if (use_short_texcoord[set]) {
-        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXCOORD0_SHORT + set));
+        vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_TEXCOORD0_SHORT + set));
       } else {
-        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXCOORD0 + set));
+        vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_TEXCOORD0 + set));
       }
     }
-    if (mi.texcoord[set].size()) {
-      if (use_short_texcoord[set]) {
-        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXCOORD1_SHORT + set));
-      } else {
-        vertex_attrib_flags += (1 << (KRENGINE_ATTRIB_TEXCOORD1 + set));
-      }
+
+    if (mi.color[set].size()) {
+      vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_COLOR0 + set));
     }
   }
   if (mi.bone_names.size()) {
     vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
   }
   size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
+
   size_t index_count = mi.vertex_indexes.size();
   size_t index_base_count = mi.vertex_index_bases.size();
   size_t submesh_count = mi.submesh_lengths.size();
@@ -661,6 +650,10 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     for (int set = 0; set < 8; set++) {
       if ((int)mi.texcoord[set].size() > iVertex) {
         setVertexTexCoord(set, iVertex, mi.texcoord[set][iVertex]);
+      }
+
+      if ((int)mi.color[set].size() > iVertex) {
+        setVertexColor(set, iVertex, mi.color[set][iVertex]);
       }
     }
     if ((int)mi.normals.size() > iVertex) {
@@ -907,11 +900,21 @@ Vector2 KRMesh::getVertexTexCoord(int set, int index) const
 {
   if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0_SHORT + set))) {
     short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0_SHORT + set]);
-    return Vector2::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f);
+    return Vector2::Create((float)v[0] / 32767.0f);
   } else if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0 + set))) {
     return Vector2::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0 + set]));
   } else {
     return Vector2::Zero();
+  }
+}
+
+Vector4 KRMesh::getVertexColor(int set, int index) const
+{
+  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
+    uint8_t* v = (uint8_t*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_COLOR0 + set]);
+    return Vector4::Create((float)v[0] / 255.0f, (float)v[1] / 255.0f, (float)v[2] / 255.0f, (float)v[3] / 255.0f);
+  } else {
+    return Vector4::Zero();
   }
 }
 
@@ -974,6 +977,17 @@ void KRMesh::setVertexTexCoord(int set, int index, const Vector2& v)
   }
 }
 
+void KRMesh::setVertexColor(int set, int index, const Vector4& v)
+{
+  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
+    uint8_t* vert = (uint8_t*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_COLOR0 + set]);
+    vert[0] = (uint8_t)(v.x * 255.0f);
+    vert[1] = (uint8_t)(v.y * 255.0f);
+    vert[2] = (uint8_t)(v.z * 255.0f);
+    vert[3] = (uint8_t)(v.w * 255.0f);
+  }
+}
+
 int KRMesh::getBoneIndex(int index, int weight_index) const
 {
   unsigned char* vert = (unsigned char*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEINDEXES]);
@@ -1009,6 +1023,30 @@ size_t KRMesh::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
   }
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TANGENT)) {
     data_size += sizeof(float) * 3;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR0)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR1)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR2)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR3)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR4)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR5)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR6)) {
+    data_size += 4;
+  }
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR7)) {
+    data_size += 4;
   }
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD0)) {
     data_size += sizeof(float) * 2;
@@ -1110,8 +1148,23 @@ VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
   case KRENGINE_ATTRIB_TANGENT:
   case KRENGINE_ATTRIB_BONEWEIGHTS:
     return VK_FORMAT_R32G32B32_SFLOAT;
+  case KRENGINE_ATTRIB_COLOR0:
+  case KRENGINE_ATTRIB_COLOR1:
+  case KRENGINE_ATTRIB_COLOR2:
+  case KRENGINE_ATTRIB_COLOR3:
+  case KRENGINE_ATTRIB_COLOR4:
+  case KRENGINE_ATTRIB_COLOR5:
+  case KRENGINE_ATTRIB_COLOR6:
+  case KRENGINE_ATTRIB_COLOR7:
+    return  VK_FORMAT_R8G8B8A8_UNORM;
   case KRENGINE_ATTRIB_TEXCOORD0:
   case KRENGINE_ATTRIB_TEXCOORD1:
+  case KRENGINE_ATTRIB_TEXCOORD2:
+  case KRENGINE_ATTRIB_TEXCOORD3:
+  case KRENGINE_ATTRIB_TEXCOORD4:
+  case KRENGINE_ATTRIB_TEXCOORD5:
+  case KRENGINE_ATTRIB_TEXCOORD6:
+  case KRENGINE_ATTRIB_TEXCOORD7:
     return VK_FORMAT_R32G32_SFLOAT;
   case KRENGINE_ATTRIB_BONEINDEXES:
     return VK_FORMAT_R8G8B8A8_UINT;
@@ -1121,6 +1174,12 @@ VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
     return VK_FORMAT_R16G16B16A16_SNORM;
   case KRENGINE_ATTRIB_TEXCOORD0_SHORT:
   case KRENGINE_ATTRIB_TEXCOORD1_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD2_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD3_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD4_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD5_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD6_SHORT:
+  case KRENGINE_ATTRIB_TEXCOORD7_SHORT:
     return VK_FORMAT_R16G16_SNORM;
   }
   return VK_FORMAT_UNDEFINED;
@@ -1380,8 +1439,10 @@ void KRMesh::convertToIndexed()
 
         Vector3 vertex_position = getVertexPosition(source_index);
         Vector2 vertex_texcoord[8];
+        Vector4 vertex_color[8];
         for (int set = 0; set < 8; set++) {
           vertex_texcoord[set] = getVertexTexCoord(set, source_index);
+          vertex_color[set] = getVertexColor(set, source_index);
         }
         Vector3 vertex_normal = getVertexNormal(source_index);
         Vector3 vertex_tangent = getVertexTangent(source_index);
@@ -1427,6 +1488,10 @@ void KRMesh::convertToIndexed()
           for (int set = 0; set < 8; set++) {
             if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0 + set)) || has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0_SHORT + set))) {
               mi.texcoord[set].push_back(vertex_texcoord[set]);
+            }
+
+            if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
+              mi.color[set].push_back(vertex_color[set]);
             }
           }
           if (has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {

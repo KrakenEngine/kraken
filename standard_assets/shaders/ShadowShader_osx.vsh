@@ -46,7 +46,7 @@ void main()
     gl_Position.z += SHADOW_BIAS;
     /*
     // Pass UV co-ordinates
-    texCoord = vertex_uv.st;
+    texCoord = vertex_texcoord0.st;
     */
    
 }

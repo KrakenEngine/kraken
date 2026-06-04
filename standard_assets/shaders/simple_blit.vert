@@ -38,10 +38,10 @@ layout (std140, binding = 0) uniform buf {
     mat4 mvp_matrix; // mvp_matrix is the result of multiplying the model, view, and projection matrices 
 } ubuf;
 layout (location = 0) in vec4 vertex_position;
-layout (location = 1) in vec2 vertex_uv;
+layout (location = 1) in vec2 vertex_texcoord0;
 layout (location = 0) out vec2 textureCoordinate;
 
 void main() {
-    textureCoordinate = vertex_uv;
+    textureCoordinate = vertex_texcoord0;
     gl_Position = ubuf.mvp_matrix * vertex_position;
 }

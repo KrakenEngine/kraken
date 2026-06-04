@@ -87,6 +87,14 @@ public:
     KRENGINE_ATTRIB_VERTEX = 0,
     KRENGINE_ATTRIB_NORMAL,
     KRENGINE_ATTRIB_TANGENT,
+    KRENGINE_ATTRIB_COLOR0,
+    KRENGINE_ATTRIB_COLOR1,
+    KRENGINE_ATTRIB_COLOR2,
+    KRENGINE_ATTRIB_COLOR3,
+    KRENGINE_ATTRIB_COLOR4,
+    KRENGINE_ATTRIB_COLOR5,
+    KRENGINE_ATTRIB_COLOR6,
+    KRENGINE_ATTRIB_COLOR7,
     KRENGINE_ATTRIB_TEXCOORD0,
     KRENGINE_ATTRIB_TEXCOORD1,
     KRENGINE_ATTRIB_TEXCOORD2,
@@ -118,6 +126,7 @@ public:
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
     std::vector<hydra::Vector2> texcoord[8];
+    std::vector<hydra::Vector4> color[8];
     std::vector<hydra::Vector3> normals;
     std::vector<hydra::Vector3> tangents;
     std::vector<int> submesh_starts;
@@ -216,6 +225,7 @@ public:
   hydra::Vector3 getVertexNormal(int index) const;
   hydra::Vector3 getVertexTangent(int index) const;
   hydra::Vector2 getVertexTexCoord(int set, int index) const;
+  hydra::Vector4 getVertexColor(int set, int index) const;
   int getBoneIndex(int index, int weight_index) const;
   float getBoneWeight(int index, int weight_index) const;
 
@@ -223,6 +233,7 @@ public:
   void setVertexNormal(int index, const hydra::Vector3& v);
   void setVertexTangent(int index, const hydra::Vector3& v);
   void setVertexTexCoord(int set, int index, const hydra::Vector2& v);
+  void setVertexColor(int set, int index, const hydra::Vector4& v);
   void setBoneIndex(int index, int weight_index, int bone_index);
   void setBoneWeight(int index, int weight_index, float bone_weight);
 

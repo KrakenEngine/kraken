@@ -30,12 +30,12 @@
 //
 
 in vec4 vertex_position;
-in vec4 vertex_uv;
+in vec4 vertex_texcoord0;
 
 out vec2 textureCoordinate;
 
 void main()
 {
 	gl_Position = vertex_position;
-	textureCoordinate = vertex_uv.xy;
+	textureCoordinate = vertex_texcoord0.xy;
 }
