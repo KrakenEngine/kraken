@@ -77,7 +77,7 @@ void KRMeshManager::init()
       -1.0, 1.0,-1.0
   };
 
-  KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX);
+  KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_POSITION);
   KRENGINE_VBO_3D_CUBE_VERTICES.expand(sizeof(float) * 3 * 14);
   KRENGINE_VBO_3D_CUBE_VERTICES.lock();
   memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(float) * 3 * 14);
@@ -98,7 +98,7 @@ void KRMeshManager::init()
       -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
       1.0f,  1.0f, 0.0f, 1.0f, 1.0f
   };
-  KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
+  KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
   KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(float) * 5 * 4);
   KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
   memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
@@ -347,7 +347,7 @@ void KRMeshManager::initVolumetricLightingVertexes()
 
     }
 
-    KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.init(this, &m_volumetricLightingVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX), false, KRVBOData::CONSTANT
+    KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.init(this, &m_volumetricLightingVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_POSITION), false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Volumetric Lighting Planes [built-in]"
 #endif
@@ -393,7 +393,7 @@ void KRMeshManager::initRandomParticles()
       iVertex++;
     }
 
-    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_VERTEX) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0), false, KRVBOData::CONSTANT
+    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0), false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Random Particles [built-in]"
 #endif

@@ -82,9 +82,76 @@ public:
 
   bool hasTransparency();
 
+  enum class ComponentType : uint8_t
+  {
+    empty = 0,
+    int8,
+    uint8,
+    int16,
+    uint16,
+    int32,
+    uint32,
+    int64,
+    uint64,
+    float16,
+    float32,
+    float64
+  };
+
+  enum class DataType : uint8_t
+  {
+    scalar = 0,
+    vec2,
+    vec3,
+    vec4,
+    mat2,
+    mat3,
+    mat4
+  };
+
+  enum class VertexAttribute : uint8_t
+  {
+    position = 0,
+    normal,
+    tangent,
+    texcoord,
+    color,
+    joints,
+    weights
+  };
+
+  typedef struct
+  {
+    ComponentType component;
+    DataType type;
+    VertexAttribute attribute;
+    bool normalized : 1;
+  } AttributeInfo;
+  static_assert(sizeof(AttributeInfo) == 4);
+
+  enum class Topology : uint8_t
+  {
+    Points = 0,
+    LineStrips,
+    LineLoops,
+    Lines,
+    Triangles,
+    TriangleStrips,
+    TriangleFans
+  };
+
+  static const int kMaxAttributes = 32;
+  typedef struct
+  {
+    Topology topology;
+    AttributeInfo attributes[kMaxAttributes];
+    int64_t vertexCount;
+    int64_t indexCount;
+  } PrimitiveInfo;
+
   typedef enum
   {
-    KRENGINE_ATTRIB_VERTEX = 0,
+    KRENGINE_ATTRIB_POSITION = 0,
     KRENGINE_ATTRIB_NORMAL,
     KRENGINE_ATTRIB_TANGENT,
     KRENGINE_ATTRIB_COLOR0,

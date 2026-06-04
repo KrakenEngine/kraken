@@ -554,7 +554,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     if (use_short_vertexes) {
       vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX_SHORT);
     } else {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX);
+      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_POSITION);
     }
   }
   if (mi.normals.size() || calculate_normals) {
@@ -865,8 +865,8 @@ Vector3 KRMesh::getVertexPosition(int index) const
   if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
     short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX_SHORT]);
     return Vector3::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
-    return Vector3::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]));
+  } else if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION)) {
+    return Vector3::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_POSITION]));
   } else {
     return Vector3::Zero();
   }
@@ -925,8 +925,8 @@ void KRMesh::setVertexPosition(int index, const Vector3& v)
     vert[0] = (short)(v.x * 32767.0f);
     vert[1] = (short)(v.y * 32767.0f);
     vert[2] = (short)(v.z * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX]);
+  } else if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION)) {
+    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_POSITION]);
     vert[0] = v.x;
     vert[1] = v.y;
     vert[2] = v.z;
@@ -1015,7 +1015,7 @@ void KRMesh::setBoneWeight(int index, int weight_index, float bone_weight)
 size_t KRMesh::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
 {
   size_t data_size = 0;
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_VERTEX)) {
+  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_POSITION)) {
     data_size += sizeof(float) * 3;
   }
   if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_NORMAL)) {
@@ -1143,7 +1143,7 @@ size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_
 VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
 {
   switch (vertex_attrib) {
-  case KRENGINE_ATTRIB_VERTEX:
+  case KRENGINE_ATTRIB_POSITION:
   case KRENGINE_ATTRIB_NORMAL:
   case KRENGINE_ATTRIB_TANGENT:
   case KRENGINE_ATTRIB_BONEWEIGHTS:
@@ -1476,7 +1476,7 @@ void KRMesh::convertToIndexed()
         int found_index = -1;
         if (prev_indexes.count(vertex_key) == 0) {
           found_index = (int)mi.vertices.size() - vertex_index_base_start_vertex;
-          if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX) || has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
+          if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION) || has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
             mi.vertices.push_back(vertex_position);
           }
           if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL) || has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {

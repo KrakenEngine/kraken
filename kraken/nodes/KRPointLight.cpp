@@ -112,7 +112,7 @@ void KRPointLight::render(RenderInfo& ri)
       } else {
         info.rasterMode = bVisualize ? RasterMode::kAdditive : RasterMode::kAlphaBlend;
       }
-      info.vertexAttributes = bInsideLight ? m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getVertexAttributes() : 1 << KRMesh::KRENGINE_ATTRIB_VERTEX;
+      info.vertexAttributes = bInsideLight ? m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getVertexAttributes() : 1 << KRMesh::KRENGINE_ATTRIB_POSITION;
       info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
@@ -126,7 +126,7 @@ void KRPointLight::render(RenderInfo& ri)
           // Render sphere of light's influence
           generateMesh();
           
-          GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, m_sphereVertices));
+          GLDEBUG(glVertexAttribPointer(KRMesh::KRENGINE_ATTRIB_POSITION, 3, GL_FLOAT, 0, 0, m_sphereVertices));
           
           vkCmdDraw(ri.commandBuffer, m_cVertices, 1, 0, 0);
         }

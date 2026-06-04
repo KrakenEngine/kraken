@@ -74,7 +74,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   // TODO - Refactor this...  These lookup tables should be in KRMesh...
   static const KRMesh::vertex_attrib_t attribute_mapping[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {
-    KRMesh::KRENGINE_ATTRIB_VERTEX,
+    KRMesh::KRENGINE_ATTRIB_POSITION,
     KRMesh::KRENGINE_ATTRIB_NORMAL,
     KRMesh::KRENGINE_ATTRIB_TANGENT,
     KRMesh::KRENGINE_ATTRIB_COLOR0,
@@ -95,7 +95,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
     KRMesh::KRENGINE_ATTRIB_TEXCOORD7,
     KRMesh::KRENGINE_ATTRIB_BONEINDEXES,
     KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS,
-    KRMesh::KRENGINE_ATTRIB_VERTEX,
+    KRMesh::KRENGINE_ATTRIB_POSITION,
     KRMesh::KRENGINE_ATTRIB_NORMAL,
     KRMesh::KRENGINE_ATTRIB_TANGENT,
     KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
@@ -145,7 +145,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
         // TODO - We should have an interface to allow classes such as KRMesh to expose bindings
         SpvReflectInterfaceVariable& input_var = *reflection->input_variables[i];
         if (strcmp(input_var.name, "vertex_position") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_VERTEX] = input_var.location + 1;
+          attribute_locations[KRMesh::KRENGINE_ATTRIB_POSITION] = input_var.location + 1;
         } else if (strcmp(input_var.name, "vertex_normal") == 0) {
           attribute_locations[KRMesh::KRENGINE_ATTRIB_NORMAL] = input_var.location + 1;
         } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
@@ -204,7 +204,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
   uint32_t vertexAttributeCount = 0;
   VkVertexInputAttributeDescription vertexAttributeDescriptions[KRMesh::KRENGINE_NUM_ATTRIBUTES]{};
 
-  for (int i = KRMesh::KRENGINE_ATTRIB_VERTEX; i < KRMesh::KRENGINE_NUM_ATTRIBUTES; i++) {
+  for (int i = KRMesh::KRENGINE_ATTRIB_POSITION; i < KRMesh::KRENGINE_NUM_ATTRIBUTES; i++) {
     KRMesh::vertex_attrib_t mesh_attrib = static_cast<KRMesh::vertex_attrib_t>(i);
     int location_attrib = attribute_mapping[i];
     if (KRMesh::has_vertex_attribute(vertexAttributes, (KRMesh::vertex_attrib_t)i) && attribute_locations[location_attrib]) {
