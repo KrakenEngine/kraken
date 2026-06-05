@@ -188,7 +188,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
         info.renderPass = ri.renderPass;
         info.rasterMode = RasterMode::kAdditive;
         info.vertexAttributes = vertices.getVertexAttributes();
-        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+        info.modelFormat = Topology::TriangleStrips;
         KRPipeline* pVisShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       }
       */
@@ -425,7 +425,7 @@ void KRCamera::renderPost(RenderInfo& ri)
    info.pCamera = this;
    info.renderPass = compositeSurface.getRenderPass(RenderPassType::RENDER_PASS_FORWARD_TRANSPARENT);
    info.rasterMode = RasterMode::kOpaqueNoTest;
-   info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+   info.modelFormat = Topology::TriangleStrips;
    info.vertexAttributes = vertices.getVertexAttributes();
    
    KRPipeline *postShader = m_pContext->getPipelineManager()->getPipeline(surface, info);
@@ -617,7 +617,7 @@ void KRCamera::renderDebug(RenderInfo& ri)
   info.rasterMode = RasterMode::kAlphaBlendNoTest;
   info.cullMode = CullMode::kCullNone;
   info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-  info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+  info.modelFormat = Topology::Triangles;
   KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
   if (fontShader && fontShader->bind(ri, Matrix4())) {

@@ -743,7 +743,7 @@ kraken_stream_level KRMaterial::getStreamLevel()
   return stream_level;
 }
 
-bool KRMaterial::bind(KRNode::RenderInfo& ri, ModelFormat modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
+bool KRMaterial::bind(KRNode::RenderInfo& ri, Topology modelFormat, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<Matrix4>& bind_poses, const Matrix4& matModel, KRTexture* pLightMap, float lod_coverage)
 {
   bool bLightMap = pLightMap && ri.camera->settings.bEnableLightMap;
 

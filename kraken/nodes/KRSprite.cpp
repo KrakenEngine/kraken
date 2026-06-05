@@ -133,7 +133,7 @@ void KRSprite::render(RenderInfo& ri)
       info.rasterMode = RasterMode::kAdditive;
       info.cullMode = CullMode::kCullNone;
       info.vertexAttributes = vertices.getVertexAttributes();
-      info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+      info.modelFormat = Topology::TriangleStrips;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       if (pShader && pShader->bind(ri, getModelMatrix())) {

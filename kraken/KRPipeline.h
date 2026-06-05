@@ -45,8 +45,9 @@ class KRRenderPass;
 class KRUniformBuffer;
 class KRTexture;
 
-enum class ModelFormat : __uint8_t;
 struct SpvReflectShaderModule;
+
+enum class Topology : uint8_t;
 
 enum class CullMode : uint32_t
 {
@@ -205,7 +206,7 @@ public:
   RasterMode rasterMode;
   CullMode cullMode;
   uint32_t vertexAttributes;
-  ModelFormat modelFormat;
+  Topology modelFormat;
   const KRRenderPass* renderPass;
 };
 
@@ -213,7 +214,7 @@ class KRPipeline : public KRContextObject
 {
 public:
 
-  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat);
+  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, Topology topology);
   virtual ~KRPipeline();
   const char* getKey() const;
 

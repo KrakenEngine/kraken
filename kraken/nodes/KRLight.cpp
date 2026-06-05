@@ -239,7 +239,7 @@ void KRLight::render(RenderInfo& ri)
         info.rasterMode = RasterMode::kAdditive;
         info.cullMode = CullMode::kCullNone;
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-        info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+        info.modelFormat = Topology::Triangles;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         if (pParticleShader && pParticleShader->bind(ri, getParticleModelMatrix(*ri.viewport))) { // TODO: Pass light index to shader
           m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -279,7 +279,7 @@ void KRLight::render(RenderInfo& ri)
     info.rasterMode = RasterMode::kAdditive;
     info.cullMode = CullMode::kCullNone;
     info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION);
-    info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+    info.modelFormat = Topology::Triangles;
 
     KRPipeline* pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
     if (pFogShader) {
@@ -364,7 +364,7 @@ void KRLight::render(RenderInfo& ri)
           info.rasterMode = RasterMode::kAdditiveNoTest;
           info.cullMode = CullMode::kCullNone;
           info.vertexAttributes = vertices.getVertexAttributes();
-          info.modelFormat = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+          info.modelFormat = Topology::TriangleStrips;
 
 
           KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);

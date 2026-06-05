@@ -344,8 +344,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
     int32_t vertex_count = pHeader->vertex_count;
 
     int vbo_index = 0;
-    if (getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES
-      || getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP) {
+    if (getIndexCount(iSubmesh) > 0) {
 
       int index_group = getSubmesh(iSubmesh)->index_group;
       int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
@@ -442,7 +441,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
 
   vector<shared_ptr<KRMeshManager::KRVBOData>>::iterator vbo_itr = mesh.vbo_data_blocks.begin();
   int vbo_index = 0;
-  if (getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+  if (getIndexCount(0) > 0) {
 
     int index_group = getSubmesh(iSubmesh)->index_group;
     int index_group_offset = getSubmesh(iSubmesh)->index_group_offset;
@@ -480,15 +479,10 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
 
       if (iVertex + cVertexes >= MAX_VBO_SIZE) {
         assert(iVertex + (MAX_VBO_SIZE - iVertex) <= cBufferVertexes);
-        switch (getModelFormat()) {
-        case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-        case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+        if (getIndexCount(0) == 0) {
           vkCmdDraw(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0);
-          break;
-        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+        } else {
           vkCmdDrawIndexed(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0, 0);
-          break;
         }
         m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, (MAX_VBO_SIZE - iVertex));
 
@@ -498,17 +492,10 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
       } else {
         assert(iVertex + cVertexes <= cBufferVertexes);
 
-        switch (getModelFormat()) {
-        case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-        case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+        if (getIndexCount(0) == 0) {
           vkCmdDraw(commandBuffer, cVertexes, 1, iVertex, 0);
-          break;
-        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-        case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+        } else {
           vkCmdDrawIndexed(commandBuffer, cVertexes, 1, iVertex, 0, 0);
-          break;
-        default:
-          break;
         }
         m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, cVertexes);
 
@@ -528,7 +515,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   bool use_short_vertexes = false;
   bool use_short_normals = true;
   bool use_short_tangents = true;
-  bool use_short_texcoord[8] = { true, true, true, true, true, true, true, true };
+  bool use_short_texcoord[8] = { false, false, false, false, false, false, false, false };
 
   if (use_short_vertexes) {
     for (std::vector<Vector3>::const_iterator itr = mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
@@ -677,60 +664,84 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     *index_base_data++ = (*itr).second;
   }
 
-  if (getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES) {
-    // Calculate missing surface normals and tangents
-    //cout << "  Calculate surface normals and tangents\n";
-    if (calculate_normals || calculate_tangents) {
-      // NOTE: This will not work properly if the vertices are already indexed
-      for (int iVertex = 0; iVertex < (int)mi.vertices.size(); iVertex += 3) {
-        Vector3 p1 = getVertexPosition(iVertex);
-        Vector3 p2 = getVertexPosition(iVertex + 1);
-        Vector3 p3 = getVertexPosition(iVertex + 2);
-        Vector3 v1 = p2 - p1;
-        Vector3 v2 = p3 - p1;
+  auto calculateTriangleAttributes = [this, calculate_normals, calculate_tangents](int i0, int i1, int i2) {
+    Vector3 p1 = getVertexPosition(i0);
+    Vector3 p2 = getVertexPosition(i1);
+    Vector3 p3 = getVertexPosition(i2);
+    Vector3 v1 = p2 - p1;
+    Vector3 v2 = p3 - p1;
 
+    // -- Calculate normal if missing --
+    if (calculate_normals) {
+      Vector3 first_normal = getVertexNormal(i0);
+      if (first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
+        // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
+        Vector3 normal = Vector3::Cross(v1, v2);
 
-        // -- Calculate normal if missing --
-        if (calculate_normals) {
-          Vector3 first_normal = getVertexNormal(iVertex);
-          if (first_normal.x == 0.0f && first_normal.y == 0.0f && first_normal.z == 0.0f) {
-            // Note - We don't take into consideration smoothing groups or smoothing angles when generating normals; all generated normals represent flat shaded polygons
-            Vector3 normal = Vector3::Cross(v1, v2);
-
-            normal.normalize();
-            setVertexNormal(iVertex, normal);
-            setVertexNormal(iVertex + 1, normal);
-            setVertexNormal(iVertex + 2, normal);
-          }
-        }
-
-        // -- Calculate tangent vector for normal mapping --
-        if (calculate_tangents) {
-          Vector3 first_tangent = getVertexTangent(iVertex);
-          if (first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
-
-            Vector2 uv0 = getVertexTexCoord(0, iVertex);
-            Vector2 uv1 = getVertexTexCoord(0, iVertex + 1);
-            Vector2 uv2 = getVertexTexCoord(0, iVertex + 2);
-
-            Vector2 st1 = Vector2::Create(uv1.x - uv0.x, uv1.y - uv0.y);
-            Vector2 st2 = Vector2::Create(uv2.x - uv0.x, uv2.y - uv0.y);
-            float coef = 1 / (st1.x * st2.y - st2.x * st1.y);
-
-            Vector3 tangent = Vector3::Create(
-                              coef * ((v1.x * st2.y) + (v2.x * -st1.y)),
-                              coef * ((v1.y * st2.y) + (v2.y * -st1.y)),
-                              coef * ((v1.z * st2.y) + (v2.z * -st1.y))
-            );
-
-            tangent.normalize();
-            setVertexTangent(iVertex, tangent);
-            setVertexTangent(iVertex + 1, tangent);
-            setVertexTangent(iVertex + 2, tangent);
-          }
-        }
+        normal.normalize();
+        setVertexNormal(i0, normal);
+        setVertexNormal(i1, normal);
+        setVertexNormal(i2, normal);
       }
     }
+
+    // -- Calculate tangent vector for normal mapping --
+    if (calculate_tangents) {
+      Vector3 first_tangent = getVertexTangent(i0);
+      if (first_tangent.x == 0.0f && first_tangent.y == 0.0f && first_tangent.z == 0.0f) {
+
+        Vector2 uv0 = getVertexTexCoord(0, i0);
+        Vector2 uv1 = getVertexTexCoord(0, i1);
+        Vector2 uv2 = getVertexTexCoord(0, i2);
+
+        Vector2 st1 = Vector2::Create(uv1.x - uv0.x, uv1.y - uv0.y);
+        Vector2 st2 = Vector2::Create(uv2.x - uv0.x, uv2.y - uv0.y);
+        float coef = 1 / (st1.x * st2.y - st2.x * st1.y);
+
+        Vector3 tangent = Vector3::Create(
+                          coef * ((v1.x * st2.y) + (v2.x * -st1.y)),
+                          coef * ((v1.y * st2.y) + (v2.y * -st1.y)),
+                          coef * ((v1.z * st2.y) + (v2.z * -st1.y))
+        );
+
+        tangent.normalize();
+        setVertexTangent(i0, tangent);
+        setVertexTangent(i1, tangent);
+        setVertexTangent(i2, tangent);
+      }
+    }
+  };
+
+  // Calculate missing surface normals and tangents
+  if (calculate_normals || calculate_tangents) {
+    switch (getModelFormat()) {
+    case Topology::Triangles:
+    {
+      // NOTE: This will not work properly if the vertices are already indexed
+      for (int iVertex = 0; iVertex + 2 < (int)mi.vertices.size(); iVertex += 3) {
+        calculateTriangleAttributes(iVertex, iVertex + 1, iVertex + 2);
+      }
+      break;
+    }
+    case Topology::TriangleStrips:
+    {
+      // NOTE: This will not work properly if the vertices are already indexed
+      for (int iVertex = 0; iVertex + 2 < (int)mi.vertices.size(); iVertex++) {
+        calculateTriangleAttributes(iVertex, iVertex + 1, iVertex + 2);
+      }
+      break;
+    }
+    case Topology::TriangleFans:
+    {
+      // NOTE: This will not work properly if the vertices are already indexed
+      for (int iVertex = 1; iVertex + 1 < (int)mi.vertices.size(); iVertex++) {
+        calculateTriangleAttributes(0, iVertex, iVertex + 1);
+      }
+      break;
+    }
+    default:
+      assert(false); // Not Supported
+    } // switch
   }
   m_pData->unlock();
 
@@ -851,6 +862,20 @@ int KRMesh::getSubmeshCount() const
 int KRMesh::getVertexCount(int submesh) const
 {
   return getSubmesh(submesh)->vertex_count;
+}
+
+int KRMesh::getIndexCount(int submesh) const
+{
+  pack_header* pHeader = getHeader();
+  if (pHeader->index_count == 0) {
+    return 0;
+  }
+  int index_group = getSubmesh(submesh)->index_group;
+
+  int start_index_offset, start_vertex_offset, index_count, vertex_count;
+  getIndexedRange(index_group, start_index_offset, start_vertex_offset, index_count, vertex_count);
+
+  return index_count;
 }
 
 __uint32_t KRMesh::getVertexAttributes() const
@@ -1202,10 +1227,9 @@ Matrix4 KRMesh::getBoneBindPose(int bone_index)
   return Matrix4::Create(getBone(bone_index)->bind_pose);
 }
 
-ModelFormat KRMesh::getModelFormat() const
+Topology KRMesh::getModelFormat() const
 {
-  ModelFormat f = (ModelFormat)getHeader()->model_format;
-  return f;
+  return (Topology)getHeader()->model_format;
 }
 
 bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, const Triangle3& tri, const Vector3& tri_n0, const Vector3& tri_n1, const Vector3& tri_n2, HitInfo& hitinfo)
@@ -1247,39 +1271,22 @@ bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, HitInfo& hitinfo)
   m_pData->lock();
   bool hit_found = false;
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
-    //        int vertex_start = getSubmesh(submesh_index)->start_vertex;
     int vertex_count = getVertexCount(submesh_index);
     switch (getModelFormat()) {
-    case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-    case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+    case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < vertex_count / 3; triangle_index++) {
         int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
-        tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index * 3);
-        tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index * 3 + 1);
-        tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index * 3 + 2);
+        tri_vert_index[0] = getVertexIndex(submesh_index, triangle_index * 3);
+        tri_vert_index[1] = getVertexIndex(submesh_index, triangle_index * 3 + 1);
+        tri_vert_index[2] = getVertexIndex(submesh_index, triangle_index * 3 + 2);
 
         Triangle3 tri = Triangle3::Create(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
 
         if (rayCast(start, dir, tri, getVertexNormal(tri_vert_index[0]), getVertexNormal(tri_vert_index[1]), getVertexNormal(tri_vert_index[2]), hitinfo)) hit_found = true;
       }
       break;
-      /*
-
-       NOTE: Not yet supported:
-
-      case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
-      case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-          for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
-              int tri_vert_index[3];
-              tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
-              tri_vert_index[1] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 1);
-              tri_vert_index[2] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 2);
-
-              if(rayCast(v0, dir, getVertexPosition(vertex_start + triangle_index), getVertexPosition(vertex_start + triangle_index+1), getVertexPosition(vertex_start + triangle_index+2), getVertexNormal(vertex_start + triangle_index), getVertexNormal(vertex_start + triangle_index+1), getVertexNormal(vertex_start + triangle_index+2), hitinfo)) hit_found = true;
-          }
-          break;
-       */
     default:
+      assert(false); // Not yet implemented
       break;
     }
   }
@@ -1296,42 +1303,20 @@ bool KRMesh::sphereCast(const Matrix4& model_to_world, const Vector3& v0, const 
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
     int vertex_count = getVertexCount(submesh_index);
     switch (getModelFormat()) {
-    case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-    case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
+      case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < vertex_count / 3; triangle_index++) {
         int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
-        tri_vert_index[0] = getTriangleVertexIndex(submesh_index, triangle_index * 3);
-        tri_vert_index[1] = getTriangleVertexIndex(submesh_index, triangle_index * 3 + 1);
-        tri_vert_index[2] = getTriangleVertexIndex(submesh_index, triangle_index * 3 + 2);
+        tri_vert_index[0] = getVertexIndex(submesh_index, triangle_index * 3);
+        tri_vert_index[1] = getVertexIndex(submesh_index, triangle_index * 3 + 1);
+        tri_vert_index[2] = getVertexIndex(submesh_index, triangle_index * 3 + 2);
 
         Triangle3 tri = Triangle3::Create(getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[2]));
 
         if (sphereCast(model_to_world, v0, v1, radius, tri, hitinfo)) hit_found = true;
-
-        /*
-        Triangle3 tri2 = Triangle3(getVertexPosition(tri_vert_index[1]), getVertexPosition(tri_vert_index[0]), getVertexPosition(tri_vert_index[2]));
-
-        if(sphereCast(model_to_world, v0, v1, radius, tri2, new_hitinfo)) hit_found = true;
-        */
       }
       break;
-      /*
-
-       NOTE: Not yet supported:
-
-       case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
-       case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-       for(int triangle_index=0; triangle_index < vertex_count - 2; triangle_index++) {
-       int tri_vert_index[3];
-       tri_vert_index[0] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3);
-       tri_vert_index[1] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 1);
-       tri_vert_index[2] = getTriangleVertexIndex(submesh_index, vertex_start + triangle_index*3 + 2);
-
-       if(sphereCast(model_to_world, v0, v1, getVertexPosition(vertex_start + triangle_index), getVertexPosition(vertex_start + triangle_index+1), getVertexPosition(vertex_start + triangle_index+2), getVertexNormal(vertex_start + triangle_index), getVertexNormal(vertex_start + triangle_index+1), getVertexNormal(vertex_start + triangle_index+2), new_hitinfo)) hit_found = true;
-       }
-       break;
-       */
     default:
+      assert(false); // Not yet implemented
       break;
     }
   }
@@ -1400,6 +1385,7 @@ void KRMesh::convertToIndexed()
   int vertex_index_base_start_vertex = 0;
 
   mesh_info mi;
+  mi.format = getModelFormat();
 
   int bone_count = getBoneCount();
   for (int bone_index = 0; bone_index < bone_count; bone_index++) {
@@ -1533,32 +1519,16 @@ void KRMesh::convertToIndexed()
 
   KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
 
-  switch (getModelFormat()) {
-  case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
-    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
-    break;
-  case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
-    mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP;
-    break;
-  default:
-    assert(false);
-  }
-
   m_pData->unlock();
   LoadData(mi, false, false);
 }
 
 void KRMesh::optimize()
 {
-  switch (getModelFormat()) {
-  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
+  if (getIndexCount(0) > 0) {
     optimizeIndexes();
-    break;
-  case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
-  case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+  } else {
     convertToIndexed(); // HACK, FINDME, TODO - This may not be ideal in every case and should be exposed through the API independently
-    break;
   }
 }
 
@@ -1577,13 +1547,10 @@ void KRMesh::getIndexedRange(int index_group, int& start_index_offset, int& star
   }
 }
 
-int KRMesh::getTriangleVertexIndex(int submesh, int index) const
+int KRMesh::getVertexIndex(int submesh, int index) const
 {
-  switch (getModelFormat()) {
-  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-  {
+  if (getIndexCount(submesh) > 0) {
     __uint16_t* index_data = getIndexData();
-
 
     int start_index_offset, start_vertex_offset, index_count, vertex_count;
     int index_group = getSubmesh(submesh)->index_group;
@@ -1595,11 +1562,8 @@ int KRMesh::getTriangleVertexIndex(int submesh, int index) const
       getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
     }
     return index_data[start_index_offset + remaining_vertices] + start_vertex_offset;
-  }
-  break;
-  default:
+  } else {
     return getSubmesh(submesh)->start_vertex + index;
-    break;
   }
 }
 
@@ -1610,7 +1574,7 @@ void KRMesh::optimizeIndexes()
 
   m_pData->lock();
   // TODO - Implement optimization for indexed strips
-  if (getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES) {
+  if (getModelFormat() == Topology::Triangles && getIndexCount(0) > 0) {
 
     __uint16_t* new_indices = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
     __uint16_t* vertex_mapping = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
@@ -1691,7 +1655,7 @@ void KRMesh::optimizeIndexes()
     free(new_indices);
     free(vertex_mapping);
     free(new_vertex_data);
-  } // if(getModelFormat() == ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES)
+  } // getModelFormat() == Topology::Triangles && getIndexCount(0) > 0
 
   m_pData->unlock();
 }

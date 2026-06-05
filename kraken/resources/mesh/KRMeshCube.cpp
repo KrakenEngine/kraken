@@ -60,7 +60,7 @@ KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
   mi.submesh_starts.push_back(0);
   mi.submesh_lengths.push_back((int)mi.vertices.size());
   mi.material_names.push_back("__white");
-  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+  mi.format = Topology::TriangleStrips;
   */
 
   // Cube with normals
@@ -172,7 +172,7 @@ KRMeshCube::KRMeshCube(KRContext& context) : KRMesh(context, "__cube")
   mi.submesh_lengths.push_back((int)mi.vertex_indexes.size());
   mi.vertex_index_bases.push_back(std::make_pair<int, int>(0, 0));
   mi.material_names.push_back("__white");
-  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES;
+  mi.format = Topology::Triangles;
 
   LoadData(mi, true, true);
 }

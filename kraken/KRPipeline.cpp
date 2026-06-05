@@ -41,7 +41,7 @@
 
 using namespace hydra;
 
-KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, ModelFormat modelFormat)
+KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, Topology topology)
   : KRContextObject(context)
   , m_deviceHandle(deviceHandle)
 {
@@ -225,14 +225,24 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  switch (modelFormat) {
-  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES:
-  case ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES:
+  switch (topology) {
+  case Topology::Points:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    break;
+  case Topology::LineStrips:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    break;
+  case Topology::Lines:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    break;
+  case Topology::Triangles:
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     break;
-  case ModelFormat::KRENGINE_MODEL_FORMAT_INDEXED_STRIP:
-  case ModelFormat::KRENGINE_MODEL_FORMAT_STRIP:
+  case Topology::TriangleStrips:
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    break;
+  case Topology::TriangleFans:
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
     break;
   }
 

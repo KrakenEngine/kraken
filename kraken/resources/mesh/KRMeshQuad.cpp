@@ -53,7 +53,7 @@ KRMeshQuad::KRMeshQuad(KRContext& context) : KRMesh(context, "__quad")
   mi.submesh_starts.push_back(0);
   mi.submesh_lengths.push_back((int)mi.vertices.size());
   mi.material_names.push_back("__white");
-  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_STRIP;
+  mi.format = Topology::TriangleStrips;
 
   LoadData(mi, true, true);
 }

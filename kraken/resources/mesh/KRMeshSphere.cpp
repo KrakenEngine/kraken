@@ -112,8 +112,7 @@ KRMeshSphere::KRMeshSphere(KRContext& context) : KRMesh(context, "__sphere")
   mi.submesh_lengths.push_back((int)mi.vertices.size());
   mi.material_names.push_back("__white");
 
-
-  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+  mi.format = Topology::Triangles;
 
   // Generate normals pointing away from center of sphere.
   for (int vertex_index = 0; vertex_index < mi.vertices.size(); vertex_index++) {

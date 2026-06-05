@@ -1276,7 +1276,7 @@ void LoadMaterial(KRContext& context, FbxSurfaceMaterial* pMaterial)
 void LoadMesh(KRContext& context, FbxScene* pFbxScene, FbxGeometryConverter* pGeometryConverter, FbxMesh* pMesh)
 {
   KRMesh::mesh_info mi;
-  mi.format = ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+  mi.format = Topology::Triangles;
 
   typedef struct
   {

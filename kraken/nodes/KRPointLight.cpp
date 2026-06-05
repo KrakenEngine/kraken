@@ -113,7 +113,7 @@ void KRPointLight::render(RenderInfo& ri)
         info.rasterMode = bVisualize ? RasterMode::kAdditive : RasterMode::kAlphaBlend;
       }
       info.vertexAttributes = bInsideLight ? m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getVertexAttributes() : 1 << KRMesh::KRENGINE_ATTRIB_POSITION;
-      info.modelFormat = bInsideLight ? ModelFormat::KRENGINE_MODEL_FORMAT_STRIP : ModelFormat::KRENGINE_MODEL_FORMAT_TRIANGLES;
+      info.modelFormat = bInsideLight ? Topology::TriangleStrips : Topology::Triangles;
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       if (pShader && pShader->bind(ri, sphereModelMatrix)) { // TODO: Pass light index to shader

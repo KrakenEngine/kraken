@@ -59,12 +59,14 @@ class KRMaterial;
 class KRNode;
 class KRRenderPass;
 
-enum class ModelFormat : __uint8_t
+enum class Topology : uint8_t
 {
-  KRENGINE_MODEL_FORMAT_TRIANGLES = 0,
-  KRENGINE_MODEL_FORMAT_STRIP,
-  KRENGINE_MODEL_FORMAT_INDEXED_TRIANGLES,
-  KRENGINE_MODEL_FORMAT_INDEXED_STRIP
+  Points = 0,
+  LineStrips,
+  Lines,
+  Triangles,
+  TriangleStrips,
+  TriangleFans
 };
 
 class KRMesh : public KRResource
@@ -120,6 +122,17 @@ public:
     weights
   };
 
+  static constexpr const std::initializer_list<VertexAttribute> VertexAttributeList
+  {
+      VertexAttribute::position,
+      VertexAttribute::normal,
+      VertexAttribute::tangent,
+      VertexAttribute::texcoord,
+      VertexAttribute::color,
+      VertexAttribute::joints,
+      VertexAttribute::weights
+  };
+
   typedef struct
   {
     ComponentType component;
@@ -128,17 +141,6 @@ public:
     bool normalized : 1;
   } AttributeInfo;
   static_assert(sizeof(AttributeInfo) == 4);
-
-  enum class Topology : uint8_t
-  {
-    Points = 0,
-    LineStrips,
-    LineLoops,
-    Lines,
-    Triangles,
-    TriangleStrips,
-    TriangleFans
-  };
 
   static const int kMaxAttributes = 32;
   typedef struct
@@ -188,7 +190,7 @@ public:
 
   typedef struct
   {
-    ModelFormat format;
+    Topology format;
     std::vector<hydra::Vector3> vertices;
     std::vector<__uint16_t> vertex_indexes;
     std::vector<std::pair<int, int> > vertex_index_bases;
@@ -285,9 +287,10 @@ public:
 
   int getSubmeshCount() const;
   int getVertexCount(int submesh) const;
+  int getIndexCount(int submesh) const;
   __uint32_t getVertexAttributes() const;
 
-  int getTriangleVertexIndex(int submesh, int index) const;
+  int getVertexIndex(int submesh, int index) const;
   hydra::Vector3 getVertexPosition(int index) const;
   hydra::Vector3 getVertexNormal(int index) const;
   hydra::Vector3 getVertexTangent(int index) const;
@@ -313,7 +316,7 @@ public:
   hydra::Matrix4 getBoneBindPose(int bone_index);
 
 
-  ModelFormat getModelFormat() const;
+  Topology getModelFormat() const;
 
   bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo) const;
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo) const;
