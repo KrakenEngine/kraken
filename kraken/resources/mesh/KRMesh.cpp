@@ -147,7 +147,7 @@ void KRMesh::loadPack(Block* data)
   m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
   m_pMetaData->lock();
 
-  m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
+  m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.primitive.indexCount), ph.index_base_count * 8);
   m_pIndexBaseData->lock();
 
   m_extents = ph.extents;
@@ -263,7 +263,7 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
               switch (pMaterial->getAlphaMode()) {
               case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
               case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                 {
                   renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                 }
@@ -273,14 +273,14 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
                   // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                   // 
                   // Render back faces before front faces
-                  if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                  if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                   {
                     renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                   }
                 }
 
                 // Render front faces
-                if (pMaterial->bind(ri, getModelFormat(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                 {
                   renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                 }
@@ -341,7 +341,7 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
     int index_data_offset = (int)getIndexDataOffset();
     pack_header* pHeader = getHeader();
     int32_t vertex_attrib_flags = pHeader->vertex_attrib_flags;
-    int32_t vertex_count = pHeader->vertex_count;
+    int32_t vertex_count = pHeader->primitive.vertexCount;
 
     int vbo_index = 0;
     if (getIndexCount(iSubmesh) > 0) {
@@ -590,11 +590,11 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   memset(pHeader, 0, sizeof(pack_header));
   pHeader->vertex_attrib_flags = vertex_attrib_flags;
   pHeader->submesh_count = (__int32_t)submesh_count;
-  pHeader->vertex_count = (__int32_t)vertex_count;
+  pHeader->primitive.vertexCount = (__int32_t)vertex_count;
   pHeader->bone_count = (__int32_t)bone_count;
-  pHeader->index_count = (__int32_t)index_count;
+  pHeader->primitive.indexCount = (__int32_t)index_count;
   pHeader->index_base_count = (__int32_t)index_base_count;
-  pHeader->model_format = (__int32_t)mi.format;
+  pHeader->primitive.topology = mi.format;
   strcpy(pHeader->szTag, "KRMESH1.0      ");
   updateAttributeOffsets();
 
@@ -714,7 +714,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
 
   // Calculate missing surface normals and tangents
   if (calculate_normals || calculate_tangents) {
-    switch (getModelFormat()) {
+    switch (getTopology()) {
     case Topology::Triangles:
     {
       // NOTE: This will not work properly if the vertices are already indexed
@@ -751,7 +751,7 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   m_pData->copy((void*)&ph, 0, sizeof(ph));
   m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
   m_pMetaData->lock();
-  m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.index_count), ph.index_base_count * 8);
+  m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.primitive.indexCount), ph.index_base_count * 8);
   m_pIndexBaseData->lock();
 
   // ----
@@ -816,7 +816,7 @@ unsigned char* KRMesh::getVertexData() const
 size_t KRMesh::getVertexDataOffset() const
 {
   pack_header* pHeader = getHeader();
-  return sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count) + KRALIGN(8 * pHeader->index_base_count);
+  return sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->primitive.indexCount) + KRALIGN(8 * pHeader->index_base_count);
 }
 
 __uint16_t* KRMesh::getIndexData() const
@@ -835,7 +835,7 @@ __uint32_t* KRMesh::getIndexBaseData() const
 {
   if (m_pIndexBaseData == NULL) {
     pack_header* pHeader = getHeader();
-    return (__uint32_t*)((unsigned char*)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->index_count));
+    return (__uint32_t*)((unsigned char*)m_pData->getStart() + sizeof(pack_header) + sizeof(pack_material) * pHeader->submesh_count + sizeof(pack_bone) * pHeader->bone_count + KRALIGN(2 * pHeader->primitive.indexCount));
   } else {
     return (__uint32_t*)m_pIndexBaseData->getStart();
   }
@@ -867,7 +867,7 @@ int KRMesh::getVertexCount(int submesh) const
 int KRMesh::getIndexCount(int submesh) const
 {
   pack_header* pHeader = getHeader();
-  if (pHeader->index_count == 0) {
+  if (pHeader->primitive.indexCount == 0) {
     return 0;
   }
   int index_group = getSubmesh(submesh)->index_group;
@@ -1227,9 +1227,9 @@ Matrix4 KRMesh::getBoneBindPose(int bone_index)
   return Matrix4::Create(getBone(bone_index)->bind_pose);
 }
 
-Topology KRMesh::getModelFormat() const
+Topology KRMesh::getTopology() const
 {
-  return (Topology)getHeader()->model_format;
+  return getHeader()->primitive.topology;
 }
 
 bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, const Triangle3& tri, const Vector3& tri_n0, const Vector3& tri_n1, const Vector3& tri_n2, HitInfo& hitinfo)
@@ -1272,7 +1272,7 @@ bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, HitInfo& hitinfo)
   bool hit_found = false;
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
     int vertex_count = getVertexCount(submesh_index);
-    switch (getModelFormat()) {
+    switch (getTopology()) {
     case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < vertex_count / 3; triangle_index++) {
         int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
@@ -1302,7 +1302,7 @@ bool KRMesh::sphereCast(const Matrix4& model_to_world, const Vector3& v0, const 
   bool hit_found = false;
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
     int vertex_count = getVertexCount(submesh_index);
-    switch (getModelFormat()) {
+    switch (getTopology()) {
       case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < vertex_count / 3; triangle_index++) {
         int tri_vert_index[3]; // FINDME, HACK!  This is not very efficient for indexed collider meshes...
@@ -1385,7 +1385,7 @@ void KRMesh::convertToIndexed()
   int vertex_index_base_start_vertex = 0;
 
   mesh_info mi;
-  mi.format = getModelFormat();
+  mi.format = getTopology();
 
   int bone_count = getBoneCount();
   for (int bone_index = 0; bone_index < bone_count; bone_index++) {
@@ -1517,7 +1517,7 @@ void KRMesh::convertToIndexed()
 
   delete[] szKey;
 
-  KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->vertex_count, mi.vertices.size(), ((float)getHeader()->vertex_count - (float)mi.vertices.size()) / (float)getHeader()->vertex_count * 100.0f);
+  KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->primitive.vertexCount, mi.vertices.size(), ((float)getHeader()->primitive.vertexCount - (float)mi.vertices.size()) / (float)getHeader()->primitive.vertexCount * 100.0f);
 
   m_pData->unlock();
   LoadData(mi, false, false);
@@ -1542,8 +1542,8 @@ void KRMesh::getIndexedRange(int index_group, int& start_index_offset, int& star
     index_count = index_base_data[index_group * 2 + 2] - start_index_offset;
     vertex_count = index_base_data[index_group * 2 + 3] - start_vertex_offset;
   } else {
-    index_count = h->index_count - start_index_offset;
-    vertex_count = h->vertex_count - start_vertex_offset;
+    index_count = h->primitive.indexCount - start_index_offset;
+    vertex_count = h->primitive.vertexCount - start_vertex_offset;
   }
 }
 
@@ -1574,7 +1574,7 @@ void KRMesh::optimizeIndexes()
 
   m_pData->lock();
   // TODO - Implement optimization for indexed strips
-  if (getModelFormat() == Topology::Triangles && getIndexCount(0) > 0) {
+  if (getTopology() == Topology::Triangles && getIndexCount(0) > 0) {
 
     __uint16_t* new_indices = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
     __uint16_t* vertex_mapping = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
@@ -1655,7 +1655,7 @@ void KRMesh::optimizeIndexes()
     free(new_indices);
     free(vertex_mapping);
     free(new_vertex_data);
-  } // getModelFormat() == Topology::Triangles && getIndexCount(0) > 0
+  } // getTopology() == Topology::Triangles && getIndexCount(0) > 0
 
   m_pData->unlock();
 }

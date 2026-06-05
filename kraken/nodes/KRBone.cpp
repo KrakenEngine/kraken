@@ -92,7 +92,7 @@ void KRBone::render(RenderInfo& ri)
       info.spot_lights = &ri.spot_lights;
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAdditiveNoTest;
-      info.modelFormat = sphereModel->getModelFormat();
+      info.topology = sphereModel->getTopology();
       info.vertexAttributes = sphereModel->getVertexAttributes();
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);

@@ -69,6 +69,71 @@ enum class Topology : uint8_t
   TriangleFans
 };
 
+enum class ComponentType : uint8_t
+{
+  empty = 0,
+  int8,
+  uint8,
+  int16,
+  uint16,
+  int32,
+  uint32,
+  int64,
+  uint64,
+  float16,
+  float32,
+  float64
+};
+
+static constexpr std::array<int, 12> ComponentSize =
+{
+  0, // empty
+  1, // int8
+  1, // uint8
+  2, // int16
+  2, // uint16
+  4, // int32
+  4, // uint32
+  8, // int64
+  8, // uint64
+  2, // float16
+  4, // float32
+  8 // float64
+};
+
+enum class DataType : uint8_t
+{
+  scalar = 0,
+  vec2,
+  vec3,
+  vec4,
+  mat2,
+  mat3,
+  mat4
+};
+
+enum class VertexAttribute : uint8_t
+{
+  position = 0,
+  normal,
+  tangent,
+  texcoord,
+  color,
+  joints,
+  weights
+};
+
+static constexpr const std::initializer_list<VertexAttribute> VertexAttributeList
+{
+  VertexAttribute::position,
+  VertexAttribute::normal,
+  VertexAttribute::tangent,
+  VertexAttribute::texcoord,
+  VertexAttribute::color,
+  VertexAttribute::joints,
+  VertexAttribute::weights
+};
+
 class KRMesh : public KRResource
 {
 
@@ -84,55 +149,6 @@ public:
 
   bool hasTransparency();
 
-  enum class ComponentType : uint8_t
-  {
-    empty = 0,
-    int8,
-    uint8,
-    int16,
-    uint16,
-    int32,
-    uint32,
-    int64,
-    uint64,
-    float16,
-    float32,
-    float64
-  };
-
-  enum class DataType : uint8_t
-  {
-    scalar = 0,
-    vec2,
-    vec3,
-    vec4,
-    mat2,
-    mat3,
-    mat4
-  };
-
-  enum class VertexAttribute : uint8_t
-  {
-    position = 0,
-    normal,
-    tangent,
-    texcoord,
-    color,
-    joints,
-    weights
-  };
-
-  static constexpr const std::initializer_list<VertexAttribute> VertexAttributeList
-  {
-      VertexAttribute::position,
-      VertexAttribute::normal,
-      VertexAttribute::tangent,
-      VertexAttribute::texcoord,
-      VertexAttribute::color,
-      VertexAttribute::joints,
-      VertexAttribute::weights
-  };
-
   typedef struct
   {
     ComponentType component;
@@ -145,10 +161,10 @@ public:
   static const int kMaxAttributes = 32;
   typedef struct
   {
-    Topology topology;
     AttributeInfo attributes[kMaxAttributes];
     int64_t vertexCount;
     int64_t indexCount;
+    Topology topology;
   } PrimitiveInfo;
 
   typedef enum
@@ -316,7 +332,7 @@ public:
   hydra::Matrix4 getBoneBindPose(int bone_index);
 
 
-  Topology getModelFormat() const;
+  Topology getTopology() const;
 
   bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo) const;
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo) const;
@@ -350,15 +366,13 @@ private:
   typedef struct
   {
     char szTag[16];
-    int32_t model_format; // 0 == Triangle list, 1 == Triangle strips, 2 == Indexed triangle list, 3 == Indexed triangle strips, rest are reserved (model_format_t enum)
+    PrimitiveInfo primitive;
     int32_t vertex_attrib_flags;
-    int32_t vertex_count;
     int32_t submesh_count;
     int32_t bone_count;
     hydra::AABB extents; // Axis aligned bounding box, in model's coordinate space
-    int32_t index_count;
     int32_t index_base_count;
-    unsigned char reserved[444]; // Pad out to 512 bytes
+    unsigned char reserved[456 - sizeof(PrimitiveInfo)]; // Pad out to 512 bytes
   } pack_header;
 
   static_assert(sizeof(pack_header) == 512);

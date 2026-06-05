@@ -206,7 +206,7 @@ public:
   RasterMode rasterMode;
   CullMode cullMode;
   uint32_t vertexAttributes;
-  Topology modelFormat;
+  Topology topology;
   const KRRenderPass* renderPass;
 };
 

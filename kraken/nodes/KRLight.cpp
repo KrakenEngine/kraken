@@ -239,7 +239,7 @@ void KRLight::render(RenderInfo& ri)
         info.rasterMode = RasterMode::kAdditive;
         info.cullMode = CullMode::kCullNone;
         info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-        info.modelFormat = Topology::Triangles;
+        info.topology = Topology::Triangles;
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         if (pParticleShader && pParticleShader->bind(ri, getParticleModelMatrix(*ri.viewport))) { // TODO: Pass light index to shader
           m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -279,7 +279,7 @@ void KRLight::render(RenderInfo& ri)
     info.rasterMode = RasterMode::kAdditive;
     info.cullMode = CullMode::kCullNone;
     info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION);
-    info.modelFormat = Topology::Triangles;
+    info.topology = Topology::Triangles;
 
     KRPipeline* pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
     if (pFogShader) {
@@ -313,7 +313,7 @@ void KRLight::render(RenderInfo& ri)
         info.renderPass = ri.renderPass;
         info.rasterMode = RasterMode::kAdditive;
         info.cullMode = CullMode::kCullNone;
-        info.modelFormat = sphereModel->getModelFormat();
+        info.topology = sphereModel->getTopology();
         info.vertexAttributes = sphereModel->getVertexAttributes();
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
@@ -364,7 +364,7 @@ void KRLight::render(RenderInfo& ri)
           info.rasterMode = RasterMode::kAdditiveNoTest;
           info.cullMode = CullMode::kCullNone;
           info.vertexAttributes = vertices.getVertexAttributes();
-          info.modelFormat = Topology::TriangleStrips;
+          info.topology = Topology::TriangleStrips;
 
 
           KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);

@@ -161,7 +161,7 @@ void KRDirectionalLight::render(RenderInfo& ri)
     info.rasterMode = RasterMode::kAdditiveNoTest;
 
     info.vertexAttributes = vertices.getVertexAttributes();
-    info.modelFormat = Topology::TriangleStrips;
+    info.topology = Topology::TriangleStrips;
 
     KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
     if (pShader && pShader->bind(ri, getModelMatrix())) { // TODO: Need to pass in the light index to the shader
