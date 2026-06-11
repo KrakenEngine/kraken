@@ -130,8 +130,7 @@ void KRAmbientZone::render(RenderInfo& ri)
       info.spot_lights = &ri.spot_lights;
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAdditive;
-      info.topology = sphereModel->getTopology();
-      info.vertexAttributes = sphereModel->getVertexAttributes();
+      info.layout = sphereModel->getLayout(0);
 
       KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       if (pPipeline && pPipeline->bind(ri, sphereModelMatrix)) {

@@ -41,7 +41,7 @@
 
 using namespace hydra;
 
-KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, Topology topology)
+KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, Vector2i viewport_size, Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, const VertexBufferLayout* layout)
   : KRContextObject(context)
   , m_deviceHandle(deviceHandle)
 {
@@ -72,43 +72,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   std::vector<VkDescriptorSetLayoutBinding> uboLayoutBindings;
 
-  // TODO - Refactor this...  These lookup tables should be in KRMesh...
-  static const KRMesh::vertex_attrib_t attribute_mapping[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {
-    KRMesh::KRENGINE_ATTRIB_POSITION,
-    KRMesh::KRENGINE_ATTRIB_NORMAL,
-    KRMesh::KRENGINE_ATTRIB_TANGENT,
-    KRMesh::KRENGINE_ATTRIB_COLOR0,
-    KRMesh::KRENGINE_ATTRIB_COLOR1,
-    KRMesh::KRENGINE_ATTRIB_COLOR2,
-    KRMesh::KRENGINE_ATTRIB_COLOR3,
-    KRMesh::KRENGINE_ATTRIB_COLOR4,
-    KRMesh::KRENGINE_ATTRIB_COLOR5,
-    KRMesh::KRENGINE_ATTRIB_COLOR6,
-    KRMesh::KRENGINE_ATTRIB_COLOR7,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD1,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD2,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD3,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD4,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD5,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD6,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD7,
-    KRMesh::KRENGINE_ATTRIB_BONEINDEXES,
-    KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS,
-    KRMesh::KRENGINE_ATTRIB_POSITION,
-    KRMesh::KRENGINE_ATTRIB_NORMAL,
-    KRMesh::KRENGINE_ATTRIB_TANGENT,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD0,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD1,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD2,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD3,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD4,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD5,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD6,
-    KRMesh::KRENGINE_ATTRIB_TEXCOORD7,
-  };
-
-  uint32_t attribute_locations[KRMesh::KRENGINE_NUM_ATTRIBUTES] = {};
+  int attribute_locations[kMaxAttributes] = {};
 
   uint32_t layout_binding_count = 0;
   for (KRShader* shader : shaders) {
@@ -141,51 +105,43 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
     stageInfo.stage = shader->getShaderStageFlagBits();
     if (stageInfo.stage == VK_SHADER_STAGE_VERTEX_BIT) {
 
-      for (uint32_t i = 0; i < reflection->input_variable_count; i++) {
-        // TODO - We should have an interface to allow classes such as KRMesh to expose bindings
+      for (int i = 0; i < reflection->input_variable_count; i++) {
+        attribute_locations[i] = -1;
         SpvReflectInterfaceVariable& input_var = *reflection->input_variables[i];
-        if (strcmp(input_var.name, "vertex_position") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_POSITION] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_normal") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_NORMAL] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_tangent") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TANGENT] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord0") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD0] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord1") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD1] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord2") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD2] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord3") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD3] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord4") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD4] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord5") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD5] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord6") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD6] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_texcoord7") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_TEXCOORD7] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color0") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR0] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color1") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR1] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color2") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR2] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color3") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR3] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color4") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR4] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color5") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR5] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color6") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR6] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "vertex_color7") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_COLOR7] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "bone_indexes") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEINDEXES] = input_var.location + 1;
-        } else if (strcmp(input_var.name, "bone_weights") == 0) {
-          attribute_locations[KRMesh::KRENGINE_ATTRIB_BONEWEIGHTS] = input_var.location + 1;
+        for (int i = 0; i < kMaxAttributes; i++) {
+          const VertexAttributeInfo& attrib = info.layout->attributes[i];
+          if (attrib.component == ComponentType::empty) {
+            break;
+          }
+          
+          const char* attribBaseName = VertexAttributeNames[(int)attrib.attribute];
+          int len = strlen(input_var.name);
+          int baseNameLen = strlen(attribBaseName);
+          if (len == baseNameLen) {
+            if (strcmp(attribBaseName, input_var.name) == 0) {
+              attribute_locations[i] = input_var.location;
+            }
+            break;
+          }
+          if (len + 1 != baseNameLen) {
+            continue;
+          }
+          char lastChar = input_var.name[len - 1];
+          if (lastChar < '0' || lastChar > '9') {
+            continue;
+          }
+
+          int set = lastChar - '0';
+          for (int j = 0; j < i; j++) {
+            if (info.layout->attributes[j].attribute == attrib.attribute) {
+              --set;
+            }
+          }
+          if (set != 0) {
+            continue;
+          }
+          attribute_locations[i] = input_var.location;
+          break;
         }
       }
     }
@@ -198,22 +154,25 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   VkVertexInputBindingDescription bindingDescription{};
   bindingDescription.binding = 0;
-  bindingDescription.stride = (uint32_t)KRMesh::VertexSizeForAttributes(vertexAttributes);
+  bindingDescription.stride = (uint32_t)layout->vertexSize;
   bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
   uint32_t vertexAttributeCount = 0;
-  VkVertexInputAttributeDescription vertexAttributeDescriptions[KRMesh::KRENGINE_NUM_ATTRIBUTES]{};
+  VkVertexInputAttributeDescription vertexAttributeDescriptions[kMaxAttributes]{};
 
-  for (int i = KRMesh::KRENGINE_ATTRIB_POSITION; i < KRMesh::KRENGINE_NUM_ATTRIBUTES; i++) {
-    KRMesh::vertex_attrib_t mesh_attrib = static_cast<KRMesh::vertex_attrib_t>(i);
-    int location_attrib = attribute_mapping[i];
-    if (KRMesh::has_vertex_attribute(vertexAttributes, (KRMesh::vertex_attrib_t)i) && attribute_locations[location_attrib]) {
-      VkVertexInputAttributeDescription& desc = vertexAttributeDescriptions[vertexAttributeCount++];
-      desc.binding = 0;
-      desc.location = attribute_locations[location_attrib] - 1;
-      desc.format = KRMesh::AttributeVulkanFormat(mesh_attrib);
-      desc.offset = (uint32_t)KRMesh::AttributeOffset(mesh_attrib, vertexAttributes);
+  for (int i = 0; i < kMaxAttributes; i++) {
+    VertexAttributeInfo attrib = layout->attributes[i];
+    if (attrib.component == ComponentType::empty) {
+      break;
     }
+    if (attribute_locations[i] == -1) {
+      continue;
+    }
+    VkVertexInputAttributeDescription& desc = vertexAttributeDescriptions[vertexAttributeCount++];
+    desc.binding = 0;
+    desc.location = attribute_locations[i];
+    desc.format = KRMesh::AttributeVulkanFormat(attrib);
+    desc.offset = (uint32_t)info.layout->offsets[i];
   }
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -225,7 +184,7 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  switch (topology) {
+  switch (info.layout->topology) {
   case Topology::Points:
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
     break;

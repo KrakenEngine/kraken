@@ -59,81 +59,6 @@ class KRMaterial;
 class KRNode;
 class KRRenderPass;
 
-enum class Topology : uint8_t
-{
-  Points = 0,
-  LineStrips,
-  Lines,
-  Triangles,
-  TriangleStrips,
-  TriangleFans
-};
-
-enum class ComponentType : uint8_t
-{
-  empty = 0,
-  int8,
-  uint8,
-  int16,
-  uint16,
-  int32,
-  uint32,
-  int64,
-  uint64,
-  float16,
-  float32,
-  float64
-};
-
-static constexpr std::array<int, 12> ComponentSize =
-{
-  0, // empty
-  1, // int8
-  1, // uint8
-  2, // int16
-  2, // uint16
-  4, // int32
-  4, // uint32
-  8, // int64
-  8, // uint64
-  2, // float16
-  4, // float32
-  8 // float64
-};
-
-enum class DataType : uint8_t
-{
-  scalar = 0,
-  vec2,
-  vec3,
-  vec4,
-  mat2,
-  mat3,
-  mat4
-};
-
-enum class VertexAttribute : uint8_t
-{
-  position = 0,
-  normal,
-  tangent,
-  texcoord,
-  color,
-  joints,
-  weights
-};
-
-static constexpr const std::initializer_list<VertexAttribute> VertexAttributeList
-{
-  VertexAttribute::position,
-  VertexAttribute::normal,
-  VertexAttribute::tangent,
-  VertexAttribute::texcoord,
-  VertexAttribute::color,
-  VertexAttribute::joints,
-  VertexAttribute::weights
-};
-
 class KRMesh : public KRResource
 {
 
@@ -149,62 +74,14 @@ public:
 
   bool hasTransparency();
 
-  typedef struct
+  struct PrimitiveInfo
   {
-    ComponentType component;
-    DataType type;
-    VertexAttribute attribute;
-    bool normalized : 1;
-  } AttributeInfo;
-  static_assert(sizeof(AttributeInfo) == 4);
-
-  static const int kMaxAttributes = 32;
-  typedef struct
-  {
-    AttributeInfo attributes[kMaxAttributes];
+    VertexBufferLayout layout;
     int64_t vertexCount;
     int64_t indexCount;
-    Topology topology;
-  } PrimitiveInfo;
+  };
 
-  typedef enum
-  {
-    KRENGINE_ATTRIB_POSITION = 0,
-    KRENGINE_ATTRIB_NORMAL,
-    KRENGINE_ATTRIB_TANGENT,
-    KRENGINE_ATTRIB_COLOR0,
-    KRENGINE_ATTRIB_COLOR1,
-    KRENGINE_ATTRIB_COLOR2,
-    KRENGINE_ATTRIB_COLOR3,
-    KRENGINE_ATTRIB_COLOR4,
-    KRENGINE_ATTRIB_COLOR5,
-    KRENGINE_ATTRIB_COLOR6,
-    KRENGINE_ATTRIB_COLOR7,
-    KRENGINE_ATTRIB_TEXCOORD0,
-    KRENGINE_ATTRIB_TEXCOORD1,
-    KRENGINE_ATTRIB_TEXCOORD2,
-    KRENGINE_ATTRIB_TEXCOORD3,
-    KRENGINE_ATTRIB_TEXCOORD4,
-    KRENGINE_ATTRIB_TEXCOORD5,
-    KRENGINE_ATTRIB_TEXCOORD6,
-    KRENGINE_ATTRIB_TEXCOORD7,
-    KRENGINE_ATTRIB_BONEINDEXES,
-    KRENGINE_ATTRIB_BONEWEIGHTS,
-    KRENGINE_ATTRIB_VERTEX_SHORT,
-    KRENGINE_ATTRIB_NORMAL_SHORT,
-    KRENGINE_ATTRIB_TANGENT_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD0_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD1_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD2_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD3_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD4_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD5_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD6_SHORT,
-    KRENGINE_ATTRIB_TEXCOORD7_SHORT,
-    KRENGINE_NUM_ATTRIBUTES
-  } vertex_attrib_t;
-
-  typedef struct
+  struct mesh_info
   {
     Topology format;
     std::vector<hydra::Vector3> vertices;
@@ -221,7 +98,7 @@ public:
     std::vector<std::vector<int> > bone_indexes;
     std::vector<hydra::Matrix4> bone_bind_poses;
     std::vector<std::vector<float> > bone_weights;
-  } mesh_info;
+  };
 
   void render(KRNode::RenderInfo& ri, const std::string& object_name, const hydra::Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, float lod_coverage = 0.0f);
 
@@ -298,13 +175,11 @@ public:
 
 
   static bool lod_sort_predicate(const KRMesh* m1, const KRMesh* m2);
-  bool has_vertex_attribute(vertex_attrib_t attribute_type) const;
-  static bool has_vertex_attribute(int vertex_attrib_flags, vertex_attrib_t attribute_type);
-
+  
   int getSubmeshCount() const;
   int getVertexCount(int submesh) const;
   int getIndexCount(int submesh) const;
-  __uint32_t getVertexAttributes() const;
+  const VertexBufferLayout* getLayout(int submesh) const;
 
   int getVertexIndex(int submesh, int index) const;
   hydra::Vector3 getVertexPosition(int index) const;
@@ -312,20 +187,34 @@ public:
   hydra::Vector3 getVertexTangent(int index) const;
   hydra::Vector2 getVertexTexCoord(int set, int index) const;
   hydra::Vector4 getVertexColor(int set, int index) const;
-  int getBoneIndex(int index, int weight_index) const;
-  float getBoneWeight(int index, int weight_index) const;
+
+  static int getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute attribute, int index);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, float val);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector2 val);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector3 val);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector4 val);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix2 val);
+  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix4 val);
+  void getVertexAttribute(int vertexIndex, int attributeIndex, float* val) const;
+  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector2* val) const;
+  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector3* val) const;
+  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector4* val) const;
+  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix2* val) const;
+  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix4* val) const;
 
   void setVertexPosition(int index, const hydra::Vector3& v);
   void setVertexNormal(int index, const hydra::Vector3& v);
   void setVertexTangent(int index, const hydra::Vector3& v);
-  void setVertexTexCoord(int set, int index, const hydra::Vector2& v);
-  void setVertexColor(int set, int index, const hydra::Vector4& v);
-  void setBoneIndex(int index, int weight_index, int bone_index);
-  void setBoneWeight(int index, int weight_index, float bone_weight);
+  void setVertexTexCoord(int index, int set, const hydra::Vector2& v);
+  void setVertexColor(int index, int set, const hydra::Vector4& v);
 
-  static size_t VertexSizeForAttributes(__int32_t vertex_attrib_flags);
-  static size_t AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags);
-  static VkFormat AttributeVulkanFormat(__int32_t vertex_attrib);
+  int getBoneIndex(int index, int weight_index) const;
+  void setBoneIndex(int index, int weight_index, int bone_index);
+
+  float getBoneWeight(int index, int weight_index) const;
+  void setBoneWeight(int index, int weight_index, float weight);
+
+  static VkFormat AttributeVulkanFormat(const VertexAttributeInfo& attribute);
 
   int getBoneCount();
   char* getBoneName(int bone_index);
@@ -367,7 +256,6 @@ private:
   {
     char szTag[16];
     PrimitiveInfo primitive;
-    int32_t vertex_attrib_flags;
     int32_t submesh_count;
     int32_t bone_count;
     hydra::AABB extents; // Axis aligned bounding box, in model's coordinate space
@@ -378,13 +266,8 @@ private:
   static_assert(sizeof(pack_header) == 512);
   
   vector<Submesh> m_submeshes;
-  int m_vertex_attribute_offset[KRENGINE_NUM_ATTRIBUTES];
-  int m_vertex_size;
-  void updateAttributeOffsets();
 
   void setName(const std::string name);
-
-
 
   pack_material* getSubmesh(int mesh_index) const;
   unsigned char* getVertexData() const;
@@ -399,7 +282,7 @@ private:
 
   void getIndexedRange(int index_group, int& start_index_offset, int& start_vertex_offset, int& index_count, int& vertex_count) const;
 
-  void releaseData();
+  void releaseData(bool includeMainDatablock = true);
 
   void createDataBlocks(KRMeshManager::KRVBOData::vbo_type t);
 

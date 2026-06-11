@@ -238,8 +238,7 @@ void KRLight::render(RenderInfo& ri)
         info.renderPass = ri.renderPass;
         info.rasterMode = RasterMode::kAdditive;
         info.cullMode = CullMode::kCullNone;
-        info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-        info.topology = Topology::Triangles;
+        info.layout = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES.getLayout();
         KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
         if (pParticleShader && pParticleShader->bind(ri, getParticleModelMatrix(*ri.viewport))) { // TODO: Pass light index to shader
           m_pContext->getMeshManager()->bindVBO(ri.commandBuffer, &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES, 1.0f);
@@ -278,8 +277,7 @@ void KRLight::render(RenderInfo& ri)
     info.renderPass = ri.renderPass;
     info.rasterMode = RasterMode::kAdditive;
     info.cullMode = CullMode::kCullNone;
-    info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION);
-    info.topology = Topology::Triangles;
+    info.layout = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.getLayout();
 
     KRPipeline* pFogShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
     if (pFogShader) {
@@ -313,8 +311,7 @@ void KRLight::render(RenderInfo& ri)
         info.renderPass = ri.renderPass;
         info.rasterMode = RasterMode::kAdditive;
         info.cullMode = CullMode::kCullNone;
-        info.topology = sphereModel->getTopology();
-        info.vertexAttributes = sphereModel->getVertexAttributes();
+        info.layout = sphereModel->getLayout(0);
 
         KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
         if (pPipeline && pPipeline->bind(ri, occlusion_test_sphere_matrix)) {
@@ -363,9 +360,7 @@ void KRLight::render(RenderInfo& ri)
           info.renderPass = ri.renderPass;
           info.rasterMode = RasterMode::kAdditiveNoTest;
           info.cullMode = CullMode::kCullNone;
-          info.vertexAttributes = vertices.getVertexAttributes();
-          info.topology = Topology::TriangleStrips;
-
+          info.layout = vertices.getLayout();
 
           KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
           if (pShader && pShader->bind(ri, getModelMatrix())) {

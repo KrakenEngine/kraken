@@ -40,7 +40,131 @@
 
 class KRContext;
 class KRMesh;
+class VertexBufferLayout;
 enum RenderPassType : uint8_t;
+
+enum class Topology : uint8_t
+{
+  Points = 0,
+  LineStrips,
+  Lines,
+  Triangles,
+  TriangleStrips,
+  TriangleFans
+};
+
+enum class ComponentType : uint8_t
+{
+  empty = 0,
+  int8,
+  uint8,
+  int16,
+  uint16,
+  int32,
+  uint32,
+  int64,
+  uint64,
+  float16,
+  float32,
+  float64
+};
+
+static constexpr std::array<int, 12> ComponentSize =
+{
+  0, // empty
+  1, // int8
+  1, // uint8
+  2, // int16
+  2, // uint16
+  4, // int32
+  4, // uint32
+  8, // int64
+  8, // uint64
+  2, // float16
+  4, // float32
+  8 // float64
+};
+
+enum class DataType : uint8_t
+{
+  scalar = 0,
+  vec2,
+  vec3,
+  vec4,
+  mat2,
+  mat3,
+  mat4
+};
+
+static constexpr std::array<int, 7> DataTypeComponentCount =
+{
+  1, // scalar
+  2, // vec2
+  3, // vec3
+  4, // vec4
+  2 * 2, // mat2
+  3 * 3, // mat3
+  4 * 4 // mat4
+};
+
+enum class Normalization : uint8_t
+{
+  none = 0,
+  scaled,
+  normalized,
+  srgb
+};
+
+enum class VertexAttribute : uint8_t
+{
+  position = 0,
+  normal,
+  tangent,
+  texcoord,
+  color,
+  joints,
+  weights
+};
+
+static constexpr std::array<const char*, 7> VertexAttributeNames =
+{
+  "vertex_position",
+  "vertex_normal",
+  "vertex_tangent",
+  "vertex_texcoord",
+  "vertex_color",
+  "vertex_joints",
+  "vertex_weights"
+};
+
+static constexpr const std::initializer_list<VertexAttribute> VertexAttributeList
+{
+  VertexAttribute::position,
+  VertexAttribute::normal,
+  VertexAttribute::tangent,
+  VertexAttribute::texcoord,
+  VertexAttribute::color,
+  VertexAttribute::joints,
+  VertexAttribute::weights
+};
+
+struct VertexAttributeInfo
+{
+  ComponentType component;
+  DataType type;
+  Normalization normalization;
+  VertexAttribute attribute;
+};
+static_assert(sizeof(VertexAttributeInfo) == 4);
+
+static const int kMaxAttributes = 32;
+struct VertexBufferLayout
+{
+  VertexAttributeInfo attributes[kMaxAttributes];
+  int16_t offsets[kMaxAttributes];
+  int16_t vertexSize;
+  Topology topology;
+};
 
 class KRMeshManager : public KRResourceManager
 {
@@ -84,12 +208,12 @@ public:
     } vbo_type;
 
     KRVBOData();
-    KRVBOData(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+    KRVBOData(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, const VertexBufferLayout* layout, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
         , const char* debug_label
 #endif
     );
-    void init(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+    void init(KRMeshManager* manager, mimir::Block* data, mimir::Block* index_data, const VertexBufferLayout* layout, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
       , const char* debug_label
 #endif
@@ -99,6 +223,7 @@ public:
 
     mimir::Block* m_data;
     mimir::Block* m_index_data;
+    const VertexBufferLayout* m_layout;
 
     bool isVBOLoaded()
     {
@@ -140,11 +265,10 @@ public:
 
     VkBuffer& getVertexBuffer();
     VkBuffer& getIndexBuffer();
-    uint32_t getVertexAttributes();
+    const VertexBufferLayout* getLayout() const;
 
   private:
     KRMeshManager* m_manager;
-    int m_vertex_attrib_flags;
     long m_size;
 
     long m_last_frame_used;
@@ -212,9 +336,13 @@ public:
 
 private:
   mimir::Block KRENGINE_VBO_3D_CUBE_VERTICES;
-  __int32_t KRENGINE_VBO_3D_CUBE_ATTRIBS;
+  VertexBufferLayout KRENGINE_VBO_3D_CUBE_LAYOUT;
   mimir::Block KRENGINE_VBO_2D_SQUARE_VERTICES;
-  __int32_t KRENGINE_VBO_2D_SQUARE_ATTRIBS;
+  VertexBufferLayout KRENGINE_VBO_2D_SQUARE_LAYOUT;
+  mimir::Block m_randomParticleVertexData;
+  VertexBufferLayout m_randomParticleVertexLayout;
+  mimir::Block m_volumetricLightingVertexData;
+  VertexBufferLayout m_volumetricLightingVertexLayout;
 
   unordered_map<std::string, KRMesh*> m_meshes;
 
@@ -224,9 +352,6 @@ private:
   unordered_map<mimir::Block*, KRVBOData*> m_vbosActive;
   std::vector<std::pair<float, KRVBOData*> > m_activeVBOs_streamer;
   std::vector<std::pair<float, KRVBOData*> > m_activeVBOs_streamer_copy;
-
-  mimir::Block m_randomParticleVertexData;
-  mimir::Block m_volumetricLightingVertexData;
 
   long m_memoryTransferredThisFrame;
 

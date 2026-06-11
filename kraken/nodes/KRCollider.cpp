@@ -217,8 +217,7 @@ void KRCollider::render(RenderInfo& ri)
       info.spot_lights = &ri.spot_lights;
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAdditive;
-      info.topology = m_model.val.get()->getTopology();
-      info.vertexAttributes = m_model.val.get()->getVertexAttributes();
+      info.layout = m_model.val.get()->getLayout(0);
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
 

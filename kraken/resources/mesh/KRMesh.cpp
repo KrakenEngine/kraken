@@ -29,6 +29,9 @@
 //  or implied, of Kearwood Gilbert.
 //
 
+#include <type_traits>
+#include <algorithm>
+#include <cmath>
 
 #include "KREngine-common.h"
 
@@ -100,7 +103,7 @@ KRMesh::~KRMesh()
   releaseData();
 }
 
-void KRMesh::releaseData()
+void KRMesh::releaseData(bool includeMainDatablock /* = true*/)
 {
   m_hasTransparency = false;
   m_submeshes.clear();
@@ -114,7 +117,7 @@ void KRMesh::releaseData()
     delete m_pMetaData;
     m_pMetaData = NULL;
   }
-  if (m_pData) {
+  if (m_pData && includeMainDatablock) {
     delete m_pData;
     m_pData = NULL;
   }
@@ -151,8 +154,6 @@ void KRMesh::loadPack(Block* data)
   m_pIndexBaseData->lock();
 
   m_extents = ph.extents;
-
-  updateAttributeOffsets();
 }
 
 void KRMesh::getMaterials()
@@ -263,7 +264,7 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
               switch (pMaterial->getAlphaMode()) {
               case KRMaterial::KRMATERIAL_ALPHA_MODE_OPAQUE: // Non-transparent materials
               case KRMaterial::KRMATERIAL_ALPHA_MODE_TEST: // Alpha in diffuse texture is interpreted as punch-through when < 0.5
-                if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                if (pMaterial->bind(ri, &getHeader()->primitive.layout, CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                 {
                   renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                 }
@@ -273,14 +274,14 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
                   // Blended alpha rendered in two passes.  First pass renders backfaces; second pass renders frontfaces.
                   // 
                   // Render back faces before front faces
-                  if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                  if (pMaterial->bind(ri, &getHeader()->primitive.layout, CullMode::kCullFront, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                   {
                     renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                   }
                 }
 
                 // Render front faces
-                if (pMaterial->bind(ri, getTopology(), getVertexAttributes(), CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
+                if (pMaterial->bind(ri, &getHeader()->primitive.layout, CullMode::kCullBack, bones, bone_bind_poses, matModel, pLightMap, lod_coverage))
                 {
                   renderSubmesh(ri.commandBuffer, iSubmesh, ri.renderPass, object_name, pMaterial->getName(), lod_coverage);
                 }
@@ -340,7 +341,6 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
     int vertex_data_offset = (int)getVertexDataOffset();
     int index_data_offset = (int)getIndexDataOffset();
     pack_header* pHeader = getHeader();
-    int32_t vertex_attrib_flags = pHeader->vertex_attrib_flags;
     int32_t vertex_count = pHeader->primitive.vertexCount;
 
     int vbo_index = 0;
@@ -354,9 +354,11 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
         getIndexedRange(index_group++, start_index_offset, start_vertex_offset, index_count, vertex_count);
 
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
-          Block* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * m_vertex_size, vertex_count * m_vertex_size);
+          int vertex_count = getHeader()->primitive.vertexCount;
+          int vertex_size = getHeader()->primitive.layout.vertexSize;
+          Block* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + start_vertex_offset * vertex_size, vertex_count * vertex_size);
           Block* index_data_block = m_pData->getSubBlock(index_data_offset + start_index_offset * 2, index_count * 2);
-          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
+          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, &pHeader->primitive.layout, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
 #endif
@@ -380,12 +382,12 @@ void KRMesh::createDataBlocks(KRMeshManager::KRVBOData::vbo_type t)
       iVertex = iVertex % MAX_VBO_SIZE;
       while (cVertexes > 0) {
         int cBufferVertexes = iBuffer < cBuffers - 1 ? MAX_VBO_SIZE : vertex_count % MAX_VBO_SIZE;
-        int vertex_size = m_vertex_size;
+        int vertex_size = getHeader()->primitive.layout.vertexSize;
 
         if ((int)mesh.vertex_data_blocks.size() <= vbo_index) {
           Block* index_data_block = NULL;
           Block* vertex_data_block = m_pData->getSubBlock(vertex_data_offset + iBuffer * MAX_VBO_SIZE * vertex_size, vertex_size * cBufferVertexes);
-          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, vertex_attrib_flags, true, t
+          mesh.vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), vertex_data_block, index_data_block, &pHeader->primitive.layout, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
             , m_lodBaseName.c_str()
 #endif
@@ -536,67 +538,106 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     }
   }
 
-  __int32_t vertex_attrib_flags = 0;
+  PrimitiveInfo primitive = {};
+  VertexAttributeInfo* attribute = primitive.layout.attributes;
+
   if (mi.vertices.size()) {
+    attribute->attribute = VertexAttribute::position;
+    attribute->type = DataType::vec3;
     if (use_short_vertexes) {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_VERTEX_SHORT);
+      attribute->component = ComponentType::float16;
+      attribute->normalization = Normalization::normalized;
     } else {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_POSITION);
+      attribute->component = ComponentType::float32;
+      attribute->normalization = Normalization::none;
     }
+    attribute++;
   }
   if (mi.normals.size() || calculate_normals) {
+    attribute->attribute = VertexAttribute::normal;
+    attribute->type = DataType::vec3;
     if (use_short_normals) {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_NORMAL_SHORT);
+      attribute->component = ComponentType::float16;
+      attribute->normalization = Normalization::normalized;
     } else {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_NORMAL);
+      attribute->component = ComponentType::float32;
+      attribute->normalization = Normalization::none;
     }
+    attribute++;
   }
   if (mi.tangents.size() || calculate_tangents) {
+    attribute->attribute = VertexAttribute::tangent;
+    attribute->type = DataType::vec3;
     if (use_short_tangents) {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_TANGENT_SHORT);
+      attribute->component = ComponentType::float16;
+      attribute->normalization = Normalization::normalized;
     } else {
-      vertex_attrib_flags |= (1 << KRENGINE_ATTRIB_TANGENT);
+      attribute->component = ComponentType::float32;
+      attribute->normalization = Normalization::none;
     }
+    attribute++;
   }
   for (int set = 0; set < 8; set++) {
     if (mi.texcoord[set].size()) {
+      attribute->attribute = VertexAttribute::texcoord;
+      attribute->type = DataType::vec2;
       if (use_short_texcoord[set]) {
-        vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_TEXCOORD0_SHORT + set));
+        attribute->component = ComponentType::float16;
+        attribute->normalization = Normalization::normalized;
       } else {
-        vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_TEXCOORD0 + set));
+        attribute->component = ComponentType::float32;
+        attribute->normalization = Normalization::none;
       }
+      attribute++;
     }
 
     if (mi.color[set].size()) {
-      vertex_attrib_flags |= (1 << (KRENGINE_ATTRIB_COLOR0 + set));
+      attribute->attribute = VertexAttribute::texcoord;
+      attribute->type = DataType::vec4;
+      attribute->component = ComponentType::uint8;
+      attribute->normalization = Normalization::normalized;
+      attribute++;
     }
   }
   if (mi.bone_names.size()) {
-    vertex_attrib_flags += (1 << KRENGINE_ATTRIB_BONEINDEXES) + (1 << KRENGINE_ATTRIB_BONEWEIGHTS);
+    attribute->attribute = VertexAttribute::joints;
+    attribute->type = DataType::vec4;
+    attribute->component = ComponentType::uint8;
+    attribute->normalization = Normalization::none;
+    attribute++;
+
+    attribute->attribute = VertexAttribute::joints;
+    attribute->type = DataType::vec4;
+    attribute->component = ComponentType::float32;
+    attribute->normalization = Normalization::none;
+    attribute++;
   }
-  size_t vertex_size = VertexSizeForAttributes(vertex_attrib_flags);
+  for (int i = 0; i < kMaxAttributes; i++) {
+    primitive.layout.offsets[i] = primitive.layout.vertexSize;
+    int componentSize = ComponentSize[(int)primitive.layout.attributes[i].component] * DataTypeComponentCount[(int)primitive.layout.attributes[i].type];
+    primitive.layout.vertexSize += componentSize;
+  }
+
+  primitive.layout.topology = mi.format;
+  primitive.vertexCount = mi.vertices.size();
+  primitive.indexCount = mi.vertex_indexes.size();
 
   size_t index_count = mi.vertex_indexes.size();
   size_t index_base_count = mi.vertex_index_bases.size();
   size_t submesh_count = mi.submesh_lengths.size();
-  size_t vertex_count = mi.vertices.size();
   size_t bone_count = mi.bone_names.size();
-  size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + vertex_size * vertex_count;
+  size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * index_count) + KRALIGN(8 * index_base_count) + primitive.layout.vertexSize * primitive.vertexCount;
   m_pData = new Block();
   m_pMetaData = m_pData;
   m_pData->expand(new_file_size);
   m_pData->lock();
   pack_header* pHeader = getHeader();
   memset(pHeader, 0, sizeof(pack_header));
-  pHeader->vertex_attrib_flags = vertex_attrib_flags;
+  memcpy(&pHeader->primitive, &primitive, sizeof(PrimitiveInfo));
   pHeader->submesh_count = (__int32_t)submesh_count;
-  pHeader->primitive.vertexCount = (__int32_t)vertex_count;
   pHeader->bone_count = (__int32_t)bone_count;
-  pHeader->primitive.indexCount = (__int32_t)index_count;
   pHeader->index_base_count = (__int32_t)index_base_count;
-  pHeader->primitive.topology = mi.format;
   strcpy(pHeader->szTag, "KRMESH1.0      ");
-  updateAttributeOffsets();
 
   pack_material* pPackMaterials = (pack_material*)(pHeader + 1);
 
@@ -616,12 +657,13 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   }
 
   bool bFirstVertex = true;
-
-  memset(getVertexData(), 0, m_vertex_size * (int)mi.vertices.size());
+  int vertex_size = (int)getHeader()->primitive.layout.vertexSize;
+  memset(getVertexData(), 0, vertex_size * (int)mi.vertices.size());
   for (int iVertex = 0; iVertex < (int)mi.vertices.size(); iVertex++) {
     Vector3 source_vertex = mi.vertices[iVertex];
     setVertexPosition(iVertex, source_vertex);
     if (mi.bone_names.size()) {
+      hydra::Vector4 weights = hydra::Vector4::Zero();
       for (int bone_weight_index = 0; bone_weight_index < KRENGINE_MAX_BONE_WEIGHTS_PER_VERTEX; bone_weight_index++) {
         setBoneIndex(iVertex, bone_weight_index, mi.bone_indexes[iVertex][bone_weight_index]);
         setBoneWeight(iVertex, bone_weight_index, mi.bone_weights[iVertex][bone_weight_index]);
@@ -636,11 +678,11 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     }
     for (int set = 0; set < 8; set++) {
       if ((int)mi.texcoord[set].size() > iVertex) {
-        setVertexTexCoord(set, iVertex, mi.texcoord[set][iVertex]);
+        setVertexTexCoord(iVertex, set, mi.texcoord[set][iVertex]);
       }
 
       if ((int)mi.color[set].size() > iVertex) {
-        setVertexColor(set, iVertex, mi.color[set][iVertex]);
+        setVertexColor(iVertex, set, mi.color[set][iVertex]);
       }
     }
     if ((int)mi.normals.size() > iVertex) {
@@ -786,15 +828,22 @@ bool KRMesh::lod_sort_predicate(const KRMesh* m1, const KRMesh* m2)
   return m1->m_lodCoverage > m2->m_lodCoverage;
 }
 
-bool KRMesh::has_vertex_attribute(vertex_attrib_t attribute_type) const
+int KRMesh::getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute attribute, int index)
 {
-  //return (getHeader()->vertex_attrib_flags & (1 << attribute_type)) != 0;
-  return has_vertex_attribute(getHeader()->vertex_attrib_flags, attribute_type);
-}
-
-bool KRMesh::has_vertex_attribute(int vertex_attrib_flags, vertex_attrib_t attribute_type)
-{
-  return (vertex_attrib_flags & (1 << attribute_type)) != 0;
+  int indexLeft = index;
+  for (int i = 0; i < kMaxAttributes; i++) {
+    VertexAttributeInfo info = primitive.layout.attributes[i];
+    if (info.attribute == VertexAttribute::position) {
+      break;
+    }
+    if (info.attribute == attribute) {
+      if (indexLeft == 0) {
+        return i;
+      }
+      indexLeft--;
+    }
+  }
+  return -1;
 }
 
 KRMesh::pack_header* KRMesh::getHeader() const
@@ -849,7 +898,8 @@ KRMesh::pack_material* KRMesh::getSubmesh(int mesh_index) const
 
 unsigned char* KRMesh::getVertexData(int index) const
 {
-  return getVertexData() + m_vertex_size * index;
+  int vertex_size = (int)getHeader()->primitive.layout.vertexSize;
+  return getVertexData() + vertex_size * index;
 }
 
 int KRMesh::getSubmeshCount() const
@@ -878,334 +928,790 @@ int KRMesh::getIndexCount(int submesh) const
   return index_count;
 }
 
-__uint32_t KRMesh::getVertexAttributes() const
+const VertexBufferLayout* KRMesh::getLayout(int submesh) const
 {
-  pack_header* header = getHeader();
-  __uint32_t attributes = header->vertex_attrib_flags;
-  return attributes;
+  return &getHeader()->primitive.layout;
+}
+
+template<typename T>
+constexpr void denormalizeAttributeComponent(const Normalization norm, T val, float* out)
+{
+  static_assert(std::is_scalar_v<T>, "Input type must be a scalar.");
+  assert(norm != Normalization::normalized || std::is_integral_v<T>); // Can only denormalize integral types.
+  assert(norm != Normalization::srgb || (std::is_integral_v<T> && !std::is_signed_v<T>)); // Can only reverse SRGB normalization for unsigned integral types.
+
+  switch (norm) {
+  case Normalization::none:
+  case Normalization::scaled:
+    *out = static_cast<float>(val);
+    break;
+  case Normalization::normalized:
+    *out = static_cast<float>(val) / static_cast<float>(std::numeric_limits<T>::max());
+    break;
+  case Normalization::srgb:
+    {
+      // See https://registry.khronos.org/DataFormat/specs/1.4/dataformat.1.4.html
+      // sRGB EOTF-1
+
+      constexpr float split = 0.0031308f * 12.92f; // 0.040449936
+
+      float linearDenorm = static_cast<float>(val) / static_cast<float>(std::numeric_limits<T>::max());
+      if (linearDenorm <= split) {
+        *out = val / 12.92f;
+      } else {
+        *out = std::pow((linearDenorm + 0.055f) / 1.055f, 2.4f);
+      }
+    }
+    break;
+  }
+}
+
+template<typename T>
+constexpr void normalizeAttributeComponent(const Normalization norm, float val, T* out)
+{
+  static_assert(std::is_scalar_v<T>, "Return type must be a scalar.");
+  assert(norm != Normalization::normalized || std::is_integral_v<T>); // Can only denormalize integral types.
+  assert(norm != Normalization::srgb || (std::is_integral_v<T> && !std::is_signed_v<T>)); // Can only reverse SRGB normalization for unsigned integral types.
+
+  constexpr float minFloat = static_cast<float>(std::numeric_limits<T>::min());
+  constexpr float maxFloat = static_cast<float>(std::numeric_limits<T>::max());
+  
+
+  switch (norm)     {
+  case Normalization::none:
+  case Normalization::scaled:
+    {
+      float clampedFloat = std::clamp(val, minFloat, maxFloat);
+      *out = static_cast<T>(clampedFloat);
+    }
+    break;
+  case Normalization::normalized:
+    if constexpr (std::is_signed_v<T>) {
+      *out = static_cast<T>(std::lround(std::clamp(val, -1.f, 1.f) * maxFloat));
+    } else {
+      *out = static_cast<T>(std::lround(std::clamp(val, 0.f, 1.f) * maxFloat));
+    }
+    break;
+  case Normalization::srgb:
+    {
+      // See https://registry.khronos.org/DataFormat/specs/1.4/dataformat.1.4.html
+      // sRGB EOTF-1
+
+      float clamped = std::clamp(val, 0.f, 1.f);
+      float srgb = 0.f;
+      if (clamped <= 0.0031308f) {
+        srgb = clamped * 12.92f;
+      } else {
+        srgb = 1.055f * std::pow(clamped, 1.0f / 2.4f) - 0.055f;
+      }
+      *out = static_cast<T>(std::lround(srgb * maxFloat));
+    }
+    break;
+  }
+}
+
+void writeVertexAttributeComponent(const VertexAttributeInfo& attribute, void* address, int componentIndex, float val)
+{
+  void* componentAddress = (uint8_t*)address + ComponentSize[(int)attribute.component] * componentIndex;
+  switch (attribute.component) {
+  case ComponentType::empty:
+    break;
+  case ComponentType::int8:
+    normalizeAttributeComponent(attribute.normalization, val, (__int8_t*)address);
+    break;
+  case ComponentType::uint8:
+    normalizeAttributeComponent(attribute.normalization, val, (__uint8_t*)address);
+    break;
+  case ComponentType::int16:
+    normalizeAttributeComponent(attribute.normalization, val, (__int16_t*)address);
+    break;
+  case ComponentType::uint16:
+    normalizeAttributeComponent(attribute.normalization, val, (__uint16_t*)address);
+    break;
+  case ComponentType::int32:
+    normalizeAttributeComponent(attribute.normalization, val, (__int32_t*)address);
+    break;
+  case ComponentType::uint32:
+    normalizeAttributeComponent(attribute.normalization, val, (__uint32_t*)address);
+    break;
+  case ComponentType::int64:
+    normalizeAttributeComponent(attribute.normalization, val, (__int64_t*)address);
+    break;
+  case ComponentType::uint64:
+    normalizeAttributeComponent(attribute.normalization, val, (__uint64_t*)address);
+    break;
+  case ComponentType::float16:
+    normalizeAttributeComponent(attribute.normalization, val, (short*)address);
+    break;
+  case ComponentType::float32:
+    normalizeAttributeComponent(attribute.normalization, val, (float*)address);
+    break;
+  case ComponentType::float64:
+    normalizeAttributeComponent(attribute.normalization, val, (double*)address);
+    break;
+  }
+}
+
+void readVertexAttributeComponent(const VertexAttributeInfo& attribute, const void* address, int componentIndex, float* out)
+{
+  void* componentAddress = (uint8_t*)address + ComponentSize[(int)attribute.component] * componentIndex;
+  switch (attribute.component) {
+  case ComponentType::empty:
+    break;
+  case ComponentType::int8:
+    denormalizeAttributeComponent(attribute.normalization, *(__int8_t*)address, out);
+    break;
+  case ComponentType::uint8:
+    denormalizeAttributeComponent(attribute.normalization, *(__uint8_t*)address, out);
+    break;
+  case ComponentType::int16:
+    denormalizeAttributeComponent(attribute.normalization, *(__int16_t*)address, out);
+    break;
+  case ComponentType::uint16:
+    denormalizeAttributeComponent(attribute.normalization, *(__uint16_t*)address, out);
+    break;
+  case ComponentType::int32:
+    denormalizeAttributeComponent(attribute.normalization, *(__int32_t*)address, out);
+    break;
+  case ComponentType::uint32:
+    denormalizeAttributeComponent(attribute.normalization, *(__uint32_t*)address, out);
+    break;
+  case ComponentType::int64:
+    denormalizeAttributeComponent(attribute.normalization, *(__int64_t*)address, out);
+    break;
+  case ComponentType::uint64:
+    denormalizeAttributeComponent(attribute.normalization, *(__uint64_t*)address, out);
+    break;
+  case ComponentType::float16:
+    denormalizeAttributeComponent(attribute.normalization, *(short*)address, out);
+    break;
+  case ComponentType::float32:
+    denormalizeAttributeComponent(attribute.normalization, *(float*)address, out);
+    break;
+  case ComponentType::float64:
+    denormalizeAttributeComponent(attribute.normalization, *(double*)address, out);
+    break;
+  }
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, float val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::scalar)
+  {
+    assert(false);
+    return;
+  }
+
+  writeVertexAttributeComponent(attribute, address, 0, val);
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, float* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::scalar) {
+    assert(false);
+    return;
+  }
+
+  readVertexAttributeComponent(attribute, address, 0, val);
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, Vector2 val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec2) {
+    assert(false);
+    return;
+  }
+
+  writeVertexAttributeComponent(attribute, address, 0, val.x);
+  writeVertexAttributeComponent(attribute, address, 1, val.y);
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, Vector2* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec2) {
+    assert(false);
+    return;
+  }
+
+  readVertexAttributeComponent(attribute, address, 0, &val->x);
+  readVertexAttributeComponent(attribute, address, 1, &val->y);
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, Vector3 val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec3) {
+    assert(false);
+    return;
+  }
+
+  writeVertexAttributeComponent(attribute, address, 0, val.x);
+  writeVertexAttributeComponent(attribute, address, 1, val.y);
+  writeVertexAttributeComponent(attribute, address, 2, val.z);
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, Vector3* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec3) {
+    assert(false);
+    return;
+  }
+
+  readVertexAttributeComponent(attribute, address, 0, &val->x);
+  readVertexAttributeComponent(attribute, address, 1, &val->y);
+  readVertexAttributeComponent(attribute, address, 2, &val->z);
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, Vector4 val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec4) {
+    assert(false);
+    return;
+  }
+
+  writeVertexAttributeComponent(attribute, address, 0, val.x);
+  writeVertexAttributeComponent(attribute, address, 1, val.y);
+  writeVertexAttributeComponent(attribute, address, 2, val.z);
+  writeVertexAttributeComponent(attribute, address, 3, val.w);
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, Vector4* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::vec4) {
+    assert(false);
+    return;
+  }
+
+  readVertexAttributeComponent(attribute, address, 0, &val->x);
+  readVertexAttributeComponent(attribute, address, 1, &val->y);
+  readVertexAttributeComponent(attribute, address, 2, &val->z);
+  readVertexAttributeComponent(attribute, address, 3, &val->w);
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, Matrix2 val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::mat2) {
+    assert(false);
+    return;
+  }
+
+  writeVertexAttributeComponent(attribute, address, 0, val.c[0]);
+  writeVertexAttributeComponent(attribute, address, 1, val.c[1]);
+  writeVertexAttributeComponent(attribute, address, 2, val.c[2]);
+  writeVertexAttributeComponent(attribute, address, 3, val.c[3]);
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, Matrix2* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::mat2) {
+    assert(false);
+    return;
+  }
+
+  readVertexAttributeComponent(attribute, address, 0, &val->c[0]);
+  readVertexAttributeComponent(attribute, address, 1, &val->c[1]);
+  readVertexAttributeComponent(attribute, address, 2, &val->c[2]);
+  readVertexAttributeComponent(attribute, address, 3, &val->c[3]);
+}
+
+void KRMesh::setVertexAttribute(int vertexIndex, int attribIndex, Matrix4 val)
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::mat4) {
+    assert(false);
+    return;
+  }
+
+  for (int i = 0; i < 16; i++) {
+    writeVertexAttributeComponent(attribute, address, i, val.c[i]);
+  }
+}
+
+void KRMesh::getVertexAttribute(int vertexIndex, int attribIndex, Matrix4* val) const
+{
+  const PrimitiveInfo& primitive = getHeader()->primitive;
+  const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
+  void* address = getVertexData(vertexIndex) + primitive.layout.offsets[attribIndex];
+
+  if (attribute.type != DataType::mat4) {
+    assert(false);
+    return;
+  }
+
+  for (int i = 0; i < 16; i++) {
+    readVertexAttributeComponent(attribute, address, i, &val->c[i]);
+  }
 }
 
 Vector3 KRMesh::getVertexPosition(int index) const
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX_SHORT]);
-    return Vector3::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION)) {
-    return Vector3::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_POSITION]));
-  } else {
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::position, 0);
+  if (attribIndex == -1) {
     return Vector3::Zero();
   }
+  Vector3 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v;
 }
 
 Vector3 KRMesh::getVertexNormal(int index) const
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL_SHORT]);
-    return Vector3::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
-    return Vector3::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]));
-  } else {
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::normal, 0);
+  if (attribIndex == -1) {
     return Vector3::Zero();
   }
+  Vector3 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v;
 }
 
 Vector3 KRMesh::getVertexTangent(int index) const
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT_SHORT]);
-    return Vector3::Create((float)v[0] / 32767.0f, (float)v[1] / 32767.0f, (float)v[2] / 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
-    return Vector3::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]));
-  } else {
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::tangent, 0);
+  if (attribIndex == -1) {
     return Vector3::Zero();
   }
+  Vector3 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v;
 }
 
 Vector2 KRMesh::getVertexTexCoord(int set, int index) const
 {
-  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0_SHORT + set))) {
-    short* v = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0_SHORT + set]);
-    return Vector2::Create((float)v[0] / 32767.0f);
-  } else if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0 + set))) {
-    return Vector2::Create((float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0 + set]));
-  } else {
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::texcoord, set);
+  if (attribIndex == -1) {
     return Vector2::Zero();
   }
+  Vector2 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v;
 }
 
 Vector4 KRMesh::getVertexColor(int set, int index) const
 {
-  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
-    uint8_t* v = (uint8_t*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_COLOR0 + set]);
-    return Vector4::Create((float)v[0] / 255.0f, (float)v[1] / 255.0f, (float)v[2] / 255.0f, (float)v[3] / 255.0f);
-  } else {
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::color, set);
+  if (attribIndex == -1) {
     return Vector4::Zero();
   }
+  Vector4 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v;
 }
 
 void KRMesh::setVertexPosition(int index, const Vector3& v)
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_VERTEX_SHORT]);
-    vert[0] = (short)(v.x * 32767.0f);
-    vert[1] = (short)(v.y * 32767.0f);
-    vert[2] = (short)(v.z * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_POSITION]);
-    vert[0] = v.x;
-    vert[1] = v.y;
-    vert[2] = v.z;
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::position, 0);
+  if (attribIndex == -1) {
+    return;
   }
+
+  setVertexAttribute(index, attribIndex, v);
 }
 
 void KRMesh::setVertexNormal(int index, const Vector3& v)
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL_SHORT]);
-    vert[0] = (short)(v.x * 32767.0f);
-    vert[1] = (short)(v.y * 32767.0f);
-    vert[2] = (short)(v.z * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_NORMAL]);
-    vert[0] = v.x;
-    vert[1] = v.y;
-    vert[2] = v.z;
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::normal, 0);
+  if (attribIndex == -1) {
+    return;
   }
+
+  setVertexAttribute(index, attribIndex, v);
 }
 
 void KRMesh::setVertexTangent(int index, const Vector3& v)
 {
-  if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT_SHORT]);
-    vert[0] = (short)(v.x * 32767.0f);
-    vert[1] = (short)(v.y * 32767.0f);
-    vert[2] = (short)(v.z * 32767.0f);
-  } else if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT)) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TANGENT]);
-    vert[0] = v.x;
-    vert[1] = v.y;
-    vert[2] = v.z;
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::tangent, 0);
+  if (attribIndex == -1) {
+    return;
   }
+
+  setVertexAttribute(index, attribIndex, v);
 }
 
-void KRMesh::setVertexTexCoord(int set, int index, const Vector2& v)
+void KRMesh::setVertexTexCoord(int index, int set, const Vector2& v)
 {
-  if (has_vertex_attribute((vertex_attrib_t)((KRENGINE_ATTRIB_TEXCOORD0_SHORT + set))))
-  {
-    short* vert = (short*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0_SHORT + set]);
-    vert[0] = (short)(v.x * 32767.0f);
-    vert[1] = (short)(v.y * 32767.0f);
-  } else if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0 + set))) {
-    float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_TEXCOORD0 + set]);
-    vert[0] = v.x;
-    vert[1] = v.y;
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::texcoord, set);
+  if (attribIndex == -1) {
+    return;
   }
+
+  setVertexAttribute(index, attribIndex, v);
 }
 
-void KRMesh::setVertexColor(int set, int index, const Vector4& v)
+void KRMesh::setVertexColor(int index, int set, const Vector4& v)
 {
-  if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
-    uint8_t* vert = (uint8_t*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_COLOR0 + set]);
-    vert[0] = (uint8_t)(v.x * 255.0f);
-    vert[1] = (uint8_t)(v.y * 255.0f);
-    vert[2] = (uint8_t)(v.z * 255.0f);
-    vert[3] = (uint8_t)(v.w * 255.0f);
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::color, set);
+  if (attribIndex == -1) {
+    return;
   }
+
+  setVertexAttribute(index, attribIndex, v);
 }
 
 int KRMesh::getBoneIndex(int index, int weight_index) const
 {
-  unsigned char* vert = (unsigned char*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEINDEXES]);
-  return vert[weight_index];
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::joints, weight_index / 4);
+  if (attribIndex == -1) {
+    return 0;
+  }
+
+  // TODO - Implement integer based attribute access
+  Vector4 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return static_cast<int>(v[weight_index % 4]);
 }
 
 void KRMesh::setBoneIndex(int index, int weight_index, int bone_index)
 {
-  unsigned char* vert = (unsigned char*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEINDEXES]);
-  vert[weight_index] = bone_index;
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::joints, weight_index / 4);
+  if (attribIndex == -1) {
+    return;
+  }
+
+  // TODO - Implement integer based attribute access
+  Vector4 v;
+  getVertexAttribute(index, attribIndex, &v);
+  v[weight_index % 4] = bone_index;
+  setVertexAttribute(index, attribIndex, v);
+}
+
+void KRMesh::setBoneWeight(int index, int bone_index, float weight)
+{
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::weights, bone_index / 4);
+  if (attribIndex == -1) {
+    return;
+  }
+  hydra::Vector4 v;
+  getVertexAttribute(index, attribIndex, &v);
+  v[bone_index % 4] = weight;
+  setVertexAttribute(index, attribIndex, v);
 }
 
 float KRMesh::getBoneWeight(int index, int weight_index) const
 {
-  float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEWEIGHTS]);
-  return vert[weight_index];
+  int attribIndex = getAttributeIndex(getHeader()->primitive, VertexAttribute::weights, weight_index / 4);
+  if (attribIndex == -1) {
+    return 0.f;
+  }
+
+  Vector4 v;
+  getVertexAttribute(index, attribIndex, &v);
+  return v[weight_index % 4];
 }
 
-void KRMesh::setBoneWeight(int index, int weight_index, float bone_weight)
+VkFormat KRMesh::AttributeVulkanFormat(const VertexAttributeInfo &attribute)
 {
-  float* vert = (float*)(getVertexData(index) + m_vertex_attribute_offset[KRENGINE_ATTRIB_BONEWEIGHTS]);
-  vert[weight_index] = bone_weight;
-}
+  switch (attribute.type) {
 
-size_t KRMesh::VertexSizeForAttributes(__int32_t vertex_attrib_flags)
-{
-  size_t data_size = 0;
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_POSITION)) {
-    data_size += sizeof(float) * 3;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_NORMAL)) {
-    data_size += sizeof(float) * 3;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TANGENT)) {
-    data_size += sizeof(float) * 3;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR0)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR1)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR2)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR3)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR4)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR5)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR6)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_COLOR7)) {
-    data_size += 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD0)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD1)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD2)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD3)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD4)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD5)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD6)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD7)) {
-    data_size += sizeof(float) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_BONEINDEXES)) {
-    data_size += 4; // 4 bytes
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_BONEWEIGHTS)) {
-    data_size += sizeof(float) * 4;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_VERTEX_SHORT)) {
-    data_size += sizeof(short) * 4; // Extra short added in order to maintain 32-bit alignment. TODO, FINDME - Perhaps we can bind this as a vec4 and use the 4th component for another attribute...
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_NORMAL_SHORT)) {
-    data_size += sizeof(short) * 4; // Extra short added in order to maintain 32-bit alignment. TODO, FINDME - Perhaps we can bind this as a vec4 and use the 4th component for another attribute...
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TANGENT_SHORT)) {
-    data_size += sizeof(short) * 4; // Extra short added in order to maintain 32-bit alignment. TODO, FINDME - Perhaps we can bind this as a vec4 and use the 4th component for another attribute...
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD0_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD1_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD2_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD3_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD4_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD5_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD6_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  if (has_vertex_attribute(vertex_attrib_flags, KRENGINE_ATTRIB_TEXCOORD7_SHORT)) {
-    data_size += sizeof(short) * 2;
-  }
-  return data_size;
-}
-
-void KRMesh::updateAttributeOffsets()
-{
-  pack_header* header = getHeader();
-  int mask = 0;
-  for (size_t i = 0; i < KRENGINE_NUM_ATTRIBUTES; i++) {
-    if (has_vertex_attribute((vertex_attrib_t)i)) {
-      m_vertex_attribute_offset[i] = (int)VertexSizeForAttributes(header->vertex_attrib_flags & mask);
-    } else {
-      m_vertex_attribute_offset[i] = -1;
+  // ----====---- scalar ----====----
+  case DataType::scalar:
+    switch (attribute.component) {
+    case ComponentType::empty:
+      return VK_FORMAT_UNDEFINED;
+    case ComponentType::int8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8_SRGB;
+      }
+    case ComponentType::uint8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8_SRGB;
+      }
+    case ComponentType::int16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::uint16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::int32:
+        return VK_FORMAT_R32_SINT;
+    case ComponentType::uint32:
+        return VK_FORMAT_R32_UINT;
+    case ComponentType::int64:
+        return VK_FORMAT_R64_SINT;
+    case ComponentType::uint64:
+        return VK_FORMAT_R64_UINT;
+    case ComponentType::float16:
+      return VK_FORMAT_R16_SFLOAT;
+    case ComponentType::float32:
+      return VK_FORMAT_R32_SFLOAT;
+    case ComponentType::float64:
+      return VK_FORMAT_R64_SFLOAT;
     }
-    mask = (mask << 1) | 1;
-  }
-  m_vertex_size = (int)VertexSizeForAttributes(header->vertex_attrib_flags);
-}
+    break;
 
-size_t KRMesh::AttributeOffset(__int32_t vertex_attrib, __int32_t vertex_attrib_flags)
-{
-  int mask = 0;
-  for (int i = 0; i < vertex_attrib; i++) {
-    if (vertex_attrib_flags & (1 << i)) {
-      mask |= (1 << i);
+
+  // ----====---- vec2, mat2 ----====----
+  case DataType::vec2:
+  case DataType::mat2:
+    switch (attribute.component) {
+    case ComponentType::empty:
+      return VK_FORMAT_UNDEFINED;
+    case ComponentType::int8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8_SRGB;
+      }
+    case ComponentType::uint8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8_SRGB;
+      }
+    case ComponentType::int16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::uint16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::int32:
+      return VK_FORMAT_R32G32_SINT;
+    case ComponentType::uint32:
+      return VK_FORMAT_R32G32_UINT;
+    case ComponentType::int64:
+      return VK_FORMAT_R64G64_SINT;
+    case ComponentType::uint64:
+      return VK_FORMAT_R64G64_UINT;
+    case ComponentType::float16:
+      return VK_FORMAT_R16G16_SFLOAT;
+    case ComponentType::float32:
+      return VK_FORMAT_R32G32_SFLOAT;
+    case ComponentType::float64:
+      return VK_FORMAT_R64G64_SFLOAT;
     }
-  }
-  return VertexSizeForAttributes(mask);
-}
+    break;
 
-VkFormat KRMesh::AttributeVulkanFormat(__int32_t vertex_attrib)
-{
-  switch (vertex_attrib) {
-  case KRENGINE_ATTRIB_POSITION:
-  case KRENGINE_ATTRIB_NORMAL:
-  case KRENGINE_ATTRIB_TANGENT:
-  case KRENGINE_ATTRIB_BONEWEIGHTS:
-    return VK_FORMAT_R32G32B32_SFLOAT;
-  case KRENGINE_ATTRIB_COLOR0:
-  case KRENGINE_ATTRIB_COLOR1:
-  case KRENGINE_ATTRIB_COLOR2:
-  case KRENGINE_ATTRIB_COLOR3:
-  case KRENGINE_ATTRIB_COLOR4:
-  case KRENGINE_ATTRIB_COLOR5:
-  case KRENGINE_ATTRIB_COLOR6:
-  case KRENGINE_ATTRIB_COLOR7:
-    return  VK_FORMAT_R8G8B8A8_UNORM;
-  case KRENGINE_ATTRIB_TEXCOORD0:
-  case KRENGINE_ATTRIB_TEXCOORD1:
-  case KRENGINE_ATTRIB_TEXCOORD2:
-  case KRENGINE_ATTRIB_TEXCOORD3:
-  case KRENGINE_ATTRIB_TEXCOORD4:
-  case KRENGINE_ATTRIB_TEXCOORD5:
-  case KRENGINE_ATTRIB_TEXCOORD6:
-  case KRENGINE_ATTRIB_TEXCOORD7:
-    return VK_FORMAT_R32G32_SFLOAT;
-  case KRENGINE_ATTRIB_BONEINDEXES:
-    return VK_FORMAT_R8G8B8A8_UINT;
-  case KRENGINE_ATTRIB_VERTEX_SHORT:
-  case KRENGINE_ATTRIB_NORMAL_SHORT:
-  case KRENGINE_ATTRIB_TANGENT_SHORT:
-    return VK_FORMAT_R16G16B16A16_SNORM;
-  case KRENGINE_ATTRIB_TEXCOORD0_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD1_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD2_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD3_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD4_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD5_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD6_SHORT:
-  case KRENGINE_ATTRIB_TEXCOORD7_SHORT:
-    return VK_FORMAT_R16G16_SNORM;
+  // ----====---- vec3, mat3 ----====----
+  case DataType::vec3:
+  case DataType::mat3:
+    switch (attribute.component) {
+    case ComponentType::empty:
+      return VK_FORMAT_UNDEFINED;
+    case ComponentType::int8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8B8_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8B8_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8B8_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8B8_SRGB;
+      }
+    case ComponentType::uint8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8B8_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8B8_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8B8_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8B8_SRGB;
+      }
+    case ComponentType::int16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16B16_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16B16_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16B16_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::uint16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16B16_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16B16_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16B16_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::int32:
+      return VK_FORMAT_R32G32B32_SINT;
+    case ComponentType::uint32:
+      return VK_FORMAT_R32G32B32_UINT;
+    case ComponentType::int64:
+      return VK_FORMAT_R64G64B64_SINT;
+    case ComponentType::uint64:
+      return VK_FORMAT_R64G64B64_UINT;
+    case ComponentType::float16:
+      return VK_FORMAT_R16G16B16_SFLOAT;
+    case ComponentType::float32:
+      return VK_FORMAT_R32G32B32_SFLOAT;
+    case ComponentType::float64:
+      return VK_FORMAT_R64G64B64_SFLOAT;
+    }
+    break;
+
+  // ----====---- vec4, mat4 ----====----
+  case DataType::vec4:
+  case DataType::mat4:
+    switch (attribute.component) {
+    case ComponentType::empty:
+      return VK_FORMAT_UNDEFINED;
+    case ComponentType::int8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8B8A8_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8B8A8_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8B8A8_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8B8A8_SRGB;
+      }
+    case ComponentType::uint8:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R8G8B8A8_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R8G8B8A8_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R8G8B8A8_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_R8G8B8A8_SRGB;
+      }
+    case ComponentType::int16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16B16A16_SINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16B16A16_SSCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16B16A16_SNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::uint16:
+      switch (attribute.normalization) {
+      case Normalization::none:
+        return VK_FORMAT_R16G16B16A16_UINT;
+      case Normalization::scaled:
+        return VK_FORMAT_R16G16B16A16_USCALED;
+      case Normalization::normalized:
+        return VK_FORMAT_R16G16B16A16_UNORM;
+      case Normalization::srgb:
+        return VK_FORMAT_UNDEFINED;
+      }
+    case ComponentType::int32:
+      return VK_FORMAT_R32G32B32A32_SINT;
+    case ComponentType::uint32:
+      return VK_FORMAT_R32G32B32A32_UINT;
+    case ComponentType::int64:
+      return VK_FORMAT_R64G64B64A64_SINT;
+    case ComponentType::uint64:
+      return VK_FORMAT_R64G64B64A64_UINT;
+    case ComponentType::float16:
+      return VK_FORMAT_R16G16B16A16_SFLOAT;
+    case ComponentType::float32:
+      return VK_FORMAT_R32G32B32A32_SFLOAT;
+    case ComponentType::float64:
+      return VK_FORMAT_R64G64B64A64_SFLOAT;
+    }
+    break;
   }
   return VK_FORMAT_UNDEFINED;
 }
@@ -1229,7 +1735,7 @@ Matrix4 KRMesh::getBoneBindPose(int bone_index)
 
 Topology KRMesh::getTopology() const
 {
-  return getHeader()->primitive.topology;
+  return getHeader()->primitive.layout.topology;
 }
 
 bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, const Triangle3& tri, const Vector3& tri_n0, const Vector3& tri_n1, const Vector3& tri_n2, HitInfo& hitinfo)
@@ -1378,23 +1884,21 @@ bool KRMesh::lineCast(const Vector3& v0, const Vector3& v1, HitInfo& hitinfo) co
 void KRMesh::convertToIndexed()
 {
   m_pData->lock();
-  char* szKey = new char[m_vertex_size * 2 + 1];
+  KRMesh::pack_header* header = getHeader();
+  const VertexBufferLayout* layout = &header->primitive.layout;
+  pack_material* packMaterial = (pack_material*)(header + 1);
 
   // Convert model to indexed vertices, identying vertexes with identical attributes and optimizing order of trianges for best usage post-vertex-transform cache on GPU
   int vertex_index_offset = 0;
   int vertex_index_base_start_vertex = 0;
 
-  mesh_info mi;
-  mi.format = getTopology();
-
-  int bone_count = getBoneCount();
-  for (int bone_index = 0; bone_index < bone_count; bone_index++) {
-    mi.bone_names.push_back(getBoneName(bone_index));
-    mi.bone_bind_poses.push_back(getBoneBindPose(bone_index));
-  }
+  std::vector<std::byte> newVertexData;
+  int newVertexCount = 0;
+  std::vector<uint16_t> newIndexes;
+  std::vector<std::pair<int, int>> newVertexIndexRanges;
 
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
-    mi.material_names.push_back(getSubmesh(submesh_index)->szName);
+    pack_material* pPackMaterial = getSubmesh(submesh_index);
 
     int vertexes_remaining = getVertexCount(submesh_index);
 
@@ -1404,95 +1908,36 @@ void KRMesh::convertToIndexed()
     }
 
     if (submesh_index == 0 || vertex_index_offset + vertex_count > 0xffff) {
-      mi.vertex_index_bases.push_back(std::pair<int, int>((int)mi.vertex_indexes.size(), (int)mi.vertices.size()));
+      newVertexIndexRanges.push_back(std::pair<int, int>((int)newIndexes.size(), newVertexCount));
       vertex_index_offset = 0;
-      vertex_index_base_start_vertex = (int)mi.vertices.size();
+      vertex_index_base_start_vertex = newVertexCount;
     }
 
-    mi.submesh_starts.push_back((int)mi.vertex_index_bases.size() - 1 + (vertex_index_offset << 16));
-    mi.submesh_lengths.push_back(vertexes_remaining);
-    int source_index = getSubmesh(submesh_index)->start_vertex;
-
+    int source_index = pPackMaterial->start_vertex;
+    pPackMaterial->start_vertex = (int)newVertexIndexRanges.size() - 1 + (vertex_index_offset << 16);
+    pPackMaterial->vertex_count = vertexes_remaining;
 
     while (vertexes_remaining) {
+      typedef std::vector<std::byte> vertex_data_t;
 
-      //typedef std::pair<std::vector<float>, std::vector<int> > vertex_key_t;
-      typedef std::string vertex_key_t;
-
-      unordered_map<vertex_key_t, int> prev_indexes = unordered_map<vertex_key_t, int>();
+      std::map<vertex_data_t, int> prevIndices;
 
       for (int i = 0; i < vertex_count; i++) {
-
-        Vector3 vertex_position = getVertexPosition(source_index);
-        Vector2 vertex_texcoord[8];
-        Vector4 vertex_color[8];
-        for (int set = 0; set < 8; set++) {
-          vertex_texcoord[set] = getVertexTexCoord(set, source_index);
-          vertex_color[set] = getVertexColor(set, source_index);
-        }
-        Vector3 vertex_normal = getVertexNormal(source_index);
-        Vector3 vertex_tangent = getVertexTangent(source_index);
-        std::vector<int> vertex_bone_indexes;
-        if (has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
-          vertex_bone_indexes.push_back(getBoneIndex(source_index, 0));
-          vertex_bone_indexes.push_back(getBoneIndex(source_index, 1));
-          vertex_bone_indexes.push_back(getBoneIndex(source_index, 2));
-          vertex_bone_indexes.push_back(getBoneIndex(source_index, 3));
-        }
-        std::vector<float> vertex_bone_weights;
-        if (has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
-          vertex_bone_weights.push_back(getBoneWeight(source_index, 0));
-          vertex_bone_weights.push_back(getBoneWeight(source_index, 1));
-          vertex_bone_weights.push_back(getBoneWeight(source_index, 2));
-          vertex_bone_weights.push_back(getBoneWeight(source_index, 3));
-        }
-
-
-
-        unsigned char* vertex_data = (unsigned char*)getVertexData(source_index);
-        for (int b = 0; b < m_vertex_size; b++) {
-          const char* szHex = "0123456789ABCDEF";
-          szKey[b * 2] = szHex[vertex_data[b] & 0x0f];
-          szKey[b * 2 + 1] = szHex[((vertex_data[b] & 0xf0) >> 4)];
-        }
-        szKey[m_vertex_size * 2] = '\0';
-
-        vertex_key_t vertex_key = szKey;
+        vertex_data_t vertexData;
+        const std::byte* vertexBytes = reinterpret_cast<const std::byte*>(getVertexData(source_index));
+        vertexData.insert(vertexData.end(), vertexBytes, vertexBytes + layout->vertexSize);
         
         int found_index = -1;
-        if (prev_indexes.count(vertex_key) == 0) {
-          found_index = (int)mi.vertices.size() - vertex_index_base_start_vertex;
-          if (has_vertex_attribute(KRENGINE_ATTRIB_POSITION) || has_vertex_attribute(KRENGINE_ATTRIB_VERTEX_SHORT)) {
-            mi.vertices.push_back(vertex_position);
-          }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_NORMAL) || has_vertex_attribute(KRENGINE_ATTRIB_NORMAL_SHORT)) {
-            mi.normals.push_back(vertex_normal);
-          }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_TANGENT) || has_vertex_attribute(KRENGINE_ATTRIB_TANGENT_SHORT)) {
-            mi.tangents.push_back(vertex_tangent);
-          }
-          for (int set = 0; set < 8; set++) {
-            if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0 + set)) || has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_TEXCOORD0_SHORT + set))) {
-              mi.texcoord[set].push_back(vertex_texcoord[set]);
-            }
-
-            if (has_vertex_attribute((vertex_attrib_t)(KRENGINE_ATTRIB_COLOR0 + set))) {
-              mi.color[set].push_back(vertex_color[set]);
-            }
-          }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_BONEINDEXES)) {
-            mi.bone_indexes.push_back(vertex_bone_indexes);
-
-          }
-          if (has_vertex_attribute(KRENGINE_ATTRIB_BONEWEIGHTS)) {
-            mi.bone_weights.push_back(vertex_bone_weights);
-          }
-          prev_indexes[vertex_key] = found_index;
+        if (prevIndices.count(vertexData) == 0) {
+          found_index = (int)(newVertexCount) - vertex_index_base_start_vertex;
+          prevIndices[vertexData] = found_index;
+          newVertexData.insert(newVertexData.end(), vertexData.begin(), vertexData.end());
+          newVertexCount++;
         } else {
-          found_index = prev_indexes[vertex_key];
+          found_index = prevIndices[vertexData];
         }
 
-        mi.vertex_indexes.push_back(found_index);
+        newIndexes.push_back(found_index);
         //fprintf(stderr, "Submesh: %6i  IndexBase: %3i  Index: %6i\n", submesh_index, vertex_index_bases.size(), found_index);
 
         source_index++;
@@ -1501,26 +1946,72 @@ void KRMesh::convertToIndexed()
       vertexes_remaining -= vertex_count;
       vertex_index_offset += vertex_count;
 
-
       vertex_count = vertexes_remaining;
       if (vertex_count > 0xffff) {
         vertex_count = 0xffff;
       }
 
       if (vertex_index_offset + vertex_count > 0xffff) {
-        mi.vertex_index_bases.push_back(std::pair<int, int>((int)mi.vertex_indexes.size(), (int)mi.vertices.size()));
+        newVertexIndexRanges.push_back(std::pair<int, int>((int)newIndexes.size(), newVertexCount));
         vertex_index_offset = 0;
-        vertex_index_base_start_vertex = (int)mi.vertices.size();
+        vertex_index_base_start_vertex = newVertexCount;
       }
     }
   }
 
-  delete[] szKey;
+  KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->primitive.vertexCount, newVertexCount, ((float)getHeader()->primitive.vertexCount - (float)newVertexCount) / (float)getHeader()->primitive.vertexCount * 100.0f);
 
-  KRContext::Log(KRContext::LOG_LEVEL_INFORMATION, "Convert to indexed, before: %i after: %i (%.2f%% saving)", getHeader()->primitive.vertexCount, mi.vertices.size(), ((float)getHeader()->primitive.vertexCount - (float)mi.vertices.size()) / (float)getHeader()->primitive.vertexCount * 100.0f);
+  int submesh_count = getSubmeshCount();
+  int bone_count = getBoneCount();
+
+  header->index_base_count = newVertexIndexRanges.size();
+  header->primitive.indexCount = newIndexes.size();
+  header->primitive.vertexCount = newVertexCount;
+
+  size_t new_file_size = sizeof(pack_header) + sizeof(pack_material) * submesh_count + sizeof(pack_bone) * bone_count + KRALIGN(2 * header->primitive.indexCount) + KRALIGN(8 * header->index_base_count) + newVertexData.size();
+
+  pack_header ph;
+  m_pData->copy((void*)&ph, 0, sizeof(ph));
+
+  // ---- Resize Data Blocks ----
+  m_pData->unlock();
+  releaseData(false);
+
+  m_pData->expand(new_file_size);
+
+  m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
+  m_pMetaData->lock();
+  m_pIndexBaseData = m_pData->getSubBlock(sizeof(pack_header) + sizeof(pack_material) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count + KRALIGN(2 * ph.primitive.indexCount), ph.index_base_count * 8);
+  m_pIndexBaseData->lock();
+
+  // ---- Copy new buffers ----
+  m_pData->lock();
+
+  // Vertex Data
+  void *vertex_data = getVertexData();
+  memcpy(vertex_data, newVertexData.data(), newVertexData.size());
+  
+  // Index Data
+  __uint16_t* index_data = getIndexData();
+  memcpy(index_data, newIndexes.data(), newIndexes.size());
+
+  // Index data ranges
+  __uint32_t* index_base_data = getIndexBaseData();
+  for (std::vector<std::pair<int, int> >::const_iterator itr = newVertexIndexRanges.begin(); itr != newVertexIndexRanges.end(); itr++) {
+    *index_base_data++ = (*itr).first;
+    *index_base_data++ = (*itr).second;
+  }
 
   m_pData->unlock();
-  LoadData(mi, false, false);
+  // ---- End: Copy new buffers ----
+
+  optimize();
+
+  if (m_constant) {
+    // Ensure that constant models loaded immediately by the streamer
+    getSubmeshes();
+    getMaterials();
+  }
 }
 
 void KRMesh::optimize()
@@ -1575,10 +2066,10 @@ void KRMesh::optimizeIndexes()
   m_pData->lock();
   // TODO - Implement optimization for indexed strips
   if (getTopology() == Topology::Triangles && getIndexCount(0) > 0) {
-
+    int vertex_size = (int)getHeader()->primitive.layout.vertexSize;
     __uint16_t* new_indices = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
     __uint16_t* vertex_mapping = (__uint16_t*)malloc(0x10000 * sizeof(__uint16_t));
-    unsigned char* new_vertex_data = (unsigned char*)malloc(m_vertex_size * 0x10000);
+    unsigned char* new_vertex_data = (unsigned char*)malloc(vertex_size * 0x10000);
 
     // FINDME, TODO, HACK - This will segfault if the KRData object is still mmap'ed to a read-only file.  Need to detach from the file before calling this function.  Currently, this function is only being used during the import process, so it isn't going to cause any problems for now.
 
@@ -1641,9 +2132,10 @@ void KRMesh::optimizeIndexes()
         }
 
         for(int i=0; i < vertex_count; i++) {
-            memcpy(new_vertex_data + vertex_mapping[i] * m_vertex_size, vertex_data_start + i * m_vertex_size, m_vertex_size);
+            int vertex_size = (int)getHeader()->primitive.vertexSize;
+            memcpy(new_vertex_data + vertex_mapping[i] * vertex_size, vertex_data_start + i * m_vertex_size, m_vertex_size);
         }
-        memcpy(vertex_data_start, new_vertex_data, vertex_count * m_vertex_size);
+        memcpy(vertex_data_start, new_vertex_data, vertex_count * vertex_size);
          */
 
 

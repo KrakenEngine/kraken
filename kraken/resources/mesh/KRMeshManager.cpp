@@ -76,14 +76,18 @@ void KRMeshManager::init()
       1.0, 1.0,-1.0,
       -1.0, 1.0,-1.0
   };
+  KRENGINE_VBO_3D_CUBE_LAYOUT = { };
+  KRENGINE_VBO_3D_CUBE_LAYOUT.topology = Topology::Triangles;
+  KRENGINE_VBO_3D_CUBE_LAYOUT.vertexSize = sizeof(float) * 3;
+  KRENGINE_VBO_3D_CUBE_LAYOUT.offsets[0] = 0;
+  KRENGINE_VBO_3D_CUBE_LAYOUT.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
 
-  KRENGINE_VBO_3D_CUBE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_POSITION);
   KRENGINE_VBO_3D_CUBE_VERTICES.expand(sizeof(float) * 3 * 14);
   KRENGINE_VBO_3D_CUBE_VERTICES.lock();
   memcpy(KRENGINE_VBO_3D_CUBE_VERTICES.getStart(), _KRENGINE_VBO_3D_CUBE_VERTEX_DATA, sizeof(float) * 3 * 14);
   KRENGINE_VBO_3D_CUBE_VERTICES.unlock();
 
-  KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, &KRENGINE_VBO_3D_CUBE_VERTICES, nullptr, KRENGINE_VBO_3D_CUBE_ATTRIBS, false, KRVBOData::CONSTANT
+  KRENGINE_VBO_DATA_3D_CUBE_VERTICES.init(this, &KRENGINE_VBO_3D_CUBE_VERTICES, nullptr, &KRENGINE_VBO_3D_CUBE_LAYOUT, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Cube Mesh [built-in]"
 #endif
@@ -98,13 +102,20 @@ void KRMeshManager::init()
       -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
       1.0f,  1.0f, 0.0f, 1.0f, 1.0f
   };
-  KRENGINE_VBO_2D_SQUARE_ATTRIBS = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
+  KRENGINE_VBO_2D_SQUARE_LAYOUT = { };
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.topology = Topology::TriangleStrips;
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.vertexSize = sizeof(float) * 5;
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.offsets[0] = 0;
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.offsets[1] = sizeof(float) * 3;
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
+  KRENGINE_VBO_2D_SQUARE_LAYOUT.attributes[1] = { ComponentType::float32, DataType::vec2, Normalization::none, VertexAttribute::texcoord };
+
   KRENGINE_VBO_2D_SQUARE_VERTICES.expand(sizeof(float) * 5 * 4);
   KRENGINE_VBO_2D_SQUARE_VERTICES.lock();
   memcpy(KRENGINE_VBO_2D_SQUARE_VERTICES.getStart(), _KRENGINE_VBO_2D_SQUARE_VERTEX_DATA, sizeof(float) * 5 * 4);
   KRENGINE_VBO_2D_SQUARE_VERTICES.unlock();
 
-  KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, &KRENGINE_VBO_2D_SQUARE_VERTICES, nullptr, KRENGINE_VBO_2D_SQUARE_ATTRIBS, false, KRVBOData::CONSTANT
+  KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.init(this, &KRENGINE_VBO_2D_SQUARE_VERTICES, nullptr, &KRENGINE_VBO_2D_SQUARE_LAYOUT, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Square Mesh [built-in]"
 #endif
@@ -344,10 +355,15 @@ void KRMeshManager::initVolumetricLightingVertexes()
       vertex_data[iVertex].vertex.y = 1.0f;
       vertex_data[iVertex].vertex.z = (float)iPlane;
       iVertex++;
-
     }
 
-    KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.init(this, &m_volumetricLightingVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_POSITION), false, KRVBOData::CONSTANT
+    m_volumetricLightingVertexLayout = { };
+    m_volumetricLightingVertexLayout.topology = Topology::Triangles;
+    m_volumetricLightingVertexLayout.vertexSize = sizeof(VolumetricLightingVertexData);
+    m_volumetricLightingVertexLayout.offsets[0] = offsetof(VolumetricLightingVertexData, vertex);
+    m_volumetricLightingVertexLayout.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
+
+    KRENGINE_VBO_DATA_VOLUMETRIC_LIGHTING.init(this, &m_volumetricLightingVertexData, nullptr, &m_volumetricLightingVertexLayout, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Volumetric Lighting Planes [built-in]"
 #endif
@@ -393,7 +409,15 @@ void KRMeshManager::initRandomParticles()
       iVertex++;
     }
 
-    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0), false, KRVBOData::CONSTANT
+    m_randomParticleVertexLayout = { };
+    m_randomParticleVertexLayout.topology = Topology::Triangles;
+    m_randomParticleVertexLayout.vertexSize = sizeof(RandomParticleVertexData);
+    m_randomParticleVertexLayout.offsets[0] = offsetof(RandomParticleVertexData, vertex);
+    m_randomParticleVertexLayout.offsets[1] = offsetof(RandomParticleVertexData, texcoord0);
+    m_randomParticleVertexLayout.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
+    m_randomParticleVertexLayout.attributes[1] = { ComponentType::float32, DataType::vec2, Normalization::none, VertexAttribute::texcoord };
+
+    KRENGINE_VBO_DATA_RANDOM_PARTICLES.init(this, &m_randomParticleVertexData, nullptr, &m_randomParticleVertexLayout, false, KRVBOData::CONSTANT
 #if KRENGINE_DEBUG_GPU_LABELS
       , "Random Particles [built-in]"
 #endif
@@ -441,7 +465,7 @@ KRMeshManager::KRVBOData::KRVBOData()
   m_type = STREAMING;
   m_data = NULL;
   m_index_data = NULL;
-  m_vertex_attrib_flags = 0;
+  m_layout = NULL;
   m_size = 0;
 
   m_last_frame_used = 0;
@@ -450,7 +474,7 @@ KRMeshManager::KRVBOData::KRVBOData()
   memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
 }
 
-KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, Block* data, Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, Block* data, Block* index_data, const VertexBufferLayout* layout, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -460,14 +484,14 @@ KRMeshManager::KRVBOData::KRVBOData(KRMeshManager* manager, Block* data, Block* 
   memset(m_allocations, 0, sizeof(AllocationInfo) * KRENGINE_MAX_GPU_COUNT);
   m_is_vbo_loaded = false;
   m_is_vbo_ready = false;
-  init(manager, data, index_data, vertex_attrib_flags, static_vbo, t
+  init(manager, data, index_data, layout, static_vbo, t
 #if KRENGINE_DEBUG_GPU_LABELS
     , debug_label
 #endif
   );
 }
 
-void KRMeshManager::KRVBOData::init(KRMeshManager* manager, Block* data, Block* index_data, int vertex_attrib_flags, bool static_vbo, vbo_type t
+void KRMeshManager::KRVBOData::init(KRMeshManager* manager, Block* data, Block* index_data, const VertexBufferLayout* layout, bool static_vbo, vbo_type t
 #if KRENGINE_DEBUG_GPU_LABELS
   , const char* debug_label
 #endif
@@ -481,7 +505,7 @@ void KRMeshManager::KRVBOData::init(KRMeshManager* manager, Block* data, Block* 
   m_static_vbo = static_vbo;
   m_data = data;
   m_index_data = index_data;
-  m_vertex_attrib_flags = vertex_attrib_flags;
+  m_layout = layout;
 
   m_size = m_data->getSize();
   if (m_index_data != NULL) {
@@ -681,7 +705,7 @@ VkBuffer& KRMeshManager::KRVBOData::getIndexBuffer()
 }
 
 
-uint32_t KRMeshManager::KRVBOData::getVertexAttributes()
+const VertexBufferLayout* KRMeshManager::KRVBOData::getLayout() const
 {
-  return m_vertex_attrib_flags;
+  return m_layout;
 }

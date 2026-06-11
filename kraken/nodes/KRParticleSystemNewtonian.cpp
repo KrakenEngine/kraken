@@ -98,8 +98,7 @@ void KRParticleSystemNewtonian::render(RenderInfo& ri)
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kAdditive;
       info.cullMode = CullMode::kCullNone;
-      info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-      info.topology = Topology::Triangles;
+      info.layout = m_pContext->getMeshManager()->KRENGINE_VBO_DATA_RANDOM_PARTICLES.getLayout();
 
       KRPipeline* pParticleShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       if (pParticleShader && pParticleShader->bind(ri, getModelMatrix())) {

@@ -91,7 +91,15 @@ KRCamera::KRCamera(KRScene& scene, std::string name)
 
   m_fade_color = Vector4::Zero();
 
-  m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0), true, KRMeshManager::KRVBOData::IMMEDIATE
+  m_debug_text_vbo_layout = { };
+  m_debug_text_vbo_layout.topology = Topology::Triangles;
+  m_debug_text_vbo_layout.vertexSize = sizeof(DebugTextVertexData);
+  m_debug_text_vbo_layout.offsets[0] = offsetof(DebugTextVertexData, x);
+  m_debug_text_vbo_layout.offsets[1] = offsetof(DebugTextVertexData, u);
+  m_debug_text_vbo_layout.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
+  m_debug_text_vbo_layout.attributes[1] = { ComponentType::float32, DataType::vec2, Normalization::none, VertexAttribute::texcoord };
+
+  m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, &m_debug_text_vbo_layout, true, KRMeshManager::KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS
     , "Debug Text"
 #endif
@@ -161,6 +169,7 @@ void KRCamera::render(KRNode::RenderInfo& ri)
       info.renderPass = ri.renderPass;
       info.rasterMode = RasterMode::kOpaqueNoDepthWrite;
       info.cullMode = CullMode::kCullNone;
+      info.layout = getContext().getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getLayout();
 
       KRPipeline* pPipeline = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       if (pPipeline && pPipeline->bind(ri, Matrix4())) {
@@ -616,8 +625,7 @@ void KRCamera::renderDebug(RenderInfo& ri)
   info.renderPass = ri.renderPass;
   info.rasterMode = RasterMode::kAlphaBlendNoTest;
   info.cullMode = CullMode::kCullNone;
-  info.vertexAttributes = (1 << KRMesh::KRENGINE_ATTRIB_POSITION) | (1 << KRMesh::KRENGINE_ATTRIB_TEXCOORD0);
-  info.topology = Topology::Triangles;
+  info.layout = m_debug_text_vbo_data.getLayout();;
   KRPipeline* fontShader = m_pContext->getPipelineManager()->getPipeline(*ri.surface, info);
       
   if (fontShader && fontShader->bind(ri, Matrix4())) {

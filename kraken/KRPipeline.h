@@ -44,6 +44,9 @@ class KRShader;
 class KRRenderPass;
 class KRUniformBuffer;
 class KRTexture;
+class KRMesh;
+struct VertexBufferLayout;
+
 
 struct SpvReflectShaderModule;
 
@@ -205,8 +208,8 @@ public:
   bool bAlphaTest : 1;
   RasterMode rasterMode;
   CullMode cullMode;
-  uint32_t vertexAttributes;
-  Topology topology;
+
+  const VertexBufferLayout* layout;
   const KRRenderPass* renderPass;
 };
 
@@ -214,7 +217,7 @@ class KRPipeline : public KRContextObject
 {
 public:
 
-  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, uint32_t vertexAttributes, Topology topology);
+  KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KRRenderPass* renderPass, hydra::Vector2i viewport_size, hydra::Vector2i scissor_size, const PipelineInfo& info, const char* szKey, const std::vector<KRShader*>& shaders, const VertexBufferLayout* layout);
   virtual ~KRPipeline();
   const char* getKey() const;
 

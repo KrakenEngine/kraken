@@ -73,8 +73,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
   key.second.push_back(surface.m_swapChain->m_imageFormat);
   key.second.push_back(surface.m_swapChain->m_extent.width);
   key.second.push_back(surface.m_swapChain->m_extent.height);
-  key.second.push_back(info.vertexAttributes);
-  key.second.push_back((int)info.topology);
+  // key.second.push_back(info.layout); // FINDME!! KIPG!! HACK!!! Need to add a unique key generated from info.layout
   // TODO - Add renderPass unique identifier to key
   PipelineMap::iterator itr = m_pipelines.find(key);
   if (itr != m_pipelines.end()) {
@@ -95,7 +94,7 @@ KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
     shaders.push_back(shader);
   }
 
-  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, info.renderPass, surface.getDimensions(), surface.getDimensions(), info, info.shader_name->c_str(), shaders, info.vertexAttributes, info.topology);
+  KRPipeline* pipeline = new KRPipeline(*m_pContext, surface.m_deviceHandle, info.renderPass, surface.getDimensions(), surface.getDimensions(), info, info.shader_name->c_str(), shaders, info.layout);
 
   m_pipelines[key] = pipeline;
 

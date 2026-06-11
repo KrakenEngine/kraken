@@ -121,6 +121,7 @@ private:
 
   mimir::Block m_debug_text_vertices;
   KRMeshManager::KRVBOData m_debug_text_vbo_data;
+  VertexBufferLayout m_debug_text_vbo_layout;
 
   KRTextureBinding m_fontTexture;
   KRNODE_PROPERTY(KRTextureBinding, m_skyBox, KRTexture::TEXTURE_USAGE_SKY_CUBE, "skybox");

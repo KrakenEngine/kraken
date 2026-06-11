@@ -101,6 +101,13 @@ void KRPointLight::render(RenderInfo& ri)
 
       bool bInsideLight = view_light_position.sqrMagnitude() <= (influence_radius + ri.camera->settings.getPerspectiveNearZ()) * (influence_radius + ri.camera->settings.getPerspectiveNearZ());
 
+      KRMeshManager::KRVBOData* vboData = &m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES;
+      if (!bInsideLight) {
+        // FINDME!!! KIPG!!! HACK!! Create a KRVBOData for the sphere vertices...
+        // 1 << KRMesh::KRENGINE_ATTRIB_POSITION; 
+        // bInsideLight ? Topology::TriangleStrips : Topology::Triangles;
+      }
+
       std::string shader_name(bVisualize ? "visualize_overlay" : (bInsideLight ? "light_point_inside" : "light_point"));
       PipelineInfo info{};
       info.shader_name = &shader_name;
@@ -112,8 +119,7 @@ void KRPointLight::render(RenderInfo& ri)
       } else {
         info.rasterMode = bVisualize ? RasterMode::kAdditive : RasterMode::kAlphaBlend;
       }
-      info.vertexAttributes = bInsideLight ? m_pContext->getMeshManager()->KRENGINE_VBO_DATA_2D_SQUARE_VERTICES.getVertexAttributes() : 1 << KRMesh::KRENGINE_ATTRIB_POSITION;
-      info.topology = bInsideLight ? Topology::TriangleStrips : Topology::Triangles;
+      info.layout = vboData->getLayout();
 
       KRPipeline* pShader = getContext().getPipelineManager()->getPipeline(*ri.surface, info);
       if (pShader && pShader->bind(ri, sphereModelMatrix)) { // TODO: Pass light index to shader

@@ -52,6 +52,7 @@ enum class Topology : __uint8_t;
 class KRTextureManager;
 class KRContext;
 class KRSurface;
+class VertexBufferLayout;
 
 class KRMaterial
   : public KRResource
@@ -131,7 +132,7 @@ public:
 
   bool isTransparent();
   
-  bool bind(KRNode::RenderInfo& ri, Topology topology, __uint32_t vertexAttributes, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<hydra::Matrix4>& bind_poses, const hydra::Matrix4& matModel, KRTexture* pLightMap, float lod_coverage = 0.0f);
+  bool bind(KRNode::RenderInfo& ri, const VertexBufferLayout* layout, CullMode cullMode, const std::vector<KRBone*>& bones, const std::vector<hydra::Matrix4>& bind_poses, const hydra::Matrix4& matModel, KRTexture* pLightMap, float lod_coverage = 0.0f);
 
   bool needsVertexTangents();
 
