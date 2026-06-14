@@ -481,11 +481,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
 
       if (iVertex + cVertexes >= MAX_VBO_SIZE) {
         assert(iVertex + (MAX_VBO_SIZE - iVertex) <= cBufferVertexes);
-        if (getIndexCount(0) == 0) {
-          vkCmdDraw(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0);
-        } else {
-          vkCmdDrawIndexed(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0, 0);
-        }
+        vkCmdDraw(commandBuffer, (MAX_VBO_SIZE - iVertex), 1, iVertex, 0);
         m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, (MAX_VBO_SIZE - iVertex));
 
         cVertexes -= (MAX_VBO_SIZE - iVertex);

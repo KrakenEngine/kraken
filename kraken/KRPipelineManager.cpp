@@ -67,13 +67,15 @@ KRPipelineManager::~KRPipelineManager()
 
 KRPipeline* KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInfo& info)
 {
-  std::pair<std::string, std::vector<int> > key;
-  key.first = *info.shader_name;
-  key.second.push_back(surface.m_deviceHandle);
-  key.second.push_back(surface.m_swapChain->m_imageFormat);
-  key.second.push_back(surface.m_swapChain->m_extent.width);
-  key.second.push_back(surface.m_swapChain->m_extent.height);
-  // key.second.push_back(info.layout); // FINDME!! KIPG!! HACK!!! Need to add a unique key generated from info.layout
+  const char* szShaderName = info.shader_name->c_str();
+  std::vector<std::byte> key;
+  key.insert(key.begin(), (std::byte*)szShaderName, (std::byte*)szShaderName + strlen(szShaderName) + 1); // purposefully include the zero terminator
+  key.insert(key.begin(), (std::byte*)&surface.m_deviceHandle, (std::byte*)&surface.m_deviceHandle + sizeof(surface.m_deviceHandle));
+  key.insert(key.begin(), (std::byte*)&surface.m_swapChain->m_imageFormat, (std::byte*)&surface.m_swapChain->m_imageFormat + sizeof(surface.m_swapChain->m_imageFormat));
+  key.insert(key.begin(), (std::byte*)&surface.m_swapChain->m_extent.width, (std::byte*)&surface.m_swapChain->m_extent.width + sizeof(surface.m_swapChain->m_extent.width));
+  key.insert(key.begin(), (std::byte*)&surface.m_swapChain->m_extent.height, (std::byte*)&surface.m_swapChain->m_extent.height + sizeof(surface.m_swapChain->m_extent.height));
+  key.insert(key.begin(), (std::byte*)info.layout, (std::byte*)info.layout + sizeof(*info.layout));
+  
   // TODO - Add renderPass unique identifier to key
   PipelineMap::iterator itr = m_pipelines.find(key);
   if (itr != m_pipelines.end()) {
@@ -307,16 +309,4 @@ KRPipeline *KRPipelineManager::getPipeline(KRSurface& surface, const PipelineInf
 size_t KRPipelineManager::getPipelineHandlesUsed()
 {
   return m_pipelines.size();
-}
-
-
-KRPipeline* KRPipelineManager::get(const char* name)
-{
-  std::pair<std::string, std::vector<int> > key;
-  key.first = name;
-  auto itr = m_pipelines.find(key);
-  if (itr == m_pipelines.end()) {
-    return nullptr;
-  }
-  return (*itr).second;
 }

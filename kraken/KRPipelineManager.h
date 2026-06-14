@@ -54,7 +54,6 @@ public:
 
   KRPipelineManager(KRContext& context);
   virtual ~KRPipelineManager();
-  KRPipeline* get(const char* szKey);
 
   KRPipeline* getPipeline(KRSurface& surface, const PipelineInfo& info);
 
@@ -63,6 +62,6 @@ public:
   KRPipeline* m_active_pipeline;
 
 private:
-  typedef std::map<std::pair<std::string, std::vector<int> >, KRPipeline*> PipelineMap;
+  typedef std::map<std::vector<std::byte>, KRPipeline* > PipelineMap;
   PipelineMap m_pipelines;
 };
