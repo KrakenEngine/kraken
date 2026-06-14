@@ -608,10 +608,11 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     attribute->normalization = Normalization::none;
     attribute++;
   }
-  for (int i = 0; i < kMaxAttributes; i++) {
+  for (int i = 0; i < kMaxAttributes && primitive.layout.attributes[i].component != ComponentType::empty; i++) {
     primitive.layout.offsets[i] = primitive.layout.vertexSize;
     int componentSize = ComponentSize[(int)primitive.layout.attributes[i].component] * DataTypeComponentCount[(int)primitive.layout.attributes[i].type];
     primitive.layout.vertexSize += componentSize;
+
   }
 
   primitive.layout.topology = mi.format;
@@ -829,7 +830,7 @@ int KRMesh::getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute at
   int indexLeft = index;
   for (int i = 0; i < kMaxAttributes; i++) {
     VertexAttributeInfo info = primitive.layout.attributes[i];
-    if (info.attribute == VertexAttribute::position) {
+    if (info.component == ComponentType::empty) {
       break;
     }
     if (info.attribute == attribute) {
@@ -1013,37 +1014,37 @@ void writeVertexAttributeComponent(const VertexAttributeInfo& attribute, void* a
   case ComponentType::empty:
     break;
   case ComponentType::int8:
-    normalizeAttributeComponent(attribute.normalization, val, (__int8_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__int8_t*)componentAddress);
     break;
   case ComponentType::uint8:
-    normalizeAttributeComponent(attribute.normalization, val, (__uint8_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__uint8_t*)componentAddress);
     break;
   case ComponentType::int16:
-    normalizeAttributeComponent(attribute.normalization, val, (__int16_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__int16_t*)componentAddress);
     break;
   case ComponentType::uint16:
-    normalizeAttributeComponent(attribute.normalization, val, (__uint16_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__uint16_t*)componentAddress);
     break;
   case ComponentType::int32:
-    normalizeAttributeComponent(attribute.normalization, val, (__int32_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__int32_t*)componentAddress);
     break;
   case ComponentType::uint32:
-    normalizeAttributeComponent(attribute.normalization, val, (__uint32_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__uint32_t*)componentAddress);
     break;
   case ComponentType::int64:
-    normalizeAttributeComponent(attribute.normalization, val, (__int64_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__int64_t*)componentAddress);
     break;
   case ComponentType::uint64:
-    normalizeAttributeComponent(attribute.normalization, val, (__uint64_t*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (__uint64_t*)componentAddress);
     break;
   case ComponentType::float16:
-    normalizeAttributeComponent(attribute.normalization, val, (short*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (short*)componentAddress);
     break;
   case ComponentType::float32:
-    normalizeAttributeComponent(attribute.normalization, val, (float*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (float*)componentAddress);
     break;
   case ComponentType::float64:
-    normalizeAttributeComponent(attribute.normalization, val, (double*)address);
+    normalizeAttributeComponent(attribute.normalization, val, (double*)componentAddress);
     break;
   }
 }
@@ -1055,37 +1056,37 @@ void readVertexAttributeComponent(const VertexAttributeInfo& attribute, const vo
   case ComponentType::empty:
     break;
   case ComponentType::int8:
-    denormalizeAttributeComponent(attribute.normalization, *(__int8_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__int8_t*)componentAddress, out);
     break;
   case ComponentType::uint8:
-    denormalizeAttributeComponent(attribute.normalization, *(__uint8_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__uint8_t*)componentAddress, out);
     break;
   case ComponentType::int16:
-    denormalizeAttributeComponent(attribute.normalization, *(__int16_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__int16_t*)componentAddress, out);
     break;
   case ComponentType::uint16:
-    denormalizeAttributeComponent(attribute.normalization, *(__uint16_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__uint16_t*)componentAddress, out);
     break;
   case ComponentType::int32:
-    denormalizeAttributeComponent(attribute.normalization, *(__int32_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__int32_t*)componentAddress, out);
     break;
   case ComponentType::uint32:
-    denormalizeAttributeComponent(attribute.normalization, *(__uint32_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__uint32_t*)componentAddress, out);
     break;
   case ComponentType::int64:
-    denormalizeAttributeComponent(attribute.normalization, *(__int64_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__int64_t*)componentAddress, out);
     break;
   case ComponentType::uint64:
-    denormalizeAttributeComponent(attribute.normalization, *(__uint64_t*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(__uint64_t*)componentAddress, out);
     break;
   case ComponentType::float16:
-    denormalizeAttributeComponent(attribute.normalization, *(short*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(short*)componentAddress, out);
     break;
   case ComponentType::float32:
-    denormalizeAttributeComponent(attribute.normalization, *(float*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(float*)componentAddress, out);
     break;
   case ComponentType::float64:
-    denormalizeAttributeComponent(attribute.normalization, *(double*)address, out);
+    denormalizeAttributeComponent(attribute.normalization, *(double*)componentAddress, out);
     break;
   }
 }
