@@ -47,6 +47,7 @@ using namespace kraken;
 #include <array>
 #include <vector>
 #include <string>
+#include <format>
 #include <set>
 #include <list>
 #include <map>
