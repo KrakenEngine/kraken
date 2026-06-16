@@ -115,8 +115,8 @@ private:
     float x;
     float y;
     float z;
-    float u;
-    float v;
+    short u;
+    short v;
   } DebugTextVertexData;
 
   mimir::Block m_debug_text_vertices;

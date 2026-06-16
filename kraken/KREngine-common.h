@@ -120,9 +120,21 @@ using std::multimap;
 using std::stack;
 using std::queue;
 
+#if defined(__x86_64__) || defined(_M_X64)
 
-#if !defined(__i386__) && defined(__arm__)
-#define KRAKEN_USE_ARM_NEON
+  #include <immintrin.h>
+  #define KRAKEN_ARCH_X86_64 1
+
+#elif defined(__aarch64__) || defined(_M_ARM64)
+
+  #include <arm_neon.h>
+  #define KRAKEN_ARCH_ARM64
+  #define KRAKEN_USE_ARM_NEON
+
+#else
+
+  static_assert(false, "CPU Architecture not implemented.");
+
 #endif
 
 

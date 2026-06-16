@@ -490,11 +490,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
       } else {
         assert(iVertex + cVertexes <= cBufferVertexes);
 
-        if (getIndexCount(0) == 0) {
-          vkCmdDraw(commandBuffer, cVertexes, 1, iVertex, 0);
-        } else {
-          vkCmdDrawIndexed(commandBuffer, cVertexes, 1, iVertex, 0, 0);
-        }
+        vkCmdDraw(commandBuffer, cVertexes, 1, iVertex, 0);
         m_pContext->getMeshManager()->log_draw_call(renderPass->getType(), object_name, material_name, cVertexes);
 
         cVertexes = 0;
@@ -510,24 +506,17 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   releaseData();
 
   // TODO, FINDME - These values should be passed as a parameter and set by GUI flags
-  bool use_short_vertexes = false;
-  bool use_short_normals = true;
-  bool use_short_tangents = true;
-  bool use_short_texcoord[8] = { false, false, false, false, false, false, false, false };
+  bool use_f16_vertexes = false;
+  bool use_f16_normals = true;
+  bool use_f16_tangents = true;
+  bool use_f16_texcoord[8] = { false, false, false, false, false, false, false, false };
 
-  if (use_short_vertexes) {
-    for (std::vector<Vector3>::const_iterator itr = mi.vertices.begin(); itr != mi.vertices.end(); itr++) {
-      if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f || fabsf((*itr).z) > 1.0f) {
-        use_short_vertexes = false;
-      }
-    }
-  }
 
   for (int set = 0; set < 8; set++) {
-    if (use_short_texcoord[set]) {
+    if (use_f16_texcoord[set]) {
       for (std::vector<Vector2>::const_iterator itr = mi.texcoord[set].begin(); itr != mi.texcoord[set].end(); itr++) {
         if (fabsf((*itr).x) > 1.0f || fabsf((*itr).y) > 1.0f) {
-          use_short_texcoord[set] = false;
+          use_f16_texcoord[set] = false;
           break;
         }
       }
@@ -540,36 +529,33 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
   if (mi.vertices.size()) {
     attribute->attribute = VertexAttribute::position;
     attribute->type = DataType::vec3;
-    if (use_short_vertexes) {
+    attribute->normalization = Normalization::none;
+    if (use_f16_vertexes) {
       attribute->component = ComponentType::float16;
-      attribute->normalization = Normalization::normalized;
     } else {
       attribute->component = ComponentType::float32;
-      attribute->normalization = Normalization::none;
     }
     attribute++;
   }
   if (mi.normals.size() || calculate_normals) {
     attribute->attribute = VertexAttribute::normal;
     attribute->type = DataType::vec3;
-    if (use_short_normals) {
+    attribute->normalization = Normalization::none;
+    if (use_f16_normals) {
       attribute->component = ComponentType::float16;
-      attribute->normalization = Normalization::normalized;
     } else {
       attribute->component = ComponentType::float32;
-      attribute->normalization = Normalization::none;
     }
     attribute++;
   }
   if (mi.tangents.size() || calculate_tangents) {
     attribute->attribute = VertexAttribute::tangent;
     attribute->type = DataType::vec3;
-    if (use_short_tangents) {
+    attribute->normalization = Normalization::none;
+    if (use_f16_tangents) {
       attribute->component = ComponentType::float16;
-      attribute->normalization = Normalization::normalized;
     } else {
       attribute->component = ComponentType::float32;
-      attribute->normalization = Normalization::none;
     }
     attribute++;
   }
@@ -577,12 +563,11 @@ void KRMesh::LoadData(const KRMesh::mesh_info& mi, bool calculate_normals, bool 
     if (mi.texcoord[set].size()) {
       attribute->attribute = VertexAttribute::texcoord;
       attribute->type = DataType::vec2;
-      if (use_short_texcoord[set]) {
+      attribute->normalization = Normalization::none;
+      if (use_f16_texcoord[set]) {
         attribute->component = ComponentType::float16;
-        attribute->normalization = Normalization::normalized;
       } else {
         attribute->component = ComponentType::float32;
-        attribute->normalization = Normalization::none;
       }
       attribute++;
     }
@@ -978,8 +963,12 @@ constexpr void normalizeAttributeComponent(const Normalization norm, float val, 
   case Normalization::none:
   case Normalization::scaled:
     {
-      float clampedFloat = std::clamp(val, minFloat, maxFloat);
-      *out = static_cast<T>(clampedFloat);
+      if constexpr (std::is_same_v<T, float>) {
+        *out = val;
+      } else {
+        float clampedFloat = std::clamp(val, minFloat, maxFloat);
+        *out = static_cast<T>(clampedFloat);
+      }
     }
     break;
   case Normalization::normalized:
@@ -1005,6 +994,111 @@ constexpr void normalizeAttributeComponent(const Normalization norm, float val, 
     }
     break;
   }
+}
+
+#if defined(KRAKEN_ARCH_X86_64)
+  uint16_t floatToHalf(float val)
+  {
+    __m128 simdFloat = _mm_set_ss(val);
+    __m128i simdHalf = _mm_cvtps_ph(simdFloat, _MM_FROUND_TO_NEAREST_INT);
+    return _mm_cvtsi128_si32(simdHalf) & 0xFFFF;
+  }
+
+  float halfToFloat(uint16_t val)
+  {
+    __m128i simdHalf = _mm_cvtsi32_si128(val);
+    __m128 simdFloat = _mm_cvtph_ps(simdHalf);
+    return _mm_cvtss_f32(simdFloat);
+  }
+
+#elif defined(KRAKEN_ARCH_ARM64)
+  uint16_t floatToHalf(float val)
+  {
+    __fp16 h = static_cast<__fp16>(val);
+    uint16_t bits;
+    std::memcpy(&bits, &h, 2);
+    return bits;
+  }
+
+  // 2. Half to Float
+  float halfToFloat(uint16_t val)
+  {
+    __fp16 h;
+    std::memcpy(&h, &val, 2);
+    return static_cast<float>(h);
+  }
+
+#else
+
+  uint16_t floatToHalf(float val)
+  {
+    uint32_t f32Bits;
+    std::memcpy(&f32Bits, &val, sizeof(float));
+
+    uint32_t sign = (f32Bits >> 16) & 0x8000;
+    int32_t exponent = ((f32Bits >> 23) & 0xFF) - 127;
+    uint32_t mantissa = f32Bits & 0x007FFFFF;
+
+    if (exponent <= -15) {
+      if (exponent < -24) return sign;
+      mantissa |= 0x00800000;
+      return sign | (mantissa >> (-14 - exponent));
+    }
+    if (exponent > 15) return sign | 0x7C00;
+
+    return sign | ((exponent + 15) << 10) | (mantissa >> 13);
+  }
+
+  float halfToFloat(uint16_t val)
+  {
+    uint32_t sign = (val & 0x8000) << 16;
+    uint32_t exponent = (val & 0x7C00) >> 10;
+    uint32_t mantissa = val & 0x03FF;
+    uint32_t f32Bits = 0;
+
+    if (exponent == 0) {
+      if (mantissa != 0) {
+        while ((mantissa & 0x0400) == 0) {
+          mantissa <<= 1;
+          exponent--;
+        }
+        exponent++;
+        mantissa &= 0x03FF;
+        f32Bits = sign | ((exponent + 112) << 23) | (mantissa << 13);
+      } else {
+        f32Bits = sign;
+      }
+    } else if (exponent == 31) {
+      f32Bits = sign | 0x7F800000 | (mantissa << 13);
+    } else {
+      f32Bits = sign | ((exponent + 112) << 23) | (mantissa << 13);
+    }
+
+    float result;
+    std::memcpy(&result, &f32Bits, sizeof(float));
+    return result;
+  }
+
+#endif
+
+// IEEE 754 Half precision specialization
+constexpr void normalizeAttributeComponent_float16(const Normalization norm, float val, uint16_t* out)
+{
+  assert(norm == Normalization::none);
+
+  constexpr float minFloat = -65504.0f;
+  constexpr float maxFloat = 65504.0f;
+
+  float clampedFloat = std::clamp(val, minFloat, maxFloat);
+  *out = floatToHalf(clampedFloat);
+}
+
+// IEEE 754 Half precision specialization
+constexpr void denormalizeAttributeComponent_float16(const Normalization norm, uint16_t val, float* out)
+{
+  assert(norm == Normalization::none);
+
+  *out = halfToFloat(val);
 }
 
 void writeVertexAttributeComponent(const VertexAttributeInfo& attribute, void* address, int componentIndex, float val)
@@ -1038,7 +1132,7 @@ void writeVertexAttributeComponent(const VertexAttributeInfo& attribute, void* a
     normalizeAttributeComponent(attribute.normalization, val, (__uint64_t*)componentAddress);
     break;
   case ComponentType::float16:
-    normalizeAttributeComponent(attribute.normalization, val, (short*)componentAddress);
+    normalizeAttributeComponent_float16(attribute.normalization, val, (__uint16_t*)componentAddress);
     break;
   case ComponentType::float32:
     normalizeAttributeComponent(attribute.normalization, val, (float*)componentAddress);
@@ -1080,7 +1174,7 @@ void readVertexAttributeComponent(const VertexAttributeInfo& attribute, const vo
     denormalizeAttributeComponent(attribute.normalization, *(__uint64_t*)componentAddress, out);
     break;
   case ComponentType::float16:
-    denormalizeAttributeComponent(attribute.normalization, *(short*)componentAddress, out);
+    denormalizeAttributeComponent_float16(attribute.normalization, *(__uint16_t*)componentAddress, out);
     break;
   case ComponentType::float32:
     denormalizeAttributeComponent(attribute.normalization, *(float*)componentAddress, out);

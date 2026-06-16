@@ -97,7 +97,7 @@ KRCamera::KRCamera(KRScene& scene, std::string name)
   m_debug_text_vbo_layout.offsets[0] = offsetof(DebugTextVertexData, x);
   m_debug_text_vbo_layout.offsets[1] = offsetof(DebugTextVertexData, u);
   m_debug_text_vbo_layout.attributes[0] = { ComponentType::float32, DataType::vec3, Normalization::none, VertexAttribute::position };
-  m_debug_text_vbo_layout.attributes[1] = { ComponentType::float32, DataType::vec2, Normalization::none, VertexAttribute::texcoord };
+  m_debug_text_vbo_layout.attributes[1] = { ComponentType::float16, DataType::vec2, Normalization::none, VertexAttribute::texcoord };
 
   m_debug_text_vbo_data.init(m_pContext->getMeshManager(), &m_debug_text_vertices, nullptr, &m_debug_text_vbo_layout, true, KRMeshManager::KRVBOData::IMMEDIATE
 #if KRENGINE_DEBUG_GPU_LABELS

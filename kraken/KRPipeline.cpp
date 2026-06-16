@@ -117,13 +117,15 @@ KRPipeline::KRPipeline(KRContext& context, KrDeviceHandle deviceHandle, const KR
           const char* attribBaseName = VertexAttributeNames[(int)attrib.attribute];
           int len = strlen(input_var.name);
           int baseNameLen = strlen(attribBaseName);
+          if (strncmp(attribBaseName, input_var.name, baseNameLen) != 0) {
+            continue;
+          }
+
           if (len == baseNameLen) {
-            if (strcmp(attribBaseName, input_var.name) == 0) {
-              attribute_locations[i] = input_var.location;
-            }
+            attribute_locations[i] = input_var.location;
             break;
           }
-          if (len + 1 != baseNameLen) {
+          if (len != baseNameLen + 1) {
             continue;
           }
           char lastChar = input_var.name[len - 1];
