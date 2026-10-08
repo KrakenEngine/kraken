@@ -450,7 +450,7 @@ KRBundle* KRResource::LoadGltf(KRContext& context, const std::string& path)
   
   jsonData.expand(SIMDJSON_PADDING);
   jsonData.lock();
-  auto error = parser.iterate((const char*)jsonData.getStart(), jsonData.getSize()).get(doc);
+  auto error = parser.iterate((uint8_t*)jsonData.getStart(), jsonData.getSize() - SIMDJSON_PADDING, jsonData.getSize()).get(doc);
   jsonData.unlock();
 
   if (error) {
