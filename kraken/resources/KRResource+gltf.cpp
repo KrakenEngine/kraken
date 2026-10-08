@@ -329,6 +329,8 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
       };
       
       new_material = new KRMaterial(context, std::string(materialName).c_str());
+      context.getMaterialManager()->add(new_material);
+      
       simdjson::ondemand::object pbrMetallicRoughnessObj;
       if(tryJson(jsonMaterial["pbrMetallicRoughness"].get(pbrMetallicRoughnessObj))) {
         tryJson(pbrMetallicRoughnessObj["baseColorFactor"].get(new_material->m_baseColorFactor));
@@ -345,7 +347,6 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
       }
       parseTextureInfo(jsonMaterial, "emissiveTexture", new_material->m_emissiveMap);
       tryJson(jsonMaterial["emissiveFactor"].get(new_material->m_emissiveFactor));
-      new_material->moveToBundle(bundle);
       
       std::string_view alphaMode;
       if(tryJson(jsonMaterial["alphaMode"].get(alphaMode))) {
@@ -418,6 +419,7 @@ KRBundle* LoadGltf(KRContext& context, simdjson::ondemand::object& jsonRoot, std
           new_material->m_emissiveFactor *= strength;
         }
       }
+      new_material->moveToBundle(bundle);
       materialIndex++;
     }
   }
