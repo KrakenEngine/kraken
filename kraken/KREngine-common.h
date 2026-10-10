@@ -45,6 +45,7 @@ using namespace kraken;
 
 #include <stdint.h>
 #include <array>
+#include <bitset>
 #include <vector>
 #include <string>
 #include <format>

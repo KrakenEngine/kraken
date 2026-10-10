@@ -200,9 +200,9 @@ void KRModel::loadModel()
     if (m_meshes[lod].val.isBound()) {
       KRMesh* model = m_meshes[lod].val.get();
       std::vector<KRBone*> model_bones;
-      int bone_count = model->getBoneCount();
+      int boneCount = model->getBoneCount();
       bool all_bones_found = true;
-      for (int bone_index = 0; bone_index < bone_count; bone_index++) {
+      for (int bone_index = 0; bone_index < boneCount; bone_index++) {
         KRBone* matching_bone = dynamic_cast<KRBone*>(getScene().getRootNode()->find<KRNode>(model->getBoneName(bone_index)));
         if (matching_bone) {
           model_bones.push_back(matching_bone);

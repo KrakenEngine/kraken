@@ -190,7 +190,7 @@ public:
   const std::vector<KRPointLight*>* point_lights;
   const std::vector<KRDirectionalLight*>* directional_lights;
   const std::vector<KRSpotLight*>* spot_lights;
-  int bone_count;
+  int boneCount;
   bool bDiffuseMap : 1;
   bool bNormalMap : 1;
   bool bSpecMap : 1;

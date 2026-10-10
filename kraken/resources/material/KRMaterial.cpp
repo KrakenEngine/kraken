@@ -765,7 +765,7 @@ bool KRMaterial::bind(KRNode::RenderInfo& ri, const VertexBufferLayout* layout, 
   info.point_lights = &ri.point_lights;
   info.directional_lights = &ri.directional_lights;
   info.spot_lights = &ri.spot_lights;
-  info.bone_count = (int)bones.size();
+  info.boneCount = (int)bones.size();
   info.renderPass = ri.renderPass;
   info.bDiffuseMap = bDiffuseMap;
   info.bNormalMap = bNormalMap;
