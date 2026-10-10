@@ -74,16 +74,6 @@ public:
 
   bool hasTransparency();
 
-  struct PrimitiveInfo
-  {
-    char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
-    VertexBufferLayout layout;
-    int64_t vertexOffset;
-    int64_t vertexCount;
-    int64_t indexOffset;
-    int64_t indexCount;
-  };
-
   struct PrimitiveDesc
   {
     std::string materialName;
@@ -126,12 +116,6 @@ public:
 
   const hydra::AABB& getExtents() const;
 
-  typedef struct
-  {
-    char szName[KRENGINE_MAX_NAME_LENGTH];
-    float bind_pose[16];
-  } pack_bone;
-
   int getLODCoverage() const;
   std::string getLODBaseName() const;
 
@@ -151,7 +135,6 @@ public:
   hydra::Vector2 getVertexTexCoord(int submesh, int set, int index) const;
   hydra::Vector4 getVertexColor(int submesh, int set, int index) const;
 
-  static int getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute attribute, int index);
   void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, float val);
   void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector2 val);
   void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector3 val);
@@ -219,14 +202,30 @@ private:
 
   bool m_hasTransparency;
 
-  typedef struct
+  struct pack_header
   {
     char szTag[16];
     int32_t submesh_count;
     int32_t bone_count;
     hydra::AABB extents; // Axis aligned bounding box, in model's coordinate space
     unsigned char reserved[464]; // Pad out to 512 bytes
-  } pack_header;
+  };
+
+  struct pack_bone
+  {
+    char szName[KRENGINE_MAX_NAME_LENGTH];
+    float bind_pose[16];
+  };
+
+  struct pack_primitive
+  {
+    char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
+    VertexBufferLayout layout;
+    int64_t vertexOffset;
+    int64_t vertexCount;
+    int64_t indexOffset;
+    int64_t indexCount;
+  };
 
   static_assert(sizeof(pack_header) == 512);
 
@@ -234,8 +233,9 @@ private:
 
   std::byte* getVertexData(int submesh, int index) const;
   pack_header* getHeader() const;
-  PrimitiveInfo* getPrimitive(int index) const;
+  pack_primitive* getPrimitive(int index) const;
   pack_bone* getBone(int index);
+  int getAttributeIndex(int submesh, VertexAttribute attribute, int index) const;
 
   void releaseData(bool includeMainDatablock = true);
 };

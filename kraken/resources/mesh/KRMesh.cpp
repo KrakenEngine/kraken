@@ -46,6 +46,7 @@
 using namespace mimir;
 using namespace hydra;
 
+
 KRMesh::KRMesh(KRContext& context, std::string name) : KRResource(context, name)
 {
   setName(name);
@@ -249,7 +250,7 @@ void KRMesh::render(KRNode::RenderInfo& ri, const std::string& object_name, cons
         }
       } else {
         for (int iSubmesh = 0; iSubmesh < cSubmeshes; iSubmesh++) {
-          const PrimitiveInfo* primitive = getPrimitive(iSubmesh);
+          const pack_primitive* primitive = getPrimitive(iSubmesh);
           KRMaterial* pMaterial = m_materials[iSubmesh].get();
 
           if (pMaterial) {
@@ -317,12 +318,12 @@ void KRMesh::initSubBlocks()
 
   pack_header ph;
   m_pData->copy((void*)&ph, 0, sizeof(ph));
-  m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(PrimitiveInfo) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
+  m_pMetaData = m_pData->getSubBlock(0, sizeof(pack_header) + sizeof(pack_primitive) * ph.submesh_count + sizeof(pack_bone) * ph.bone_count);
   m_pMetaData->lock();
 
   pack_header* pHeader = getHeader();
   for (int i = 0; i < pHeader->submesh_count; i++) {
-    PrimitiveInfo* primitive = getPrimitive(i);
+    pack_primitive* primitive = getPrimitive(i);
 
     Block* vertex_data_block = nullptr;
     if (primitive->vertexCount > 0) {
@@ -345,7 +346,7 @@ void KRMesh::getPrimitives()
     KRMeshManager::KRVBOData::vbo_type t = m_constant ? KRMeshManager::KRVBOData::CONSTANT : KRMeshManager::KRVBOData::STREAMING;
 
     for (int i = 0; i < pHeader->submesh_count; i++) {
-      PrimitiveInfo* primitive = getPrimitive(i);
+      pack_primitive* primitive = getPrimitive(i);
 
       vbo_data_blocks.emplace_back(std::make_shared<KRMeshManager::KRVBOData>(getContext().getMeshManager(), m_vertexBlocks[i], m_indexBlocks[i], &primitive->layout, true, t
 #if KRENGINE_DEBUG_GPU_LABELS
@@ -368,7 +369,7 @@ void KRMesh::renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const K
 {
   getPrimitives();
 
-  const PrimitiveInfo* primitive = getPrimitive(iSubmesh);
+  const pack_primitive* primitive = getPrimitive(iSubmesh);
   if (primitive->vertexCount == 0) {
     return;
   }
@@ -417,11 +418,11 @@ void KRMesh::LoadDesc(const KRMesh::MeshDesc& mi, bool calculate_normals, bool c
   }
   
   // Collect the primitives
-  size_t dataOffset = sizeof(pack_header) + mi.primitives.size() * sizeof(PrimitiveInfo) + bones.size() * sizeof(pack_bone);
-  std::vector<PrimitiveInfo> primitives;
+  size_t dataOffset = sizeof(pack_header) + mi.primitives.size() * sizeof(pack_primitive) + bones.size() * sizeof(pack_bone);
+  std::vector<pack_primitive> primitives;
   primitives.reserve(mi.primitives.size());
   for (const PrimitiveDesc& p : mi.primitives) {
-    PrimitiveInfo primitive = {};
+    pack_primitive primitive = {};
     VertexAttributeInfo* attribute = primitive.layout.attributes;
     strncpy(primitive.szMaterialName, p.materialName.c_str(), KRENGINE_MAX_NAME_LENGTH);
 
@@ -520,8 +521,8 @@ void KRMesh::LoadDesc(const KRMesh::MeshDesc& mi, bool calculate_normals, bool c
   dest += sizeof(pack_header);
 
   // Append the primitives
-  memcpy(dest, primitives.data(), primitives.size() * sizeof(PrimitiveInfo));
-  dest += primitives.size() * sizeof(PrimitiveInfo);
+  memcpy(dest, primitives.data(), primitives.size() * sizeof(pack_primitive));
+  dest += primitives.size() * sizeof(pack_primitive);
 
   // Append the Bones
   memcpy(dest, bones.data(), bones.size() * sizeof(pack_bone));
@@ -537,7 +538,7 @@ void KRMesh::LoadDesc(const KRMesh::MeshDesc& mi, bool calculate_normals, bool c
       m_indexBlocks[pi]->lock();
     }
     const PrimitiveDesc& pd = mi.primitives[pi];
-    const PrimitiveInfo* primitive = getPrimitive(pi);
+    const pack_primitive* primitive = getPrimitive(pi);
 
     int vertex_size = (int)primitive->layout.vertexSize;
     for (int iVertex = 0; iVertex < (int)pd.vertices.size(); iVertex++) {
@@ -690,8 +691,9 @@ bool KRMesh::lod_sort_predicate(const KRMesh* m1, const KRMesh* m2)
   return m1->m_lodCoverage > m2->m_lodCoverage;
 }
 
-int KRMesh::getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute attribute, int index)
+int KRMesh::getAttributeIndex(int submesh, VertexAttribute attribute, int index) const
 {
+  const pack_primitive& primitive = *getPrimitive(submesh);
   int indexLeft = index;
   for (int i = 0; i < kMaxAttributes; i++) {
     VertexAttributeInfo info = primitive.layout.attributes[i];
@@ -708,22 +710,23 @@ int KRMesh::getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute at
   return -1;
 }
 
+
 KRMesh::pack_header* KRMesh::getHeader() const
 {
   return (pack_header*)m_pMetaData->getStart();
 }
 
-KRMesh::PrimitiveInfo* KRMesh::getPrimitive(int index) const
+KRMesh::pack_primitive* KRMesh::getPrimitive(int index) const
 {
   assert(index < getHeader()->submesh_count);
-  PrimitiveInfo* primitives = (PrimitiveInfo*)((std::byte*)m_pMetaData->getStart() + sizeof(pack_header));
+  pack_primitive* primitives = (pack_primitive*)((std::byte*)m_pMetaData->getStart() + sizeof(pack_header));
   return primitives + index;
 }
 
 KRMesh::pack_bone* KRMesh::getBone(int index)
 {
   pack_header* header = getHeader();
-  return (pack_bone*)((unsigned char*)m_pMetaData->getStart() + sizeof(pack_header) + sizeof(PrimitiveInfo) * header->submesh_count + sizeof(pack_bone) * index);
+  return (pack_bone*)((unsigned char*)m_pMetaData->getStart() + sizeof(pack_header) + sizeof(pack_primitive) * header->submesh_count + sizeof(pack_bone) * index);
 }
 
 std::byte* KRMesh::getVertexData(int submesh, int index) const
@@ -1025,7 +1028,7 @@ void readVertexAttributeComponent(const VertexAttributeInfo& attribute, const vo
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, float val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1040,7 +1043,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, f
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, float* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1054,7 +1057,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, f
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector2 val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1069,7 +1072,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector2* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1084,7 +1087,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector3 val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1100,7 +1103,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector3* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1116,7 +1119,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector4 val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1133,7 +1136,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, Vector4* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1150,7 +1153,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, V
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, Matrix2 val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1167,7 +1170,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, M
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, Matrix2* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1184,7 +1187,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, M
 
 void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, Matrix4 val)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1200,7 +1203,7 @@ void KRMesh::setVertexAttribute(int submesh, int vertexIndex, int attribIndex, M
 
 void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, Matrix4* val) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
+  const pack_primitive& primitive = *getPrimitive(submesh);
   const VertexAttributeInfo& attribute = primitive.layout.attributes[attribIndex];
   void* address = getVertexData(submesh, vertexIndex) + primitive.layout.offsets[attribIndex];
 
@@ -1216,8 +1219,7 @@ void KRMesh::getVertexAttribute(int submesh, int vertexIndex, int attribIndex, M
 
 Vector3 KRMesh::getVertexPosition(int submesh, int index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::position, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::position, 0);
   if (attribIndex == -1) {
     return Vector3::Zero();
   }
@@ -1228,8 +1230,7 @@ Vector3 KRMesh::getVertexPosition(int submesh, int index) const
 
 Vector3 KRMesh::getVertexNormal(int submesh, int index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::normal, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::normal, 0);
   if (attribIndex == -1) {
     return Vector3::Zero();
   }
@@ -1240,8 +1241,7 @@ Vector3 KRMesh::getVertexNormal(int submesh, int index) const
 
 Vector3 KRMesh::getVertexTangent(int submesh, int index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::tangent, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::tangent, 0);
   if (attribIndex == -1) {
     return Vector3::Zero();
   }
@@ -1252,8 +1252,7 @@ Vector3 KRMesh::getVertexTangent(int submesh, int index) const
 
 Vector2 KRMesh::getVertexTexCoord(int submesh, int set, int index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::texcoord, set);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::texcoord, set);
   if (attribIndex == -1) {
     return Vector2::Zero();
   }
@@ -1264,8 +1263,7 @@ Vector2 KRMesh::getVertexTexCoord(int submesh, int set, int index) const
 
 Vector4 KRMesh::getVertexColor(int submesh, int set, int index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::color, set);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::color, set);
   if (attribIndex == -1) {
     return Vector4::Zero();
   }
@@ -1276,8 +1274,7 @@ Vector4 KRMesh::getVertexColor(int submesh, int set, int index) const
 
 void KRMesh::setVertexPosition(int submesh, int index, const Vector3& v)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::position, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::position, 0);
   if (attribIndex == -1) {
     return;
   }
@@ -1287,8 +1284,7 @@ void KRMesh::setVertexPosition(int submesh, int index, const Vector3& v)
 
 void KRMesh::setVertexNormal(int submesh, int index, const Vector3& v)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::normal, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::normal, 0);
   if (attribIndex == -1) {
     return;
   }
@@ -1298,8 +1294,7 @@ void KRMesh::setVertexNormal(int submesh, int index, const Vector3& v)
 
 void KRMesh::setVertexTangent(int submesh, int index, const Vector3& v)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::tangent, 0);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::tangent, 0);
   if (attribIndex == -1) {
     return;
   }
@@ -1309,8 +1304,7 @@ void KRMesh::setVertexTangent(int submesh, int index, const Vector3& v)
 
 void KRMesh::setVertexTexCoord(int submesh, int index, int set, const Vector2& v)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::texcoord, set);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::texcoord, set);
   if (attribIndex == -1) {
     return;
   }
@@ -1320,8 +1314,7 @@ void KRMesh::setVertexTexCoord(int submesh, int index, int set, const Vector2& v
 
 void KRMesh::setVertexColor(int submesh, int index, int set, const Vector4& v)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::color, set);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::color, set);
   if (attribIndex == -1) {
     return;
   }
@@ -1331,8 +1324,7 @@ void KRMesh::setVertexColor(int submesh, int index, int set, const Vector4& v)
 
 int KRMesh::getBoneIndex(int submesh, int index, int weight_index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::joints, weight_index / 4);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::joints, weight_index / 4);
   if (attribIndex == -1) {
     return 0;
   }
@@ -1345,8 +1337,7 @@ int KRMesh::getBoneIndex(int submesh, int index, int weight_index) const
 
 void KRMesh::setBoneIndex(int submesh, int index, int weight_index, int bone_index)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::joints, weight_index / 4);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::joints, weight_index / 4);
   if (attribIndex == -1) {
     return;
   }
@@ -1360,8 +1351,7 @@ void KRMesh::setBoneIndex(int submesh, int index, int weight_index, int bone_ind
 
 void KRMesh::setBoneWeight(int submesh, int index, int bone_index, float weight)
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::weights, bone_index / 4);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::weights, bone_index / 4);
   if (attribIndex == -1) {
     return;
   }
@@ -1373,8 +1363,7 @@ void KRMesh::setBoneWeight(int submesh, int index, int bone_index, float weight)
 
 float KRMesh::getBoneWeight(int submesh, int index, int weight_index) const
 {
-  const PrimitiveInfo& primitive = *getPrimitive(submesh);
-  int attribIndex = getAttributeIndex(primitive, VertexAttribute::weights, weight_index / 4);
+  int attribIndex = getAttributeIndex(submesh, VertexAttribute::weights, weight_index / 4);
   if (attribIndex == -1) {
     return 0.f;
   }
@@ -1715,7 +1704,7 @@ bool KRMesh::rayCast(const Vector3& start, const Vector3& dir, HitInfo& hitinfo)
   m_pData->lock();
   bool hit_found = false;
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
-    const PrimitiveInfo* primitive = getPrimitive(submesh_index);
+    const pack_primitive* primitive = getPrimitive(submesh_index);
     switch (primitive->layout.topology) {
     case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < primitive->vertexCount / 3; triangle_index++) {
@@ -1745,7 +1734,7 @@ bool KRMesh::sphereCast(const Matrix4& model_to_world, const Vector3& v0, const 
 
   bool hit_found = false;
   for (int submesh_index = 0; submesh_index < getSubmeshCount(); submesh_index++) {
-    const PrimitiveInfo* primitive = getPrimitive(submesh_index);
+    const pack_primitive* primitive = getPrimitive(submesh_index);
     switch (primitive->layout.topology) {
       case Topology::Triangles:
       for (int triangle_index = 0; triangle_index < primitive->vertexCount / 3; triangle_index++) {
