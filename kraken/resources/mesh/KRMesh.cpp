@@ -488,14 +488,24 @@ void KRMesh::LoadDesc(const KRMesh::MeshDesc& mi, bool calculate_normals, bool c
     primitive.layout.topology = p.format;
     primitive.vertexCount = p.vertices.size();
     primitive.indexCount = p.indexes.size();
+    int indexSize = 0;
+    if (primitive.indexCount == 0) {
+      primitive.layout.indexType = ComponentType::empty;
+    } else if (primitive.vertexCount < 0xffff) {
+      // Some devices reserve uint16 index 0xffff
+      primitive.layout.indexType = ComponentType::uint16;
+      indexSize = 2;
+    } else {
+      primitive.layout.indexType = ComponentType::uint32;
+      indexSize = 4;
+    }
 
     const int kBufferAlignment = 64;
-    const int kIndexSize = 2; // TODO: implement mixed 16 and 32 bit indexes
 
     dataOffset = (dataOffset + kBufferAlignment - 1) / kBufferAlignment * kBufferAlignment;
 
     primitive.indexOffset = dataOffset;
-    dataOffset += primitive.indexCount * kIndexSize;
+    dataOffset += primitive.indexCount * indexSize;
 
     dataOffset = (dataOffset + kBufferAlignment - 1) / kBufferAlignment * kBufferAlignment;
     primitive.vertexOffset = dataOffset;
@@ -1944,23 +1954,47 @@ void KRMesh::convertToIndexed(std::bitset<64> primitives)
   */
 }
 
-int KRMesh::getVertexIndex(int primitive, int index) const
+int KRMesh::getVertexIndex(int primitiveIndex, int index) const
 {
-  if (getIndexCount(primitive) > 0) {
-    const int kVertexIndexSize = 2; // TODO: Support both 16 and 32 bit vertex indexes
-    std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitive]->getStart() + kVertexIndexSize * index;
-    return *((uint16_t*)vertexIndexData);
-  } else {
+  const pack_primitive* primitive = getPrimitive(primitiveIndex);
+  switch (primitive->layout.indexType) {
+  case ComponentType::uint16:
+    {
+      std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitiveIndex]->getStart() + index * 2;
+      return *((uint16_t*)vertexIndexData);
+    }
+    break;
+  case ComponentType::uint32:
+    {
+      std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitiveIndex]->getStart() + index * 4;
+      return *((uint32_t*)vertexIndexData);
+    }
+    break;
+  default:
     return index;
+    break;
   }
 }
 
-void KRMesh::setVertexIndex(int primitive, int index, int indexVal)
+void KRMesh::setVertexIndex(int primitiveIndex, int index, int indexVal)
 {
-  const int kVertexIndexSize = 2; // TODO: Support both 16 and 32 bit vertex indexes
-  std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitive]->getStart() + kVertexIndexSize * index;
-  uint16_t val = static_cast<uint16_t>(indexVal);
-  *((uint16_t*)vertexIndexData) = val;
+  const pack_primitive* primitive = getPrimitive(primitiveIndex);
+  switch (primitive->layout.indexType) {
+  case ComponentType::uint16:
+    {
+      std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitiveIndex]->getStart() + index * 2;
+      *((uint16_t*)vertexIndexData) = (uint16_t)indexVal;
+    }
+  break;
+  case ComponentType::uint32:
+    {
+      std::byte* vertexIndexData = (std::byte*)m_indexBlocks[primitiveIndex]->getStart() + index * 4;
+      *((uint32_t*)vertexIndexData) = (uint32_t)indexVal;
+    }
+  break;
+  default:
+    break;
+  }
 }
 
 void KRMesh::optimizeIndexes(std::bitset<64> primitives)

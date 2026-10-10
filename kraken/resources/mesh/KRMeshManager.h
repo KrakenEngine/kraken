@@ -164,6 +164,7 @@ struct VertexBufferLayout
   int16_t offsets[kMaxAttributes];
   int16_t vertexSize;
   Topology topology;
+  ComponentType indexType;
 };
 
 class KRMeshManager : public KRResourceManager
