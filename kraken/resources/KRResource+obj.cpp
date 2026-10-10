@@ -43,7 +43,7 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 {
   KRMesh* new_mesh = new KRMesh(context, util::GetFileBase(path));
 
-  KRMesh::mesh_info mi;
+  KRMesh::MeshDesc md{};
 
   std::vector<std::string> material_names_t;
 
@@ -52,8 +52,6 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
   char szSymbol[500][256];
 
   int* pFaces = NULL;
-
-  vector<KRMesh::pack_material*> m_materials;
 
   if (data.load(path)) {
     //  -----=====----- Get counts -----=====----- 
@@ -133,9 +131,6 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
     int* pFace = pFaces;
     int* pMaterialFaces = pFace++;
     *pMaterialFaces = 0;
-
-
-
 
     // --------
 
@@ -254,23 +249,13 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
 
 
     int iVertex = 0;
-
+    int iMaterialStartVertex = 0;
 
     std::vector<std::string>::iterator material_itr = material_names_t.begin();
-    KRMesh::pack_material* pMaterial = new KRMesh::pack_material();
-    pMaterial->start_vertex = iVertex;
-    pMaterial->vertex_count = 0;
-    memset(pMaterial->szName, 0, 256);
-    if (material_itr < material_names_t.end()) {
-      strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
-    }
-    m_materials.push_back(pMaterial);
-
 
     pFace = pFaces;
     while (*pFace != 0 && iVertex < cVertexData) {
-      pMaterial->start_vertex = iVertex;
-
+      KRMesh::PrimitiveDesc pd{};
       int* pMaterialEndFace = pFace + *pFace;
       ++pFace;
       while (pFace < pMaterialEndFace && iVertex < cVertexData) {
@@ -286,13 +271,13 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
             // There have already been 3 vertices.  Now we need to split the quad into a second triangle composed of the 1st, 3rd, and 4th vertices
             iVertex += 2;
 
-            mi.vertices.push_back(firstFaceVertex);
-            mi.texcoord[0].push_back(firstFaceUva);
-            mi.normals.push_back(firstFaceNormal);
+            pd.vertices.push_back(firstFaceVertex);
+            pd.texcoord[0].push_back(firstFaceUva);
+            pd.normals.push_back(firstFaceNormal);
 
-            mi.vertices.push_back(prevFaceVertex);
-            mi.texcoord[0].push_back(prevFaceUva);
-            mi.normals.push_back(prevFaceNormal);
+            pd.vertices.push_back(prevFaceVertex);
+            pd.texcoord[0].push_back(prevFaceUva);
+            pd.normals.push_back(prevFaceNormal);
           }
           Vector3 vertex = indexed_vertices[pFace[iFaceVertex * 3 + 1]];
           Vector2 new_uva;
@@ -304,9 +289,9 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
             Vector3 normal = indexed_normals[pFace[iFaceVertex * 3 + 3]];
           }
 
-          mi.vertices.push_back(vertex);
-          mi.texcoord[0].push_back(new_uva);
-          mi.normals.push_back(normal);
+          pd.vertices.push_back(vertex);
+          pd.texcoord[0].push_back(new_uva);
+          pd.normals.push_back(normal);
 
           if (iFaceVertex == 0) {
             firstFaceVertex = vertex;
@@ -321,41 +306,16 @@ KRMesh* KRResource::LoadObj(KRContext& context, const std::string& path)
         }
         pFace += cFaceVertexes * 3 + 1;
       }
-      pMaterial->vertex_count = iVertex - pMaterial->start_vertex;
-      if (*pFace != 0) {
-        pMaterial = new KRMesh::pack_material();
-        pMaterial->start_vertex = iVertex;
-        pMaterial->vertex_count = 0;
-        memset(pMaterial->szName, 0, 256);
 
-        if (material_itr < material_names_t.end()) {
-          strncpy(pMaterial->szName, (*material_itr++).c_str(), 256);
-        }
-        m_materials.push_back(pMaterial);
-      }
-    }
-
-    for (int iMaterial = 0; iMaterial < m_materials.size(); iMaterial++) {
-      KRMesh::pack_material* pNewMaterial = m_materials[iMaterial];
-      if (pNewMaterial->vertex_count > 0) {
-        mi.material_names.push_back(std::string(pNewMaterial->szName));
-        mi.submesh_starts.push_back(pNewMaterial->start_vertex);
-        mi.submesh_lengths.push_back(pNewMaterial->vertex_count);
-      }
-      delete pNewMaterial;
+      pd.format = Topology::Triangles;
+      pd.materialName = *material_itr++;
+      md.primitives.push_back(pd);
+      iMaterialStartVertex = iVertex;
     }
 
     // TODO: Bones not yet supported for OBJ
-//        std::vector<std::string> bone_names;
-//        std::vector<Matrix4> bone_bind_poses;
-//        std::vector<std::vector<int> > bone_indexes;
-//        std::vector<std::vector<float> > bone_weights;
-//        
-//        std::vector<__uint16_t> vertex_indexes;
-//        std::vector<std::pair<int, int> > vertex_index_bases;
-
-    mi.format = Topology::Triangles;
-    new_mesh->LoadData(mi, true, false);
+    
+    new_mesh->LoadDesc(md, true, false);
   }
 
   if (pFaces) {

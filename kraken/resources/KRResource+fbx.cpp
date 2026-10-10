@@ -1275,7 +1275,7 @@ void LoadMaterial(KRContext& context, FbxSurfaceMaterial* pMaterial)
 
 void LoadMesh(KRContext& context, FbxScene* pFbxScene, FbxGeometryConverter* pGeometryConverter, FbxMesh* pMesh)
 {
-  KRMesh::mesh_info mi;
+  KRMesh::MeshDesc mi;
   mi.format = Topology::Triangles;
 
   typedef struct
@@ -1554,7 +1554,7 @@ void LoadMesh(KRContext& context, FbxScene* pFbxScene, FbxGeometryConverter* pGe
   delete control_point_weights;
 
   KRMesh* new_mesh = new KRMesh(context, pMesh->GetNode()->GetName());
-  new_mesh->LoadData(mi, true, need_tangents);
+  new_mesh->LoadDesc(mi, true, need_tangents);
 
   context.getMeshManager()->addMesh(new_mesh);
 }

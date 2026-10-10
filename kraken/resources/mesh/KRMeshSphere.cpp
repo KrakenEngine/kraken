@@ -37,7 +37,7 @@ KRMeshSphere::KRMeshSphere(KRContext& context) : KRMesh(context, "__sphere")
 {
   m_constant = true;
 
-  KRMesh::mesh_info mi;
+  KRMesh::PrimitiveDesc primitive{};
 
   // Create a triangular facet approximation to a sphere
   // Based on algorithm from Paul Bourke: http://paulbourke.net/miscellaneous/sphere_cylinder/
@@ -103,23 +103,23 @@ KRMeshSphere::KRMeshSphere(KRContext& context) : KRMesh(context, "__sphere")
   }
 
   for (int facet_index = 0; facet_index < facet_count; facet_index++) {
-    mi.vertices.push_back(f[facet_index][0]);
-    mi.vertices.push_back(f[facet_index][1]);
-    mi.vertices.push_back(f[facet_index][2]);
+    primitive.vertices.push_back(f[facet_index][0]);
+    primitive.vertices.push_back(f[facet_index][1]);
+    primitive.vertices.push_back(f[facet_index][2]);
   }
 
-  mi.submesh_starts.push_back(0);
-  mi.submesh_lengths.push_back((int)mi.vertices.size());
-  mi.material_names.push_back("__white");
-
-  mi.format = Topology::Triangles;
+  primitive.materialName = "__white";
+  primitive.format = Topology::Triangles;
 
   // Generate normals pointing away from center of sphere.
-  for (int vertex_index = 0; vertex_index < mi.vertices.size(); vertex_index++) {
-    mi.normals.push_back(Vector3::Normalize(mi.vertices[vertex_index] - Vector3::Zero()));
+  for (int vertex_index = 0; vertex_index < primitive.vertices.size(); vertex_index++) {
+    primitive.normals.push_back(Vector3::Normalize(primitive.vertices[vertex_index] - Vector3::Zero()));
   }
 
-  LoadData(mi, true, true);
+  MeshDesc md{};
+  md.primitives.push_back(primitive);
+
+  LoadDesc(md, true, true);
 }
 
 KRMeshSphere::~KRMeshSphere()

@@ -37,25 +37,24 @@ KRMeshQuad::KRMeshQuad(KRContext& context) : KRMesh(context, "__quad")
 {
   m_constant = true;
 
-  KRMesh::mesh_info mi;
+  KRMesh::MeshDesc md{};
+  KRMesh::PrimitiveDesc pd{};
+  pd.vertices.push_back(Vector3::Create(-1.0f, -1.0f, 0.0f));
+  pd.vertices.push_back(Vector3::Create(1.0f, -1.0f, 0.0f));
+  pd.vertices.push_back(Vector3::Create(-1.0f, 1.0f, 0.0f));
+  pd.vertices.push_back(Vector3::Create(1.0f, 1.0f, 0.0f));
 
-  mi.vertices.push_back(Vector3::Create(-1.0f, -1.0f, 0.0f));
-  mi.vertices.push_back(Vector3::Create(1.0f, -1.0f, 0.0f));
-  mi.vertices.push_back(Vector3::Create(-1.0f, 1.0f, 0.0f));
-  mi.vertices.push_back(Vector3::Create(1.0f, 1.0f, 0.0f));
+  pd.texcoord[0].push_back(Vector2::Create(0.0f, 0.0f));
+  pd.texcoord[0].push_back(Vector2::Create(1.0f, 0.0f));
+  pd.texcoord[0].push_back(Vector2::Create(0.0f, 1.0f));
+  pd.texcoord[0].push_back(Vector2::Create(1.0f, 1.0f));
 
-  mi.texcoord[0].push_back(Vector2::Create(0.0f, 0.0f));
-  mi.texcoord[0].push_back(Vector2::Create(1.0f, 0.0f));
-  mi.texcoord[0].push_back(Vector2::Create(0.0f, 1.0f));
-  mi.texcoord[0].push_back(Vector2::Create(1.0f, 1.0f));
+  pd.materialName = "__white";
+  pd.format = Topology::TriangleStrips;
 
+  md.primitives.push_back(pd);
 
-  mi.submesh_starts.push_back(0);
-  mi.submesh_lengths.push_back((int)mi.vertices.size());
-  mi.material_names.push_back("__white");
-  mi.format = Topology::TriangleStrips;
-
-  LoadData(mi, true, true);
+  LoadDesc(md, true, true);
 }
 
 KRMeshQuad::~KRMeshQuad()

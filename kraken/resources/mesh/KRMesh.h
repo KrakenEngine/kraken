@@ -76,28 +76,33 @@ public:
 
   struct PrimitiveInfo
   {
+    char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
     VertexBufferLayout layout;
+    int64_t vertexOffset;
     int64_t vertexCount;
+    int64_t indexOffset;
     int64_t indexCount;
   };
 
-  struct mesh_info
+  struct PrimitiveDesc
   {
+    std::string materialName;
     Topology format;
     std::vector<hydra::Vector3> vertices;
-    std::vector<__uint16_t> vertex_indexes;
-    std::vector<std::pair<int, int> > vertex_index_bases;
+    std::vector<int> indexes;
     std::vector<hydra::Vector2> texcoord[8];
     std::vector<hydra::Vector4> color[8];
     std::vector<hydra::Vector3> normals;
     std::vector<hydra::Vector3> tangents;
-    std::vector<int> submesh_starts;
-    std::vector<int> submesh_lengths;
-    std::vector<std::string> material_names;
-    std::vector<std::string> bone_names;
-    std::vector<std::vector<int> > bone_indexes;
-    std::vector<hydra::Matrix4> bone_bind_poses;
     std::vector<std::vector<float> > bone_weights;
+    std::vector<std::vector<int> > bone_indexes;
+  };
+
+  struct MeshDesc
+  {
+    std::vector<PrimitiveDesc> primitives;
+    std::vector<std::string> bone_names;
+    std::vector<hydra::Matrix4> bone_bind_poses;
   };
 
   void render(KRNode::RenderInfo& ri, const std::string& object_name, const hydra::Matrix4& matModel, KRTexture* pLightMap, const std::vector<KRBone*>& bones, float lod_coverage = 0.0f);
@@ -108,7 +113,7 @@ public:
   virtual bool save(const std::string& path) override;
   virtual bool save(mimir::Block& data) override;
 
-  void LoadData(const mesh_info& mi, bool calculate_normals, bool calculate_tangents);
+  void LoadDesc(const MeshDesc& mi, bool calculate_normals, bool calculate_tangents);
   void loadPack(mimir::Block* data);
 
   void convertToIndexed();
@@ -116,53 +121,10 @@ public:
   void optimizeIndexes();
 
   void renderNoMaterials(VkCommandBuffer& commandBuffer, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
-  bool isReady() const;
 
   float getMaxDimension();
 
   const hydra::AABB& getExtents() const;
-
-  class Submesh
-  {
-  public:
-    Submesh()
-    {};
-    ~Submesh()
-    {
-      vbo_data_blocks.clear();
-      for (auto itr = vertex_data_blocks.begin(); itr != vertex_data_blocks.end(); itr++) {
-        delete (*itr);
-      }
-      for (auto itr = index_data_blocks.begin(); itr != index_data_blocks.end(); itr++) {
-        delete (*itr);
-      }
-    };
-
-    int start_vertex;
-    int vertex_count;
-    char szMaterialName[KRENGINE_MAX_NAME_LENGTH];
-    vector<mimir::Block*> vertex_data_blocks;
-    vector<mimir::Block*> index_data_blocks;
-    // KRMeshManager depends on the address of KRVBOData's being constant
-    // after allocation, enforced by deleted copy constructors.
-    // As std::vector requires copy constuctors, we wrap these in shared_ptr.
-    vector<shared_ptr<KRMeshManager::KRVBOData>> vbo_data_blocks;
-  };
-
-  typedef struct
-  {
-    union
-    {
-      struct
-      { // For Indexed triangles / strips
-        uint16_t index_group;
-        uint16_t index_group_offset;
-      };
-      int32_t start_vertex; // For non-indexed trigangles / strips
-    };
-    int32_t vertex_count;
-    char szName[KRENGINE_MAX_NAME_LENGTH];
-  } pack_material;
 
   typedef struct
   {
@@ -182,46 +144,44 @@ public:
   const VertexBufferLayout* getLayout(int submesh) const;
 
   int getVertexIndex(int submesh, int index) const;
-  hydra::Vector3 getVertexPosition(int index) const;
-  hydra::Vector3 getVertexNormal(int index) const;
-  hydra::Vector3 getVertexTangent(int index) const;
-  hydra::Vector2 getVertexTexCoord(int set, int index) const;
-  hydra::Vector4 getVertexColor(int set, int index) const;
+  void setVertexIndex(int submesh, int index, int indexVal);
+  hydra::Vector3 getVertexPosition(int submesh, int index) const;
+  hydra::Vector3 getVertexNormal(int submesh, int index) const;
+  hydra::Vector3 getVertexTangent(int submesh, int index) const;
+  hydra::Vector2 getVertexTexCoord(int submesh, int set, int index) const;
+  hydra::Vector4 getVertexColor(int submesh, int set, int index) const;
 
   static int getAttributeIndex(const PrimitiveInfo& primitive, VertexAttribute attribute, int index);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, float val);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector2 val);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector3 val);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector4 val);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix2 val);
-  void setVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix4 val);
-  void getVertexAttribute(int vertexIndex, int attributeIndex, float* val) const;
-  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector2* val) const;
-  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector3* val) const;
-  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Vector4* val) const;
-  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix2* val) const;
-  void getVertexAttribute(int vertexIndex, int attributeIndex, hydra::Matrix4* val) const;
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, float val);
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector2 val);
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector3 val);
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector4 val);
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Matrix2 val);
+  void setVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Matrix4 val);
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, float* val) const;
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector2* val) const;
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector3* val) const;
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Vector4* val) const;
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Matrix2* val) const;
+  void getVertexAttribute(int submesh, int vertexIndex, int attributeIndex, hydra::Matrix4* val) const;
 
-  void setVertexPosition(int index, const hydra::Vector3& v);
-  void setVertexNormal(int index, const hydra::Vector3& v);
-  void setVertexTangent(int index, const hydra::Vector3& v);
-  void setVertexTexCoord(int index, int set, const hydra::Vector2& v);
-  void setVertexColor(int index, int set, const hydra::Vector4& v);
+  void setVertexPosition(int submesh, int index, const hydra::Vector3& v);
+  void setVertexNormal(int submesh, int index, const hydra::Vector3& v);
+  void setVertexTangent(int submesh, int index, const hydra::Vector3& v);
+  void setVertexTexCoord(int submesh, int index, int set, const hydra::Vector2& v);
+  void setVertexColor(int submesh, int index, int set, const hydra::Vector4& v);
 
-  int getBoneIndex(int index, int weight_index) const;
-  void setBoneIndex(int index, int weight_index, int bone_index);
+  int getBoneIndex(int submesh, int index, int weight_index) const;
+  void setBoneIndex(int submesh, int index, int weight_index, int bone_index);
 
-  float getBoneWeight(int index, int weight_index) const;
-  void setBoneWeight(int index, int weight_index, float weight);
+  float getBoneWeight(int submesh, int index, int weight_index) const;
+  void setBoneWeight(int submesh, int index, int weight_index, float weight);
 
   static VkFormat AttributeVulkanFormat(const VertexAttributeInfo& attribute);
 
   int getBoneCount();
   char* getBoneName(int bone_index);
   hydra::Matrix4 getBoneBindPose(int bone_index);
-
-
-  Topology getTopology() const;
 
   bool lineCast(const hydra::Vector3& v0, const hydra::Vector3& v1, hydra::HitInfo& hitinfo) const;
   bool rayCast(const hydra::Vector3& v0, const hydra::Vector3& dir, hydra::HitInfo& hitinfo) const;
@@ -234,10 +194,19 @@ protected:
 
 private:
   mimir::Block* m_pData;
-  mimir::Block* m_pMetaData;
-  mimir::Block* m_pIndexBaseData;
 
-  void getSubmeshes();
+  // Sub-blocks
+  mimir::Block* m_pMetaData;
+  vector<mimir::Block*> m_vertexBlocks;
+  vector<mimir::Block*> m_indexBlocks;
+
+  // KRMeshManager depends on the address of KRVBOData's being constant
+  // after allocation, enforced by deleted copy constructors.
+  // As std::vector requires copy constuctors, we wrap these in shared_ptr.
+  vector<shared_ptr<KRMeshManager::KRVBOData>> vbo_data_blocks;
+
+  void initSubBlocks();
+  void getPrimitives();
   void getMaterials();
   void renderSubmesh(VkCommandBuffer& commandBuffer, int iSubmesh, const KRRenderPass* renderPass, const std::string& object_name, const std::string& material_name, float lodCoverage);
 
@@ -250,41 +219,23 @@ private:
 
   bool m_hasTransparency;
 
-  hydra::AABB m_extents;
-
   typedef struct
   {
     char szTag[16];
-    PrimitiveInfo primitive;
     int32_t submesh_count;
     int32_t bone_count;
     hydra::AABB extents; // Axis aligned bounding box, in model's coordinate space
-    int32_t index_base_count;
-    unsigned char reserved[456 - sizeof(PrimitiveInfo)]; // Pad out to 512 bytes
+    unsigned char reserved[464]; // Pad out to 512 bytes
   } pack_header;
 
   static_assert(sizeof(pack_header) == 512);
-  
-  vector<Submesh> m_submeshes;
 
   void setName(const std::string name);
 
-  pack_material* getSubmesh(int mesh_index) const;
-  unsigned char* getVertexData() const;
-  size_t getVertexDataOffset() const;
-  unsigned char* getVertexData(int index) const;
-  __uint16_t* getIndexData() const;
-  size_t getIndexDataOffset() const;
-  __uint32_t* getIndexBaseData() const;
+  std::byte* getVertexData(int submesh, int index) const;
   pack_header* getHeader() const;
+  PrimitiveInfo* getPrimitive(int index) const;
   pack_bone* getBone(int index);
 
-
-  void getIndexedRange(int index_group, int& start_index_offset, int& start_vertex_offset, int& index_count, int& vertex_count) const;
-
   void releaseData(bool includeMainDatablock = true);
-
-  void createDataBlocks(KRMeshManager::KRVBOData::vbo_type t);
-
-
 };
